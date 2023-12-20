@@ -22,7 +22,8 @@ class AdmVentanaModuloSeeder extends Seeder
         $serv = Adm_Modulo::where('nombre', 'servicios')->first();        
         $config = Adm_Modulo::where('nombre', 'parametros')->first();        
         $prod = Adm_Modulo::where('nombre', 'productos')->first();
-        $gestprec = Adm_Modulo::where('nombre', 'gestion precios')->first();        
+        $gestprec = Adm_Modulo::where('nombre', 'gestion precios')->first();
+        $inv = Adm_Modulo::where('nombre', 'inventario')->first();          
 
         
         
@@ -78,6 +79,10 @@ class AdmVentanaModuloSeeder extends Seeder
         //gestion de productos 800
         DB::table('adm__ventana_modulos')->insert(['codventana'=>'801','idmodulo'=>$gestprec->id,'nombre'=>'Costo Compra','template'=>'precio-venta-component']);
         
+        //inventario 900
+        DB::table('adm__ventana_modulos')->insert(['codventana'=>'901','idmodulo'=>$inv->id,'nombre'=>'Ajustes Negativos','template'=>'ajuste-negativo-component']);
+        DB::table('adm__ventana_modulos')->insert(['codventana'=>'902','idmodulo'=>$inv->id,'nombre'=>'Ajustes Positivos','template'=>'ajuste-positivo-component']);
+ 
         
     }
 }

@@ -40,6 +40,9 @@ use App\Http\Controllers\SerPrestacionController;
 use App\Http\Controllers\SerVentaController;
 use App\Http\Controllers\SerVentaMaestroController;
 use App\Http\Controllers\TdaIngresoProductoController;
+use App\Http\Controllers\InvAjusteNegativoController;
+use App\Http\Controllers\InvAjustePositivoController;
+
 use App\Models\Alm_IngresoProducto;
 use App\Models\Tda_Tienda;
 
@@ -379,6 +382,26 @@ Route::group(['middleware'=>'auth'],function(){
     Route::post('/gestionprecioventa/actualizar-registrar', [GesPreVentaController::class,'update_store']);
     Route::get('/gestionprecioventa/verificarProductoConPrecio', [GesPreVentaController::class,'verificarProductoPrecio']);
 
+      /////////////////////////////////////////////Inventario///////////////////////////////////////////////////
+    
+      Route::get('/ajustes-negativo',[InvAjusteNegativoController::class,'index']);
+      Route::get('/ajustes-negativo/listarTipo',[InvAjusteNegativoController::class,'listarTipo']);
+      Route::get('/ajustes-negativo/listarProductoLineaIngreso',[InvAjusteNegativoController::class,'listarProductoLineaIngreso']);
+      Route::post('/ajustes-negativo/registrar', [InvAjusteNegativoController::class,'store']);
+      Route::put('/ajustes-negativo/actualizar', [InvAjusteNegativoController::class,'update']);
+      Route::put('/ajustes-negativo/desactivar', [InvAjusteNegativoController::class,'desactivar']);
+      Route::put('/ajustes-negativo/activar', [InvAjusteNegativoController::class,'activar']);
+      Route::get('/ajustes-negativo/listarSucursal', [InvAjusteNegativoController::class,'listarSucursal']); 
+      Route::get('/ajustes-negativo/retornarProductosIngreso', [InvAjusteNegativoController::class,'retornarProductosIngreso']); 
+      
+      Route::get('/ajustes-positivo',[InvAjustePositivoController::class,'index']);
+      Route::get('/ajustes-positivo/listarTipo',[InvAjustePositivoController::class,'listarTipo']);
+      Route::get('/ajustes-positivo/listarProductoLineaIngreso',[InvAjustePositivoController::class,'listarProductoLineaIngreso']);
+      Route::post('/ajustes-positivo/registrar', [InvAjustePositivoController::class,'store']);
+      Route::put('/ajustes-positivo/actualizar', [InvAjustePositivoController::class,'update']);
+      Route::put('/ajustes-positivo/desactivar', [InvAjustePositivoController::class,'desactivar']);
+      Route::put('/ajustes-positivo/activar', [InvAjustePositivoController::class,'activar']);
+      
 
 });
     
