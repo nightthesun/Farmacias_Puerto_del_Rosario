@@ -144,19 +144,19 @@
                                         <option v-bind:value="0" disabled>Seleccionar...</option>
                                         <option v-for="ProductoLineaIngreso in arrayProductoLineaIngreso" :key="ProductoLineaIngreso.id_ingreso" v-bind:value="ProductoLineaIngreso.id_ingreso" v-text="ProductoLineaIngreso.nombre+'-D1:'+(ProductoLineaIngreso.cantidad_dispenser_p === null?'': ProductoLineaIngreso.cantidad_dispenser_p)+'-D2:'+(ProductoLineaIngreso.cantidad_dispenser_s === null?'': ProductoLineaIngreso.cantidad_dispenser_s)+'-D3:'+(ProductoLineaIngreso.cantidad_dispenser_t === null?'': ProductoLineaIngreso.cantidad_dispenser_t)+'-'+ProductoLineaIngreso.nombre_farmaceutica_1+'-'+ProductoLineaIngreso.nombre_linea+'-LOTE:'+ProductoLineaIngreso.lote+'-FI:'+ProductoLineaIngreso.fecha_ingreso+'-FV:'+(ProductoLineaIngreso.fecha_vencimiento === null?'sin registro':ProductoLineaIngreso.fecha_vencimiento)+'-Stock:'+ProductoLineaIngreso.stock_ingreso"></option>
                                     </select>
-                                    <button class="btn btn-primary" type="button" id="button-addon1" @click="abrirModal('bucarProductoIngreso');ListarretornarProductosIngreso();"><i class="fa fa-search" ></i></button>
-                                
-                 
+                                    <button class="btn btn-primary"  v-if="tipoAccion==1" type="button" id="button-addon1" @click="abrirModal('bucarProductoIngreso');ListarretornarProductosIngreso();"><i class="fa fa-search" ></i></button>
+                                    <button class="btn btn-danger"  v-if="tipoAccion==2" type="button" id="button-addon1" @click="abrirModal('bucarProductoIngreso2');ListarretornarProductosIngreso();"><i class="fa fa-search" ></i></button>
+                                    {{tipoAccion}}
                             </div>
-                            <input type="text" v-model="id_codigo" hidden >
-                                    <input type="number"  v-model="cantidadProductoLineaIngreso" hidden>
-                                    <input type="text"  v-model="codigo" hidden>
-                                    <input type="text"  v-model="linea" hidden>
-                                    <input type="text"  v-model="producto" hidden>
-                                    <input type="text"  v-model="fecha" hidden>
-                                    <input type="text"  v-model="id_sucursal" hidden>
-                                    <input type="text" v-model="id_producto" hidden>
-                                    <input type="text" v-model="id_ingreso" hidden>
+                            <input type="text" v-model="id_codigo"  >
+                                    <input type="number"  v-model="cantidadProductoLineaIngreso" >
+                                    <input type="text"  v-model="codigo" >
+                                    <input type="text"  v-model="linea" >
+                                    <input type="text"  v-model="producto" >
+                                    <input type="text"  v-model="fecha" >
+                                    <input type="text"  v-model="id_sucursal" >
+                                    <input type="text" v-model="id_producto" >
+                                    <input type="text" v-model="id_ingreso" >
                                 </div>
                                 
                                    <div class="form-group row">
@@ -213,12 +213,14 @@
         <!--fin del modal-->
  <!-- Modal para la busqueda de producto por lote -->
  <div class="modal fade" id="staticBackdrop" tabindex="-2" aria-labelledby="exampleModalLabel" aria-hidden="true">
+   
             <div class="modal-dialog modal-dialog-scrollable modal-primary">
                 <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="exampleModalLabel">Busqueda de Productos</h5>
                     <button type="button" @click="cerrarModal('staticBackdrop')" class="btn-close" data-bs-dismiss="modal" aria-label="Close">X</button>
                 </div>
+                
                 <div class="modal-body">
                     <form>
                         <div class="mb-3">
@@ -236,13 +238,16 @@
                                             <th scope="col">Codigo Internacional</th>
                                        </tr>
                                     </thead>
-                                    <tbody>  
-                                        <tr v-for="RetornarProductosIngreso  in arrayRetornarProductosIngreso" :key="RetornarProductosIngreso.id_ingreso" @click="abrirModal('inputModal',RetornarProductosIngreso);ListarretornarProductosIngreso();" >
-                                        <td v-text="RetornarProductosIngreso.id_ingreso"></td>
+                                
+                                    <tbody> 
+                                        <tr v-for="RetornarProductosIngreso  in arrayRetornarProductosIngreso" :key="RetornarProductosIngreso.id_ingreso" @click="abrirModal('inputModal2',RetornarProductosIngreso);ListarretornarProductosIngreso();" >
+                                            <td v-text="RetornarProductosIngreso.id_ingreso"></td>
                                         <td v-text="RetornarProductosIngreso.nombre+' '+RetornarProductosIngreso.codigo_producto+' '+RetornarProductosIngreso.nombre_linea+' '+RetornarProductosIngreso.nombre_dispenser_1"></td>
                                         <td v-text="RetornarProductosIngreso.envase"></td>
                                         <td v-text="RetornarProductosIngreso.codigointernacional"></td>
                                       </tr>
+                                      
+                                        
                                     </tbody>
                             </table>
                         </div>
@@ -481,11 +486,13 @@
 
             ListarretornarProductosIngreso(){
                 let me=this;
-               
+                console.log("sdsadsa--"+me.id_codigo +"acion:"+me.tipoAccion);
                 if(me.tipoAccion==1){
                     var url='/ajustes-negativo/retornarProductosIngreso?respuesta0=' +this.sucursalSeleccionada + '&respuesta1=' +me.inputTextBuscarProductoIngreso;
                  }
+                 
                  if (me.tipoAccion==2) {
+                    
                     var url='/ajustes-negativo/retornarProductosIngreso?respuesta0=' +me.id_codigo+ '&respuesta1=' +me.inputTextBuscarProductoIngres;
                  
                  }
@@ -514,7 +521,7 @@
         abrirModal(accion,data= []){
             let me=this;
             let respuesta=me.arraySucursal.find(element=>element.codigo==me.sucursalSeleccionada);
-            console.log(data.id+" "+data.id_ingreso+" "+data.cod);
+            console.log("accion:"+me.tipoAccion);
             switch(accion){
                 
                     case 'registrar':
@@ -564,6 +571,7 @@
                         
                        
                         me.classModal.openModal('registrar');
+                       
                             break;
                         }
                     case 'bucarProductoIngreso':
@@ -573,12 +581,44 @@
                     me.inputTextBuscarProductoIngreso='',
                     me.arrayRetornarProductosIngreso='',
                         me.classModal.openModal('staticBackdrop');
+                        break;
+                    }
+                    case 'bucarProductoIngreso2':
+                    {
+
+                        me.tipoAccion=2; 
+                    me.inputTextBuscarProductoIngreso='',
+                    me.arrayRetornarProductosIngreso='',
+                        me.classModal.openModal('staticBackdrop');
+                        break;
                     }
                     
                     case 'inputModal':{
-                        me.id_codigo=me.sucursalSeleccionada;
+                      //  me.id_codigo=me.sucursalSeleccionada;
                        // me.id_codigo=data.cod; 
                             me.tipoAccion=1;
+                        me.tituloModal='Rejistro para Ajuste de negativos ';
+                        me. ProductoLineaIngresoSeleccionado=data.id_ingreso===null?0:data.id_ingreso;
+                        
+                        me.cantidadProductoLineaIngreso=''; 
+                        me.TiposSeleccionado=0; 
+                    
+                        me.codigo='';
+                        me.linea='';
+                        me.producto='',
+                        me.cantidadS='';
+                        me.descripcion='';
+                        me.fecha='';
+                        me.id_sucursal='';
+                        me.id_producto='';
+                        me.id_ingreso='';
+                        me.classModal.openModal('registrar');
+                        break;
+                    }
+                    case 'inputModal2':{
+                      //  me.id_codigo=me.sucursalSeleccionada;
+                       // me.id_codigo=data.cod; 
+                            me.tipoAccion=2;
                         me.tituloModal='Rejistro para Ajuste de negativos ';
                         me. ProductoLineaIngresoSeleccionado=data.id_ingreso===null?0:data.id_ingreso;
                         
@@ -627,7 +667,7 @@
                 me.TiposSeleccionado=0; 
                 me.cantidadProductoLineaIngreso='';
                 me.tipoAccion=1;
-                me.id_codigo='';
+           
                         me.codigo='';
                         me.linea='';
                         me.producto='',

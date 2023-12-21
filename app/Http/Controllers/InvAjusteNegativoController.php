@@ -524,12 +524,16 @@ foreach ($result as $key=>$sucursal) {
     public function retornarProductosIngreso(Request $request)
     {
         $cod = $request->query('respuesta0');
+      
         $buscar = $request->query('respuesta1');
-        $buscararray=array();
+    
+        echo(!empty($buscar));
        
-        if(!empty($buscar))
+       
+        if(!empty($request->respuesta1))
         {
-            $buscararray = explode(" ",$buscar);
+           
+            $buscararray = explode(" ",$request->respuesta1);
             $valor=sizeof($buscararray);
             if($valor > 0){
                 $sqls='';
@@ -555,6 +559,7 @@ foreach ($result as $key=>$sucursal) {
                     }
     
                 }
+                
                 $productos = DB::table('prod__productos as pp')
                 ->join('alm__ingreso_producto as ai', 'pp.id', '=', 'ai.id_prod_producto')
                 ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
@@ -649,7 +654,7 @@ foreach ($result as $key=>$sucursal) {
       
             return $result;
         }else {
-
+         
             $productos = DB::table('prod__productos as pp')
             ->join('alm__ingreso_producto as ai', 'pp.id', '=', 'ai.id_prod_producto')
             ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
@@ -737,7 +742,7 @@ foreach ($result as $key=>$sucursal) {
             );
       
         $result = $productos->unionAll($tiendas)->get();
-     
+
         return $result;
         }
         
