@@ -148,15 +148,15 @@
                                 
                  
                             </div>
-                            <input type="text" v-model="id_codigo" >
-                                    <input type="number"  v-model="cantidadProductoLineaIngreso">
-                                    <input type="text"  v-model="codigo">
-                                    <input type="text"  v-model="linea">
-                                    <input type="text"  v-model="producto">
-                                    <input type="text"  v-model="fecha">
-                                    <input type="text"  v-model="id_sucursal">
-                                    <input type="text" v-model="id_producto">
-                                    <input type="text" v-model="id_ingreso">
+                            <input type="text" v-model="id_codigo" hidden >
+                                    <input type="number"  v-model="cantidadProductoLineaIngreso" hidden>
+                                    <input type="text"  v-model="codigo" hidden>
+                                    <input type="text"  v-model="linea" hidden>
+                                    <input type="text"  v-model="producto" hidden>
+                                    <input type="text"  v-model="fecha" hidden>
+                                    <input type="text"  v-model="id_sucursal" hidden>
+                                    <input type="text" v-model="id_producto" hidden>
+                                    <input type="text" v-model="id_ingreso" hidden>
                                 </div>
                                 
                                    <div class="form-group row">
@@ -250,7 +250,7 @@
                 </div>
                 <div class="modal-footer">
                     
-                 
+                 <h1>{{tipoAccion}}</h1> 
                     <button type="button" v-if="tipoAccion==1" class="btn btn-secondary" data-bs-dismiss="modal" @click="cerrarModal('staticBackdrop');abrirModal('registrar');ProductoLineaIngreso();" >Cerrar</button>
                     <button type="button" v-if="tipoAccion==2" class="btn btn-secondary" data-bs-dismiss="modal" @click="cerrarModal('staticBackdrop');abrirModal('actualizar',AjusteNegativos);ProductoLineaIngreso();">Cerraaaa</button>
                     
@@ -481,14 +481,15 @@
 
             ListarretornarProductosIngreso(){
                 let me=this;
+               
                 if(me.tipoAccion==1){
                     var url='/ajustes-negativo/retornarProductosIngreso?respuesta0=' +this.sucursalSeleccionada + '&respuesta1=' +me.inputTextBuscarProductoIngreso;
                  }
                  if (me.tipoAccion==2) {
-                    var url='/ajustes-negativo/retornarProductosIngreso?respuesta0=' +this.id_codigo+ '&respuesta1=' +me.inputTextBuscarProductoIngres;
+                    var url='/ajustes-negativo/retornarProductosIngreso?respuesta0=' +me.id_codigo+ '&respuesta1=' +me.inputTextBuscarProductoIngres;
                  
                  }
-                
+                console.log(url);
                 axios.get(url).then(function(response){
                     var respuesta=response.data;
                     
@@ -568,11 +569,12 @@
                     case 'bucarProductoIngreso':
                     {
 
-                        
+                        me.tipoAccion=1; 
                     me.inputTextBuscarProductoIngreso='',
                     me.arrayRetornarProductosIngreso='',
                         me.classModal.openModal('staticBackdrop');
                     }
+                    
                     case 'inputModal':{
                         me.id_codigo=me.sucursalSeleccionada;
                        // me.id_codigo=data.cod; 

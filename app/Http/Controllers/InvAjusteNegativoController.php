@@ -197,7 +197,7 @@ class InvAjusteNegativoController extends Controller
             $ajusteNegativo->cod=$codigo;
             $ajusteNegativo->id_ingreso=$id;
             $update=Alm_IngresoProducto::find($id);
-            $update->cantidad=$request->cantidad;
+         
             $update->stock_ingreso=$request->cantidad;
             $update->save();
            $ajusteNegativo->save();
@@ -220,7 +220,7 @@ class InvAjusteNegativoController extends Controller
                 $ajusteNegativo->cod=$codigo;
                 $ajusteNegativo->id_ingreso=$id;
                 $update=Tda_IngresoProducto::find($id);
-                $update->cantidad=$request->cantidad;
+            
                 $update->stock_ingreso=$request->cantidad;
                 $update->save();
                $ajusteNegativo->save();

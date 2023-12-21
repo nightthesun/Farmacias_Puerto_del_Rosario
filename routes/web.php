@@ -401,6 +401,8 @@ Route::group(['middleware'=>'auth'],function(){
       Route::put('/ajustes-positivo/actualizar', [InvAjustePositivoController::class,'update']);
       Route::put('/ajustes-positivo/desactivar', [InvAjustePositivoController::class,'desactivar']);
       Route::put('/ajustes-positivo/activar', [InvAjustePositivoController::class,'activar']);
+      Route::get('/ajustes-positivo/listarSucursal', [InvAjustePositivoController::class,'listarSucursal']); 
+      Route::get('/ajustes-positivo/retornarProductosIngreso', [InvAjustePositivoController::class,'retornarProductosIngreso']); 
       
 
 });
