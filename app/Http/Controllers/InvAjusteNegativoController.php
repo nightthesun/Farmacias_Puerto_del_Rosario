@@ -198,7 +198,7 @@ class InvAjusteNegativoController extends Controller
             $ajusteNegativo->id_ingreso=$id;
             $update=Alm_IngresoProducto::find($id);
          
-            $update->stock_ingreso=$request->cantidad;
+            $update->stock_ingreso=$request->cantidad_producto;
             $update->save();
            $ajusteNegativo->save();
 
@@ -221,7 +221,7 @@ class InvAjusteNegativoController extends Controller
                 $ajusteNegativo->id_ingreso=$id;
                 $update=Tda_IngresoProducto::find($id);
             
-                $update->stock_ingreso=$request->cantidad;
+                $update->stock_ingreso=$request->cantidad_producto;
                 $update->save();
                $ajusteNegativo->save();
             } else {
@@ -469,7 +469,7 @@ foreach ($result as $key=>$sucursal) {
             $updateAjusteNegativo->id_ingreso=$id_i;
             $update=Alm_IngresoProducto::find($id_i);
            
-            $update->stock_ingreso=$request->cantidad;
+            $update->stock_ingreso=$request->cantidad_producto;
            $update->save();
            $updateAjusteNegativo->save();
            
@@ -492,7 +492,7 @@ foreach ($result as $key=>$sucursal) {
             $updateAjusteNegativo->id_ingreso=$id_i;
                 $update=Tda_IngresoProducto::find($id_i);
              
-                $update->stock_ingreso=$request->cantidad;
+                $update->stock_ingreso=$request->cantidad_producto;
                 $update->save();
                $updateAjusteNegativo->save();
             } else {

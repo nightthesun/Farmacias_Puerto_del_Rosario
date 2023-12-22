@@ -46,7 +46,7 @@
                         <thead>
                             <tr>
                                 <th>Opciones</th>
-                                <th>Usuario</th>
+                               
                                 <th>Codigó</th>
                                 <th>Linea</th>
                                 <th>Producto</th>
@@ -54,6 +54,7 @@
                                 <th>Tipo</th>
                                 <th>Descripción</th>
                                 <th>Fecha</th>
+                                <th>Usuario</th>
                                 <th>Estado</th>
                             </tr>
                         </thead>
@@ -74,15 +75,15 @@
                                  </button>
                               
                              </td>
-                             <td v-text="AjusteNegativos.nombre_usuario "></td>
+                             
                              <td v-text="AjusteNegativos.codigo"></td>
                              <td v-text="AjusteNegativos.linea"></td>
                              <td v-text="AjusteNegativos.nombreProd"></td>
                              <td v-text="AjusteNegativos.cantidad"></td>
                              <td v-text="AjusteNegativos.nombreTipo"></td>
                              <td v-text="AjusteNegativos.descripcion"></td>
-                             <td v-text="AjusteNegativos.fecha"></td>
-                        
+                             <td v-text="AjusteNegativos.fecha_creacion"></td>
+                        <td v-text="AjusteNegativos.nombre_usuario "></td>
                              <td>
                                  <div v-if="AjusteNegativos.activo==1">
                                      <span class="badge badge-success">Activo</span>
@@ -493,7 +494,7 @@
                  
                  if (me.tipoAccion==2) {
                     
-                    var url='/ajustes-negativo/retornarProductosIngreso?respuesta0=' +me.id_codigo+ '&respuesta1=' +me.inputTextBuscarProductoIngres;
+                    var url='/ajustes-negativo/retornarProductosIngreso?respuesta0=' +this.id_codigo+ '&respuesta1=' +me.inputTextBuscarProductoIngres;
                  
                  }
                 console.log(url);
@@ -557,7 +558,7 @@
                             me.cantidadProductoLineaIngreso=data.cantidad;
                         me.linea=data.linea;
                         me.producto=data.nombreProd;
-                        me.cantidadS=0;
+                        me.cantidadS=data.catidad;
                         me.descripcion=data.descripcion;
                         me.fecha=data.fecha;
                        me.idAjusteNegativos=data.id;
@@ -645,7 +646,7 @@
                             me.cantidadProductoLineaIngreso=data.cantidad;
                         me.linea=data.linea;
                         me.producto=data.nombreProd;
-                        me.cantidadS=0;
+                        me.cantidadS=data.catidad;
                         me.descripcion=data.descripcion;
                         me.fecha=data.fecha;
                        me.idAjusteNegativos=data.id;
@@ -705,7 +706,8 @@
                    'codigo':me.codigo,
                    'linea':me.linea,
                    'producto':me.producto,
-                   'cantidad':suma,
+                   'cantidad':me.cantidadS,
+                   'cantidad_producto':suma,
                    'descripcion':me.descripcion,
                    'fecha':me.fecha,
                    'activo':1,
@@ -742,7 +744,8 @@
                   'codigo':me.codigo,
                    'linea':me.linea,
                   'producto':me.producto,
-                  'cantidad':suma,
+                  'cantidad':me.cantidadS,
+                   'cantidad_producto':suma,
                    'descripcion':me.descripcion,
                   'fecha':me.fecha,                  
                   'id_sucursal':me.id_sucursal,
