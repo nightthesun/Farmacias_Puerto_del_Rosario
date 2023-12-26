@@ -59,9 +59,13 @@
                             </tr>
                         </thead>
 
-                        <tbody>
+                        <tbody v-if="sucursalSeleccionada ==0">
+                       
+                        </tbody>
+                        <tbody v-if="sucursalSeleccionada !=0">
                          <!--botones de opciones-->   
                           <tr v-for="AjusteNegativos  in arrayAjusteNegativos" :key="AjusteNegativos.id">
+                            
                               <td>
                                
                                  <button type="button" class="btn btn-warning btn-sm"  @click="abrirModal('actualizar',AjusteNegativos);ProductoLineaIngreso();">
@@ -78,7 +82,7 @@
                              
                              <td v-text="AjusteNegativos.codigo"></td>
                              <td v-text="AjusteNegativos.linea"></td>
-                             <td v-text="AjusteNegativos.nombreProd"></td>
+                             <td v-text="AjusteNegativos.leyenda"></td>
                              <td v-text="AjusteNegativos.cantidad"></td>
                              <td v-text="AjusteNegativos.nombreTipo"></td>
                              <td v-text="AjusteNegativos.descripcion"></td>
@@ -141,23 +145,24 @@
                                 </label>
                                 <div class="col-md-7 input-group mb-3">
                                     
-                                    <select name="" id="" v-model="ProductoLineaIngresoSeleccionado" class="form-control" @change="cambioDeEstado">
+                                    <select name="" id="" v-model="ProductoLineaIngresoSeleccionado" class="form-control" @change="cambioDeEstado" >
                                         <option v-bind:value="0" disabled>Seleccionar...</option>
-                                        <option v-for="ProductoLineaIngreso in arrayProductoLineaIngreso" :key="ProductoLineaIngreso.id_ingreso" v-bind:value="ProductoLineaIngreso.id_ingreso" v-text="ProductoLineaIngreso.nombre+'-D1:'+(ProductoLineaIngreso.cantidad_dispenser_p === null?'': ProductoLineaIngreso.cantidad_dispenser_p)+'-D2:'+(ProductoLineaIngreso.cantidad_dispenser_s === null?'': ProductoLineaIngreso.cantidad_dispenser_s)+'-D3:'+(ProductoLineaIngreso.cantidad_dispenser_t === null?'': ProductoLineaIngreso.cantidad_dispenser_t)+'-'+ProductoLineaIngreso.nombre_farmaceutica_1+'-'+ProductoLineaIngreso.nombre_linea+'-LOTE:'+ProductoLineaIngreso.lote+'-FI:'+ProductoLineaIngreso.fecha_ingreso+'-FV:'+(ProductoLineaIngreso.fecha_vencimiento === null?'sin registro':ProductoLineaIngreso.fecha_vencimiento)+'-Stock:'+ProductoLineaIngreso.stock_ingreso"></option>
+                                        <option v-for="ProductoLineaIngreso in arrayProductoLineaIngreso" :key="ProductoLineaIngreso.id_ingreso" v-bind:value="ProductoLineaIngreso.id_ingreso" v-text="ProductoLineaIngreso.leyenda +' | Lote: '+ProductoLineaIngreso.lote+' | FI: '+ProductoLineaIngreso.fecha_ingreso+' | FV: '+(ProductoLineaIngreso.fecha_vencimiento === null?'| sin registro':ProductoLineaIngreso.fecha_vencimiento)+' | Stock: '+ProductoLineaIngreso.stock_ingreso"></option>
                                     </select>
                                     <button class="btn btn-primary"  v-if="tipoAccion==1" type="button" id="button-addon1" @click="abrirModal('bucarProductoIngreso');ListarretornarProductosIngreso();"><i class="fa fa-search" ></i></button>
                                     <button class="btn btn-danger"  v-if="tipoAccion==2" type="button" id="button-addon1" @click="abrirModal('bucarProductoIngreso2');ListarretornarProductosIngreso();"><i class="fa fa-search" ></i></button>
-                                    {{tipoAccion}}
+                          
                             </div>
-                            <input type="text" v-model="id_codigo"  >
-                                    <input type="number"  v-model="cantidadProductoLineaIngreso" >
-                                    <input type="text"  v-model="codigo" >
-                                    <input type="text"  v-model="linea" >
-                                    <input type="text"  v-model="producto" >
-                                    <input type="text"  v-model="fecha" >
-                                    <input type="text"  v-model="id_sucursal" >
-                                    <input type="text" v-model="id_producto" >
-                                    <input type="text" v-model="id_ingreso" >
+                            <input type="text" v-model="leyenda" >
+                            <input type="text" v-model="id_codigo" hidden>
+                                    <input type="number"  v-model="cantidadProductoLineaIngreso" hidden>
+                                    <input type="text"  v-model="codigo" hidden>
+                                    <input type="text"  v-model="linea" hidden>
+                                    <input type="text"  v-model="producto" hidden>
+                                    <input type="text"  v-model="fecha" hidden>
+                                    <input type="text"  v-model="id_sucursal" hidden>
+                                    <input type="text" v-model="id_producto" hidden>
+                                    <input type="text" v-model="id_ingreso" hidden>
                                 </div>
                                 
                                    <div class="form-group row">
@@ -243,7 +248,7 @@
                                     <tbody> 
                                         <tr v-for="RetornarProductosIngreso  in arrayRetornarProductosIngreso" :key="RetornarProductosIngreso.id_ingreso" @click="abrirModal('inputModal2',RetornarProductosIngreso);ListarretornarProductosIngreso();" >
                                             <td v-text="RetornarProductosIngreso.id_ingreso"></td>
-                                        <td v-text="RetornarProductosIngreso.nombre+' '+RetornarProductosIngreso.codigo_producto+' '+RetornarProductosIngreso.nombre_linea+' '+RetornarProductosIngreso.nombre_dispenser_1"></td>
+                                        <td v-text="RetornarProductosIngreso.leyenda"></td>
                                         <td v-text="RetornarProductosIngreso.envase"></td>
                                         <td v-text="RetornarProductosIngreso.codigointernacional"></td>
                                       </tr>
@@ -256,10 +261,13 @@
                 </div>
                 <div class="modal-footer">
                     
-                 <h1>{{tipoAccion}}</h1> 
-                    <button type="button" v-if="tipoAccion==1" class="btn btn-secondary" data-bs-dismiss="modal" @click="cerrarModal('staticBackdrop');abrirModal('registrar');ProductoLineaIngreso();" >Cerrar</button>
-                    <button type="button" v-if="tipoAccion==2" class="btn btn-secondary" data-bs-dismiss="modal" @click="cerrarModal('staticBackdrop');abrirModal('actualizar',AjusteNegativos);ProductoLineaIngreso();">Cerraaaa</button>
+         
+                    <button type="button"  class="btn btn-secondary" data-bs-dismiss="modal" @click="cerrarModal('staticBackdrop');abrirModal('registrar');ProductoLineaIngreso();" >Cerrar</button>
+                   <!--
+                      <button type="button" v-if="tipoAccion==2" class="btn btn-secondary" data-bs-dismiss="modal" @click="cerrarModal('staticBackdrop');abrirModal('actualizar',AjusteNegativos);ProductoLineaIngreso();">Cerraaaa</button>
                     
+                    --->
+                  
                     <!-- <button type="button" class="btn btn-primary">Save changes</button> -->
                 </div>
                 </div>
@@ -325,6 +333,7 @@
             
                 inputTextBuscarProductoIngreso:'',
                 arrayRetornarProductosIngreso:[],
+                leyenda:'',
 
             }
         },
@@ -346,7 +355,8 @@
         this.fecha=productoSeleccionado.fecha_ingreso;
          this.id_sucursal=productoSeleccionado.id_sucursal;
          this.id_producto=productoSeleccionado.id_producto; 
-         this.id_ingreso=productoSeleccionado.id_ingreso;      
+         this.id_ingreso=productoSeleccionado.id_ingreso; 
+         this.leyenda=productoSeleccionado.leyenda+" | lote: "+productoSeleccionado.lote+" | FI:"+productoSeleccionado.fecha_ingreso+" | FV:"+productoSeleccionado.fecha_vencimiento;      
                 } else {
     console.log("No matching element found in arrayProductoLineaIngreso.");
         }
@@ -547,10 +557,12 @@
                         me.id_producto='';
                         me.id_ingreso='';
                         me.classModal.openModal('registrar');
+                        me.leyenda='';
                         break;
                     }
                     case 'actualizar':
                         { 
+                            me.leyenda=data.leyenda;
                             me.id_codigo=data.cod; 
                             me.tipoAccion=2;
                             me.tituloModal='Actualizacion para Ajuste de negativos  ';
@@ -578,7 +590,7 @@
                     case 'bucarProductoIngreso':
                     {
 
-                        me.tipoAccion=1; 
+                      //  me.tipoAccion=1; 
                     me.inputTextBuscarProductoIngreso='',
                     me.arrayRetornarProductosIngreso='',
                         me.classModal.openModal('staticBackdrop');
@@ -587,7 +599,7 @@
                     case 'bucarProductoIngreso2':
                     {
 
-                        me.tipoAccion=2; 
+                     //   me.tipoAccion=2; 
                     me.inputTextBuscarProductoIngreso='',
                     me.arrayRetornarProductosIngreso='',
                         me.classModal.openModal('staticBackdrop');
@@ -613,13 +625,14 @@
                         me.id_sucursal='';
                         me.id_producto='';
                         me.id_ingreso='';
+                        me.leyenda='';
                         me.classModal.openModal('registrar');
                         break;
                     }
                     case 'inputModal2':{
                       //  me.id_codigo=me.sucursalSeleccionada;
                        // me.id_codigo=data.cod; 
-                            me.tipoAccion=2;
+                           // me.tipoAccion=2;
                         me.tituloModal='Rejistro para Ajuste de negativos ';
                         me. ProductoLineaIngresoSeleccionado=data.id_ingreso===null?0:data.id_ingreso;
                         
@@ -635,12 +648,13 @@
                         me.id_sucursal='';
                         me.id_producto='';
                         me.id_ingreso='';
+                        me.leyenda='';
                         me.classModal.openModal('registrar');
                         break;
                     }
                     case 'inputModalCerrar':{
                         me.id_codigo=data.cod; 
-                            me.tipoAccion=2;
+                         //   me.tipoAccion=2;
                             me.tituloModal='Actualizacion para Ajuste de negativos en la sucursal: ';
                             me.codigo=data.codigo;
                             me.cantidadProductoLineaIngreso=data.cantidad;
@@ -655,6 +669,7 @@
                        me.id_ingreso=data.id_ingreso;
                         me.TiposSeleccionado=data.id_tipo===null?0:data.id_tipo;
                        me. ProductoLineaIngresoSeleccionado=data.id_ingreso===null?0:data.id_ingreso;
+                       me.leyenda=data.leyenda
                     
                     }
                 }
@@ -678,6 +693,7 @@
                         me.id_sucursal='';
                       me.id_ingreso='';
                         me.id_producto='';
+                        me.leyenda='';
                 } else {
                     me.classModal.closeModal(accion);
                     //me.idproductoselected = me.idproductoselected; 
@@ -715,6 +731,7 @@
                    'id_producto':me.id_producto,
                  'cod':me.sucursalSeleccionada,
                  'id_ingreso':me.id_ingreso,
+                 'leyenda':me.leyenda,
                    
                  
             }).then(function(response){
@@ -753,6 +770,7 @@
                   'id_producto':me.id_producto,
                   'cod':me.sucursalSeleccionada,
                  'id_ingreso':me.id_ingreso,
+                 'leyenda':me.leyenda,
                 
                 }).then(function (response) {
                     me.listarAjusteNegativos();
@@ -827,7 +845,10 @@ listarConsulta(){
                 }).then((result) => {
                 if (result.isConfirmed) {
                      axios.put('/ajustes-negativo/desactivar',{
-                        'id': idAjusteNegativos
+                        'id': idAjusteNegativos,
+                        'cod':me.sucursalSeleccionada,
+                 'id_ingreso':me.id_ingreso,
+                    
                     }).then(function (response) {
                         me.listarAjusteNegativos();
                         swalWithBootstrapButtons.fire(
@@ -874,7 +895,9 @@ listarConsulta(){
                 }).then((result) => {
                 if (result.isConfirmed) {
                      axios.put('/ajustes-negativo/activar',{
-                        'id': idAjusteNegativos
+                        'id': idAjusteNegativos,
+                        'cod':me.sucursalSeleccionada,
+                 'id_ingreso':me.id_ingreso,
                     }).then(function (response) {
                         me.listarAjusteNegativos();
                         swalWithBootstrapButtons.fire(

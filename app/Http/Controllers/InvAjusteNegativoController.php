@@ -73,7 +73,8 @@ class InvAjusteNegativoController extends Controller
                         'aan.created_at as fecha_creacion',
                         'aan.activo as activo',
                         'aan.cod as cod',
-                        'aan.id_ingreso as id_ingreso')
+                        'aan.id_ingreso as id_ingreso',
+                        'aan.leyenda as leyenda')
                         ->whereRaw($sqls)
                         ->paginate(15);
                         
@@ -114,7 +115,8 @@ class InvAjusteNegativoController extends Controller
             'aan.created_at as fecha_creacion',
             'aan.activo as activo',
             'aan.cod as cod',
-            'aan.id_ingreso as id_ingreso')
+            'aan.id_ingreso as id_ingreso',
+            'aan.leyenda as leyenda')
             //->whereraw($sqls)
             ->paginate(15);
             return [
@@ -196,6 +198,7 @@ class InvAjusteNegativoController extends Controller
             $ajusteNegativo->id_sucursal=$request->id_sucursal;
             $ajusteNegativo->cod=$codigo;
             $ajusteNegativo->id_ingreso=$id;
+            $ajusteNegativo->leyenda=$request->leyenda;
             $update=Alm_IngresoProducto::find($id);
          
             $update->stock_ingreso=$request->cantidad_producto;
@@ -219,6 +222,7 @@ class InvAjusteNegativoController extends Controller
                 $ajusteNegativo->id_sucursal=$request->id_sucursal;
                 $ajusteNegativo->cod=$codigo;
                 $ajusteNegativo->id_ingreso=$id;
+                $ajusteNegativo->leyenda=$request->leyenda;
                 $update=Tda_IngresoProducto::find($id);
             
                 $update->stock_ingreso=$request->cantidad_producto;
@@ -250,8 +254,10 @@ class InvAjusteNegativoController extends Controller
 
     public function listarProductoLineaIngreso(Request $request)
     {
+      //->where('aa.codigo', $cod) 
       $cod = $request->query('respuesta0');
-      
+     
+
       $productos = DB::table('prod__productos as pp')
       ->join('alm__ingreso_producto as ai', 'pp.id', '=', 'ai.id_prod_producto')
       ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
@@ -292,7 +298,15 @@ class InvAjusteNegativoController extends Controller
         'ass.id AS id_sucursal',
         'ass.razon_social as razon_social',
         DB::raw('null as id_tienda'),
-        'ai.idalmacen as id_almacen'
+        'ai.idalmacen as id_almacen',
+        DB::raw("
+            CASE
+                WHEN ai.envase = 'primario' THEN CONCAT(COALESCE(pp.codigo, ''), ' ', COALESCE(pp.nombre, ''), ' ', COALESCE(pd_1.nombre, ''), ' X ', COALESCE(pp.cantidadprimario, ''), ' - ', COALESCE(ff_1.nombre, ''))
+                WHEN ai.envase = 'secundario' THEN CONCAT(COALESCE(pp.codigo, ''), ' ', COALESCE(pp.nombre, ''), ' ', COALESCE(pd_2.nombre, ''), ' X ', COALESCE(pp.cantidadsecundario, ''), ' - ', COALESCE(ff_2.nombre, ''))
+                WHEN ai.envase = 'terciario' THEN CONCAT(COALESCE(pp.codigo, ''), ' ', COALESCE(pp.nombre, ''), ' ', COALESCE(pd_3.nombre, ''), ' X ', COALESCE(pp.cantidadterciario, ''), ' - ', COALESCE(ff_3.nombre, ''))
+                ELSE NULL
+            END AS leyenda
+        ")
     );
 
   $tiendas = DB::table('prod__productos as pp')
@@ -335,7 +349,15 @@ class InvAjusteNegativoController extends Controller
         'ass.id AS id_sucursal',
         'ass.razon_social as razon_social',
         'ti.idtienda as id_tienda',
-        DB::raw('null as id_almacen')
+        DB::raw('null as id_almacen'),
+        DB::raw("
+            CASE
+                WHEN ti.envase = 'primario' THEN CONCAT(COALESCE(pp.codigo, ''), ' ', COALESCE(pp.nombre, ''), ' ', COALESCE(pd_1.nombre, ''), ' X ', COALESCE(pp.cantidadprimario, ''), ' - ', COALESCE(ff_1.nombre, ''))
+                WHEN ti.envase = 'secundario' THEN CONCAT(COALESCE(pp.codigo, ''), ' ', COALESCE(pp.nombre, ''), ' ', COALESCE(pd_2.nombre, ''), ' X ', COALESCE(pp.cantidadsecundario, ''), ' - ', COALESCE(ff_2.nombre, ''))
+                WHEN ti.envase = 'terciario' THEN CONCAT(COALESCE(pp.codigo, ''), ' ', COALESCE(pp.nombre, ''), ' ', COALESCE(pd_3.nombre, ''), ' X ', COALESCE(pp.cantidadterciario, ''), ' - ', COALESCE(ff_3.nombre, ''))
+                ELSE NULL
+            END AS leyenda
+        ")
       );
 
   $result = $productos->unionAll($tiendas)->get();
@@ -467,6 +489,7 @@ foreach ($result as $key=>$sucursal) {
            $updateAjusteNegativo->id_sucursal=$request->id_sucursal;
             $updateAjusteNegativo->cod=$codigo;
             $updateAjusteNegativo->id_ingreso=$id_i;
+            $updateAjusteNegativo->leyenda=$request->leyenda;
             $update=Alm_IngresoProducto::find($id_i);
            
             $update->stock_ingreso=$request->cantidad_producto;
@@ -490,6 +513,7 @@ foreach ($result as $key=>$sucursal) {
            $updateAjusteNegativo->id_sucursal=$request->id_sucursal;
             $updateAjusteNegativo->cod=$codigo;
             $updateAjusteNegativo->id_ingreso=$id_i;
+            $updateAjusteNegativo->leyenda=$request->leyenda;
                 $update=Tda_IngresoProducto::find($id_i);
              
                 $update->stock_ingreso=$request->cantidad_producto;
@@ -511,9 +535,51 @@ foreach ($result as $key=>$sucursal) {
     }
     public function desactivar(Request $request){
         $updateAjusteNegativo = Inv_AjusteNegativo::findOrFail($request->id);
+        $cod=$request->cod;
+        $id_ingreso=$request->id_ingreso;
+        $activador=0;
+        $updateAjusteNegativo = Inv_AjusteNegativo::findOrFail($request->id);
+        $cantidad = $updateAjusteNegativo->cantidad;
         $updateAjusteNegativo->activo=0;
         $updateAjusteNegativo->id_usuario_modifica= auth()->user()->id;
-        $updateAjusteNegativo->save();
+        //$updateAjusteNegativo->save();
+        $almacenIngreso = DB::table('alm__ingreso_producto as ai')
+        ->join('alm__almacens as aa', 'ai.idalmacen', '=', 'aa.id')
+        ->where('ai.id', '=', $id_ingreso)
+        ->where('aa.codigo', '=', $cod)
+        ->select('ai.id as id', 'aa.codigo as codigo')
+        ->first();
+        $tinedaIngreso = DB::table('tda__ingreso_productos as ti')
+        ->join('tda__tiendas as tt', 'ti.idtienda', '=', 'tt.idsucursal')
+        ->where('ti.id', '=', $id_ingreso)
+        ->where('tt.codigo', '=', $cod)
+        ->select('ti.id as id', 'tt.codigo as codigo')
+        ->first();
+        if ($almacenIngreso) {
+            $activador=1;  
+            $id_i = $almacenIngreso->id;
+            $codigo = $almacenIngreso->codigo;          
+        } else {
+            if ($tinedaIngreso) {
+                $activador=2; 
+                $id_i = $tinedaIngreso->id;
+                $codigo = $tinedaIngreso->codigo;
+            } else {
+                $activador=0; 
+            }
+            
+        }
+        if ($activador==1) {
+            $update=Alm_IngresoProducto::find($id_i);
+           
+            $cantidad_alm=$update->stock_ingreso;
+            $cantidad_alm=$$cantidad_alm+$cantidad;
+            $update->
+           $update->save();
+           $updateAjusteNegativo->save();
+        }
+
+        
     }
     public function activar(Request $request){
         $updateAjusteNegativo = Inv_AjusteNegativo::findOrFail($request->id);
@@ -601,7 +667,15 @@ foreach ($result as $key=>$sucursal) {
                   'ass.id AS id_sucursal',
                   'ass.razon_social as razon_social',
                   DB::raw('null as id_tienda'),
-                  'ai.idalmacen as id_almacen'
+                  'ai.idalmacen as id_almacen',
+                  DB::raw("
+                  CASE
+                      WHEN ai.envase = 'primario' THEN CONCAT(COALESCE(pp.codigo, ''), ' ', COALESCE(pp.nombre, ''), ' ', COALESCE(pd_1.nombre, ''), ' X ', COALESCE(pp.cantidadprimario, ''), ' - ', COALESCE(ff_1.nombre, ''))
+                      WHEN ai.envase = 'secundario' THEN CONCAT(COALESCE(pp.codigo, ''), ' ', COALESCE(pp.nombre, ''), ' ', COALESCE(pd_2.nombre, ''), ' X ', COALESCE(pp.cantidadsecundario, ''), ' - ', COALESCE(ff_2.nombre, ''))
+                      WHEN ai.envase = 'terciario' THEN CONCAT(COALESCE(pp.codigo, ''), ' ', COALESCE(pp.nombre, ''), ' ', COALESCE(pd_3.nombre, ''), ' X ', COALESCE(pp.cantidadterciario, ''), ' - ', COALESCE(ff_3.nombre, ''))
+                      ELSE NULL
+                  END AS leyenda
+              ")
               );
           
             $tiendas = DB::table('prod__productos as pp')
@@ -645,7 +719,15 @@ foreach ($result as $key=>$sucursal) {
                   'ass.id AS id_sucursal',
                   'ass.razon_social as razon_social',
                   'ti.idtienda as id_tienda',
-                  DB::raw('null as id_almacen')
+                  DB::raw('null as id_almacen'),
+                  DB::raw("
+                  CASE
+                      WHEN ti.envase = 'primario' THEN CONCAT(COALESCE(pp.codigo, ''), ' ', COALESCE(pp.nombre, ''), ' ', COALESCE(pd_1.nombre, ''), ' X ', COALESCE(pp.cantidadprimario, ''), ' - ', COALESCE(ff_1.nombre, ''))
+                      WHEN ti.envase = 'secundario' THEN CONCAT(COALESCE(pp.codigo, ''), ' ', COALESCE(pp.nombre, ''), ' ', COALESCE(pd_2.nombre, ''), ' X ', COALESCE(pp.cantidadsecundario, ''), ' - ', COALESCE(ff_2.nombre, ''))
+                      WHEN ti.envase = 'terciario' THEN CONCAT(COALESCE(pp.codigo, ''), ' ', COALESCE(pp.nombre, ''), ' ', COALESCE(pd_3.nombre, ''), ' X ', COALESCE(pp.cantidadterciario, ''), ' - ', COALESCE(ff_3.nombre, ''))
+                      ELSE NULL
+                  END AS leyenda
+              ")
                 );
           
             $result = $productos->unionAll($tiendas)->get();
@@ -695,7 +777,15 @@ foreach ($result as $key=>$sucursal) {
               'ass.id AS id_sucursal',
               'ass.razon_social as razon_social',
               DB::raw('null as id_tienda'),
-              'ai.idalmacen as id_almacen'
+              'ai.idalmacen as id_almacen',
+              DB::raw("
+              CASE
+                  WHEN ai.envase = 'primario' THEN CONCAT(COALESCE(pp.codigo, ''), ' ', COALESCE(pp.nombre, ''), ' ', COALESCE(pd_1.nombre, ''), ' X ', COALESCE(pp.cantidadprimario, ''), ' - ', COALESCE(ff_1.nombre, ''))
+                  WHEN ai.envase = 'secundario' THEN CONCAT(COALESCE(pp.codigo, ''), ' ', COALESCE(pp.nombre, ''), ' ', COALESCE(pd_2.nombre, ''), ' X ', COALESCE(pp.cantidadsecundario, ''), ' - ', COALESCE(ff_2.nombre, ''))
+                  WHEN ai.envase = 'terciario' THEN CONCAT(COALESCE(pp.codigo, ''), ' ', COALESCE(pp.nombre, ''), ' ', COALESCE(pd_3.nombre, ''), ' X ', COALESCE(pp.cantidadterciario, ''), ' - ', COALESCE(ff_3.nombre, ''))
+                  ELSE NULL
+              END AS leyenda
+          ")
           );
       
         $tiendas = DB::table('prod__productos as pp')
@@ -738,7 +828,16 @@ foreach ($result as $key=>$sucursal) {
               'ass.id AS id_sucursal',
               'ass.razon_social as razon_social',
               'ti.idtienda as id_tienda',
-              DB::raw('null as id_almacen')
+              DB::raw('null as id_almacen'),
+              DB::raw("
+              CASE
+                  WHEN ti.envase = 'primario' THEN CONCAT(COALESCE(pp.codigo, ''), ' ', COALESCE(pp.nombre, ''), ' ', COALESCE(pd_1.nombre, ''), ' X ', COALESCE(pp.cantidadprimario, ''), ' - ', COALESCE(ff_1.nombre, ''))
+                  WHEN ti.envase = 'secundario' THEN CONCAT(COALESCE(pp.codigo, ''), ' ', COALESCE(pp.nombre, ''), ' ', COALESCE(pd_2.nombre, ''), ' X ', COALESCE(pp.cantidadsecundario, ''), ' - ', COALESCE(ff_2.nombre, ''))
+                  WHEN ti.envase = 'terciario' THEN CONCAT(COALESCE(pp.codigo, ''), ' ', COALESCE(pp.nombre, ''), ' ', COALESCE(pd_3.nombre, ''), ' X ', COALESCE(pp.cantidadterciario, ''), ' - ', COALESCE(ff_3.nombre, ''))
+                  ELSE NULL
+              END AS leyenda
+          ")
+
             );
       
         $result = $productos->unionAll($tiendas)->get();
