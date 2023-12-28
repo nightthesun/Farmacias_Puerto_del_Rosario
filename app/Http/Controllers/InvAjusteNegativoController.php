@@ -474,6 +474,7 @@ class InvAjusteNegativoController extends Controller
             $updateAjusteNegativo = Inv_AjusteNegativo::find($request->id);
             $updateAjusteNegativo->id_usuario_modifica = auth()->user()->id;
             $updateAjusteNegativo->usuario = auth()->user()->name;
+            $updateAjusteNegativo->id_usuario = auth()->user()->id;
             $updateAjusteNegativo->id_tipo = $request->id_tipo;
            // $updateAjusteNegativo->id_producto_linea = $request->id_producto_linea;
          //   $updateAjusteNegativo->codigo = $request->codigo;
@@ -562,14 +563,19 @@ class InvAjusteNegativoController extends Controller
         if ($activador == 1) {
             $updateAjusteNegativo->activo = 0;
             $updateAjusteNegativo->id_usuario_modifica = auth()->user()->id;
+            $updateAjusteNegativo->id_usuario = auth()->user()->id;
+            $updateAjusteNegativo->usuario = auth()->user()->name;
+         
             $update = Alm_IngresoProducto::find($id_i);
             $update->stock_ingreso =($update->stock_ingreso)+$cantidad;
             $update->save();
             $updateAjusteNegativo->save();
         } else {
             if ($activador == 2) {
-                $updateAjusteNegativo->activo = 0;
+            $updateAjusteNegativo->activo = 0;
             $updateAjusteNegativo->id_usuario_modifica = auth()->user()->id;
+            $updateAjusteNegativo->id_usuario = auth()->user()->id;
+            $updateAjusteNegativo->usuario = auth()->user()->name;
             $update = Tda_IngresoProducto::find($id_i);
             $update->stock_ingreso =($update->stock_ingreso)+$cantidad;
             $update->save();
@@ -616,14 +622,18 @@ class InvAjusteNegativoController extends Controller
         if ($activador == 1) {
             $updateAjusteNegativo->activo = 1;
             $updateAjusteNegativo->id_usuario_modifica = auth()->user()->id;
+            $updateAjusteNegativo->id_usuario = auth()->user()->id;
+            $updateAjusteNegativo->usuario = auth()->user()->name;
             $update = Alm_IngresoProducto::find($id_i);
             $update->stock_ingreso =($update->stock_ingreso)-$cantidad;
             $update->save();
             $updateAjusteNegativo->save();
         } else {
             if ($activador == 2) {
-                $updateAjusteNegativo->activo = 1;
+            $updateAjusteNegativo->activo = 1;
             $updateAjusteNegativo->id_usuario_modifica = auth()->user()->id;
+            $updateAjusteNegativo->id_usuario = auth()->user()->id;
+            $updateAjusteNegativo->usuario = auth()->user()->name;
             $update = Tda_IngresoProducto::find($id_i);
             $update->stock_ingreso =($update->stock_ingreso)-$cantidad;
             $update->save();
