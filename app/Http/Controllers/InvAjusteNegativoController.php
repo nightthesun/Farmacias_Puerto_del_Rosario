@@ -62,8 +62,8 @@ class InvAjusteNegativoController extends Controller
                         'aan.cantidad as cantidad',
                         'aan.id_tipo as id_tipo',
                         'pte.nombre as nombreTipo',
-                        'aan.fecha as fecha',
-
+                        //'aan.fecha as fecha',
+                        DB::raw('GREATEST(aan.created_at, aan.updated_at) as fecha'),
                         'aan.id_sucursal as id_sucursal',
                         'ass.razon_social as razon_social',
                         'aan.created_at as fecha_creacion',
@@ -75,6 +75,7 @@ class InvAjusteNegativoController extends Controller
                     ->where('aan.cod', '=', $bus)
                    
                     ->whereRaw($sqls)
+                    ->orderByDesc('aan.id')
                     ->paginate(15);
             }
 
@@ -107,8 +108,8 @@ class InvAjusteNegativoController extends Controller
                     'aan.descripcion as descripcion',
                     'aan.cantidad as cantidad',
                     'pte.nombre as nombreTipo',
-
-                    'aan.fecha as fecha',
+                    DB::raw('GREATEST(aan.created_at, aan.updated_at) as fecha'),
+                   //'aan.fecha as fecha',
                     'aan.id_sucursal as id_sucursal',
                     'ass.razon_social as razon_social',
                     'aan.created_at as fecha_creacion',
@@ -118,6 +119,7 @@ class InvAjusteNegativoController extends Controller
                     'aan.leyenda as leyenda'
                 )
                 ->where('aan.cod', '=', $bus)
+                ->orderByDesc('aan.id')
                 ->paginate(15);
             return [
                 'pagination' => [

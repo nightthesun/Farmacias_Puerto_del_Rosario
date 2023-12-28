@@ -155,7 +155,7 @@
                                 <td v-text="AjusteNegativos.nombreTipo"></td>
                                 <td v-text="AjusteNegativos.descripcion"></td>
                                 <td
-                                    v-text="AjusteNegativos.fecha_creacion"
+                                    v-text="AjusteNegativos.fecha"
                                 ></td>
                                 <td
                                     v-text="AjusteNegativos.nombre_usuario"
