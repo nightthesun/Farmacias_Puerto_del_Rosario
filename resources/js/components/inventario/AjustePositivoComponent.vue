@@ -153,13 +153,12 @@
                                 <td v-text="AjusteNegativos.linea"></td>
                                 <td v-text="AjusteNegativos.leyenda"></td>
                                 <td v-text="AjusteNegativos.cantidad"></td>
+                                <td v-text="AjusteNegativos.stock"></td>
+                                <td v-text="AjusteNegativos.fecha"></td>
+                                <td v-text="AjusteNegativos.fecha_vencimiento"></td>
                                 <td v-text="AjusteNegativos.nombreTipo"></td>
                                 <!--td v-text="AjusteNegativos.descripcion"></td>-->
-                                
-                                <td
-                                    v-text="AjusteNegativos.fecha"
-                                ></td>
-                                <td
+                                        <td
                                     v-text="AjusteNegativos.nombre_usuario"
                                 ></td>
                                 <td>
@@ -326,62 +325,42 @@
                                             class="form-control"
                                             placeholder="letenda"
                                          disabled
+                                      
                                         />
                                     </div>
                                     <input type="text" v-if="tipoAccion == 1" v-model="leyenda" hidden/>
-                                    <input type="text" v-if="tipoAccion == 1" v-model="id_codigo" hidden />
-                                    <input type="number" v-if="tipoAccion == 1" v-model="cantidadProductoLineaIngreso" hidden
-                                    />
-                                    <input
-                                        type="text" v-if="tipoAccion == 1"
-                                        v-model="codigo"
-                                        hidden
-                                    />
-                                    <input type="text" v-if="tipoAccion == 1" v-model="linea" hidden />
-                                    <input
-                                        type="text" v-if="tipoAccion == 1"
-                                        v-model="producto"
-                                        hidden
-                                    />  
-                                    <input type="text" v-if="tipoAccion == 1" v-model="id_producto"  hidden  />
+                                    <input type="text" v-if="tipoAccion == 1" v-model="id_codigo"  hidden/>
+                                    <input type="number" v-if="tipoAccion == 1" v-model="cantidadProductoLineaIngreso" hidden/>
+                                    <input type="text" v-if="tipoAccion == 1" v-model="codigo" hidden/>
+                                    <input type="text" v-if="tipoAccion == 1" v-model="linea"  hidden/>
+                                    <input type="text" v-if="tipoAccion == 1" v-model="producto" hidden/>  
+                                    <input type="text" v-if="tipoAccion == 1" v-model="id_producto" hidden/>
                                     
-                                    <input type="text" v-if="tipoAccion == 1" v-model="id_sucursal" hidden />
-                                    <input type="text" v-if="tipoAccion == 1" v-model="id_ingreso"  hidden />
-                                    <input type="text" v-if="tipoAccion == 1" v-model="fecha_ingreso" hidden />
-                                    <input type="text" v-if="tipoAccion == 1" v-model="fecha_vencimiento" hidden />
+                                    <input type="text" v-if="tipoAccion == 1" v-model="id_sucursal" hidden/>
+                                    <input type="text" v-if="tipoAccion == 1" v-model="id_ingreso" hidden/>
+                                    <input type="text" v-if="tipoAccion == 1" v-model="fecha_ingreso" hidden/>
+                                    <input type="text" v-if="tipoAccion == 1" v-model="fecha_vencimiento" hidden/>
                                    
                                     <input type="text" v-if="tipoAccion == 1" v-model="lote" hidden>
                                     <input type="text" v-if="tipoAccion == 1"  v-model="cantidad" hidden>
 
                                     <!---datos  nulos-->
-                                    <input type="text" v-if="tipoAccion == 2" disabled v-model="leyenda" hidden />
-                                    <input 
-                                        type="text" v-if="tipoAccion == 2" disabled
-                                        v-model="id_codigo"
-                                        hidden
-                                    />
-                                    <input type="number" v-if="tipoAccion == 2" disabled v-model="cantidadProductoLineaIngreso" hidden
-                                    />
-                                    <input
-                                        type="text" v-if="tipoAccion == 2" disabled
-                                        v-model="codigo"
-                                        hidden
-                                    />
-                                    <input type="text" v-if="tipoAccion == 2" disabled v-model="linea" hidden />
-                                    <input
-                                        type="text" v-if="tipoAccion == 2" disabled
-                                        v-model="producto"
-                                        hidden
-                                    />
-                                    <input type="text" v-if="tipoAccion == 2" v-model="id_producto" disabled hidden  />
+                                    <input type="text" v-if="tipoAccion == 2" v-model="leyenda" disabled hidden/>
+                                    <input type="text" v-if="tipoAccion == 2" v-model="id_codigo" disabled hidden/>
+                                    <input type="number" v-if="tipoAccion == 2" v-model="cantidadProductoLineaIngreso" disabled hidden/>
+                                    <input type="text" v-if="tipoAccion == 2" v-model="codigo" disabled hidden/>
+                                    <input type="text" v-if="tipoAccion == 2" v-model="linea" disabled hidden/>
+                                    <input type="text" v-if="tipoAccion == 2" v-model="producto" disabled hidden/>  
+                                    <input type="text" v-if="tipoAccion == 2" v-model="id_producto" disabled hidden/>
                                     
-                                    <input type="text" v-if="tipoAccion == 2" v-model="id_sucursal" disabled hidden />
-                                    <input type="text" v-if="tipoAccion == 2" v-model="id_ingreso" disabled hidden />
-                                    <input type="text" v-if="tipoAccion == 2" v-model="fecha_ingreso" disabled hidden />
-                                    <input type="text" v-if="tipoAccion == 2" v-model="fecha_vencimiento" disabled hidden />
+                                    <input type="text" v-if="tipoAccion == 2" v-model="id_sucursal" disabled hidden/>
+                                    <input type="text" v-if="tipoAccion == 2" v-model="id_ingreso" disabled hidden/>
+                                    <input type="text" v-if="tipoAccion == 2" v-model="fecha_ingreso" disabled hidden/>
+                                    <input type="text" v-if="tipoAccion == 2" v-model="fecha_vencimiento" disabled hidden/>
                                    
                                     <input type="text" v-if="tipoAccion == 2" v-model="lote" disabled hidden>
-                                    <input type="text" v-if="tipoAccion == 2"  v-model="cantidad" disabled hidden>   </div>
+                                    <input type="text" v-if="tipoAccion == 2"  v-model="cantidad" disabled hidden>  
+                                 </div>
 
                                 <div class="form-group row">
                                     <label
@@ -717,6 +696,8 @@ export default {
                     this.codigo = productoSeleccionado.codigo_producto;
                     this.fecha_ingreso=productoSeleccionado.fecha_ingreso;
         this.fecha_vencimiento=productoSeleccionado.fecha_ingreso;
+        this.linea=productoSeleccionado.nombre_linea;
+        this.producto=productoSeleccionado.nombre;
          this.id_sucursal=productoSeleccionado.id_sucursal;
          this.id_producto=productoSeleccionado.id_producto; 
          this.id_ingreso=productoSeleccionado.id_ingreso;
@@ -927,9 +908,14 @@ export default {
 
                     me.codigo = "";
                     me.linea = "";
-                    (me.producto = ""), (me.cantidadS = "");
+                    me.producto = "";
+                    me.cantidadS = "";
                   //  me.descripcion = "";
-                    me.fecha = "";
+                    me.fecha_ingreso='';
+                    me.fecha_vencimiento='';
+                    me.lote='';
+                    me.cantidad='';
+                    
                     me.id_sucursal = "";
                     me.id_producto = "";
                     me.id_ingreso = "";
@@ -948,7 +934,10 @@ export default {
                     me.producto = data.nombreProd;
                     me.cantidadS = data.cantidad;
                 //    me.descripcion = data.descripcion;
-                    me.fecha = data.fecha;
+                    me.fecha_ingreso=data.fecha_ingreso;
+                    me.fecha_vencimiento=data.fecha_vencimiento;
+                    me.lote=data.lote;
+                    me.cantidad=data.cantidad;
                     me.idAjusteNegativos = data.id;
                     me.id_sucursal = data.id_sucursal;
                     me.id_producto = data.cod;
@@ -993,7 +982,10 @@ export default {
                     me.producto = "";
                     me.cantidadS = "";
                    // me.descripcion = "";
-                    me.fecha = "";
+                   me.fecha_ingreso='';
+                    me.fecha_vencimiento='';
+                    me.lote='';
+                    me.cantidad='';
                     me.id_sucursal = "";
                     me.id_producto = "";
                     me.id_ingreso = "";
@@ -1042,7 +1034,7 @@ export default {
                     me.id_producto = data.cod;
                     me.id_ingreso = data.id_ingreso;
                     me.TiposSeleccionado =
-                        data.id_tipo === null ? 0 : data.id_tipo;
+                    data.id_tipo === null ? 0 : data.id_tipo;
                     me.ProductoLineaIngresoSeleccionado =
                         data.id_ingreso === null ? 0 : data.id_ingreso;
                     me.leyenda = data.leyenda;
@@ -1062,7 +1054,10 @@ export default {
                 me.linea = "";
                 (me.producto = ""), (me.cantidadS = "");
                // me.descripcion = "";
-                me.fecha = "";
+               me.fecha_ingreso='';
+                    me.fecha_vencimiento='';
+                    me.lote='';
+                    me.cantidad='';
                 me.id_sucursal = "";
                 me.id_ingreso = "";
                 me.id_producto = "";
@@ -1083,16 +1078,16 @@ export default {
                     "->>>>" +
                     me.id_ingreso,
             );
-            let suma = me.cantidadProductoLineaIngreso - me.cantidadS;
+            let suma = me.cantidadProductoLineaIngreso + me.cantidadS;
 
             if (
                 me.codigo === "" ||
                 me.linea === "" ||
                 me.producto === "" ||
                 me.cantidadS === "" ||
-                me.TiposSeleccionado === "" ||
+                me.TiposSeleccionado === ""
              //   me.descripcion === "" ||
-                me.fecha === ""
+     
             ) {
                 Swal.fire(
                     "No puede ingresar valor nulos  o vacios",
@@ -1102,21 +1097,23 @@ export default {
             } else {
                 axios
                     .post("/ajustes-positivo/registrar", {
-                        id_tipo: me.TiposSeleccionado,
-                        id_producto_linea: me.ProductoLineaIngresoSeleccionado,
-                        codigo: me.codigo,
-                        linea: me.linea,
-                        producto: me.producto,
-                        cantidad: me.cantidadS,
-                        cantidad_producto: suma,
+                        'id_tipo': me.TiposSeleccionado,
+                        'id_producto_linea': me.ProductoLineaIngresoSeleccionado,
+                        'codigo': me.codigo,
+                        'linea': me.linea,
+                        'producto': me.producto,
+                        'cantidad': me.cantidadS,
+                        'stock':suma,                        
+                        'fecha_ingreso':me.fecha_ingreso, 
+                        'fecha_vencimiento':me.fecha_ingreso,
                      //   descripcion: me.descripcion,
-                        fecha: me.fecha,
-                        activo: 1,
-                        id_sucursal: me.id_sucursal,
-                        id_producto: me.id_producto,
-                        cod: me.sucursalSeleccionada,
-                        id_ingreso: me.id_ingreso,
-                        leyenda: me.leyenda,
+                     'lote':me.lote, 
+                        'activo': 1,
+                        'id_sucursal': me.id_sucursal,
+                        'id_producto': me.id_producto,
+                        'cod': me.sucursalSeleccionada,
+                        'id_ingreso': me.id_ingreso,
+                        'leyenda': me.leyenda,
                     })
                     .then(function (response) {
                         me.cerrarModal("registrar");

@@ -324,6 +324,7 @@
                                             class="form-control"
                                             placeholder="letenda"
                                          disabled
+                                         
                                         />
                                     </div>
                                     <input type="text" v-if="tipoAccion == 1" v-model="leyenda" hidden/>

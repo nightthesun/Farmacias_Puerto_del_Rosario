@@ -57,6 +57,10 @@ class InvAjustePositivoController extends Controller
                         'aan.linea as linea',
                         'aan.descripcion as descripcion',
                         'aan.cantidad as cantidad',
+                        'aan.stock as stock',
+                        'aan.lote as lote',
+                        'aan.created_at as fecha_ingreso',
+                        'aan.fecha_vencimiento as fecha_vencimiento',
                         'aan.id_tipo as id_tipo',
                         'pte.nombre as nombreTipo',
                         //'aan.fecha as fecha',
@@ -102,8 +106,13 @@ class InvAjustePositivoController extends Controller
                     'aan.producto as nombreProd',
                     'aan.codigo as codigo',
                     'aan.linea as linea',
-                    'aan.descripcion as descripcion',
-                    'aan.cantidad as cantidad',
+                  //  'aan.descripcion as descripcion',
+                  
+                  'aan.stock as stock',
+                        'aan.lote as lote',
+                        'aan.fecha_ingreso as fecha_ingreso',
+                        'aan.fecha_vencimiento as fecha_vencimiento',
+                  'aan.cantidad as cantidad',
                     'pte.nombre as nombreTipo',
                     DB::raw('GREATEST(aan.created_at, aan.updated_at) as fecha'),
                    //'aan.fecha as fecha',
@@ -200,7 +209,7 @@ class InvAjustePositivoController extends Controller
             $update->stock_ingreso=$request->stock;
             $update->save();
            $ajusteNegativo->save();
-
+//s
         }else {
             if ($activador==2) {
                 $ajusteNegativo=new Inv_AjustePositivo();
@@ -536,6 +545,7 @@ class InvAjustePositivoController extends Controller
         $update = Alm_IngresoProducto::find($id_i);
         $update->stock_ingreso =($update->stock_ingreso)-$cantidad;
         $update->save();
+        $updateAjusteNegativo->stock= $update->stock_ingreso; 
         $updateAjusteNegativo->save();
     } else {
         if ($activador == 2) {
@@ -546,6 +556,7 @@ class InvAjustePositivoController extends Controller
         $update = Tda_IngresoProducto::find($id_i);
         $update->stock_ingreso =($update->stock_ingreso)-$cantidad;
         $update->save();
+        $updateAjusteNegativo->stock= $update->stock_ingreso; 
         $updateAjusteNegativo->save();
         }
         else {
@@ -595,6 +606,7 @@ class InvAjustePositivoController extends Controller
         $update = Alm_IngresoProducto::find($id_i);
         $update->stock_ingreso =($update->stock_ingreso)+$cantidad;
         $update->save();
+        $updateAjusteNegativo->stock= $update->stock_ingreso; 
         $updateAjusteNegativo->save();
     } else {
         if ($activador == 2) {
@@ -605,6 +617,7 @@ class InvAjustePositivoController extends Controller
         $update = Tda_IngresoProducto::find($id_i);
         $update->stock_ingreso =($update->stock_ingreso)+$cantidad;
         $update->save();
+        $updateAjusteNegativo->stock= $update->stock_ingreso; 
         $updateAjusteNegativo->save();
         }
         else {
