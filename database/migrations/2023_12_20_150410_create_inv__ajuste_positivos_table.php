@@ -32,6 +32,7 @@ return new class extends Migration
             $table->boolean('activo')->default(1)->comment('Estado del registro, 1 -> activo, 0 -> inactivo');
             $table->string("cod")->comment("codigo");
             $table->smallInteger("id_ingreso");
+            $table->string("leyenda")->comment("conjunto de datos");
             $table->timestamps();
         });
     }
