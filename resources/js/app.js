@@ -68,6 +68,7 @@ createApp ({
     //Inventario 
     .component('ajuste-negativo-component', require('./components/inventario/AjusteNegativoComponent.vue').default)
     .component('ajuste-positivo-component', require('./components/inventario/AjustePositivoComponent.vue').default)
+    .component('traspaso-component', require('./components/inventario/TraspasoComponent.vue').default)
 
 
 

@@ -42,9 +42,9 @@
                                         :key="sucursal.id"
                                         :value="sucursal.codigo"
                                         v-text="
-                                            sucursal.codigo +
+                                            sucursal.codigoS +
                                             ' -> ' +
-                                            sucursal.tipoCodigo+
+                                            sucursal.codigo+
                                             ' ' +
                                             sucursal.razon_social
                                         "

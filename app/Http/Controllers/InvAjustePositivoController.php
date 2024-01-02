@@ -465,16 +465,15 @@ class InvAjustePositivoController extends Controller
 
     public function listarSucursal(){
        
-  
         $tiendas = DB::table('tda__tiendas')
-     ->select('tda__tiendas.id as id_tienda', DB::raw('null as id_almacen'), 'tda__tiendas.codigo', 'adm__sucursals.razon_social', 'adm__sucursals.razon_social as sucursal', DB::raw('"Tienda" as tipoCodigo'))
-     ->join('adm__sucursals', 'tda__tiendas.idsucursal', '=', 'adm__sucursals.id');
- 
- $almacenes = DB::table('alm__almacens as aa')
-     ->join('adm__sucursals as ass', 'ass.id', '=', 'aa.idsucursal')
-     ->select(DB::raw('null as id_tienda'), 'aa.id as id_almacen', 'aa.codigo', 'aa.nombre_almacen as razon_social', 'ass.razon_social as sucursal', DB::raw('"Almacen" as tipoCodigo'));
- 
- $result = $tiendas->unionAll($almacenes)->get();
+        ->select('tda__tiendas.id as id_tienda', DB::raw('null as id_almacen'), 'tda__tiendas.codigo', 'adm__sucursals.razon_social', 'adm__sucursals.razon_social as sucursal','adm__sucursals.cod as codigoS', DB::raw('"Tienda" as tipoCodigo'))
+        ->join('adm__sucursals', 'tda__tiendas.idsucursal', '=', 'adm__sucursals.id');
+
+    $almacenes = DB::table('alm__almacens as aa')
+        ->join('adm__sucursals as ass', 'ass.id', '=', 'aa.idsucursal')
+        ->select(DB::raw('null as id_tienda'), 'aa.id as id_almacen', 'aa.codigo', 'aa.nombre_almacen as razon_social', 'ass.razon_social as sucursal', 'ass.cod as codigoS,',DB::raw('"Almacen" as tipoCodigo'));
+
+    $result = $tiendas->unionAll($almacenes)->get();
  
  
          $jsonSucrusal = [];
@@ -487,6 +486,7 @@ class InvAjustePositivoController extends Controller
          'codigo' => $sucursal->codigo,
          'razon_social' => $sucursal->razon_social,
          'sucursal' => $sucursal->sucursal,
+         'codigoS' => $sucursal->codigoS,
          'tipoCodigo' =>$sucursal->tipoCodigo,
      ];
  
