@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('inv_traspasos', function (Blueprint $table) {
+        Schema::create('inv__traspasos', function (Blueprint $table) {
             $table->id();
             $table->smallInteger("id_origen")->comment("id_ingreso del almacen o tienda origen");
             $table->smallInteger("id_destino")->comment("id_ingreso del almacen o tienda destino");
@@ -24,8 +24,7 @@ return new class extends Migration
             $table->smallInteger("numero_traspaso")->comment("conjunto de numero y combinaciones de numeros");
             $table->smallInteger('id_usuario_modifico');
             $table->smallInteger('id_usuario_registro');
-            $table->boolean('procesado')->default(0)->comment('Estado del registro, 1 -> procesado, 0 -> no procesado');
-            
+            $table->boolean('procesado')->default(0)->comment('Estado del registro, 1 -> procesado, 0 -> no procesado');            
             $table->timestamps();
         });
     }
@@ -35,6 +34,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('inv_traspasos');
+        Schema::dropIfExists('inv__traspasos');
     }
 };

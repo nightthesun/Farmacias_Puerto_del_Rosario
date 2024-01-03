@@ -42,6 +42,7 @@ use App\Http\Controllers\SerVentaMaestroController;
 use App\Http\Controllers\TdaIngresoProductoController;
 use App\Http\Controllers\InvAjusteNegativoController;
 use App\Http\Controllers\InvAjustePositivoController;
+use App\Http\Controllers\InvTraspasoController;
 
 use App\Models\Alm_IngresoProducto;
 use App\Models\Tda_Tienda;
@@ -402,4 +403,6 @@ Route::group(['middleware' => 'auth'], function () {
     Route::put('/ajustes-positivo/activar', [InvAjustePositivoController::class, 'activar']);
     Route::get('/ajustes-positivo/listarSucursal', [InvAjustePositivoController::class, 'listarSucursal']);
     Route::get('/ajustes-positivo/retornarProductosIngreso', [InvAjustePositivoController::class, 'retornarProductosIngreso']);
+
+    Route::get('/traspaso/listarSucursal', [InvTraspasoController::class, 'listarSucursal']);
 });

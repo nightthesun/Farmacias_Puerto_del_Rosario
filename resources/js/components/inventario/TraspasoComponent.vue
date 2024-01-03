@@ -15,34 +15,65 @@
                     <button type="button" class="btn btn-secondary" @click="abrirModal('registrar')" >
                         <i class="icon-plus"></i>&nbsp;Nuevo
                     </button>
+                    <span >&nbsp; &nbsp;Debe Seleccionar un almacen o tienda.</span>  
                 </div>
                 <div class="card-body">
                     <div class="form-group row">
                         <div class="col-md-6">
                             <div class="input-group">
-                                <input type="text" id="texto" name="texto" class="form-control" placeholder="Texto a buscar">
-                                <button type="submit" class="btn btn-primary" ><i class="fa fa-search" ></i> Buscar</button>
-                           
-                                    
+                                <select class="form-control" v-model="sucursalSeleccionada" >
+                                    <option value="0" disabled selected>Seleccionar...</option>
+                                    <option v-for="sucursal in arraySucursal"
+                                        :key="sucursal.id"
+                                        :value="sucursal.codigo"
+                                        v-text="
+                                            sucursal.codigoS +
+                                            ' -> ' +
+                                            sucursal.codigo+
+                                            ' ' +
+                                            sucursal.razon_social
+                                        "
+                                    ></option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="input-group">
+                                <input
+                                    type="text"
+                                    id="texto"
+                                    name="texto"
+                                    class="form-control"
+                                    placeholder="Texto a buscar"
+                                    v-model="buscar"
+                                 
+                                />
+                                <button
+                                    type="submit"
+                                    class="btn btn-primary"
+                                   
+                                >
+                                    <i class="fa fa-search"></i> Buscar
+                                </button>
                             </div>
                         </div>
                     </div>
-             
+                    
                     <table class="table table-bordered table-striped table-sm table-responsive">
                         <thead>
                             <tr>
                                 <th>Opciones</th>
-                                <th>#traspaso</th>                               
-                                <th>Codigó</th>
-                                <th>Linea</th>
+                                <th>No.Traspaso</th> 
+                              <!--<th>Ítem</th>-->  
+                                <th>Código</th>
                                 <th>Producto</th>
-                                <th>Origen</th>
+                                <th>Linea</th>
+                               <th>Origen</th>
                                 <th>Destino</th>
-                                <th>Cantidad</th>
-                                
+                                <th>Cantidad Trsp</th>                                
                                 <th>Glosa</th>
                                 <th>Fecha</th>
-                                <th>Usuario</th>
+                                <th>Responsable</th>
                                 <th>Estado</th>
                                 <th>Procesado</th>
                             </tr>
@@ -98,7 +129,7 @@
                 </div>
                 <div class="modal-body">
                     <div class="alert alert-warning" role="alert">
-                        Todos los campos con (*) son requeridos // debe seleccionar un origen y precionar el buscar
+                        Todos los campos con (*) son requeridos // debe seleccionar un origen y un destino // precionar el buscar 
                     </div>
                     <form action="" class="form-horizontal">
                         <!-- insertar datos -->
@@ -110,88 +141,70 @@
                                     <span   class="error">(*)</span>
                                 </label>
                                 <div class="col-md-7 input-group mb-3">
-                                    <select name="" id=""  class="form-control">
-                                        <option value="0" selected disabled>-Seleccione un dato</option>
-                                        <option value="1" >1</option>
-                                        <option value="2" >1</option>
-                                    </select>
-                                    <button
-                                            class="btn btn-primary"
-                                          
-                                            type="button"
-                                            id="button-addon1"
-                                            @click="
-                                                abrirModal(
-                                                    'bucarProductoIngreso',
-                                                );
-                                              
-                                            "
-                                        >
-                                            <i class="fa fa-search"></i>
-                                        </button>
+                                    <select class="form-control" v-model="sucursalOrigen" >
+                                    <option value="0" disabled selected>Seleccionar...</option>
+                                    <option v-for="sucursal in arraySucursal"
+                                        :key="sucursal.codigo"
+                                        :value="sucursal.codigo"
+                                        v-text=" sucursal.codigoS + ' -> ' + sucursal.codigo+
+                                            ' ' + sucursal.razon_social
+                                        "
+                                    ></option>
+                                </select>
+                                    
                                 </div>
                                
                             </div>
-                            <div class="form-group row">
-                                    <label
-                                        class="col-md-3 form-control-label"
-                                        for="text-input"
-                                        >Descripción                               
-                                        
-                                    </label>
-                                        <div class="col-md-3 form-control-label" for="text-input">
-                                            <ul class="list-group">
-                                                <li class="list-group-item">id_ingreso</li>
-                                                <li class="list-group-item">cod_prod</li>
-                                                <li class="list-group-item">lote</li>
-                                                <li class="list-group-item">cantidad</li>
- 
-                                            </ul>
-                                        </div>
-                                </div>
-                            <div class="form-group row">
-                                    <label
-                                        class="col-md-3 form-control-label"
-                                        for="text-input"
-                                        >Cantidad
-                                        <span class="error">(*)</span
-                                        >
-                                    </label>
-                                    <div class="col-md-3">
-                                        <input 
-                                            type="number"
-                                            id="cantidad"
-                                            name="cantidad"
-                                            v-model="cantidad"
-                                            class="form-control"
-                                            placeholder="Datos de stock"
-                                         
-                                        />
-                                      
-                                        <span
-                                         
-                                            class="error"
-                                            >Debe Ingresar una cantidad</span
-                                        >
-                                    </div>
-                                </div>
-
-                               
                             <div class="form-group row">
                                 <label class="col-md-3 form-control-label" for="text-input">
                                     Destino
                                     <span   class="error">(*)</span>
                                 </label>
                                 <div class="col-md-7 input-group mb-3">
-                                    <select name="" id=""  class="form-control">
-                                        <option value="0" selected disabled>-Seleccione un dato</option>
-                                        <option value="1" >2</option>
-                                        <option value="2" >2</option>
-                                    </select>
+                                    <select class="form-control" v-model="sucursalDestino" >
+                                    <option value="0" disabled selected>Seleccionar...</option>
+                                    <option v-for="sucursal in arraySucursal"
+                                        :key="sucursal.codigo"
+                                        :value="sucursal.codigo"
+                                        v-text="
+                                            sucursal.codigoS +
+                                            ' -> ' +
+                                            sucursal.codigo+
+                                            ' ' +
+                                            sucursal.razon_social
+                                        "
+                                    ></option>
+                                </select>
                                 </div>
                             </div>
-
-                                                     
+                            <div class="form-group row">
+                                <label class="col-md-3 form-control-label" for="text-input">
+                                    Producto
+                                    <span   class="error">(*)</span>
+                                </label>
+                                <div class="col-md-7 input-group mb-3">
+                                    <input type="text"  id="cantidad" name="cantidad"  v-model="productoX"
+                                            class="form-control" placeholder="Debe seleccionar un producto" />
+                                            <button class="btn btn-primary" type="button" id="button-addon1"
+                                            @click=" abrirModal('bucarProductoIngreso'); ListarretornarProductosIngreso();">
+                                            <i class="fa fa-search"></i>
+                                    </button>
+                                </div>
+                               
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-md-3 form-control-label" for="text-input">
+                                    Cantidad
+                                    <span   class="error">(*)</span>
+                                </label>
+                                <div class="col-md-7 input-group mb-3">
+                                    <input type="number"  id="cantidad" name="cantidad"  v-model="cantidad"
+                                            class="form-control" placeholder="Datos de stock" />
+                                    
+                                </div>
+                               
+                            </div>
+                                                 
                             <div class="form-group row">
                                       <label class="col-md-3 form-control-label" for="text-input">Glosa
                                         <span   class="error">(*)</span>
@@ -319,27 +332,42 @@
      export default{
         data(){
             return{
+                pagination: {
+                total: 0,
+                current_page: 0,
+                per_page: 0,
+                last_page: 0,
+                from: 0,
+                to: 0,
+            },
                 tituloModal:'',
-                arrayTipos:[],
-              
-                listarTipo:0,
+                sucursalSeleccionada: 0,
+                arraySucursal:[],
+                buscar:"",
+                sucursalDestino: 0,
+                sucursalOrigen: 0,
+
+         
             }
+          
         },
         
        methods :{
-        ajustesNegativos(){
-                let me=this;
-                var url='/ajustesNeg/listarTipo';
-                axios.get(url).then(function(response){
-                    var respuesta=response.data;
-                    me.arrayTipos=respuesta;
-                    console.log( me.arrayTipos);
+        sucursalFiltro() {
+            let me = this;
+            var url = "/traspaso/listarSucursal";
+            axios
+                .get(url)
+                .then(function (response) {
+                    var respuesta = response.data;
+                    me.arraySucursal = respuesta;
+                    console.log(me.arraySucursal);
                 })
-                .catch(function(error){
+                .catch(function (error) {
                     error401(error);
                     console.log(error);
                 });
-            },
+        },
 
         cambiarPagina(page){
                 let me =this;
@@ -355,7 +383,8 @@
                     case 'registrar':
                     {
                         me.tituloModal='Traspaso'
-                        
+                        me.sucursalDestino= 0;
+                        me.sucursalOrigen= 0;
                         me.classModal.openModal('registrar');
                         break;
                     }
@@ -363,17 +392,43 @@
                         {
                             me.classModal.openModal('registrar');
                         }
-                        case "bucarProductoIngreso": {
-                    //  me.tipoAccion=1;
-                
+                    case "bucarProductoIngreso": {
                         me.classModal.openModal("staticBackdrop");
-                    break;
+                        break;
                 }
                  
 
                 }
                 
             },
+
+            ListarretornarProductosIngreso() {
+            let me = this;
+            console.log("origen:"+me.sucursalOrigen+" destino:"+me.sucursalDestino);
+           // if (me.tipoAccion == 1) {
+           //     var url ="/ajustes-positivo/retornarProductosIngreso?respuesta0=" + this.sucursalSeleccionada +
+           //         "&respuesta1=" + me.inputTextBuscarProductoIngreso;
+           // }
+
+          //  if (me.tipoAccion == 2) {
+          //      var url =
+          //          "/ajustes-positivo/retornarProductosIngreso?respuesta0=" + this.id_codigo +"&respuesta1=" +
+          //          me.inputTextBuscarProductoIngres;
+          //  }
+           // console.log(url);
+            axios
+                .get(url)
+                .then(function (response) {
+                    var respuesta = response.data;
+
+                    me.arrayRetornarProductosIngreso = respuesta;
+   })
+                .catch(function (error) {
+                    error401(error);
+                    console.log(error);
+                });
+        },
+
             cerrarModal(accion){
                 let me = this;
                 me.classModal.closeModal(accion);
@@ -385,8 +440,9 @@
        mounted() {
         this.classModal = new _pl.Modals();
         this.classModal.addModal('registrar');
-        this.ajustesNegativos();
+      
         this.classModal.addModal("staticBackdrop");
+        this.sucursalFiltro();
         
        }
      }
