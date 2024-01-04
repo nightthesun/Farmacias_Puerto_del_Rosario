@@ -929,7 +929,7 @@ export default {
             switch (accion) {
                 case "registrar": {
                     me.tipoAccion = 1;
-                    me.tituloModal = "Rejistro para Ajuste de negativos ";
+                    me.tituloModal = "Registro para Ajuste de negativos ";
                     me.ProductoLineaIngresoSeleccionado = 0;
 
                     me.id_codigo = me.sucursalSeleccionada;
@@ -993,7 +993,7 @@ export default {
                     //  me.id_codigo=me.sucursalSeleccionada;
                     // me.id_codigo=data.cod;
                     me.tipoAccion = 1;
-                    me.tituloModal = "Rejistro para Ajuste de negativos ";
+                    me.tituloModal = "Registro para Ajuste de negativos ";
                     me.ProductoLineaIngresoSeleccionado =
                         data.id_ingreso === null ? 0 : data.id_ingreso;
 
@@ -1017,7 +1017,7 @@ export default {
                     //  me.id_codigo=me.sucursalSeleccionada;
                     // me.id_codigo=data.cod;
                     // me.tipoAccion=2;
-                    me.tituloModal = "Rejistro para Ajuste de negativos ";
+                    me.tituloModal = "Registro para Ajuste de negativos ";
                     me.ProductoLineaIngresoSeleccionado =
                         data.id_ingreso === null ? 0 : data.id_ingreso;
 
