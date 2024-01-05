@@ -68,12 +68,12 @@ class InvTraspasoController extends Controller
     public function listarSucursal(){
        
         $tiendas = DB::table('tda__tiendas')
-        ->select('tda__tiendas.id as id_tienda', DB::raw('null as id_almacen'), 'tda__tiendas.codigo', 'adm__sucursals.razon_social', 'adm__sucursals.razon_social as sucursal','adm__sucursals.cod as codigoS', DB::raw('"Tienda" as tipoCodigo'))
+        ->select('tda__tiendas.id as id_tienda', DB::raw('null as id_almacen'), 'tda__tiendas.codigo', 'adm__sucursals.razon_social', 'adm__sucursals.razon_social as sucursal','adm__sucursals.cod as codigoS', DB::raw('"Tienda" as tipoCodigo'),'tda__tiendas.id as lista_id_almacen_id_tienda')
         ->join('adm__sucursals', 'tda__tiendas.idsucursal', '=', 'adm__sucursals.id');
 
     $almacenes = DB::table('alm__almacens as aa')
         ->join('adm__sucursals as ass', 'ass.id', '=', 'aa.idsucursal')
-        ->select(DB::raw('null as id_tienda'), 'aa.id as id_almacen', 'aa.codigo', 'aa.nombre_almacen as razon_social', 'ass.razon_social as sucursal', 'ass.cod as codigoS,',DB::raw('"Almacen" as tipoCodigo'));
+        ->select(DB::raw('null as id_tienda'), 'aa.id as id_almacen', 'aa.codigo', 'aa.nombre_almacen as razon_social', 'ass.razon_social as sucursal', 'ass.cod as codigoS,',DB::raw('"Almacen" as tipoCodigo'),'aa.id  as lista_id_almacen_id_tienda');
 
     $result = $tiendas->unionAll($almacenes)->get();
  
@@ -119,6 +119,7 @@ class InvTraspasoController extends Controller
        ->where('aa.codigo', $cod) 
        ->select(
          'pp.codigointernacional as codigointernacional',
+         'ai.registro_sanitario as registro_sanitario',
          'ai.envase as envase',        
          'aa.codigo as cod',
          'ai.id as id_ingreso',
@@ -142,10 +143,11 @@ class InvTraspasoController extends Controller
          'ff_3.nombre as nombre_farmaceutica_3',
          'ass.id AS id_sucursal',
          'ass.razon_social as razon_social',
+         'ai.idalmacen as id_almacen_tienda',
+         DB::raw('"Almacen" as tipoCodigo'),
          DB::raw('null as id_tienda'),
          'ai.idalmacen as id_almacen',
-         'aa.nombre_almacen as razon_social',
-            
+         'aa.nombre_almacen as razon_social',       
          DB::raw("
              CASE
                  WHEN ai.envase = 'primario' THEN CONCAT(COALESCE(pp.codigo, ''), ' ', COALESCE(pp.nombre, ''), ' ', COALESCE(pd_1.nombre, ''), ' X ', COALESCE(pp.cantidadprimario, ''), ' - ', COALESCE(ff_1.nombre, ''))
@@ -172,6 +174,7 @@ class InvTraspasoController extends Controller
        ->where('tt.codigo', $cod) 
        ->select(
          'pp.codigointernacional as codigointernacional',
+         'ti.registro_sanitario as registro_sanitario',
          'ti.envase as envase',   
          'tt.codigo as cod',
          'ti.id as id_ingreso',
@@ -195,6 +198,8 @@ class InvTraspasoController extends Controller
          'ff_3.nombre as nombre_farmaceutica_3',
          'ass.id AS id_sucursal',
          'ass.razon_social as razon_social',
+         'ti.idtienda as id_almacen_tienda',
+         DB::raw('"Tienda" as tipoCodigo'),
          'ti.idtienda as id_tienda',
          DB::raw('null as id_almacen'),
          'ass.razon_social as razon_social',

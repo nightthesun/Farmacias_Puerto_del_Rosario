@@ -406,5 +406,5 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::get('/traspaso/listarSucursal', [InvTraspasoController::class, 'listarSucursal']);
     Route::get('/traspaso/listarProductoLineaIngreso', [InvTraspasoController::class, 'listarProductoLineaIngreso']);
-  
+    Route::post('/traspaso/registrar', [InvTraspasoController::class, 'store']);
 });

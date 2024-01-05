@@ -82,6 +82,8 @@
                     <!---codigo antiguo-->
 
                     <!---------------------------------------------------------------->
+                 
+                 <!--
                     <table
                         class="table table-bordered table-striped table-sm table-responsive"
                     >
@@ -104,7 +106,7 @@
 
                         <tbody v-if="sucursalSeleccionada == 0"></tbody>
                         <tbody v-if="sucursalSeleccionada != 0">
-                            <!--botones de opciones-->
+                           
                             <tr
                                 v-for="AjusteNegativos in arrayAjusteNegativos"
                                 :key="AjusteNegativos.id"
@@ -158,7 +160,7 @@
                                 <td v-text="AjusteNegativos.fecha"></td>
                                 <td v-text="AjusteNegativos.fecha_vencimiento"></td>
                                 <td v-text="AjusteNegativos.nombreTipo"></td>
-                                <!--td v-text="AjusteNegativos.descripcion"></td>-->
+                             
                                         <td
                                     v-text="AjusteNegativos.nombre_usuario"
                                 ></td>
@@ -177,6 +179,9 @@
                             </tr>
                         </tbody>
                     </table>
+                
+                -->
+                    
 
                     <nav>
                         <ul class="pagination">
@@ -261,14 +266,17 @@
                             Todos los campos con (*) son requeridos
                         </div>
                         <form action="" class="form-horizontal">
+                            <div class="form-group col-sm-8" v-if="ProductoLineaIngresoSeleccionado!=''">
+                                    <strong>Origen: <span>{{tipoCodigo}} -> </span> <span> {{ razon_social }}</span></strong>
+                                     
+                                </div>
                             <!-- insertar datos -->
                             <div class="container">
+                                
                                 <div class="form-group row">
-                                    <label
-                                        class="col-md-3 form-control-label"
-                                        for="text-input"
-                                    >
-                                    <strong>   Producto</strong>
+                                   
+                                    <label class="col-md-3 form-control-label" for="text-input">
+                                    <strong>   Producto:</strong>
                                         <span
                                             v-if="ProductoLineaIngreso == '0'"
                                             class="error"
@@ -319,19 +327,15 @@
                                         >
                                             <i class="fa fa-search"></i>
                                         </button>
-                                        <input v-if="tipoAccion == 2"
-                                            type="text"
-                                         
-                                            v-model="leyenda"
-                                            class="form-control"
-                                            placeholder="letenda"
-                                         disabled
-                                      
-                                        />
+                                       <!--
+                                        <input v-if="tipoAccion == 2" type="text" v-model="leyenda" class="form-control"
+                                            placeholder="letenda" disabled />
+                                       --> 
+                                        
                                     </div>
                                   
                                 <div class="form-group col-sm-4" v-if="ProductoLineaIngresoSeleccionado!=''">
-                                    <strong>Stock: <span>{{ cantidadProductoLineaIngreso }}</span></strong>
+                                    <strong>Cantidad existente: <span>{{ cantidadProductoLineaIngreso }}</span></strong>
    
                                 </div>
                                 <div class="form-group col-sm-4" v-if="ProductoLineaIngresoSeleccionado!=''">
@@ -347,7 +351,7 @@
                                   
                                 </div>
                                 <div class="form-group col-sm-4" v-if="ProductoLineaIngresoSeleccionado!=''">
-                                    <strong>Registro sanitario: <span> 0 </span></strong>
+                                    <strong>Registro sanitario: <span> {{registro_sanitario}}</span></strong>
                                   
                                 </div>
                                 <div class="form-group col-sm-4" v-if="ProductoLineaIngresoSeleccionado!=''">
@@ -355,23 +359,22 @@
                                    
                                    
                                 </div>
-                                    <input type="text" v-if="tipoAccion == 1" v-model="leyenda" hidden/>
+                                <!--
+<input type="text" v-if="tipoAccion == 1" v-model="leyenda" hidden/>
                                     <input type="text" v-if="tipoAccion == 1" v-model="id_codigo"  hidden/>
                                     <input type="number" v-if="tipoAccion == 1" v-model="cantidadProductoLineaIngreso" hidden/>
                                     <input type="text" v-if="tipoAccion == 1" v-model="codigo" hidden/>
                                     <input type="text" v-if="tipoAccion == 1" v-model="linea"  hidden/>
                                     <input type="text" v-if="tipoAccion == 1" v-model="producto" hidden/>  
                                     <input type="text" v-if="tipoAccion == 1" v-model="id_producto" hidden/>
-                                    
                                     <input type="text" v-if="tipoAccion == 1" v-model="id_sucursal" hidden/>
                                     <input type="text" v-if="tipoAccion == 1" v-model="id_ingreso" hidden/>
                                     <input type="text" v-if="tipoAccion == 1" v-model="fecha_ingreso" hidden/>
                                     <input type="text" v-if="tipoAccion == 1" v-model="fecha_vencimiento" hidden/>
-                                   
                                     <input type="text" v-if="tipoAccion == 1" v-model="lote" hidden>
                                     <input type="text" v-if="tipoAccion == 1"  v-model="cantidad" hidden>
 
-                                    <!---datos  nulos-->
+                                  
                                     <input type="text" v-if="tipoAccion == 2" v-model="leyenda" disabled hidden/>
                                     <input type="text" v-if="tipoAccion == 2" v-model="id_codigo" disabled hidden/>
                                     <input type="number" v-if="tipoAccion == 2" v-model="cantidadProductoLineaIngreso" disabled hidden/>
@@ -387,22 +390,63 @@
                                    
                                     <input type="text" v-if="tipoAccion == 2" v-model="lote" disabled hidden>
                                     <input type="text" v-if="tipoAccion == 2"  v-model="cantidad" disabled hidden>  
-                                 </div>
-
-                                <div class="form-group row">
+                               
+                                -->
+                                      </div>
+                                 <div class="form-group row" v-if="ProductoLineaIngresoSeleccionado!=''"> 
                                     <label
                                         class="col-md-3 form-control-label"
                                         for="text-input"
-                                        >Cantidad
+                                    >
+                                    <strong>Destino</strong>    
+                                        <span class="error">(*)</span>
+                                    </label>
+                                    <div class="col-md-7">
+                                        <select
+                                            name=""
+                                            id=""
+                                            v-model="sucursalSeleccionadaDestino"
+                                            class="form-control"
+                                        >
+                                            <option value="0" disabled>
+                                                Seleccionar...
+                                            </option>
+                                            <option
+                                            v-for="sucursal in arraySucursalDestino"
+                                        :key="sucursal.id"
+                                        :value="sucursal.codigo"
+                                        v-text="
+                                            sucursal.codigoS +
+                                            ' -> ' +
+                                            sucursal.codigo+
+                                            ' ' +
+                                            sucursal.razon_social
+                                        "
+                                            ></option>
+                                        </select>
+                                        <span
+                                            v-if="sucursalSeleccionadaDestino == 0"
+                                            class="error"
+                                            >Debe seleccionar una opcion</span
+                                        >
+                                      <span>--{{lista_id_almacen_id_tienda}}</span>
+                                    </div>
+                                </div>
+                                <div class="form-group row" v-if="ProductoLineaIngresoSeleccionado!=''">
+                                    <label
+                                        class="col-md-3 form-control-label"
+                                        for="text-input"
+                                        ><strong>Cantidad a enviar</strong> 
                                         <span
                                             v-if="cantidadS == ''"
                                             class="error"
                                             >(*)</span
                                         >
                                     </label>
-                                    <div class="col-md-9">
+                                    <div class="col-md-5">
                                         <input v-if="tipoAccion == 1"
                                             type="number"
+                                            min="0"
                                             id="cantidad"
                                             name="cantidad"
                                             v-model="cantidadS"
@@ -425,58 +469,34 @@
                                             >Debe Ingresar una cantidad</span
                                         >
                                     </div>
-                                </div>
 
-                                <div class="form-group row">
-                                    <label
-                                        class="col-md-3 form-control-label"
-                                        for="text-input"
-                                    >
-                                        Tipo
-                                        <span class="error">(*)</span>
-                                    </label>
-                                    <div class="col-md-9">
-                                        <select  name="" id=""   v-model="TiposSeleccionado" class="form-control">
-                                            <option value="0" disabled>
-                                                Seleccionar...
-                                            </option>
-                                            <option
-                                                v-for="Tipos in arrayTipos"
-                                                :key="arrayTipos.id"
-                                                :value="Tipos.id"
-                                                v-text="Tipos.nombre"
-                                            ></option>
-                                        </select>
-                                       
-                                    </div>
+
                                 </div>
-                                <!--
- <div class="form-group row">
+                                <div class="form-group row" v-if="ProductoLineaIngresoSeleccionado!=''">
                                     <label
                                         class="col-md-3 form-control-label"
                                         for="text-input"
-                                        >Descripción
-                                        <span v-if="descripcion" class="error"
+                                        ><strong>Glosa</strong> 
+                                        <span v-if="glosa" class="error"
                                             >(*)</span
                                         >
                                     </label>
                                     <div class="col-md-9">
                                         <textarea
-                                            v-model="descripcion"
+                                            v-model="glosa"
                                             class="form-control"
-                                            id="descripcion"
-                                            name="descripcion"
+                                            id="glosa"
+                                            name="glosa"
                                             rows="3"
                                             v-on:focus="selectAll"
                                         ></textarea>
                                         <span
-                                            v-if="descripcion === ''"
+                                            v-if="glosa === ''"
                                             class="error"
-                                            >Debe Ingresar la Descripción</span
+                                            >Debe Ingresar la glosa</span
                                         >
                                     </div>
                                 </div>
-                                -->
                                
                             </div>
                         </form>
@@ -653,7 +673,7 @@ export default {
                 from: 0,
                 to: 0,
             },
-            pestañaActiva: "pills-envase-primario-tab",
+          
 
             tituloModal: "",
             arrayTipos: [],
@@ -666,7 +686,7 @@ export default {
             cantidadS: "",
             listarTipo: 0,
             cantidadProductoLineaIngreso: "",
-          //  descripcion: "",
+     
             codigo: "",
             linea: "",
             producto: "",
@@ -694,6 +714,17 @@ export default {
             inputTextBuscarProductoIngreso: "",
             arrayRetornarProductosIngreso: [],
             leyenda: "",
+            /////////////////
+            razon_social: "", 
+            tipoCodigo:"",  
+            registro_sanitario:"",
+            arraySucursalDestino: [],
+            sucursalSeleccionadaDestino: 0,
+            glosa:"",
+            id_almacen_tienda:"",
+            envase:"",
+            ////////////
+            lista_id_almacen_id_tienda:"",
         };
     },
 
@@ -721,6 +752,11 @@ export default {
          this.id_ingreso=productoSeleccionado.id_ingreso;
          this.lote=productoSeleccionado.lote;   
          this.cantidad=productoSeleccionado.cantidad_ingreso;
+         this.razon_social=productoSeleccionado.razon_social;
+         this.tipoCodigo=productoSeleccionado.tipoCodigo;
+         this.registro_sanitario=productoSeleccionado.registro_sanitario;
+         this.id_almacen_tienda=productoSeleccionado.id_almacen_tienda;
+         this.envase=productoSeleccionado.envase;
                     this.leyenda =
                         productoSeleccionado.leyenda +
                         " | lote: " +
@@ -738,7 +774,7 @@ export default {
                 this.cantidadS = "";
             }
         },
-
+      
         cantidadS: function (valor) {
             if (valor < 0) {
                 if (this.tipoAccion === 1) {
@@ -754,20 +790,42 @@ export default {
             } else if (valor !== this.cantidadProductoLineaIngreso) {
                 this.cantidadS = valor;
             }
+            if (valor > this.cantidadProductoLineaIngreso) {
+                if (this.tipoAccion === 1) {
+                    this.cantidadS = 0;
+                }
+
+                Swal.fire(
+                    "No puede ingresar un número mayor al stock actual",
+                    "Haga click en Ok",
+                    "error",
+                );
+                console.log(
+                    "No se puede ingresar datos mayor que el stock actual",
+                );
+            } else if (valor !== this.cantidadProductoLineaIngreso) {
+                this.cantidadS = valor;
+            }
+
         },
-       // buscar: function (valor) {
-       //     if (this.buscar !== "") {
-       //         this.sucursalSeleccionada = "";
-       //     }
-       // },
+        sucursalSeleccionadaDestino: function (newValue) {
+    console.log(newValue);
+    let sucursalSeleccionadoD = this.arraySucursalDestino.find(
+        (element) => element.codigo === newValue,
+    );
+    console.log("--" + sucursalSeleccionadoD);  // Corrección aquí
+    if (sucursalSeleccionadoD) {
+        this.lista_id_almacen_id_tienda = sucursalSeleccionadoD.lista_id_almacen_id_tienda;
+    }
+},
     },
 
     computed: {
         sicompleto() {
             let me = this;
             if (
-              //  me.descripcion != "" &&
-                me.TiposSeleccionado != "" &&
+          
+                me.glosa != "" &&
                 me.cantidadS != "" &&
                 me.ProductoLineaIngresoSeleccionado
             )
@@ -807,13 +865,28 @@ export default {
         },
         sucursalFiltro() {
             let me = this;
-            var url = "/ajustes-positivo/listarSucursal";
+            var url = "/traspaso/listarSucursal";
             axios
                 .get(url)
                 .then(function (response) {
                     var respuesta = response.data;
                     me.arraySucursal = respuesta;
                     console.log(me.arraySucursal);
+                })
+                .catch(function (error) {
+                    error401(error);
+                    console.log(error);
+                });
+        },
+        sucursalFiltroDestino() {
+            let me = this;
+            var url = "/traspaso/listarSucursal";
+            axios
+                .get(url)
+                .then(function (response) {
+                    var respuesta = response.data;
+                    me.arraySucursalDestino = respuesta;
+                    console.log(me.arraySucursalDestino);
                 })
                 .catch(function (error) {
                     error401(error);
@@ -881,13 +954,6 @@ export default {
                 var url ="/ajustes-positivo/retornarProductosIngreso?respuesta0=" + this.sucursalSeleccionada +
                     "&respuesta1=" + me.inputTextBuscarProductoIngreso;
             }
-
-          //  if (me.tipoAccion == 2) {
-          //      var url =
-          //          "/ajustes-positivo/retornarProductosIngreso?respuesta0=" + this.id_codigo +"&respuesta1=" +
-          //          me.inputTextBuscarProductoIngres;
-          //  }
-            console.log(url);
             axios
                 .get(url)
                 .then(function (response) {
@@ -912,23 +978,21 @@ export default {
             let respuesta = me.arraySucursal.find(
                 (element) => element.codigo == me.sucursalSeleccionada,
             );
-            console.log("accion:" + me.tipoAccion);
-            switch (accion) {
+            
+         switch (accion) {
                 case "registrar": {
                     me.tipoAccion = 1;
-                    me.tituloModal = "Registro para Ajuste de negativos ";
+                    me.tituloModal = "Registro de traspaso origen "+respuesta.razon_social;
                     me.ProductoLineaIngresoSeleccionado = 0;
 
                     me.id_codigo = me.sucursalSeleccionada;
                     me.cantidadProductoLineaIngreso = "";
-                    me.TiposSeleccionado = 0;
-                    me.cambiodeEstado = "";
-
+                 
                     me.codigo = "";
                     me.linea = "";
                     me.producto = "";
                     me.cantidadS = "";
-                  //  me.descripcion = "";
+              
                     me.fecha_ingreso='';
                     me.fecha_vencimiento='';
                     me.lote='';
@@ -939,6 +1003,14 @@ export default {
                     me.id_ingreso = "";
                     me.classModal.openModal("registrar");
                     me.leyenda = "";
+                    //
+                    me.razon_social="";
+                    me.tipoCodigo="";
+                    me.registro_sanitario="";
+                    me.sucursalSeleccionadaDestino=0;
+                    me.glosa="";
+                    me.id_almacen_tienda="";
+                    me.envase="";
                     break;
                 }
                 case "actualizar": {
@@ -951,8 +1023,8 @@ export default {
                     me.linea = data.linea;
                     me.producto = data.nombreProd;
                     me.cantidadS = data.cantidad;
-                //    me.descripcion = data.descripcion;
-                    me.fecha_ingreso=data.fecha_ingreso;
+       
+                         me.fecha_ingreso=data.fecha_ingreso;
                     me.fecha_vencimiento=data.fecha_vencimiento;
                     me.lote=data.lote;
                     me.cantidad=data.cantidad;
@@ -999,7 +1071,7 @@ export default {
                     me.linea = "";
                     me.producto = "";
                     me.cantidadS = "";
-                   // me.descripcion = "";
+          
                    me.fecha_ingreso='';
                     me.fecha_vencimiento='';
                     me.lote='';
@@ -1026,7 +1098,7 @@ export default {
                     me.linea = "";
                     me.producto = "";
                     me.cantidadS = "";
-                //    me.descripcion = "";
+       
                     me.fecha = "";
                     me.id_sucursal = "";
                     me.id_producto = "";
@@ -1045,7 +1117,7 @@ export default {
                     me.linea = data.linea;
                     me.producto = data.nombreProd;
                     me.cantidadS = data.catidad;
-                  //  me.descripcion = data.descripcion;
+                
                     me.fecha = data.fecha;
                     me.idAjusteNegativos = data.id;
                     me.id_sucursal = data.id_sucursal;
@@ -1071,7 +1143,7 @@ export default {
                 me.codigo = "";
                 me.linea = "";
                 (me.producto = ""), (me.cantidadS = "");
-               // me.descripcion = "";
+            
                me.fecha_ingreso='';
                     me.fecha_vencimiento='';
                     me.lote='';
@@ -1080,6 +1152,11 @@ export default {
                 me.id_ingreso = "";
                 me.id_producto = "";
                 me.leyenda = "";
+                 me.razon_social="";
+                    me.tipoCodigo="";
+                    me.registro_sanitario="";
+                    me.sucursalSeleccionadaDestino=0;
+                    me.glosa="";
             } else {
                 me.classModal.closeModal(accion);
                 //me.idproductoselected = me.idproductoselected;
@@ -1089,22 +1166,17 @@ export default {
 
         registrorAjusteNegativo() {
             let me = this;
-            console.log(
-                me.TiposSeleccionado +
-                    " - " +
-                    me.sucursalSeleccionada +
-                    "->>>>" +
-                    me.id_ingreso,
+            console.log("-----"+me.id_almacen_tienda +" - " +me.id_producto +" - " + me.id_ingreso+" - "+me.envase+" - "+me.cantidadS+" - "+me.fecha_vencimiento+" - "+me.lote+" > "
+            +me.registro_sanitario+" > "+me.id_almacen_tienda+" > "+me.lista_id_almacen_id_tienda
             );
             let suma = me.cantidadProductoLineaIngreso + me.cantidadS;
 
             if (
-                me.codigo === "" ||
-                me.linea === "" ||
-                me.producto === "" ||
+               me.ProductoLineaIngresoSeleccionado === "" ||
+                me.sucursalSeleccionadaDestino === "" ||
                 me.cantidadS === "" ||
-                me.TiposSeleccionado === ""
-             //   me.descripcion === "" ||
+                me.glosa === ""
+       
      
             ) {
                 Swal.fire(
@@ -1114,7 +1186,7 @@ export default {
                 );
             } else {
                 axios
-                    .post("/ajustes-positivo/registrar", {
+                    .post("/traspaso......../registrar", {
                         'id_tipo': me.TiposSeleccionado,
                         'id_producto_linea': me.ProductoLineaIngresoSeleccionado,
                         'codigo': me.codigo,
@@ -1124,7 +1196,7 @@ export default {
                         'stock':suma,                        
                         'fecha_ingreso':me.fecha_ingreso, 
                         'fecha_vencimiento':me.fecha_ingreso,
-                     //   descripcion: me.descripcion,
+                
                      'lote':me.lote, 
                         'activo': 1,
                         'id_sucursal': me.id_sucursal,
@@ -1157,20 +1229,7 @@ export default {
                 .put("/ajustes-positivo/actualizar", {
                     id: me.idAjusteNegativos,
                     id_tipo: me.TiposSeleccionado,
-                    //id_producto_linea: me.ProductoLineaIngresoSeleccionado,
-                   // codigo: me.codigo,
-                   // linea: me.linea,
-                   // producto: me.producto,
-                   // cantidad: me.cantidadS,
-                   // cantidad_producto: suma,
-                  //  descripcion: me.descripcion,
-                   // fecha: me.fecha,
-                   // id_sucursal: me.id_sucursal,
-                  //  id_ingreso: me.id_ingreso,
-                  //  id_producto: me.id_producto,
-                  //  cod: me.sucursalSeleccionada,
-                  //  id_ingreso: me.id_ingreso,
-                   // leyenda: me.leyenda,
+                  
                 })
                 .then(function (response) {
                     me.listarAjusteNegativos();
@@ -1186,18 +1245,10 @@ export default {
                 });
             me.cerrarModal("registrar");
         },
-        //para listar db alm__ajuste_negativos
+        
         listarAjusteNegativos(page) {
             let me = this;
-           // console.log (me.sucursalSeleccionada);
-           // if (me.sucursalSeleccionada == 0) {
-           //     var url =     "/ajustes-positivo?page=" + page + "&buscar=" + me.buscar;
-               // me.sucursalSeleccionada = 0;
-           // } else {
-           //     var url =
-           //         "/ajustes-positivo?page="+page+"&buscar=" + me.sucursalSeleccionada;
-               // me.buscar = "";
-           // }
+         
             var url ="/ajustes-positivo?page="+page+"&buscar=" +me.buscar+"&buscarAlmTdn=" +me.sucursalSeleccionada;
             axios.get(url)
                 .then(function (response) {
@@ -1352,6 +1403,7 @@ export default {
         this.ajustesNegativos();
         this.cambiodeEstado();
         this.sucursalFiltro();
+        this.sucursalFiltroDestino();
         this.classModal.addModal("staticBackdrop");
     },
 };
