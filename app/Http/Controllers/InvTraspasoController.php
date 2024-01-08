@@ -31,7 +31,62 @@ class InvTraspasoController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $traspaso=new Inv_Traspaso();
+        $traspaso->id_almacen_tienda=$request->id_almacen_tienda;
+        $traspaso->id_prod_producto=$request->id_prod_producto;
+        $traspaso->envase=$request->envase;
+        $traspaso->id_tipoentrada=13;// es deacuerdo al ide de la tabla prod__tipo_entradas donde se el id ques e busca es el 13 de tarspasos
+        $traspaso->cantidad__stock_ingreso=$request->cantidad__stock_ingreso;
+        $traspaso->fecha_vencimiento=$request->fecha_vencimiento;
+        $traspaso->lote=$request->lote;
+        $traspaso->registro_sanitario=$request->registro_sanitario;
+        $traspaso->activo=$request->activo;
+        $traspaso->id_origen=$request->id_origen;
+        $traspaso->id_destino=$request->id_destino;
+        $traspaso->id_ingreso=$request->id_ingreso;
+        $traspaso->cod_1=$request->cod_1;
+        $traspaso->cod_2=$request->cod_2;
+        $traspaso->leyenda=$request->leyenda;
+        $traspaso->glosa=$request->glosa;
+        //codigo de para traspaso
+        $letracodigo='TRS';        
+        $maxcorrelativo = Inv_Traspaso::select(DB::raw('max(id) as maximo'))
+                                      ->get()->toArray();
+        $correlativo=$maxcorrelativo[0]['maximo'];
+        if(is_null($correlativo))
+            $correlativo=1;
+        else
+            $correlativo=$correlativo+1;
+
+      
+        if($correlativo>=0 && $correlativo<10)
+            $codigo='000000000'.$correlativo;
+        if($correlativo>=10 && $correlativo<100)
+            $codigo='00000000'.$correlativo;
+        if($correlativo>=100 && $correlativo<1000)
+            $codigo='0000000'.$correlativo;
+        if($correlativo>=1000 && $correlativo<10000)
+            $codigo='000000'.$correlativo;
+        if($correlativo>=10000 && $correlativo<100000)
+            $codigo='00000'.$correlativo;
+        if($correlativo>=100000 && $correlativo<1000000)
+            $codigo='0000'.$correlativo;
+        if($correlativo>=1000000 && $correlativo<10000000)
+            $codigo='000'.$correlativo;
+        if($correlativo>=10000000 && $correlativo<100000000)
+            $codigo='00'.$correlativo;
+        if($correlativo>=100000000 && $correlativo<1000000000)     
+            $codigo='0'.$correlativo;
+        
+     
+        $codigo=$letracodigo.$codigo;
+        
+       $traspaso->numero_traspaso=$codigo;
+        $traspaso->id_usuario_registro=auth()->user()->id;
+    
+        $traspaso->save();
+       
+
     }
 
     /**
@@ -90,6 +145,7 @@ class InvTraspasoController extends Controller
          'sucursal' => $sucursal->sucursal,
          'codigoS' => $sucursal->codigoS,
          'tipoCodigo' =>$sucursal->tipoCodigo,
+         'lista_id_almacen_id_tienda'=>$sucursal->lista_id_almacen_id_tienda,
      ];
  
      $jsonSucrusal[] = $elemento;

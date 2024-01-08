@@ -894,8 +894,7 @@ export default {
             let respuesta = me.arraySucursal.find(
                 (element) => element.codigo == me.sucursalSeleccionada,
             );
-            console.log("accion:" + me.tipoAccion);
-            switch (accion) {
+             switch (accion) {
                 case "registrar": {
                     me.tipoAccion = 1;
                     me.tituloModal = "Registro para Ajuste de negativos ";

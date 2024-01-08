@@ -79,10 +79,14 @@
                         </div>
                     </div>
 
-                    <!---codigo antiguo-->
-
-                    <!---------------------------------------------------------------->
-                 
+                  <table class="table table-bordered table-striped table-sm table-responsive" >
+                    <thead>
+                        <tr>
+                            <th>Opciones</th>
+                            <th>Nro.Traspaso</th>
+                        </tr>
+                    </thead>
+                  </table>
                  <!--
                     <table
                         class="table table-bordered table-striped table-sm table-responsive"
@@ -429,7 +433,7 @@
                                             class="error"
                                             >Debe seleccionar una opcion</span
                                         >
-                                      <span>--{{lista_id_almacen_id_tienda}}</span>
+                              
                                     </div>
                                 </div>
                                 <div class="form-group row" v-if="ProductoLineaIngresoSeleccionado!=''">
@@ -725,6 +729,7 @@ export default {
             envase:"",
             ////////////
             lista_id_almacen_id_tienda:"",
+            codigoDestino:"",
         };
     },
 
@@ -808,14 +813,17 @@ export default {
             }
 
         },
-        sucursalSeleccionadaDestino: function (newValue) {
-    console.log(newValue);
+sucursalSeleccionadaDestino: function (newValue) {
+    
     let sucursalSeleccionadoD = this.arraySucursalDestino.find(
         (element) => element.codigo === newValue,
     );
-    console.log("--" + sucursalSeleccionadoD);  // Corrección aquí
+    
     if (sucursalSeleccionadoD) {
         this.lista_id_almacen_id_tienda = sucursalSeleccionadoD.lista_id_almacen_id_tienda;
+        this.codigoDestino = sucursalSeleccionadoD.codigo;
+
+
     }
 },
     },
@@ -984,33 +992,30 @@ export default {
                     me.tipoAccion = 1;
                     me.tituloModal = "Registro de traspaso origen "+respuesta.razon_social;
                     me.ProductoLineaIngresoSeleccionado = 0;
-
                     me.id_codigo = me.sucursalSeleccionada;
-                    me.cantidadProductoLineaIngreso = "";
-                 
-                    me.codigo = "";
-                    me.linea = "";
-                    me.producto = "";
-                    me.cantidadS = "";
-              
+                    me.cantidadProductoLineaIngreso = '';                 
+                    me.codigo = '';
+                    me.linea = '';
+                    me.producto = '';
+                    me.cantidadS = '';              
                     me.fecha_ingreso='';
                     me.fecha_vencimiento='';
                     me.lote='';
-                    me.cantidad='';
-                    
-                    me.id_sucursal = "";
-                    me.id_producto = "";
-                    me.id_ingreso = "";
-                    me.classModal.openModal("registrar");
-                    me.leyenda = "";
+                    me.cantidad='';                    
+                    me.id_sucursal ='';
+                    me.id_producto = '';
+                    me.id_ingreso = '';                    
+                    me.leyenda = '';
                     //
-                    me.razon_social="";
-                    me.tipoCodigo="";
-                    me.registro_sanitario="";
+                    me.razon_social='';
+                    me.tipoCodigo='';
+                    me.registro_sanitario='';
                     me.sucursalSeleccionadaDestino=0;
-                    me.glosa="";
-                    me.id_almacen_tienda="";
-                    me.envase="";
+                    me.glosa='';
+                    me.id_almacen_tienda='';
+                    me.envase='';
+                    me.lista_id_almacen_id_tienda='';
+                    me.classModal.openModal("registrar");
                     break;
                 }
                 case "actualizar": {
@@ -1057,10 +1062,9 @@ export default {
                 }
 
                 case "inputModal": {
-                    //  me.id_codigo=me.sucursalSeleccionada;
-                    // me.id_codigo=data.cod;
+                 
                     me.tipoAccion = 1;
-                    me.tituloModal = "Registro para Ajuste de negativos ";
+                    me.tituloModal = "Registro de traspaso origen "+respuesta.razon_social;
                     me.ProductoLineaIngresoSeleccionado =
                         data.id_ingreso === null ? 0 : data.id_ingreso;
 
@@ -1083,80 +1087,41 @@ export default {
                     me.classModal.openModal("registrar");
                     break;
                 }
-                case "inputModal2": {
-                    //  me.id_codigo=me.sucursalSeleccionada;
-                    // me.id_codigo=data.cod;
-                    // me.tipoAccion=2;
-                    me.tituloModal = "Registro para Ajuste de negativos ";
-                    me.ProductoLineaIngresoSeleccionado =
-                        data.id_ingreso === null ? 0 : data.id_ingreso;
-
-                    me.cantidadProductoLineaIngreso = "";
-                    me.TiposSeleccionado = 0;
-
-                    me.codigo = "";
-                    me.linea = "";
-                    me.producto = "";
-                    me.cantidadS = "";
-       
-                    me.fecha = "";
-                    me.id_sucursal = "";
-                    me.id_producto = "";
-                    me.id_ingreso = "";
-                    me.leyenda = "";
-                    me.classModal.openModal("registrar");
-                    break;
-                }
-                case "inputModalCerrar": {
-                    me.id_codigo = data.cod;
-                    //   me.tipoAccion=2;
-                    me.tituloModal =
-                        "Actualizacion para Ajuste de negativos en la sucursal: ";
-                    me.codigo = data.codigo;
-                    me.cantidadProductoLineaIngreso = data.cantidad;
-                    me.linea = data.linea;
-                    me.producto = data.nombreProd;
-                    me.cantidadS = data.catidad;
                 
-                    me.fecha = data.fecha;
-                    me.idAjusteNegativos = data.id;
-                    me.id_sucursal = data.id_sucursal;
-                    me.id_producto = data.cod;
-                    me.id_ingreso = data.id_ingreso;
-                    me.TiposSeleccionado =
-                    data.id_tipo === null ? 0 : data.id_tipo;
-                    me.ProductoLineaIngresoSeleccionado =
-                        data.id_ingreso === null ? 0 : data.id_ingreso;
-                    me.leyenda = data.leyenda;
-                }
             }
         },
         cerrarModal(accion) {
             let me = this;
             if (accion == "registrar") {
                 me.classModal.closeModal(accion);
-                me.ProductoLineaIngresoSeleccionado = 0;
-                me.TiposSeleccionado = 0;
-                me.cantidadProductoLineaIngreso = "";
-                me.tipoAccion = 1;
-
-                me.codigo = "";
-                me.linea = "";
-                (me.producto = ""), (me.cantidadS = "");
-            
-               me.fecha_ingreso='';
+               
+                    me.tituloModal = " ";
+                    me.ProductoLineaIngresoSeleccionado = 0;
+                    me.id_codigo = me.sucursalSeleccionada;
+                    me.cantidadProductoLineaIngreso = '';                 
+                    me.codigo = '';
+                    me.linea = '';
+                    me.producto = '';
+                    me.cantidadS = '';              
+                    me.fecha_ingreso='';
                     me.fecha_vencimiento='';
                     me.lote='';
-                    me.cantidad='';
-                me.id_sucursal = "";
-                me.id_ingreso = "";
-                me.id_producto = "";
-                me.leyenda = "";
-                 me.razon_social="";
-                    me.tipoCodigo="";
-                    me.registro_sanitario="";
+                    me.cantidad='';                    
+                    me.id_sucursal = '';
+                    me.id_producto = '';
+                    me.id_ingreso = '';                    
+                    me.leyenda = '';
+                    //
+                    me.razon_social='';
+                    me.tipoCodigo='';
+                    me.registro_sanitario='';
                     me.sucursalSeleccionadaDestino=0;
-                    me.glosa="";
+                    me.glosa='';
+                    me.id_almacen_tienda='';
+                    me.envase='';
+                    me.lista_id_almacen_id_tienda;
+                    setTimeout(me.tiempo, 200); 
+              
             } else {
                 me.classModal.closeModal(accion);
                 //me.idproductoselected = me.idproductoselected;
@@ -1166,14 +1131,14 @@ export default {
 
         registrorAjusteNegativo() {
             let me = this;
-            console.log("-----"+me.id_almacen_tienda +" - " +me.id_producto +" - " + me.id_ingreso+" - "+me.envase+" - "+me.cantidadS+" - "+me.fecha_vencimiento+" - "+me.lote+" > "
-            +me.registro_sanitario+" > "+me.id_almacen_tienda+" > "+me.lista_id_almacen_id_tienda
-            );
+          //  console.log("-----"+me.id_almacen_tienda +" - " +me.id_producto +" - " + me.id_ingreso+" - "+me.envase+" - "+me.cantidadS+" - "+me.fecha_vencimiento+" - "+me.lote+" > "
+          //  +me.registro_sanitario+" > "+me.id_almacen_tienda+" > "+me.lista_id_almacen_id_tienda+" > "+me.id_ingreso+" > "+me.sucursalSeleccionada+" > "+me.codigoDestino
+          //  +" > "+me.leyenda+" > "+me.glosa );
             let suma = me.cantidadProductoLineaIngreso + me.cantidadS;
 
             if (
-               me.ProductoLineaIngresoSeleccionado === "" ||
-                me.sucursalSeleccionadaDestino === "" ||
+               me.ProductoLineaIngresoSeleccionado === 0 ||
+                me.sucursalSeleccionadaDestino === 0 ||
                 me.cantidadS === "" ||
                 me.glosa === ""
        
@@ -1185,30 +1150,37 @@ export default {
                     "warning",
                 );
             } else {
-                axios
-                    .post("/traspaso......../registrar", {
-                        'id_tipo': me.TiposSeleccionado,
-                        'id_producto_linea': me.ProductoLineaIngresoSeleccionado,
-                        'codigo': me.codigo,
-                        'linea': me.linea,
-                        'producto': me.producto,
-                        'cantidad': me.cantidadS,
-                        'stock':suma,                        
-                        'fecha_ingreso':me.fecha_ingreso, 
-                        'fecha_vencimiento':me.fecha_ingreso,
-                
-                     'lote':me.lote, 
+                if (me.sucursalSeleccionada==me.codigoDestino) {
+                    Swal.fire(
+                    "No puede hacer traspasos con la misma tienda o almacen.",
+                    "Haga click en Ok",
+                    "warning",
+                );
+                } else {
+                   
+                    axios
+                    .post("/traspaso/registrar", {
+                        'id_almacen_tienda': me.id_almacen_tienda,
+                        'id_prod_producto': me.id_producto,
+                        'envase': me.envase,
+                        'cantidad__stock_ingreso': me.cantidadS,
+                        'fecha_vencimiento': me.fecha_vencimiento,
+                        'lote':me.lote, 
+                        'registro_sanitario':me.registro_sanitario,
                         'activo': 1,
-                        'id_sucursal': me.id_sucursal,
-                        'id_producto': me.id_producto,
-                        'cod': me.sucursalSeleccionada,
+                        'id_origen':me.id_almacen_tienda,
+                        'id_destino':me.lista_id_almacen_id_tienda,
                         'id_ingreso': me.id_ingreso,
+                        'cod_1':me.sucursalSeleccionada,
+                        'cod_2':me.codigoDestino,
                         'leyenda': me.leyenda,
+                        'glosa':me.glosa,
+                         
                     })
                     .then(function (response) {
                         me.cerrarModal("registrar");
                         Swal.fire(
-                            "Ajuste de negativos Registrado exitosamente",
+                            "Se registro exitosamente",
                             "Haga click en Ok",
                             "success",
                         );
@@ -1220,6 +1192,8 @@ export default {
                         error401(error);
                         console.log(error);
                     });
+                }
+               
             }
         },
         actualizarAjusteNegativo() {
