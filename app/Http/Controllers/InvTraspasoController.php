@@ -13,9 +13,132 @@ class InvTraspasoController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        
+        $buscararray = array();
+        $bus = $request->query('buscarAlmTdn');
+        if (!empty($request->buscar)) {
+            $buscararray = explode(" ", $request->buscar);
+            $valor = sizeof($buscararray);
+            if ($valor > 0) {
+                $sqls = '';
+
+                foreach ($buscararray as $valor) {
+                    if (empty($sqls)) {
+                        $sqls = "(
+                                aan.codigo like '%" . $valor . "%' 
+                                or aan.linea like '%" . $valor . "%' 
+                                or aan.producto like '%" . $valor . "%'
+                                or pte.nombre like '%" . $valor . "%' 
+                                or aan.descripcion like '%" . $valor . "%'
+                                or ass.razon_social like '%" . $valor . "%'
+                                or aan.cod like '%" . $valor . "%' 
+                               )";
+                    } else {
+                        $sqls .= "and (aan.codigo like '%" . $valor . "%' 
+                        or aan.linea like '%" . $valor . "%' 
+                        or aan.producto like '%" . $valor . "%' 
+                        or pte.nombre like '%" . $valor . "%' 
+                        or aan.descripcion like '%" . $valor . "%'
+                        or ass.razon_social like '%" . $valor . "%'
+                        or aan.cod like '%" . $valor . "%' 
+                       )";
+                    }
+                }
+                $query_ajuste_negativos = DB::table('inv__ajuste_positivos as aan')
+                    ->join('prod__tipo_entradas as pte', 'aan.id_tipo', '=', 'pte.id')
+                    ->join('adm__sucursals as ass', 'aan.id_sucursal', '=', 'ass.id')
+                    ->select(
+                        'aan.id as id',
+                        'aan.id_producto_linea as id_producto_linea',
+                        'aan.usuario as nombre_usuario',
+                        'aan.producto as nombreProd',
+                        'aan.codigo as codigo',
+                        'aan.linea as linea',
+                        'aan.descripcion as descripcion',
+                        'aan.cantidad as cantidad',
+                        'aan.stock as stock',
+                        'aan.lote as lote',
+                        'aan.created_at as fecha_ingreso',
+                        'aan.fecha_vencimiento as fecha_vencimiento',
+                        'aan.id_tipo as id_tipo',
+                        'pte.nombre as nombreTipo',
+                        //'aan.fecha as fecha',
+                        DB::raw('GREATEST(aan.created_at, aan.updated_at) as fecha'),
+                        'aan.id_sucursal as id_sucursal',
+                        'ass.razon_social as razon_social',
+                        'aan.created_at as fecha_creacion',
+                        'aan.activo as activo',
+                        'aan.cod as cod',
+                        'aan.id_ingreso as id_ingreso',
+                        'aan.leyenda as leyenda'
+                    )
+                    ->where('aan.cod', '=', $bus)
+                   
+                    ->whereRaw($sqls)
+                    ->orderByDesc('aan.id')
+                    ->paginate(15);
+            }
+
+            return
+                [
+                    'pagination' =>
+                    [
+                        'total'         =>    $query_ajuste_negativos->total(),
+                        'current_page'  =>    $query_ajuste_negativos->currentPage(),
+                        'per_page'      =>    $query_ajuste_negativos->perPage(),
+                        'last_page'     =>    $query_ajuste_negativos->lastPage(),
+                        'from'          =>    $query_ajuste_negativos->firstItem(),
+                        'to'            =>    $query_ajuste_negativos->lastItem(),
+                    ],
+                    'query_ajuste_negativos' => $query_ajuste_negativos,
+                ];
+        } else {
+
+            $query_ajuste_negativos = DB::table('inv__ajuste_positivos as aan')
+                ->join('prod__tipo_entradas as pte', 'aan.id_tipo', '=', 'pte.id')
+                ->join('adm__sucursals as ass', 'aan.id_sucursal', '=', 'ass.id')
+                ->select(
+                    'aan.id as id',
+                    'aan.id_producto_linea as id_producto_linea',
+                    'aan.id_tipo as id_tipo',
+                    'aan.usuario as nombre_usuario',
+                    'aan.producto as nombreProd',
+                    'aan.codigo as codigo',
+                    'aan.linea as linea',
+                  //  'aan.descripcion as descripcion',
+                  
+                  'aan.stock as stock',
+                        'aan.lote as lote',
+                        'aan.fecha_ingreso as fecha_ingreso',
+                        'aan.fecha_vencimiento as fecha_vencimiento',
+                  'aan.cantidad as cantidad',
+                    'pte.nombre as nombreTipo',
+                    DB::raw('GREATEST(aan.created_at, aan.updated_at) as fecha'),
+                   //'aan.fecha as fecha',
+                    'aan.id_sucursal as id_sucursal',
+                    'ass.razon_social as razon_social',
+                    'aan.created_at as fecha_creacion',
+                    'aan.activo as activo',
+                    'aan.cod as cod',
+                    'aan.id_ingreso as id_ingreso',
+                    'aan.leyenda as leyenda'
+                )
+                ->where('aan.cod', '=', $bus)
+                ->orderByDesc('aan.id')
+                ->paginate(15);
+            return [
+                'pagination' => [
+                    'total'         =>    $query_ajuste_negativos->total(),
+                    'current_page'  =>    $query_ajuste_negativos->currentPage(),
+                    'per_page'      =>    $query_ajuste_negativos->perPage(),
+                    'last_page'     =>    $query_ajuste_negativos->lastPage(),
+                    'from'          =>    $query_ajuste_negativos->firstItem(),
+                    'to'            =>    $query_ajuste_negativos->lastItem(),
+                ],
+                'query_ajuste_negativos' => $query_ajuste_negativos,
+            ];
+        }
     }
 
     /**
@@ -48,6 +171,7 @@ class InvTraspasoController extends Controller
         $traspaso->cod_2=$request->cod_2;
         $traspaso->leyenda=$request->leyenda;
         $traspaso->glosa=$request->glosa;
+       
         //codigo de para traspaso
         $letracodigo='TRS';        
         $maxcorrelativo = Inv_Traspaso::select(DB::raw('max(id) as maximo'))
@@ -83,7 +207,9 @@ class InvTraspasoController extends Controller
         
        $traspaso->numero_traspaso=$codigo;
         $traspaso->id_usuario_registro=auth()->user()->id;
-    
+        $traspaso->user_id=auth()->user()->id;
+        $traspaso->name_ori=$request->name_ori;
+        $traspaso->name_des=$request->name_des;
         $traspaso->save();
        
 

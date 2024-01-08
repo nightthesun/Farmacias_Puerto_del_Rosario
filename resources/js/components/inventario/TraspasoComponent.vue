@@ -84,6 +84,19 @@
                         <tr>
                             <th>Opciones</th>
                             <th>Nro.Traspaso</th>
+                            <th>Cod_prod</th>
+                            <th>Linea</th>
+                            <th>Producto</th>
+                            <th>Origen</th>                            
+                            <th>Destino</th>
+                            <th>Cantidad</th>
+                            <th>Fecha</th>
+                            <th>Glosa</th>  
+                            <th>Responsable</th>
+                            <th>Estado</th>
+                            <th>Estado de traspaso</th>
+                            
+
                         </tr>
                     </thead>
                   </table>
@@ -730,6 +743,7 @@ export default {
             ////////////
             lista_id_almacen_id_tienda:"",
             codigoDestino:"",
+            razon_social_des:"",
         };
     },
 
@@ -822,6 +836,7 @@ sucursalSeleccionadaDestino: function (newValue) {
     if (sucursalSeleccionadoD) {
         this.lista_id_almacen_id_tienda = sucursalSeleccionadoD.lista_id_almacen_id_tienda;
         this.codigoDestino = sucursalSeleccionadoD.codigo;
+        this.razon_social_des=sucursalSeleccionadoD.razon_social;
 
 
     }
@@ -1008,6 +1023,7 @@ sucursalSeleccionadaDestino: function (newValue) {
                     me.leyenda = '';
                     //
                     me.razon_social='';
+                    me.razon_social_des='';
                     me.tipoCodigo='';
                     me.registro_sanitario='';
                     me.sucursalSeleccionadaDestino=0;
@@ -1113,6 +1129,7 @@ sucursalSeleccionadaDestino: function (newValue) {
                     me.leyenda = '';
                     //
                     me.razon_social='';
+                    me.razon_social_des='';
                     me.tipoCodigo='';
                     me.registro_sanitario='';
                     me.sucursalSeleccionadaDestino=0;
@@ -1175,7 +1192,8 @@ sucursalSeleccionadaDestino: function (newValue) {
                         'cod_2':me.codigoDestino,
                         'leyenda': me.leyenda,
                         'glosa':me.glosa,
-                         
+                        'name_des':me.razon_social,
+                        'name_ori':me.razon_social_des,                         
                     })
                     .then(function (response) {
                         me.cerrarModal("registrar");

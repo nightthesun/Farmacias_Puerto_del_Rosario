@@ -25621,7 +25621,8 @@ __webpack_require__.r(__webpack_exports__);
       envase: "",
       ////////////
       lista_id_almacen_id_tienda: "",
-      codigoDestino: ""
+      codigoDestino: "",
+      razon_social_des: ""
     };
   },
   watch: {
@@ -25690,6 +25691,7 @@ __webpack_require__.r(__webpack_exports__);
       if (sucursalSeleccionadoD) {
         this.lista_id_almacen_id_tienda = sucursalSeleccionadoD.lista_id_almacen_id_tienda;
         this.codigoDestino = sucursalSeleccionadoD.codigo;
+        this.razon_social_des = sucursalSeleccionadoD.razon_social;
       }
     }
   },
@@ -25845,6 +25847,7 @@ __webpack_require__.r(__webpack_exports__);
             me.leyenda = ''; //
 
             me.razon_social = '';
+            me.razon_social_des = '';
             me.tipoCodigo = '';
             me.registro_sanitario = '';
             me.sucursalSeleccionadaDestino = 0;
@@ -25942,6 +25945,7 @@ __webpack_require__.r(__webpack_exports__);
         me.leyenda = ''; //
 
         me.razon_social = '';
+        me.razon_social_des = '';
         me.tipoCodigo = '';
         me.registro_sanitario = '';
         me.sucursalSeleccionadaDestino = 0;
@@ -25984,7 +25988,9 @@ __webpack_require__.r(__webpack_exports__);
             'cod_1': me.sucursalSeleccionada,
             'cod_2': me.codigoDestino,
             'leyenda': me.leyenda,
-            'glosa': me.glosa
+            'glosa': me.glosa,
+            'name_des': me.razon_social,
+            'name_ori': me.razon_social_des
           }).then(function (response) {
             me.cerrarModal("registrar");
             sweetalert2__WEBPACK_IMPORTED_MODULE_0___default().fire("Se registro exitosamente", "Haga click en Ok", "success");
@@ -42429,13 +42435,7 @@ var _hoisted_25 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNo
 
 var _hoisted_26 = [_hoisted_24, _hoisted_25];
 
-var _hoisted_27 = /*#__PURE__*/_withScopeId(function () {
-  return /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("table", {
-    "class": "table table-bordered table-striped table-sm table-responsive"
-  }, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("thead", null, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("tr", null, [/*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("th", null, "Opciones"), /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("th", null, "Nro.Traspaso")])])], -1
-  /* HOISTED */
-  );
-});
+var _hoisted_27 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createStaticVNode)("<table class=\"table table-bordered table-striped table-sm table-responsive\" data-v-4a4b47cd><thead data-v-4a4b47cd><tr data-v-4a4b47cd><th data-v-4a4b47cd>Opciones</th><th data-v-4a4b47cd>Nro.Traspaso</th><th data-v-4a4b47cd>Cod_prod</th><th data-v-4a4b47cd>Linea</th><th data-v-4a4b47cd>Producto</th><th data-v-4a4b47cd>Origen</th><th data-v-4a4b47cd>Destino</th><th data-v-4a4b47cd>Cantidad</th><th data-v-4a4b47cd>Fecha</th><th data-v-4a4b47cd>Glosa</th><th data-v-4a4b47cd>Responsable</th><th data-v-4a4b47cd>Estado</th><th data-v-4a4b47cd>Estado de traspaso</th></tr></thead></table>", 1);
 
 var _hoisted_28 = {
   "class": "pagination"
