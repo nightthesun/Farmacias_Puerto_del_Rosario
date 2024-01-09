@@ -83,15 +83,15 @@
                     <thead>
                         <tr>
                             <th>Opciones</th>
-                            <th>Nro.Traspaso</th>
-                            <th>Cod_prod</th>
-                            <th>Linea</th>
+                            <th>Nro.Traspaso</th>                         
                             <th>Producto</th>
-                            <th>Origen</th>                            
-                            <th>Destino</th>
+                            <th>Envase</th>
                             <th>Cantidad</th>
                             <th>Fecha</th>
-                            <th>Glosa</th>  
+                            <th>Glosa</th>
+                            <th>Origen</th>                            
+                            <th>Destino</th>
+                            <th>Tipo</th>                
                             <th>Responsable</th>
                             <th>Estado</th>
                             <th>Estado de traspaso</th>
@@ -99,6 +99,86 @@
 
                         </tr>
                     </thead>
+                        <tbody v-if="sucursalSeleccionada == 0"></tbody>
+                        <tbody v-if="sucursalSeleccionada != 0">
+                            <tr v-for="AjusteNegativos in arrayAjusteNegativos" :key="AjusteNegativos.id" >
+                                <td>
+                                    <button
+                                        type="button"
+                                        class="btn btn-warning btn-sm"
+                                        @click="
+                                            abrirModal(
+                                                'actualizar',
+                                                AjusteNegativos,
+                                            );
+                                            ProductoLineaIngreso();
+                                        "
+                                    >
+                                        <i class="icon-pencil"></i>
+                                    </button>
+                                    &nbsp;
+                                    <button
+                                        v-if="AjusteNegativos.activo == 1"
+                                        type="button"
+                                        class="btn btn-danger btn-sm"
+                                        @click="
+                                            eliminarAjusteNegativos(
+                                                AjusteNegativos.id,
+                                            )
+                                        "
+                                    >
+                                        <i class="fa fa-hand-paper-o"></i>
+                                    </button>
+                                    <button
+                                        v-else
+                                        type="button"
+                                        class="btn btn-info btn-sm"
+                                        @click="
+                                            activarAjusteNegativos(
+                                                AjusteNegativos.id,
+                                            )
+                                        "
+                                    >
+                                        <i class="icon-check"></i>
+                                    </button>
+                                </td>
+
+                                <td v-text="AjusteNegativos.numero_traspaso"></td>
+                                <td v-text="AjusteNegativos.leyenda"></td>
+                                <td v-text="AjusteNegativos.envase"></td>
+                                <td v-text="AjusteNegativos.cantidad"></td>
+                                <td v-text="AjusteNegativos.fecha"></td>
+                                <td v-text="AjusteNegativos.glosa"></td>
+                                <td v-text="AjusteNegativos.origen"></td>
+                                <td v-text="AjusteNegativos.destino"></td>
+                                <td v-text="AjusteNegativos.tipo_traspaso"></td>
+                                <td v-text="AjusteNegativos.user_name"></td>
+                                <td>
+                                    <div v-if="AjusteNegativos.activo == 1">
+                                        <span class="badge badge-success"
+                                            >Activo</span
+                                        >
+                                    </div>
+                                    <div v-else>
+                                        <span class="badge badge-warning"
+                                            >Desactivado</span
+                                        >
+                                    </div>
+                                </td>
+                                <td>
+                                    <div v-if="AjusteNegativos.estado_procesado == 1">
+                                        <span class="badge badge-success"
+                                            >Procesado</span
+                                        >
+                                    </div>
+                                    <div v-else>
+                                        <span class="badge badge-warning"
+                                            >Sin procesar</span
+                                        >
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>    
                   </table>
                  <!--
                     <table
@@ -1241,13 +1321,14 @@ sucursalSeleccionadaDestino: function (newValue) {
         listarAjusteNegativos(page) {
             let me = this;
          
-            var url ="/ajustes-positivo?page="+page+"&buscar=" +me.buscar+"&buscarAlmTdn=" +me.sucursalSeleccionada;
+            var url ="/traspaso?page="+page+"&buscar=" +me.buscar+"&buscarAlmTdn=" +me.sucursalSeleccionada;
             axios.get(url)
                 .then(function (response) {
                     var respuesta = response.data;
                     me.pagination = respuesta.pagination;
                     me.arrayAjusteNegativos =
-                        respuesta.query_ajuste_negativos.data;
+                        respuesta.reusltadocombinado.data;
+                        
                 })
                 .catch(function (error) {
                     error401(error);
@@ -1272,13 +1353,7 @@ sucursalSeleccionadaDestino: function (newValue) {
 
         eliminarAjusteNegativos(idAjusteNegativos) {
             let me = this;
-            console.log(
-                idAjusteNegativos +
-                    " - " +
-                    me.sucursalSeleccionada +
-                    " - " +
-                    me.id_ingreso
-            );
+          //  console.log(     idAjusteNegativos +     " - " + me.sucursalSeleccionada +  " - " +  me.id_ingreso    );
             const swalWithBootstrapButtons = Swal.mixin({
                 customClass: {
                     confirmButton: "btn btn-success",
@@ -1300,7 +1375,7 @@ sucursalSeleccionadaDestino: function (newValue) {
                 .then((result) => {
                     if (result.isConfirmed) {
                         axios
-                            .put("/ajustes-positivo/desactivar", {
+                            .put("/traspaso/desactivar", {
                                 id: idAjusteNegativos,
                                 
                             })
@@ -1352,7 +1427,7 @@ sucursalSeleccionadaDestino: function (newValue) {
                 .then((result) => {
                     if (result.isConfirmed) {
                         axios
-                            .put("/ajustes-positivo/activar", {
+                            .put("/traspaso/activar", {
                                 id: idAjusteNegativos,
                                 cod: me.sucursalSeleccionada,
                                 id_ingreso: me.id_ingreso,

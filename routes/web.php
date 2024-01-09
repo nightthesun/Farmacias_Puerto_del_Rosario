@@ -404,7 +404,10 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/ajustes-positivo/listarSucursal', [InvAjustePositivoController::class, 'listarSucursal']);
     Route::get('/ajustes-positivo/retornarProductosIngreso', [InvAjustePositivoController::class, 'retornarProductosIngreso']);
 
+    Route::get('/traspaso', [InvTraspasoController::class, 'index']);
     Route::get('/traspaso/listarSucursal', [InvTraspasoController::class, 'listarSucursal']);
     Route::get('/traspaso/listarProductoLineaIngreso', [InvTraspasoController::class, 'listarProductoLineaIngreso']);
     Route::post('/traspaso/registrar', [InvTraspasoController::class, 'store']);
+    Route::put('/traspaso/desactivar', [InvTraspasoController::class, 'desactivar']);
+    Route::put('/traspaso/activar', [InvTraspasoController::class, 'activar']);
 });

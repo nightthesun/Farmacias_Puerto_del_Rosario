@@ -897,7 +897,7 @@ export default {
              switch (accion) {
                 case "registrar": {
                     me.tipoAccion = 1;
-                    me.tituloModal = "Registro para Ajuste de negativos ";
+                    me.tituloModal = "Registro para ajuste de positivo ";
                     me.ProductoLineaIngresoSeleccionado = 0;
 
                     me.id_codigo = me.sucursalSeleccionada;
@@ -926,7 +926,7 @@ export default {
                     me.leyenda = data.leyenda;
                     me.id_codigo = data.cod;
                     me.tipoAccion = 2;
-                    me.tituloModal = "Actualizacion para Ajuste de negativos  ";
+                    me.tituloModal = "Actualizacion para ajuste positivo  ";
                     me.codigo = data.codigo;
                     me.cantidadProductoLineaIngreso = data.cantidad;
                     me.linea = data.linea;
@@ -969,7 +969,7 @@ export default {
                     //  me.id_codigo=me.sucursalSeleccionada;
                     // me.id_codigo=data.cod;
                     me.tipoAccion = 1;
-                    me.tituloModal = "Registro para Ajuste de negativos ";
+                    me.tituloModal = "Registro para Positivo ";
                     me.ProductoLineaIngresoSeleccionado =
                         data.id_ingreso === null ? 0 : data.id_ingreso;
 
@@ -996,7 +996,7 @@ export default {
                     //  me.id_codigo=me.sucursalSeleccionada;
                     // me.id_codigo=data.cod;
                     // me.tipoAccion=2;
-                    me.tituloModal = "Registro para Ajuste de negativos ";
+                    me.tituloModal = "Registro para ajuste de positivo ";
                     me.ProductoLineaIngresoSeleccionado =
                         data.id_ingreso === null ? 0 : data.id_ingreso;
 
@@ -1020,7 +1020,7 @@ export default {
                     me.id_codigo = data.cod;
                     //   me.tipoAccion=2;
                     me.tituloModal =
-                        "Actualizacion para Ajuste de negativos en la sucursal: ";
+                        "Actualizacion de ajuste positivo: ";
                     me.codigo = data.codigo;
                     me.cantidadProductoLineaIngreso = data.cantidad;
                     me.linea = data.linea;
@@ -1117,7 +1117,7 @@ export default {
                     .then(function (response) {
                         me.cerrarModal("registrar");
                         Swal.fire(
-                            "Ajuste de negativos Registrado exitosamente",
+                            "Registrado exitosamente",
                             "Haga click en Ok",
                             "success",
                         );

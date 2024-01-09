@@ -17,6 +17,7 @@ class InvTraspasoController extends Controller
     {
         $buscararray = array();
         $bus = $request->query('buscarAlmTdn');
+ 
         if (!empty($request->buscar)) {
             $buscararray = explode(" ", $request->buscar);
             $valor = sizeof($buscararray);
@@ -26,57 +27,109 @@ class InvTraspasoController extends Controller
                 foreach ($buscararray as $valor) {
                     if (empty($sqls)) {
                         $sqls = "(
-                                aan.codigo like '%" . $valor . "%' 
-                                or aan.linea like '%" . $valor . "%' 
-                                or aan.producto like '%" . $valor . "%'
-                                or pte.nombre like '%" . $valor . "%' 
-                                or aan.descripcion like '%" . $valor . "%'
-                                or ass.razon_social like '%" . $valor . "%'
-                                or aan.cod like '%" . $valor . "%' 
+                                it.numero_traspaso like '%" . $valor . "%' 
+                                or it.envase like '%" . $valor . "%' 
+                                or it.origen like '%" . $valor . "%'
+                                or it.destino like '%" . $valor . "%' 
+                                or it.leyenda like '%" . $valor . "%'
+                                or it.cod_1 like '%" . $valor . "%'
+                                or it.cod_2 like '%" . $valor . "%' 
                                )";
                     } else {
-                        $sqls .= "and (aan.codigo like '%" . $valor . "%' 
-                        or aan.linea like '%" . $valor . "%' 
-                        or aan.producto like '%" . $valor . "%' 
-                        or pte.nombre like '%" . $valor . "%' 
-                        or aan.descripcion like '%" . $valor . "%'
-                        or ass.razon_social like '%" . $valor . "%'
-                        or aan.cod like '%" . $valor . "%' 
+                        $sqls .= "and (
+                            it.numero_traspaso like '%" . $valor . "%' 
+                            or it.envase like '%" . $valor . "%' 
+                            or it.origen like '%" . $valor . "%'
+                            or it.destino like '%" . $valor . "%' 
+                            or it.leyenda like '%" . $valor . "%'
+                            or it.cod_1 like '%" . $valor . "%'
+                            or it.cod_2 like '%" . $valor . "%'
                        )";
                     }
                 }
-                $query_ajuste_negativos = DB::table('inv__ajuste_positivos as aan')
-                    ->join('prod__tipo_entradas as pte', 'aan.id_tipo', '=', 'pte.id')
-                    ->join('adm__sucursals as ass', 'aan.id_sucursal', '=', 'ass.id')
-                    ->select(
-                        'aan.id as id',
-                        'aan.id_producto_linea as id_producto_linea',
-                        'aan.usuario as nombre_usuario',
-                        'aan.producto as nombreProd',
-                        'aan.codigo as codigo',
-                        'aan.linea as linea',
-                        'aan.descripcion as descripcion',
-                        'aan.cantidad as cantidad',
-                        'aan.stock as stock',
-                        'aan.lote as lote',
-                        'aan.created_at as fecha_ingreso',
-                        'aan.fecha_vencimiento as fecha_vencimiento',
-                        'aan.id_tipo as id_tipo',
-                        'pte.nombre as nombreTipo',
-                        //'aan.fecha as fecha',
-                        DB::raw('GREATEST(aan.created_at, aan.updated_at) as fecha'),
-                        'aan.id_sucursal as id_sucursal',
-                        'ass.razon_social as razon_social',
-                        'aan.created_at as fecha_creacion',
-                        'aan.activo as activo',
-                        'aan.cod as cod',
-                        'aan.id_ingreso as id_ingreso',
-                        'aan.leyenda as leyenda'
-                    )
-                    ->where('aan.cod', '=', $bus)
-                   
-                    ->whereRaw($sqls)
-                    ->orderByDesc('aan.id')
+    $traspasos_alm = DB::table('inv__traspasos as it')
+    ->select([
+        'it.id as id',
+        'it.id_almacen_tienda as id_almacen_tienda',
+        'pp.nombre as linea',
+        'it.id_prod_producto as id_prod_producto',
+        'it.envase as envase',
+        'it.id_tipoentrada as id_tipoentrada',
+        'pie.nombre as tipo_nombre',
+        'it.cantidad__stock_ingreso as cantidad',
+        'it.fecha_vencimiento as fecha_vencimiento',
+        'it.lote as lote',
+        'it.registro_sanitario as registro_sanitario',
+        'it.activo as activo',
+        'it.id_origen as id_origen',
+        'it.id_ingreso as id_ingreso',
+        'it.cod_1 as cod_1',
+        'it.cod_2 as cod_2',
+        'it.name_ori as origen',
+        'it.name_des as destino',
+        'it.leyenda as leyenda',
+        'it.glosa as glosa',
+        'it.numero_traspaso as numero_traspaso',
+        'it.procesado as estado_procesado',
+        'u.name as user_name',
+        DB::raw('GREATEST(it.created_at, it.updated_at) AS fecha'),
+        DB::raw('CASE
+            WHEN SUBSTRING(it.cod_1, 1, 3) = "ALM" AND SUBSTRING(it.cod_2, 1, 3) = "ALM" THEN "Almacen a Almacen"
+            WHEN SUBSTRING(it.cod_1, 1, 3) = "ALM" AND SUBSTRING(it.cod_2, 1, 3) = "TDA" THEN "Almacen a Tienda"
+            WHEN SUBSTRING(it.cod_1, 1, 3) = "TDA" AND SUBSTRING(it.cod_2, 1, 3) = "ALM" THEN "Tienda a Almacen"
+            WHEN SUBSTRING(it.cod_1, 1, 3) = "TDA" AND SUBSTRING(it.cod_2, 1, 3) = "TDA" THEN "Tienda a Tienda"
+            ELSE "Error"
+        END AS tipo_traspaso')
+    ])
+    ->join('prod__productos as pp', 'it.id_prod_producto', '=', 'pp.id')
+    ->join('prod__tipo_entradas as pie', 'pie.id', '=', 'it.id_tipoentrada')
+    ->join('alm__almacens as aa_1', 'aa_1.codigo', '=', 'it.cod_1')
+    ->join('alm__ingreso_producto as ai_1', 'ai_1.id', '=', 'it.id_ingreso')
+    ->leftJoin('alm__almacens as aa_2', 'aa_2.codigo', '=', 'it.cod_2')
+    ->join('users as u', 'u.id', '=', 'it.user_id');
+
+    $traspasos_tienda = DB::table('inv__traspasos as it')
+    ->select([
+        'it.id as id',
+        'it.id_almacen_tienda as id_almacen_tienda',
+        'pp.nombre as linea',
+        'it.id_prod_producto as id_prod_producto',
+        'it.envase as envase',
+        'it.id_tipoentrada as id_tipoentrada',
+        'pie.nombre as tipo_nombre',
+        'it.cantidad__stock_ingreso as cantidad',
+        'it.fecha_vencimiento as fecha_vencimiento',
+        'it.lote as lote',
+        'it.registro_sanitario as registro_sanitario',
+        'it.activo as activo',
+        'it.id_origen as id_origen',
+        'it.id_ingreso as id_ingreso',
+        'it.cod_1 as cod_1',
+        'it.cod_2 as cod_2',
+        'it.name_ori as origen',
+        'it.name_des as destino',
+        'it.leyenda as leyenda',
+        'it.glosa as glosa',
+        'it.numero_traspaso as numero_traspaso',
+        'it.procesado as estado_procesado',
+        'u.name as user_name',
+        DB::raw('GREATEST(it.created_at, it.updated_at) AS fecha'),
+        DB::raw('CASE
+            WHEN SUBSTRING(it.cod_1, 1, 3) = "ALM" AND SUBSTRING(it.cod_2, 1, 3) = "ALM" THEN "Almacen a Almacen"
+            WHEN SUBSTRING(it.cod_1, 1, 3) = "ALM" AND SUBSTRING(it.cod_2, 1, 3) = "TDA" THEN "Almacen a Tienda"
+            WHEN SUBSTRING(it.cod_1, 1, 3) = "TDA" AND SUBSTRING(it.cod_2, 1, 3) = "ALM" THEN "Tienda a Almacen"
+            WHEN SUBSTRING(it.cod_1, 1, 3) = "TDA" AND SUBSTRING(it.cod_2, 1, 3) = "TDA" THEN "Tienda a Tienda"
+            ELSE "Error"
+        END AS tipo_traspaso')
+    ])
+    ->join('prod__productos as pp', 'it.id_prod_producto', '=', 'pp.id')
+    ->join('prod__tipo_entradas as pie', 'pie.id', '=', 'it.id_tipoentrada')
+    ->join('tda__tiendas as tt_1', 'tt_1.codigo', '=', 'it.cod_1')
+    ->join('adm__sucursals as ass', 'ass.id', '=', 'tt_1.idsucursal')
+    ->join('tda__ingreso_productos as ti_1', 'ti_1.id', '=', 'it.id_ingreso')
+    ->leftJoin('tda__tiendas as tt_2', 'tt_2.codigo', '=', 'it.cod_2')
+    ->join('users as u', 'u.id', '=', 'it.user_id');
+    $reusltadocombinado = $traspasos_alm->orderBy('id', 'desc')->unionAll($traspasos_tienda->orderBy('id', 'desc'))
                     ->paginate(15);
             }
 
@@ -84,59 +137,112 @@ class InvTraspasoController extends Controller
                 [
                     'pagination' =>
                     [
-                        'total'         =>    $query_ajuste_negativos->total(),
-                        'current_page'  =>    $query_ajuste_negativos->currentPage(),
-                        'per_page'      =>    $query_ajuste_negativos->perPage(),
-                        'last_page'     =>    $query_ajuste_negativos->lastPage(),
-                        'from'          =>    $query_ajuste_negativos->firstItem(),
-                        'to'            =>    $query_ajuste_negativos->lastItem(),
+                        'total'         =>    $reusltadocombinado->total(),
+                        'current_page'  =>    $reusltadocombinado->currentPage(),
+                        'per_page'      =>    $reusltadocombinado->perPage(),
+                        'last_page'     =>    $reusltadocombinado->lastPage(),
+                        'from'          =>    $reusltadocombinado->firstItem(),
+                        'to'            =>    $reusltadocombinado->lastItem(),
                     ],
-                    'query_ajuste_negativos' => $query_ajuste_negativos,
+                    'reusltadocombinado' => $reusltadocombinado,
                 ];
         } else {
 
-            $query_ajuste_negativos = DB::table('inv__ajuste_positivos as aan')
-                ->join('prod__tipo_entradas as pte', 'aan.id_tipo', '=', 'pte.id')
-                ->join('adm__sucursals as ass', 'aan.id_sucursal', '=', 'ass.id')
-                ->select(
-                    'aan.id as id',
-                    'aan.id_producto_linea as id_producto_linea',
-                    'aan.id_tipo as id_tipo',
-                    'aan.usuario as nombre_usuario',
-                    'aan.producto as nombreProd',
-                    'aan.codigo as codigo',
-                    'aan.linea as linea',
-                  //  'aan.descripcion as descripcion',
-                  
-                  'aan.stock as stock',
-                        'aan.lote as lote',
-                        'aan.fecha_ingreso as fecha_ingreso',
-                        'aan.fecha_vencimiento as fecha_vencimiento',
-                  'aan.cantidad as cantidad',
-                    'pte.nombre as nombreTipo',
-                    DB::raw('GREATEST(aan.created_at, aan.updated_at) as fecha'),
-                   //'aan.fecha as fecha',
-                    'aan.id_sucursal as id_sucursal',
-                    'ass.razon_social as razon_social',
-                    'aan.created_at as fecha_creacion',
-                    'aan.activo as activo',
-                    'aan.cod as cod',
-                    'aan.id_ingreso as id_ingreso',
-                    'aan.leyenda as leyenda'
-                )
-                ->where('aan.cod', '=', $bus)
-                ->orderByDesc('aan.id')
-                ->paginate(15);
+            $traspasos_alm = DB::table('inv__traspasos as it')
+    ->select([
+        'it.id as id',
+        'it.id_almacen_tienda as id_almacen_tienda',
+        'pp.nombre as linea',
+        'it.id_prod_producto as id_prod_producto',
+        'it.envase as envase',
+        'it.id_tipoentrada as id_tipoentrada',
+        'pie.nombre as tipo_nombre',
+        'it.cantidad__stock_ingreso as cantidad',
+        'it.fecha_vencimiento as fecha_vencimiento',
+        'it.lote as lote',
+        'it.registro_sanitario as registro_sanitario',
+        'it.activo as activo',
+        'it.id_origen as id_origen',
+        'it.id_ingreso as id_ingreso',
+        'it.cod_1 as cod_1',
+        'it.cod_2 as cod_2',
+        'it.name_ori as origen',
+        'it.name_des as destino',
+        'it.leyenda as leyenda',
+        'it.glosa as glosa',
+        'it.numero_traspaso as numero_traspaso',
+        'it.procesado as estado_procesado',
+        'u.name as user_name',
+        DB::raw('GREATEST(it.created_at, it.updated_at) AS fecha'),
+        DB::raw('CASE
+            WHEN SUBSTRING(it.cod_1, 1, 3) = "ALM" AND SUBSTRING(it.cod_2, 1, 3) = "ALM" THEN "Almacen a Almacen"
+            WHEN SUBSTRING(it.cod_1, 1, 3) = "ALM" AND SUBSTRING(it.cod_2, 1, 3) = "TDA" THEN "Almacen a Tienda"
+            WHEN SUBSTRING(it.cod_1, 1, 3) = "TDA" AND SUBSTRING(it.cod_2, 1, 3) = "ALM" THEN "Tienda a Almacen"
+            WHEN SUBSTRING(it.cod_1, 1, 3) = "TDA" AND SUBSTRING(it.cod_2, 1, 3) = "TDA" THEN "Tienda a Tienda"
+            ELSE "Error"
+        END AS tipo_traspaso')
+    ])
+    ->join('prod__productos as pp', 'it.id_prod_producto', '=', 'pp.id')
+    ->join('prod__tipo_entradas as pie', 'pie.id', '=', 'it.id_tipoentrada')
+    ->join('alm__almacens as aa_1', 'aa_1.codigo', '=', 'it.cod_1')
+    ->join('alm__ingreso_producto as ai_1', 'ai_1.id', '=', 'it.id_ingreso')
+    ->leftJoin('alm__almacens as aa_2', 'aa_2.codigo', '=', 'it.cod_2')
+    ->join('users as u', 'u.id', '=', 'it.user_id')->where('it.cod_1', '=', $bus);
+
+    $traspasos_tienda = DB::table('inv__traspasos as it')
+    ->select([
+        'it.id as id',
+        'it.id_almacen_tienda as id_almacen_tienda',
+        'pp.nombre as linea',
+        'it.id_prod_producto as id_prod_producto',
+        'it.envase as envase',
+        'it.id_tipoentrada as id_tipoentrada',
+        'pie.nombre as tipo_nombre',
+        'it.cantidad__stock_ingreso as cantidad',
+        'it.fecha_vencimiento as fecha_vencimiento',
+        'it.lote as lote',
+        'it.registro_sanitario as registro_sanitario',
+        'it.activo as activo',
+        'it.id_origen as id_origen',
+        'it.id_ingreso as id_ingreso',
+        'it.cod_1 as cod_1',
+        'it.cod_2 as cod_2',
+        'it.name_ori as origen',
+        'it.name_des as destino',
+        'it.leyenda as leyenda',
+        'it.glosa as glosa',
+        'it.numero_traspaso as numero_traspaso',
+        'it.procesado as estado_procesado',
+        'u.name as user_name',
+        DB::raw('GREATEST(it.created_at, it.updated_at) AS fecha'),
+        DB::raw('CASE
+            WHEN SUBSTRING(it.cod_1, 1, 3) = "ALM" AND SUBSTRING(it.cod_2, 1, 3) = "ALM" THEN "Almacen a Almacen"
+            WHEN SUBSTRING(it.cod_1, 1, 3) = "ALM" AND SUBSTRING(it.cod_2, 1, 3) = "TDA" THEN "Almacen a Tienda"
+            WHEN SUBSTRING(it.cod_1, 1, 3) = "TDA" AND SUBSTRING(it.cod_2, 1, 3) = "ALM" THEN "Tienda a Almacen"
+            WHEN SUBSTRING(it.cod_1, 1, 3) = "TDA" AND SUBSTRING(it.cod_2, 1, 3) = "TDA" THEN "Tienda a Tienda"
+            ELSE "Error"
+        END AS tipo_traspaso')
+    ])
+    ->join('prod__productos as pp', 'it.id_prod_producto', '=', 'pp.id')
+    ->join('prod__tipo_entradas as pie', 'pie.id', '=', 'it.id_tipoentrada')
+    ->join('tda__tiendas as tt_1', 'tt_1.codigo', '=', 'it.cod_1')
+    ->join('adm__sucursals as ass', 'ass.id', '=', 'tt_1.idsucursal')
+    ->join('tda__ingreso_productos as ti_1', 'ti_1.id', '=', 'it.id_ingreso')
+    ->leftJoin('tda__tiendas as tt_2', 'tt_2.codigo', '=', 'it.cod_2')
+    ->join('users as u', 'u.id', '=', 'it.user_id') ->where('it.cod_1', '=', $bus);
+    $reusltadocombinado = $traspasos_alm->orderBy('id', 'desc')->unionAll($traspasos_tienda->orderBy('id', 'desc'))
+
+                    ->paginate(15);
             return [
                 'pagination' => [
-                    'total'         =>    $query_ajuste_negativos->total(),
-                    'current_page'  =>    $query_ajuste_negativos->currentPage(),
-                    'per_page'      =>    $query_ajuste_negativos->perPage(),
-                    'last_page'     =>    $query_ajuste_negativos->lastPage(),
-                    'from'          =>    $query_ajuste_negativos->firstItem(),
-                    'to'            =>    $query_ajuste_negativos->lastItem(),
+                    'total'         =>    $reusltadocombinado->total(),
+                    'current_page'  =>    $reusltadocombinado->currentPage(),
+                    'per_page'      =>    $reusltadocombinado->perPage(),
+                    'last_page'     =>    $reusltadocombinado->lastPage(),
+                    'from'          =>    $reusltadocombinado->firstItem(),
+                    'to'            =>    $reusltadocombinado->lastItem(),
                 ],
-                'query_ajuste_negativos' => $query_ajuste_negativos,
+                'reusltadocombinado' => $reusltadocombinado,
             ];
         }
     }
@@ -400,341 +506,24 @@ class InvTraspasoController extends Controller
    return $result;
         
      }
-     public function verificador(Request $request)
+     public function desactivar(Request $request)
      {
-        // las posibles combinaciones
-        //11 almacen a almacen, 22 tienda a tienda, 12 almacen a tienda, 21 tienda a almcen
-        $comb_1=0;
-        $comb_2=0;
-        $producto=$request->query('producto');
-        $var="";
-        $origen=$request->query('origen');
-        $destino=$request->query('destino');
-        $subOrigen = substr($origen, 0, 3);
-        $subDestino = substr($destino, 0, 3);
-        $number=0;
-        while ($number < 2) {
-                 if ($number==0) {
-                    $var=$subOrigen; 
-                    if ($var=="ALM") {
-                        $comb_1=1;
-                     } 
-                     if ($var=="TDA") {
-                        $comb_1=2; 
-                     }     
-                 }
-                 if ($number==1) {
-                    $var=$subDestino;
-                    if ($var=="ALM") {
-                        $comb_2=1;
-                     } 
-                     if ($var=="TDA") {
-                        $comb_2=2; 
-                     }  
-                 }          
-             $number++;
-        }
-       
-        if ($comb_1==1){
-            $almacen1 = DB::table('alm__ingreso_producto AS ai')
-            ->join('alm__almacens AS aa', 'aa.id', '=', 'ai.idalmacen')
-            ->join('prod__productos AS pp', 'ai.id_prod_producto', '=', 'pp.id')       
-            ->where('aa.codigo', '=', $origen)
-            ->where('pp.codigo', '=', $producto)
-            ->select('aa.codigo as codigo', 'aa.nombre_almacen as nombre', 'pp.codigo as codigo_producto', 'ai.envase')
-            ->get();
-        }
-        if ($comb_2==1){
-            $almacen2 = DB::table('alm__ingreso_producto AS ai')
-            ->join('alm__almacens AS aa', 'aa.id', '=', 'ai.idalmacen')
-            ->join('prod__productos AS pp', 'ai.id_prod_producto', '=', 'pp.id')       
-            ->where('aa.codigo', '=', $destino)
-            ->where('pp.codigo', '=', $producto)
-            ->select('aa.codigo as codigo', 'aa.nombre_almacen as nombre', 'pp.codigo as codigo_producto', 'ai.envase')
-            ->get();
-        }
-        if ($comb_1==2) {
-            $tienda1 = DB::table('tda__ingreso_productos as ti')
-            ->join('tda__tiendas as tt', 'ti.idtienda', '=', 'tt.id')
-            ->join('adm__sucursals as ass', 'tt.idsucursal', '=', 'ass.id')
-            ->join('prod__productos as pp', 'ti.id_prod_producto', '=', 'pp.id')
-            ->where('tt.codigo', '=', $origen)
-            ->where('pp.codigo', '=', $producto)           
-            ->select('tt.codigo as codigo', 'ass.razon_social as nombre', 'pp.codigo as codigo_producto', 'ti.envase')
-            ->get();
-        }
-        if ($comb_2==2) {
-            $tienda2 = DB::table('tda__ingreso_productos as ti')
-            ->join('tda__tiendas as tt', 'ti.idtienda', '=', 'tt.id')
-            ->join('adm__sucursals as ass', 'tt.idsucursal', '=', 'ass.id')
-            ->join('prod__productos as pp', 'ti.id_prod_producto', '=', 'pp.id')
-            ->where('tt.codigo', '=', $destino)
-            ->where('pp.codigo', '=', $producto)           
-            ->select('tt.codigo as codigo', 'ass.razon_social as nombre', 'pp.codigo as codigo_producto', 'ti.envase')
-            ->get();
-        }
-        $jsonSucrusal =array();
-        //////combinacion 11
-        if ($comb_1==1 && $comb_2==1) {
-           if ($almacen1->count() > 0) {
-          
-            foreach ($tienda1 as $key=>$alm) {
-             $elemento = [      
-            'codigo' => $alm->codigo,
-            'nombre_almacen' => $alm->nombre,
-            'codigo_producto' => $alm->codigo_producto,
-            'almacen' => $origen,       
-            ];
+         
  
-     $jsonSucrusal[] = $elemento;
- }
-          
-           }else{
-            $elemento = [
-      
-                'codigo' => "",
-                 'nombre_almacen' => "",
-              'codigo_producto' => "",
-              'almacen' => $origen,
-            
-          ];
-          $jsonSucrusal[] = $elemento;
-           }
-           if ($almacen2->count() > 0) {
-          
-            foreach ($almacen2 as $key=>$alm) {
-             $elemento = [      
-            'codigo' => $alm->codigo,
-            'nombre_almacen' => $alm->nombre,
-            'codigo_producto' => $alm->codigo_producto,
-            'almacen' => $destino,       
-            ];
+         $traspaso = Inv_Traspaso::findOrFail($request->id);
+         $traspaso->activo = 0;
+         $traspaso->id_usuario_modifica=auth()->user()->id;
+         $traspaso->save();
+     }
  
-     $jsonSucrusal[] = $elemento;
- }
-          
-           }else{
-            $elemento = [
-      
-                'codigo' => "",
-                 'nombre_almacen' => "",
-              'codigo_producto' => "",
-              'almacen' => $destino,
-            
-          ];
-          $jsonSucrusal[] = $elemento;
-           }
-            
-        }
-        //////combinacion 22
-        if ($comb_1==2 && $comb_2==2) {
-            if ($tienda1->count() > 0) {
-           
-             foreach ($tienda1 as $key=>$alm) {
-              $elemento = [      
-             'codigo' => $alm->codigo,
-             'nombre_almacen' => $alm->nombre,
-             'codigo_producto' => $alm->codigo_producto,
-             'almacen' => $origen,       
-             ];
-  
-      $jsonSucrusal[] = $elemento;
-  }
-           
-            }else{
-             $elemento = [
+     public function activar(Request $request)
+     {
        
-                 'codigo' => "",
-                  'nombre_almacen' => "",
-               'codigo_producto' => "",
-               'almacen' => $origen,
-             
-           ];
-           $jsonSucrusal[] = $elemento;
-            }
-            if ($tienda2->count() > 0) {
-           
-             foreach ($tienda2 as $key=>$alm) {
-              $elemento = [      
-             'codigo' => $alm->codigo,
-             'nombre_almacen' => $alm->nombre,
-             'codigo_producto' => $alm->codigo_producto,
-             'almacen' => $destino,       
-             ];
-  
-      $jsonSucrusal[] = $elemento;
-  }
-           
-            }else{
-             $elemento = [
-       
-                 'codigo' => "",
-                  'nombre_almacen' => "",
-               'codigo_producto' => "",
-               'almacen' => $destino,
-             
-           ];
-           $jsonSucrusal[] = $elemento;
-            }
-             
-         }
-
-         if ($comb_1==1 && $comb_2==2) {
-            if ($almacen1->count() > 0) {
-          
-                foreach ($tienda1 as $key=>$alm) {
-                 $elemento = [      
-                'codigo' => $alm->codigo,
-                'nombre_almacen' => $alm->nombre,
-                'codigo_producto' => $alm->codigo_producto,
-                'almacen' => $origen,       
-                ];
-     
-         $jsonSucrusal[] = $elemento;
+ 
+         $traspaso = Inv_Traspaso::findOrFail($request->id);
+         $traspaso->activo = 1;
+         $traspaso->id_usuario_modifica=auth()->user()->id;
+         $traspaso->save();
      }
-              
-               }else{
-                $elemento = [
-          
-                    'codigo' => "",
-                     'nombre_almacen' => "",
-                  'codigo_producto' => "",
-                  'almacen' => $origen,
-                
-              ];
-              $jsonSucrusal[] = $elemento;
-               }
-               if ($tienda1->count() > 0) {
-           
-                foreach ($tienda1 as $key=>$alm) {
-                 $elemento = [      
-                'codigo' => $alm->codigo,
-                'nombre_almacen' => $alm->nombre,
-                'codigo_producto' => $alm->codigo_producto,
-                'almacen' => $destino,       
-                ];
-     
-         $jsonSucrusal[] = $elemento;
-     }
-              
-               }else{
-                $elemento = [
-          
-                    'codigo' => "",
-                     'nombre_almacen' => "",
-                  'codigo_producto' => "",
-                  'almacen' => $destino,
-                
-              ];
-              $jsonSucrusal[] = $elemento;
-               }
-
-         }
-          //////combinacion 12
-        if ($comb_1==1 && $comb_2==2) {
-            if ($almacen1->count() > 0) {
-          
-                foreach ($tienda1 as $key=>$alm) {
-                 $elemento = [      
-                'codigo' => $alm->codigo,
-                'nombre_almacen' => $alm->nombre,
-                'codigo_producto' => $alm->codigo_producto,
-                'almacen' => $origen,       
-                ];
-     
-         $jsonSucrusal[] = $elemento;
-     }
-              
-               }else{
-                $elemento = [
-          
-                    'codigo' => "",
-                     'nombre_almacen' => "",
-                  'codigo_producto' => "",
-                  'almacen' => $origen,
-                
-              ];
-              $jsonSucrusal[] = $elemento;
-               }
-               if ($tienda2->count() > 0) {
-           
-                foreach ($tienda2 as $key=>$alm) {
-                 $elemento = [      
-                'codigo' => $alm->codigo,
-                'nombre_almacen' => $alm->nombre,
-                'codigo_producto' => $alm->codigo_producto,
-                'almacen' => $destino,       
-                ];
-     
-         $jsonSucrusal[] = $elemento;
-     }
-              
-               }else{
-                $elemento = [
-          
-                    'codigo' => "",
-                     'nombre_almacen' => "",
-                  'codigo_producto' => "",
-                  'almacen' => $destino,
-                
-              ];
-              $jsonSucrusal[] = $elemento;
-               }
-        }
-           //////combinacion 21
-           if ($comb_1==2 && $comb_2==1) {
-            if ($tienda1->count() > 0) {
-           
-                foreach ($tienda1 as $key=>$alm) {
-                 $elemento = [      
-                'codigo' => $alm->codigo,
-                'nombre_almacen' => $alm->nombre,
-                'codigo_producto' => $alm->codigo_producto,
-                'almacen' => $origen,       
-                ];
-     
-         $jsonSucrusal[] = $elemento;
-     }
-              
-               }else{
-                $elemento = [
-          
-                    'codigo' => "",
-                     'nombre_almacen' => "",
-                  'codigo_producto' => "",
-                  'almacen' => $origen,
-                
-              ];
-              $jsonSucrusal[] = $elemento;
-               }
-               if ($almacen2->count() > 0) {
-          
-                foreach ($almacen2 as $key=>$alm) {
-                 $elemento = [      
-                'codigo' => $alm->codigo,
-                'nombre_almacen' => $alm->nombre,
-                'codigo_producto' => $alm->codigo_producto,
-                'almacen' => $destino,       
-                ];
-     
-         $jsonSucrusal[] = $elemento;
-     }
-              
-               }else{
-                $elemento = [
-          
-                    'codigo' => "",
-                     'nombre_almacen' => "",
-                  'codigo_producto' => "",
-                  'almacen' => $destino,
-                
-              ];
-              $jsonSucrusal[] = $elemento;
-               }
-           }
-           return $jsonSucrusal;
-
-     }
-
 
 }
