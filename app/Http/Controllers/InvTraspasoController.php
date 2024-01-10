@@ -508,22 +508,278 @@ class InvTraspasoController extends Controller
      }
      public function desactivar(Request $request)
      {
-         
- 
          $traspaso = Inv_Traspaso::findOrFail($request->id);
          $traspaso->activo = 0;
-         $traspaso->id_usuario_modifica=auth()->user()->id;
-         $traspaso->save();
+         $traspaso->user_id = auth()->user()->id;         
+         $traspaso->id_usuario_modifico=auth()->user()->id;
+        $traspaso->save();
      }
  
      public function activar(Request $request)
      {
        
  
-         $traspaso = Inv_Traspaso::findOrFail($request->id);
-         $traspaso->activo = 1;
-         $traspaso->id_usuario_modifica=auth()->user()->id;
-         $traspaso->save();
+        $traspaso = Inv_Traspaso::findOrFail($request->id);
+        $traspaso->activo = 1;
+        $traspaso->user_id = auth()->user()->id;         
+        $traspaso->id_usuario_modifico=auth()->user()->id;
+       $traspaso->save();
      }
+     public function retornarProductosIngreso(Request $request)
+    {
+        $cod = $request->query('respuesta0');
+       // $buscar = $request->query('respuesta1');
+        $buscararray=array();
+       
+        if(!empty($request->respuesta1))
+        {
+            $buscararray = explode(" ",$request->respuesta1);
+            $valor=sizeof($buscararray);
+            if($valor > 0){
+                $sqls='';
+                
+                foreach($buscararray as $valor)
+                {
+                    if(empty($sqls)){
+                        $sqls="(
+                                pp.codigointernacional like '%".$valor."%' 
+                                or pp.nombre like '%".$valor."%' 
+                               
+                                or pp.codigo like '%".$valor."%'
+                            
+                               )";
+                    }
+                    else
+                    {
+                        $sqls.="and ( pp.codigointernacional like '%".$valor."%' 
+                        or pp.nombre like '%".$valor."%' 
+                  
+                        or pp.codigo like '%".$valor."%' 
+                       )";
+                    }
+    
+                }
+                $productos = DB::table('prod__productos as pp')
+                ->join('alm__ingreso_producto as ai', 'pp.id', '=', 'ai.id_prod_producto')
+                ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
+                ->leftJoin('prod__dispensers as pd_1', 'pd_1.id', '=', 'pp.iddispenserprimario')
+                ->leftJoin('prod__dispensers as pd_2', 'pd_2.id', '=', 'pp.iddispensersecundario')
+                ->leftJoin('prod__dispensers as pd_3', 'pd_3.id', '=', 'pp.iddispenserterciario')
+                ->leftJoin('prod__forma_farmaceuticas as ff_1', 'ff_1.id', '=', 'pp.idformafarmaceuticaprimario')
+                ->leftJoin('prod__forma_farmaceuticas as ff_2', 'ff_2.id', '=', 'pp.idformafarmaceuticasecundario')
+                ->leftJoin('prod__forma_farmaceuticas as ff_3', 'ff_3.id', '=', 'pp.idformafarmaceuticaterciario')
+                ->join('alm__almacens as aa', 'aa.id', '=', 'ai.idalmacen')
+                ->join('adm__sucursals as ass', 'ass.id', '=', 'aa.idsucursal')
+                ->join('prod__lineas as l', 'l.id', '=', 'pp.idlinea')
+                ->where('ai.stock_ingreso', '>', 0)
+                ->where('aa.codigo', $cod) 
+                ->whereRaw($sqls)
+                ->select(
+                  'pp.codigointernacional as codigointernacional',
+                  'ai.envase as envase',        
+                  'aa.codigo as cod',
+                  'ai.id as id_ingreso',
+                  'ai.id_prod_producto as id_producto',
+                  'ai.lote as lote',
+                  'ai.stock_ingreso as stock_ingreso',
+                  'ai.cantidad as cantidad_ingreso',
+                  'ai.created_at as fecha_ingreso',
+                  'ai.fecha_vencimiento as fecha_vencimiento',
+                  'pp.nombre as nombre',
+                  'pp.codigo as codigo_producto',
+                  'pp.cantidadprimario as cantidad_dispenser_p',
+                  'pp.cantidadsecundario as cantidad_dispenser_s',
+                  'pp.cantidadterciario as cantidad_dispenser_t',
+                  'l.nombre as nombre_linea',
+                  'pd_1.nombre as nombre_dispenser_1',
+                  'pd_2.nombre as nombre_dispenser_2',
+                  'pd_3.nombre as nombre_dispenser_3',
+                  'ff_1.nombre as nombre_farmaceutica_1',
+                  'ff_2.nombre as nombre_farmaceutica_2',
+                  'ff_3.nombre as nombre_farmaceutica_3',
+                  'ass.id AS id_sucursal',
+                  'ass.razon_social as razon_social',
+                       DB::raw('null as id_tienda'),
+                  'ai.idalmacen as id_almacen',
+                  DB::raw("
+                  CASE
+                      WHEN ai.envase = 'primario' THEN CONCAT(COALESCE(pp.codigo, ''), ' ', COALESCE(pp.nombre, ''), ' ', COALESCE(pd_1.nombre, ''), ' X ', COALESCE(pp.cantidadprimario, ''), ' - ', COALESCE(ff_1.nombre, ''))
+                      WHEN ai.envase = 'secundario' THEN CONCAT(COALESCE(pp.codigo, ''), ' ', COALESCE(pp.nombre, ''), ' ', COALESCE(pd_2.nombre, ''), ' X ', COALESCE(pp.cantidadsecundario, ''), ' - ', COALESCE(ff_2.nombre, ''))
+                      WHEN ai.envase = 'terciario' THEN CONCAT(COALESCE(pp.codigo, ''), ' ', COALESCE(pp.nombre, ''), ' ', COALESCE(pd_3.nombre, ''), ' X ', COALESCE(pp.cantidadterciario, ''), ' - ', COALESCE(ff_3.nombre, ''))
+                      ELSE NULL
+                  END AS leyenda
+              ")
+              );
+          
+            $tiendas = DB::table('prod__productos as pp')
+            ->join('tda__ingreso_productos as ti', 'pp.id', '=', 'ti.id_prod_producto')
+            ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
+            ->leftJoin('prod__dispensers as pd_1', 'pd_1.id', '=', 'pp.iddispenserprimario')
+            ->leftJoin('prod__dispensers as pd_2', 'pd_2.id', '=', 'pp.iddispensersecundario')
+            ->leftJoin('prod__dispensers as pd_3', 'pd_3.id', '=', 'pp.iddispenserterciario')
+            ->leftJoin('prod__forma_farmaceuticas as ff_1', 'ff_1.id', '=', 'pp.idformafarmaceuticaprimario')
+            ->leftJoin('prod__forma_farmaceuticas as ff_2', 'ff_2.id', '=', 'pp.idformafarmaceuticasecundario')
+            ->leftJoin('prod__forma_farmaceuticas as ff_3', 'ff_3.id', '=', 'pp.idformafarmaceuticaterciario')
+            ->join('adm__sucursals as ass', 'ass.id', '=', 'ti.idtienda')
+            ->join('prod__lineas as l', 'l.id', '=', 'pp.idlinea')
+            ->join('tda__tiendas as tt', 'tt.id', '=', 'ti.idtienda')
+                ->where('ti.stock_ingreso', '>', 0)
+                ->where('tt.codigo', $cod) 
+                ->whereRaw($sqls)
+                ->select(
+                  'pp.codigointernacional as codigointernacional',
+                  'ti.envase as envase',   
+                  'tt.codigo as cod',
+                  'ti.id as id_ingreso',
+                  'ti.id_prod_producto as id_producto',
+                  'ti.lote as lote',
+                  'ti.stock_ingreso as stock_ingreso',
+                  'ti.cantidad as cantidad_ingreso',
+                  'ti.created_at as fecha_ingreso',
+                  'ti.fecha_vencimiento as fecha_vencimiento',
+                  'pp.nombre as nombre',
+                  'pp.codigo as codigo_producto',
+                  'pp.cantidadprimario as cantidad_dispenser_p',
+                  'pp.cantidadsecundario as cantidad_dispenser_s',
+                  'pp.cantidadterciario as cantidad_dispenser_t',
+                  'l.nombre as nombre_linea',
+                  'pd_1.nombre as nombre_dispenser_1',
+                  'pd_2.nombre as nombre_dispenser_2',
+                  'pd_3.nombre as nombre_dispenser_3',
+                  'ff_1.nombre as nombre_farmaceutica_1',
+                  'ff_2.nombre as nombre_farmaceutica_2',
+                  'ff_3.nombre as nombre_farmaceutica_3',
+                  'ass.id AS id_sucursal',
+                  'ass.razon_social as razon_social',
+                  'ti.idtienda as id_tienda',
+                  DB::raw('null as id_almacen'),
+                  DB::raw("
+                  CASE
+                      WHEN ti.envase = 'primario' THEN CONCAT(COALESCE(pp.codigo, ''), ' ', COALESCE(pp.nombre, ''), ' ', COALESCE(pd_1.nombre, ''), ' X ', COALESCE(pp.cantidadprimario, ''), ' - ', COALESCE(ff_1.nombre, ''))
+                      WHEN ti.envase = 'secundario' THEN CONCAT(COALESCE(pp.codigo, ''), ' ', COALESCE(pp.nombre, ''), ' ', COALESCE(pd_2.nombre, ''), ' X ', COALESCE(pp.cantidadsecundario, ''), ' - ', COALESCE(ff_2.nombre, ''))
+                      WHEN ti.envase = 'terciario' THEN CONCAT(COALESCE(pp.codigo, ''), ' ', COALESCE(pp.nombre, ''), ' ', COALESCE(pd_3.nombre, ''), ' X ', COALESCE(pp.cantidadterciario, ''), ' - ', COALESCE(ff_3.nombre, ''))
+                      ELSE NULL
+                  END AS leyenda
+              ")
+                );
+          
+            $result = $productos->unionAll($tiendas)->get();
+                        
+            }
+      
+            return $result;
+        }else {
+
+            $productos = DB::table('prod__productos as pp')
+            ->join('alm__ingreso_producto as ai', 'pp.id', '=', 'ai.id_prod_producto')
+            ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
+            ->leftJoin('prod__dispensers as pd_1', 'pd_1.id', '=', 'pp.iddispenserprimario')
+            ->leftJoin('prod__dispensers as pd_2', 'pd_2.id', '=', 'pp.iddispensersecundario')
+            ->leftJoin('prod__dispensers as pd_3', 'pd_3.id', '=', 'pp.iddispenserterciario')
+            ->leftJoin('prod__forma_farmaceuticas as ff_1', 'ff_1.id', '=', 'pp.idformafarmaceuticaprimario')
+            ->leftJoin('prod__forma_farmaceuticas as ff_2', 'ff_2.id', '=', 'pp.idformafarmaceuticasecundario')
+            ->leftJoin('prod__forma_farmaceuticas as ff_3', 'ff_3.id', '=', 'pp.idformafarmaceuticaterciario')
+            ->join('alm__almacens as aa', 'aa.id', '=', 'ai.idalmacen')
+            ->join('adm__sucursals as ass', 'ass.id', '=', 'aa.idsucursal')
+            ->join('prod__lineas as l', 'l.id', '=', 'pp.idlinea')
+            ->where('ai.stock_ingreso', '>', 0)
+            ->where('aa.codigo', $cod) 
+            ->select(
+              'pp.codigointernacional as codigointernacional',
+              'ai.envase as envase',        
+              'aa.codigo as cod',
+              'ai.id as id_ingreso',
+              'ai.id_prod_producto as id_producto',
+              'ai.lote as lote',
+              'ai.stock_ingreso as stock_ingreso',
+              'ai.cantidad as cantidad_ingreso',
+              'ai.created_at as fecha_ingreso',
+              'ai.fecha_vencimiento as fecha_vencimiento',
+              'pp.nombre as nombre',
+              'pp.codigo as codigo_producto',
+              'pp.cantidadprimario as cantidad_dispenser_p',
+              'pp.cantidadsecundario as cantidad_dispenser_s',
+              'pp.cantidadterciario as cantidad_dispenser_t',
+              'l.nombre as nombre_linea',
+              'pd_1.nombre as nombre_dispenser_1',
+              'pd_2.nombre as nombre_dispenser_2',
+              'pd_3.nombre as nombre_dispenser_3',
+              'ff_1.nombre as nombre_farmaceutica_1',
+              'ff_2.nombre as nombre_farmaceutica_2',
+              'ff_3.nombre as nombre_farmaceutica_3',
+              'ass.id AS id_sucursal',
+              'ass.razon_social as razon_social',
+              DB::raw('null as id_tienda'),
+              'ai.idalmacen as id_almacen',
+              DB::raw("
+              CASE
+                  WHEN ai.envase = 'primario' THEN CONCAT(COALESCE(pp.codigo, ''), ' ', COALESCE(pp.nombre, ''), ' ', COALESCE(pd_1.nombre, ''), ' X ', COALESCE(pp.cantidadprimario, ''), ' - ', COALESCE(ff_1.nombre, ''))
+                  WHEN ai.envase = 'secundario' THEN CONCAT(COALESCE(pp.codigo, ''), ' ', COALESCE(pp.nombre, ''), ' ', COALESCE(pd_2.nombre, ''), ' X ', COALESCE(pp.cantidadsecundario, ''), ' - ', COALESCE(ff_2.nombre, ''))
+                  WHEN ai.envase = 'terciario' THEN CONCAT(COALESCE(pp.codigo, ''), ' ', COALESCE(pp.nombre, ''), ' ', COALESCE(pd_3.nombre, ''), ' X ', COALESCE(pp.cantidadterciario, ''), ' - ', COALESCE(ff_3.nombre, ''))
+                  ELSE NULL
+              END AS leyenda
+          ")
+          );
+      
+        $tiendas = DB::table('prod__productos as pp')
+        ->join('tda__ingreso_productos as ti', 'pp.id', '=', 'ti.id_prod_producto')
+        ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
+        ->leftJoin('prod__dispensers as pd_1', 'pd_1.id', '=', 'pp.iddispenserprimario')
+        ->leftJoin('prod__dispensers as pd_2', 'pd_2.id', '=', 'pp.iddispensersecundario')
+        ->leftJoin('prod__dispensers as pd_3', 'pd_3.id', '=', 'pp.iddispenserterciario')
+        ->leftJoin('prod__forma_farmaceuticas as ff_1', 'ff_1.id', '=', 'pp.idformafarmaceuticaprimario')
+        ->leftJoin('prod__forma_farmaceuticas as ff_2', 'ff_2.id', '=', 'pp.idformafarmaceuticasecundario')
+        ->leftJoin('prod__forma_farmaceuticas as ff_3', 'ff_3.id', '=', 'pp.idformafarmaceuticaterciario')
+        ->join('adm__sucursals as ass', 'ass.id', '=', 'ti.idtienda')
+        ->join('prod__lineas as l', 'l.id', '=', 'pp.idlinea')
+        ->join('tda__tiendas as tt', 'tt.id', '=', 'ti.idtienda')
+            ->where('ti.stock_ingreso', '>', 0)
+            ->where('tt.codigo', $cod) 
+            ->select(
+              'pp.codigointernacional as codigointernacional',
+              'ti.envase as envase',   
+              'tt.codigo as cod',
+              'ti.id as id_ingreso',
+              'ti.id_prod_producto as id_producto',
+              'ti.lote as lote',
+              'ti.stock_ingreso as stock_ingreso',
+              'ti.cantidad as cantidad_ingreso',
+              'ti.created_at as fecha_ingreso',
+              'ti.fecha_vencimiento as fecha_vencimiento',
+              'pp.nombre as nombre',
+              'pp.codigo as codigo_producto',
+              'pp.cantidadprimario as cantidad_dispenser_p',
+              'pp.cantidadsecundario as cantidad_dispenser_s',
+              'pp.cantidadterciario as cantidad_dispenser_t',
+              'l.nombre as nombre_linea',
+              'pd_1.nombre as nombre_dispenser_1',
+              'pd_2.nombre as nombre_dispenser_2',
+              'pd_3.nombre as nombre_dispenser_3',
+              'ff_1.nombre as nombre_farmaceutica_1',
+              'ff_2.nombre as nombre_farmaceutica_2',
+              'ff_3.nombre as nombre_farmaceutica_3',
+              'ass.id AS id_sucursal',
+              'ass.razon_social as razon_social',
+              'ti.idtienda as id_tienda',
+              DB::raw('null as id_almacen'),
+              DB::raw("
+              CASE
+                  WHEN ti.envase = 'primario' THEN CONCAT(COALESCE(pp.codigo, ''), ' ', COALESCE(pp.nombre, ''), ' ', COALESCE(pd_1.nombre, ''), ' X ', COALESCE(pp.cantidadprimario, ''), ' - ', COALESCE(ff_1.nombre, ''))
+                  WHEN ti.envase = 'secundario' THEN CONCAT(COALESCE(pp.codigo, ''), ' ', COALESCE(pp.nombre, ''), ' ', COALESCE(pd_2.nombre, ''), ' X ', COALESCE(pp.cantidadsecundario, ''), ' - ', COALESCE(ff_2.nombre, ''))
+                  WHEN ti.envase = 'terciario' THEN CONCAT(COALESCE(pp.codigo, ''), ' ', COALESCE(pp.nombre, ''), ' ', COALESCE(pd_3.nombre, ''), ' X ', COALESCE(pp.cantidadterciario, ''), ' - ', COALESCE(ff_3.nombre, ''))
+                  ELSE NULL
+              END AS leyenda
+          ")
+            );
+      
+        $result = $productos->unionAll($tiendas)->get();
+     
+        return $result;
+        }
+        
+      
+     
+        
+}
 
 }

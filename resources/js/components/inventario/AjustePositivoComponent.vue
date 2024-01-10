@@ -832,12 +832,12 @@ export default {
 
             if (me.tipoAccion == 1) {
                 var url =
-                    "/ajustes-positivo/listarProductoLineaIngreso?respuesta0=" +
+                    "/traspaso/listarProductoLineaIngreso?respuesta0=" +
                     this.sucursalSeleccionada;
             }
             if (me.tipoAccion == 2) {
                 var url =
-                    "/ajustes-positivo/listarProductoLineaIngreso?respuesta0=" +
+                    "/traspaso/listarProductoLineaIngreso?respuesta0=" +
                     this.id_codigo;
             }
             console.log(" ---  ".url);

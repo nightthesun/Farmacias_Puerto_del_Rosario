@@ -180,107 +180,7 @@
                             </tr>
                         </tbody>    
                   </table>
-                 <!--
-                    <table
-                        class="table table-bordered table-striped table-sm table-responsive"
-                    >
-                        <thead>
-                            <tr>
-                                <th>Opciones</th>
-                                <th>Codigó</th>
-                                <th>Linea</th>
-                                <th>Producto</th>
-                                <th>Cantidad de ingreso</th>
-                                <th>Stock</th>
-                                <th>Fecha de Ingreso</th>
-                                <th>Fecha de vencimiento</th>
-                                <th>Tipo</th>
-                                <th>Usuario</th>
-                                <th>Estado</th>
-
-                            </tr>
-                        </thead>
-
-                        <tbody v-if="sucursalSeleccionada == 0"></tbody>
-                        <tbody v-if="sucursalSeleccionada != 0">
-                           
-                            <tr
-                                v-for="AjusteNegativos in arrayAjusteNegativos"
-                                :key="AjusteNegativos.id"
-                            >
-                                <td>
-                                    <button
-                                        type="button"
-                                        class="btn btn-warning btn-sm"
-                                        @click="
-                                            abrirModal(
-                                                'actualizar',
-                                                AjusteNegativos,
-                                            );
-                                            ProductoLineaIngreso();
-                                        "
-                                    >
-                                        <i class="icon-pencil"></i>
-                                    </button>
-                                    &nbsp;
-                                    <button
-                                        v-if="AjusteNegativos.activo == 1"
-                                        type="button"
-                                        class="btn btn-danger btn-sm"
-                                        @click="
-                                            eliminarAjusteNegativos(
-                                                AjusteNegativos.id,
-                                            )
-                                        "
-                                    >
-                                        <i class="icon-trash"></i>
-                                    </button>
-                                    <button
-                                        v-else
-                                        type="button"
-                                        class="btn btn-info btn-sm"
-                                        @click="
-                                            activarAjusteNegativos(
-                                                AjusteNegativos.id,
-                                            )
-                                        "
-                                    >
-                                        <i class="icon-check"></i>
-                                    </button>
-                                </td>
-
-                                <td v-text="AjusteNegativos.codigo"></td>
-                                <td v-text="AjusteNegativos.linea"></td>
-                                <td v-text="AjusteNegativos.leyenda"></td>
-                                <td v-text="AjusteNegativos.cantidad"></td>
-                                <td v-text="AjusteNegativos.stock"></td>
-                                <td v-text="AjusteNegativos.fecha"></td>
-                                <td v-text="AjusteNegativos.fecha_vencimiento"></td>
-                                <td v-text="AjusteNegativos.nombreTipo"></td>
-                             
-                                        <td
-                                    v-text="AjusteNegativos.nombre_usuario"
-                                ></td>
-                                <td>
-                                    <div v-if="AjusteNegativos.activo == 1">
-                                        <span class="badge badge-success"
-                                            >Activo</span
-                                        >
-                                    </div>
-                                    <div v-else>
-                                        <span class="badge badge-warning"
-                                            >Desactivado</span
-                                        >
-                                    </div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                
-                -->
-                    
-
-                    <nav>
+                 <nav>
                         <ul class="pagination">
                             <li
                                 class="page-item"
@@ -381,7 +281,7 @@
                                         >
                                     </label>
                                     <div class="col-md-7 input-group mb-3">
-                                        <select v-model="ProductoLineaIngresoSeleccionado" v-if="tipoAccion == 1"
+                                        <select v-model="ProductoLineaIngresoSeleccionado"
                                             class="form-control"  @change="cambioDeEstado">
                                             <option v-bind:value="0" disabled>
                                                 Seleccionar...
@@ -412,7 +312,7 @@
                                         </select>
                                         <button
                                             class="btn btn-primary"
-                                            v-if="tipoAccion == 1"
+                                       
                                             type="button"
                                             id="button-addon1"
                                             @click="
@@ -456,39 +356,7 @@
                                    
                                    
                                 </div>
-                                <!--
-<input type="text" v-if="tipoAccion == 1" v-model="leyenda" hidden/>
-                                    <input type="text" v-if="tipoAccion == 1" v-model="id_codigo"  hidden/>
-                                    <input type="number" v-if="tipoAccion == 1" v-model="cantidadProductoLineaIngreso" hidden/>
-                                    <input type="text" v-if="tipoAccion == 1" v-model="codigo" hidden/>
-                                    <input type="text" v-if="tipoAccion == 1" v-model="linea"  hidden/>
-                                    <input type="text" v-if="tipoAccion == 1" v-model="producto" hidden/>  
-                                    <input type="text" v-if="tipoAccion == 1" v-model="id_producto" hidden/>
-                                    <input type="text" v-if="tipoAccion == 1" v-model="id_sucursal" hidden/>
-                                    <input type="text" v-if="tipoAccion == 1" v-model="id_ingreso" hidden/>
-                                    <input type="text" v-if="tipoAccion == 1" v-model="fecha_ingreso" hidden/>
-                                    <input type="text" v-if="tipoAccion == 1" v-model="fecha_vencimiento" hidden/>
-                                    <input type="text" v-if="tipoAccion == 1" v-model="lote" hidden>
-                                    <input type="text" v-if="tipoAccion == 1"  v-model="cantidad" hidden>
-
-                                  
-                                    <input type="text" v-if="tipoAccion == 2" v-model="leyenda" disabled hidden/>
-                                    <input type="text" v-if="tipoAccion == 2" v-model="id_codigo" disabled hidden/>
-                                    <input type="number" v-if="tipoAccion == 2" v-model="cantidadProductoLineaIngreso" disabled hidden/>
-                                    <input type="text" v-if="tipoAccion == 2" v-model="codigo" disabled hidden/>
-                                    <input type="text" v-if="tipoAccion == 2" v-model="linea" disabled hidden/>
-                                    <input type="text" v-if="tipoAccion == 2" v-model="producto" disabled hidden/>  
-                                    <input type="text" v-if="tipoAccion == 2" v-model="id_producto" disabled hidden/>
-                                    
-                                    <input type="text" v-if="tipoAccion == 2" v-model="id_sucursal" disabled hidden/>
-                                    <input type="text" v-if="tipoAccion == 2" v-model="id_ingreso" disabled hidden/>
-                                    <input type="text" v-if="tipoAccion == 2" v-model="fecha_ingreso" disabled hidden/>
-                                    <input type="text" v-if="tipoAccion == 2" v-model="fecha_vencimiento" disabled hidden/>
-                                   
-                                    <input type="text" v-if="tipoAccion == 2" v-model="lote" disabled hidden>
-                                    <input type="text" v-if="tipoAccion == 2"  v-model="cantidad" disabled hidden>  
-                               
-                                -->
+        
                                       </div>
                                  <div class="form-group row" v-if="ProductoLineaIngresoSeleccionado!=''"> 
                                     <label
@@ -598,6 +466,7 @@
                             </div>
                         </form>
                     </div>
+                    {{sucursalSeleccionada}}
                     <div class="modal-footer">
                         <button
                             type="button"
@@ -728,7 +597,9 @@
                             </div>
                         </form>
                     </div>
-                    <div class="modal-footer">
+                   
+                    <div class="modal-footer" v-if="tipoAccion == 1">
+                        
                         <button
                             type="button"
                             class="btn btn-secondary"
@@ -741,12 +612,24 @@
                         >
                             Cerrar
                         </button>
-                        <!--
-                      <button type="button" v-if="tipoAccion==2" class="btn btn-secondary" data-bs-dismiss="modal" @click="cerrarModal('staticBackdrop');abrirModal('actualizar',AjusteNegativos);ProductoLineaIngreso();">Cerraaaa</button>
+                   
+                    </div>
                     
-                    --->
-
-                        <!-- <button type="button" class="btn btn-primary">Save changes</button> -->
+                    <div class="modal-footer" v-if="tipoAccion == 2">
+                      
+                        <button
+                            type="button"
+                            class="btn btn-danger"
+                            data-bs-dismiss="modal"
+                            @click="
+                              
+                                 abrirModal('actualizar');
+                                ProductoLineaIngreso();
+                            "
+                        >
+                            Cerrar
+                        </button>
+                   
                     </div>
                 </div>
             </div>
@@ -1032,7 +915,7 @@ sucursalSeleccionadaDestino: function (newValue) {
             if (me.tipoAccion == 2) {
                 var url =
                     "/traspaso/listarProductoLineaIngreso?respuesta0=" +
-                    this.id_codigo;
+                    this.sucursalSeleccionada;
             }
          
             axios
@@ -1052,9 +935,13 @@ sucursalSeleccionadaDestino: function (newValue) {
 
         ListarretornarProductosIngreso() {
             let me = this;
-            
+            console.log("--- "+me.sucursalSeleccionada+"--- "+me.inputTextBuscarProductoIngreso);
             if (me.tipoAccion == 1) {
-                var url ="/ajustes-positivo/retornarProductosIngreso?respuesta0=" + this.sucursalSeleccionada +
+                var url ="/traspaso/retornarProductosIngreso?respuesta0=" + this.sucursalSeleccionada +
+                    "&respuesta1=" + me.inputTextBuscarProductoIngreso;
+            }
+            if (me.tipoAccion == 2) {
+                var url ="/traspaso/retornarProductosIngreso?respuesta0=" + this.sucursalSeleccionada +
                     "&respuesta1=" + me.inputTextBuscarProductoIngreso;
             }
             axios
@@ -1081,7 +968,7 @@ sucursalSeleccionadaDestino: function (newValue) {
             let respuesta = me.arraySucursal.find(
                 (element) => element.codigo == me.sucursalSeleccionada,
             );
-            
+            console.log("------>"+data.cod_2);
          switch (accion) {
                 case "registrar": {
                     me.tipoAccion = 1;
@@ -1115,10 +1002,12 @@ sucursalSeleccionadaDestino: function (newValue) {
                     break;
                 }
                 case "actualizar": {
+                   
+                    me.tipoAccion = 2;
+                   
                     me.leyenda = data.leyenda;
                     me.id_codigo = data.cod;
-                    me.tipoAccion = 2;
-                    me.tituloModal = "Actualizacion para Ajuste de negativos  ";
+                    me.tituloModal = "Actualizacion para Ajuste de negativos 111 ";
                     me.codigo = data.codigo;
                     me.cantidadProductoLineaIngreso = data.cantidad;
                     me.linea = data.linea;
@@ -1133,11 +1022,10 @@ sucursalSeleccionadaDestino: function (newValue) {
                     me.id_sucursal = data.id_sucursal;
                     me.id_producto = data.cod;
                     me.id_ingreso = data.id_ingreso;
-                    me.TiposSeleccionado =
-                        data.id_tipo === null ? 0 : data.id_tipo;
-                    me.ProductoLineaIngresoSeleccionado =
-                        data.id_ingreso === null ? 0 : data.id_ingreso;
-
+                    me.glosa=data.glosa;
+                   
+                    me.ProductoLineaIngresoSeleccionado = data.id_ingreso === null ? 0 : data.id_ingreso;
+                    me.sucursalSeleccionadaDestino=data.cod_2 === null ? 0 : data.cod_2;
                     me.classModal.openModal("registrar");
 
                     break;
@@ -1160,7 +1048,7 @@ sucursalSeleccionadaDestino: function (newValue) {
                 case "inputModal": {
                  
                     me.tipoAccion = 1;
-                    me.tituloModal = "Registro de traspaso origen "+respuesta.razon_social;
+                    me.tituloModal = "Registro 111111de traspaso origen "+respuesta.razon_social;
                     me.ProductoLineaIngresoSeleccionado =
                         data.id_ingreso === null ? 0 : data.id_ingreso;
 
@@ -1180,6 +1068,9 @@ sucursalSeleccionadaDestino: function (newValue) {
                     me.id_producto = "";
                     me.id_ingreso = "";
                     me.leyenda = "";
+                    me.glosa=data.glosa;
+                    me.cantidadS = data.cantidad;
+                    me.sucursalSeleccionadaDestino=data.cod_2 === null ? 0 : data.cod_2;
                     me.classModal.openModal("registrar");
                     break;
                 }
@@ -1231,7 +1122,7 @@ sucursalSeleccionadaDestino: function (newValue) {
           //  console.log("-----"+me.id_almacen_tienda +" - " +me.id_producto +" - " + me.id_ingreso+" - "+me.envase+" - "+me.cantidadS+" - "+me.fecha_vencimiento+" - "+me.lote+" > "
           //  +me.registro_sanitario+" > "+me.id_almacen_tienda+" > "+me.lista_id_almacen_id_tienda+" > "+me.id_ingreso+" > "+me.sucursalSeleccionada+" > "+me.codigoDestino
           //  +" > "+me.leyenda+" > "+me.glosa );
-            let suma = me.cantidadProductoLineaIngreso + me.cantidadS;
+       
 
             if (
                me.ProductoLineaIngresoSeleccionado === 0 ||
@@ -1272,8 +1163,8 @@ sucursalSeleccionadaDestino: function (newValue) {
                         'cod_2':me.codigoDestino,
                         'leyenda': me.leyenda,
                         'glosa':me.glosa,
-                        'name_des':me.razon_social,
-                        'name_ori':me.razon_social_des,                         
+                        'name_des':me.razon_social_des,
+                        'name_ori':me.razon_social,                         
                     })
                     .then(function (response) {
                         me.cerrarModal("registrar");
@@ -1353,7 +1244,7 @@ sucursalSeleccionadaDestino: function (newValue) {
 
         eliminarAjusteNegativos(idAjusteNegativos) {
             let me = this;
-          //  console.log(     idAjusteNegativos +     " - " + me.sucursalSeleccionada +  " - " +  me.id_ingreso    );
+           console.log(     idAjusteNegativos +     " - " + me.sucursalSeleccionada +  " - " +  me.id_ingreso    );
             const swalWithBootstrapButtons = Swal.mixin({
                 customClass: {
                     confirmButton: "btn btn-success",
@@ -1407,6 +1298,7 @@ sucursalSeleccionadaDestino: function (newValue) {
 
         activarAjusteNegativos(idAjusteNegativos) {
             let me = this;
+            console.log("----"+idAjusteNegativos);
             const swalWithBootstrapButtons = Swal.mixin({
                 customClass: {
                     confirmButton: "btn btn-success",

@@ -410,4 +410,6 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/traspaso/registrar', [InvTraspasoController::class, 'store']);
     Route::put('/traspaso/desactivar', [InvTraspasoController::class, 'desactivar']);
     Route::put('/traspaso/activar', [InvTraspasoController::class, 'activar']);
+    Route::get('/traspaso/retornarProductosIngreso', [InvTraspasoController::class, 'retornarProductosIngreso']);
+
 });

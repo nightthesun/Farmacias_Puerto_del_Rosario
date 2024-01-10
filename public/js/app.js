@@ -25132,11 +25132,11 @@ __webpack_require__.r(__webpack_exports__);
       var me = this;
 
       if (me.tipoAccion == 1) {
-        var url = "/ajustes-positivo/listarProductoLineaIngreso?respuesta0=" + this.sucursalSeleccionada;
+        var url = "/traspaso/listarProductoLineaIngreso?respuesta0=" + this.sucursalSeleccionada;
       }
 
       if (me.tipoAccion == 2) {
-        var url = "/ajustes-positivo/listarProductoLineaIngreso?respuesta0=" + this.id_codigo;
+        var url = "/traspaso/listarProductoLineaIngreso?respuesta0=" + this.id_codigo;
       }
 
       console.log(" ---  ".url);
@@ -25786,7 +25786,7 @@ __webpack_require__.r(__webpack_exports__);
       }
 
       if (me.tipoAccion == 2) {
-        var url = "/traspaso/listarProductoLineaIngreso?respuesta0=" + this.id_codigo;
+        var url = "/traspaso/listarProductoLineaIngreso?respuesta0=" + this.sucursalSeleccionada;
       }
 
       axios.get(url).then(function (response) {
@@ -25800,9 +25800,14 @@ __webpack_require__.r(__webpack_exports__);
     },
     ListarretornarProductosIngreso: function ListarretornarProductosIngreso() {
       var me = this;
+      console.log("--- " + me.sucursalSeleccionada + "--- " + me.inputTextBuscarProductoIngreso);
 
       if (me.tipoAccion == 1) {
-        var url = "/ajustes-positivo/retornarProductosIngreso?respuesta0=" + this.sucursalSeleccionada + "&respuesta1=" + me.inputTextBuscarProductoIngreso;
+        var url = "/traspaso/retornarProductosIngreso?respuesta0=" + this.sucursalSeleccionada + "&respuesta1=" + me.inputTextBuscarProductoIngreso;
+      }
+
+      if (me.tipoAccion == 2) {
+        var url = "/traspaso/retornarProductosIngreso?respuesta0=" + this.sucursalSeleccionada + "&respuesta1=" + me.inputTextBuscarProductoIngreso;
       }
 
       axios.get(url).then(function (response) {
@@ -25824,6 +25829,7 @@ __webpack_require__.r(__webpack_exports__);
       var respuesta = me.arraySucursal.find(function (element) {
         return element.codigo == me.sucursalSeleccionada;
       });
+      console.log("------>" + data.cod_2);
 
       switch (accion) {
         case "registrar":
@@ -25861,10 +25867,10 @@ __webpack_require__.r(__webpack_exports__);
 
         case "actualizar":
           {
+            me.tipoAccion = 2;
             me.leyenda = data.leyenda;
             me.id_codigo = data.cod;
-            me.tipoAccion = 2;
-            me.tituloModal = "Actualizacion para Ajuste de negativos  ";
+            me.tituloModal = "Actualizacion para Ajuste de negativos 111 ";
             me.codigo = data.codigo;
             me.cantidadProductoLineaIngreso = data.cantidad;
             me.linea = data.linea;
@@ -25878,8 +25884,9 @@ __webpack_require__.r(__webpack_exports__);
             me.id_sucursal = data.id_sucursal;
             me.id_producto = data.cod;
             me.id_ingreso = data.id_ingreso;
-            me.TiposSeleccionado = data.id_tipo === null ? 0 : data.id_tipo;
+            me.glosa = data.glosa;
             me.ProductoLineaIngresoSeleccionado = data.id_ingreso === null ? 0 : data.id_ingreso;
+            me.sucursalSeleccionadaDestino = data.cod_2 === null ? 0 : data.cod_2;
             me.classModal.openModal("registrar");
             break;
           }
@@ -25901,7 +25908,7 @@ __webpack_require__.r(__webpack_exports__);
         case "inputModal":
           {
             me.tipoAccion = 1;
-            me.tituloModal = "Registro de traspaso origen " + respuesta.razon_social;
+            me.tituloModal = "Registro 111111de traspaso origen " + respuesta.razon_social;
             me.ProductoLineaIngresoSeleccionado = data.id_ingreso === null ? 0 : data.id_ingreso;
             me.cantidadProductoLineaIngreso = "";
             me.TiposSeleccionado = 0;
@@ -25917,6 +25924,9 @@ __webpack_require__.r(__webpack_exports__);
             me.id_producto = "";
             me.id_ingreso = "";
             me.leyenda = "";
+            me.glosa = data.glosa;
+            me.cantidadS = data.cantidad;
+            me.sucursalSeleccionadaDestino = data.cod_2 === null ? 0 : data.cod_2;
             me.classModal.openModal("registrar");
             break;
           }
@@ -25965,8 +25975,6 @@ __webpack_require__.r(__webpack_exports__);
       //  +me.registro_sanitario+" > "+me.id_almacen_tienda+" > "+me.lista_id_almacen_id_tienda+" > "+me.id_ingreso+" > "+me.sucursalSeleccionada+" > "+me.codigoDestino
       //  +" > "+me.leyenda+" > "+me.glosa );
 
-      var suma = me.cantidadProductoLineaIngreso + me.cantidadS;
-
       if (me.ProductoLineaIngresoSeleccionado === 0 || me.sucursalSeleccionadaDestino === 0 || me.cantidadS === "" || me.glosa === "") {
         sweetalert2__WEBPACK_IMPORTED_MODULE_0___default().fire("No puede ingresar valor nulos  o vacios", "Haga click en Ok", "warning");
       } else {
@@ -25989,8 +25997,8 @@ __webpack_require__.r(__webpack_exports__);
             'cod_2': me.codigoDestino,
             'leyenda': me.leyenda,
             'glosa': me.glosa,
-            'name_des': me.razon_social,
-            'name_ori': me.razon_social_des
+            'name_des': me.razon_social_des,
+            'name_ori': me.razon_social
           }).then(function (response) {
             me.cerrarModal("registrar");
             sweetalert2__WEBPACK_IMPORTED_MODULE_0___default().fire("Se registro exitosamente", "Haga click en Ok", "success");
@@ -26043,8 +26051,8 @@ __webpack_require__.r(__webpack_exports__);
       });
     },
     eliminarAjusteNegativos: function eliminarAjusteNegativos(idAjusteNegativos) {
-      var me = this; //  console.log(     idAjusteNegativos +     " - " + me.sucursalSeleccionada +  " - " +  me.id_ingreso    );
-
+      var me = this;
+      console.log(idAjusteNegativos + " - " + me.sucursalSeleccionada + " - " + me.id_ingreso);
       var swalWithBootstrapButtons = sweetalert2__WEBPACK_IMPORTED_MODULE_0___default().mixin({
         customClass: {
           confirmButton: "btn btn-success",
@@ -26085,6 +26093,7 @@ __webpack_require__.r(__webpack_exports__);
     },
     activarAjusteNegativos: function activarAjusteNegativos(idAjusteNegativos) {
       var me = this;
+      console.log("----" + idAjusteNegativos);
       var swalWithBootstrapButtons = sweetalert2__WEBPACK_IMPORTED_MODULE_0___default().mixin({
         customClass: {
           confirmButton: "btn btn-success",
@@ -42873,6 +42882,11 @@ var _hoisted_135 = ["textContent"];
 var _hoisted_136 = ["textContent"];
 var _hoisted_137 = ["textContent"];
 var _hoisted_138 = {
+  key: 0,
+  "class": "modal-footer"
+};
+var _hoisted_139 = {
+  key: 1,
   "class": "modal-footer"
 };
 function render(_ctx, _cache, $props, $setup, $data, $options) {
@@ -43005,7 +43019,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
     , _hoisted_50), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", null, [AjusteNegativos.activo == 1 ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_51, _hoisted_53)) : ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_54, _hoisted_56))]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("td", null, [AjusteNegativos.estado_procesado == 1 ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_57, _hoisted_59)) : ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_60, _hoisted_62))])]);
   }), 128
   /* KEYED_FRAGMENT */
-  ))])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("\r\n                    <table\r\n                        class=\"table table-bordered table-striped table-sm table-responsive\"\r\n                    >\r\n                        <thead>\r\n                            <tr>\r\n                                <th>Opciones</th>\r\n                                <th>Codigó</th>\r\n                                <th>Linea</th>\r\n                                <th>Producto</th>\r\n                                <th>Cantidad de ingreso</th>\r\n                                <th>Stock</th>\r\n                                <th>Fecha de Ingreso</th>\r\n                                <th>Fecha de vencimiento</th>\r\n                                <th>Tipo</th>\r\n                                <th>Usuario</th>\r\n                                <th>Estado</th>\r\n\r\n                            </tr>\r\n                        </thead>\r\n\r\n                        <tbody v-if=\"sucursalSeleccionada == 0\"></tbody>\r\n                        <tbody v-if=\"sucursalSeleccionada != 0\">\r\n                           \r\n                            <tr\r\n                                v-for=\"AjusteNegativos in arrayAjusteNegativos\"\r\n                                :key=\"AjusteNegativos.id\"\r\n                            >\r\n                                <td>\r\n                                    <button\r\n                                        type=\"button\"\r\n                                        class=\"btn btn-warning btn-sm\"\r\n                                        @click=\"\r\n                                            abrirModal(\r\n                                                'actualizar',\r\n                                                AjusteNegativos,\r\n                                            );\r\n                                            ProductoLineaIngreso();\r\n                                        \"\r\n                                    >\r\n                                        <i class=\"icon-pencil\"></i>\r\n                                    </button>\r\n                                    &nbsp;\r\n                                    <button\r\n                                        v-if=\"AjusteNegativos.activo == 1\"\r\n                                        type=\"button\"\r\n                                        class=\"btn btn-danger btn-sm\"\r\n                                        @click=\"\r\n                                            eliminarAjusteNegativos(\r\n                                                AjusteNegativos.id,\r\n                                            )\r\n                                        \"\r\n                                    >\r\n                                        <i class=\"icon-trash\"></i>\r\n                                    </button>\r\n                                    <button\r\n                                        v-else\r\n                                        type=\"button\"\r\n                                        class=\"btn btn-info btn-sm\"\r\n                                        @click=\"\r\n                                            activarAjusteNegativos(\r\n                                                AjusteNegativos.id,\r\n                                            )\r\n                                        \"\r\n                                    >\r\n                                        <i class=\"icon-check\"></i>\r\n                                    </button>\r\n                                </td>\r\n\r\n                                <td v-text=\"AjusteNegativos.codigo\"></td>\r\n                                <td v-text=\"AjusteNegativos.linea\"></td>\r\n                                <td v-text=\"AjusteNegativos.leyenda\"></td>\r\n                                <td v-text=\"AjusteNegativos.cantidad\"></td>\r\n                                <td v-text=\"AjusteNegativos.stock\"></td>\r\n                                <td v-text=\"AjusteNegativos.fecha\"></td>\r\n                                <td v-text=\"AjusteNegativos.fecha_vencimiento\"></td>\r\n                                <td v-text=\"AjusteNegativos.nombreTipo\"></td>\r\n                             \r\n                                        <td\r\n                                    v-text=\"AjusteNegativos.nombre_usuario\"\r\n                                ></td>\r\n                                <td>\r\n                                    <div v-if=\"AjusteNegativos.activo == 1\">\r\n                                        <span class=\"badge badge-success\"\r\n                                            >Activo</span\r\n                                        >\r\n                                    </div>\r\n                                    <div v-else>\r\n                                        <span class=\"badge badge-warning\"\r\n                                            >Desactivado</span\r\n                                        >\r\n                                    </div>\r\n                                </td>\r\n                            </tr>\r\n                        </tbody>\r\n                    </table>\r\n                \r\n                "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("nav", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("ul", _hoisted_63, [$data.pagination.current_page > 1 ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("li", _hoisted_64, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("a", {
+  ))])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("nav", null, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("ul", _hoisted_63, [$data.pagination.current_page > 1 ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("li", _hoisted_64, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("a", {
     "class": "page-link",
     href: "#",
     onClick: _cache[6] || (_cache[6] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.withModifiers)(function ($event) {
@@ -43048,8 +43062,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
   /* TEXT */
   ), _hoisted_79, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($data.razon_social), 1
   /* TEXT */
-  )])])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" insertar datos "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_80, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_81, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", _hoisted_82, [_hoisted_83, $options.ProductoLineaIngreso == '0' ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("span", _hoisted_84, "(*)")) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_85, [$data.tipoAccion == 1 ? (0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)(((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("select", {
-    key: 0,
+  )])])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" insertar datos "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_80, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_81, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("label", _hoisted_82, [_hoisted_83, $options.ProductoLineaIngreso == '0' ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("span", _hoisted_84, "(*)")) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_85, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("select", {
     "onUpdate:modelValue": _cache[9] || (_cache[9] = function ($event) {
       return $data.ProductoLineaIngresoSeleccionado = $event;
     }),
@@ -43069,8 +43082,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
   /* KEYED_FRAGMENT */
   ))], 544
   /* HYDRATE_EVENTS, NEED_PATCH */
-  )), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelSelect, $data.ProductoLineaIngresoSeleccionado]]) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), $data.tipoAccion == 1 ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("button", {
-    key: 1,
+  ), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelSelect, $data.ProductoLineaIngresoSeleccionado]]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
     "class": "btn btn-primary",
     type: "button",
     id: "button-addon1",
@@ -43078,7 +43090,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
       $options.abrirModal('bucarProductoIngreso');
       $options.ListarretornarProductosIngreso();
     })
-  }, _hoisted_89)) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("\r\n                                        <input v-if=\"tipoAccion == 2\" type=\"text\" v-model=\"leyenda\" class=\"form-control\"\r\n                                            placeholder=\"letenda\" disabled />\r\n                                       ")]), $data.ProductoLineaIngresoSeleccionado != '' ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_90, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("strong", null, [_hoisted_91, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($data.cantidadProductoLineaIngreso), 1
+  }, _hoisted_89), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("\r\n                                        <input v-if=\"tipoAccion == 2\" type=\"text\" v-model=\"leyenda\" class=\"form-control\"\r\n                                            placeholder=\"letenda\" disabled />\r\n                                       ")]), $data.ProductoLineaIngresoSeleccionado != '' ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_90, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("strong", null, [_hoisted_91, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($data.cantidadProductoLineaIngreso), 1
   /* TEXT */
   )])])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), $data.ProductoLineaIngresoSeleccionado != '' ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_92, _hoisted_94)) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), $data.ProductoLineaIngresoSeleccionado != '' ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_95, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("strong", null, [_hoisted_96, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($data.lote), 1
   /* TEXT */
@@ -43088,7 +43100,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
   /* TEXT */
   )])])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), $data.ProductoLineaIngresoSeleccionado != '' ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_101, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("strong", null, [_hoisted_102, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("span", null, " 0000" + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($data.id_ingreso), 1
   /* TEXT */
-  )])])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("\r\n<input type=\"text\" v-if=\"tipoAccion == 1\" v-model=\"leyenda\" hidden/>\r\n                                    <input type=\"text\" v-if=\"tipoAccion == 1\" v-model=\"id_codigo\"  hidden/>\r\n                                    <input type=\"number\" v-if=\"tipoAccion == 1\" v-model=\"cantidadProductoLineaIngreso\" hidden/>\r\n                                    <input type=\"text\" v-if=\"tipoAccion == 1\" v-model=\"codigo\" hidden/>\r\n                                    <input type=\"text\" v-if=\"tipoAccion == 1\" v-model=\"linea\"  hidden/>\r\n                                    <input type=\"text\" v-if=\"tipoAccion == 1\" v-model=\"producto\" hidden/>  \r\n                                    <input type=\"text\" v-if=\"tipoAccion == 1\" v-model=\"id_producto\" hidden/>\r\n                                    <input type=\"text\" v-if=\"tipoAccion == 1\" v-model=\"id_sucursal\" hidden/>\r\n                                    <input type=\"text\" v-if=\"tipoAccion == 1\" v-model=\"id_ingreso\" hidden/>\r\n                                    <input type=\"text\" v-if=\"tipoAccion == 1\" v-model=\"fecha_ingreso\" hidden/>\r\n                                    <input type=\"text\" v-if=\"tipoAccion == 1\" v-model=\"fecha_vencimiento\" hidden/>\r\n                                    <input type=\"text\" v-if=\"tipoAccion == 1\" v-model=\"lote\" hidden>\r\n                                    <input type=\"text\" v-if=\"tipoAccion == 1\"  v-model=\"cantidad\" hidden>\r\n\r\n                                  \r\n                                    <input type=\"text\" v-if=\"tipoAccion == 2\" v-model=\"leyenda\" disabled hidden/>\r\n                                    <input type=\"text\" v-if=\"tipoAccion == 2\" v-model=\"id_codigo\" disabled hidden/>\r\n                                    <input type=\"number\" v-if=\"tipoAccion == 2\" v-model=\"cantidadProductoLineaIngreso\" disabled hidden/>\r\n                                    <input type=\"text\" v-if=\"tipoAccion == 2\" v-model=\"codigo\" disabled hidden/>\r\n                                    <input type=\"text\" v-if=\"tipoAccion == 2\" v-model=\"linea\" disabled hidden/>\r\n                                    <input type=\"text\" v-if=\"tipoAccion == 2\" v-model=\"producto\" disabled hidden/>  \r\n                                    <input type=\"text\" v-if=\"tipoAccion == 2\" v-model=\"id_producto\" disabled hidden/>\r\n                                    \r\n                                    <input type=\"text\" v-if=\"tipoAccion == 2\" v-model=\"id_sucursal\" disabled hidden/>\r\n                                    <input type=\"text\" v-if=\"tipoAccion == 2\" v-model=\"id_ingreso\" disabled hidden/>\r\n                                    <input type=\"text\" v-if=\"tipoAccion == 2\" v-model=\"fecha_ingreso\" disabled hidden/>\r\n                                    <input type=\"text\" v-if=\"tipoAccion == 2\" v-model=\"fecha_vencimiento\" disabled hidden/>\r\n                                   \r\n                                    <input type=\"text\" v-if=\"tipoAccion == 2\" v-model=\"lote\" disabled hidden>\r\n                                    <input type=\"text\" v-if=\"tipoAccion == 2\"  v-model=\"cantidad\" disabled hidden>  \r\n                               \r\n                                ")]), $data.ProductoLineaIngresoSeleccionado != '' ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_103, [_hoisted_104, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_105, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("select", {
+  )])])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)]), $data.ProductoLineaIngresoSeleccionado != '' ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_103, [_hoisted_104, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_105, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.withDirectives)((0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("select", {
     name: "",
     id: "",
     "onUpdate:modelValue": _cache[12] || (_cache[12] = function ($event) {
@@ -43150,7 +43162,9 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
     })
   }, null, 544
   /* HYDRATE_EVENTS, NEED_PATCH */
-  ), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, $data.glosa]]), $data.glosa === '' ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("span", _hoisted_120, "Debe Ingresar la glosa")) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)])])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_121, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
+  ), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, $data.glosa]]), $data.glosa === '' ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("span", _hoisted_120, "Debe Ingresar la glosa")) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)])])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)(" " + (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($data.sucursalSeleccionada) + " ", 1
+  /* TEXT */
+  ), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_121, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
     type: "button",
     "class": "btn btn-secondary",
     onClick: _cache[19] || (_cache[19] = function ($event) {
@@ -43223,7 +43237,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
     , _hoisted_133);
   }), 128
   /* KEYED_FRAGMENT */
-  ))])])])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_138, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
+  ))])])])])]), $data.tipoAccion == 1 ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_138, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
     type: "button",
     "class": "btn btn-secondary",
     "data-bs-dismiss": "modal",
@@ -43232,7 +43246,15 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
       $options.abrirModal('registrar');
       $options.ProductoLineaIngreso();
     })
-  }, " Cerrar "), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("\r\n                      <button type=\"button\" v-if=\"tipoAccion==2\" class=\"btn btn-secondary\" data-bs-dismiss=\"modal\" @click=\"cerrarModal('staticBackdrop');abrirModal('actualizar',AjusteNegativos);ProductoLineaIngreso();\">Cerraaaa</button>\r\n                    \r\n                    -"), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" <button type=\"button\" class=\"btn btn-primary\">Save changes</button> ")])])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Fun Modal para la busqueda de producto por lote ")]);
+  }, " Cerrar ")])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), $data.tipoAccion == 2 ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_139, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
+    type: "button",
+    "class": "btn btn-danger",
+    "data-bs-dismiss": "modal",
+    onClick: _cache[26] || (_cache[26] = function ($event) {
+      $options.abrirModal('actualizar');
+      $options.ProductoLineaIngreso();
+    })
+  }, " Cerrar ")])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true)])])]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)(" Fun Modal para la busqueda de producto por lote ")]);
 }
 
 /***/ }),
