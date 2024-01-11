@@ -42,6 +42,7 @@ use App\Http\Controllers\SerVentaMaestroController;
 use App\Http\Controllers\TdaIngresoProductoController;
 use App\Http\Controllers\InvAjusteNegativoController;
 use App\Http\Controllers\InvAjustePositivoController;
+use App\Http\Controllers\InvProcesarTraspasoController;
 use App\Http\Controllers\InvTraspasoController;
 
 use App\Models\Alm_IngresoProducto;
@@ -412,4 +413,6 @@ Route::group(['middleware' => 'auth'], function () {
     Route::put('/traspaso/activar', [InvTraspasoController::class, 'activar']);
     Route::get('/traspaso/retornarProductosIngreso', [InvTraspasoController::class, 'retornarProductosIngreso']);
     Route::put('/traspaso/actualizar', [InvTraspasoController::class, 'update']);
+
+    Route::get('/procesar-traspaso', [InvProcesarTraspasoController::class, 'index']);
 });
