@@ -17,21 +17,102 @@
                     </button>
                 </div>
                 <div class="card-body">
+                    <!--incluicion de datos-->
+                <div class="container">
+                    <div class="form-group row">
+                        <label class="col-md-2 form-control-label" for="text-input">
+                              Nro. Traspaso:          
+                        </label>
+                        <div class="col-md-5 input-group mb-1">
+                            <input
+                                            type="text"
+                                           
+                                            v-model="nro_traspaso"
+                                            class="form-control"
+                                            placeholder="Ingrese un numero de traspaso"
+                                            v-on:focus="selectAll"
+                                        />
+                                        <button
+                                            class="btn btn-primary"
+                                       
+                                            type="button"
+                                            id="button-addon1"
+                                           
+                                        >
+                                            <i class="fa fa-search"></i>
+                                        </button>
+                                        
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-md-2 form-control-label" for="text-input">
+                              Responsable:          
+                        </label>
+                        <div class="col-md-5 input-group mb-1">
+                            <input
+                                            type="text"
+                                           
+                                            v-model="responsable"
+                                            class="form-control"
+                                            placeholder="Ingrese usuario que envio la petición"
+                                            v-on:focus="selectAll"
+                                        />
+                                        
+                                        
+                        </div>
+                    </div>
+                
+                    <div class="form-group row mb-1"  >
+                                
+                                <div class="form-group  col-sm-3">
+                                    <span>Origen:</span>
+                                    <select v-model="selectOrigen" class="form-control">
+                                        <option value="0" disabled>Seleccionar...</option>
+                                      </select>
+                                </div>
+                                <div class="form-group col-sm-3">
+                                    <span>Destino:</span>
+                                    <select v-model="selectDestino" class="form-control">
+                                        <option value="0" disabled>Seleccionar...</option>
+                                      </select>
+                                </div>
+                                <div class="form-group col-sm-3">
+                                    <span>Procesos:</span>
+                                    <select v-model="selectProceso" class="form-control">
+                                        <option value="0" disabled>Seleccionar...</option>
+                                        <option value="1" disabled>Pendientes</option>
+                                        <option value="2" disabled>Procesados</option>
+                                        <option value="3" disabled>Todos</option>
+                                      </select>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                
+                                <div class="form-group col-sm-2">
+                                    <span>Rango Iniciar:</span>
+                                    <input   type="date" v-model="fechaIni" class="form-control"/>
+                                </div>
+                                <div class="form-group col-sm-2">
+                                    <span>Rango Final:</span>
+                                    <input   type="date" v-model="fechaFini" class="form-control"/>
+                                </div>
+                            </div>
+                           
+                </div>    
+
+
                     <div class="form-group row">
                         <div class="col-md-6">
                             <div class="input-group">
-                                <input type="text" id="texto" name="texto" class="form-control" placeholder="Texto a buscar">
-                                <button type="submit" class="btn btn-primary" ><i class="fa fa-search" ></i> Buscar</button>
+                               <button type="submit" class="btn btn-primary" ><i class="fa fa-search" ></i> Buscar</button>
                            
                                     
                             </div>
                         </div>
                     </div>
-                    <ul> 
-                        <li>d</li>
-      <li v-for="tipo in arrayTipos" :key="tipo.id">{{ tipo.nombre }}</li>
-    </ul>
-                    <table class="table table-bordered table-striped table-sm table-responsive">
+              
+          <!--
+ <table class="table table-bordered table-striped table-sm table-responsive">
                         <thead>
                             <tr>
                                 <th>Opciones</th>
@@ -64,6 +145,8 @@
                            </tr>
                         </tbody>
                     </table>
+          -->
+                   
                     <nav>
                         <ul class="pagination">
                             <li class="page-item">
@@ -206,7 +289,7 @@
                 switch(accion){
                     case 'registrar':
                     {
-                        me.tituloModal='Ajuste de negativos'
+                        me.tituloModal='Procesar traspasos'
                         
                         me.classModal.openModal('registrar');
                         break;

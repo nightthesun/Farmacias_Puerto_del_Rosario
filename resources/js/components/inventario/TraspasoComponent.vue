@@ -506,8 +506,7 @@
             id="staticBackdrop"
             tabindex="-2"
             aria-labelledby="exampleModalLabel"
-            aria-hidden="true"
-        >
+            aria-hidden="true">
             <div class="modal-dialog modal-dialog-scrollable modal-primary">
                 <div class="modal-content">
                     <div class="modal-header">
