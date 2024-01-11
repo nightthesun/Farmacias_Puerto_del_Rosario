@@ -411,5 +411,5 @@ Route::group(['middleware' => 'auth'], function () {
     Route::put('/traspaso/desactivar', [InvTraspasoController::class, 'desactivar']);
     Route::put('/traspaso/activar', [InvTraspasoController::class, 'activar']);
     Route::get('/traspaso/retornarProductosIngreso', [InvTraspasoController::class, 'retornarProductosIngreso']);
-
+    Route::put('/traspaso/actualizar', [InvTraspasoController::class, 'update']);
 });

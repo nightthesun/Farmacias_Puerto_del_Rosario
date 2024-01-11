@@ -29,8 +29,8 @@ class InvTraspasoController extends Controller
                         $sqls = "(
                                 it.numero_traspaso like '%" . $valor . "%' 
                                 or it.envase like '%" . $valor . "%' 
-                                or it.origen like '%" . $valor . "%'
-                                or it.destino like '%" . $valor . "%' 
+                                or it.name_ori like '%" . $valor . "%'
+                                or it.name_des like '%" . $valor . "%' 
                                 or it.leyenda like '%" . $valor . "%'
                                 or it.cod_1 like '%" . $valor . "%'
                                 or it.cod_2 like '%" . $valor . "%' 
@@ -39,8 +39,8 @@ class InvTraspasoController extends Controller
                         $sqls .= "and (
                             it.numero_traspaso like '%" . $valor . "%' 
                             or it.envase like '%" . $valor . "%' 
-                            or it.origen like '%" . $valor . "%'
-                            or it.destino like '%" . $valor . "%' 
+                            or it.name_ori like '%" . $valor . "%'
+                            or it.name_des like '%" . $valor . "%' 
                             or it.leyenda like '%" . $valor . "%'
                             or it.cod_1 like '%" . $valor . "%'
                             or it.cod_2 like '%" . $valor . "%'
@@ -129,10 +129,19 @@ class InvTraspasoController extends Controller
     ->join('tda__ingreso_productos as ti_1', 'ti_1.id', '=', 'it.id_ingreso')
     ->leftJoin('tda__tiendas as tt_2', 'tt_2.codigo', '=', 'it.cod_2')
     ->join('users as u', 'u.id', '=', 'it.user_id');
-    $reusltadocombinado = $traspasos_alm->orderBy('id', 'desc')->unionAll($traspasos_tienda->orderBy('id', 'desc'))
-                    ->paginate(15);
+    $reusltadocombinado = $traspasos_alm
+    ->where('it.cod_1', '=', $bus)
+    ->whereRaw($sqls)
+    ->orderBy('id', 'desc')
+    ->unionAll($traspasos_tienda
+        ->where('it.cod_1', '=', $bus)
+        ->whereRaw($sqls)
+        ->orderBy('id', 'desc')
+    )->paginate(15);
+   
             }
-
+            
+        
             return
                 [
                     'pagination' =>
@@ -187,7 +196,7 @@ class InvTraspasoController extends Controller
     ->join('alm__almacens as aa_1', 'aa_1.codigo', '=', 'it.cod_1')
     ->join('alm__ingreso_producto as ai_1', 'ai_1.id', '=', 'it.id_ingreso')
     ->leftJoin('alm__almacens as aa_2', 'aa_2.codigo', '=', 'it.cod_2')
-    ->join('users as u', 'u.id', '=', 'it.user_id')->where('it.cod_1', '=', $bus);
+    ->join('users as u', 'u.id', '=', 'it.user_id');
 
     $traspasos_tienda = DB::table('inv__traspasos as it')
     ->select([
@@ -229,8 +238,9 @@ class InvTraspasoController extends Controller
     ->join('adm__sucursals as ass', 'ass.id', '=', 'tt_1.idsucursal')
     ->join('tda__ingreso_productos as ti_1', 'ti_1.id', '=', 'it.id_ingreso')
     ->leftJoin('tda__tiendas as tt_2', 'tt_2.codigo', '=', 'it.cod_2')
-    ->join('users as u', 'u.id', '=', 'it.user_id') ->where('it.cod_1', '=', $bus);
-    $reusltadocombinado = $traspasos_alm->orderBy('id', 'desc')->unionAll($traspasos_tienda->orderBy('id', 'desc'))
+    ->join('users as u', 'u.id', '=', 'it.user_id');
+    
+    $reusltadocombinado = $traspasos_alm->where('it.cod_1', '=', $bus)->orderBy('id', 'desc')->unionAll($traspasos_tienda->where('it.cod_1', '=', $bus)->orderBy('id', 'desc'))
 
                     ->paginate(15);
             return [
@@ -342,8 +352,29 @@ class InvTraspasoController extends Controller
      */
     public function update(Request $request, Inv_Traspaso $inv_Traspaso)
     {
-        //
+        $update=Inv_Traspaso::find($request->id);
+        $update->id_almacen_tienda=$request->id_almacen_tienda;
+        $update->id_prod_producto=$request->id_prod_producto;
+        $update->envase=$request->envase;
+         $update->cantidad__stock_ingreso=$request->cantidad__stock_ingreso;
+        $update->fecha_vencimiento=$request->fecha_vencimiento;
+        $update->lote=$request->lote;
+        $update->registro_sanitario=$request->registro_sanitario;
+        
+        $update->id_origen=$request->id_origen;
+        $update->id_destino=$request->id_destino;
+        $update->id_ingreso=$request->id_ingreso;
+        $update->cod_1=$request->cod_1;
+        $update->cod_2=$request->cod_2;
+        $update->leyenda=$request->leyenda;
+        $update->glosa=$request->glosa;
+         $update->id_usuario_modifico=auth()->user()->id;
+         $update->user_id=auth()->user()->id;
+       $update->name_ori=$request->name_ori;
+      $update->name_des=$request->name_des;
+         $update->save();
     }
+
 
     /**
      * Remove the specified resource from storage.

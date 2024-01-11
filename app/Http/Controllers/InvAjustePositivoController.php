@@ -264,7 +264,7 @@ class InvAjustePositivoController extends Controller
      */
     public function update(Request $request, Inv_AjustePositivo $inv_AjustePositivo)
     {
-        $cod=$request->cod;
+      
         //$id_ingreso=$request->id_ingreso;
        // $activador=0;
 
@@ -295,10 +295,10 @@ class InvAjustePositivoController extends Controller
             
         //}
        // if ($activador==1) {
-            $updateAjusteNegativo=Inv_AjustePositivo::find($request->id);
-            $updateAjusteNegativo->id_usuario_modifica= auth()->user()->id;
-            $updateAjusteNegativo->usuario = auth()->user()->name;
-           $updateAjusteNegativo->id_tipo=$request->id_tipo;
+            $update=Inv_AjustePositivo::find($request->id);
+            $update->id_usuario_modifica= auth()->user()->id;
+            $update->usuario = auth()->user()->name;
+           $update->id_tipo=$request->id_tipo;
         //   $updateAjusteNegativo->id_producto_linea=$request->id_producto_linea;
        //    $updateAjusteNegativo->codigo=$request->codigo;
        //    $updateAjusteNegativo->linea=$request->linea;
@@ -313,7 +313,7 @@ class InvAjustePositivoController extends Controller
            
       //      $update->stock_ingreso=$request->cantidad;
       //     $update->save();
-           $updateAjusteNegativo->save();
+           $update->save();
            
         
       //  }else{

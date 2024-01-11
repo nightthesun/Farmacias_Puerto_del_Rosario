@@ -22,8 +22,7 @@
                     </button>
                     <span v-if="sucursalSeleccionada == 0" class="error"
                         >&nbsp; &nbsp;Debe Seleccionar un almacen o
-                        tienda.</span
-                    >
+                        tienda.</span >
                 </div>
                 <div class="card-body">
                     <div class="form-group row">
@@ -335,6 +334,7 @@
                                     <strong>Cantidad existente: <span>{{ cantidadProductoLineaIngreso }}</span></strong>
    
                                 </div>
+
                                 <div class="form-group col-sm-4" v-if="ProductoLineaIngresoSeleccionado!=''">
                                     <strong>Tipo Entrada: <span> Traspaso</span></strong>
                                    
@@ -352,9 +352,10 @@
                                   
                                 </div>
                                 <div class="form-group col-sm-4" v-if="ProductoLineaIngresoSeleccionado!=''">
-                                    <strong>Id ingreso: <span> 0000{{ id_ingreso }}</span></strong>
-                                   
-                                   
+                                    <strong>Id ingreso: <span> 000{{ id_ingreso }}</span></strong>
+                                </div>
+                                <div class="form-group col-sm-4" v-if="ProductoLineaIngresoSeleccionado!=''">
+                                    <strong>Id productor: <span> {{ id_producto}}</span></strong>
                                 </div>
         
                                       </div>
@@ -421,12 +422,14 @@
                                         />
                                        <input v-if="tipoAccion == 2"
                                             type="number"
-                                            
+                                            min="0"
+                                            id="cantidad"
+                                            name="cantidad"
                                             v-model="cantidadS"
                                             class="form-control"
                                             placeholder="Datos de stock"
                                             v-on:focus="selectAll" 
-                                            disabled
+                                         
                                         />
                                         <span
                                             v-if="cantidadS == ''"
@@ -466,7 +469,7 @@
                             </div>
                         </form>
                     </div>
-                    {{sucursalSeleccionada}}
+                  
                     <div class="modal-footer">
                         <button
                             type="button"
@@ -541,7 +544,7 @@
                                 />
                                 <!-- <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div> -->
                             </div>
-                            <div>
+                            <div v-if="tipoAccion==1">
                                 <table
                                     class="table table-hover"
                                     id="tablaProductosIngreso"
@@ -563,10 +566,64 @@
                                             </th>
                                         </tr>
                                     </thead>
-
+                                        
                                     <tbody>
                                         <tr
                                             v-for="RetornarProductosIngreso in arrayRetornarProductosIngreso" :key=" RetornarProductosIngreso.id_ingreso"  @click="abrirModal('inputModal',RetornarProductosIngreso,
+                                                );
+                                                ListarretornarProductosIngreso();
+                                            "
+                                        >
+                                            <td
+                                                v-text="
+                                                    RetornarProductosIngreso.id_ingreso
+                                                "
+                                            ></td>
+                                            <td
+                                                v-text="
+                                                    RetornarProductosIngreso.leyenda
+                                                "
+                                            ></td>
+                                            <td
+                                                v-text="
+                                                    RetornarProductosIngreso.envase
+                                                "
+                                            ></td>
+                                            <td
+                                                v-text="
+                                                    RetornarProductosIngreso.codigointernacional
+                                                "
+                                            ></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div v-if="tipoAccion==2">
+                                <table
+                                    class="table table-hover"
+                                    id="tablaProductosIngreso"
+                                    style="
+                                        height: 350px;
+                                        display: block;
+                                        overflow: scroll;
+                                    "
+                                >
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Id Ingreso.</th>
+                                            <th scope="col">
+                                                Descripcion Prod.
+                                            </th>
+                                            <th scope="col">Envase</th>
+                                            <th scope="col">
+                                                Codigo Internacional
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                        
+                                    <tbody>
+                                        <tr
+                                            v-for="RetornarProductosIngreso in arrayRetornarProductosIngreso" :key=" RetornarProductosIngreso.id_ingreso"  @click="abrirModal('inputModal22',RetornarProductosIngreso,
                                                 );
                                                 ListarretornarProductosIngreso();
                                             "
@@ -619,13 +676,10 @@
                       
                         <button
                             type="button"
-                            class="btn btn-danger"
+                            class="btn btn-secondary"
                             data-bs-dismiss="modal"
-                            @click="
-                              
-                                 abrirModal('actualizar');
-                                ProductoLineaIngreso();
-                            "
+                            @click="abrirModal('inputModal22',RetornarProductosIngreso);  ListarretornarProductosIngreso();
+                                            "
                         >
                             Cerrar
                         </button>
@@ -720,7 +774,7 @@ export default {
                 let productoSeleccionado = this.arrayProductoLineaIngreso.find(
                     (element) => element.id_ingreso === newValue,
                 );
-
+              
                 if (productoSeleccionado) {
                     this.cantidadProductoLineaIngreso =
                         productoSeleccionado.stock_ingreso;
@@ -968,7 +1022,7 @@ sucursalSeleccionadaDestino: function (newValue) {
             let respuesta = me.arraySucursal.find(
                 (element) => element.codigo == me.sucursalSeleccionada,
             );
-            console.log("------>"+data.cod_2);
+           
          switch (accion) {
                 case "registrar": {
                     me.tipoAccion = 1;
@@ -1002,38 +1056,44 @@ sucursalSeleccionadaDestino: function (newValue) {
                     break;
                 }
                 case "actualizar": {
-                   
                     me.tipoAccion = 2;
                    
+                    me.id_producto = data.id_prod_producto;
+                    me.ProductoLineaIngresoSeleccionado = data.id_ingreso === null ? 0 : data.id_ingreso;
+                    me.sucursalSeleccionadaDestino=data.cod_2 === null ? 0 : data.cod_2;
+                    me.registro_sanitario=data.registro_sanitario;
+                    me.envase=data.envase;
                     me.leyenda = data.leyenda;
                     me.id_codigo = data.cod;
-                    me.tituloModal = "Actualizacion para Ajuste de negativos 111 ";
+                    me.tituloModal = "Traspaso origen "+respuesta.razon_social;
                     me.codigo = data.codigo;
                     me.cantidadProductoLineaIngreso = data.cantidad;
                     me.linea = data.linea;
                     me.producto = data.nombreProd;
                     me.cantidadS = data.cantidad;
-       
-                         me.fecha_ingreso=data.fecha_ingreso;
+                    me.id_almacen_tienda=data.id_almacen_tienda;
+                    me.fecha_ingreso=data.fecha_ingreso;
                     me.fecha_vencimiento=data.fecha_vencimiento;
                     me.lote=data.lote;
                     me.cantidad=data.cantidad;
                     me.idAjusteNegativos = data.id;
                     me.id_sucursal = data.id_sucursal;
-                    me.id_producto = data.cod;
+                  
                     me.id_ingreso = data.id_ingreso;
                     me.glosa=data.glosa;
                    
-                    me.ProductoLineaIngresoSeleccionado = data.id_ingreso === null ? 0 : data.id_ingreso;
-                    me.sucursalSeleccionadaDestino=data.cod_2 === null ? 0 : data.cod_2;
+                    me.tipoCodigo =respuesta.tipoCodigo;
+                    me.razon_social=respuesta.razon_social;
+            
                     me.classModal.openModal("registrar");
 
                     break;
                 }
                 case "bucarProductoIngreso": {
                     //  me.tipoAccion=1;
-                    (me.inputTextBuscarProductoIngreso = ""),
-                        (me.arrayRetornarProductosIngreso = ""),
+                    me.ProductoLineaIngresoSeleccionado = 0;
+                    me.inputTextBuscarProductoIngreso = "";
+                        me.arrayRetornarProductosIngreso = "";
                         me.classModal.openModal("staticBackdrop");
                     break;
                 }
@@ -1048,7 +1108,7 @@ sucursalSeleccionadaDestino: function (newValue) {
                 case "inputModal": {
                  
                     me.tipoAccion = 1;
-                    me.tituloModal = "Registro 111111de traspaso origen "+respuesta.razon_social;
+                    me.tituloModal = "Registro traspaso origen "+respuesta.razon_social;
                     me.ProductoLineaIngresoSeleccionado =
                         data.id_ingreso === null ? 0 : data.id_ingreso;
 
@@ -1058,7 +1118,7 @@ sucursalSeleccionadaDestino: function (newValue) {
                     me.codigo = "";
                     me.linea = "";
                     me.producto = "";
-                    me.cantidadS = "";
+                    
           
                    me.fecha_ingreso='';
                     me.fecha_vencimiento='';
@@ -1068,13 +1128,25 @@ sucursalSeleccionadaDestino: function (newValue) {
                     me.id_producto = "";
                     me.id_ingreso = "";
                     me.leyenda = "";
-                    me.glosa=data.glosa;
-                    me.cantidadS = data.cantidad;
-                    me.sucursalSeleccionadaDestino=data.cod_2 === null ? 0 : data.cod_2;
+                   me.glosa="";
+                  me.cantidadS = "";
+                   me.sucursalSeleccionadaDestino=0;
+                me.sucursalSeleccionadaDestino=0;
+                    
                     me.classModal.openModal("registrar");
                     break;
                 }
-                
+                case "inputModal22": {
+                 
+                 me.tipoAccion = 2;
+                me.cantidadS=data.cantidad;
+                 me.ProductoLineaIngresoSeleccionado = me.id_ingreso;
+                 me.tituloModal = "Registro traspaso origen "+respuesta.razon_social;
+              
+                 
+                 me.classModal.openModal("registrar");
+                 break;
+             }
             }
         },
         cerrarModal(accion) {
@@ -1109,21 +1181,22 @@ sucursalSeleccionadaDestino: function (newValue) {
                     me.envase='';
                     me.lista_id_almacen_id_tienda;
                     setTimeout(me.tiempo, 200); 
+                    //me.ProductoLineaIngresoSeleccionado = 0;
+                    me.inputTextBuscarProductoIngreso = "";
+                        me.arrayRetornarProductosIngreso = "";
               
             } else {
                 me.classModal.closeModal(accion);
-                //me.idproductoselected = me.idproductoselected;
+              
                 me.classModal.openModal("registrar");
             }
         },
 
         registrorAjusteNegativo() {
             let me = this;
-          //  console.log("-----"+me.id_almacen_tienda +" - " +me.id_producto +" - " + me.id_ingreso+" - "+me.envase+" - "+me.cantidadS+" - "+me.fecha_vencimiento+" - "+me.lote+" > "
-          //  +me.registro_sanitario+" > "+me.id_almacen_tienda+" > "+me.lista_id_almacen_id_tienda+" > "+me.id_ingreso+" > "+me.sucursalSeleccionada+" > "+me.codigoDestino
-          //  +" > "+me.leyenda+" > "+me.glosa );
-       
-
+         //   console.log("-----id_almace:"+me.id_almacen_tienda +" id_pro: " +me.id_producto +" id_ingr: " + me.id_ingreso+" enva: "+me.envase+" can: "+me.cantidadS+" fech: "+me.fecha_vencimiento+" lote: "+me.lote+" reg_sani: "
+         //  +me.registro_sanitario+" id_alm_tinda: "+me.id_almacen_tienda+" lista_id_a_t: "+me.lista_id_almacen_id_tienda+" id_ingre: "+me.id_ingreso+" sucuSe: "+me.sucursalSeleccionada+" codigoDes "+me.codigoDestino
+         //   +" > "+me.leyenda+" > "+me.glosa );
             if (
                me.ProductoLineaIngresoSeleccionado === 0 ||
                 me.sucursalSeleccionadaDestino === 0 ||
@@ -1187,11 +1260,50 @@ sucursalSeleccionadaDestino: function (newValue) {
         },
         actualizarAjusteNegativo() {
             let me = this;
-            let suma = me.cantidadProductoLineaIngreso - me.cantidadS;
-            axios
-                .put("/ajustes-positivo/actualizar", {
+            var mensajeX="";
+        console.log(me.cantidadS);
+       //       console.log("-----id_almace:"+me.id_almacen_tienda +" -- id_pro: " +me.id_producto +" -- id_ingr: " + me.id_ingreso+" --enva: "+me.envase+" --can: "+me.cantidadS+" fech: "+me.fecha_vencimiento+" lote: "+me.lote+" reg_sani: "
+       //   +me.registro_sanitario+" id_alm_tinda: "+me.id_almacen_tienda+" lista_id_a_t: "+me.lista_id_almacen_id_tienda+" id_ingre: "+me.id_ingreso+" sucuSe: "+me.sucursalSeleccionada+" codigoDes "+me.codigoDestino
+       //    +" > "+me.leyenda+" > "+me.glosa );
+        if (
+               me.ProductoLineaIngresoSeleccionado === 0 ||
+                me.sucursalSeleccionadaDestino === 0 ||
+                me.cantidadS === "" ||
+                me.glosa === ""||
+                me.ProductoLineaIngresoSeleccionado === undefined ||
+                me.sucursalSeleccionadaDestino === undefined ||
+                me.cantidadS === undefined ||
+                me.glosa ===  undefined||
+                me.cantidadS===undefined 
+     
+            )
+            {
+                Swal.fire(
+                    "No puede ingresar valor nulos  o vacios",
+
+                    "Haga click en Ok",
+                    "warning",
+                );
+            } else {
+                axios
+                .put("/traspaso/actualizar", {
                     id: me.idAjusteNegativos,
-                    id_tipo: me.TiposSeleccionado,
+                    id_almacen_tienda: me.id_almacen_tienda,
+                    id_prod_producto: me.id_producto,
+                    envase: me.envase,
+                    cantidad__stock_ingreso: me.cantidadS,
+                    fecha_vencimiento: me.fecha_vencimiento,
+                    lote:me.lote, 
+                    registro_sanitario:me.registro_sanitario,                  
+                    id_origen:me.id_almacen_tienda,
+                    id_destino:me.lista_id_almacen_id_tienda,
+                    id_ingreso: me.id_ingreso,
+                        cod_1:me.sucursalSeleccionada,
+                        cod_2:me.codigoDestino,
+                       leyenda: me.leyenda,
+                        glosa:me.glosa,
+                       name_des:me.razon_social_des,
+                       name_ori:me.razon_social,  
                   
                 })
                 .then(function (response) {
@@ -1207,6 +1319,8 @@ sucursalSeleccionadaDestino: function (newValue) {
                     error401(error);
                 });
             me.cerrarModal("registrar");
+            }
+           
         },
         
         listarAjusteNegativos(page) {
