@@ -11,14 +11,13 @@
             <!-- Ejemplo de tabla Listado -->
             <div class="card">
                 <div class="card-header">
-                    <i class="fa fa-align-justify"></i> Ajustes Negativos
-                    <button type="button" class="btn btn-secondary" @click="abrirModal('registrar')" >
-                        <i class="icon-plus"></i>&nbsp;Nuevo
-                    </button>
+                    <i class="fa fa-align-justify"></i> Procesar traspasos
+                    
                 </div>
                 <div class="card-body">
                     <!--incluicion de datos-->
-                <div class="container">
+                    <form  enctype="multipart/form-data" class="form-horizontal">
+                <div class="container" >
                     <div class="form-group row">
                         <label class="col-md-2 form-control-label" for="text-input">
                               Nro. Traspaso:          
@@ -37,57 +36,72 @@
                                        
                                             type="button"
                                             id="button-addon1"
-                                           
+                                            @click="abrirModal('registrar')"
                                         >
                                             <i class="fa fa-search"></i>
                                         </button>
                                         
                         </div>
                     </div>
-                    <div class="form-group row">
-                        <label class="col-md-2 form-control-label" for="text-input">
-                              Responsable:          
-                        </label>
-                        <div class="col-md-5 input-group mb-1">
-                            <input
-                                            type="text"
-                                           
-                                            v-model="responsable"
-                                            class="form-control"
-                                            placeholder="Ingrese usuario que envio la petición"
-                                            v-on:focus="selectAll"
-                                        />
-                                        
-                                        
-                        </div>
-                    </div>
-                
+                 
+                    
                     <div class="form-group row mb-1"  >
                                 
                                 <div class="form-group  col-sm-3">
                                     <span>Origen:</span>
                                     <select v-model="selectOrigen" class="form-control">
-                                        <option value="0" disabled>Seleccionar...</option>
-                                      </select>
+                                        <option v-bind:value="0" disabled>Seleccionar...</option>
+                                        <option value="" v-for="suOri in arraySucursalOrigen"
+                                        :key="suOri.id"
+                                        :value="suOri.codigo"
+                                        v-text="
+                                            suOri.codigoS +
+                                            ' -> ' +
+                                            suOri.codigo+
+                                            ' ' +
+                                            suOri.razon_social
+                                        "
+                                    ></option>
+                                </select>
                                 </div>
                                 <div class="form-group col-sm-3">
                                     <span>Destino:</span>
+                                    
                                     <select v-model="selectDestino" class="form-control">
-                                        <option value="0" disabled>Seleccionar...</option>
-                                      </select>
+                                        <option v-bind:value="0" disabled>Seleccionar...</option>
+                                        <option value="" v-for="suOri in arraySucursalDestino"
+                                        :key="suOri.id"
+                                        :value="suOri.codigo"
+                                        v-text="
+                                            suOri.codigoS +
+                                            ' -> ' +
+                                            suOri.codigo+
+                                            ' ' +
+                                            suOri.razon_social
+                                        "
+                                    ></option>
+                                </select>
                                 </div>
                                 <div class="form-group col-sm-3">
                                     <span>Procesos:</span>
-                                    <select v-model="selectProceso" class="form-control">
-                                        <option value="0" disabled>Seleccionar...</option>
-                                        <option value="1" disabled>Pendientes</option>
-                                        <option value="2" disabled>Procesados</option>
-                                        <option value="3" disabled>Todos</option>
+                                    
+                                    <select v-model="selectProceso" class="form-control rounded"  >
+                                        <option  v-bind:value="3" disabled>Seleccionar...</option>
+                                        <option v-for="pro in arrayProceso" :key="pro.id" :value="pro.id" v-text="pro.tipo"></option>
+                                       
+                                      </select>
+                                </div>
+                                <div class="form-group col-sm-3">
+                                    <span>Responsable:</span>
+                                    
+                                    <select v-model="selectUsuario" class="form-control rounded"  >
+                                        <option  v-bind:value="0" disabled>Seleccionar...</option>
+                                        <option v-for="usu in arraySucursalUsuario" :key="usu.id_user" :value="usu.id_user" v-text="usu.nombre+' '+usu.apellidos_combinados"></option>
+                                       
                                       </select>
                                 </div>
                             </div>
-                            <div class="form-group row">
-                                
+                            <div class="form-group row mb-1">
                                 <div class="form-group col-sm-2">
                                     <span>Rango Iniciar:</span>
                                     <input   type="date" v-model="fechaIni" class="form-control"/>
@@ -96,20 +110,17 @@
                                     <span>Rango Final:</span>
                                     <input   type="date" v-model="fechaFini" class="form-control"/>
                                 </div>
+                      
                             </div>
+                            <div class="form-group row  mt-1">
+                                <div class="form-group col-sm-2">
+                                    <button type="submit" class="btn btn-primary "  style="width: 150px;" ><i class="fa fa-search" ></i> Buscar</button>
+                                 </div>   
+                            </div>
+                            
                            
                 </div>    
-
-
-                    <div class="form-group row">
-                        <div class="col-md-6">
-                            <div class="input-group">
-                               <button type="submit" class="btn btn-primary" ><i class="fa fa-search" ></i> Buscar</button>
-                           
-                                    
-                            </div>
-                        </div>
-                    </div>
+            </form>
               
           <!--
  <table class="table table-bordered table-striped table-sm table-responsive">
@@ -165,82 +176,136 @@
             <!-- Fin ejemplo de tabla Listado -->
         </div>
         <!--Inicio del modal agregar/actualizar-->
-        <div class="modal fade" tabindex="-1" role="dialog" arial-labelledby="myModalLabel" id="registrar" aria-hidden="true" data-backdrop="static" data-key="false">
-            <div class="modal-dialog modal-primary modal-lg" role="document">
+        <div
+            class="modal fade"
+            id="registrar"
+            tabindex="-2"
+            aria-labelledby="exampleModalLabel"
+            aria-hidden="true"
+        >
+            <div class="modal-dialog modal-dialog-scrollable modal-primary">
                 <div class="modal-content">
                     <div class="modal-header">
-                    <h4 class="modal-title">{{ tituloModal }}</h4>
-                    <button  type="button" class="close" aria-label="Close" @click="cerrarModal('registrar')">
-                        <span aria-hidden="true">x</span>
-                    </button>
-                    
-                </div>
-                <div class="modal-body">
-                    <div class="alert alert-warning" role="alert">
-                        Todos los campos con (*) son requeridos
+                        <h5 class="modal-title" id="exampleModalLabel">
+                            Busqueda por producto
+                        </h5>
+                        <button
+                            type="button"
+                            @click="cerrarModal('registrar')"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Close"
+                        >
+                            X
+                        </button>
                     </div>
-                    <form action="" class="form-horizontal">
-                        <!-- insertar datos -->
-                        <div class="container">
-                         
-                                    <div class="form-group row">
-                                <label class="col-md-3 form-control-label" for="text-input">
-                                    Producto
-                                    <span   class="error">(*)</span>
-                                </label>
-                                <div class="col-md-9">
-                                    <select name="" id=""  class="form-control">
-                                        <option value="0" selected disabled>-Seleccione un dato</option>
-                                        <option value="1" >1</option>
-                                        <option value="2" >1</option>
-                                    </select>
-                                </div>
-                            </div>
-                                   <div class="form-group row">
-                                      <label class="col-md-3 form-control-label" for="text-input">Cantidad
-                                        <span   class="error">(*)</span>
-                                      </label>
-                                        <div class="col-md-9">
-                                         <input type="text" id="cantidad" name="cantidad" class="form-control" placeholder="Datos de stock" >
-                                      </div>
-                                  </div>   
 
-                           <div class="form-group row">
-                                <label class="col-md-3 form-control-label" for="text-input">
-                                    Tipo
-                                    <span   class="error">(*)</span>
+                    <div class="modal-body">
+                        <form>
+                            <div class="mb-3">
+                                <label
+                                    for="exampleInputEmail1"
+                                    class="form-label"
+                                    >Descripcion de producto:
                                 </label>
-                                <div class="col-md-9">
-                                    <select name="" id=""  class="form-control">
-                                        <option value="0" disabled>-Seleccione un tipo</option>
-                                        <option value="1" >1</option>
-                                        <option value="2" >1</option>
-                                    </select>
-                                </div>
+                                <input
+                                    type="text"
+                                    id="texto"
+                                    name="texto"
+                                    class="form-control"
+                                    placeholder="Texto a buscar"
+                                    v-model="inputTextBuscarProductoIngreso"
+                                    
+                                  
+                                />
+                                <!--  @input="ListarretornarProductosIngreso()" <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div> -->
                             </div>
-                            <div class="form-group row">
-                                      <label class="col-md-3 form-control-label" for="text-input">Descripción
-                                        <span   class="error">(*)</span>
-                                      </label>
-                                        <div class="col-md-9">
-                                            <textarea class="form-control" id="descripcion" name="descripcion" rows="3"></textarea>
+                            <div>
+                                <table
+                                    class="table table-hover"
+                                    id="tablaProductosIngreso"
+                                    style="
+                                        height: 350px;
+                                        display: block;
+                                        overflow: scroll;
+                                    "
+                                >
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Nro Traspaso.</th>
+                                            <th scope="col">
+                                                Descripción Prod.
+                                            </th>
+                                            <th scope="col">Fecha</th>
+                                            <th scope="col">
+                                                Origen
+                                            </th>
+                                            <th scope="col">
+                                                Destino
+                                            </th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                     
+<tr
+                                            v-for="modalTraspaso in arrayTraspaso" :key=" modalTraspaso.id"  
+                                             
+                                            
+                                        >
+                                            <td
+                                                v-text="
+                                                    modalTraspaso.numero_traspaso
+                                                "
+                                            ></td>
+                                            <td
+                                                v-text="
+                                                    modalTraspaso.leyenda
+                                                "
+                                            ></td>
+                                            <td
+                                                v-text="
+                                                    modalTraspaso.fecha
+                                                "
+                                            ></td>
+                                            <td
+                                                v-text="
+                                                    modalTraspaso.origen
+                                                "
+                                            ></td>
+                                            <td
+                                                v-text="
+                                                    modalTraspaso.destino
+                                                "
+                                            ></td>
+                                        </tr>
+                                      
+                                        
+                                    </tbody>
+                                </table>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button
+                            type="button"
+                            class="btn btn-secondary"
+                            data-bs-dismiss="modal"
+                            @click="
+                                cerrarModal('registrar');
                            
-                                      </div>
-                                  </div> 
-                            
-                        </div>
-                       
-                    </form>
+                            "
+                        >
+                            Cerrar
+                        </button>
+                        <!--
+                      <button type="button" v-if="tipoAccion==2" class="btn btn-secondary" data-bs-dismiss="modal" @click="cerrarModal('staticBackdrop');abrirModal('actualizar',AjusteNegativos);ProductoLineaIngreso();">Cerraaaa</button>
+                    
+                    --->
 
+                        <!-- <button type="button" class="btn btn-primary">Save changes</button> -->
+                    </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" @click="cerrarModal('registrar')">Cerrar</button>
-                    <button type="button"  class="btn btn-primary" >Guardar</button>
-                        <button type="button" class="btn btn-primary" >Actualizar</button>
-                   
-                </div>
-                </div>
-                
             </div>
         </div>
         <!--fin del modal-->
@@ -255,32 +320,98 @@
         data(){
             return{
                 tituloModal:'',
-                arrayTipos:[],
-              
-                listarTipo:0,
+               arrayProceso:[
+                {'id':0,'tipo':'Pendientes'},
+                {'id':1,'tipo':'Procesados'},
+                {'id':2,'tipo':'Todo'},
+                ],
+                selectProceso:3,
+                arraySucursalOrigen:[],
+                selectOrigen:0,
+                arraySucursalDestino:[],
+                selectDestino:0,
+                arraySucursalUsuario:[],
+                selectUsuario:0,
+                nro_traspaso:"",
+               
+                arrayTraspaso:[],
+                inputTextBuscarProductoIngreso:"",
             }
         },
         
        methods :{
-        ajustesNegativos(){
-                let me=this;
-                var url='/ajustesNeg/listarTipo';
-                axios.get(url).then(function(response){
-                    var respuesta=response.data;
-                    me.arrayTipos=respuesta;
-                    console.log( me.arrayTipos);
+        sucursalOrigen() {
+            let me = this;
+            var url = "/procesar-traspaso/listarSucursal";
+            axios
+                .get(url)
+                .then(function (response) {
+                    var respuesta = response.data;
+                    me.arraySucursalOrigen = respuesta;
+  
                 })
-                .catch(function(error){
+                .catch(function (error) {
                     error401(error);
                     console.log(error);
                 });
-            },
+        },
+        sucursalDestino() {
+            let me = this;
+            var url = "/procesar-traspaso/listarSucursal";
+            axios
+                .get(url)
+                .then(function (response) {
+                    var respuesta = response.data;
+                    me.arraySucursalDestino = respuesta;
+           
+                })
+                .catch(function (error) {
+                    error401(error);
+                    console.log(error);
+                });
+        },
+        usuario() {
+            let me = this;
+            var url = "/procesar-traspaso/listarUsuario";
+            axios
+                .get(url)
+                .then(function (response) {
+                    var respuesta = response.data;
+                    me.arraySucursalUsuario = respuesta;
+           
+                })
+                .catch(function (error) {
+                    error401(error);
+                    console.log(error);
+                });
+        },
 
         cambiarPagina(page){
                 let me =this;
                 me.pagination.current_page = page;
                 me.listarAlmacenes(page);
             },
+        ListartraspasoModal() {
+            let me = this;
+    
+                var url ="/procesar-traspaso?buscar="+me.buscar +
+                    "&identificador=" + "1";
+     
+
+       
+            console.log(url);
+            axios
+                .get(url)
+                .then(function (response) {
+                    var respuesta = response.data;
+
+                    me.arrayTraspaso = respuesta;
+   })
+                .catch(function (error) {
+                    error401(error);
+                    console.log(error);
+                });
+        },
         abrirModal(accion,data= []){
             let me=this;
                
@@ -289,7 +420,7 @@
                 switch(accion){
                     case 'registrar':
                     {
-                        me.tituloModal='Procesar traspasos'
+                        me.tituloModal='Busqueda por producto'
                         
                         me.classModal.openModal('registrar');
                         break;
@@ -314,7 +445,10 @@
        mounted() {
         this.classModal = new _pl.Modals();
         this.classModal.addModal('registrar');
-        this.ajustesNegativos();
+        this.sucursalOrigen();
+        this.sucursalDestino();
+        this.usuario();
+        this.ListartraspasoModal();
         
        }
      }

@@ -356,7 +356,7 @@ class InvTraspasoController extends Controller
         $update->id_almacen_tienda=$request->id_almacen_tienda;
         $update->id_prod_producto=$request->id_prod_producto;
         $update->envase=$request->envase;
-         $update->cantidad__stock_ingreso=$request->cantidad__stock_ingreso;
+        $update->cantidad__stock_ingreso=$request->cantidad__stock_ingreso;
         $update->fecha_vencimiento=$request->fecha_vencimiento;
         $update->lote=$request->lote;
         $update->registro_sanitario=$request->registro_sanitario;
@@ -368,11 +368,11 @@ class InvTraspasoController extends Controller
         $update->cod_2=$request->cod_2;
         $update->leyenda=$request->leyenda;
         $update->glosa=$request->glosa;
-         $update->id_usuario_modifico=auth()->user()->id;
-         $update->user_id=auth()->user()->id;
-       $update->name_ori=$request->name_ori;
-      $update->name_des=$request->name_des;
-         $update->save();
+        $update->id_usuario_modifico=auth()->user()->id;
+        $update->user_id=auth()->user()->id;
+        $update->name_ori=$request->name_ori;
+        $update->name_des=$request->name_des;
+        $update->save();
     }
 
 
