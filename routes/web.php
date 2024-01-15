@@ -44,7 +44,7 @@ use App\Http\Controllers\InvAjusteNegativoController;
 use App\Http\Controllers\InvAjustePositivoController;
 use App\Http\Controllers\InvProcesarTraspasoController;
 use App\Http\Controllers\InvTraspasoController;
-
+use App\Http\Controllers\InvVehiculoController;
 use App\Models\Alm_IngresoProducto;
 use App\Models\Tda_Tienda;
 
@@ -417,5 +417,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/procesar-traspaso', [InvProcesarTraspasoController::class, 'index']);
     Route::get('/procesar-traspaso/listarSucursal', [InvProcesarTraspasoController::class, 'listarSucursal']);
     Route::get('/procesar-traspaso/listarUsuario', [InvProcesarTraspasoController::class, 'listarUsuario']);
+    
+    Route::get('/vehiculo/listarSucursal', [InvVehiculoController::class, 'listarSucursal']);
     
 });

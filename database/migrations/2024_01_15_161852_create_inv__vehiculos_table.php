@@ -1,0 +1,38 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('inv__vehiculos', function (Blueprint $table) {
+            $table->id();
+            $table->smallInteger('idsucursal')->unsigned();
+            $table->string("matricula")->comment("Codigo que es asignado por el sistema");
+            $table->string("razon_social")->comment("Nombre del almacen");
+            $table->string("nombre_comercial")->comment("Nombre comercial del almacen");
+            $table->string("telefono")->comment("Telefonos de contacto del almacen");
+            $table->string("tipo")->comment("Direccion del almacen");
+            $table->boolean('activo')->default(1);
+            $table->tinyInteger('estado')->default(1)->comment('1->activo, 0->inactivo');
+            $table->smallInteger('id_user')->unsigned()->nullable()->comment('usuario general');
+            $table->smallInteger('id_usuario_modifica')->unsigned()->nullable()->comment('identificador del usuario que esta modificando el almacen');
+            $table->smallInteger('id_usuario_registra')->unsigned()->nullable()->comment('identificador del usuario que esta registrando el almacen');
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('inv__vehiculos');
+    }
+};
