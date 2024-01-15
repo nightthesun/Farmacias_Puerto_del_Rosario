@@ -17,15 +17,18 @@ class InvProcesarTraspasoController extends Controller
     {
         $buscararray = array();
         $bus = $request->query('identificador');
- 
+    
+      
         if (!empty($request->buscar)) {
             $buscararray = explode(" ", $request->buscar);
             $valor = sizeof($buscararray);
             if ($valor > 0) {
                 $sqls = '';
-                if ($bus=="1") {
+           
+                   // 
                  foreach ($buscararray as $valor) {
-                    if (empty($sqls)) {
+                    if (empty($sqls) ) {
+                     
                        $sqls = "(
                                 it.numero_traspaso like '%" . $valor . "%' 
                                 or it.envase like '%" . $valor . "%' 
@@ -48,30 +51,10 @@ class InvProcesarTraspasoController extends Controller
                             or pp.nombre like '%" . $valor . "%' 
                        )";
                 }
-               // foreach ($buscararray as $valor) {
-               //     if (empty($sqls)) {
-                //        $sqls = "(
-                 //               it.numero_traspaso like '%" . $valor . "%' 
-                 //               or it.envase like '%" . $valor . "%' 
-                 //               or it.name_ori like '%" . $valor . "%'
-                 //               or it.name_des like '%" . $valor . "%' 
-                 //               or it.leyenda like '%" . $valor . "%'
-                 //               or it.cod_1 like '%" . $valor . "%'
-                 //               or it.cod_2 like '%" . $valor . "%' 
-                 //              )";
-                 //   } else {
-                 //       $sqls .= "and (
-                 //           it.numero_traspaso like '%" . $valor . "%' 
-                 //           or it.envase like '%" . $valor . "%' 
-                 //           or it.name_ori like '%" . $valor . "%'
-                 //           or it.name_des like '%" . $valor . "%' 
-                 //           or it.leyenda like '%" . $valor . "%'
-                 //           or it.cod_1 like '%" . $valor . "%'
-                 //           or it.cod_2 like '%" . $valor . "%'
-                 //      )";
+           
 
                     }
-                }
+                
     $traspasos_alm = DB::table('inv__traspasos as it')
     ->select([
         'it.id as id',
@@ -156,7 +139,21 @@ class InvProcesarTraspasoController extends Controller
     ->join('tda__ingreso_productos as ti_1', 'ti_1.id', '=', 'it.id_ingreso')
     ->leftJoin('tda__tiendas as tt_2', 'tt_2.codigo', '=', 'it.cod_2')
     ->join('users as u', 'u.id', '=', 'it.user_id');
-    $reusltadocombinado = $traspasos_alm
+
+    if ($bus=="1") {
+        $resultadoCombinado = $traspasos_alm
+  
+    ->whereRaw($sqls)
+    ->orderBy('id', 'desc')
+    ->unionAll($traspasos_tienda
+        
+        ->whereRaw($sqls)
+        ->orderBy('id', 'desc')
+    );
+    return $resultadoCombinado->get();
+    }
+    if ($bus=="2") {
+        $resultadoCombinado = $traspasos_alm
   
     ->whereRaw($sqls)
     ->orderBy('id', 'desc')
@@ -165,25 +162,28 @@ class InvProcesarTraspasoController extends Controller
         ->whereRaw($sqls)
         ->orderBy('id', 'desc')
     )->paginate(15);
-   
+    return
+    [
+        'pagination' =>
+        [
+            'total'         =>    $resultadoCombinado->total(),
+            'current_page'  =>    $resultadoCombinado->currentPage(),
+            'per_page'      =>    $resultadoCombinado->perPage(),
+            'last_page'     =>    $resultadoCombinado->lastPage(),
+            'from'          =>    $resultadoCombinado->firstItem(),
+            'to'            =>    $resultadoCombinado->lastItem(),
+        ],
+        'resultadoCombinado' => $resultadoCombinado,
+    ];
             }
             
-        
-            return
-                [
-                    'pagination' =>
-                    [
-                        'total'         =>    $reusltadocombinado->total(),
-                        'current_page'  =>    $reusltadocombinado->currentPage(),
-                        'per_page'      =>    $reusltadocombinado->perPage(),
-                        'last_page'     =>    $reusltadocombinado->lastPage(),
-                        'from'          =>    $reusltadocombinado->firstItem(),
-                        'to'            =>    $reusltadocombinado->lastItem(),
-                    ],
-                    'reusltadocombinado' => $reusltadocombinado,
-                ];
+    
+          
+    }
+    
         } else {
-
+    
+            
             $traspasos_alm = DB::table('inv__traspasos as it')
     ->select([
         'it.id as id',
@@ -269,25 +269,38 @@ class InvProcesarTraspasoController extends Controller
     ->leftJoin('tda__tiendas as tt_2', 'tt_2.codigo', '=', 'it.cod_2')
     ->join('users as u', 'u.id', '=', 'it.user_id');
     
-    $reusltadocombinado = $traspasos_alm
-    
+    if ($bus=="1") {
+        $resultadoCombinado = $traspasos_alm
+  
     ->orderBy('id', 'desc')
     ->unionAll($traspasos_tienda
-   
-    ->orderBy('id', 'desc'))
-
-                    ->paginate(15);
-            return [
-                'pagination' => [
-                    'total'         =>    $reusltadocombinado->total(),
-                    'current_page'  =>    $reusltadocombinado->currentPage(),
-                    'per_page'      =>    $reusltadocombinado->perPage(),
-                    'last_page'     =>    $reusltadocombinado->lastPage(),
-                    'from'          =>    $reusltadocombinado->firstItem(),
-                    'to'            =>    $reusltadocombinado->lastItem(),
-                ],
-                'reusltadocombinado' => $reusltadocombinado,
-            ];
+       
+        ->orderBy('id', 'desc')
+    );
+    return $resultadoCombinado->get();
+    }
+    if ($bus=="2") {
+        $resultadoCombinado = $traspasos_alm
+  
+    ->orderBy('id', 'desc')
+    ->unionAll($traspasos_tienda
+  
+        ->orderBy('id', 'desc')
+    )->paginate(15);
+    return
+    [
+        'pagination' =>
+        [
+            'total'         =>    $resultadoCombinado->total(),
+            'current_page'  =>    $resultadoCombinado->currentPage(),
+            'per_page'      =>    $resultadoCombinado->perPage(),
+            'last_page'     =>    $resultadoCombinado->lastPage(),
+            'from'          =>    $resultadoCombinado->firstItem(),
+            'to'            =>    $resultadoCombinado->lastItem(),
+        ],
+        'resultadoCombinado' => $resultadoCombinado,
+    ];
+            }
         }
     }
 
@@ -408,6 +421,8 @@ class InvProcesarTraspasoController extends Controller
         }
        } 
      }
+     
 
+   
      
 }

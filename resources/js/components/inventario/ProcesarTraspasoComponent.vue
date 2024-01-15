@@ -31,13 +31,10 @@
                                             placeholder="Ingrese un numero de traspaso"
                                             v-on:focus="selectAll"
                                         />
-                                        <button
-                                            class="btn btn-primary"
-                                       
+                                        <button class="btn btn-primary"                                      
                                             type="button"
                                             id="button-addon1"
-                                            @click="abrirModal('registrar')"
-                                        >
+                                            @click="abrirModal('registrar');ListartraspasoModal();"   >
                                             <i class="fa fa-search"></i>
                                         </button>
                                         
@@ -117,13 +114,21 @@
                                     <button type="submit" class="btn btn-primary "  style="width: 150px;" ><i class="fa fa-search" ></i> Buscar</button>
                                  </div>   
                             </div>
+
+
                             
                            
                 </div>    
             </form>
               
-          <!--
+            <div class="alert alert-primary" role="alert">
+                A simple primary alert—check it out!
+            </div>    
+            <div class="alert alert-warning" role="alert">
+                Debe realziar una busqueda para ver los trapasos que se realizaron.
+            </div>   
  <table class="table table-bordered table-striped table-sm table-responsive">
+   
                         <thead>
                             <tr>
                                 <th>Opciones</th>
@@ -156,7 +161,7 @@
                            </tr>
                         </tbody>
                     </table>
-          -->
+          
                    
                     <nav>
                         <ul class="pagination">
@@ -183,25 +188,22 @@
             aria-labelledby="exampleModalLabel"
             aria-hidden="true"
         >
-            <div class="modal-dialog modal-dialog-scrollable modal-primary">
+            <div class="modal-dialog modal-dialog-scrollable modal-primary modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="exampleModalLabel">
                             Busqueda por producto
                         </h5>
-                        <button
-                            type="button"
-                            @click="cerrarModal('registrar')"
-                            class="btn-close"
-                            data-bs-dismiss="modal"
-                            aria-label="Close"
-                        >
+                        <button type="button" @click="cerrarModal('registrar')"
+                            class="btn-close" data-bs-dismiss="modal" aria-label="Close">
                             X
                         </button>
                     </div>
 
                     <div class="modal-body">
+                       
                         <form>
+                           
                             <div class="mb-3">
                                 <label
                                     for="exampleInputEmail1"
@@ -215,17 +217,19 @@
                                     class="form-control"
                                     placeholder="Texto a buscar"
                                     v-model="inputTextBuscarProductoIngreso"
-                                    
+                                    @input="ListartraspasoModal()"                            
                                   
                                 />
                                 <!--  @input="ListarretornarProductosIngreso()" <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div> -->
                             </div>
                             <div>
+           
                                 <table
                                     class="table table-hover"
                                     id="tablaProductosIngreso"
                                     style="
-                                        height: 350px;
+                                        height: 450px;
+                                  
                                         display: block;
                                         overflow: scroll;
                                     "
@@ -233,7 +237,7 @@
                                     <thead>
                                         <tr>
                                             <th scope="col">Nro Traspaso.</th>
-                                            <th scope="col">
+                                            <th scope="col" >
                                                 Descripción Prod.
                                             </th>
                                             <th scope="col">Fecha</th>
@@ -247,27 +251,12 @@
                                     </thead>
 
                                     <tbody>
-                                     
-<tr
-                                            v-for="modalTraspaso in arrayTraspaso" :key=" modalTraspaso.id"  
-                                             
-                                            
+                                      <tr v-for="modalTraspaso in arrayTraspaso" :key=" modalTraspaso.id" @click="guardarDato(modalTraspaso.numero_traspaso);cerrarModal('registrar');"
                                         >
-                                            <td
-                                                v-text="
-                                                    modalTraspaso.numero_traspaso
-                                                "
-                                            ></td>
-                                            <td
-                                                v-text="
-                                                    modalTraspaso.leyenda
-                                                "
-                                            ></td>
-                                            <td
-                                                v-text="
-                                                    modalTraspaso.fecha
-                                                "
-                                            ></td>
+                                        
+                                            <td v-text=" modalTraspaso.numero_traspaso  "></td>
+                                            <td v-text=" modalTraspaso.leyenda "></td>
+                                            <td v-text=" modalTraspaso.fecha "></td>
                                             <td
                                                 v-text="
                                                     modalTraspaso.origen
@@ -333,9 +322,12 @@
                 arraySucursalUsuario:[],
                 selectUsuario:0,
                 nro_traspaso:"",
-               
+                ProductoLineaIngresoSeleccionado:0,
                 arrayTraspaso:[],
                 inputTextBuscarProductoIngreso:"",
+                fechaIni:"",
+                fechaFini:"",
+
             }
         },
         
@@ -370,6 +362,11 @@
                     console.log(error);
                 });
         },
+        guardarDato(valor){
+            let me =this;
+            me.nro_traspaso=valor;
+          
+        },
         usuario() {
             let me = this;
             var url = "/procesar-traspaso/listarUsuario";
@@ -392,13 +389,9 @@
                 me.listarAlmacenes(page);
             },
         ListartraspasoModal() {
-            let me = this;
-    
-                var url ="/procesar-traspaso?buscar="+me.buscar +
-                    "&identificador=" + "1";
-     
-
-       
+            let me = this;    
+                var url ="/procesar-traspaso?buscar="+me.inputTextBuscarProductoIngreso +
+                    "&identificador=" + "1";     
             console.log(url);
             axios
                 .get(url)
@@ -406,7 +399,8 @@
                     var respuesta = response.data;
 
                     me.arrayTraspaso = respuesta;
-   })
+         console.log(me.arrayTraspaso);
+   })                       
                 .catch(function (error) {
                     error401(error);
                     console.log(error);
@@ -420,8 +414,9 @@
                 switch(accion){
                     case 'registrar':
                     {
-                        me.tituloModal='Busqueda por producto'
-                        
+                        me.tituloModal='Busqueda por producto';
+                        me.inputTextBuscarProductoIngreso="";
+                        me.arrayTraspaso="";
                         me.classModal.openModal('registrar');
                         break;
                     }
@@ -436,6 +431,8 @@
             },
             cerrarModal(accion){
                 let me = this;
+                me.inputTextBuscarProductoIngreso="";
+                me.arrayTraspaso="";
                 me.classModal.closeModal(accion);
                            
             },
@@ -449,6 +446,7 @@
         this.sucursalDestino();
         this.usuario();
         this.ListartraspasoModal();
+        this.guardarDato();
         
        }
      }
