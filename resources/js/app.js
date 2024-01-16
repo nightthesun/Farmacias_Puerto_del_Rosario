@@ -71,6 +71,8 @@ createApp ({
     .component('traspaso-component', require('./components/inventario/TraspasoComponent.vue').default)
     .component('procesar-traspasos-component', require('./components/inventario/ProcesarTraspasoComponent.vue').default)
     .component('vehiculo-component', require('./components/inventario/VehiculoComponent.vue').default)
+    .component('traslado-component', require('./components/inventario/TrasladosComponent.vue').default)
+
 
 
 

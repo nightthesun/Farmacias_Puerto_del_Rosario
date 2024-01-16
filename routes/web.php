@@ -423,4 +423,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/vehiculo/listarSucursal', [InvVehiculoController::class, 'listarSucursal']);
     Route::post('/vehiculo/registrar', [InvVehiculoController::class, 'store']);
     Route::get('/vehiculo', [InvVehiculoController::class, 'index']);
+    Route::put('/vehiculo/desactivar', [InvVehiculoController::class, 'desactivar']);
+    Route::put('/vehiculo/activar', [InvVehiculoController::class, 'activar']);
+    Route::put('/vehiculo/actualizar', [InvVehiculoController::class, 'update']);
+
 });

@@ -17,10 +17,13 @@
                 </div>
                 <div class="card-body">
                     <div class="form-group row">
-                        <div class="input-group">
-    <input type="text" id="texto" name="texto" class="form-control" placeholder="Texto a buscar" v-model="buscar" @keyup.enter="listarVehiculo(1)">
-    <button type="button" class="btn btn-primary" @click="listarVehiculo(1)"><i class="fa fa-search"></i> Buscar</button>
-</div>
+                        <div class="col-md-6">
+                            <div class="input-group">
+                       <input type="text" id="texto" name="texto" class="form-control" placeholder="Texto a buscar" v-model="buscar" @keyup.enter="listarVehiculo(1)">
+                         <button type="button" class="btn btn-primary" @click="listarVehiculo(1)"><i class="fa fa-search"></i> Buscar</button>
+                        </div>
+                        </div>
+                       
                     </div>
                     <table class="table table-bordered table-striped table-sm table-responsive">
                         <thead>
@@ -41,10 +44,10 @@
                                     <button type="button" class="btn btn-warning btn-sm" @click="abrirModal('actualizar',vehiculo)">
                                         <i class="icon-pencil"></i>
                                     </button> &nbsp;
-                                    <button v-if="vehiculo.activo==1" type="button" class="btn btn-danger btn-sm" @click="eliminarAlmacen(vehiculo.id)" >
+                                    <button v-if="vehiculo.activo==1" type="button" class="btn btn-danger btn-sm" @click="eliminar(vehiculo.id)" >
                                         <i class="icon-trash"></i>
                                     </button>
-                                    <button v-else type="button" class="btn btn-info btn-sm" @click="activarAlamcen(vehiculo.id)" >
+                                    <button v-else type="button" class="btn btn-info btn-sm" @click="activar(vehiculo.id)" >
                                         <i class="icon-check"></i>
                                     </button>
                                 </td>
@@ -155,8 +158,8 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary"  @click="cerrarModal('registrar')">Cerrar</button>
-                        <button type="button" v-if="tipoAccion==1" class="btn btn-primary" @click="registrarAlmacen()" :disabled="!sicompleto">Guardar</button>
-                        <button type="button" v-if="tipoAccion==2" class="btn btn-primary" @click="actualizarAlmacen()">Actualizar</button>
+                        <button type="button" v-if="tipoAccion==1" class="btn btn-primary" @click="registrar()" :disabled="!sicompleto">Guardar</button>
+                        <button type="button" v-if="tipoAccion==2" class="btn btn-primary" @click="actualizar()">Actualizar</button>
                     </div>
                 </div>
                 <!-- /.modal-content -->
@@ -213,6 +216,7 @@ import { error401 } from '../../errores';
                 id_tienda_almacen:'',
                 codigo:'',
                 arrayVehiculos:[],
+                id_vehiculo:0,
 
             }
 
@@ -294,7 +298,7 @@ import { error401 } from '../../errores';
             {
                 let me=this;
                 var url='/vehiculo?page='+page+'&buscar='+me.buscar;
-                console.log(url);
+               
                 axios.get(url)
                 .then(function(response){
                     var respuesta = response.data;
@@ -313,11 +317,10 @@ import { error401 } from '../../errores';
                 me.listarVehiculo(page);
             },
             
-            registrarAlmacen(){
+            registrar(){
                 let me = this;
-                console.log(+me.id_tienda_almacen+" - "+me.matricula+"-"+
-               me.razon_social_des+"-"+me.codigo+"-"+me.telefono+"-"+me.selectTipo
-                   );
+               // console.log(+me.id_tienda_almacen+" - "+me.matricula+"-"+
+              // me.razon_social_des+"-"+me.codigo+"-"+me.telefono+"-"+me.selectTipo                   );
                 axios.post('/vehiculo/registrar',{
                     'id_tienda_almacen':me.id_tienda_almacen,
                     'matricula':me.matricula,
@@ -342,7 +345,7 @@ import { error401 } from '../../errores';
                 });
             },
 
-            eliminarAlmacen(idalmacen){
+            eliminar(id_vehiculo){
                 let me=this;
                 const swalWithBootstrapButtons = Swal.mixin({
                 customClass: {
@@ -362,8 +365,8 @@ import { error401 } from '../../errores';
                 reverseButtons: true
                 }).then((result) => {
                 if (result.isConfirmed) {
-                     axios.put('/almacen/desactivar',{
-                        'id': idalmacen
+                     axios.put('/vehiculo/desactivar',{
+                        'id': id_vehiculo
                     }).then(function (response) {
                         me.listarVehiculo();
                         swalWithBootstrapButtons.fire(
@@ -389,7 +392,7 @@ import { error401 } from '../../errores';
                 }
                 })
             },
-            activarAlamcen(idalmacen){
+            activar(id_vehiculo){
                 let me=this;
                 const swalWithBootstrapButtons = Swal.mixin({
                 customClass: {
@@ -408,8 +411,8 @@ import { error401 } from '../../errores';
                 reverseButtons: true
                 }).then((result) => {
                 if (result.isConfirmed) {
-                     axios.put('/almacen/activar',{
-                        'id': idalmacen
+                     axios.put('/vehiculo/activar',{
+                        'id': id_vehiculo
                     }).then(function (response) {
                         me.listarVehiculo();
                         swalWithBootstrapButtons.fire(
@@ -435,16 +438,19 @@ import { error401 } from '../../errores';
                 }
                 })
             },
-            actualizarAlmacen(){
+            actualizar(){
                 let me =this;
-                axios.put('/almacen/actualizar',{
-                    'id':me.idalmacen,
-                    'idsucursal':me.sucursalSeleccionado,
-                    'nombre_almacen':me.nombrealmacen,
+            //    console.log(me.id_vehiculo+"-"+me.id_tienda_almacen+" - "+me.matricula+"-"+
+            //   me.razon_social_des+"-"+me.codigo+"-"+me.telefono+"-"+me.selectTipo                   );
+                axios.put('/vehiculo/actualizar',{
+                    'id':me.id_vehiculo,
+                    'id_tienda_almacen':me.id_tienda_almacen,
+                    'matricula':me.matricula,
+                    'razon_social_des':me.razon_social_des,
+                    'codigo':me.codigo,
                     'telefono':me.telefono,
-                    'direccion':me.direccion,
-                    'departamento':me.departamento,
-                    'ciudad':me.ciudad,
+                    'selectTipo':me.selectTipo,
+                   
                 }).then(function (response) {
                     me.listarVehiculo();
                     Swal.fire(
@@ -486,17 +492,22 @@ import { error401 } from '../../errores';
                     
                     case 'actualizar':
                     {
-                      //  me.sucursalSeleccionado=data.idsucursal===null?0:data.idsucursal;
-                      //  me.tipoAccion=2;
-                      //  me.tituloModal='Actualizar Datos del Almacen';
-                      //  me.tipo=data.tipo;
-                      //  me.nombrealmacen=data.nombre_almacen;
-                      //  me.telefono=data.telefono;
-                      //  me.direccion=data.direccion;
-                      //  me.ciudad=data.ciudad;
-                       // me.departamento=data.departamento;
-                      //  me.idalmacen=data.id;
-                      //  me.classModal.openModal('registrar');
+               
+                        me.tituloModal='Registar Nuevo Vehiculo'
+                        me.tipoAccion=2;                        
+                        me.tipo=0; 
+                        me.telefono=data.telefono;
+                 
+                        me.id_vehiculo=data.id;
+                        me.selectAlmTda=data.codigo==null?0:data.codigo;
+                        me.selectTipo=data.tipo==null?0:data.tipo;                      
+                        me.matricula=data.matricula;
+                        me.tipoCodigo='';
+                        me.codigoDestino='';
+                        me.razon_social_des=data.razon_social;
+                        me.id_tienda_almacen=data.idsucursal;
+                        me.codigo=data.codigo;
+                        me.classModal.openModal('registrar');
                         break;
                     }
 
@@ -534,7 +545,7 @@ import { error401 } from '../../errores';
             this.classModal.addModal('registrar');
             this.sucursalAlmTda();
             this.listarVehiculo(1);
-            //console.log('Component mounted.')
+            
         }
     }
 </script>

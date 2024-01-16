@@ -219,7 +219,18 @@ class InvVehiculoController extends Controller
      */
     public function update(Request $request, Inv_Vehiculo $inv_Vehiculo)
     {
-        //
+        $vehiculo =Inv_Vehiculo::find($request->id);
+        $vehiculo->idsucursal = $request->id_tienda_almacen;
+        $vehiculo->matricula = $request->matricula;
+        $vehiculo->razon_social = $request->razon_social_des;
+        $vehiculo->nombre_comercial = $request->codigo;
+        $vehiculo->telefono = $request->telefono;
+        $vehiculo->tipo = $request->selectTipo;
+     
+        $vehiculo->id_user = auth()->user()->id;
+        $vehiculo->id_usuario_modifica = auth()->user()->id;
+
+        $vehiculo->save();
     }
 
     /**
@@ -229,6 +240,24 @@ class InvVehiculoController extends Controller
     {
         //
     }
+    public function desactivar(Request $request)
+    {
+      
+        $update = Inv_Vehiculo::findOrFail($request->id);
+        $update->activo = 0;
+        $update->id_user=auth()->user()->id;
+        $update->id_usuario_modifica=auth()->user()->id;
+        $update->save();
+    }
+
+    public function activar(Request $request)
+    {  $update = Inv_Vehiculo::findOrFail($request->id);
+        $update->activo = 1;
+        $update->id_user=auth()->user()->id;
+        $update->id_usuario_modifica=auth()->user()->id;
+        $update->save();
+    }
+
     public function listarSucursal(){
        
         $tiendas = DB::table('tda__tiendas')
