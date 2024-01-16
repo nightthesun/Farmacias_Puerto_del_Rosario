@@ -17,12 +17,10 @@
                 </div>
                 <div class="card-body">
                     <div class="form-group row">
-                        <div class="col-md-6">
-                            <div class="input-group">
-                                <input type="text" id="texto" name="texto" class="form-control" placeholder="Texto a buscar" v-model="buscar"  @keyup.enter="listarAlmacenes(1)">
-                                <button type="submit" class="btn btn-primary" ><i class="fa fa-search" ></i> Buscar</button>
-                            </div>
-                        </div>
+                        <div class="input-group">
+    <input type="text" id="texto" name="texto" class="form-control" placeholder="Texto a buscar" v-model="buscar" @keyup.enter="listarVehiculo(1)">
+    <button type="button" class="btn btn-primary" @click="listarVehiculo(1)"><i class="fa fa-search"></i> Buscar</button>
+</div>
                     </div>
                     <table class="table table-bordered table-striped table-sm table-responsive">
                         <thead>
@@ -38,28 +36,28 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="almacen in arrayAlmacenes" :key="almacen.id">
+                            <tr v-for="vehiculo in arrayVehiculos" :key="vehiculo.id">
                                 <td>
-                                    <button type="button" class="btn btn-warning btn-sm" @click="abrirModal('actualizar',almacen)">
+                                    <button type="button" class="btn btn-warning btn-sm" @click="abrirModal('actualizar',vehiculo)">
                                         <i class="icon-pencil"></i>
                                     </button> &nbsp;
-                                    <button v-if="almacen.activo==1" type="button" class="btn btn-danger btn-sm" @click="eliminarAlmacen(almacen.id)" >
+                                    <button v-if="vehiculo.activo==1" type="button" class="btn btn-danger btn-sm" @click="eliminarAlmacen(vehiculo.id)" >
                                         <i class="icon-trash"></i>
                                     </button>
-                                    <button v-else type="button" class="btn btn-info btn-sm" @click="activarAlamcen(almacen.id)" >
+                                    <button v-else type="button" class="btn btn-info btn-sm" @click="activarAlamcen(vehiculo.id)" >
                                         <i class="icon-check"></i>
                                     </button>
                                 </td>
                                 <!-- <td v-text="(almacen.codsuc === null ? '': almacen.codsuc+' - ') + almacen.codigo"></td> -->
-                                <td v-text="almacen.codigo"></td>
-                                <td>{{ almacen.razon_social }} <br> {{ almacen.tipo }} {{ almacen.tipo == 'Sucursal'? almacen.correlativo:'' }}</td>
-                                <td v-text="almacen.nombre_almacen"></td>
-                                <td v-text="almacen.telefono"></td>
-                                <td v-text="almacen.direccion"></td>
-                                <td v-text="almacen.departamento"></td>
-                                <td>{{ almacen.ciudad }}</td>
+                                <td v-text="vehiculo.matricula"></td>
+                                <td v-text="vehiculo.razon_social"></td>
+                                <td v-text="vehiculo.codigo"></td>
+                                <td v-text="vehiculo.telefono"></td>
+                                <td v-text="vehiculo.tipo"></td>
+                                <td v-text="vehiculo.user_name"></td>
+
                                 <td>
-                                    <div v-if="almacen.activo==1">
+                                    <div v-if="vehiculo.activo==1">
                                         <span class="badge badge-success">Activo</span>
                                     </div>
                                     <div v-else>
@@ -189,39 +187,15 @@ import { error401 } from '../../errores';
                 offset:3,
                 nombre:'',
                 tipo:0,
-                nit:'',
-                direccion:'',
-                arraySucursales:[],
+                
                 tituloModal:'',
                 tipoAccion:1,
-                idsucursal:'',
-                buscar:'',
-                razonsocial:'',
-                nombrealmacen:'',
-                telefono:'',
                 
-                arrayciudad:[
-                                {'id':1,'valor':'La Paz'},
-                                {'id':2,'valor':'Santa Cruz'},
-                                {'id':3,'valor':'Cochabamba'},
-                                {'id':4,'valor':'Oruro'},
-                                {'id':5,'valor':'Potosi'},
-                                {'id':6,'valor':'Sucre'},
-                                {'id':7,'valor':'Tarija'},
-                                {'id':8,'valor':'Pando'},
-                                {'id':9,'valor':'Beni'},
-                            ],
-                           
-                matriz:0,
-                arrayRubros:[],
-                idrubro:0,
-                sucursalSeleccionado:0,
-                departamento:0,
-                ciudad:'',
-                idalmacen:0,
-                arrayCiudad:[],
-                arrayDepto:[],
-                arrayAlmacenes:[],
+                buscar:'',
+               
+               
+                telefono:'',
+             
                 //------
                 arraySucursalAlmTda:[],
                 selectAlmTda:0,  
@@ -236,6 +210,9 @@ import { error401 } from '../../errores';
                 tipoCodigo:'',
                 codigoDestino:'',
                 razon_social_des:'',
+                id_tienda_almacen:'',
+                codigo:'',
+                arrayVehiculos:[],
 
             }
 
@@ -249,7 +226,8 @@ import { error401 } from '../../errores';
         this.tipoCodigo = sucursalSeleccionadoD.tipoCodigo;
         this.codigoDestino = sucursalSeleccionadoD.codigo;
         this.razon_social_des=sucursalSeleccionadoD.razon_social;
-
+        this.id_tienda_almacen=sucursalSeleccionadoD.id_tienda_almacen
+        this.codigo=sucursalSeleccionadoD.codigo
 
     }
             },
@@ -312,88 +290,52 @@ import { error401 } from '../../errores';
                 } 
             },  
 
-            selectDepartamentos(){
-                let me=this;
-                var url='/depto/selectdepto';
-                axios.get(url).then(function(response){
-                    var respuesta=response.data;
-                    me.arrayDepto=respuesta;
-                })
-                .catch(function(error){
-                    error401(error);
-                    console.log(error);
-                });
-            },
-
-            listarSucursales(page){
-                let me=this;
-                var url='/sucursal?page='+page+'&buscar='+me.buscar;
-                axios.get(url)
-                .then(function(response){
-                    var respuesta=response.data;
-                    me.pagination=respuesta.pagination;
-                    me.arraySucursales=respuesta.sucursales.data;
-                    let resp=me.arraySucursales.find(element=>element.tipo=='Casa_Matriz');
-                    if(resp!= undefined)
-                    {
-                        if(resp.tipo=='Casa_Matriz')
-                            me.matriz=1;
-                        else
-                            me.matriz=0;
-                    }
-                    else
-                        me.matriz=0;
-                })
-                .catch(function(error){
-                    error401(error);
-                });
-            },
-
-            listarAlmacenes(page)
+            listarVehiculo(page)
             {
                 let me=this;
-                var url='/almacen?page='+page+'&buscar='+me.buscar;
+                var url='/vehiculo?page='+page+'&buscar='+me.buscar;
+                console.log(url);
                 axios.get(url)
                 .then(function(response){
                     var respuesta = response.data;
                     me.pagination = respuesta.pagination;
-                    me.arrayAlmacenes = respuesta.almacenes.data;
+                    me.arrayVehiculos = respuesta.resultadocombinado.data;
                 })
                 .catch(function(error){
                     error401(error);
                 });
             },
+      
 
             cambiarPagina(page){
                 let me =this;
                 me.pagination.current_page = page;
-                me.listarAlmacenes(page);
+                me.listarVehiculo(page);
             },
             
             registrarAlmacen(){
                 let me = this;
-                console.log(me.idalmacen+" - "+me.selectAlmTda+" - "+me.selectTipo+"-"+
-                me.tipoCodigo+"-"+
-                        me.codigoDestino+"-"+
-                        me.razon_social_des);
-                axios.post('/2222/registrar',{
-                    'idsucursal':me.sucursalSeleccionado,
-                    'nombre_almacen':me.nombrealmacen,
+                console.log(+me.id_tienda_almacen+" - "+me.matricula+"-"+
+               me.razon_social_des+"-"+me.codigo+"-"+me.telefono+"-"+me.selectTipo
+                   );
+                axios.post('/vehiculo/registrar',{
+                    'id_tienda_almacen':me.id_tienda_almacen,
+                    'matricula':me.matricula,
+                    'razon_social_des':me.razon_social_des,
+                    'codigo':me.codigo,
                     'telefono':me.telefono,
-                    'direccion':me.direccion,
-                    'departamento':me.departamento,
-                    'ciudad':me.ciudad,
+                    'selectTipo':me.selectTipo,
                     'activo':1,
                     'estado':1,
                 }).then(function(response){
                     me.cerrarModal('registrar');
                     Swal.fire(
-                        'Almacen Registrado exitosamente',
+                        'Registro exitosamente',
                         'Haga click en Ok',
                         'success'
                     )
-                    me.listarAlmacenes();
-                    me.listarSucursales();
+                    me.listarVehiculo();
+                    me.sucursalAlmTda();
                 }).catch(function(error){
                     error401(error);
                     console.log(error);
@@ -423,13 +365,13 @@ import { error401 } from '../../errores';
                      axios.put('/almacen/desactivar',{
                         'id': idalmacen
                     }).then(function (response) {
-                        me.listarAlmacenes();
+                        me.listarVehiculo();
                         swalWithBootstrapButtons.fire(
                             'Desactivado!',
                             'El registro a sido desactivado Correctamente',
                             'success'
                         )
-                        me.listarSucursales();
+                        me.listarVehiculo();
                         
                     }).catch(function (error) {
                         error401(error);
@@ -469,7 +411,7 @@ import { error401 } from '../../errores';
                      axios.put('/almacen/activar',{
                         'id': idalmacen
                     }).then(function (response) {
-                        me.listarAlmacenes();
+                        me.listarVehiculo();
                         swalWithBootstrapButtons.fire(
                             'Activado!',
                             'El registro a sido Activado Correctamente',
@@ -504,7 +446,7 @@ import { error401 } from '../../errores';
                     'departamento':me.departamento,
                     'ciudad':me.ciudad,
                 }).then(function (response) {
-                    me.listarAlmacenes();
+                    me.listarVehiculo();
                     Swal.fire(
                         'Actualizado Correctamente!',
                         'El registro a sido actualizado Correctamente',
@@ -524,14 +466,10 @@ import { error401 } from '../../errores';
                         me.tituloModal='Registar Nuevo Vehiculo'
                         me.tipoAccion=1;
                         me.tipo=0;
-                        me.nombrealmacen='';
+                    
                       
                         me.telefono='';
-                        me.direccion='';
-                        me.sucursalSeleccionado=0;
-                        me.departamento=0;
-                        me.ciudad='';
-                        me.idrubro=0;
+                 
 
                         me.selectAlmTda=0;
                         me.selectTipo=0;                      
@@ -539,6 +477,8 @@ import { error401 } from '../../errores';
                         me.tipoCodigo='';
                         me.codigoDestino='';
                         me.razon_social_des='';
+                        me.id_tienda_almacen='';
+                        me.codigo='';
                         me.classModal.openModal('registrar');
  
                         break;
@@ -546,17 +486,17 @@ import { error401 } from '../../errores';
                     
                     case 'actualizar':
                     {
-                        me.sucursalSeleccionado=data.idsucursal===null?0:data.idsucursal;
-                        me.tipoAccion=2;
-                        me.tituloModal='Actualizar Datos del Almacen';
-                        me.tipo=data.tipo;
-                        me.nombrealmacen=data.nombre_almacen;
-                        me.telefono=data.telefono;
-                        me.direccion=data.direccion;
-                        me.ciudad=data.ciudad;
-                        me.departamento=data.departamento;
-                        me.idalmacen=data.id;
-                        me.classModal.openModal('registrar');
+                      //  me.sucursalSeleccionado=data.idsucursal===null?0:data.idsucursal;
+                      //  me.tipoAccion=2;
+                      //  me.tituloModal='Actualizar Datos del Almacen';
+                      //  me.tipo=data.tipo;
+                      //  me.nombrealmacen=data.nombre_almacen;
+                      //  me.telefono=data.telefono;
+                      //  me.direccion=data.direccion;
+                      //  me.ciudad=data.ciudad;
+                       // me.departamento=data.departamento;
+                      //  me.idalmacen=data.id;
+                      //  me.classModal.openModal('registrar');
                         break;
                     }
 
@@ -569,13 +509,12 @@ import { error401 } from '../../errores';
                 me.classModal.closeModal(accion);
                 me.tipoAccion=1;
                 me.tipo=0;
-                me.nombrealmacen='';
+             
                 me.telefono='';
-                me.nit='';
-                me.direccion='';
-                me.ciudad=0;
+               
+          
                 me.tipoAccion=1;
-                me.idrubro=0; 
+          
                 
                 me.selectAlmTda=0;
             },
@@ -586,28 +525,15 @@ import { error401 } from '../../errores';
                 }, 0)
             },
 
-            selectRubros(){
-                let me=this;
-                var url='/rubro/selectrubro';
-                axios.get(url).then(function(response){
-                    var respuesta=response.data;
-                    me.arrayRubros=respuesta;
-                })
-                .catch(function(error){
-                    error401(error);
-                    console.log(error);
-                });
-            },
         },
 
         mounted() {
-            this.selectRubros();
-            this.listarAlmacenes(1);
-            this.listarSucursales(1);
-            this.selectDepartamentos();
+        
+       
             this.classModal = new _pl.Modals();
             this.classModal.addModal('registrar');
-            this. sucursalAlmTda();
+            this.sucursalAlmTda();
+            this.listarVehiculo(1);
             //console.log('Component mounted.')
         }
     }

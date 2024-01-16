@@ -45,6 +45,8 @@ use App\Http\Controllers\InvAjustePositivoController;
 use App\Http\Controllers\InvProcesarTraspasoController;
 use App\Http\Controllers\InvTraspasoController;
 use App\Http\Controllers\InvVehiculoController;
+
+
 use App\Models\Alm_IngresoProducto;
 use App\Models\Tda_Tienda;
 
@@ -419,5 +421,6 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/procesar-traspaso/listarUsuario', [InvProcesarTraspasoController::class, 'listarUsuario']);
     
     Route::get('/vehiculo/listarSucursal', [InvVehiculoController::class, 'listarSucursal']);
-    
+    Route::post('/vehiculo/registrar', [InvVehiculoController::class, 'store']);
+    Route::get('/vehiculo', [InvVehiculoController::class, 'index']);
 });

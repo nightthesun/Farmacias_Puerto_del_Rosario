@@ -127,26 +127,30 @@
             <div class="alert alert-warning" role="alert">
                 Debe realziar una busqueda para ver los trapasos que se realizaron.
             </div>   
- <table class="table table-bordered table-striped table-sm table-responsive">
+                <table class="table table-bordered table-striped table-sm table-responsive">
    
                         <thead>
                             <tr>
                                 <th>Opciones</th>
-                                <th>Usuario</th>
-                                <th>Codigó</th>
-                                <th>Linea</th>
+                                <th>Codigó de traspaso</th>
                                 <th>Producto</th>
+                                <th>Linea</th>
                                 <th>Cantidad</th>
-                                <th>Tipo</th>
-                                <th>Descripción</th>
                                 <th>Fecha</th>
-                                <th>Estado</th>
+                                <th>Origen</th>
+                                <th>Destino</th>
+                                
+                                <th>Tipo</th>
+                                <th>Glosa</th>
+                                <th>Fecha</th>
+                                <th>Emisor</th>
+                                <th>Receptor</th>
                             </tr>
                         </thead>
                         <tbody>
                             
                            <tr>
-                            <h4 style="text-align: center;"> Sin datos123...</h4>
+                     
                           
                             <td>1</td>
                             <td>2</td>
