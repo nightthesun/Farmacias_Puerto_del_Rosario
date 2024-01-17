@@ -43,6 +43,7 @@ use App\Http\Controllers\TdaIngresoProductoController;
 use App\Http\Controllers\InvAjusteNegativoController;
 use App\Http\Controllers\InvAjustePositivoController;
 use App\Http\Controllers\InvProcesarTraspasoController;
+use App\Http\Controllers\InvTrasladoController;
 use App\Http\Controllers\InvTraspasoController;
 use App\Http\Controllers\InvVehiculoController;
 
@@ -426,5 +427,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::put('/vehiculo/desactivar', [InvVehiculoController::class, 'desactivar']);
     Route::put('/vehiculo/activar', [InvVehiculoController::class, 'activar']);
     Route::put('/vehiculo/actualizar', [InvVehiculoController::class, 'update']);
-
+    
+    Route::get('/traslado/listarSucursal', [InvTrasladoController::class, 'listarSucursal']);    
+    Route::get('/traslado/traspasos', [InvTrasladoController::class, 'traspasos']);   
 });

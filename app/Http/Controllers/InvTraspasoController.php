@@ -300,24 +300,20 @@ class InvTraspasoController extends Controller
 
       
         if($correlativo>=0 && $correlativo<10)
-            $codigo='000000000'.$correlativo;
-        if($correlativo>=10 && $correlativo<100)
-            $codigo='00000000'.$correlativo;
-        if($correlativo>=100 && $correlativo<1000)
             $codigo='0000000'.$correlativo;
-        if($correlativo>=1000 && $correlativo<10000)
+        if($correlativo>=10 && $correlativo<100)
             $codigo='000000'.$correlativo;
-        if($correlativo>=10000 && $correlativo<100000)
+        if($correlativo>=100 && $correlativo<1000)
             $codigo='00000'.$correlativo;
-        if($correlativo>=100000 && $correlativo<1000000)
+        if($correlativo>=1000 && $correlativo<10000)
             $codigo='0000'.$correlativo;
-        if($correlativo>=1000000 && $correlativo<10000000)
+        if($correlativo>=10000 && $correlativo<100000)
             $codigo='000'.$correlativo;
-        if($correlativo>=10000000 && $correlativo<100000000)
+        if($correlativo>=100000 && $correlativo<1000000)
             $codigo='00'.$correlativo;
-        if($correlativo>=100000000 && $correlativo<1000000000)     
+        if($correlativo>=1000000 && $correlativo<10000000)
             $codigo='0'.$correlativo;
-        
+   
      
         $codigo=$letracodigo.$codigo;
         

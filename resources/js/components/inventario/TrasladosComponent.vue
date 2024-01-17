@@ -10,8 +10,8 @@
             <!-- Ejemplo de tabla Listado -->
             <div class="card">
                 <div class="card-header">
-                    <i class="fa fa-align-justify"></i> Traspaso entre almacenes y tiendas 
-                   
+                    <i class="fa fa-align-justify"></i>
+                    Traslado                 
                     <button
                         type="button"
                         class="btn btn-secondary"
@@ -27,7 +27,7 @@
                 <div class="card-body">
                     <div class="form-group row">
                         <div class="col-md-2" style="text-align: center">
-                            <label for="">Almacen o Tienda Origen:</label>
+                            <label for="">Almacen o Tienda:</label>
                         </div>
                         <div class="col-md-6">
                             <div class="input-group">
@@ -78,7 +78,8 @@
                         </div>
                     </div>
 
-                  <table class="table table-bordered table-striped table-sm table-responsive" >
+                <!--
+                      <table class="table table-bordered table-striped table-sm table-responsive" >
                     <thead>
                         <tr>
                             <th>Opciones</th>
@@ -179,6 +180,8 @@
                             </tr>
                         </tbody>    
                   </table>
+                -->
+
                  <nav>
                         <ul class="pagination">
                             <li
@@ -760,6 +763,10 @@ export default {
             lista_id_almacen_id_tienda:"",
             codigoDestino:"",
             razon_social_des:"",
+            ///////////
+            arrayTraspaso:[],
+            selectTraspaso:0,
+            
         };
     },
 
@@ -902,15 +909,34 @@ sucursalSeleccionadaDestino: function (newValue) {
 
             // Agrega aquí la lógica adicional que necesites al cambiar la pestaña
         },
+
+        
+        listarTraspaso() {
+            let me = this;
+            
+            var url ="/traslado/traspasos?buscar=" +me.buscar+"&buscarAlmTdn=" +me.sucursalSeleccionada;
+          
+            axios
+                .get(url)
+                .then(function (response) {
+                    var respuesta = response.data;
+                    me.arrayTraspaso = respuesta;
+               
+                })
+                .catch(function (error) {
+                    error401(error);
+                    console.log(error);
+                });
+        },
         sucursalFiltro() {
             let me = this;
-            var url = "/traspaso/listarSucursal";
+            var url = "/traslado/listarSucursal";
             axios
                 .get(url)
                 .then(function (response) {
                     var respuesta = response.data;
                     me.arraySucursal = respuesta;
-                    console.log(me.arraySucursal);
+               
                 })
                 .catch(function (error) {
                     error401(error);
@@ -1474,9 +1500,11 @@ sucursalSeleccionadaDestino: function (newValue) {
         this.listarAjusteNegativos(1);
         this.ajustesNegativos();
         this.cambiodeEstado();
-        this.sucursalFiltro();
+        this.sucursalFiltro();        
         this.sucursalFiltroDestino();
         this.classModal.addModal("staticBackdrop");
+        
+        this.listarTraspaso();
     },
 };
 </script>

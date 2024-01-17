@@ -165,16 +165,16 @@
                                     </div>
                                 </td>
                                 <td>
+                                    <div v-if="AjusteNegativos.estado_procesado == 0">
+                                        <span class="badge badge-danger">Pendiente</span>
+                                    </div>
                                     <div v-if="AjusteNegativos.estado_procesado == 1">
-                                        <span class="badge badge-success"
-                                            >Procesado</span
-                                        >
+                                        <span class="badge badge-warning">En Proceso</span>
                                     </div>
-                                    <div v-else>
-                                        <span class="badge badge-warning"
-                                            >Sin procesar</span
-                                        >
+                                    <div v-if="AjusteNegativos.estado_procesado == 2">
+                                        <span class="badge badge-success">Procesado</span>
                                     </div>
+                                    
                                 </td>
                             </tr>
                         </tbody>    
