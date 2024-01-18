@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Inv_Vehiculo;
+use App\Models\Log_Vehiculo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class InvVehiculoController extends Controller
+
+class LogVehiculoController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -29,7 +30,8 @@ class InvVehiculoController extends Controller
                                 iv.razon_social like '%".$valor."%' 
                                 or iv.matricula like '%".$valor."%' 
                                 or iv.tipo like '%".$valor."%' 
-                                or u.name like '%".$valor."%' 
+                                or u.name like '%".$valor."%'
+                                or re.nombre like '%".$valor."%' 
                               )" ;
                     }
                     else
@@ -39,17 +41,20 @@ class InvVehiculoController extends Controller
                             or iv.matricula like '%".$valor."%' 
                             or iv.tipo like '%".$valor."%' 
                             or u.name like '%".$valor."%' 
+                            or re.nombre like '%".$valor."%' 
                           )" ;
                     }
     
                 }
 
-                $almacenes =  DB::table('inv__vehiculos as iv')
+                $almacenes =  DB::table('log__vehiculos as iv')
                 ->join('alm__almacens as aa', function ($join) {
                     $join->on('aa.id', '=', 'iv.idsucursal')
                         ->on('aa.codigo', '=', 'iv.nombre_comercial');
                 })
                 ->join('users as u', 'u.id', '=', 'iv.id_user')
+                ->leftJoin('users as u2', 'u2.id', '=', 'iv.id_emple')
+                ->leftJoin('rrh__empleados as re', 'u2.idempleado', '=', 're.id')
                 ->select(
                     'iv.id as id',
                     'iv.razon_social as razon_social',
@@ -62,15 +67,20 @@ class InvVehiculoController extends Controller
                     'iv.activo as activo',
                     'u.id as id_user',
                     'u.name as user_name',
-                    DB::raw('GREATEST(iv.created_at, iv.updated_at) AS fecha')
+                    'iv.id_emple as id_emple',
+                    DB::raw('GREATEST(iv.created_at, iv.updated_at) AS fecha'),
+                    DB::raw("CONCAT_WS(' ', re.nombre, re.papellido, re.sapellido) as nom_completo")
+                    
                 );
-                $tiendas= DB::table('inv__vehiculos as iv')
+                $tiendas= DB::table('log__vehiculos as iv')
                 ->join('tda__tiendas as tt', function ($join) {
                     $join->on('tt.id', '=', 'iv.idsucursal')
                         ->on('tt.codigo', '=', 'iv.nombre_comercial');
                 })
                 ->join('adm__sucursals as ass', 'ass.id', '=', 'tt.idsucursal')
                 ->join('users as u', 'u.id', '=', 'iv.id_user')
+                ->leftJoin('users as u2', 'u2.id', '=', 'iv.id_emple')
+                ->leftJoin('rrh__empleados as re', 'u2.idempleado', '=', 're.id')
                 ->select(
                     'iv.id as id',
                     'iv.razon_social as razon_social',
@@ -83,7 +93,9 @@ class InvVehiculoController extends Controller
                     'iv.activo as activo',
                     'u.id as id_user',
                     'u.name as user_name',
-                    DB::raw('GREATEST(iv.created_at, iv.updated_at) AS fecha')
+                    'iv.id_emple as id_emple',
+                    DB::raw('GREATEST(iv.created_at, iv.updated_at) AS fecha'),
+                    DB::raw("CONCAT_WS(' ', re.nombre, re.papellido, re.sapellido) as nom_completo")
                 );
                 $resultadocombinado = $almacenes 
                 ->whereRaw($sqls)
@@ -109,12 +121,14 @@ class InvVehiculoController extends Controller
             ];
         }else {
            
-            $almacenes =  DB::table('inv__vehiculos as iv')
+            $almacenes =  DB::table('log__vehiculos as iv')
             ->join('alm__almacens as aa', function ($join) {
                 $join->on('aa.id', '=', 'iv.idsucursal')
                     ->on('aa.codigo', '=', 'iv.nombre_comercial');
             })
             ->join('users as u', 'u.id', '=', 'iv.id_user')
+            ->leftJoin('users as u2', 'u2.id', '=', 'iv.id_emple')
+            ->leftJoin('rrh__empleados as re', 'u2.idempleado', '=', 're.id')
             ->select(
                 'iv.id as id',
                 'iv.razon_social as razon_social',
@@ -127,15 +141,19 @@ class InvVehiculoController extends Controller
                 'iv.activo as activo',
                 'u.id as id_user',
                 'u.name as user_name',
-                DB::raw('GREATEST(iv.created_at, iv.updated_at) AS fecha')
+                'iv.id_emple as id_emple',
+                DB::raw('GREATEST(iv.created_at, iv.updated_at) AS fecha'),
+                DB::raw("CONCAT_WS(' ', re.nombre, re.papellido, re.sapellido) as nom_completo")
             );
-            $tiendas= DB::table('inv__vehiculos as iv')
+            $tiendas= DB::table('log__vehiculos as iv')
             ->join('tda__tiendas as tt', function ($join) {
                 $join->on('tt.id', '=', 'iv.idsucursal')
                     ->on('tt.codigo', '=', 'iv.nombre_comercial');
             })
             ->join('adm__sucursals as ass', 'ass.id', '=', 'tt.idsucursal')
             ->join('users as u', 'u.id', '=', 'iv.id_user')
+            ->leftJoin('users as u2', 'u2.id', '=', 'iv.id_emple')
+            ->leftJoin('rrh__empleados as re', 'u2.idempleado', '=', 're.id')
             ->select(
                 'iv.id as id',
                 'iv.razon_social as razon_social',
@@ -148,7 +166,9 @@ class InvVehiculoController extends Controller
                 'iv.activo as activo',
                 'u.id as id_user',
                 'u.name as user_name',
-                DB::raw('GREATEST(iv.created_at, iv.updated_at) AS fecha')
+                'iv.id_emple as id_emple',
+                DB::raw('GREATEST(iv.created_at, iv.updated_at) AS fecha'),
+                DB::raw("CONCAT_WS(' ', re.nombre, re.papellido, re.sapellido) as nom_completo")
             );
             $resultadocombinado = $almacenes 
             ->orderBy('id', 'desc')
@@ -184,12 +204,13 @@ class InvVehiculoController extends Controller
      */
     public function store(Request $request)
     {
-        $vehiculo = new Inv_Vehiculo();
+        $vehiculo = new Log_Vehiculo();
         $vehiculo->idsucursal = $request->id_tienda_almacen;
         $vehiculo->matricula = $request->matricula;
         $vehiculo->razon_social = $request->razon_social_des;
         $vehiculo->nombre_comercial = $request->codigo;
         $vehiculo->telefono = $request->telefono;
+        $vehiculo->id_emple = $request->id_emple;
         $vehiculo->tipo = $request->selectTipo;
         $vehiculo->estado = $request->estado;
         $vehiculo->id_user = auth()->user()->id;
@@ -201,7 +222,7 @@ class InvVehiculoController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Inv_Vehiculo $inv_Vehiculo)
+    public function show(Log_Vehiculo $log_Vehiculo)
     {
         //
     }
@@ -209,7 +230,7 @@ class InvVehiculoController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Inv_Vehiculo $inv_Vehiculo)
+    public function edit(Log_Vehiculo $log_Vehiculo)
     {
         //
     }
@@ -217,16 +238,16 @@ class InvVehiculoController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Inv_Vehiculo $inv_Vehiculo)
+    public function update(Request $request, Log_Vehiculo $log_Vehiculo)
     {
-        $vehiculo =Inv_Vehiculo::find($request->id);
+        $vehiculo =Log_Vehiculo::find($request->id);
         $vehiculo->idsucursal = $request->id_tienda_almacen;
         $vehiculo->matricula = $request->matricula;
         $vehiculo->razon_social = $request->razon_social_des;
         $vehiculo->nombre_comercial = $request->codigo;
         $vehiculo->telefono = $request->telefono;
-        $vehiculo->tipo = $request->selectTipo;
-     
+        $vehiculo->id_emple = $request->id_emple;
+        $vehiculo->tipo = $request->selectTipo;     
         $vehiculo->id_user = auth()->user()->id;
         $vehiculo->id_usuario_modifica = auth()->user()->id;
 
@@ -236,14 +257,30 @@ class InvVehiculoController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Inv_Vehiculo $inv_Vehiculo)
+    public function destroy(Log_Vehiculo $log_Vehiculo)
     {
         //
+    }
+    public function listarUsuario(){
+        $respuesta = DB::table('users as u')
+        ->select(
+            'u.id as user_id',
+            'u.name as user_name',
+            're.id as emple_id',
+            DB::raw("CONCAT_WS(' ', re.nombre, re.papellido, re.sapellido) as nom_completo"),
+            'rc.id as id_cargo',
+            'rc.nombre as cargo'
+        )
+        ->join('rrh__empleados as re', 'u.idempleado', '=', 're.id')
+        ->join('rrh__cargos as rc', 're.idcargo', '=', 'rc.id')
+        ->where('rc.id', '=', 18)
+        ->get();
+        return $respuesta;
     }
     public function desactivar(Request $request)
     {
       
-        $update = Inv_Vehiculo::findOrFail($request->id);
+        $update = Log_Vehiculo::findOrFail($request->id);
         $update->activo = 0;
         $update->id_user=auth()->user()->id;
         $update->id_usuario_modifica=auth()->user()->id;
@@ -251,7 +288,7 @@ class InvVehiculoController extends Controller
     }
 
     public function activar(Request $request)
-    {  $update = Inv_Vehiculo::findOrFail($request->id);
+    {  $update = Log_Vehiculo::findOrFail($request->id);
         $update->activo = 1;
         $update->id_user=auth()->user()->id;
         $update->id_usuario_modifica=auth()->user()->id;

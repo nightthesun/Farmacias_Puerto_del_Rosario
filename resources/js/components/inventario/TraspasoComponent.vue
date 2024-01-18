@@ -1196,6 +1196,7 @@ sucursalSeleccionadaDestino: function (newValue) {
          //   console.log("-----id_almace:"+me.id_almacen_tienda +" id_pro: " +me.id_producto +" id_ingr: " + me.id_ingreso+" enva: "+me.envase+" can: "+me.cantidadS+" fech: "+me.fecha_vencimiento+" lote: "+me.lote+" reg_sani: "
          //  +me.registro_sanitario+" id_alm_tinda: "+me.id_almacen_tienda+" lista_id_a_t: "+me.lista_id_almacen_id_tienda+" id_ingre: "+me.id_ingreso+" sucuSe: "+me.sucursalSeleccionada+" codigoDes "+me.codigoDestino
          //   +" > "+me.leyenda+" > "+me.glosa );
+         console.log(me.producto+"-"+me.fecha_ingreso+"-"+me.id_sucursal+"-"+me.codigo+"-"+me.linea);
             if (
                me.ProductoLineaIngresoSeleccionado === 0 ||
                 me.sucursalSeleccionadaDestino === 0 ||
@@ -1236,7 +1237,13 @@ sucursalSeleccionadaDestino: function (newValue) {
                         'leyenda': me.leyenda,
                         'glosa':me.glosa,
                         'name_des':me.razon_social_des,
-                        'name_ori':me.razon_social,                         
+                        'name_ori':me.razon_social,
+
+                        'linea':me.linea,
+                        'prod_name':me.producto,
+                        'fecha_ingreso':me.fecha_ingreso, 
+                        'id_sucursal':me.id_sucursal,   
+                        'codigo':me.codigo,                   
                     })
                     .then(function (response) {
                         me.cerrarModal("registrar");
@@ -1260,10 +1267,12 @@ sucursalSeleccionadaDestino: function (newValue) {
         actualizarAjusteNegativo() {
             let me = this;
             var mensajeX="";
-        console.log(me.cantidadS);
+     
        //       console.log("-----id_almace:"+me.id_almacen_tienda +" -- id_pro: " +me.id_producto +" -- id_ingr: " + me.id_ingreso+" --enva: "+me.envase+" --can: "+me.cantidadS+" fech: "+me.fecha_vencimiento+" lote: "+me.lote+" reg_sani: "
        //   +me.registro_sanitario+" id_alm_tinda: "+me.id_almacen_tienda+" lista_id_a_t: "+me.lista_id_almacen_id_tienda+" id_ingre: "+me.id_ingreso+" sucuSe: "+me.sucursalSeleccionada+" codigoDes "+me.codigoDestino
        //    +" > "+me.leyenda+" > "+me.glosa );
+    
+       console.log(me.producto+"-"+me.fecha_ingreso+"-"+me.id_sucursal+"-"+me.codigo+"-"+me.linea);
         if (
                me.ProductoLineaIngresoSeleccionado === 0 ||
                 me.sucursalSeleccionadaDestino === 0 ||
@@ -1302,8 +1311,13 @@ sucursalSeleccionadaDestino: function (newValue) {
                        leyenda: me.leyenda,
                         glosa:me.glosa,
                        name_des:me.razon_social_des,
-                       name_ori:me.razon_social,  
-                  
+                       name_ori:me.razon_social,
+                       
+                       linea:me.linea,   
+                       prod_name:me.producto,     
+                       fecha_ingreso:me.fecha_ingreso,  
+                       id_sucursal:me.id_sucursal,      
+                       codigo:me.codigo,             
                 })
                 .then(function (response) {
                     me.listarAjusteNegativos();

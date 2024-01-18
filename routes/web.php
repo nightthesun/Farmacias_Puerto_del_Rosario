@@ -45,7 +45,7 @@ use App\Http\Controllers\InvAjustePositivoController;
 use App\Http\Controllers\InvProcesarTraspasoController;
 use App\Http\Controllers\InvTrasladoController;
 use App\Http\Controllers\InvTraspasoController;
-use App\Http\Controllers\InvVehiculoController;
+use App\Http\Controllers\LogVehiculoController;
 
 
 use App\Models\Alm_IngresoProducto;
@@ -420,14 +420,17 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/procesar-traspaso', [InvProcesarTraspasoController::class, 'index']);
     Route::get('/procesar-traspaso/listarSucursal', [InvProcesarTraspasoController::class, 'listarSucursal']);
     Route::get('/procesar-traspaso/listarUsuario', [InvProcesarTraspasoController::class, 'listarUsuario']);
-    
-    Route::get('/vehiculo/listarSucursal', [InvVehiculoController::class, 'listarSucursal']);
-    Route::post('/vehiculo/registrar', [InvVehiculoController::class, 'store']);
-    Route::get('/vehiculo', [InvVehiculoController::class, 'index']);
-    Route::put('/vehiculo/desactivar', [InvVehiculoController::class, 'desactivar']);
-    Route::put('/vehiculo/activar', [InvVehiculoController::class, 'activar']);
-    Route::put('/vehiculo/actualizar', [InvVehiculoController::class, 'update']);
+    /////////////////////////////////LOGISTICO///////////////////////////////////////
+    Route::get('/vehiculo/listarSucursal', [LogVehiculoController::class, 'listarSucursal']);
+    Route::get('/vehiculo/listarUsuario', [LogVehiculoController::class, 'listarUsuario']);
+    Route::post('/vehiculo/registrar', [LogVehiculoController::class, 'store']);
+    Route::get('/vehiculo', [LogVehiculoController::class, 'index']);
+    Route::put('/vehiculo/desactivar', [LogVehiculoController::class, 'desactivar']);
+    Route::put('/vehiculo/activar', [LogVehiculoController::class, 'activar']);
+    Route::put('/vehiculo/actualizar', [LogVehiculoController::class, 'update']);
     
     Route::get('/traslado/listarSucursal', [InvTrasladoController::class, 'listarSucursal']);    
-    Route::get('/traslado/traspasos', [InvTrasladoController::class, 'traspasos']);   
+    Route::get('/traslado/traspasos', [InvTrasladoController::class, 'traspasos']);  
+    Route::get('/traslado/listausuario', [InvTrasladoController::class, 'listausuario']);  
+    
 });

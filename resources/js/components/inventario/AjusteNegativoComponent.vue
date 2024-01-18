@@ -692,6 +692,7 @@ export default {
             fecha: "",
             id_ingreso: "",
             id_producto: "",
+            id_producto_2:"",
             id_codigo: "",
             arrayAjusteNegativos: [],
 
@@ -871,7 +872,7 @@ export default {
                     "/ajustes-negativo/listarProductoLineaIngreso?respuesta0=" +
                     this.id_codigo;
             }
-            console.log(" ---  ".url);
+       
             axios
                 .get(url)
                 .then(function (response) {
@@ -879,7 +880,6 @@ export default {
 
                     me.arrayProductoLineaIngreso = respuesta;
 
-                    console.log(me.arrayProductoLineaIngreso);
                 })
                 .catch(function (error) {
                     error401(error);
@@ -894,12 +894,6 @@ export default {
                 var url ="/ajustes-negativo/retornarProductosIngreso?respuesta0=" + this.sucursalSeleccionada +
                     "&respuesta1=" + me.inputTextBuscarProductoIngreso;
             }
-
-          //  if (me.tipoAccion == 2) {
-          //      var url =
-          //          "/ajustes-negativo/retornarProductosIngreso?respuesta0=" + this.id_codigo +"&respuesta1=" +
-          //          me.inputTextBuscarProductoIngres;
-          //  }
             console.log(url);
             axios
                 .get(url)

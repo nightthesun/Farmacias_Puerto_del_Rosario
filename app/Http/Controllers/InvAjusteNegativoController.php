@@ -185,8 +185,9 @@ class InvAjusteNegativoController extends Controller
             $ajusteNegativo = new Inv_AjusteNegativo();
             $ajusteNegativo->id_usuario = auth()->user()->id;
             $ajusteNegativo->usuario = auth()->user()->name;
-            $ajusteNegativo->id_tipo = $request->id_tipo;
-            $ajusteNegativo->id_producto_linea = $request->id_producto_linea;
+            $ajusteNegativo->id_tipo = $request->id_tipo;            
+            $ajusteNegativo->id_producto_linea = $request->id_producto;
+          //  $ajusteNegativo->id_producto_linea = $request->id_producto_linea;
             $ajusteNegativo->codigo = $request->codigo;
             $ajusteNegativo->linea = $request->linea;
             $ajusteNegativo->producto = $request->producto;
@@ -209,7 +210,8 @@ class InvAjusteNegativoController extends Controller
                 $ajusteNegativo->id_usuario = auth()->user()->id;
                 $ajusteNegativo->usuario = auth()->user()->name;
                 $ajusteNegativo->id_tipo = $request->id_tipo;
-                $ajusteNegativo->id_producto_linea = $request->id_producto_linea;
+                $ajusteNegativo->id_producto_linea = $request->id_producto;
+                //$ajusteNegativo->id_producto_linea = $request->id_producto_linea;
                 $ajusteNegativo->codigo = $request->codigo;
                 $ajusteNegativo->linea = $request->linea;
                 $ajusteNegativo->producto = $request->producto;
@@ -230,20 +232,6 @@ class InvAjusteNegativoController extends Controller
                 dd("error");
             }
         }
-
-
-
-
-
-        //  dd("--".$almacenIngreso);
-        //  echo "almacen--.$almacenIngreso->id";
-
-
-        //  echo "producto--.$tinedaIngreso->id";
-
-        // $updateAjusteNegativo->stock_ingreso=$request->cantidad;
-        // $ajusteNegativo->save();
-        // $updateAjusteNegativo->save();
 
     }
 
@@ -280,6 +268,7 @@ class InvAjusteNegativoController extends Controller
                 'ai.cantidad as cantidad_ingreso',
                 'ai.created_at as fecha_ingreso',
                 'ai.fecha_vencimiento as fecha_vencimiento',
+                'pp.id as id_producto',
                 'pp.nombre as nombre',
                 'pp.codigo as codigo_producto',
                 'pp.cantidadprimario as cantidad_dispenser_p',
@@ -331,6 +320,7 @@ class InvAjusteNegativoController extends Controller
                 'ti.cantidad as cantidad_ingreso',
                 'ti.created_at as fecha_ingreso',
                 'ti.fecha_vencimiento as fecha_vencimiento',
+                'pp.id as id_producto',
                 'pp.nombre as nombre',
                 'pp.codigo as codigo_producto',
                 'pp.cantidadprimario as cantidad_dispenser_p',
@@ -416,7 +406,7 @@ class InvAjusteNegativoController extends Controller
     {
         $productoTipo = DB::table('prod__tipo_entradas')
             ->select(DB::raw('MIN(id) as id'), 'nombre')
-            ->whereNotIn('id', [13])
+           
             ->groupBy('nombre')
             ->get();
         return $productoTipo;

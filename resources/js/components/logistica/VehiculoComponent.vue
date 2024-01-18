@@ -34,6 +34,7 @@
                                 <th>Almacen o Tienda</th>
                                 <th>Telefonos</th>
                                 <th>Tipo</th>
+                                <th>Chofer</th>  
                                 <th>Usuario</th>
                                 <th>Estado</th>
                             </tr>
@@ -57,6 +58,8 @@
                                 <td v-text="vehiculo.codigo"></td>
                                 <td v-text="vehiculo.telefono"></td>
                                 <td v-text="vehiculo.tipo"></td>
+                            
+                                <td v-text="vehiculo.nom_completo"></td>
                                 <td v-text="vehiculo.user_name"></td>
 
                                 <td>
@@ -125,8 +128,21 @@
                                 </div>
                             </div>
                           
-                           
-                            <!-- Esto es para Nombre comercial -->
+                            <div class="form-group row">
+                                <label class="col-md-3 form-control-label" for="text-input">Asignar Chofer <span  v-if="selectUsuario==0" class="error">(*)</span></label>
+                                <div class="col-md-9">
+                                    <select name="" id="" v-model="selectUsuario" class="form-control">
+                                       <option v-bind:value="0" disabled>Seleccionar...</option>
+                                        <option  v-for="usu in arrayUsuario"
+                                        :key="usu.user_id"
+                                        :value="usu.user_id"
+                                        v-text="usu.nom_completo"
+                                    ></option>
+                                    </select>
+                                    <span  v-if="selectUsuario==0" class="error">Debe seleccionar una sucursal</span>
+                                </div>
+                            </div>
+                         
                             <div class="form-group row">
                                 <label class="col-md-3 form-control-label" for="text-input">Matricula <span  v-if="matricula==''" class="error">(*)</span></label>
                                 <div class="col-md-9">
@@ -175,6 +191,7 @@
 <script>
 import Swal from 'sweetalert2';
 import { error401 } from '../../errores';
+import { datapicker } from '../../func_10251';
 //Vue.use(VeeValidate);
     export default {
         data(){
@@ -217,6 +234,8 @@ import { error401 } from '../../errores';
                 codigo:'',
                 arrayVehiculos:[],
                 id_vehiculo:0,
+                arrayUsuario:[],
+                selectUsuario:'',
 
             }
 
@@ -240,7 +259,7 @@ import { error401 } from '../../errores';
             
             sicompleto(){
                 let me=this;
-                if (me.matricula!='' && me.selectTipo!=0 && me.selectAlmTda!=0 )
+                if (me.matricula!='' && me.selectTipo!=0 && me.selectAlmTda!=0 && me.selectUsuario!=0 )
                     return true;
                 else
                     return false;
@@ -293,7 +312,23 @@ import { error401 } from '../../errores';
                     me.telefono = me.telefono+ex.key;
                 } 
             },  
-
+            
+            listarUsuario()
+            {
+            let me = this;
+            var url = "/vehiculo/listarUsuario";
+            axios
+                .get(url)
+                .then(function (response) {
+                    var respuesta = response.data;
+                    me.arrayUsuario = respuesta;
+  
+                })
+                .catch(function (error) {
+                    error401(error);
+                    console.log(error);
+                });
+            },
             listarVehiculo(page)
             {
                 let me=this;
@@ -321,6 +356,7 @@ import { error401 } from '../../errores';
                 let me = this;
                // console.log(+me.id_tienda_almacen+" - "+me.matricula+"-"+
               // me.razon_social_des+"-"+me.codigo+"-"+me.telefono+"-"+me.selectTipo                   );
+              console.log(me.selectUsuario);
                 axios.post('/vehiculo/registrar',{
                     'id_tienda_almacen':me.id_tienda_almacen,
                     'matricula':me.matricula,
@@ -330,6 +366,7 @@ import { error401 } from '../../errores';
                     'selectTipo':me.selectTipo,
                     'activo':1,
                     'estado':1,
+                    'id_emple':me.selectUsuario,
                 }).then(function(response){
                     me.cerrarModal('registrar');
                     Swal.fire(
@@ -450,7 +487,7 @@ import { error401 } from '../../errores';
                     'codigo':me.codigo,
                     'telefono':me.telefono,
                     'selectTipo':me.selectTipo,
-                   
+                    'id_emple':me.selectUsuario,                   
                 }).then(function (response) {
                     me.listarVehiculo();
                     Swal.fire(
@@ -485,6 +522,7 @@ import { error401 } from '../../errores';
                         me.razon_social_des='';
                         me.id_tienda_almacen='';
                         me.codigo='';
+                        me.selectUsuario=0;
                         me.classModal.openModal('registrar');
  
                         break;
@@ -492,8 +530,8 @@ import { error401 } from '../../errores';
                     
                     case 'actualizar':
                     {
-               
-                        me.tituloModal='Registar Nuevo Vehiculo'
+                   
+                        me.tituloModal='Registar Nuevo Vehiculo';
                         me.tipoAccion=2;                        
                         me.tipo=0; 
                         me.telefono=data.telefono;
@@ -507,6 +545,7 @@ import { error401 } from '../../errores';
                         me.razon_social_des=data.razon_social;
                         me.id_tienda_almacen=data.idsucursal;
                         me.codigo=data.codigo;
+                        me.selectUsuario=data.id_emple==null?0:data.id_emple;                        
                         me.classModal.openModal('registrar');
                         break;
                     }
@@ -519,15 +558,17 @@ import { error401 } from '../../errores';
                 let me = this;
                 me.classModal.closeModal(accion);
                 me.tipoAccion=1;
-                me.tipo=0;
-             
+                me.tipo=0;  
                 me.telefono='';
-               
-          
-                me.tipoAccion=1;
-          
-                
                 me.selectAlmTda=0;
+                        me.selectTipo=0;                      
+                        me.matricula='';
+                        me.tipoCodigo='';
+                        me.codigoDestino='';
+                        me.razon_social_des='';
+                        me.id_tienda_almacen='';
+                        me.codigo='';
+                        me.selectUsuario=0;
             },
 
             selectAll: function (event) {
@@ -545,6 +586,7 @@ import { error401 } from '../../errores';
             this.classModal.addModal('registrar');
             this.sucursalAlmTda();
             this.listarVehiculo(1);
+            this.listarUsuario();
             
         }
     }
