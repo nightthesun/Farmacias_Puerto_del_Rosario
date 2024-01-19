@@ -45,6 +45,7 @@ use App\Http\Controllers\InvAjustePositivoController;
 use App\Http\Controllers\InvProcesarTraspasoController;
 use App\Http\Controllers\InvTrasladoController;
 use App\Http\Controllers\InvTraspasoController;
+use App\Http\Controllers\LogTrasladoController;
 use App\Http\Controllers\LogVehiculoController;
 
 
@@ -429,8 +430,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::put('/vehiculo/activar', [LogVehiculoController::class, 'activar']);
     Route::put('/vehiculo/actualizar', [LogVehiculoController::class, 'update']);
     
-    Route::get('/traslado/listarSucursal', [InvTrasladoController::class, 'listarSucursal']);    
-    Route::get('/traslado/traspasos', [InvTrasladoController::class, 'traspasos']);  
-    Route::get('/traslado/listausuario', [InvTrasladoController::class, 'listausuario']);  
+    Route::get('/traslado/listarSucursal', [LogTrasladoController::class, 'listarSucursal']);    
+    Route::get('/traslado/listarTraspaso', [LogTrasladoController::class, 'listarTraspaso']);  
+    Route::get('/traslado/listausuario', [LogTrasladoController::class, 'listausuario']);  
     
 });

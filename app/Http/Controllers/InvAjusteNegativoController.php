@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\Alm_IngresoProducto;
 use App\Models\Tda_IngresoProducto;
+use App\Models\Inv_Traspaso;
+
 use PhpParser\Node\Stmt\TryCatch;
 use SebastianBergmann\Environment\Console;
 
@@ -257,6 +259,7 @@ class InvAjusteNegativoController extends Controller
             ->join('prod__lineas as l', 'l.id', '=', 'pp.idlinea')
             ->where('ai.stock_ingreso', '>', 0)
             ->where('aa.codigo', $cod)
+            ->where('pp.idrubro','=',1) 
             ->select(
                 'pp.codigointernacional as codigointernacional',
                 'ai.envase as envase',
@@ -309,6 +312,7 @@ class InvAjusteNegativoController extends Controller
             ->join('tda__tiendas as tt', 'tt.id', '=', 'ti.idtienda')
             ->where('ti.stock_ingreso', '>', 0)
             ->where('tt.codigo', $cod)
+            ->where('pp.idrubro','=',1) 
             ->select(
                 'pp.codigointernacional as codigointernacional',
                 'ti.envase as envase',
@@ -523,6 +527,7 @@ class InvAjusteNegativoController extends Controller
         
         $activador = 0;
         $updateAjusteNegativo = Inv_AjusteNegativo::findOrFail($request->id);
+       
         $cantidad = $updateAjusteNegativo->cantidad;
         $cod=$updateAjusteNegativo->cod;
         $id_ingreso=$updateAjusteNegativo->id_ingreso;
@@ -559,6 +564,18 @@ class InvAjusteNegativoController extends Controller
          
             $update = Alm_IngresoProducto::find($id_i);
             $update->stock_ingreso =($update->stock_ingreso)+$cantidad;
+
+            if ($updateAjusteNegativo->id_tipo==13) {
+                $id_tras=$updateAjusteNegativo->id_traspaso;
+                $tras = Inv_Traspaso::where('numero_traspaso', $id_tras)->first();
+                if ($tras) {                   
+                    $tras->procesado =3;      
+                    $tras->save();
+                }
+                 
+            }
+           
+
             $update->save();
             $updateAjusteNegativo->save();
         } else {
@@ -569,6 +586,17 @@ class InvAjusteNegativoController extends Controller
             $updateAjusteNegativo->usuario = auth()->user()->name;
             $update = Tda_IngresoProducto::find($id_i);
             $update->stock_ingreso =($update->stock_ingreso)+$cantidad;
+
+            if ($updateAjusteNegativo->id_tipo==13) {
+                $id_tras=$updateAjusteNegativo->id_traspaso;
+                $tras = Inv_Traspaso::where('numero_traspaso', $id_tras)->first();
+                if ($tras) {                   
+                    $tras->procesado =3;      
+                    $tras->save();
+                }
+                 
+            }
+
             $update->save();
             $updateAjusteNegativo->save();
             }
@@ -679,7 +707,7 @@ class InvAjusteNegativoController extends Controller
                     ->join('prod__lineas as l', 'l.id', '=', 'pp.idlinea')
                     ->where('ai.stock_ingreso', '>', 0)
                     ->where('aa.codigo', $cod)
-                    
+                    ->where('pp.idrubro','=',1) 
                     ->whereRaw($sqls)
                     ->select(
                         'pp.codigointernacional as codigointernacional',
@@ -733,6 +761,7 @@ class InvAjusteNegativoController extends Controller
                     ->where('ti.stock_ingreso', '>', 0)
                     ->where('tt.codigo', $cod)
                     ->whereRaw($sqls)
+                    ->where('pp.idrubro','=',1) 
                     ->select(
                         'pp.codigointernacional as codigointernacional',
                         'ti.envase as envase',
@@ -790,6 +819,7 @@ class InvAjusteNegativoController extends Controller
                 ->join('prod__lineas as l', 'l.id', '=', 'pp.idlinea')
                 ->where('ai.stock_ingreso', '>', 0)
                 ->where('aa.codigo', $cod)
+                ->where('pp.idrubro','=',1) 
                 ->select(
                     'pp.codigointernacional as codigointernacional',
                     'ai.envase as envase',
@@ -841,6 +871,7 @@ class InvAjusteNegativoController extends Controller
                 ->join('tda__tiendas as tt', 'tt.id', '=', 'ti.idtienda')
                 ->where('ti.stock_ingreso', '>', 0)
                 ->where('tt.codigo', $cod)
+                ->where('pp.idrubro','=',1) 
                 ->select(
                     'pp.codigointernacional as codigointernacional',
                     'ti.envase as envase',

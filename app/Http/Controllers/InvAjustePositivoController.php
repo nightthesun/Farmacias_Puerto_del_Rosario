@@ -369,6 +369,7 @@ class InvAjustePositivoController extends Controller
       ->join('prod__lineas as l', 'l.id', '=', 'pp.idlinea')
       ->where('ai.stock_ingreso', '>', 0)
       ->where('aa.codigo', $cod) 
+      ->where('pp.idrubro','=',1) 
       ->select(
         'pp.codigointernacional as codigointernacional',
         'ai.envase as envase',        
@@ -419,7 +420,8 @@ class InvAjustePositivoController extends Controller
   ->join('prod__lineas as l', 'l.id', '=', 'pp.idlinea')
   ->join('tda__tiendas as tt', 'tt.id', '=', 'ti.idtienda')
       ->where('ti.stock_ingreso', '>', 0)
-      ->where('tt.codigo', $cod) 
+      ->where('tt.codigo', $cod)
+      ->where('pp.idrubro','=',1)  
       ->select(
         'pp.codigointernacional as codigointernacional',
         'ti.envase as envase',   
@@ -674,6 +676,7 @@ class InvAjustePositivoController extends Controller
                 ->where('ai.stock_ingreso', '>', 0)
                 ->where('aa.codigo', $cod) 
                 ->whereRaw($sqls)
+                ->where('pp.idrubro','=',1) 
                 ->select(
                   'pp.codigointernacional as codigointernacional',
                   'ai.envase as envase',        
@@ -726,6 +729,7 @@ class InvAjustePositivoController extends Controller
                 ->where('ti.stock_ingreso', '>', 0)
                 ->where('tt.codigo', $cod) 
                 ->whereRaw($sqls)
+                ->where('pp.idrubro','=',1) 
                 ->select(
                   'pp.codigointernacional as codigointernacional',
                   'ti.envase as envase',   
@@ -784,6 +788,7 @@ class InvAjustePositivoController extends Controller
             ->join('prod__lineas as l', 'l.id', '=', 'pp.idlinea')
             ->where('ai.stock_ingreso', '>', 0)
             ->where('aa.codigo', $cod) 
+            ->where('pp.idrubro','=',1) 
             ->select(
               'pp.codigointernacional as codigointernacional',
               'ai.envase as envase',        
@@ -835,6 +840,7 @@ class InvAjustePositivoController extends Controller
         ->join('tda__tiendas as tt', 'tt.id', '=', 'ti.idtienda')
             ->where('ti.stock_ingreso', '>', 0)
             ->where('tt.codigo', $cod) 
+            ->where('pp.idrubro','=',1) 
             ->select(
               'pp.codigointernacional as codigointernacional',
               'ti.envase as envase',   

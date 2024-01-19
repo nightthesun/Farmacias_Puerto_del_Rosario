@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Log_Traslado;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class LogTrasladoController extends Controller
 {
@@ -62,4 +63,71 @@ class LogTrasladoController extends Controller
     {
         //
     }
+    public function listarSucursal(){
+       
+        $tiendas = DB::table('tda__tiendas')
+        ->select('tda__tiendas.id as id_tienda', DB::raw('null as id_almacen'), 'tda__tiendas.codigo', 'adm__sucursals.razon_social', 'adm__sucursals.razon_social as sucursal','adm__sucursals.cod as codigoS',
+         DB::raw('"Tienda" as tipoCodigo'),'tda__tiendas.id as id_tienda_almacen')
+        ->join('adm__sucursals', 'tda__tiendas.idsucursal', '=', 'adm__sucursals.id');
+
+    $almacenes = DB::table('alm__almacens as aa')
+        ->join('adm__sucursals as ass', 'ass.id', '=', 'aa.idsucursal')
+        ->select(DB::raw('null as id_tienda'), 'aa.id as id_almacen', 'aa.codigo', 'aa.nombre_almacen as razon_social', 'ass.razon_social as sucursal', 'ass.cod as codigoS,',
+        DB::raw('"Almacen" as tipoCodigo'),'aa.id as id_tienda_almacen');
+
+    $result = $tiendas->unionAll($almacenes)->get();
+ 
+ 
+         $jsonSucrusal = [];
+ 
+ foreach ($result as $key=>$sucursal) {
+     $elemento = [
+         'id' => $key,
+         'id_tienda' => $sucursal->id_tienda,
+         'id_almacen' => $sucursal->id_almacen,
+         'codigo' => $sucursal->codigo,
+         'razon_social' => $sucursal->razon_social,
+         'sucursal' => $sucursal->sucursal,
+         'codigoS' => $sucursal->codigoS,
+         'tipoCodigo' =>$sucursal->tipoCodigo,
+         'id_tienda_almacen' => $sucursal->id_tienda_almacen
+     ];
+ 
+     $jsonSucrusal[] = $elemento;
+ }
+ 
+     return $jsonSucrusal;
+     
+     }
+
+     public function listarTraspaso(){
+        $data = DB::table('inv__traspasos as it')
+    ->select('it.id as id', 'aa.id as id_almacen_tienda', 'it.id_prod_producto as id_prod_producto', 'pp.codigo as cod_prod', 'pp.nombre as name_prod',
+        'pl.id as pl_id', 'pl.nombre as linea_name', 'it.envase as envase', 'it.id_tipoentrada as id_tipoentrada', 'pte.nombre as tipo_name', 'it.cantidad__stock_ingreso as cantidad',
+        'it.fecha_vencimiento as fecha_vencimiento', 'it.lote as lote', 'it.registro_sanitario as registro_sanitario', 'it.activo as activo', 'it.id_origen as id_origen', 'it.id_destino as id_destino',
+        'it.leyenda as leyenda', 'it.glosa as glosa', 'it.numero_traspaso as numero_traspaso', 'it.procesado as procesado', 'u.id as user_id', 'u.name as user_name',
+        'it.name_ori as name_ori', 'it.name_des as name_des')
+    ->join('alm__almacens as aa', 'aa.codigo', '=', 'it.cod_1')
+    ->join('prod__productos as pp', 'pp.id', '=', 'it.id_prod_producto')
+    ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
+    ->join('prod__tipo_entradas as pte', 'pte.id', '=', 'it.id_tipoentrada')
+    ->join('users as u', 'u.id', '=', 'it.user_id')
+    ->where('it.procesado', '=', 0)
+    ->unionAll(
+        DB::table('inv__traspasos as it')
+            ->select('it.id as id', 'tt.id as id_almacen_tienda', 'it.id_prod_producto as id_prod_producto', 'pp.codigo as cod_prod', 'pp.nombre as name_prod',
+                'pl.id as pl_id', 'pl.nombre as linea_name', 'it.envase as envase', 'it.id_tipoentrada as id_tipoentrada', 'pte.nombre as tipo_name', 'it.cantidad__stock_ingreso as cantidad',
+                'it.fecha_vencimiento as fecha_vencimiento', 'it.lote as lote', 'it.registro_sanitario as registro_sanitario', 'it.activo as activo', 'it.id_origen as id_origen', 'it.id_destino as id_destino',
+                'it.leyenda as leyenda', 'it.glosa as glosa', 'it.numero_traspaso as numero_traspaso', 'it.procesado as procesado', 'u.id as user_id', 'u.name as user_name',
+                'it.name_ori as name_ori', 'it.name_des as name_des')
+            ->join('tda__tiendas as tt', 'tt.codigo', '=', 'it.cod_1')
+            ->join('prod__productos as pp', 'pp.id', '=', 'it.id_prod_producto')
+            ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
+            ->join('prod__tipo_entradas as pte', 'pte.id', '=', 'it.id_tipoentrada')
+            ->join('users as u', 'u.id', '=', 'it.user_id')
+            ->where('it.procesado', '=', 0)
+    )
+    ->get();
+    return $data;
+     }
 }

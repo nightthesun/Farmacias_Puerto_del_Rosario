@@ -192,7 +192,7 @@ class InvTrasladoController extends Controller
      ->orderBy('id', 'desc')
      ->unionAll($traspasos_tienda->where('it.cod_1', '=', $bus)->
      orderBy('id', 'desc'));
-     $resultadoCombinado->gey();
+     $resultadoCombinado->get();
      return $resultadoCombinado;
      }
 }

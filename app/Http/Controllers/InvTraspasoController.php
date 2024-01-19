@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\Inv_Traspaso;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+
 use App\Models\Alm_IngresoProducto;
 use App\Models\Tda_IngresoProducto;
 use App\Models\Inv_AjusteNegativo;
+
 class InvTraspasoController extends Controller
 {
     /**
@@ -275,7 +277,7 @@ class InvTraspasoController extends Controller
         $traspaso->id_prod_producto=$request->id_prod_producto;
         $traspaso->envase=$request->envase;
         $traspaso->id_tipoentrada=13;// es deacuerdo al ide de la tabla prod__tipo_entradas donde se el id ques e busca es el 13 de tarspasos
-        $traspaso->cantidad__stock_ingreso=$request->cantidad__stock_ingreso;
+        $traspaso->cantidad__stock_ingreso=$request->cantidad;
         $traspaso->fecha_vencimiento=$request->fecha_vencimiento;
         $traspaso->lote=$request->lote;
         $traspaso->registro_sanitario=$request->registro_sanitario;
@@ -289,10 +291,12 @@ class InvTraspasoController extends Controller
         $traspaso->glosa=$request->glosa;
        
         //codigo de para traspaso
-        $letracodigo='TRS';        
-        $maxcorrelativo = Inv_Traspaso::select(DB::raw('max(id) as maximo'))
+        $letracodigo='TRS';      
+        
+        $maxcorrelativo = Inv_Traspaso::select(DB::raw('max(correlativo) as maximo'))
                                       ->get()->toArray();
         $correlativo=$maxcorrelativo[0]['maximo'];
+     
         if(is_null($correlativo))
             $correlativo=1;
         else
@@ -314,16 +318,16 @@ class InvTraspasoController extends Controller
         if($correlativo>=1000000 && $correlativo<10000000)
             $codigo='0'.$correlativo;
    
-     
+        $traspaso->correlativo=$correlativo;
         $codigo=$letracodigo.$codigo;
         $codigoClon=$codigo;
-       $traspaso->numero_traspaso=$codigo;
+        $traspaso->numero_traspaso=$codigo;
         $traspaso->id_usuario_registro=auth()->user()->id;
         $traspaso->user_id=auth()->user()->id;
         $traspaso->name_ori=$request->name_ori;
         $traspaso->name_des=$request->name_des;
        
-
+       
         //////////parte de ajuste positivo
 
         $cod = $request->cod_1;
@@ -364,7 +368,7 @@ class InvTraspasoController extends Controller
             $ajusteNegativo->codigo = $request->codigo;
             $ajusteNegativo->linea = $request->linea;
             $ajusteNegativo->producto = $request->prod_name;                       ;
-            $ajusteNegativo->cantidad = $request->cantidad__stock_ingreso;
+            $ajusteNegativo->cantidad = $request->cantidad;
             $ajusteNegativo->descripcion = $msn;
             $ajusteNegativo->fecha = $request->fecha_ingreso;
             $ajusteNegativo->activo = $request->activo;
@@ -372,6 +376,7 @@ class InvTraspasoController extends Controller
             $ajusteNegativo->cod = $request->cod_1;
             $ajusteNegativo->id_ingreso = $id_ingreso;
             $ajusteNegativo->leyenda = $request->leyenda;
+            $ajusteNegativo->id_traspaso=$codigoClon;
             $update = Alm_IngresoProducto::find($id_ingreso);
 
             $update->stock_ingreso = $request->cantidad__stock_ingreso;
@@ -388,7 +393,7 @@ class InvTraspasoController extends Controller
                 $ajusteNegativo->codigo = $request->codigo;
                 $ajusteNegativo->linea = $request->linea;
                 $ajusteNegativo->producto = $request->prod_name; 
-                $ajusteNegativo->cantidad = $request->cantidad__stock_ingreso;
+                $ajusteNegativo->cantidad = $request->cantidad;
                 $ajusteNegativo->descripcion = $msn;
                 $ajusteNegativo->fecha = $request->fecha_ingreso;
                 $ajusteNegativo->activo = $request->activo;
@@ -396,6 +401,7 @@ class InvTraspasoController extends Controller
                 $ajusteNegativo->cod = $request->cod_1;
                 $ajusteNegativo->id_ingreso = $id_ingreso;
                 $ajusteNegativo->leyenda = $request->leyenda;
+                $ajusteNegativo->id_traspaso=$codigoClon;
                 $update = Tda_IngresoProducto::find($id_ingreso);
 
                 $update->stock_ingreso = $request->cantidad__stock_ingreso;
@@ -519,6 +525,7 @@ class InvTraspasoController extends Controller
        ->join('prod__lineas as l', 'l.id', '=', 'pp.idlinea')
        ->where('ai.stock_ingreso', '>', 0)
        ->where('aa.codigo', $cod) 
+       ->where('pp.idrubro','=',1) 
        ->select(
          'pp.codigointernacional as codigointernacional',
          'ai.registro_sanitario as registro_sanitario',
@@ -574,6 +581,7 @@ class InvTraspasoController extends Controller
    ->join('tda__tiendas as tt', 'tt.id', '=', 'ti.idtienda')
        ->where('ti.stock_ingreso', '>', 0)
        ->where('tt.codigo', $cod) 
+       ->where('pp.idrubro','=',1) 
        ->select(
          'pp.codigointernacional as codigointernacional',
          'ti.registro_sanitario as registro_sanitario',
@@ -623,9 +631,12 @@ class InvTraspasoController extends Controller
      public function desactivar(Request $request)
      {
          $traspaso = Inv_Traspaso::findOrFail($request->id);
+   
          $traspaso->activo = 0;
          $traspaso->user_id = auth()->user()->id;         
          $traspaso->id_usuario_modifico=auth()->user()->id;
+
+
         $traspaso->save();
      }
  
@@ -688,6 +699,7 @@ class InvTraspasoController extends Controller
                 ->where('ai.stock_ingreso', '>', 0)
                 ->where('aa.codigo', $cod) 
                 ->whereRaw($sqls)
+                ->where('pp.idrubro','=',1) 
                 ->select(
                   'pp.codigointernacional as codigointernacional',
                   'ai.envase as envase',        
@@ -740,6 +752,7 @@ class InvTraspasoController extends Controller
                 ->where('ti.stock_ingreso', '>', 0)
                 ->where('tt.codigo', $cod) 
                 ->whereRaw($sqls)
+                ->where('pp.idrubro','=',1) 
                 ->select(
                   'pp.codigointernacional as codigointernacional',
                   'ti.envase as envase',   
@@ -798,6 +811,7 @@ class InvTraspasoController extends Controller
             ->join('prod__lineas as l', 'l.id', '=', 'pp.idlinea')
             ->where('ai.stock_ingreso', '>', 0)
             ->where('aa.codigo', $cod) 
+            ->where('pp.idrubro','=',1) 
             ->select(
               'pp.codigointernacional as codigointernacional',
               'ai.envase as envase',        
@@ -849,6 +863,7 @@ class InvTraspasoController extends Controller
         ->join('tda__tiendas as tt', 'tt.id', '=', 'ti.idtienda')
             ->where('ti.stock_ingreso', '>', 0)
             ->where('tt.codigo', $cod) 
+            ->where('pp.idrubro','=',1) 
             ->select(
               'pp.codigointernacional as codigointernacional',
               'ti.envase as envase',   

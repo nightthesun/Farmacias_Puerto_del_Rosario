@@ -102,7 +102,35 @@
                         <tbody v-if="sucursalSeleccionada != 0">
                             <tr v-for="AjusteNegativos in arrayAjusteNegativos" :key="AjusteNegativos.id" >
                                 <td>
+                                    <div v-if="AjusteNegativos.estado_procesado == 3">
+                                        <button
+                                        type="button"
+                                        class="btn btn-light  btn-sm"
+                                      
+                                    >
+                                        <i class="icon-pencil"></i>
+                                    </button>
+                                    &nbsp;
                                     <button
+                                        v-if="AjusteNegativos.activo == 1"
+                                        type="button"
+                                        class="btn btn-light  btn-sm"
+                                      
+                                    >
+                                        <i class="fa fa-hand-paper-o"></i>
+                                    </button>
+                                    <button
+                                        v-else
+                                        type="button"
+                                        class="btn btn-light  btn-sm"
+                                     
+                                    >
+                                        <i class="icon-check"></i>
+                                    </button>
+
+                                    </div>
+                                    <div v-else>
+                                        <button
                                         type="button"
                                         class="btn btn-warning btn-sm"
                                         @click="
@@ -140,6 +168,8 @@
                                     >
                                         <i class="icon-check"></i>
                                     </button>
+                                    </div>     
+                                    
                                 </td>
 
                                 <td v-text="AjusteNegativos.numero_traspaso"></td>
@@ -166,13 +196,16 @@
                                 </td>
                                 <td>
                                     <div v-if="AjusteNegativos.estado_procesado == 0">
-                                        <span class="badge badge-danger">Pendiente</span>
+                                        <span class="badge badge-warning">Pendiente</span>
                                     </div>
                                     <div v-if="AjusteNegativos.estado_procesado == 1">
-                                        <span class="badge badge-warning">En Proceso</span>
+                                        <span class="badge badge-primary">En Proceso</span>
                                     </div>
                                     <div v-if="AjusteNegativos.estado_procesado == 2">
                                         <span class="badge badge-success">Procesado</span>
+                                    </div>
+                                    <div v-if="AjusteNegativos.estado_procesado == 3">
+                                        <span class="badge badge-danger">Anulado</span>
                                     </div>
                                     
                                 </td>
@@ -329,7 +362,7 @@
                                        --> 
                                         
                                     </div>
-                                  
+                               
                                 <div class="form-group col-sm-4" v-if="ProductoLineaIngresoSeleccionado!=''">
                                     <strong>Cantidad existente: <span>{{ cantidadProductoLineaIngreso }}</span></strong>
    
@@ -1218,13 +1251,14 @@ sucursalSeleccionadaDestino: function (newValue) {
                     "warning",
                 );
                 } else {
-                   
+                    let suma = me.cantidadProductoLineaIngreso - me.cantidadS;
+        
                     axios
                     .post("/traspaso/registrar", {
                         'id_almacen_tienda': me.id_almacen_tienda,
                         'id_prod_producto': me.id_producto,
                         'envase': me.envase,
-                        'cantidad__stock_ingreso': me.cantidadS,
+                        'cantidad__stock_ingreso': suma,
                         'fecha_vencimiento': me.fecha_vencimiento,
                         'lote':me.lote, 
                         'registro_sanitario':me.registro_sanitario,
@@ -1243,7 +1277,8 @@ sucursalSeleccionadaDestino: function (newValue) {
                         'prod_name':me.producto,
                         'fecha_ingreso':me.fecha_ingreso, 
                         'id_sucursal':me.id_sucursal,   
-                        'codigo':me.codigo,                   
+                        'codigo':me.codigo,   
+                        'cantidad':me.cantidadS,                
                     })
                     .then(function (response) {
                         me.cerrarModal("registrar");
@@ -1272,7 +1307,7 @@ sucursalSeleccionadaDestino: function (newValue) {
        //   +me.registro_sanitario+" id_alm_tinda: "+me.id_almacen_tienda+" lista_id_a_t: "+me.lista_id_almacen_id_tienda+" id_ingre: "+me.id_ingreso+" sucuSe: "+me.sucursalSeleccionada+" codigoDes "+me.codigoDestino
        //    +" > "+me.leyenda+" > "+me.glosa );
     
-       console.log(me.producto+"-"+me.fecha_ingreso+"-"+me.id_sucursal+"-"+me.codigo+"-"+me.linea);
+    //   console.log(me.producto+"-"+me.fecha_ingreso+"-"+me.id_sucursal+"-"+me.codigo+"-"+me.linea);
         if (
                me.ProductoLineaIngresoSeleccionado === 0 ||
                 me.sucursalSeleccionadaDestino === 0 ||

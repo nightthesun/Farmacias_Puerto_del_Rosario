@@ -586,7 +586,7 @@
                                 >
                                     <thead>
                                         <tr>
-                                            <th scope="col">Id Ingreso.</th>
+                                            <th scope="col">Nro Lote.</th>
                                             <th scope="col">
                                                 Descripcion Prod.
                                             </th>
@@ -606,7 +606,7 @@
                                         >
                                             <td
                                                 v-text="
-                                                    RetornarProductosIngreso.id_ingreso
+                                                    RetornarProductosIngreso.lote
                                                 "
                                             ></td>
                                             <td
