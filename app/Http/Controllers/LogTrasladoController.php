@@ -100,34 +100,57 @@ class LogTrasladoController extends Controller
      
      }
 
-     public function listarTraspaso(){
-        $data = DB::table('inv__traspasos as it')
-    ->select('it.id as id', 'aa.id as id_almacen_tienda', 'it.id_prod_producto as id_prod_producto', 'pp.codigo as cod_prod', 'pp.nombre as name_prod',
-        'pl.id as pl_id', 'pl.nombre as linea_name', 'it.envase as envase', 'it.id_tipoentrada as id_tipoentrada', 'pte.nombre as tipo_name', 'it.cantidad__stock_ingreso as cantidad',
-        'it.fecha_vencimiento as fecha_vencimiento', 'it.lote as lote', 'it.registro_sanitario as registro_sanitario', 'it.activo as activo', 'it.id_origen as id_origen', 'it.id_destino as id_destino',
-        'it.leyenda as leyenda', 'it.glosa as glosa', 'it.numero_traspaso as numero_traspaso', 'it.procesado as procesado', 'u.id as user_id', 'u.name as user_name',
-        'it.name_ori as name_ori', 'it.name_des as name_des')
-    ->join('alm__almacens as aa', 'aa.codigo', '=', 'it.cod_1')
-    ->join('prod__productos as pp', 'pp.id', '=', 'it.id_prod_producto')
-    ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
-    ->join('prod__tipo_entradas as pte', 'pte.id', '=', 'it.id_tipoentrada')
-    ->join('users as u', 'u.id', '=', 'it.user_id')
-    ->where('it.procesado', '=', 0)
-    ->unionAll(
-        DB::table('inv__traspasos as it')
-            ->select('it.id as id', 'tt.id as id_almacen_tienda', 'it.id_prod_producto as id_prod_producto', 'pp.codigo as cod_prod', 'pp.nombre as name_prod',
-                'pl.id as pl_id', 'pl.nombre as linea_name', 'it.envase as envase', 'it.id_tipoentrada as id_tipoentrada', 'pte.nombre as tipo_name', 'it.cantidad__stock_ingreso as cantidad',
-                'it.fecha_vencimiento as fecha_vencimiento', 'it.lote as lote', 'it.registro_sanitario as registro_sanitario', 'it.activo as activo', 'it.id_origen as id_origen', 'it.id_destino as id_destino',
-                'it.leyenda as leyenda', 'it.glosa as glosa', 'it.numero_traspaso as numero_traspaso', 'it.procesado as procesado', 'u.id as user_id', 'u.name as user_name',
-                'it.name_ori as name_ori', 'it.name_des as name_des')
-            ->join('tda__tiendas as tt', 'tt.codigo', '=', 'it.cod_1')
-            ->join('prod__productos as pp', 'pp.id', '=', 'it.id_prod_producto')
-            ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
-            ->join('prod__tipo_entradas as pte', 'pte.id', '=', 'it.id_tipoentrada')
-            ->join('users as u', 'u.id', '=', 'it.user_id')
-            ->where('it.procesado', '=', 0)
-    )
-    ->get();
-    return $data;
+     public function listarTraspaso(Request $request){
+
+
+        $query1 = DB::table('inv__traspasos as it')
+        ->select('it.id as id', 'aa.id as id_almacen_tienda', 'it.id_prod_producto as id_prod_producto', 'pp.codigo as cod_prod', 'pp.nombre as name_prod',
+            'pl.id as pl_id', 'pl.nombre as linea_name', 'it.envase as envase', 'it.id_tipoentrada as id_tipoentrada', 'pte.nombre as tipo_name', 'it.cantidad__stock_ingreso as cantidad',
+            'it.fecha_vencimiento as fecha_vencimiento', 'it.lote as lote', 'it.registro_sanitario as registro_sanitario', 'it.activo as activo', 'it.id_origen as id_origen', 'it.id_destino as id_destino',
+            'it.leyenda as leyenda', 'it.glosa as glosa', 'it.numero_traspaso as numero_traspaso', 'it.procesado as procesado', 'u.id as user_id', 'u.name as user_name',
+            'it.name_ori as name_ori', 'it.name_des as name_des', 'it.cod_1 as cod_1', 'it.cod_2 as cod_2')
+        ->join('alm__almacens as aa', 'aa.codigo', '=', 'it.cod_1')
+        ->join('prod__productos as pp', 'pp.id', '=', 'it.id_prod_producto')
+        ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
+        ->join('prod__tipo_entradas as pte', 'pte.id', '=', 'it.id_tipoentrada')
+        ->join('users as u', 'u.id', '=', 'it.user_id')
+        ->where('it.procesado', '=', 0)
+        ->where('it.id_tipoentrada', '=', 13)
+        ->where('it.cod_1', '=', $request->codigo);
+    
+    $query2 = DB::table('inv__traspasos as it')
+        ->select('it.id as id', 'tt.id as id_almacen_tienda', 'it.id_prod_producto as id_prod_producto', 'pp.codigo as cod_prod', 'pp.nombre as name_prod',
+            'pl.id as pl_id', 'pl.nombre as linea_name', 'it.envase as envase', 'it.id_tipoentrada as id_tipoentrada', 'pte.nombre as tipo_name', 'it.cantidad__stock_ingreso as cantidad',
+            'it.fecha_vencimiento as fecha_vencimiento', 'it.lote as lote', 'it.registro_sanitario as registro_sanitario', 'it.activo as activo', 'it.id_origen as id_origen', 'it.id_destino as id_destino',
+            'it.leyenda as leyenda', 'it.glosa as glosa', 'it.numero_traspaso as numero_traspaso', 'it.procesado as procesado', 'u.id as user_id', 'u.name as user_name',
+            'it.name_ori as name_ori', 'it.name_des as name_des', 'it.cod_1 as cod_1', 'it.cod_2 as cod_2')
+        ->join('tda__tiendas as tt', 'tt.codigo', '=', 'it.cod_1')
+        ->join('prod__productos as pp', 'pp.id', '=', 'it.id_prod_producto')
+        ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
+        ->join('prod__tipo_entradas as pte', 'pte.id', '=', 'it.id_tipoentrada')
+        ->join('users as u', 'u.id', '=', 'it.user_id')
+        ->where('it.procesado', '=', 0)
+        ->where('it.id_tipoentrada', '=', 13)
+        ->where('it.cod_1', '=', $request->codigo);
+    
+    $resultado = $query1->unionAll($query2)->get();
+    
+    return $resultado;
      }
+     public function listarUsuario(){
+        $respuesta = DB::table('users as u')
+        ->select(
+            'u.id as user_id',
+            'u.name as user_name',
+            're.id as emple_id',
+            DB::raw("CONCAT_WS(' ', re.nombre, re.papellido, re.sapellido) as nom_completo"),
+            'rc.id as id_cargo',
+            'rc.nombre as cargo'
+        )
+        ->join('rrh__empleados as re', 'u.idempleado', '=', 're.id')
+        ->join('rrh__cargos as rc', 're.idcargo', '=', 'rc.id')
+     
+        ->get();
+        return $respuesta;
+    }
 }

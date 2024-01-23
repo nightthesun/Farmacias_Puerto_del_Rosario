@@ -37,6 +37,7 @@
                                 <th>Chofer</th>  
                                 <th>Usuario</th>
                                 <th>Estado</th>
+                                  
                             </tr>
                         </thead>
                         <tbody>
@@ -47,9 +48,12 @@
                                     </button> &nbsp;
                                     <button v-if="vehiculo.activo==1" type="button" class="btn btn-danger btn-sm" @click="eliminar(vehiculo.id)" >
                                         <i class="icon-trash"></i>
-                                    </button>
+                                    </button>&nbsp;
                                     <button v-else type="button" class="btn btn-info btn-sm" @click="activar(vehiculo.id)" >
                                         <i class="icon-check"></i>
+                                    </button>&nbsp;
+                                    <button type="button" style="color: aliceblue;" class="btn btn-secondary btn-sm" @click="abrirModal('actualizar',vehiculo)">
+                                        <i class="fa fa-plus"></i>
                                     </button>
                                 </td>
                                 <!-- <td v-text="(almacen.codsuc === null ? '': almacen.codsuc+' - ') + almacen.codigo"></td> -->
@@ -71,6 +75,7 @@
                                     </div>
                                     
                                 </td>
+                               
                             </tr>
                            
                         </tbody>
@@ -106,7 +111,25 @@
                         <div class="alert alert-warning" role="alert">
                             Todos los campos con (*) son requeridos
                         </div>
+
+
                         <form action=""  class="form-horizontal">
+
+                            <div class="form-group row">
+                                <label class="col-md-3 form-control-label" for="text-input">Asignar Sucursal <span  v-if="selectAlmTda==0" class="error">(*)</span></label>
+                                <div class="col-md-9">
+                                    <div v-for="option in arraySucursalAlmTda" :key="option.id">
+                                          <input type="checkbox" :value="option.codigo" v-model="selectAlmTda2[option.codigo]">
+                                     {{ option.codigoS+'->'+ option.codigo+' '+option.razon_social}}
+                                 </div>
+
+                           
+                                </div>
+                            </div>
+
+
+
+
                             <div class="form-group row">
                                 <label class="col-md-3 form-control-label" for="text-input">Asignar Sucursal <span  v-if="selectAlmTda==0" class="error">(*)</span></label>
                                 <div class="col-md-9">
@@ -236,7 +259,15 @@ import { datapicker } from '../../func_10251';
                 id_vehiculo:0,
                 arrayUsuario:[],
                 selectUsuario:'',
+                selectArray:[],
+                selectAlmTda2:[],
 
+                options: [
+        { label: 'Opción 1', value: 'opcion1' },
+        { label: 'Opción 2', value: 'opcion2' },
+        { label: 'Opción 3', value: 'opcion3' },
+      ],
+   
             }
 
         },
@@ -356,8 +387,15 @@ import { datapicker } from '../../func_10251';
                 let me = this;
                // console.log(+me.id_tienda_almacen+" - "+me.matricula+"-"+
               // me.razon_social_des+"-"+me.codigo+"-"+me.telefono+"-"+me.selectTipo                   );
-              console.log(me.selectUsuario);
-                axios.post('/vehiculo/registrar',{
+             
+              console.log('Contenido de selectAlmTda2:');
+for (const key in this.selectAlmTda2) {
+  if (this.selectAlmTda2.hasOwnProperty(key)) {
+    console.log(key + ': ' + this.selectAlmTda2[key]);
+  }
+}
+
+                axios.post('/vehiculo----/registrar',{
                     'id_tienda_almacen':me.id_tienda_almacen,
                     'matricula':me.matricula,
                     'razon_social_des':me.razon_social_des,

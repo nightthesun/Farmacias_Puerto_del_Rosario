@@ -11,12 +11,9 @@
             <div class="card">
                 <div class="card-header">
                     <i class="fa fa-align-justify"></i> Traslados               
-                    <button
-                        type="button"
-                        class="btn btn-secondary"
-                        @click="abrirModal('registrar');"
-                        :disabled="selectAlmTienda == 0"
-                    >
+                    <button type="button" class="btn btn-secondary" 
+                        @click="abrirModal('registrar');listarTraspaso();"
+                        :disabled="selectAlmTienda == 0">
                         <i class="icon-plus"></i>&nbsp;Nuevo
                     </button>
                     <span v-if="selectAlmTienda == 0" class="error"
@@ -65,7 +62,7 @@
                                     :disabled="selectAlmTienda == 0"
                                 />
                                 <button
-                                    type="submit"
+                                    type="submit" 
                                     class="btn btn-primary"
                               
                                     :hidden="selectAlmTienda == 0"
@@ -114,11 +111,64 @@
                             <div class="container">
                                 
                                 <div class="form-group row">
-                                   
-                                   
-        
+                                    <label class="col-md-3 form-control-label" for="text-input">
+                                     Traspaso:
+                                        <span v-if="selectTraspaso == '0'" class="error">(*)</span>
+                                    </label>
+                                    <div class="col-md-7 input-group mb-3">
+                                        <select v-model="selectTraspaso"
+                                            class="form-control">
+                                            <option v-bind:value="0" disabled>
+                                                Seleccionar...
+                                            </option>
+                                            <option
+                                                v-for="traspasoI in arrayTraspaso"
+                                                :key="traspasoI.id"
+                                                v-bind:value="traspasoI.id"
+                                                v-text="'Nro:'+traspasoI.numero_traspaso +
+                                                    ' | Des: ' +traspasoI.name_des +
+                                                    ' | ' +traspasoI.leyenda +
+                                                    ' | C: ' + traspasoI.cantidad  "
+                                            ></option>
+                                        </select>
+                                        <button class="btn btn-primary" type="button" id="button-addon1">
+                                            <i class="fa fa-search"></i>
+                                        </button>                                     
+                                        
+                                    </div>
+                                        <!-- debe ingresar los datos de para asignar datos del array-->
                                 </div>
                               
+                                <div class="form-group row" v-if="selectTraspaso!=''"> 
+                                    <label class="col-md-3 form-control-label" for="text-input">
+                                    Persona a enviar    
+                                    <span v-if="selectUsuario == '0'" class="error">(*)</span>
+                                    </label>
+                                    <div class="col-md-7">
+                                        <select
+                                            name=""
+                                            id=""
+                                            v-model="selectUsuario"
+                                            class="form-control"
+                                        >
+                                            <option value="0" disabled>
+                                                Seleccionar...
+                                            </option>
+                                            <option
+                                            v-for="usu in arrayUsuario"
+                                        :key="usu.emple_id"
+                                        :value="usu.emple_id"
+                                        v-text="usu.nom_completo"></option>
+                                        </select>
+                                        <span
+                                            v-if="selectUsuario == 0"
+                                            class="error"
+                                            >Debe seleccionar una opcion</span
+                                        >
+                              
+                                    </div>
+                                </div>
+
                             
                                
                             </div>
@@ -180,24 +230,38 @@ export default {
             arrayAlmTienda:[],
             buscar:"",
             tipoAccion:1,
+            selectTraspaso:0,
+            arrayTraspaso:[],
+            cod_alm_tienda:"",
+            razon_socialAlmTienda:"",
+            selectUsuario:0,
+            arrayUsuario:[],
+            selectVehiculo:0,
+            arrayVehiculo:[],            
             
         };
     },
-
+    watch:{
+        selectAlmTienda: function(cod){
+           
+            let tiendaOalmacenSeleccionado = this.arrayAlmTienda.find(
+                    (element) => element.codigo === cod);
+                    if (tiendaOalmacenSeleccionado) {                        
+                        this.cod_alm_tienda=tiendaOalmacenSeleccionado.codigo;
+                        this.razon_socialAlmTienda=tiendaOalmacenSeleccionado.razon_social;
+                       
+                    }
+        } 
+    },
    
 
     computed: {
-      //  sicompleto() {
-      //      let me = this;
-       //     if (
-          
-     //           me.glosa != "" &&
-     //           me.cantidadS != "" &&
-     //           me.ProductoLineaIngresoSeleccionado
-     //       )
-       //         return true;
-      //      else return false;
-      //  },
+        sicompleto() {
+        let me = this;
+        if (me.selectTraspaso != 0 && me.selectUsuario !=0)
+          return true;
+          else return false;
+        },
         isActived: function () {
             return this.pagination.current_page;
         },
@@ -239,6 +303,43 @@ export default {
                     console.log(error);
                 });
         },
+        listarTraspaso() {
+            if (this.cod_alm_tienda!="") {
+                let me = this;            
+            console.log("----"+me.cod_alm_tienda);
+            var url = "/traslado/listarTraspaso?codigo="+me.cod_alm_tienda;
+            axios
+                .get(url)
+                .then(function (response) {
+                    var respuesta = response.data;
+                    me.arrayTraspaso = respuesta;
+                 
+                })
+                .catch(function (error) {
+                    error401(error);
+                    console.log(error);
+                });  
+            } 
+        },
+        listarUsuario() {
+            let me = this;
+            var url = "/traslado/listarUsuario";
+            axios
+                .get(url)
+                .then(function (response) {
+                    var respuesta = response.data;
+                    me.arrayUsuario = respuesta;
+                 
+                })
+                .catch(function (error) {
+                    error401(error);
+                    console.log(error);
+                });
+        },
+        listarVehiculo(){
+           let me=this;
+           var url = "";
+        },
         cambiarPestana(idPestana) {
             this.pestañaActiva = idPestana;
 
@@ -262,9 +363,9 @@ export default {
          switch (accion) {
                 case "registrar": {
                     me.tipoAccion = 1;
-                    me.tituloModal = "Registro de traspaso origen ";
-                    me.selectAlmTienda=0;
-            
+                    me.tituloModal = "Nombre de traspaso origen: "+me.razon_socialAlmTienda;
+                    me.selectTraspaso=0;
+                    me.selectUsuario=0;
                     me.classModal.openModal("registrar");
                     break;
                 }
@@ -310,7 +411,8 @@ export default {
         this.classModal = new _pl.Modals();
         this.listarAlmTienda();
         this.classModal.addModal("registrar");
-    
+        this.listarTraspaso();
+        this.listarUsuario();
     
     },
 };
