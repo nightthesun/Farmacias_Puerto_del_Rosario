@@ -429,6 +429,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::put('/vehiculo/desactivar', [LogVehiculoController::class, 'desactivar']);
     Route::put('/vehiculo/activar', [LogVehiculoController::class, 'activar']);
     Route::put('/vehiculo/actualizar', [LogVehiculoController::class, 'update']);
+    Route::post('/vehiculo/asignar', [LogVehiculoController::class, 'asignar']);
+    Route::get('/vehiculo/listarAsignar', [LogVehiculoController::class, 'listarAsignar']);
     
     Route::get('/traslado/listarSucursal', [LogTrasladoController::class, 'listarSucursal']);    
     Route::get('/traslado/listarTraspaso', [LogTrasladoController::class, 'listarTraspaso']);  

@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Log_Vehiculo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-
+use App\Models\Log_AsignacionSucursalVehiculo;
 
 class LogVehiculoController extends Controller
 {
@@ -295,17 +295,51 @@ class LogVehiculoController extends Controller
         $update->save();
     }
 
+    public function asignar(Request $request, Log_AsignacionSucursalVehiculo $Log_AsignacionSucursalVehiculo ){
+       // Buscar asignaciones existentes para el vehículo
+       $asignarExistente = Log_AsignacionSucursalVehiculo::where('id_vehiculo', $request->id)->get();
+
+       // Si existen asignaciones, eliminarlas
+       if ($asignarExistente->count() > 0) {
+           Log_AsignacionSucursalVehiculo::where('id_vehiculo', $request->id)->delete();
+       }
+     
+       $bloque = $request->bloque;
+           foreach ($bloque as $item) {
+            $codigo = $item['codigo'];
+            $idSucursal = $item['id_sucursal'];
+            $idTiendaAlmacen = $item['id_tienda_almacen'];
+            $datos = [
+                'id_vehiculo' => $request->id,
+                'id_sucursal' => $idSucursal,
+                'id_alm_tda' => $idTiendaAlmacen,
+                'cod' => $codigo,
+            ];
+        
+            DB::table('log__asignacion_sucursal_vehiculos')->insert($datos);
+         
+         }
+       
+       
+       
+    
+    }
+    public function listarAsignar(){
+        $datos = DB::table('log__asignacion_sucursal_vehiculos')->get();
+        return $datos;
+    }
+
     public function listarSucursal(){
        
         $tiendas = DB::table('tda__tiendas')
         ->select('tda__tiendas.id as id_tienda', DB::raw('null as id_almacen'), 'tda__tiendas.codigo', 'adm__sucursals.razon_social', 'adm__sucursals.razon_social as sucursal','adm__sucursals.cod as codigoS',
-         DB::raw('"Tienda" as tipoCodigo'),'tda__tiendas.id as id_tienda_almacen')
+         DB::raw('"Tienda" as tipoCodigo'),'tda__tiendas.id as id_tienda_almacen', 'tda__tiendas.idsucursal as id_sucursal')
         ->join('adm__sucursals', 'tda__tiendas.idsucursal', '=', 'adm__sucursals.id');
 
     $almacenes = DB::table('alm__almacens as aa')
         ->join('adm__sucursals as ass', 'ass.id', '=', 'aa.idsucursal')
         ->select(DB::raw('null as id_tienda'), 'aa.id as id_almacen', 'aa.codigo', 'aa.nombre_almacen as razon_social', 'ass.razon_social as sucursal', 'ass.cod as codigoS,',
-        DB::raw('"Almacen" as tipoCodigo'),'aa.id as id_tienda_almacen');
+        DB::raw('"Almacen" as tipoCodigo'),'aa.id as id_tienda_almacen','aa.idsucursal as id_sucursal');
 
     $result = $tiendas->unionAll($almacenes)->get();
  
@@ -322,7 +356,8 @@ class LogVehiculoController extends Controller
          'sucursal' => $sucursal->sucursal,
          'codigoS' => $sucursal->codigoS,
          'tipoCodigo' =>$sucursal->tipoCodigo,
-         'id_tienda_almacen' => $sucursal->id_tienda_almacen
+         'id_tienda_almacen' => $sucursal->id_tienda_almacen,
+         'id_sucursal' => $sucursal->id_sucursal
      ];
  
      $jsonSucrusal[] = $elemento;

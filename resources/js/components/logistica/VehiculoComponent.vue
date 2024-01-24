@@ -52,7 +52,7 @@
                                     <button v-else type="button" class="btn btn-info btn-sm" @click="activar(vehiculo.id)" >
                                         <i class="icon-check"></i>
                                     </button>&nbsp;
-                                    <button type="button" style="color: aliceblue;" class="btn btn-secondary btn-sm" @click="abrirModal('actualizar',vehiculo)">
+                                    <button type="button" style="color: aliceblue;" class="btn btn-secondary btn-sm" @click="abrirModal('asignar',vehiculo)">
                                         <i class="fa fa-plus"></i>
                                     </button>
                                 </td>
@@ -114,21 +114,6 @@
 
 
                         <form action=""  class="form-horizontal">
-
-                            <div class="form-group row">
-                                <label class="col-md-3 form-control-label" for="text-input">Asignar Sucursal <span  v-if="selectAlmTda==0" class="error">(*)</span></label>
-                                <div class="col-md-9">
-                                    <div v-for="option in arraySucursalAlmTda" :key="option.id">
-                                          <input type="checkbox" :value="option.codigo" v-model="selectAlmTda2[option.codigo]">
-                                     {{ option.codigoS+'->'+ option.codigo+' '+option.razon_social}}
-                                 </div>
-
-                           
-                                </div>
-                            </div>
-
-
-
 
                             <div class="form-group row">
                                 <label class="col-md-3 form-control-label" for="text-input">Asignar Sucursal <span  v-if="selectAlmTda==0" class="error">(*)</span></label>
@@ -207,7 +192,51 @@
         </div>
         <!--Fin del modal-->
         
-        
+         <!--Inicio del modal asignacion -->
+         <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" id="registrar1" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+            <div class="modal-dialog modal-primary modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">{{ tituloModal }}</h4>
+                        <button type="button" class="close"  aria-label="Close" @click="cerrarModal1('registrar1')">
+                            <span aria-hidden="true">×</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="alert alert-warning" role="alert">
+                            Todos los campos con (*) son requeridos
+                        </div>
+
+
+                        <form action=""  class="form-horizontal">
+
+                            <div class="form-group row">
+                                <label class="col-md-3 form-control-label" for="text-input">Asignar Sucursal <span  v-if="selectAlmTda==0" class="error">(*)</span></label>
+                                <div class="col-md-9">
+                                    <div v-for="option in arraySucursalAlmTda" :key="option.id">
+                                          <input type="checkbox" :value="option" v-model="selectAlmTda2">
+                                     {{ option.codigoS+'->'+ option.codigo+' '+option.razon_social}}
+                                 </div>
+<!-- Mostrar los resultados seleccionados -->
+<div v-for="selectedOption in selectAlmTda2" :key="selectAlmTda2.codigo">
+        {{ selectedOption.id_tienda_almacen }} - {{ selectedOption.codigo }}
+      </div>
+                           
+                                </div>
+                            </div>
+
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary"  @click="cerrarModal1('registrar1')">Cerrar</button>
+                        <button type="button"  class="btn btn-primary" @click="asignarSucursal()">Asignar</button>
+                    </div>
+                </div>
+                <!-- /.modal-content -->
+            </div>
+            <!-- /.modal-dialog -->
+        </div>
+        <!--Fin del modal-->
     </main>
 </template>
 
@@ -261,12 +290,9 @@ import { datapicker } from '../../func_10251';
                 selectUsuario:'',
                 selectArray:[],
                 selectAlmTda2:[],
-
-                options: [
-        { label: 'Opción 1', value: 'opcion1' },
-        { label: 'Opción 2', value: 'opcion2' },
-        { label: 'Opción 3', value: 'opcion3' },
-      ],
+                arrayVehucloX:[],
+             
+        
    
             }
 
@@ -343,7 +369,22 @@ import { datapicker } from '../../func_10251';
                     me.telefono = me.telefono+ex.key;
                 } 
             },  
-            
+            listarVehiculo_tda_alm()
+            {
+            let me = this;
+            var url = "/vehiculo/listarUsuario";
+            axios
+                .get(url)
+                .then(function (response) {
+                    var respuesta = response.data;
+                    me.arrayUsuario = respuesta;
+  
+                })
+                .catch(function (error) {
+                    error401(error);
+                    console.log(error);
+                });
+            },
             listarUsuario()
             {
             let me = this;
@@ -353,6 +394,22 @@ import { datapicker } from '../../func_10251';
                 .then(function (response) {
                     var respuesta = response.data;
                     me.arrayUsuario = respuesta;
+  
+                })
+                .catch(function (error) {
+                    error401(error);
+                    console.log(error);
+                });
+            },
+            listarVehiculoXtdaAlm()
+            {
+            let me = this;
+            var url = "/vehiculo/listarAsignar";
+            axios
+                .get(url)
+                .then(function (response) {
+                    var respuesta = response.data;
+                    me.arrayVehucloX = respuesta;
   
                 })
                 .catch(function (error) {
@@ -388,14 +445,9 @@ import { datapicker } from '../../func_10251';
                // console.log(+me.id_tienda_almacen+" - "+me.matricula+"-"+
               // me.razon_social_des+"-"+me.codigo+"-"+me.telefono+"-"+me.selectTipo                   );
              
-              console.log('Contenido de selectAlmTda2:');
-for (const key in this.selectAlmTda2) {
-  if (this.selectAlmTda2.hasOwnProperty(key)) {
-    console.log(key + ': ' + this.selectAlmTda2[key]);
-  }
-}
+             
 
-                axios.post('/vehiculo----/registrar',{
+                axios.post('/vehiculo/registrar',{
                     'id_tienda_almacen':me.id_tienda_almacen,
                     'matricula':me.matricula,
                     'razon_social_des':me.razon_social_des,
@@ -538,20 +590,50 @@ for (const key in this.selectAlmTda2) {
                 });
                 me.cerrarModal('registrar');
             },
+            asignarSucursal(){
+                let me =this;
+               let cadena=[];
+               for (const selectedOption of this.selectAlmTda2) {
+                let elemento = {
+      'codigo': selectedOption.codigo,
+      'id_sucursal': selectedOption.id_sucursal,
+      'id_tienda_almacen': selectedOption.id_tienda_almacen
+    };
+    cadena.push(elemento);
+      }
+             console.log(cadena);   
+                axios.post('/vehiculo/asignar',{
+                    id:me.id_vehiculo,
+                    bloque:cadena,
+                    
+                }).then(function (response) {
+                    me.listarVehiculo();
+                    Swal.fire(
+                        'Asigno Correctamente!',
+                        'El Accion realizada Correctamente',
+                        'success'
+                    )
+                }).catch(function (error) {
+                    error401(error);
+                });
+                me.cerrarModal('registrar1');
+            },
+
+             
+
 
             abrirModal(accion,data= []){
                 let me=this;
+            
+ 
                 switch(accion){
                     case 'registrar':
                     {
                         me.tituloModal='Registar Nuevo Vehiculo'
                         me.tipoAccion=1;
                         me.tipo=0;
-                    
-                      
+                
                         me.telefono='';
-                 
-
                         me.selectAlmTda=0;
                         me.selectTipo=0;                      
                         me.matricula='';
@@ -568,12 +650,10 @@ for (const key in this.selectAlmTda2) {
                     
                     case 'actualizar':
                     {
-                   
                         me.tituloModal='Registar Nuevo Vehiculo';
                         me.tipoAccion=2;                        
                         me.tipo=0; 
                         me.telefono=data.telefono;
-                 
                         me.id_vehiculo=data.id;
                         me.selectAlmTda=data.codigo==null?0:data.codigo;
                         me.selectTipo=data.tipo==null?0:data.tipo;                      
@@ -586,6 +666,15 @@ for (const key in this.selectAlmTda2) {
                         me.selectUsuario=data.id_emple==null?0:data.id_emple;                        
                         me.classModal.openModal('registrar');
                         break;
+                    }
+                    case 'asignar':
+                    {
+                        me.tituloModal='Asignar sucursal';
+                    
+                       
+                        me.id_vehiculo=data.id;
+                        me.classModal.openModal('registrar1');
+
                     }
 
                 }
@@ -608,6 +697,14 @@ for (const key in this.selectAlmTda2) {
                         me.codigo='';
                         me.selectUsuario=0;
             },
+            cerrarModal1(accion){
+                let me = this;
+                me.classModal.closeModal(accion);
+                me.tipoAccion=1;
+                me.selectAlmTda2=[];
+                me.id_vehiculo=""; 
+               
+            },
 
             selectAll: function (event) {
                 setTimeout(function () {
@@ -622,9 +719,11 @@ for (const key in this.selectAlmTda2) {
        
             this.classModal = new _pl.Modals();
             this.classModal.addModal('registrar');
+            this.classModal.addModal('registrar1');
             this.sucursalAlmTda();
             this.listarVehiculo(1);
             this.listarUsuario();
+            this.listarVehiculoXtdaAlm();
             
         }
     }
