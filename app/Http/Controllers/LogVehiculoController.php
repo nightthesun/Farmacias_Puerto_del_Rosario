@@ -324,9 +324,25 @@ class LogVehiculoController extends Controller
        
     
     }
-    public function listarAsignar(){
-        $datos = DB::table('log__asignacion_sucursal_vehiculos')->get();
-        return $datos;
+    public function listarAsignar(Request $request){
+       if ($request->id != "undefined" || !empty($request->id)) {
+        $alm = DB::table('log__asignacion_sucursal_vehiculos as tip')
+        ->join('adm__sucursals as ass', 'ass.id', '=', 'tip.id_sucursal')
+        ->join('alm__almacens as aa', 'aa.codigo', '=', 'tip.cod')
+        ->where('tip.id_vehiculo', '=', $request->id)
+        ->select('tip.id_vehiculo as id', 'aa.nombre_almacen as nombre', 'tip.cod as codigo');
+    
+    $tda = DB::table('log__asignacion_sucursal_vehiculos as tip')
+        ->join('adm__sucursals as ass', 'ass.id', '=', 'tip.id_sucursal')
+        ->join('tda__tiendas as tt', 'tt.codigo', '=', 'tip.cod')
+        ->where('tip.id_vehiculo', '=', $request->id)
+        ->select('tip.id_vehiculo as id', 'ass.razon_social as nombre', 'tip.cod as codigo');
+    
+    $resultado = $alm->unionAll($tda)->get();
+    
+    return $resultado;
+       }       
+        
     }
 
     public function listarSucursal(){

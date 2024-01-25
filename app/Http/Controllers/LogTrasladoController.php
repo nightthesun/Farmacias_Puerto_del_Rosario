@@ -153,4 +153,7 @@ class LogTrasladoController extends Controller
         ->get();
         return $respuesta;
     }
+    public function listarVehiculo(){
+        
+    }
 }

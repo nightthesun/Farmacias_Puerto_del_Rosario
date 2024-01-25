@@ -52,7 +52,7 @@
                                     <button v-else type="button" class="btn btn-info btn-sm" @click="activar(vehiculo.id)" >
                                         <i class="icon-check"></i>
                                     </button>&nbsp;
-                                    <button type="button" style="color: aliceblue;" class="btn btn-secondary btn-sm" @click="abrirModal('asignar',vehiculo)">
+                                    <button type="button" style="color: aliceblue;" class="btn btn-secondary btn-sm" @click="abrirModal('asignar',vehiculo); listarVehiculoXtdaAlm(vehiculo.id); ">
                                         <i class="fa fa-plus"></i>
                                     </button>
                                 </td>
@@ -202,34 +202,85 @@
                             <span aria-hidden="true">×</span>
                         </button>
                     </div>
-                    <div class="modal-body">
-                        <div class="alert alert-warning" role="alert">
-                            Todos los campos con (*) son requeridos
-                        </div>
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-8" >
+                                <div class="modal-body">
+                     
 
 
-                        <form action=""  class="form-horizontal">
+                     <form action=""  class="form-horizontal">
 
-                            <div class="form-group row">
-                                <label class="col-md-3 form-control-label" for="text-input">Asignar Sucursal <span  v-if="selectAlmTda==0" class="error">(*)</span></label>
-                                <div class="col-md-9">
-                                    <div v-for="option in arraySucursalAlmTda" :key="option.id">
-                                          <input type="checkbox" :value="option" v-model="selectAlmTda2">
-                                     {{ option.codigoS+'->'+ option.codigo+' '+option.razon_social}}
-                                 </div>
-<!-- Mostrar los resultados seleccionados -->
-<div v-for="selectedOption in selectAlmTda2" :key="selectAlmTda2.codigo">
-        {{ selectedOption.id_tienda_almacen }} - {{ selectedOption.codigo }}
-      </div>
-                           
-                                </div>
+                       
+                             <label class="col-md-6 form-control-label" for="text-input"><strong>Lista de sucursales:</strong> </label>
+                             <div class="col-md-9">
+                                <table class="table table-bordered table-striped table-sm table-responsive">
+                                    <thead>
+                                        <tr>
+                                            <th></th>
+                                            <th>Nombre</th>
+                                            <th>Cod Sucursal</th>
+                                            <th>Codigo</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="option in arraySucursalAlmTda" :key="option.id" >
+                                            <td><input type="checkbox" :value="option.codigo" v-model="selectAlmTda2" ></td>
+                                            
+                                            <td v-text="option.razon_social"></td>
+                                            <td v-text="option.codigoS"></td>
+                                            <td v-text="option.codigo"></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+
+                        
+                             </div>
+                       
+
+                     </form>
+                 </div>
                             </div>
+                             <div class="col-4">
+                                <div class="modal-body">
+                     
 
-                        </form>
-                    </div>
+
+                     <form action=""  class="form-horizontal">
+
+                        
+                        <label  for="text-input"><strong>Asignar sucursal:</strong> </label>
+                          
+                              
+                                <table class="table table-bordered table-striped table-sm table-responsive">
+                                    <thead>
+                                        <tr>
+                                            <th>Nombre</th>
+                                            <th>Codigo</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="ve in arrayVehucloX" :key="ve.codigo">
+                                            <td v-text="ve.nombre"></td>
+                                            <td v-text="ve.codigo"></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                              
+                        
+
+                     </form>
+                 </div>
+                            </div>
+   
+                            </div>
+                        </div>
+                   
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary"  @click="cerrarModal1('registrar1')">Cerrar</button>
-                        <button type="button"  class="btn btn-primary" @click="asignarSucursal()">Asignar</button>
+                        <button type="button" v-if="selectAlmTda2==false" class="btn btn-primary" disabled>Asignar</button>
+                        <button type="button" v-if="selectAlmTda2!=false" class="btn btn-primary" @click="asignarSucursal()">Asignar</button>
                     </div>
                 </div>
                 <!-- /.modal-content -->
@@ -244,6 +295,7 @@
 import Swal from 'sweetalert2';
 import { error401 } from '../../errores';
 import { datapicker } from '../../func_10251';
+import { resolveTransitionHooks } from 'vue';
 //Vue.use(VeeValidate);
     export default {
         data(){
@@ -291,6 +343,7 @@ import { datapicker } from '../../func_10251';
                 selectArray:[],
                 selectAlmTda2:[],
                 arrayVehucloX:[],
+                
              
         
    
@@ -347,6 +400,7 @@ import { datapicker } from '../../func_10251';
 
         },
         methods :{
+          
             sucursalAlmTda() {
             let me = this;
             var url = "/vehiculo/listarSucursal";
@@ -369,22 +423,7 @@ import { datapicker } from '../../func_10251';
                     me.telefono = me.telefono+ex.key;
                 } 
             },  
-            listarVehiculo_tda_alm()
-            {
-            let me = this;
-            var url = "/vehiculo/listarUsuario";
-            axios
-                .get(url)
-                .then(function (response) {
-                    var respuesta = response.data;
-                    me.arrayUsuario = respuesta;
-  
-                })
-                .catch(function (error) {
-                    error401(error);
-                    console.log(error);
-                });
-            },
+          
             listarUsuario()
             {
             let me = this;
@@ -401,21 +440,27 @@ import { datapicker } from '../../func_10251';
                     console.log(error);
                 });
             },
-            listarVehiculoXtdaAlm()
+            listarVehiculoXtdaAlm(id)
             {
-            let me = this;
-            var url = "/vehiculo/listarAsignar";
+                   let me = this;
+               
+                   if (id!=="undefined" ||id !=="") {
+                    var url = "/vehiculo/listarAsignar?id="+id;
+            console.log(url);
             axios
                 .get(url)
                 .then(function (response) {
                     var respuesta = response.data;
-                    me.arrayVehucloX = respuesta;
-  
+                   //  me.arrayVehucloX = respuesta.datos.data;
+                   me.arrayVehucloX = respuesta;
+                
                 })
                 .catch(function (error) {
                     error401(error);
                     console.log(error);
-                });
+                });  
+                   }
+                 
             },
             listarVehiculo(page)
             {
@@ -442,8 +487,8 @@ import { datapicker } from '../../func_10251';
             
             registrar(){
                 let me = this;
-               // console.log(+me.id_tienda_almacen+" - "+me.matricula+"-"+
-              // me.razon_social_des+"-"+me.codigo+"-"+me.telefono+"-"+me.selectTipo                   );
+                // console.log(+me.id_tienda_almacen+" - "+me.matricula+"-"+
+               // me.razon_social_des+"-"+me.codigo+"-"+me.telefono+"-"+me.selectTipo);
              
              
 
@@ -592,6 +637,7 @@ import { datapicker } from '../../func_10251';
             },
             asignarSucursal(){
                 let me =this;
+          
                let cadena=[];
                for (const selectedOption of this.selectAlmTda2) {
                 let elemento = {
@@ -601,7 +647,7 @@ import { datapicker } from '../../func_10251';
     };
     cadena.push(elemento);
       }
-             console.log(cadena);   
+         
                 axios.post('/vehiculo/asignar',{
                     id:me.id_vehiculo,
                     bloque:cadena,
@@ -623,7 +669,7 @@ import { datapicker } from '../../func_10251';
 
 
             abrirModal(accion,data= []){
-                let me=this;
+                let me=this;        
             
  
                 switch(accion){
@@ -668,12 +714,14 @@ import { datapicker } from '../../func_10251';
                         break;
                     }
                     case 'asignar':
-                    {
+                    {  
+                        me.listarVehiculoXtdaAlm(data.id);
                         me.tituloModal='Asignar sucursal';
-                    
-                       
+                        me.selectAlmTda2=['ALM002'];
                         me.id_vehiculo=data.id;
                         me.classModal.openModal('registrar1');
+                   
+                        break;
 
                     }
 
@@ -702,6 +750,7 @@ import { datapicker } from '../../func_10251';
                 me.classModal.closeModal(accion);
                 me.tipoAccion=1;
                 me.selectAlmTda2=[];
+                me.arrayVehucloX=[];
                 me.id_vehiculo=""; 
                
             },
@@ -724,7 +773,7 @@ import { datapicker } from '../../func_10251';
             this.listarVehiculo(1);
             this.listarUsuario();
             this.listarVehiculoXtdaAlm();
-            
+     
         }
     }
 </script>

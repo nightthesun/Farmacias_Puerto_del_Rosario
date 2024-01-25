@@ -10,8 +10,7 @@
             <!-- Ejemplo de tabla Listado -->
             <div class="card">
                 <div class="card-header">
-                    <i class="fa fa-align-justify"></i> Traspaso entre almacenes y tiendas 
-                   
+                    <i class="fa fa-align-justify"></i> Traspaso entre almacenes y tiendas               
                     <button
                         type="button"
                         class="btn btn-secondary"
@@ -267,16 +266,14 @@
             <!-- Fin ejemplo de tabla Listado -->
         </div>
         <!--Inicio del modal agregar/actualizar-->
-        <div
-            class="modal fade"
+        <div class="modal fade"
             tabindex="-1"
             role="dialog"
             arial-labelledby="myModalLabel"
             id="registrar"
             aria-hidden="true"
             data-backdrop="static"
-            data-key="false"
-        >
+            data-key="false" >
             <div class="modal-dialog modal-primary modal-lg" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
