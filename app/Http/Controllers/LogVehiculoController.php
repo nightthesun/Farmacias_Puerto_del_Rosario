@@ -32,6 +32,9 @@ class LogVehiculoController extends Controller
                                 or iv.tipo like '%".$valor."%' 
                                 or u.name like '%".$valor."%'
                                 or re.nombre like '%".$valor."%' 
+                                or iv.color like '%".$valor."%' 
+                                or iv.nro_chasis like '%".$valor."%' 
+                                
                               )" ;
                     }
                     else
@@ -41,7 +44,9 @@ class LogVehiculoController extends Controller
                             or iv.matricula like '%".$valor."%' 
                             or iv.tipo like '%".$valor."%' 
                             or u.name like '%".$valor."%' 
-                            or re.nombre like '%".$valor."%' 
+                            or re.nombre like '%".$valor."%'
+                            or iv.color like '%".$valor."%' 
+                            or iv.nro_chasis like '%".$valor."%'  
                           )" ;
                     }
     
@@ -68,6 +73,8 @@ class LogVehiculoController extends Controller
                     'u.id as id_user',
                     'u.name as user_name',
                     'iv.id_emple as id_emple',
+                    'iv.color as color',
+                    'iv.nro_chasis as nro_chasis',
                     DB::raw('GREATEST(iv.created_at, iv.updated_at) AS fecha'),
                     DB::raw("CONCAT_WS(' ', re.nombre, re.papellido, re.sapellido) as nom_completo")
                     
@@ -94,6 +101,8 @@ class LogVehiculoController extends Controller
                     'u.id as id_user',
                     'u.name as user_name',
                     'iv.id_emple as id_emple',
+                    'iv.color as color',
+                    'iv.nro_chasis as nro_chasis',
                     DB::raw('GREATEST(iv.created_at, iv.updated_at) AS fecha'),
                     DB::raw("CONCAT_WS(' ', re.nombre, re.papellido, re.sapellido) as nom_completo")
                 );
@@ -142,6 +151,8 @@ class LogVehiculoController extends Controller
                 'u.id as id_user',
                 'u.name as user_name',
                 'iv.id_emple as id_emple',
+                'iv.color as color',
+                    'iv.nro_chasis as nro_chasis',
                 DB::raw('GREATEST(iv.created_at, iv.updated_at) AS fecha'),
                 DB::raw("CONCAT_WS(' ', re.nombre, re.papellido, re.sapellido) as nom_completo")
             );
@@ -167,6 +178,8 @@ class LogVehiculoController extends Controller
                 'u.id as id_user',
                 'u.name as user_name',
                 'iv.id_emple as id_emple',
+                'iv.color as color',
+                    'iv.nro_chasis as nro_chasis',
                 DB::raw('GREATEST(iv.created_at, iv.updated_at) AS fecha'),
                 DB::raw("CONCAT_WS(' ', re.nombre, re.papellido, re.sapellido) as nom_completo")
             );
@@ -213,6 +226,10 @@ class LogVehiculoController extends Controller
         $vehiculo->id_emple = $request->id_emple;
         $vehiculo->tipo = $request->selectTipo;
         $vehiculo->estado = $request->estado;
+      
+        $vehiculo->color = $request->color;
+        $vehiculo->nro_chasis = $request->nro_chasis;
+       
         $vehiculo->id_user = auth()->user()->id;
         $vehiculo->id_usuario_registra = auth()->user()->id;
 
@@ -247,7 +264,9 @@ class LogVehiculoController extends Controller
         $vehiculo->nombre_comercial = $request->codigo;
         $vehiculo->telefono = $request->telefono;
         $vehiculo->id_emple = $request->id_emple;
-        $vehiculo->tipo = $request->selectTipo;     
+        $vehiculo->tipo = $request->selectTipo;   
+        $vehiculo->color = $request->color;
+        $vehiculo->nro_chasis = $request->nro_chasis;  
         $vehiculo->id_user = auth()->user()->id;
         $vehiculo->id_usuario_modifica = auth()->user()->id;
 
@@ -330,13 +349,13 @@ class LogVehiculoController extends Controller
         ->join('adm__sucursals as ass', 'ass.id', '=', 'tip.id_sucursal')
         ->join('alm__almacens as aa', 'aa.codigo', '=', 'tip.cod')
         ->where('tip.id_vehiculo', '=', $request->id)
-        ->select('tip.id_vehiculo as id', 'aa.nombre_almacen as nombre', 'tip.cod as codigo');
+        ->select('tip.id_vehiculo as id','tip.id_sucursal as id_sucursal','tip.id_alm_tda as id_alm_tda','aa.nombre_almacen as nombre', 'tip.cod as codigo');
     
     $tda = DB::table('log__asignacion_sucursal_vehiculos as tip')
         ->join('adm__sucursals as ass', 'ass.id', '=', 'tip.id_sucursal')
         ->join('tda__tiendas as tt', 'tt.codigo', '=', 'tip.cod')
         ->where('tip.id_vehiculo', '=', $request->id)
-        ->select('tip.id_vehiculo as id', 'ass.razon_social as nombre', 'tip.cod as codigo');
+        ->select('tip.id_vehiculo as id', 'tip.id_sucursal as id_sucursal','tip.id_alm_tda as id_alm_tda','ass.razon_social as nombre', 'tip.cod as codigo');
     
     $resultado = $alm->unionAll($tda)->get();
     

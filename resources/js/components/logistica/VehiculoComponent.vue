@@ -30,8 +30,8 @@
                             <tr>
                                 <th>Opciones</th>
                                 <th>Matricula</th>
-                                <th>Sucursal</th>
-                                <th>Almacen o Tienda</th>
+                                <th>Numero de chasis</th>
+                                <th>Color</th>
                                 <th>Telefonos</th>
                                 <th>Tipo</th>
                                 <th>Chofer</th>  
@@ -52,14 +52,14 @@
                                     <button v-else type="button" class="btn btn-info btn-sm" @click="activar(vehiculo.id)" >
                                         <i class="icon-check"></i>
                                     </button>&nbsp;
-                                    <button type="button" style="color: aliceblue;" class="btn btn-secondary btn-sm" @click="abrirModal('asignar',vehiculo); listarVehiculoXtdaAlm(vehiculo.id); ">
+                                    <button type="button" style="color: aliceblue;" class="btn btn-secondary btn-sm" @click="listarVehiculoXtdaAlm(vehiculo.id); abrirModal('asignar',vehiculo); ">
                                         <i class="fa fa-plus"></i>
                                     </button>
                                 </td>
                                 <!-- <td v-text="(almacen.codsuc === null ? '': almacen.codsuc+' - ') + almacen.codigo"></td> -->
                                 <td v-text="vehiculo.matricula"></td>
-                                <td v-text="vehiculo.razon_social"></td>
-                                <td v-text="vehiculo.codigo"></td>
+                                <td v-text="vehiculo.nro_chasis"></td>
+                                <td v-text="vehiculo.color"></td>
                                 <td v-text="vehiculo.telefono"></td>
                                 <td v-text="vehiculo.tipo"></td>
                             
@@ -116,7 +116,7 @@
                         <form action=""  class="form-horizontal">
 
                             <div class="form-group row">
-                                <label class="col-md-3 form-control-label" for="text-input">Asignar Sucursal <span  v-if="selectAlmTda==0" class="error">(*)</span></label>
+                                <label class="col-md-3 form-control-label" for="text-input">Asignar Sucursal por defecto<span  v-if="selectAlmTda==0" class="error">(*)</span></label>
                                 <div class="col-md-9">
                                     <select name="" id="" v-model="selectAlmTda" class="form-control">
                                        <option v-bind:value="0" disabled>Seleccionar...</option>
@@ -165,6 +165,19 @@
                                     <input type="text" id="telefono" name="telefono" class="form-control" placeholder="Ingrese Los numeros de Telefono" onkeypress="return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 13 || event.charCode == 40 || event.charCode == 41 || event.charCode == 45 )" v-model="telefono" v-on:focus="selectAll">
                                  </div>
                             </div>
+                            <div class="form-group row">
+                                <label class="col-md-3 form-control-label" for="text-input">Numero Chasis</label>
+                                <div class="col-md-9">
+                                    <input type="text" id="" name="" class="form-control" placeholder="Ingrese Los numero de chasis" v-model="nro_chasis">
+                                 </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-md-3 form-control-label" for="text-input">Color</label>
+                                <div class="col-md-9">
+                                    <input type="text" id="" name="" class="form-control" placeholder="Ingrese El color del auto vehiculo" v-model="color">
+                                 </div>
+                            </div>
+                         
                     
                             <div class="form-group row">
                                 <label class="col-md-3 form-control-label" for="text-input">Tipo <span  v-if="selectTipo==0" class="error">(*)</span></label>
@@ -204,7 +217,7 @@
                     </div>
                     <div class="container">
                         <div class="row">
-                            <div class="col-8" >
+                            <div class="col-12" >
                                 <div class="modal-body">
                      
 
@@ -225,7 +238,9 @@
                                     </thead>
                                     <tbody>
                                         <tr v-for="option in arraySucursalAlmTda" :key="option.id" >
-                                            <td><input type="checkbox" :value="option.codigo" v-model="selectAlmTda2" ></td>
+                                            <td>
+                                                <input type="checkbox" :value="{ codigo: option.codigo, id_sucursal: option.id_sucursal, id_tienda_almacen: option.id_tienda_almacen }" v-model="selectAlmTda2">
+                                            </td>
                                             
                                             <td v-text="option.razon_social"></td>
                                             <td v-text="option.codigoS"></td>
@@ -234,7 +249,7 @@
                                     </tbody>
                                 </table>
 
-
+                            
                         
                              </div>
                        
@@ -242,38 +257,7 @@
                      </form>
                  </div>
                             </div>
-                             <div class="col-4">
-                                <div class="modal-body">
-                     
-
-
-                     <form action=""  class="form-horizontal">
-
-                        
-                        <label  for="text-input"><strong>Asignar sucursal:</strong> </label>
-                          
-                              
-                                <table class="table table-bordered table-striped table-sm table-responsive">
-                                    <thead>
-                                        <tr>
-                                            <th>Nombre</th>
-                                            <th>Codigo</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr v-for="ve in arrayVehucloX" :key="ve.codigo">
-                                            <td v-text="ve.nombre"></td>
-                                            <td v-text="ve.codigo"></td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                              
-                        
-
-                     </form>
-                 </div>
-                            </div>
-   
+                         
                             </div>
                         </div>
                    
@@ -343,6 +327,11 @@ import { resolveTransitionHooks } from 'vue';
                 selectArray:[],
                 selectAlmTda2:[],
                 arrayVehucloX:[],
+                selectVehucloX:[],
+                arrayFalso:[],
+                color:'',
+                nro_chasis:'',
+                
                 
              
         
@@ -444,23 +433,38 @@ import { resolveTransitionHooks } from 'vue';
             {
                    let me = this;
                
-                   if (id!=="undefined" ||id !=="") {
+                   if (typeof id!=="undefined") {
                     var url = "/vehiculo/listarAsignar?id="+id;
-            console.log(url);
+                    console.log(url);
             axios
                 .get(url)
                 .then(function (response) {
                     var respuesta = response.data;
                    //  me.arrayVehucloX = respuesta.datos.data;
                    me.arrayVehucloX = respuesta;
-                
+                 
+             
+                   me.arraySucursalAlmTda.forEach(function(elemento1) {
+  me.arrayVehucloX.forEach(function(elementoInterno) {
+    if (elemento1.codigo === elementoInterno.codigo) {
+      me.arrayFalso.push({
+        codigo: elemento1.codigo,
+        id_sucursal: elemento1.id_sucursal,
+        id_tienda_almacen: elemento1.id_tienda_almacen,
+       
+      });
+    } 
+  });
+  
+});
+
                 })
                 .catch(function (error) {
                     error401(error);
                     console.log(error);
                 });  
                    }
-                 
+            
             },
             listarVehiculo(page)
             {
@@ -502,6 +506,8 @@ import { resolveTransitionHooks } from 'vue';
                     'activo':1,
                     'estado':1,
                     'id_emple':me.selectUsuario,
+                    'nro_chasis':me.nro_chasis,
+                    'color':me.color, 
                 }).then(function(response){
                     me.cerrarModal('registrar');
                     Swal.fire(
@@ -612,8 +618,8 @@ import { resolveTransitionHooks } from 'vue';
             },
             actualizar(){
                 let me =this;
-            //    console.log(me.id_vehiculo+"-"+me.id_tienda_almacen+" - "+me.matricula+"-"+
-            //   me.razon_social_des+"-"+me.codigo+"-"+me.telefono+"-"+me.selectTipo                   );
+               console.log(me.id_vehiculo+"-"+me.id_tienda_almacen+" - "+me.matricula+"-"+
+              me.razon_social_des+"-"+me.codigo+"-"+me.telefono+"-"+me.selectTipo                   );
                 axios.put('/vehiculo/actualizar',{
                     'id':me.id_vehiculo,
                     'id_tienda_almacen':me.id_tienda_almacen,
@@ -622,7 +628,9 @@ import { resolveTransitionHooks } from 'vue';
                     'codigo':me.codigo,
                     'telefono':me.telefono,
                     'selectTipo':me.selectTipo,
-                    'id_emple':me.selectUsuario,                   
+                    'id_emple':me.selectUsuario,
+                    'nro_chasis':me.nro_chasis,
+                    'color':me.color,                   
                 }).then(function (response) {
                     me.listarVehiculo();
                     Swal.fire(
@@ -637,7 +645,7 @@ import { resolveTransitionHooks } from 'vue';
             },
             asignarSucursal(){
                 let me =this;
-          
+               
                let cadena=[];
                for (const selectedOption of this.selectAlmTda2) {
                 let elemento = {
@@ -646,8 +654,10 @@ import { resolveTransitionHooks } from 'vue';
       'id_tienda_almacen': selectedOption.id_tienda_almacen
     };
     cadena.push(elemento);
+    
       }
-         
+  
+      
                 axios.post('/vehiculo/asignar',{
                     id:me.id_vehiculo,
                     bloque:cadena,
@@ -662,6 +672,7 @@ import { resolveTransitionHooks } from 'vue';
                 }).catch(function (error) {
                     error401(error);
                 });
+                me.arrayFalso=[];
                 me.cerrarModal('registrar1');
             },
 
@@ -671,7 +682,7 @@ import { resolveTransitionHooks } from 'vue';
             abrirModal(accion,data= []){
                 let me=this;        
             
- 
+               
                 switch(accion){
                     case 'registrar':
                     {
@@ -688,6 +699,8 @@ import { resolveTransitionHooks } from 'vue';
                         me.razon_social_des='';
                         me.id_tienda_almacen='';
                         me.codigo='';
+                        me.color='';
+                        me.nro_chasis='';
                         me.selectUsuario=0;
                         me.classModal.openModal('registrar');
  
@@ -709,15 +722,20 @@ import { resolveTransitionHooks } from 'vue';
                         me.razon_social_des=data.razon_social;
                         me.id_tienda_almacen=data.idsucursal;
                         me.codigo=data.codigo;
+                        me.color=data.color;
+                        me.nro_chasis=data.nro_chasis;
                         me.selectUsuario=data.id_emple==null?0:data.id_emple;                        
                         me.classModal.openModal('registrar');
                         break;
                     }
                     case 'asignar':
                     {  
-                        me.listarVehiculoXtdaAlm(data.id);
-                        me.tituloModal='Asignar sucursal';
-                        me.selectAlmTda2=['ALM002'];
+                      
+                     
+                         me.tituloModal='Asignar sucursal';
+  
+
+                       me.selectAlmTda2=me.arrayFalso;
                         me.id_vehiculo=data.id;
                         me.classModal.openModal('registrar1');
                    
@@ -743,15 +761,21 @@ import { resolveTransitionHooks } from 'vue';
                         me.razon_social_des='';
                         me.id_tienda_almacen='';
                         me.codigo='';
+                        me.color='';
+                        me.nro_chasis='';
+                        me.selectAlmTda2=[];
+                me.arrayVehucloX=[];
                         me.selectUsuario=0;
             },
             cerrarModal1(accion){
                 let me = this;
                 me.classModal.closeModal(accion);
                 me.tipoAccion=1;
+                me.id_vehiculo="";
+                me.arrayFalso=[];
                 me.selectAlmTda2=[];
                 me.arrayVehucloX=[];
-                me.id_vehiculo=""; 
+          
                
             },
 
