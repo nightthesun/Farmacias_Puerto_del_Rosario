@@ -10,9 +10,9 @@
         <div class="container-fluid">
             <div class="card">
                 <div class="card-header">
-                    <i class="fa fa-align-justify"></i> Traslados               
+                    <i class="fa fa-align-justify"></i> Traslados         
                     <button type="button" class="btn btn-secondary" 
-                        @click="abrirModal('registrar');listarTraspaso();"
+                        @click="abrirModal('registrar');listarVehiculo(cod_alm_tienda);listarTraspaso();"
                         :disabled="selectAlmTienda == 0">
                         <i class="icon-plus"></i>&nbsp;Nuevo
                     </button>
@@ -131,8 +131,9 @@
                                                     ' | C: ' + traspasoI.cantidad  "
                                             ></option>
                                         </select>
-                                        <button class="btn btn-primary" type="button" id="button-addon1">
-                                            <i class="fa fa-search"></i>
+                                        <button class="btn btn-primary" type="button" id="button-addon1"
+                                        @click="abrirModal('bucarProductoIngreso');listarRetornoTraspaso();">                                           
+                                            <i class="fa fa-search"></i>                                            
                                         </button>                                     
                                         
                                     </div>
@@ -141,7 +142,7 @@
                               
                                 <div class="form-group row" v-if="selectTraspaso!=''"> 
                                     <label class="col-md-3 form-control-label" for="text-input">
-                                    Persona a enviar    
+                                    Persona a enviar:    
                                     <span v-if="selectUsuario == '0'" class="error">(*)</span>
                                     </label>
                                     <div class="col-md-7">
@@ -169,7 +170,45 @@
                                     </div>
                                 </div>
 
-                            
+                                <div class="form-group row" v-if="selectTraspaso!=''"> 
+                                    <label class="col-md-3 form-control-label" for="text-input">
+                                    Vehiculo:    
+                                    <span v-if="selectVehiculo == '0'" class="error">(*)</span>
+                                    </label>
+                                    <div class="col-md-7">
+                                        <select
+                                            name=""
+                                            id=""
+                                            v-model="selectVehiculo"
+                                            class="form-control"
+                                        >
+                                            <option value="0" disabled>
+                                                Seleccionar...
+                                            </option>
+                                            <option
+                                            v-for="ve in arrayVehiculo"
+                                        :key="ve.id_vehiculo"
+                                        :value="ve.id_vehiculo"
+                                        v-text="'Matricula: '+ve.matricula+'| Tipo:'+ve.tipo_vehiculo"
+                                        ></option>
+                                        </select>
+                                        <span
+                                            v-if="arrayVehiculo == 0"
+                                            class="error"
+                                            >Debe seleccionar una opcion</span
+                                        >
+                              
+                                    </div>
+                                </div>
+                                <div class="form-group row" v-if="selectTraspaso!=''">
+                                      <label class="col-md-3 form-control-label" for="text-input">Tiempo estimado: 
+                                       
+                                      </label>
+                                      <div class="col-md-7">
+                                         <input type="time" id="" name="" v-model="estimacion" class="form-control" placeholder="Debe ingresarun tiempo estimado " >
+                                    
+                                        </div>
+                                  </div>   
                                
                             </div>
                         </form>
@@ -187,7 +226,8 @@
                             type="button"
                             v-if="tipoAccion == 1"
                             class="btn btn-primary"
-                           
+                            @click="registrar()"
+                            
                             :disabled="!sicompleto"
                         >
                             Guardar
@@ -205,12 +245,62 @@
             </div>
         </div>
         <!--fin del modal-->
+ <!-- Modal para la busqueda de producto por lote -->
+ <div class="modal fade" id="staticBackdrop" tabindex="-2" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-scrollable modal-primary">
+                <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Busqueda de Traspasos</h5>
+                    <button type="button" @click="cerrarModal('staticBackdrop')" class="btn-close" data-bs-dismiss="modal" aria-label="Close">X</button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="mb-3">
+                            <label for="exampleInputEmail1" class="form-label">Introduzca el codigo Internacional: </label>
+                            <input type="text" id="texto" name="texto" class="form-control" placeholder="Texto a buscar" 
+                            v-model="inputTextBuscar"
+                               @input="listarRetornoTraspaso()">
+                            <!-- <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div> -->
+                        </div>
+                        <div>
+                            <table class="table table-hover" id="tablaProductosIngreso"  style='height:350px;display:block;overflow:scroll'>
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Nro Traspaso.</th>
+                                            <th scope="col">Descripcion Prod.</th>
+                                            <th scope="col">Cantidad.</th>
+                                       </tr>
+                                    </thead>
+                                    <tbody>  
+                                        <tr v-for="RetornarProductosIngreso  in arrayRetornarTraspaso" :key="RetornarProductosIngreso.id" @click="abrirModal('registrar',RetornarProductosIngreso);listarRetornoTraspaso();" >
+                                        <td v-text="RetornarProductosIngreso.numero_traspaso"></td>
+                                        <td v-text="RetornarProductosIngreso.leyenda"></td>
+                                        <td v-text="RetornarProductosIngreso.cantidad"></td>
+                                      </tr>
+                                    </tbody>
+                            </table>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    
+                 
+                    <button type="button" v-if="tipoAccion==1" class="btn btn-secondary" data-bs-dismiss="modal" @click="cerrarModal('staticBackdrop');abrirModal('registrar');" >Cerrar</button>
+     
+                    
+                    <!-- <button type="button" class="btn btn-primary">Save changes</button> -->
+                </div>
+                </div>
+            </div>
+     </div>
+
     </main>
 </template>
 
 <script>
 import Swal from "sweetalert2";
 import { error401 } from "../../errores";
+
 //Vue.use(VeeValidate);
 export default {
     data() {
@@ -229,7 +319,7 @@ export default {
             selectAlmTienda:0,
             arrayAlmTienda:[],
             buscar:"",
-            tipoAccion:1,
+           
             selectTraspaso:0,
             arrayTraspaso:[],
             cod_alm_tienda:"",
@@ -237,7 +327,14 @@ export default {
             selectUsuario:0,
             arrayUsuario:[],
             selectVehiculo:0,
-            arrayVehiculo:[],            
+            arrayVehiculo:[],
+            inputTextBuscar:"",
+            arrayRetornarTraspaso:[],
+            tipoEvento:1,
+            estimacion:"",
+            observacion:"",
+          
+                       
             
         };
     },
@@ -258,7 +355,7 @@ export default {
     computed: {
         sicompleto() {
         let me = this;
-        if (me.selectTraspaso != 0 && me.selectUsuario !=0)
+        if (me.selectTraspaso != 0 && me.selectUsuario !=0 &&me.arrayVehiculo!=0)
           return true;
           else return false;
         },
@@ -288,6 +385,42 @@ export default {
     },
 
     methods: {
+        listarRetornoTraspaso() {
+            let me = this;
+                var url ="/traslado/listarRetornoTraspaso?codigo=" + me.cod_alm_tienda +
+                    "&input=" + me.inputTextBuscar;
+                    console.log(url);        
+            axios
+                .get(url)
+                .then(function (response) {
+                    var respuesta = response.data;
+                    me.arrayRetornarTraspaso = respuesta;   })
+                .catch(function (error) {
+                    error401(error);
+                    console.log(error);
+                });
+        },
+        listarVehiculo(cod) {
+            if (cod!==undefined) {
+                let me = this;
+            
+            var url = "/traslado/listarVehiculo?codigo="+cod;
+            console.log(url);
+            axios
+                .get(url)
+                .then(function (response) {
+                    var respuesta = response.data;
+                    me.arrayVehiculo = respuesta;
+             
+                 
+                })
+                .catch(function (error) {
+                    error401(error);
+                    console.log(error);
+                });   
+            }
+            
+        },
         listarAlmTienda() {
             let me = this;
             var url = "/traslado/listarSucursal";
@@ -306,7 +439,7 @@ export default {
         listarTraspaso() {
             if (this.cod_alm_tienda!="") {
                 let me = this;            
-            console.log("----"+me.cod_alm_tienda);
+     
             var url = "/traslado/listarTraspaso?codigo="+me.cod_alm_tienda;
             axios
                 .get(url)
@@ -336,10 +469,7 @@ export default {
                     console.log(error);
                 });
         },
-        listarVehiculo(){
-           let me=this;
-           var url = "";
-        },
+      
         cambiarPestana(idPestana) {
             this.pestañaActiva = idPestana;
 
@@ -353,19 +483,72 @@ export default {
             me.pagination.current_page = page;
         //    me.listarAjusteNegativos(page);
         },
+        registrar(){
+            let me =this;
+            //console.log("id_tras:"+me.selectTraspaso+" id_empleado"+me.selectUsuario+" id_ve:"+me.selectVehiculo+" time:"+me.estimacion);    
+            if (me.selectTraspaso==="" || me.selectUsuario === "" ||
+            me.selectVehiculo ==="" || me.estimacion===""
+            ) {
+                Swal.fire(
+                    "No puede ingresar valor nulos  o vacios",
+                    "Haga click en Ok",
+                    "warning",
+                );
+            } else {
+                axios
+                    .post("/traslado/registrar", {
+                        'id_traspaso': me.selectTraspaso,
+                        'id_empelado': me.selectUsuario,
+                        'id_vehiculo': me.selectVehiculo,
+                       'time':me.estimacion, 
+      
+                     'lote':me.lote, 
+                        'activo': 1,
+                        'id_sucursal': me.id_sucursal,
+                        'id_producto': me.id_producto,
+                        'cod': me.sucursalSeleccionada,
+                        'id_ingreso': me.id_ingreso,
+                        'leyenda': me.leyenda,
+                    })
+                    .then(function (response) {
+                        me.cerrarModal("registrar");
+                        Swal.fire(
+                            "Registrado exitosamente",
+                            "Haga click en Ok",
+                            "success",
+                        );
+
+                        me.listarAjusteNegativos();
+                        me.sucursalFiltro();
+                    })
+                    .catch(function (error) {
+                        error401(error);
+                        console.log(error);
+                    });
+            }
+        },  
 
         abrirModal(accion, data = []) {
             let me = this;
+         
         //    let respuesta = me.arraySucursal.find(
         //        (element) => element.codigo == me.sucursalSeleccionada,
         //    );
-           
+      
          switch (accion) {
                 case "registrar": {
+                  
                     me.tipoAccion = 1;
                     me.tituloModal = "Nombre de traspaso origen: "+me.razon_socialAlmTienda;
+                   if(this.tipoEvento==1){
                     me.selectTraspaso=0;
+                   }
+                   if(this.tipoEvento==2){
+                    me.selectTraspaso=data.id=== null ?0:data.id;
+                   }
                     me.selectUsuario=0;
+                    me.selectVehiculo=0;
+                    me.estimacion="";
                     me.classModal.openModal("registrar");
                     break;
                 }
@@ -378,6 +561,14 @@ export default {
 
                     break;
                 }
+                case 'bucarProductoIngreso':
+                    {     
+                      me.tipoEvento=2;  
+                        me.inputTextBuscar= "";
+                      //  me.arrayRetornarTraspaso = [];
+                    me.classModal.openModal('staticBackdrop');
+                    break;
+                    }
             
             }
         },
@@ -385,15 +576,20 @@ export default {
             let me = this;
             if (accion == "registrar") {
                 me.classModal.closeModal(accion);
-                me.selectAlmTienda=0;
+                me.tipoEvento=1;
                     me.tituloModal = " ";
-             
+                    me.selectTraspaso=0;
+                    me.selectUsuario=0;
+                    me.selectVehiculo=0;
+                    me.tipoAccion = 1;
+                    me.estimacion="";
                     setTimeout(me.tiempo, 200); 
      
               
             } else {
                 me.classModal.closeModal(accion);
-              
+                me.tipoEvento=1;
+                me.selectTraspaso=0;
                 me.classModal.openModal("registrar");
             }
         },
@@ -413,6 +609,8 @@ export default {
         this.classModal.addModal("registrar");
         this.listarTraspaso();
         this.listarUsuario();
+        this.listarVehiculo();
+        this.classModal.addModal("staticBackdrop");
     
     },
 };

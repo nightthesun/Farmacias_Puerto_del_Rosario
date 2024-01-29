@@ -432,33 +432,7 @@
                                         >
                                     </div>
                                 </div>
-                                <!--
- <div class="form-group row">
-                                    <label
-                                        class="col-md-3 form-control-label"
-                                        for="text-input"
-                                        >Descripción
-                                        <span v-if="descripcion" class="error"
-                                            >(*)</span
-                                        >
-                                    </label>
-                                    <div class="col-md-9">
-                                        <textarea
-                                            v-model="descripcion"
-                                            class="form-control"
-                                            id="descripcion"
-                                            name="descripcion"
-                                            rows="3"
-                                            v-on:focus="selectAll"
-                                        ></textarea>
-                                        <span
-                                            v-if="descripcion === ''"
-                                            class="error"
-                                            >Debe Ingresar la Descripción</span
-                                        >
-                                    </div>
-                                </div>
-                                -->
+                            
                                
                             </div>
                         </form>
@@ -1070,13 +1044,7 @@ export default {
 
         registrorAjusteNegativo() {
             let me = this;
-            console.log(
-                me.TiposSeleccionado +
-                    " - " +
-                    me.sucursalSeleccionada +
-                    "->>>>" +
-                    me.id_ingreso,
-            );
+          
             let suma = me.cantidadProductoLineaIngreso + me.cantidadS;
 
             if (

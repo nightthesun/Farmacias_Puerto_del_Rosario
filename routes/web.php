@@ -435,5 +435,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/traslado/listarSucursal', [LogTrasladoController::class, 'listarSucursal']);    
     Route::get('/traslado/listarTraspaso', [LogTrasladoController::class, 'listarTraspaso']);  
     Route::get('/traslado/listarUsuario', [LogTrasladoController::class, 'listarUsuario']);  
-    
+    Route::get('/traslado/listarVehiculo', [LogTrasladoController::class, 'listarVehiculo']); 
+    Route::get('/traslado/listarRetornoTraspaso', [LogTrasladoController::class, 'listarRetornoTraspaso']); 
+    Route::post('/traslado/registrar', [LogTrasladoController::class, 'store']); 
+     
 });
