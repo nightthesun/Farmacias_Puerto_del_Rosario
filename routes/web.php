@@ -438,5 +438,6 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/traslado/listarVehiculo', [LogTrasladoController::class, 'listarVehiculo']); 
     Route::get('/traslado/listarRetornoTraspaso', [LogTrasladoController::class, 'listarRetornoTraspaso']); 
     Route::post('/traslado/registrar', [LogTrasladoController::class, 'store']); 
-     
+    Route::get('/traslado/repetidor', [LogTrasladoController::class, 'repetidor']); 
+    
 });

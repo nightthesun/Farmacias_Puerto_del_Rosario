@@ -18,10 +18,12 @@ return new class extends Migration
              $table->smallInteger('id_traspaso');
              $table->smallInteger('id_empleado');
              $table->smallInteger('id_vehiculo');
-            $table->timestamp('tiempo');
-            $table->string('observacion')->nullable()->comment('si se encotro alguna observacion');
-            $table->boolean('activo')->default(1);
-            $table->tinyInteger('estado')->default(1)->comment('1->activo, 0->inactivo');
+             $table->timestamp('tiempo');
+             $table->string('codigo')->comment('identificador del bloque');
+             $table->smallInteger('correlativo')->comment('controlador del bloque');
+             $table->string('observacion')->nullable()->comment('si se encotro alguna observacion');
+             $table->boolean('activo')->default(1);
+            
             $table->smallInteger('id_user')->unsigned()->nullable()->comment('usuario general ');
             $table->smallInteger('id_usuario_modifica')->unsigned()->nullable()->comment('identificador del usuario que esta modificando el almacen');
             $table->smallInteger('id_usuario_registra')->unsigned()->nullable()->comment('identificador del usuario que esta registrando el almacen');

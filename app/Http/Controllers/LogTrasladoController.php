@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Log_Traslado;
+use App\Models\Inv_Traspaso;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -11,9 +12,108 @@ class LogTrasladoController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $buscararray=array();
+        if(!empty($request->buscar)){
+            $buscararray = explode(" ",$request->buscar);
+            $valor=sizeof($buscararray);
+            if($valor > 0){
+                $sqls='';
+                foreach($buscararray as $valor)
+                {
+                    if(empty($sqls)){
+                        $sqls="(
+                            it.numero_traspaso like '%".$valor."%' 
+                                or iv.matricula like '%".$valor."%' 
+                                or iv.tipo like '%".$valor."%' 
+                                or u.name like '%".$valor."%'
+                                or re.nombre like '%".$valor."%' 
+                                or iv.color like '%".$valor."%' 
+                                or iv.nro_chasis like '%".$valor."%' 
+                                
+                              )" ;
+                    }
+                    else
+                    {
+                        $sqls.="and (
+                            it.numero_traspaso like '%".$valor."%' 
+                            or it.name_ori like '%".$valor."%' 
+                            or it.name_des like '%".$valor."%' 
+                            or u.name like '%".$valor."%' 
+                            or re.nombre like '%".$valor."%'
+                            or iv.color like '%".$valor."%' 
+                            or iv.nro_chasis like '%".$valor."%'  
+                          )" ;
+                    }
+    
+                }
+                $resultado = DB::table('log__traslados as lt')
+                 ->join('inv__traspasos as it', 'it.id', '=', 'lt.id_traspaso')
+                 ->join('prod__tipo_entradas as pte', 'pte.id', '=', 'it.id_tipoentrada')
+                 ->join('rrh__empleados as re', 're.id', '=', 'lt.id_empleado')
+                 ->join('log__vehiculos as lv', 'lv.id', '=', 'lt.id_vehiculo')
+                  >select('lt.id as id', 
+                        'lt.codigo as codigo',
+                        'lt.tiempo as tiempo',
+                        'lt.id_traspaso as id_traspaso',
+                        'pte.nombre as tipo_nombre',
+                        'it.cantidad__stock_ingreso as cantidad',
+                        'it.id_ingreso as id_ingreso',
+                        'it.leyenda as leyenda',
+                        'it.numero_traspaso as numero_traspaso',
+                        'it.name_ori as origen',
+                        'it.name_des as destino',
+                         DB::raw('CONCAT_WS(re.nombre, re.papellido, re.sapellido) as nom_completo'),
+                        're.celular as celular',
+                        'lt.id_vehiculo as id_vehiculo',
+                        'lv.matricula as vehiculo',
+                        'lv.telefono as tele_vehi',
+                        'lv.tipo as tipo_vehi' ) ->orderBy('id', 'desc')->paginate(8);
+
+            }    
+            return 
+            [
+                    'pagination'=>
+                        [
+                            'total'         =>    $resultado->total(),
+                            'current_page'  =>    $resultado->currentPage(),
+                            'per_page'      =>    $resultado->perPage(),
+                            'last_page'     =>    $resultado->lastPage(),
+                            'from'          =>    $resultado->firstItem(),
+                            'to'            =>    $resultado->lastItem(),
+                        ] ,
+                    'resultado'=>$resultado,
+            ]; 
+        }
+        else{
+
+        }    
+        $resultado = DB::table('log__traslados as lt')
+    ->join('inv__traspasos as it', 'it.id', '=', 'lt.id_traspaso')
+    ->join('prod__tipo_entradas as pte', 'pte.id', '=', 'it.id_tipoentrada')
+    ->join('rrh__empleados as re', 're.id', '=', 'lt.id_empleado')
+    ->join('log__vehiculos as lv', 'lv.id', '=', 'lt.id_vehiculo')
+    ->select(
+        'lt.id as id',
+        'lt.codigo as codigo',
+        'lt.tiempo as tiempo',
+        'lt.id_traspaso as id_traspaso',
+        'pte.nombre as tipo_nombre',
+        'it.cantidad__stock_ingreso as cantidad',
+        'it.id_ingreso as id_ingreso',
+        'it.leyenda as leyenda',
+        'it.numero_traspaso as numero_traspaso',
+        'it.name_ori as origen',
+        'it.name_des as destino',
+        DB::raw('CONCAT_WS(re.nombre, re.papellido, re.sapellido) as nom_completo'),
+        're.celular as celular',
+        'lt.id_vehiculo as id_vehiculo',
+        'lv.matricula as vehiculo',
+        'lv.telefono as tele_vehi',
+        'lv.tipo as tipo_vehi'
+    )
+   
     }
 
     /**
@@ -29,8 +129,61 @@ class LogTrasladoController extends Controller
      */
     public function store(Request $request)
     {
-        $id_traspaso =  $request->id;
+        $letracodigo='TRL'; 
+      
+       $maxcorrelativo = Log_Traslado::select(DB::raw('max(correlativo) as maximo'))
+                                      ->get()->toArray();
+        $correlativo=$maxcorrelativo[0]['maximo'];
+     
+        if(is_null($correlativo))
+            $correlativo=1;
+        else
+            $correlativo=$correlativo+1;
 
+      
+        if($correlativo>=0 && $correlativo<10)
+            $codigo='0000000'.$correlativo;
+        if($correlativo>=10 && $correlativo<100)
+            $codigo='000000'.$correlativo;
+        if($correlativo>=100 && $correlativo<1000)
+            $codigo='00000'.$correlativo;
+        if($correlativo>=1000 && $correlativo<10000)
+            $codigo='0000'.$correlativo;
+        if($correlativo>=10000 && $correlativo<100000)
+            $codigo='000'.$correlativo;
+        if($correlativo>=100000 && $correlativo<1000000)
+            $codigo='00'.$correlativo;
+        if($correlativo>=1000000 && $correlativo<10000000)
+                 $codigo='0'.$correlativo;
+        
+        //codigo 
+         $tralado=new Log_Traslado();
+         $tralado->id_traspaso=$request->id_traspaso;
+         $tralado->id_empleado=$request->id_empleado;
+         $tralado->id_vehiculo=$request->id_vehiculo;
+         $tralado->tiempo=$request->time;
+         $tralado->codigo=$letracodigo.$codigo;
+         $tralado->correlativo=$correlativo;
+         $tralado->observacion=$request->observacion;
+         $tralado->activo=$request->activo;
+         $tralado->id_user = auth()->user()->id;
+         $tralado->id_usuario_modifica = auth()->user()->id;
+         $tralado->id_usuario_registra = auth()->user()->id;
+        $update = Inv_Traspaso::find($request->id_traspaso);
+        $update->procesado=1;
+         $tralado->save();
+       $update->save();
+    }
+    public function repetidor(Request $request){
+        
+        $resultados = DB::table('log__traslados as lt')
+    ->select('lt.id', 'lt.codigo','lt.correlativo')
+    ->where('lt.id_traspaso', '=', $request->id_traspaso)
+    ->where('lt.id_empleado', '=', $request->id_empleado)
+    ->where('lt.id_vehiculo', '=', $request->id_vehiculo)
+    ->get();
+    
+    return $resultados;
     }
 
     /**
@@ -139,7 +292,7 @@ class LogTrasladoController extends Controller
     $resultado = $query1->unionAll($query2)->get();
     
     return $resultado;
-     }
+    }
      public function listarRetornoTraspaso(Request $request){
         $buscararray=array();
         if(!empty($request->input))

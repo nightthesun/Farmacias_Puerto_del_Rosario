@@ -205,10 +205,18 @@
                                        
                                       </label>
                                       <div class="col-md-7">
-                                         <input type="time" id="" name="" v-model="estimacion" class="form-control" placeholder="Debe ingresarun tiempo estimado " >
+                                         <input type="time" id="" name="" v-model="estimacion" class="form-control" placeholder="Debe ingresar un tiempo estimado " >
                                     
                                         </div>
-                                  </div>   
+                                  </div>
+                                  <div class="form-group row" v-if="selectTraspaso!=''">
+                                      <label class="col-md-3 form-control-label" for="text-input">Observación: 
+                                       
+                                      </label>
+                                      <div class="col-md-7">
+                                        <textarea id="" name="" v-model="observacion" class="form-control" placeholder="Debe ingresar una observación"></textarea>
+                                        </div>
+                                  </div>    
                                
                             </div>
                         </form>
@@ -333,6 +341,9 @@ export default {
             tipoEvento:1,
             estimacion:"",
             observacion:"",
+           
+           
+           
           
                        
             
@@ -385,11 +396,12 @@ export default {
     },
 
     methods: {
+       
         listarRetornoTraspaso() {
             let me = this;
                 var url ="/traslado/listarRetornoTraspaso?codigo=" + me.cod_alm_tienda +
                     "&input=" + me.inputTextBuscar;
-                    console.log(url);        
+                         
             axios
                 .get(url)
                 .then(function (response) {
@@ -485,9 +497,9 @@ export default {
         },
         registrar(){
             let me =this;
-            //console.log("id_tras:"+me.selectTraspaso+" id_empleado"+me.selectUsuario+" id_ve:"+me.selectVehiculo+" time:"+me.estimacion);    
+            console.log("id_tras:"+me.selectTraspaso+" id_empleado"+me.selectUsuario+" id_ve:"+me.selectVehiculo+" time:"+me.estimacion+" obs:"+me.observacion);    
             if (me.selectTraspaso==="" || me.selectUsuario === "" ||
-            me.selectVehiculo ==="" || me.estimacion===""
+            me.selectVehiculo ==="" || me.estimacion==="" || me.observacion===""
             ) {
                 Swal.fire(
                     "No puede ingresar valor nulos  o vacios",
@@ -498,33 +510,54 @@ export default {
                 axios
                     .post("/traslado/registrar", {
                         'id_traspaso': me.selectTraspaso,
-                        'id_empelado': me.selectUsuario,
+                        'id_empleado': me.selectUsuario,
                         'id_vehiculo': me.selectVehiculo,
                        'time':me.estimacion, 
-      
-                     'lote':me.lote, 
+                       'observacion':me.observacion,
+                     
                         'activo': 1,
-                        'id_sucursal': me.id_sucursal,
-                        'id_producto': me.id_producto,
-                        'cod': me.sucursalSeleccionada,
-                        'id_ingreso': me.id_ingreso,
-                        'leyenda': me.leyenda,
-                    })
-                    .then(function (response) {
-                        me.cerrarModal("registrar");
-                        Swal.fire(
-                            "Registrado exitosamente",
-                            "Haga click en Ok",
-                            "success",
-                        );
+                    
+                     
+                    }).then(function(response){
+                        me.cerrarModal('registrar');
+                        me.listarAlmTienda();
+                        const swalWithBootstrapButtons = Swal.mixin({
+                        customClass: {
+                        confirmButton: "btn btn-info",
+                        cancelButton: "btn btn-light",
+                    },
+                    buttonsStyling: false,
+                });
 
-                        me.listarAjusteNegativos();
-                        me.sucursalFiltro();
-                    })
-                    .catch(function (error) {
-                        error401(error);
-                        console.log(error);
-                    });
+                swalWithBootstrapButtons
+                .fire({
+                    title: "Se registro con exito",
+                    text: "¿Desea añadir mas items?",
+                    icon: "question",
+                    showCancelButton: true,
+                    confirmButtonText: "Si, Añadir",
+                    cancelButtonText: "No, Gracias",
+                    reverseButtons: true,
+                })
+                .then((result) => {
+                    if (result.isConfirmed) {                       
+                      
+                        me.abrirModal('registrar');
+                        me.listarVehiculo(me.cod_alm_tienda);
+                        me.listarTraspaso();                        
+                    } else if (result.dismiss === Swal.DismissReason.cancel) {
+                                       
+                    }
+                });
+                   
+                  //  me.listarAlmTienda();
+                }).catch(function(error){
+                    error401(error);
+                    console.log(error);
+                });
+
+                
+
             }
         },  
 
@@ -549,9 +582,12 @@ export default {
                     me.selectUsuario=0;
                     me.selectVehiculo=0;
                     me.estimacion="";
+                    me.observacion="Ninguna."
+                    
                     me.classModal.openModal("registrar");
                     break;
                 }
+                
                 case "actualizar": {
                     me.tipoAccion = 2;
                    
@@ -583,9 +619,8 @@ export default {
                     me.selectVehiculo=0;
                     me.tipoAccion = 1;
                     me.estimacion="";
-                    setTimeout(me.tiempo, 200); 
-     
-              
+                    me.observacion="";
+                    setTimeout(me.tiempo, 200);              
             } else {
                 me.classModal.closeModal(accion);
                 me.tipoEvento=1;
