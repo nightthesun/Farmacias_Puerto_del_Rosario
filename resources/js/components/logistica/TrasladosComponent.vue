@@ -25,11 +25,12 @@
                 <div class="col-md-2" style="text-align: center">
                      <label for="">Almacen o Tienda:</label>
                 </div>
+           
                         <div class="col-md-6">
                             <div class="input-group">
                                 <select
                                     class="form-control"
-                                    
+                                    @change="listarTraslado(0)"
                                     v-model="selectAlmTienda"
                                 >
                                     <option value="0" disabled selected>Seleccionar...</option>
@@ -43,6 +44,7 @@
                                             sucursal.codigo+
                                             ' ' +
                                             sucursal.razon_social
+                                            +' ('+sucursal.veces_repetido+')'
                                         "
                                     ></option>
                                 </select>
@@ -57,14 +59,14 @@
                                     class="form-control"
                                     placeholder="Texto a buscar"
                                     v-model="buscar"
-                               
+                                    @keyup.enter="listarTraslado(1)" 
                                     :hidden="selectAlmTienda == 0"
                                     :disabled="selectAlmTienda == 0"
                                 />
                                 <button
                                     type="submit" 
                                     class="btn btn-primary"
-                              
+                                    @click="listarTraslado(1)" 
                                     :hidden="selectAlmTienda == 0"
                                     :disabled="selectAlmTienda == 0"
                                 >
@@ -74,6 +76,78 @@
                         </div>
 
             </div>
+            <!--inicio de tabla-->
+            <table class="table table-bordered table-striped table-sm table-responsive" >
+                <thead>
+                    <tr>
+                        <th>Opciones</th>
+                        <th>Nro. Traspaso</th>
+                        <th>Producto</th>
+                        <th>Cantidad</th>
+                        <th>Fecha</th>
+                        <th>Origen</th>
+                        <th>Destino</th>
+                        <th>Vehiculo</th>
+                        <th>Observación</th>
+                        <th>Per. Enviada</th>
+                        <th>Usuario</th>
+                        <th>Estado</th>       
+                    </tr>
+                </thead>
+                    <tbody v-if="selectAlmTienda == 0"></tbody>
+                    <tbody v-if="selectAlmTienda != 0">
+                        <tr v-for="tras in arrayTraslado" :key="tras.id"> 
+                            <td>
+                                <button type="button" class="btn btn-warning btn-sm"
+                                        @click="abrirModal('actualizar',tras,
+                                            );
+                                            listarVehiculo(cod_alm_tienda);listarTraspaso();
+                                        "
+                                    >
+                                        <i class="icon-pencil"></i>
+                                    </button>
+                                    &nbsp;
+                                    <button
+                                        v-if="tras.activo == 1"
+                                        type="button"
+                                        class="btn btn-danger btn-sm"
+                                        @click="eliminar(tras.id)"
+                                        
+                                    >
+                                        <i class="icon-trash"></i>
+                                    </button>
+                                    <button
+                                        v-else
+                                        type="button"
+                                        class="btn btn-info btn-sm"
+                                        @click="activar(tras.id)"
+                                    >
+                                        <i class="icon-check"></i>
+                                    </button>
+                            </td>
+                            <td v-text="tras.numero_traspaso"></td>
+                            <td v-text="tras.leyenda"></td>
+                            <td v-text="tras.cantidad"></td>
+                            <td v-text="tras.fecha"></td>
+                            <td v-text="tras.origen"></td>
+                            <td v-text="tras.destino"></td>
+                            <td v-text="tras.vehiculo"></td>
+                            <td v-text="tras.observacion"></td>
+                            <td v-text="tras.nom_completo"></td>
+                            <td v-text="tras.user_name"></td>
+                            <td>
+                                 <div v-if="tras.activo==1">
+                                     <span class="badge badge-success">Activo</span>
+                                 </div>
+                                 <div v-else>
+                                     <span class="badge badge-warning">Desactivado</span>
+                                 </div>
+                                 
+                             </td>
+                        </tr>
+                    </tbody>               
+            </table>
+            <!--fin de tabla-->
         </div>
             </div>   
   
@@ -106,17 +180,19 @@
                             Todos los campos con (*) son requeridos
                         </div>
                         <form action="" class="form-horizontal">
-                        
+                    
+                             
                             <!-- insertar datos -->
                             <div class="container">
                                 
                                 <div class="form-group row">
+                                   <div> </div> 
                                     <label class="col-md-3 form-control-label" for="text-input">
                                      Traspaso:
                                         <span v-if="selectTraspaso == '0'" class="error">(*)</span>
                                     </label>
                                     <div class="col-md-7 input-group mb-3">
-                                        <select v-model="selectTraspaso"
+                                        <select v-model="selectTraspaso" v-if="tipoAccion==1"
                                             class="form-control">
                                             <option v-bind:value="0" disabled>
                                                 Seleccionar...
@@ -131,11 +207,16 @@
                                                     ' | C: ' + traspasoI.cantidad  "
                                             ></option>
                                         </select>
-                                        <button class="btn btn-primary" type="button" id="button-addon1"
+                                        <button class="btn btn-primary" 
+                                        v-if="tipoAccion == 1"
+                                        type="button" id="button-addon1"
                                         @click="abrirModal('bucarProductoIngreso');listarRetornoTraspaso();">                                           
                                             <i class="fa fa-search"></i>                                            
                                         </button>                                     
-                                        
+                                        <input v-if="tipoAccion == 2"
+                                        type="text"
+                                        v-model="leyenda" 
+                                        />
                                     </div>
                                         <!-- debe ingresar los datos de para asignar datos del array-->
                                 </div>
@@ -322,7 +403,7 @@ export default {
                 to: 0,
             },
           
-
+            tipoAccion:1,
             tituloModal: "",
             selectAlmTienda:0,
             arrayAlmTienda:[],
@@ -341,6 +422,9 @@ export default {
             tipoEvento:1,
             estimacion:"",
             observacion:"",
+            arrayTraslado:[],
+            id_traslado:0,
+            leyenda:"",
            
            
            
@@ -397,6 +481,21 @@ export default {
 
     methods: {
        
+        listarTraslado(page){
+            let me=this;
+                var url='/traslado?page='+page+'&buscar='+me.buscar+'&buscarAlmTdn='+me.selectAlmTienda;
+               console.log(url);
+                axios.get(url)
+                .then(function(response){
+                    var respuesta = response.data;
+                    me.pagination = respuesta.pagination;
+                    me.arrayTraslado = respuesta.resultado.data;
+                })
+                .catch(function(error){
+                    error401(error);
+                });
+        },
+
         listarRetornoTraspaso() {
             let me = this;
                 var url ="/traslado/listarRetornoTraspaso?codigo=" + me.cod_alm_tienda +
@@ -493,7 +592,7 @@ export default {
         cambiarPagina(page) {
             let me = this;
             me.pagination.current_page = page;
-        //    me.listarAjusteNegativos(page);
+            me.listarTraslado(page);
         },
         registrar(){
             let me =this;
@@ -541,12 +640,13 @@ export default {
                 })
                 .then((result) => {
                     if (result.isConfirmed) {                       
-                      
+                        me.listarTraslado();
                         me.abrirModal('registrar');
                         me.listarVehiculo(me.cod_alm_tienda);
+                     
                         me.listarTraspaso();                        
                     } else if (result.dismiss === Swal.DismissReason.cancel) {
-                                       
+                        me.listarTraslado();               
                     }
                 });
                    
@@ -560,7 +660,103 @@ export default {
 
             }
         },  
+        eliminar(id) {
+            let me = this;
+           const swalWithBootstrapButtons = Swal.mixin({
+                customClass: {
+                    confirmButton: "btn btn-success",
+                    cancelButton: "btn btn-danger",
+                },
+                buttonsStyling: false,
+            });
 
+            swalWithBootstrapButtons
+                .fire({
+                    title: "Esta Seguro de Desactivar?",
+                    text: "Es una eliminacion logica",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Si, Desactivar",
+                    cancelButtonText: "No, Cancelar",
+                    reverseButtons: true,
+                })
+                .then((result) => {
+                    if (result.isConfirmed) {
+                        axios
+                            .put("/traslado/desactivar", {
+                                id: id,
+                                
+                            })
+                            .then(function (response) {
+                                me.listarTraslado();
+                                swalWithBootstrapButtons.fire(
+                                    "Desactivado!",
+                                    "El registro a sido desactivado Correctamente",
+                                    "success",
+                                );
+                                me.listarTraslado();
+                            })
+                            .catch(function (error) {
+                                error401(error);
+                                console.log(error);
+                            });
+                    } else if (
+                        /* Read more about handling dismissals below */
+                        result.dismiss === Swal.DismissReason.cancel
+                    ) {
+                    }
+                });
+        },
+        activar(id) {
+            let me = this;
+            const swalWithBootstrapButtons = Swal.mixin({
+                customClass: {
+                    confirmButton: "btn btn-success",
+                    cancelButton: "btn btn-danger",
+                },
+                buttonsStyling: false,
+            });
+            swalWithBootstrapButtons
+                .fire({
+                    title: "Esta Seguro de Activar?",
+                    text: "Es una Activacion logica",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Si, Activar",
+                    cancelButtonText: "No, Cancelar",
+                    reverseButtons: true,
+                })
+                .then((result) => {
+                    if (result.isConfirmed) {
+                        axios
+                            .put("/traslado/activar", {
+                                id: id,
+                            
+                            })
+                            .then(function (response) {
+                                me.listarTraslado();
+                                swalWithBootstrapButtons.fire(
+                                    "Activado!",
+                                    "El registro a sido Activado Correctamente",
+                                    "success",
+                                );
+                            })
+                            .catch(function (error) {
+                                error401(error);
+                                console.log(error);
+                            });
+                    } else if (
+                        /* Read more about handling dismissals below */
+                        result.dismiss === Swal.DismissReason.cancel
+                    ) {
+                        /* swalWithBootstrapButtons.fire(
+                    'Cancelado!',
+                    'El Registro no fue Activado',
+                    'error'
+                    ) */
+                    }
+                });
+        },
         abrirModal(accion, data = []) {
             let me = this;
          
@@ -590,8 +786,13 @@ export default {
                 
                 case "actualizar": {
                     me.tipoAccion = 2;
-                   
-          
+                    me.tituloModal = "Nombre de traspaso origen: "+me.razon_socialAlmTienda;
+                    me.selectTraspaso=data.id_traslado === null ? 0:data.id_traslado 
+                    me.selectUsuario=0;
+                    me.selectVehiculo=0;
+                    me.estimacion=data.tiempo;
+                    me.observacion=data.observacion;
+
             
                     me.classModal.openModal("registrar");
 
@@ -646,6 +847,7 @@ export default {
         this.listarUsuario();
         this.listarVehiculo();
         this.classModal.addModal("staticBackdrop");
+        this.listarTraslado();
     
     },
 };

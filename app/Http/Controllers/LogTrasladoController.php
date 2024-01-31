@@ -15,6 +15,7 @@ class LogTrasladoController extends Controller
     public function index(Request $request)
     {
         $buscararray=array();
+        $bus = $request->query('buscarAlmTdn');
         if(!empty($request->buscar)){
             $buscararray = explode(" ",$request->buscar);
             $valor=sizeof($buscararray);
@@ -25,25 +26,21 @@ class LogTrasladoController extends Controller
                     if(empty($sqls)){
                         $sqls="(
                             it.numero_traspaso like '%".$valor."%' 
-                                or iv.matricula like '%".$valor."%' 
-                                or iv.tipo like '%".$valor."%' 
-                                or u.name like '%".$valor."%'
-                                or re.nombre like '%".$valor."%' 
-                                or iv.color like '%".$valor."%' 
-                                or iv.nro_chasis like '%".$valor."%' 
-                                
+                            or it.leyenda  like '%".$valor."%' 
+                            or lv.matricula   like '%".$valor."%' 
+                            or  re.nombre  like '%".$valor."%' 
+                               
                               )" ;
                     }
                     else
                     {
                         $sqls.="and (
                             it.numero_traspaso like '%".$valor."%' 
-                            or it.name_ori like '%".$valor."%' 
-                            or it.name_des like '%".$valor."%' 
-                            or u.name like '%".$valor."%' 
-                            or re.nombre like '%".$valor."%'
-                            or iv.color like '%".$valor."%' 
-                            or iv.nro_chasis like '%".$valor."%'  
+                            or it.leyenda  like '%".$valor."%' 
+                            or lv.matricula   like '%".$valor."%' 
+                            or  re.nombre  like '%".$valor."%' 
+                            or  lt.created_at  like '%".$valor."%' 
+                            
                           )" ;
                     }
     
@@ -53,7 +50,8 @@ class LogTrasladoController extends Controller
                  ->join('prod__tipo_entradas as pte', 'pte.id', '=', 'it.id_tipoentrada')
                  ->join('rrh__empleados as re', 're.id', '=', 'lt.id_empleado')
                  ->join('log__vehiculos as lv', 'lv.id', '=', 'lt.id_vehiculo')
-                  >select('lt.id as id', 
+                 ->join('users as u', 'u.id', '=', 'lt.id_user')
+                  ->select('lt.id as id', 
                         'lt.codigo as codigo',
                         'lt.tiempo as tiempo',
                         'lt.id_traspaso as id_traspaso',
@@ -69,11 +67,21 @@ class LogTrasladoController extends Controller
                         'lt.id_vehiculo as id_vehiculo',
                         'lv.matricula as vehiculo',
                         'lv.telefono as tele_vehi',
-                        'lv.tipo as tipo_vehi' ) ->orderBy('id', 'desc')->paginate(8);
+                        'u.name as user_name',
+                        'lt.observacion as observacion',
+                        'lt.activo as activo',
+                        'it.cod_1 as cod_1',
+                        'it.cod_2 as cod_2',
+                        DB::raw('GREATEST(lt.created_at, lt.updated_at) as fecha'),
+                        'lv.tipo as tipo_vehi' )
+                        ->whereRaw($sqls)
+                        ->where('it.cod_1', '=', $bus)
+                        
+                        ->whereDate('lt.created_at', '>=', now()->subDays(30)) ->orderBy('id', 'desc')->paginate(8);
 
             }    
-            return 
-            [
+            return  
+                [
                     'pagination'=>
                         [
                             'total'         =>    $resultado->total(),
@@ -87,13 +95,12 @@ class LogTrasladoController extends Controller
             ]; 
         }
         else{
-
-        }    
-        $resultado = DB::table('log__traslados as lt')
+             $resultado = DB::table('log__traslados as lt')
     ->join('inv__traspasos as it', 'it.id', '=', 'lt.id_traspaso')
     ->join('prod__tipo_entradas as pte', 'pte.id', '=', 'it.id_tipoentrada')
     ->join('rrh__empleados as re', 're.id', '=', 'lt.id_empleado')
     ->join('log__vehiculos as lv', 'lv.id', '=', 'lt.id_vehiculo')
+    ->join('users as u', 'u.id', '=', 'lt.id_user')
     ->select(
         'lt.id as id',
         'lt.codigo as codigo',
@@ -111,8 +118,31 @@ class LogTrasladoController extends Controller
         'lt.id_vehiculo as id_vehiculo',
         'lv.matricula as vehiculo',
         'lv.telefono as tele_vehi',
-        'lv.tipo as tipo_vehi'
-    )
+        'u.name as user_name',
+        'lt.observacion as observacion',
+        'lt.activo as activo',
+        'it.cod_1 as cod_1',
+        'it.cod_2 as cod_2',
+        DB::raw('GREATEST(lt.created_at, lt.updated_at) as fecha'),
+        'lv.tipo as tipo_vehi')
+        ->where('it.cod_1', '=', $bus)
+        
+        ->whereDate('lt.created_at', '>=', now()->subDays(30))->orderBy('id', 'desc')->paginate(8);
+     return  
+                [ 'pagination'=>
+                        [
+                            'total'         =>    $resultado->total(),
+                            'current_page'  =>    $resultado->currentPage(),
+                            'per_page'      =>    $resultado->perPage(),
+                            'last_page'     =>    $resultado->lastPage(),
+                            'from'          =>    $resultado->firstItem(),
+                            'to'            =>    $resultado->lastItem(),
+                        ] ,
+                  'resultado'=>$resultado,
+            ];
+        
+        }    
+       
    
     }
 
@@ -219,22 +249,55 @@ class LogTrasladoController extends Controller
     }
     public function listarSucursal(){
        
-        $tiendas = DB::table('tda__tiendas')
-        ->select('tda__tiendas.id as id_tienda', DB::raw('null as id_almacen'), 'tda__tiendas.codigo', 'adm__sucursals.razon_social', 'adm__sucursals.razon_social as sucursal','adm__sucursals.cod as codigoS',
-         DB::raw('"Tienda" as tipoCodigo'),'tda__tiendas.id as id_tienda_almacen')
-        ->join('adm__sucursals', 'tda__tiendas.idsucursal', '=', 'adm__sucursals.id');
+     //   $tiendas = DB::table('tda__tiendas')
+    //    ->select('tda__tiendas.id as id_tienda', DB::raw('null as id_almacen'), 'tda__tiendas.codigo', 'adm__sucursals.razon_social', 'adm__sucursals.razon_social as sucursal','adm__sucursals.cod as codigoS',
+    //     DB::raw('"Tienda" as tipoCodigo'),'tda__tiendas.id as id_tienda_almacen')
+    //    ->join('adm__sucursals', 'tda__tiendas.idsucursal', '=', 'adm__sucursals.id');
 
-    $almacenes = DB::table('alm__almacens as aa')
-        ->join('adm__sucursals as ass', 'ass.id', '=', 'aa.idsucursal')
-        ->select(DB::raw('null as id_tienda'), 'aa.id as id_almacen', 'aa.codigo', 'aa.nombre_almacen as razon_social', 'ass.razon_social as sucursal', 'ass.cod as codigoS,',
-        DB::raw('"Almacen" as tipoCodigo'),'aa.id as id_tienda_almacen');
+   // $almacenes = DB::table('alm__almacens as aa')
+    //    ->join('adm__sucursals as ass', 'ass.id', '=', 'aa.idsucursal')
+    //    ->select(DB::raw('null as id_tienda'), 'aa.id as id_almacen', 'aa.codigo', 'aa.nombre_almacen as razon_social', 'ass.razon_social as sucursal', 'ass.cod as codigoS,',
+    //    DB::raw('"Almacen" as tipoCodigo'),'aa.id as id_tienda_almacen');
 
-    $result = $tiendas->unionAll($almacenes)->get();
- 
+  //  $result = $tiendas->unionAll($almacenes)->get();
+  $resultado  = DB::table(DB::raw('(SELECT
+  tda__tiendas.id AS id_tienda,
+  NULL AS id_almacen,
+  tda__tiendas.codigo,
+  adm__sucursals.razon_social,
+  adm__sucursals.razon_social AS sucursal,
+  adm__sucursals.cod AS codigoS,
+  "Tienda" AS tipoCodigo,
+  tda__tiendas.id AS id_tienda_almacen
+FROM
+  tda__tiendas
+JOIN adm__sucursals ON tda__tiendas.idsucursal = adm__sucursals.id
+
+UNION ALL
+
+SELECT
+  NULL AS id_tienda,
+  aa.id AS id_almacen,
+  aa.codigo,
+  aa.nombre_almacen AS razon_social,
+  ass.razon_social AS sucursal,
+  ass.cod AS codigoS,
+  "Almacen" AS tipoCodigo,
+  aa.id AS id_tienda_almacen
+FROM
+  alm__almacens AS aa
+JOIN adm__sucursals AS ass ON ass.id = aa.idsucursal) AS result'))
+->leftJoin(DB::raw('(SELECT cod_1, COUNT(*) AS veces_repetido
+FROM inv__traspasos
+WHERE procesado = 0
+GROUP BY cod_1) AS traspasos'), 'result.codigo', '=', 'traspasos.cod_1')
+->select('result.*', DB::raw('IFNULL(traspasos.veces_repetido, 0) AS veces_repetido'))
+->get();
+
  
          $jsonSucrusal = [];
  
- foreach ($result as $key=>$sucursal) {
+ foreach ($resultado as $key=>$sucursal) {
      $elemento = [
          'id' => $key,
          'id_tienda' => $sucursal->id_tienda,
@@ -244,13 +307,13 @@ class LogTrasladoController extends Controller
          'sucursal' => $sucursal->sucursal,
          'codigoS' => $sucursal->codigoS,
          'tipoCodigo' =>$sucursal->tipoCodigo,
-         'id_tienda_almacen' => $sucursal->id_tienda_almacen
+         'id_tienda_almacen' => $sucursal->id_tienda_almacen,
      ];
  
      $jsonSucrusal[] = $elemento;
  }
  
-     return $jsonSucrusal;
+     return $resultado;
      
      }
 
@@ -271,7 +334,8 @@ class LogTrasladoController extends Controller
         ->where('it.procesado', '=', 0)
         ->where('it.activo', '=', 1)
         ->where('it.id_tipoentrada', '=', 13)
-        ->where('it.cod_1', '=', $request->codigo);
+        ->where('it.cod_1', '=', $request->codigo)
+        ->whereDate('it.created_at', '>=', now()->subDays(30));
     
     $query2 = DB::table('inv__traspasos as it')
         ->select('it.id as id', 'tt.id as id_almacen_tienda', 'it.id_prod_producto as id_prod_producto', 'pp.codigo as cod_prod', 'pp.nombre as name_prod',
@@ -287,7 +351,8 @@ class LogTrasladoController extends Controller
         ->where('it.procesado', '=', 0)
         ->where('it.activo', '=', 1)
         ->where('it.id_tipoentrada', '=', 13)
-        ->where('it.cod_1', '=', $request->codigo);
+        ->where('it.cod_1', '=', $request->codigo)
+        ->whereDate('it.created_at', '>=', now()->subDays(30));
     
     $resultado = $query1->unionAll($query2)->get();
     
@@ -343,7 +408,8 @@ class LogTrasladoController extends Controller
                 ->where('it.id_tipoentrada', '=', 13)
                 ->where('it.activo', '=', 1)
                 ->whereRaw($sqls)
-                ->where('it.cod_1', '=', $request->codigo);
+                ->where('it.cod_1', '=', $request->codigo)
+                ->whereDate('it.created_at', '>=', now()->subDays(30));
             
             $query2 = DB::table('inv__traspasos as it')
                 ->select('it.id as id', 'tt.id as id_almacen_tienda', 'it.id_prod_producto as id_prod_producto', 'pp.codigo as cod_prod', 'pp.nombre as name_prod',
@@ -360,7 +426,8 @@ class LogTrasladoController extends Controller
                 ->where('it.id_tipoentrada', '=', 13)
                 ->where('it.activo', '=', 1)
                 ->whereRaw($sqls)
-                ->where('it.cod_1', '=', $request->codigo);
+                ->where('it.cod_1', '=', $request->codigo)
+                ->whereDate('it.created_at', '>=', now()->subDays(30));
              
             }
             $resultado = $query1->unionAll($query2)->get();
@@ -379,7 +446,8 @@ class LogTrasladoController extends Controller
             ->where('it.procesado', '=', 0)
             ->where('it.id_tipoentrada', '=', 13)
             ->where('it.activo', '=', 1)
-            ->where('it.cod_1', '=', $request->codigo);
+            ->where('it.cod_1', '=', $request->codigo)
+            ->whereDate('it.created_at', '>=', now()->subDays(30));
         
         $query2 = DB::table('inv__traspasos as it')
             ->select('it.id as id', 'tt.id as id_almacen_tienda', 'it.id_prod_producto as id_prod_producto', 'pp.codigo as cod_prod', 'pp.nombre as name_prod',
@@ -395,8 +463,10 @@ class LogTrasladoController extends Controller
             ->where('it.procesado', '=', 0)
             ->where('it.id_tipoentrada', '=', 13)
             ->where('it.activo', '=', 1)
-            ->where('it.cod_1', '=', $request->codigo);
+            ->where('it.cod_1', '=', $request->codigo)
+            ->whereDate('it.created_at', '>=', now()->subDays(30));
             $resultado = $query1->unionAll($query2)->get();
+            
             return $resultado;
         }
       
@@ -443,4 +513,36 @@ class LogTrasladoController extends Controller
     
     return $result;
     }
+    public function desactivar(Request $request)
+    {
+        $result = DB::table('log__traslados as lt')
+    ->join('inv__traspasos as it', 'lt.id_traspaso', '=', 'it.id')
+    ->select('lt.id_traspaso')
+    ->first();
+        $update2 = Inv_Traspaso::findOrFail($result->id_traspaso);
+        $update2->procesado=0;
+        $update = Log_Traslado::findOrFail($request->id);
+        $update->activo = 0;
+        $update->id_user=auth()->user()->id;
+        $update->id_usuario_modifica=auth()->user()->id;
+        $update->save();
+        $update2->save();
+    }
+
+    public function activar(Request $request)
+    {  
+        $result = DB::table('log__traslados as lt')
+    ->join('inv__traspasos as it', 'lt.id_traspaso', '=', 'it.id')
+    ->select('lt.id_traspaso')
+    ->first();
+        $update2 = Inv_Traspaso::findOrFail($result->id_traspaso);
+        $update2->procesado=1;
+        $update = Log_Traslado::findOrFail($request->id);
+        $update->activo = 1;
+        $update->id_user=auth()->user()->id;
+        $update->id_usuario_modifica=auth()->user()->id;
+        $update->save();
+        $update2->save();
+    }
+
 }

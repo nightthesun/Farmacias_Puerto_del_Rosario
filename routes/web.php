@@ -439,5 +439,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/traslado/listarRetornoTraspaso', [LogTrasladoController::class, 'listarRetornoTraspaso']); 
     Route::post('/traslado/registrar', [LogTrasladoController::class, 'store']); 
     Route::get('/traslado/repetidor', [LogTrasladoController::class, 'repetidor']); 
+    Route::get('/traslado', [LogTrasladoController::class, 'index']); 
+    Route::put('/traslado/desactivar', [LogTrasladoController::class, 'desactivar']);
+    Route::put('/traslado/activar', [LogTrasladoController::class, 'activar']);
     
 });
