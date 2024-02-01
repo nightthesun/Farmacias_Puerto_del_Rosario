@@ -62,6 +62,7 @@ class LogTrasladoController extends Controller
                         'it.numero_traspaso as numero_traspaso',
                         'it.name_ori as origen',
                         'it.name_des as destino',
+                        'lt.id_empleado as id_empleado',
                          DB::raw('CONCAT_WS(re.nombre, re.papellido, re.sapellido) as nom_completo'),
                         're.celular as celular',
                         'lt.id_vehiculo as id_vehiculo',
@@ -113,6 +114,7 @@ class LogTrasladoController extends Controller
         'it.numero_traspaso as numero_traspaso',
         'it.name_ori as origen',
         'it.name_des as destino',
+        're.id as id_empleado',
         DB::raw('CONCAT_WS(re.nombre, re.papellido, re.sapellido) as nom_completo'),
         're.celular as celular',
         'lt.id_vehiculo as id_vehiculo',
@@ -237,7 +239,14 @@ class LogTrasladoController extends Controller
      */
     public function update(Request $request, Log_Traslado $log_Traslado)
     {
-        //
+        $update=Log_Traslado::find($request->id);
+        $update->id_usuario_modifica= auth()->user()->id;
+        $update->id_user = auth()->user()->id;
+        $update->id_empleado=$request->id_empleado;
+        $update->id_vehiculo=$request->id_vehiculo;
+        $update->tiempo=$request->time;
+        $update->observacion=$request->observacion;
+        $update->save();   
     }
 
     /**
@@ -249,17 +258,7 @@ class LogTrasladoController extends Controller
     }
     public function listarSucursal(){
        
-     //   $tiendas = DB::table('tda__tiendas')
-    //    ->select('tda__tiendas.id as id_tienda', DB::raw('null as id_almacen'), 'tda__tiendas.codigo', 'adm__sucursals.razon_social', 'adm__sucursals.razon_social as sucursal','adm__sucursals.cod as codigoS',
-    //     DB::raw('"Tienda" as tipoCodigo'),'tda__tiendas.id as id_tienda_almacen')
-    //    ->join('adm__sucursals', 'tda__tiendas.idsucursal', '=', 'adm__sucursals.id');
-
-   // $almacenes = DB::table('alm__almacens as aa')
-    //    ->join('adm__sucursals as ass', 'ass.id', '=', 'aa.idsucursal')
-    //    ->select(DB::raw('null as id_tienda'), 'aa.id as id_almacen', 'aa.codigo', 'aa.nombre_almacen as razon_social', 'ass.razon_social as sucursal', 'ass.cod as codigoS,',
-    //    DB::raw('"Almacen" as tipoCodigo'),'aa.id as id_tienda_almacen');
-
-  //  $result = $tiendas->unionAll($almacenes)->get();
+   
   $resultado  = DB::table(DB::raw('(SELECT
   tda__tiendas.id AS id_tienda,
   NULL AS id_almacen,

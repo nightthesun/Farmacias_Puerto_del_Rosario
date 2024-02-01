@@ -23,7 +23,8 @@ class AdmVentanaModuloSeeder extends Seeder
         $config = Adm_Modulo::where('nombre', 'parametros')->first();        
         $prod = Adm_Modulo::where('nombre', 'productos')->first();
         $gestprec = Adm_Modulo::where('nombre', 'gestion precios')->first();
-        $inv = Adm_Modulo::where('nombre', 'inventario')->first();          
+        $inv = Adm_Modulo::where('nombre', 'inventario')->first();  
+        $log = Adm_Modulo::where('nombre', 'Logistica')->first();         
 
         
         
@@ -82,7 +83,12 @@ class AdmVentanaModuloSeeder extends Seeder
         //inventario 900
         DB::table('adm__ventana_modulos')->insert(['codventana'=>'901','idmodulo'=>$inv->id,'nombre'=>'Ajustes Negativos','template'=>'ajuste-negativo-component']);
         DB::table('adm__ventana_modulos')->insert(['codventana'=>'902','idmodulo'=>$inv->id,'nombre'=>'Ajustes Positivos','template'=>'ajuste-positivo-component']);
- 
+        DB::table('adm__ventana_modulos')->insert(['codventana'=>'903','idmodulo'=>$inv->id,'nombre'=>'Traspasos','template'=>'traspaso-component']);
+        DB::table('adm__ventana_modulos')->insert(['codventana'=>'904','idmodulo'=>$inv->id,'nombre'=>'Recepcion','template'=>'recepcion-traspasos-component']);
+       
+        //inventario 1000
+        DB::table('adm__ventana_modulos')->insert(['codventana'=>'1001','idmodulo'=>$log->id,'nombre'=>'Vehiculos','template'=>'vehiculo-component']);
+        DB::table('adm__ventana_modulos')->insert(['codventana'=>'1002','idmodulo'=>$log->id,'nombre'=>'Traslados','template'=>'traslado-component']);
         
     }
 }

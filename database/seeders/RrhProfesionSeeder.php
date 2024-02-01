@@ -23,5 +23,6 @@ class RrhProfesionSeeder extends Seeder
         DB::table('rrh__profesions')->insert(['nombre'=>'Auxiliar de Farmacia']);
         DB::table('rrh__profesions')->insert(['nombre'=>'Ingeniero de Sistemas']);
         DB::table('rrh__profesions')->insert(['nombre'=>'Secretaria Ejecutiva']);
+        DB::table('rrh__profesions')->insert(['nombre'=>'Conductor de Vehiculo']);
     }
 }

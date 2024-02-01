@@ -186,7 +186,7 @@
                             <div class="container">
                                 
                                 <div class="form-group row">
-                                   <div> </div> 
+                              
                                     <label class="col-md-3 form-control-label" for="text-input">
                                      Traspaso:
                                         <span v-if="selectTraspaso == '0'" class="error">(*)</span>
@@ -212,11 +212,11 @@
                                         type="button" id="button-addon1"
                                         @click="abrirModal('bucarProductoIngreso');listarRetornoTraspaso();">                                           
                                             <i class="fa fa-search"></i>                                            
-                                        </button>                                     
-                                        <input v-if="tipoAccion == 2"
-                                        type="text"
-                                        v-model="leyenda" 
-                                        />
+                                        </button>  
+                                        <div v-if="tipoAccion == 2">
+                                            <strong>Nro:{{numero_traspaso}}|{{leyenda}}| Destino:{{destino}}|Cantidad:{{cantidad}}</strong>
+                                        </div>
+                                      
                                     </div>
                                         <!-- debe ingresar los datos de para asignar datos del array-->
                                 </div>
@@ -325,7 +325,7 @@
                             type="button"
                             v-if="tipoAccion == 2"
                             class="btn btn-primary"
-                          
+                            @click="actualizar()"
                         >
                             Actualizar
                         </button>
@@ -424,7 +424,11 @@ export default {
             observacion:"",
             arrayTraslado:[],
             id_traslado:0,
+        
+            numero_traspaso:"",
+            destino:"",
             leyenda:"",
+
            
            
            
@@ -443,6 +447,18 @@ export default {
                         this.razon_socialAlmTienda=tiendaOalmacenSeleccionado.razon_social;
                        
                     }
+        },
+        selectTraspaso: function(newValue){
+            let traspasO = this.arrayTraspaso.find(
+                    (element) => element.id === newValue,
+                );
+              if(traspasO){
+              
+                this.numero_traspaso=traspasO.numero_traspaso;            
+                this.leyenda=traspasO.leyenda;
+                this.destino=traspasO.destino; 
+                this.cantidad=traspasO.cantidad;                                 
+              }  
         } 
     },
    
@@ -596,7 +612,7 @@ export default {
         },
         registrar(){
             let me =this;
-            console.log("id_tras:"+me.selectTraspaso+" id_empleado"+me.selectUsuario+" id_ve:"+me.selectVehiculo+" time:"+me.estimacion+" obs:"+me.observacion);    
+         //   console.log("id_tras:"+me.selectTraspaso+" id_empleado"+me.selectUsuario+" id_ve:"+me.selectVehiculo+" time:"+me.estimacion+" obs:"+me.observacion);    
             if (me.selectTraspaso==="" || me.selectUsuario === "" ||
             me.selectVehiculo ==="" || me.estimacion==="" || me.observacion===""
             ) {
@@ -659,7 +675,33 @@ export default {
                 
 
             }
-        },  
+        }, 
+        actualizar() {
+            let me = this;
+           
+            axios
+                .put("/traslado/actualizar", {
+                    id: me.id_traslado,
+                    id_empleado: me.selectUsuario,
+                    id_vehiculo: me.selectVehiculo,
+                       'time':me.estimacion, 
+                       'observacion':me.observacion,
+                     
+                })
+                .then(function (response) {
+                    me.listarTraslado(); 
+               
+                    Swal.fire(
+                        "Actualizado Correctamente!",
+                        "El registro a sido actualizado Correctamente",
+                        "success",
+                    );
+                })
+                .catch(function (error) {
+                    error401(error);
+                });
+            me.cerrarModal("registrar");
+        }, 
         eliminar(id) {
             let me = this;
            const swalWithBootstrapButtons = Swal.mixin({
@@ -760,11 +802,7 @@ export default {
         abrirModal(accion, data = []) {
             let me = this;
          
-        //    let respuesta = me.arraySucursal.find(
-        //        (element) => element.codigo == me.sucursalSeleccionada,
-        //    );
-      
-         switch (accion) {
+        switch (accion) {
                 case "registrar": {
                   
                     me.tipoAccion = 1;
@@ -780,20 +818,32 @@ export default {
                     me.estimacion="";
                     me.observacion="Ninguna."
                     
+                    me.cantidad="";
+                   me.leyenda="";
+                   me.destino="";   
+                   me.numero_traspaso="";
+                   me.id_traslado="";
+                        
                     me.classModal.openModal("registrar");
                     break;
                 }
                 
                 case "actualizar": {
+                   // console.log(data);
                     me.tipoAccion = 2;
                     me.tituloModal = "Nombre de traspaso origen: "+me.razon_socialAlmTienda;
-                    me.selectTraspaso=data.id_traslado === null ? 0:data.id_traslado 
-                    me.selectUsuario=0;
-                    me.selectVehiculo=0;
+                    me.selectTraspaso=data.id_traslado === null ? 0:data.id_traslado ;
+                    me.selectUsuario=data.id_empleado === null? 0:data.id_empleado;
+                    me.selectVehiculo=data.id_vehiculo === null? 0:data.id_vehiculo;
+
+                  
                     me.estimacion=data.tiempo;
                     me.observacion=data.observacion;
-
-            
+                    me.cantidad=data.cantidad;
+                   me.leyenda=data.leyenda;
+                   me.destino=data.destino;  
+                   me.id_traslado=data.id; 
+                   me.numero_traspaso=data.numero_traspaso;           
                     me.classModal.openModal("registrar");
 
                     break;
@@ -821,6 +871,12 @@ export default {
                     me.tipoAccion = 1;
                     me.estimacion="";
                     me.observacion="";
+
+                    me.cantidad="";
+                   me.leyenda="";
+                   me.destino="";   
+                   me.numero_traspaso="";
+                   me.id_traslado="";
                     setTimeout(me.tiempo, 200);              
             } else {
                 me.classModal.closeModal(accion);

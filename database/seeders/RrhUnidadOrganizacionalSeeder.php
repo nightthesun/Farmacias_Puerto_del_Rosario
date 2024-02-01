@@ -20,6 +20,7 @@ class RrhUnidadOrganizacionalSeeder extends Seeder
         DB::table('rrh__unidad_organizacionals')->insert(['nombre'=>'Comercial']);
         DB::table('rrh__unidad_organizacionals')->insert(['nombre'=>'Almacen']);
         DB::table('rrh__unidad_organizacionals')->insert(['nombre'=>'Servicios']);
+        DB::table('rrh__unidad_organizacionals')->insert(['nombre'=>'Logistica']);
         
     }
 }

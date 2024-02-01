@@ -18,7 +18,7 @@ return new class extends Migration
              $table->smallInteger('id_traspaso');
              $table->smallInteger('id_empleado');
              $table->smallInteger('id_vehiculo');
-             $table->timestamp('tiempo');
+             $table->times('tiempo');
              $table->string('codigo')->comment('identificador del bloque');
              $table->smallInteger('correlativo')->comment('controlador del bloque');
              $table->string('observacion')->nullable()->comment('si se encotro alguna observacion');

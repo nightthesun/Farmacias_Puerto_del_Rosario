@@ -43,6 +43,7 @@ use App\Http\Controllers\TdaIngresoProductoController;
 use App\Http\Controllers\InvAjusteNegativoController;
 use App\Http\Controllers\InvAjustePositivoController;
 use App\Http\Controllers\InvProcesarTraspasoController;
+use App\Http\Controllers\InvRecepcionController;
 use App\Http\Controllers\InvTrasladoController;
 use App\Http\Controllers\InvTraspasoController;
 use App\Http\Controllers\LogTrasladoController;
@@ -418,6 +419,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/traspaso/retornarProductosIngreso', [InvTraspasoController::class, 'retornarProductosIngreso']);
     Route::put('/traspaso/actualizar', [InvTraspasoController::class, 'update']);
 
+    Route::get('/recepcion/listarSucursal', [InvRecepcionController::class, 'listarSucursal']);   
+    Route::get('/recepcion/listarTraspaso', [InvRecepcionController::class, 'listarTraspaso']);  
+    
     Route::get('/procesar-traspaso', [InvProcesarTraspasoController::class, 'index']);
     Route::get('/procesar-traspaso/listarSucursal', [InvProcesarTraspasoController::class, 'listarSucursal']);
     Route::get('/procesar-traspaso/listarUsuario', [InvProcesarTraspasoController::class, 'listarUsuario']);
@@ -442,5 +446,6 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/traslado', [LogTrasladoController::class, 'index']); 
     Route::put('/traslado/desactivar', [LogTrasladoController::class, 'desactivar']);
     Route::put('/traslado/activar', [LogTrasladoController::class, 'activar']);
-    
+    Route::put('/traslado/actualizar', [LogTrasladoController::class, 'update']);
+   
 });

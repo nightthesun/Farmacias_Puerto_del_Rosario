@@ -32,12 +32,16 @@ return new class extends Migration
             $table->string("leyenda")->comment("conjunto de informacion del producto");
             $table->string("glosa")->comment("descripcion de la informacion de forma como lo requiera la empresa");
             $table->smallInteger("numero_traspaso")->comment("conjunto de numero y combinaciones de numeros");	            
-            $table->smallInteger('id_usuario_modifico');	           
+                  
+            $table->smallInteger('id_usuario_modifico')->nullable();	           
             $table->smallInteger('id_usuario_registro');	           
             $table->boolean('procesado')->default(0)->comment('Estado del registro, 1 -> procesado, 0 -> no procesado');	          
-
-
-            $table->timestamps();	           
+            $table->timestamps();
+            $table->smallInteger('user_id')->nullable(); 
+            $table->string('name_des');
+            $table->string('name_ori');
+            $table->smallInteger('correlativo');
+           	           
         });
     }
 

@@ -42,5 +42,9 @@ class RrhCargoSeeder extends Seeder
         $unidadorg=Rrh_UnidadOrganizacional::where('nombre','Servicios')->first();
         DB::table('rrh__cargos')->insert(['nombre'=>'Encargado Ecografia','idunidadorganizacional'=>$unidadorg->id]);
         DB::table('rrh__cargos')->insert(['nombre'=>'Encargado Radiografia','idunidadorganizacional'=>$unidadorg->id]);
+
+        $unidadorg=Rrh_UnidadOrganizacional::where('nombre','Logistica')->first();
+        DB::table('rrh__cargos')->insert(['nombre'=>'Chofer','idunidadorganizacional'=>$unidadorg->id]);
+    
     }
 }

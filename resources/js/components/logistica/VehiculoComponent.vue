@@ -25,6 +25,7 @@
                         </div>
                        
                     </div>
+                   
                     <table class="table table-bordered table-striped table-sm table-responsive">
                         <thead>
                             <tr>
@@ -115,8 +116,10 @@
 
                         <form action=""  class="form-horizontal">
 
-                            <div class="form-group row">
-                                <label class="col-md-3 form-control-label" for="text-input">Asignar Sucursal por defecto<span  v-if="selectAlmTda==0" class="error">(*)</span></label>
+
+                            <div class="form-group row" >
+                                
+                                <label class="col-md-3 form-control-label" for="text-input">Asignar Sucursal por defecto:<span  v-if="selectAlmTda==0" class="error">(*)</span></label>
                                 <div class="col-md-9">
                                     <select name="" id="" v-model="selectAlmTda" class="form-control">
                                        <option v-bind:value="0" disabled>Seleccionar...</option>
@@ -137,8 +140,17 @@
                             </div>
                           
                             <div class="form-group row">
-                                <label class="col-md-3 form-control-label" for="text-input">Asignar Chofer <span  v-if="selectUsuario==0" class="error">(*)</span></label>
-                                <div class="col-md-9">
+                                
+                               
+                                <label class="col-md-3 form-control-label" for="text-input">Asignar Chofer: <span  v-if="selectUsuario==0" class="error">(*)</span></label>
+                                <div class="col-md-9" v-if="arrayUsuario==''">
+                                    <span style="color: red;">
+                                        -   Debe crear un empleado con el cargo chofer.
+                                        <br>
+                                        -   Debe estar como usuario.
+                                    </span>
+                                </div>
+                                <div class="col-md-9" v-if="arrayUsuario!=''">
                                     <select name="" id="" v-model="selectUsuario" class="form-control">
                                        <option v-bind:value="0" disabled>Seleccionar...</option>
                                         <option  v-for="usu in arrayUsuario"
@@ -147,12 +159,12 @@
                                         v-text="usu.nom_completo"
                                     ></option>
                                     </select>
-                                    <span  v-if="selectUsuario==0" class="error">Debe seleccionar una sucursal</span>
+                                    <span  v-if="selectUsuario==0" class="error">Debe seleccionar una sucursal:</span>
                                 </div>
                             </div>
                          
                             <div class="form-group row">
-                                <label class="col-md-3 form-control-label" for="text-input">Matricula <span  v-if="matricula==''" class="error">(*)</span></label>
+                                <label class="col-md-3 form-control-label" for="text-input">Matricula: <span  v-if="matricula==''" class="error">(*)</span></label>
                                 <div class="col-md-9">
                                     <input type="tex" id="matricula" name="matricula" placeholder="XXX000" class="form-control"  v-model="matricula" v-on:focus="selectAll"  >
                                     <span  v-if="matricula==''" class="error">Debe Ingresar la matricula</span>
@@ -160,19 +172,19 @@
                             </div>
                             <!-- Fin nombre comercial -->
                             <div class="form-group row">
-                                <label class="col-md-3 form-control-label" for="text-input">Telefonos</label>
+                                <label class="col-md-3 form-control-label" for="text-input">Telefonos:</label>
                                 <div class="col-md-9">
                                     <input type="text" id="telefono" name="telefono" class="form-control" placeholder="Ingrese Los numeros de Telefono" onkeypress="return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 13 || event.charCode == 40 || event.charCode == 41 || event.charCode == 45 )" v-model="telefono" v-on:focus="selectAll">
                                  </div>
                             </div>
                             <div class="form-group row">
-                                <label class="col-md-3 form-control-label" for="text-input">Numero Chasis</label>
+                                <label class="col-md-3 form-control-label" for="text-input">Numero Chasis:</label>
                                 <div class="col-md-9">
                                     <input type="text" id="" name="" class="form-control" placeholder="Ingrese Los numero de chasis" v-model="nro_chasis">
                                  </div>
                             </div>
                             <div class="form-group row">
-                                <label class="col-md-3 form-control-label" for="text-input">Color</label>
+                                <label class="col-md-3 form-control-label" for="text-input">Color:</label>
                                 <div class="col-md-9">
                                     <input type="text" id="" name="" class="form-control" placeholder="Ingrese El color del auto vehiculo" v-model="color">
                                  </div>
@@ -180,7 +192,7 @@
                          
                     
                             <div class="form-group row">
-                                <label class="col-md-3 form-control-label" for="text-input">Tipo <span  v-if="selectTipo==0" class="error">(*)</span></label>
+                                <label class="col-md-3 form-control-label" for="text-input">Tipo :<span  v-if="selectTipo==0" class="error">(*)</span></label>
                                 <div class="col-md-9">
                                     <select name="" id="" v-model="selectTipo" class="form-control">
                                         <option value="0" disabled>Seleccionar...</option>
@@ -534,7 +546,7 @@ import { resolveTransitionHooks } from 'vue';
                 })
 
                 swalWithBootstrapButtons.fire({
-                title: 'Esta Seguro de Desactivar?',
+                title: '¿Esta Seguro de Desactivar?',
                 text: "Es una eliminacion logica",
                 icon: 'warning',
                 showCancelButton: true,

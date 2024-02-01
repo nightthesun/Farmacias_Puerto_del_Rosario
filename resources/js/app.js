@@ -70,7 +70,7 @@ createApp ({
     .component('ajuste-positivo-component', require('./components/inventario/AjustePositivoComponent.vue').default)
     .component('traspaso-component', require('./components/inventario/TraspasoComponent.vue').default)
     .component('procesar-traspasos-component', require('./components/inventario/ProcesarTraspasoComponent.vue').default)
-   
+    .component('recepcion-traspasos-component', require('./components/inventario/RecepcionComponent.vue').default)
     //Logistica
     .component('vehiculo-component', require('./components/logistica/VehiculoComponent.vue').default)
     .component('traslado-component', require('./components/logistica/TrasladosComponent.vue').default)
