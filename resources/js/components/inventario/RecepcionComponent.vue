@@ -471,12 +471,13 @@ export default {
                 );
             } else {
                 axios
-                    .post("/recepcion/registrar", {
+                    .get("/recepcion/registrar", {
                         'id_tralado': me.id_traslado,
                         'id_ingreso':me.id_ingreso,
                         'cod_1':me.cod_1,
                         'cod_2':me.cod_2,                
-                       'observacion':me.observacion,                     
+                       'observacion':me.observacion,   
+                             
                         'activo': 1,
                     
                      
