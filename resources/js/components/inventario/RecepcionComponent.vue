@@ -170,8 +170,14 @@
                                         <span v-else style="color: red;">Sin Accion</span>
                                     </strong>   
                                   </div>
+                                  <div class="form-group col-sm-4" v-if="selectTraspaso!=''">
+                                    <strong>Tiempo estimado de entrega: 
+                                        <span  >{{tiempo}}</span>
+                                     
+                                    </strong>   
+                                  </div>
           
-                            
+                                  
                                 </div>
                                 <div class="form-group row" v-if="selectTraspaso!='' &&estado==1 ">
                                       <label class="col-md-3 form-control-label" for="text-input"><strong>Observación: </strong> 
@@ -320,6 +326,7 @@ export default {
             id_ingreso:"",
             cod_1:"",
             cod_2:"",
+            tiempo:"",
 
         };
     },
@@ -354,6 +361,7 @@ export default {
                 this.id_ingreso=traspasO.id_ingreso;            
                 this.cod_1=traspasO.cod_1;
                 this.cod_2=traspasO.cod_2;
+                this.tiempo=traspasO.tiempo;
                      
               }  
         }   
@@ -556,6 +564,7 @@ export default {
                    me.id_ingreso="";            
                    me.cod_1="";
                    me.cod_2="";
+                   me.tiempo="";
 
                    me.classModal.openModal("registrar");
                     break;
@@ -601,6 +610,7 @@ export default {
                    me.id_ingreso="";            
                    me.cod_1="";
                    me.cod_2="";
+                   me.tiempo="";
                     setTimeout(me.tiempo, 200); 
                     //me.ProductoLineaIngresoSeleccionado = 0;
                     me.inputTextBuscarProductoIngreso = "";

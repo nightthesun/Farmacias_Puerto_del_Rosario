@@ -29,9 +29,9 @@ class InvRecepcionController extends Controller
      */
     public function store(Request $request)
     {
-        $recepcion =new Inv_Recepcion();
-
-        $recepcion->save();
+        //$recepcion =new Inv_Recepcion();
+        
+        //$recepcion->save();
     }
 
     /**
