@@ -374,7 +374,7 @@ GROUP BY cod_1) AS traspasos'), 'result.codigo', '=', 'traspasos.cod_1')
                             pp.codigo like '%".$valor."%' 
                             or pp.nombre like '%".$valor."%' 
                             or it.registro_sanitario like '%".$valor."%'                     
-                            or pp.codigo like '%".$valor."%' 
+                           
                             or  it.id_destino like '%".$valor."%' 
                             or  it.numero_traspaso  like '%".$valor."%'
                             or  it.lote  like '%".$valor."%' 
@@ -385,9 +385,9 @@ GROUP BY cod_1) AS traspasos'), 'result.codigo', '=', 'traspasos.cod_1')
                         $sqls.="and ( pp.codigo like '%".$valor."%' 
                         or pp.nombre like '%".$valor."%' 
                         or it.registro_sanitario like '%".$valor."%'                     
-                        or pp.codigo like '%".$valor."%' 
+                        or  it.id_destino like '%".$valor."%  
                         or  it.numero_traspaso  like '%".$valor."%'  
-                                          
+                        or  it.lote  like '%".$valor."%'                  
                        )";
                     }
                 }
@@ -430,6 +430,7 @@ GROUP BY cod_1) AS traspasos'), 'result.codigo', '=', 'traspasos.cod_1')
              
             }
             $resultado = $query1->unionAll($query2)->get();
+            return $resultado;
         }else{
             $query1 = DB::table('inv__traspasos as it')
             ->select('it.id as id', 'aa.id as id_almacen_tienda', 'it.id_prod_producto as id_prod_producto', 'pp.codigo as cod_prod', 'pp.nombre as name_prod',
