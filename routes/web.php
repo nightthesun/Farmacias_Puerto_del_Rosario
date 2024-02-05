@@ -422,7 +422,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/recepcion/listarSucursal', [InvRecepcionController::class, 'listarSucursal']);   
     Route::get('/recepcion/listarTraspaso', [InvRecepcionController::class, 'listarTraspaso']); 
     Route::get('/recepcion/listarRetornoTraspaso', [InvRecepcionController::class, 'listarRetornoTraspaso']); 
-    Route::get('/recepcion/registrar', [InvRecepcionController::class, 'store']); 
+    Route::post('/recepcion/registrar', [InvRecepcionController::class, 'store']); 
    
     Route::get('/procesar-traspaso', [InvProcesarTraspasoController::class, 'index']);
     Route::get('/procesar-traspaso/listarSucursal', [InvProcesarTraspasoController::class, 'listarSucursal']);

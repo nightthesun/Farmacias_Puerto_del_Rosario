@@ -213,7 +213,7 @@
                             type="button"
                             v-if="tipoAccion == 1 && estado==1"
                             class="btn btn-primary"
-                           
+                            @click="registrar()"
                             :disabled="!sicompleto"
                         >
                             Guardar
@@ -285,6 +285,7 @@
 <script>
 import Swal from "sweetalert2";
 import { error401 } from "../../errores";
+import { resolveTransitionHooks } from "vue";
 //Vue.use(VeeValidate);
 export default {
     data() {
@@ -327,7 +328,21 @@ export default {
             cod_1:"",
             cod_2:"",
             tiempo:"",
-
+            id_prod_producto:"",
+            envase:"",
+            id_almacen_tienda:"",
+            id_tipoentrada:"",
+            fecha_vencimiento:"",
+            lote:"",
+            registro_sanitario:"",
+            cod_prod:"",
+            linea_name:"",
+            name_prod:"",
+            fecha_vencimiento:"",
+            lote:"",
+            id_sucursal:"",
+            leyenda:"",
+            
         };
     },
 
@@ -362,7 +377,21 @@ export default {
                 this.cod_1=traspasO.cod_1;
                 this.cod_2=traspasO.cod_2;
                 this.tiempo=traspasO.tiempo;
-                     
+                this.id_prod_producto=traspasO.id_prod_producto;
+                this.envase=traspasO.envase;
+                this.id_almacen_tienda=traspasO.id_almacen_tienda;
+                this.id_tipoentrada=traspasO.id_tipoentrada;  
+                this.fecha_vencimiento=traspasO.fecha_vencimiento;
+                this.lote=traspasO.lote; 
+                this.registro_sanitario=traspasO.registro_sanitario;  
+                this.cod_prod=traspasO.cod_prod;
+                this.linea_name=traspasO.linea_name;
+                this.name_prod=traspasO.name_prod;
+                this.fecha_vencimiento=traspasO.fecha_vencimiento;
+                this.lote=traspasO.lote;
+                this.id_sucursal=traspasO.id_sucursal;
+            
+        
               }  
         }   
     },
@@ -460,78 +489,82 @@ export default {
         },
 
 
-
+//console.log("id_tras:"+me.id_traslado+" id_empleado:"+me.id_ingreso+" id_ve:"+me.cod_1+" time:"+me.cod_2+" obs:"+me.observacion);    
+//if (me.selectTraspaso===0 || me.observacion === "" || me.checked===false     
         cambiarPagina(page) {
             let me = this;
             me.pagination.current_page = page;
         //    me.listarAjusteNegativos(page);
         },
-        registrar(){
-            let me =this;
-         //   console.log("id_tras:"+me.selectTraspaso+" id_empleado"+me.selectUsuario+" id_ve:"+me.selectVehiculo+" time:"+me.estimacion+" obs:"+me.observacion);    
-            if (me.selectTraspaso===0 || me.observacion === "" || me.checked===false
-          
-            ) {
+        registrar() {
+            let me = this;
+     console.log("id_tras:"+me.id_traslado+" id_empleado:"+me.id_ingreso+" id_ve:"+me.cod_1+" time:"+me.cod_2+" obs:"+me.observacion+"checked:"+me.checked);    
+      if (me.selectTraspaso===0 || me.observacion === "" ) {
                 Swal.fire(
-                    "No puede ingresar valor vacios o verifique si hizo click en acepto?",
+                    "No puede ingresar valor vacios.",
                     "Haga click en Ok",
                     "warning",
                 );
             } else {
-                axios
-                    .get("/recepcion/registrar", {
-                        'id_tralado': me.id_traslado,
-                        'id_ingreso':me.id_ingreso,
-                        'cod_1':me.cod_1,
-                        'cod_2':me.cod_2,                
-                       'observacion':me.observacion,   
-                             
-                        'activo': 1,
-                    
-                     
-                    }).then(function(response){
-                        me.cerrarModal('registrar');
-                        me.listarAlmTienda();
-                        const swalWithBootstrapButtons = Swal.mixin({
-                        customClass: {
-                        confirmButton: "btn btn-info",
-                        cancelButton: "btn btn-light",
-                    },
-                    buttonsStyling: false,
-                });
-
-                swalWithBootstrapButtons
-                .fire({
-                    title: "Se registro con exito",
-                    text: "¿Desea añadir mas items?",
-                    icon: "question",
-                    showCancelButton: true,
-                    confirmButtonText: "Si, Añadir",
-                    cancelButtonText: "No, Gracias",
-                    reverseButtons: true,
-                })
-                .then((result) => {
-                    if (result.isConfirmed) {                       
-                        me.listarTraslado();
-                        me.abrirModal('registrar');
-                        me.listarVehiculo(me.cod_alm_tienda);
-                     
-                        me.listarTraspaso();                        
-                    } else if (result.dismiss === Swal.DismissReason.cancel) {
-                        me.listarTraslado();               
-                    }
-                });
+                if (me.checked===false) {
+                    Swal.fire(
+                    "Tiene que aceptar el traspaso, tiene que apretar el boton de aceptar.",
+                    "Haga click en Ok",
+                    "warning",
+                );
+                } else {
+                   // var url ="/recepcion/registrar?id_traslado="+me.id_traslado+"&id_ingreso=" +me.id_ingreso+"&cod_1=" +me.cod_1+"&cod_2=" +me.cod_2+"&cantidad=" +me.cantidad+"&id_prod_producto="+me.id_prod_producto
+                   // +"&envase:"+me.envase+"&id_almacen_tienda"+me.id_almacen_tienda
+                   // +"&id_tipoentrada:"+me.id_tipoentrada+"&fecha_vencimiento:"+me.fecha_vencimiento
+                   // +"&lote:"+me.lote+"&registro_sanitario"+me.registro_sanitario
+                   // +"&cod_prod:"+me.cod_prod+"&linea_name:"+me.linea_name
+                   // +"&fecha_vencimiento:"+me.fecha_vencimiento+"&id_sucursal:"+me.id_sucursal+"&leyenda:"+me.leyenda+"&observacion:"+me.observacion;
                    
-                  //  me.listarAlmTienda();
-                }).catch(function(error){
-                    error401(error);
-                    console.log(error);
-                });
+                  console.log(+"res:"+me.id_traslado+"prod_id"+me.id_prod_producto+"envase:"+me.envase+"idtienda:"+me.id_almacen_tienda
+                  +"cantidad:"+me.cantidad+"id_tipoentrada:"+me.id_tipoentrada+"fecha_vencimiento"+me.fecha_vencimiento
+                  +"lote:"+me.lote+"registro_sanitario:"+me.registro_sanitario);
+                   axios
+                    //axios.get(url)
+                     .post("/recepcion/registrar", {
+                       'id_traslado': me.id_traslado,
+                        'id_ingreso': me.id_ingreso,
+                        'cod_1': me.cod_1,
+                        'cod_2': me.cod_2,
+                        'cantidad': me.cantidad,
+                        'lote':me.lote,
+                        'registro_sanitario':me.registro_sanitario,
+                        'id_tipoentrada':me.id_tipoentrada,
+                          'id_prod_producto':me.id_prod_producto,
+                          'envase':me.envase,
+                          'name_prod':me.name_prod,
+                     'id_almacen_tienda':me.id_almacen_tienda,
+                      'cod_prod':me.cod_prod,
+                     'linea_name':me.linea_name, 
+                    'fecha_vencimiento':me.fecha_vencimiento,     
+                     'id_sucursal':me.id_sucursal,      
+                    'leyenda':me.leyenda,    
+                    'observacion':me.observacion,
+                    'numero_traspaso':me.numero_traspaso,
+                    })
+                    .then(function (response) {
+                        me.cerrarModal("registrar");
+                        Swal.fire(
+                            "Se registro exitosamente",
+                            "Haga click en Ok",
+                            "success",
+                        );
 
-                
-
+                      //  me.listarAjusteNegativos();
+                        me.listarAlmTienda();
+                    })
+                    .catch(function (error) {
+                        error401(error);
+                        console.log(error);
+                    });
+                }
+               
             }
-        }, 
+        },
         abrirModal(accion, data = []) {
             let me = this;
         //    let respuesta = me.arraySucursal.find(
@@ -565,7 +598,21 @@ export default {
                    me.cod_1="";
                    me.cod_2="";
                    me.tiempo="";
-
+                   me.id_prod_producto="";
+                   me.envase="";
+                   me.id_almacen_tienda="";
+                   me.id_tipoentrada="";
+                   me.fecha_vencimiento="";
+                   me.lote="";
+                   me.registro_sanitario="";
+                   me.cod_prod="";
+                   me.linea_name="";
+                   me.name_prod="";
+                   me.fecha_vencimiento="";
+                   me.lote="";
+                   me.id_sucursal="";
+                 
+        
                    me.classModal.openModal("registrar");
                     break;
                 }
@@ -605,12 +652,26 @@ export default {
                    me.nom_completo="",
                    me.name_vehiculo="",
                    me.estado="",
-                   me.observacion="",
+                  
                    me.checked="",
                    me.id_ingreso="";            
                    me.cod_1="";
                    me.cod_2="";
                    me.tiempo="";
+                   me.id_prod_producto="";
+                   me.envase="";
+                   me.id_almacen_tienda="";
+                   me.id_tipoentrada="";
+                   me.fecha_vencimiento="";
+                   me.lote="";
+                   me.registro_sanitario="";
+                   me.cod_prod="";
+                   me.linea_name="";
+                   me.name_prod="";
+                   me.fecha_vencimiento="";
+                   me.lote="";
+                   me.id_sucursal="";
+                   me.observacion="";
                     setTimeout(me.tiempo, 200); 
                     //me.ProductoLineaIngresoSeleccionado = 0;
                     me.inputTextBuscarProductoIngreso = "";

@@ -5,6 +5,13 @@ namespace App\Http\Controllers;
 use App\Models\Inv_Recepcion;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Models\Alm_IngresoProducto;
+use App\Models\Tda_IngresoProducto;
+use App\Models\Prod_Producto;
+use App\Models\Inv_AjustePositivo;
+
+use function PHPUnit\Framework\isEmpty;
+use function PHPUnit\Framework\isNull;
 
 class InvRecepcionController extends Controller
 {
@@ -29,9 +36,89 @@ class InvRecepcionController extends Controller
      */
     public function store(Request $request)
     {
-        //$recepcion =new Inv_Recepcion();
+        try {
+            // Obtener los datos de la solicitud
+     
+       $cod2 = $request->input('cod_2');
+       
+       $id_prod_producto = $request->input('id_prod_producto');
+    
+       $resultadosAlmacen = Alm_IngresoProducto::join('alm__almacens', 'alm__ingreso_producto.idalmacen', '=', 'alm__almacens.id')
+       ->select('alm__almacens.id as id','alm__almacens.codigo as codigo')
+       ->where('codigo','=',$cod2)
+       ->get();
+        $resultadosTienda = Tda_IngresoProducto::join('tda__tiendas', 'tda__ingreso_productos.idtienda', '=', 'tda__tiendas.id')
+       ->select('tda__tiendas.id as id','tda__tiendas.codigo as codigo')
+       ->where('codigo','=',$cod2)
+       ->get();
+
+       if($resultadosAlmacen->isEmpty()){
+            if ($resultadosTienda->isEmpty()) {                    
+                dd("error");
+            } else {            
+            $nuevoProducto = new Tda_IngresoProducto();
+            $nuevoProducto->idtienda = $request->id_almacen_tienda;
+            }       
+        }else {           
+     
+        $nuevoProducto = new Alm_IngresoProducto();
+        $nuevoProducto->idalmacen = $request->id_almacen_tienda;     
+        }
+   // Unir los resultados de ambas consultas
+   $resultados = $resultadosAlmacen->merge($resultadosTienda);
+
+   $productos = Prod_Producto::select('id', 'codigo')
+            ->where('id','=',$id_prod_producto)
+            ->get();
+      
+            if ($productos->isEmpty() && $resultados->isEmpty()) {
+               
+            } else {
+        $nuevoProducto->id_prod_producto = $request->id_prod_producto;
+        $nuevoProducto->envase = $request->envase;
+        $nuevoProducto->cantidad = $request->cantidad;
+        $nuevoProducto->stock_ingreso = $request->cantidad;
+        $nuevoProducto->id_tipoentrada = $request->id_tipoentrada;
+        $nuevoProducto->fecha_vencimiento = $request->fecha_vencimiento;
+        $nuevoProducto->lote = $request->lote;
+        $nuevoProducto->registro_sanitario = $request->registro_sanitario;
+        $nuevoProducto->id_usuario_registra=auth()->user()->id;
+        $nuevoProducto->save();
+        $ajusteNegativo=new Inv_AjustePositivo();
+        $ajusteNegativo->id_usuario = auth()->user()->id;
+        $ajusteNegativo->usuario = auth()->user()->name;
+        $ajusteNegativo->id_usuario_registra = auth()->user()->id;
+        $ajusteNegativo->id_tipo=$request->id_tipoentrada;
+        $ajusteNegativo->id_producto_linea=$nuevoProducto->id;
+        $ajusteNegativo->codigo=$request->cod_prod;
+        $ajusteNegativo->linea=$request->linea_name;
+        $ajusteNegativo->producto=$request->name_prod;
+        $ajusteNegativo->cantidad=$request->cantidad;
+        $ajusteNegativo->stock=$request->cantidad;
+        $ajusteNegativo->fecha_ingreso=$nuevoProducto->created_at;
+        $ajusteNegativo->fecha_vencimiento=$request->fecha_vencimiento;
+        $ajusteNegativo->lote=$request->lote;
+        $ajusteNegativo->activo=1;
+        $ajusteNegativo->id_sucursal=$request->id_sucursal;
+        $ajusteNegativo->cod=$cod2;
+        $ajusteNegativo->id_ingreso=$nuevoProducto->id;
+        $ajusteNegativo->leyenda = $request->leyenda;
+        $ajusteNegativo->descripcion = $request->numero_traspaso;    
+        $ajusteNegativo->save();
+        $recepcion=new Inv_Recepcion();
+        $recepcion->id_traslado=$request->id_traslado;
+        $recepcion->observacion=$request->observacion;        
+        $recepcion->id_user=auth()->user()->id;
+        $recepcion->id_usuario_registra=auth()->user()->id;
+        $recepcion->save();
         
-        //$recepcion->save();
+         }
+        } catch (\Exception  $e) {
+            DB::rollBack();
+            throw $e;
+        }
+       
+      
     }
 
     /**
@@ -116,11 +203,12 @@ class InvRecepcionController extends Controller
                 'it.leyenda as leyenda', 'it.glosa as glosa', 'it.numero_traspaso as numero_traspaso', 'it.procesado as procesado', 'u.id as user_id', 'u.name as user_name',
                 'it.name_ori as name_ori', 'it.name_des as name_des', 'it.cod_1 as cod_1', 'it.cod_2 as cod_2',
                 'lt.id as id_traslado','lt.codigo as codigo_traslado','lt.tiempo as  tiempo','lt.observacion as observacion',
-                're.id as id_empleado' ,'it.procesado as estado',
+                're.id as id_empleado' ,'it.procesado as estado',   'ass.id AS id_sucursal',
                 DB::raw("CONCAT_WS(' ', re.nombre, re.papellido, re.sapellido) as nom_completo"),
                 'it.id_ingreso as id_ingreso',
                 'lv.id as id_vehiculo','lv.matricula as name_vehiculo' )
             ->join('alm__almacens as aa', 'aa.codigo', '=', 'it.cod_1')
+            ->join('adm__sucursals as ass', 'ass.id', '=', 'aa.idsucursal')
             ->join('prod__productos as pp', 'pp.id', '=', 'it.id_prod_producto')
             ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
             ->join('prod__tipo_entradas as pte', 'pte.id', '=', 'it.id_tipoentrada')
@@ -141,11 +229,12 @@ class InvRecepcionController extends Controller
                 'it.leyenda as leyenda', 'it.glosa as glosa', 'it.numero_traspaso as numero_traspaso', 'it.procesado as procesado', 'u.id as user_id', 'u.name as user_name',
                 'it.name_ori as name_ori', 'it.name_des as name_des', 'it.cod_1 as cod_1', 'it.cod_2 as cod_2',
                 'lt.id as id_traslado','lt.codigo as codigo_traslado','lt.tiempo as  tiempo','lt.observacion as observacion',
-                're.id as id_empleado' ,'it.procesado as estado',
+                're.id as id_empleado' ,'it.procesado as estado',   'ass.id AS id_sucursal',
                 DB::raw("CONCAT_WS(' ', re.nombre, re.papellido, re.sapellido) as nom_completo"),
                 'it.id_ingreso as id_ingreso',
                 'lv.id as id_vehiculo','lv.matricula as name_vehiculo')
             ->join('tda__tiendas as tt', 'tt.codigo', '=', 'it.cod_1')
+            ->join('adm__sucursals as ass', 'ass.id', '=', 'tt.idsucursal')
             ->join('prod__productos as pp', 'pp.id', '=', 'it.id_prod_producto')
             ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
             ->join('prod__tipo_entradas as pte', 'pte.id', '=', 'it.id_tipoentrada')
@@ -203,7 +292,7 @@ class InvRecepcionController extends Controller
                 'it.leyenda as leyenda', 'it.glosa as glosa', 'it.numero_traspaso as numero_traspaso', 'it.procesado as procesado', 'u.id as user_id', 'u.name as user_name',
                 'it.name_ori as name_ori', 'it.name_des as name_des', 'it.cod_1 as cod_1', 'it.cod_2 as cod_2',
                 'lt.id as id_traslado','lt.codigo as codigo_traslado','lt.tiempo as  tiempo','lt.observacion as observacion',
-                're.id as id_empleado' ,
+                're.id as id_empleado' ,'it.procesado as estado',   'ass.id AS id_sucursal',
                 DB::raw("CONCAT_WS(' ', re.nombre, re.papellido, re.sapellido) as nom_completo"),
                 'lv.id as id_vehiculo','lv.matricula as name_vehiculo' )
             ->join('alm__almacens as aa', 'aa.codigo', '=', 'it.cod_1')
@@ -228,7 +317,7 @@ class InvRecepcionController extends Controller
                 'it.leyenda as leyenda', 'it.glosa as glosa', 'it.numero_traspaso as numero_traspaso', 'it.procesado as procesado', 'u.id as user_id', 'u.name as user_name',
                 'it.name_ori as name_ori', 'it.name_des as name_des', 'it.cod_1 as cod_1', 'it.cod_2 as cod_2',
                 'lt.id as id_traslado','lt.codigo as codigo_traslado','lt.tiempo as  tiempo','lt.observacion as observacion',
-                're.id as id_empleado' ,
+                're.id as id_empleado' ,'it.procesado as estado',   'ass.id AS id_sucursal',
                 DB::raw("CONCAT_WS(' ', re.nombre, re.papellido, re.sapellido) as nom_completo"),
                 'lv.id as id_vehiculo','lv.matricula as name_vehiculo')
             ->join('tda__tiendas as tt', 'tt.codigo', '=', 'it.cod_1')
