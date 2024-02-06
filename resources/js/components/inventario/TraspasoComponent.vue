@@ -101,7 +101,7 @@
                         <tbody v-if="sucursalSeleccionada != 0">
                             <tr v-for="AjusteNegativos in arrayAjusteNegativos" :key="AjusteNegativos.id" >
                                 <td>
-                                    <div v-if="AjusteNegativos.estado_procesado == 3 || AjusteNegativos.estado_procesado == 1">
+                                    <div v-if="AjusteNegativos.estado_procesado == 3 || AjusteNegativos.estado_procesado == 1 || AjusteNegativos.estado_procesado == 2">
                                        <button type="button" class="btn btn-light  btn-sm">
                                         <i class="icon-pencil"></i>
                                         </button>

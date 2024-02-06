@@ -32,6 +32,7 @@
                             <div class="input-group">
                                 <select
                                     class="form-control"
+                                    @change="listarRecepcion(0)"
                                   v-model="selectAlmTienda"
                                 >
                                     <option value="0" disabled selected>Seleccionar...</option>
@@ -60,14 +61,14 @@
                                     class="form-control"
                                     placeholder="Texto a buscar"
                                     v-model="buscar"
-                               
+                                    @keyup.enter="listarRecepcion(1)"
                                     :hidden="selectAlmTienda == 0"
                                     :disabled="selectAlmTienda == 0"
                                 />
                                 <button
                                     type="submit"
                                     class="btn btn-primary"
-                              
+                                    @click="listarRecepcion(1)"
                                     :hidden="selectAlmTienda == 0"
                                     :disabled="selectAlmTienda == 0"
                                 >
@@ -77,6 +78,76 @@
                         </div>
 
             </div>
+            <!--inicio de tabla-->
+            <table class="table table-bordered table-striped table-sm table-responsive" >
+                <thead>
+                    <tr>
+                        <th>Opciones</th>
+                        <th>Nro. Traspaso</th>
+                        <th>Producto</th>
+                        <th>Cantidad</th>
+                        <th>Fecha</th>
+                        <th>Origen</th>
+                        <th>Glosa</th>
+                        <th>Vehiculo</th>
+                        <th>Observación</th>
+                        <th>Per. Enviada</th>
+                        <th>Usuario</th>
+                        <th>Estado</th> 
+                    </tr>
+                </thead>
+                <tbody v-if="selectAlmTienda == 0"></tbody>
+                    <tbody v-if="selectAlmTienda != 0">
+                        <tr v-for="rec in arrayRecepcion" :key="rec.id"> 
+                            <td>
+                                <button type="button" class="btn btn-warning btn-sm"
+                                        @click="abrirModal('registrar',rec);
+                                        listarTraspaso();"
+                                    >
+                                        <i class="icon-pencil"></i>
+                                </button>
+                                    &nbsp;
+                             <!--   <button
+                                        v-if="rec.activo == 1"
+                                        type="button"
+                                        class="btn btn-danger btn-sm"
+                                        @click="eliminar(rec.id)"
+                                        
+                                    >
+                                        <i class="icon-trash"></i>
+                                    </button>
+                                    <button
+                                        v-else
+                                        type="button"
+                                        class="btn btn-info btn-sm"
+                                        @click="activar(rec.id)"
+                                    >
+                                        <i class="icon-check"></i>
+                                    </button>
+                             -->  
+                            </td>
+                            <td v-text="rec.numero_traspaso"></td>
+                            <td v-text="rec.leyenda"></td>
+                            <td v-text="rec.cantidad"></td>
+                            <td v-text="rec.fecha"></td>
+                            <td v-text="rec.origen"></td>
+                            <td v-text="rec.glosa"></td>
+                            <td v-text="rec.vehiculo"></td>
+                            <td v-text="rec.rec_observacion"></td>
+                            <td v-text="rec.nom_completo"></td>
+                            <td v-text="rec.user_name"></td>
+                            <td>
+                                 <div v-if="rec.activo==1">
+                                     <span class="badge badge-success">Activo</span>
+                                 </div>
+                                 <div v-else>
+                                     <span class="badge badge-warning">Desactivado</span>
+                                 </div>
+                                 
+                             </td>
+                        </tr>
+                    </tbody>      
+            </table>
         </div>
             </div>   
   
@@ -342,6 +413,8 @@ export default {
             lote:"",
             id_sucursal:"",
             leyenda:"",
+            //------
+            arrayRecepcion:[],
             
         };
     },
@@ -434,6 +507,20 @@ export default {
     },
 
     methods: {
+        listarRecepcion(page){
+            let me=this;
+                var url='/recepcion?page='+page+'&buscar='+me.buscar+'&buscarAlmTdn='+me.selectAlmTienda;
+               console.log(url);
+                axios.get(url)
+                .then(function(response){
+                    var respuesta = response.data;
+                    me.pagination = respuesta.pagination;
+                    me.arrayRecepcion = respuesta.resultadoCombinacion.data;
+                })
+                .catch(function(error){
+                    error401(error);
+                });
+        },
         listarRetornoTraspaso() {
             let me = this;
                 var url ="/recepcion/listarRetornoTraspaso?codigo=" + me.cod_alm_tienda +
@@ -443,7 +530,7 @@ export default {
                 .get(url)
                 .then(function (response) {
                     var respuesta = response.data;
-                    me.arrayRetornarTraspaso = respuesta;   })
+                    me.arrayRetornarTraspaso = respuesta;})
                 .catch(function (error) {
                     error401(error);
                     console.log(error);
@@ -494,7 +581,7 @@ export default {
         cambiarPagina(page) {
             let me = this;
             me.pagination.current_page = page;
-        //    me.listarAjusteNegativos(page);
+           me.listarRecepcion(page);
         },
         registrar() {
             let me = this;
@@ -520,7 +607,7 @@ export default {
                    // +"&cod_prod:"+me.cod_prod+"&linea_name:"+me.linea_name
                    // +"&fecha_vencimiento:"+me.fecha_vencimiento+"&id_sucursal:"+me.id_sucursal+"&leyenda:"+me.leyenda+"&observacion:"+me.observacion;
                    
-                  console.log(+"res:"+me.id_traslado+"prod_id"+me.id_prod_producto+"envase:"+me.envase+"idtienda:"+me.id_almacen_tienda
+                  console.log("id_traspaso:"+me.id_traspaso+"res:"+me.id_traslado+"prod_id"+me.id_prod_producto+"envase:"+me.envase+"idtienda:"+me.id_almacen_tienda
                   +"cantidad:"+me.cantidad+"id_tipoentrada:"+me.id_tipoentrada+"fecha_vencimiento"+me.fecha_vencimiento
                   +"lote:"+me.lote+"registro_sanitario:"+me.registro_sanitario);
                    axios
@@ -545,6 +632,8 @@ export default {
                     'leyenda':me.leyenda,    
                     'observacion':me.observacion,
                     'numero_traspaso':me.numero_traspaso,
+                    'id_traspaso':me.id_traspaso,
+                    
                     })
                     .then(function (response) {
                         me.cerrarModal("registrar");
@@ -554,7 +643,7 @@ export default {
                             "success",
                         );
 
-                      //  me.listarAjusteNegativos();
+                       me.listarRecepcion();
                         me.listarAlmTienda();
                     })
                     .catch(function (error) {
@@ -698,6 +787,7 @@ export default {
         this.classModal.addModal("registrar");
         this. listarTraspaso();
         this.classModal.addModal("staticBackdrop");
+        this.listarRecepcion();
     
     
     },
