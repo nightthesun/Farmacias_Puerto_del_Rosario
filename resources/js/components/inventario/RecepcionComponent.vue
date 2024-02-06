@@ -101,7 +101,7 @@
                         <tr v-for="rec in arrayRecepcion" :key="rec.id"> 
                             <td>
                                 <button type="button" class="btn btn-warning btn-sm"
-                                        @click="abrirModal('registrar',rec);
+                                        @click="abrirModal('actualizar',rec);
                                         listarTraspaso();"
                                     >
                                         <i class="icon-pencil"></i>
@@ -130,9 +130,9 @@
                             <td v-text="rec.leyenda"></td>
                             <td v-text="rec.cantidad"></td>
                             <td v-text="rec.fecha"></td>
-                            <td v-text="rec.origen"></td>
+                            <td v-text="rec.name_ori"></td>
                             <td v-text="rec.glosa"></td>
-                            <td v-text="rec.vehiculo"></td>
+                            <td v-text="rec.name_vehiculo"></td>
                             <td v-text="rec.rec_observacion"></td>
                             <td v-text="rec.nom_completo"></td>
                             <td v-text="rec.user_name"></td>
@@ -206,6 +206,7 @@
                                               ' | C: ' + traspasoI.cantidad  "
                                       ></option>
                                   </select>
+                                  
                                   <button class="btn btn-primary" 
                                   v-if="tipoAccion == 1"
                                   type="button" id="button-addon1"
@@ -213,7 +214,9 @@
                                                                                 
                                       <i class="fa fa-search"></i>                                            
                                   </button>  
-                                
+                                  <div v-if="tipoAccion == 2">
+                                            <strong>Nro:{{numero_traspaso}}|{{leyenda}}| Destino:{{destino}}|Cantidad:{{cantidad}}</strong>
+                                        </div>
                                 
                                </div>
                                   <!-- debe ingresar los datos de para asignar datos del array-->
@@ -235,12 +238,7 @@
                                   <div class="form-group col-sm-4" v-if="selectTraspaso!=''">
                                     <strong>Vehiculo: <span>{{ name_vehiculo }}</span></strong>   
                                   </div>
-                                  <div class="form-group col-sm-4" v-if="selectTraspaso!=''">
-                                    <strong>Estado: 
-                                        <span v-if="estado==1" style="color: green;">Activo</span>
-                                        <span v-else style="color: red;">Sin Accion</span>
-                                    </strong>   
-                                  </div>
+
                                   <div class="form-group col-sm-4" v-if="selectTraspaso!=''">
                                     <strong>Tiempo estimado de entrega: 
                                         <span  >{{tiempo}}</span>
@@ -250,7 +248,7 @@
           
                                   
                                 </div>
-                                <div class="form-group row" v-if="selectTraspaso!='' &&estado==1 ">
+                                <div class="form-group row" v-if="selectTraspaso!='' &&estado==1 &&tipoAccion==1 ">
                                       <label class="col-md-3 form-control-label" for="text-input"><strong>Observación: </strong> 
                                         <span v-if="observacion == ''" class="error">(*)</span>
                                       </label>
@@ -258,8 +256,24 @@
                                         <textarea id="" name="" v-model="observacion" class="form-control" placeholder="Debe ingresar una observación"></textarea>
                                         </div>
                                   </div>  
-                     
-                                  <div class="row justify-content-center" v-if="selectTraspaso!='' &&estado==1 ">
+                                  <div class="form-group row" v-if="selectTraspaso!='' &&tipoAccion==2 ">
+                                      <label class="col-md-3 form-control-label" for="text-input"><strong>Observación: </strong> 
+                                        <span v-if="observacion == ''" class="error">(*)</span>
+                                      </label>
+                                      <div class="col-md-7">
+                                        <textarea id="" name="" v-model="observacion" class="form-control" placeholder="Debe ingresar una observación"></textarea>
+                                        </div>
+                                  </div> 
+                                  <div class="row justify-content-center" v-if="selectTraspaso!='' &&estado==1  &&tipoAccion==1">
+                                    <input type="checkbox" id="checkbox" v-model="checked" hidden/>
+                                    <label for="checkbox" v-if="checked === false" style="background-color: rgb(51, 118, 145); color: white; border: 1px solid #ccc; padding: 8px; border-radius: 4px;">
+                                     <strong>Aceptar</strong>
+                                     </label>
+                                     <label for="checkbox" v-else style="background-color: rgb(122, 30, 45); color: white; border: 1px solid #ccc; padding: 8px; border-radius: 4px;">
+                                     <strong>Deshacer</strong>
+                                     </label>
+                                  </div>  
+                                  <div class="row justify-content-center" v-if="selectTraspaso!='' &&tipoAccion==2">
                                     <input type="checkbox" id="checkbox" v-model="checked" hidden/>
                                     <label for="checkbox" v-if="checked === false" style="background-color: rgb(51, 118, 145); color: white; border: 1px solid #ccc; padding: 8px; border-radius: 4px;">
                                      <strong>Aceptar</strong>
@@ -293,7 +307,7 @@
                             type="button"
                             v-if="tipoAccion == 2"
                             class="btn btn-primary"
-                          
+                            @click="actualizar()"
                         >
                             Actualizar
                         </button>
@@ -415,7 +429,9 @@ export default {
             leyenda:"",
             //------
             arrayRecepcion:[],
-            
+            id_recepcion:"",
+            destino:"",
+          
         };
     },
 
@@ -463,7 +479,8 @@ export default {
                 this.fecha_vencimiento=traspasO.fecha_vencimiento;
                 this.lote=traspasO.lote;
                 this.id_sucursal=traspasO.id_sucursal;
-            
+                this.destino=traspasO.name_des;
+                
         
               }  
         }   
@@ -507,6 +524,7 @@ export default {
     },
 
     methods: {
+        
         listarRecepcion(page){
             let me=this;
                 var url='/recepcion?page='+page+'&buscar='+me.buscar+'&buscarAlmTdn='+me.selectAlmTienda;
@@ -585,7 +603,7 @@ export default {
         },
         registrar() {
             let me = this;
-     console.log("id_tras:"+me.id_traslado+" id_empleado:"+me.id_ingreso+" id_ve:"+me.cod_1+" time:"+me.cod_2+" obs:"+me.observacion+"checked:"+me.checked);    
+     //console.log("id_tras:"+me.id_traslado+" id_empleado:"+me.id_ingreso+" id_ve:"+me.cod_1+" time:"+me.cod_2+" obs:"+me.observacion+"checked:"+me.checked);    
       if (me.selectTraspaso===0 || me.observacion === "" ) {
                 Swal.fire(
                     "No puede ingresar valor vacios.",
@@ -600,16 +618,9 @@ export default {
                     "warning",
                 );
                 } else {
-                   // var url ="/recepcion/registrar?id_traslado="+me.id_traslado+"&id_ingreso=" +me.id_ingreso+"&cod_1=" +me.cod_1+"&cod_2=" +me.cod_2+"&cantidad=" +me.cantidad+"&id_prod_producto="+me.id_prod_producto
-                   // +"&envase:"+me.envase+"&id_almacen_tienda"+me.id_almacen_tienda
-                   // +"&id_tipoentrada:"+me.id_tipoentrada+"&fecha_vencimiento:"+me.fecha_vencimiento
-                   // +"&lote:"+me.lote+"&registro_sanitario"+me.registro_sanitario
-                   // +"&cod_prod:"+me.cod_prod+"&linea_name:"+me.linea_name
-                   // +"&fecha_vencimiento:"+me.fecha_vencimiento+"&id_sucursal:"+me.id_sucursal+"&leyenda:"+me.leyenda+"&observacion:"+me.observacion;
-                   
-                  console.log("id_traspaso:"+me.id_traspaso+"res:"+me.id_traslado+"prod_id"+me.id_prod_producto+"envase:"+me.envase+"idtienda:"+me.id_almacen_tienda
-                  +"cantidad:"+me.cantidad+"id_tipoentrada:"+me.id_tipoentrada+"fecha_vencimiento"+me.fecha_vencimiento
-                  +"lote:"+me.lote+"registro_sanitario:"+me.registro_sanitario);
+               //console.log("id_traspaso:"+me.id_traspaso+"res:"+me.id_traslado+"prod_id"+me.id_prod_producto+"envase:"+me.envase+"idtienda:"+me.id_almacen_tienda
+               //   +"cantidad:"+me.cantidad+"id_tipoentrada:"+me.id_tipoentrada+"fecha_vencimiento"+me.fecha_vencimiento
+               //   +"lote:"+me.lote+"registro_sanitario:"+me.registro_sanitario);
                    axios
                     //axios.get(url)
                      .post("/recepcion/registrar", {
@@ -633,6 +644,7 @@ export default {
                     'observacion':me.observacion,
                     'numero_traspaso':me.numero_traspaso,
                     'id_traspaso':me.id_traspaso,
+                    'destino':me.destino,
                     
                     })
                     .then(function (response) {
@@ -654,6 +666,30 @@ export default {
                
             }
         },
+        actualizar() {
+            let me = this;
+           console.log("id:"+me.id_recepcion+"observacion:"+this.observacion);
+            axios
+                .put("/recepcion/actualizar", {
+                    id: me.id_recepcion,                   
+                    observacion:me.observacion,                     
+                })
+                .then(function (response) {                  
+                    me.listarRecepcion();
+                        me.listarAlmTienda();
+               
+                    Swal.fire(
+                        "Actualizado Correctamente!",
+                        "El registro a sido actualizado Correctamente",
+                        "success",
+                    );
+                })
+                .catch(function (error) {
+                    error401(error);
+                });
+            me.cerrarModal("registrar");
+        },    
+
         abrirModal(accion, data = []) {
             let me = this;
         //    let respuesta = me.arraySucursal.find(
@@ -698,19 +734,50 @@ export default {
                    me.linea_name="";
                    me.name_prod="";
                    me.fecha_vencimiento="";
-                   me.lote="";
+           
                    me.id_sucursal="";
-                 
-        
+                   me.id_recepcion="";
+                   me.destino="";
                    me.classModal.openModal("registrar");
                     break;
                 }
                 case "actualizar": {
+                    //console.log(data);
                     me.tipoAccion = 2;
+                    me.id_recepcion= data.id;
+                    me.selectTraspaso=data.id_traslado === null ? 0:data.id_traslado ;
+                    me.tituloModal = "Registro de traspaso: "+me.razon_socialAlmTienda;          
+                    me.id_traspaso=data.id_traspaso;
+                   me.numero_traspaso=data.numero_traspaso;
+                   me.leyenda=data.leyenda;
+                   me.origen=data.name_ori;
+                   me.cantidad=data.cantidad;
+                   me.id_traslado=data.id_traslado;
+                   me.nom_completo=data.nom_completo;
+                   me.name_vehiculo=data.name_vehiculo;
+                   me.estado=data.estado;
+                   me.observacion=data.rec_observacion;
+                   me.checked=false;
+                   me.id_ingreso=data.id_ingreso;            
+                   me.cod_1=data.cod_1;
+                   me.cod_2=data.cod_2;
+                   me.tiempo=data.tiempo;
+                   me.id_prod_producto=data.id_prod_producto;
+                   me.envase=data.envase;
+                   me.id_almacen_tienda=data.id_almacen_tienda;
+                   me.id_tipoentrada=data.id_tipoentrada;
+                   me.fecha_vencimiento=data.fecha_vencimiento;
+                   me.lote=data.lote;
+                   me.registro_sanitario=data.registro_sanitario;
+                   me.cod_prod=data.cod_prod;
+                   me.linea_name=data.linea_name;
+                   me.name_prod=data.name_prod;
+                   me.fecha_vencimiento=data.fecha_vencimiento;
+                   me.id_sucursal=data.id_sucursal;
+                   me.destino=data.name_des;
+                   me.classModal.openModal("registrar");
                    
-          
-            
-                    me.classModal.openModal("registrar");
+                    
 
                     break;
                 }
@@ -761,6 +828,7 @@ export default {
                    me.lote="";
                    me.id_sucursal="";
                    me.observacion="";
+                   me.id_recepcion="";
                     setTimeout(me.tiempo, 200); 
                     //me.ProductoLineaIngresoSeleccionado = 0;
                     me.inputTextBuscarProductoIngreso = "";
@@ -788,6 +856,7 @@ export default {
         this. listarTraspaso();
         this.classModal.addModal("staticBackdrop");
         this.listarRecepcion();
+        
     
     
     },

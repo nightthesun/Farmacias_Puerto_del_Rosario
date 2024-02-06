@@ -9,6 +9,8 @@ use App\Models\Alm_IngresoProducto;
 use App\Models\Tda_IngresoProducto;
 use App\Models\Prod_Producto;
 use App\Models\Inv_AjustePositivo;
+use App\Models\Inv_Traspaso;
+use PhpParser\Node\Stmt\TryCatch;
 
 use function PHPUnit\Framework\isEmpty;
 use function PHPUnit\Framework\isNull;
@@ -18,9 +20,192 @@ class InvRecepcionController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $buscararray = array();
+        $bus = $request->query('buscarAlmTdn');
+        if (!empty($request->buscar)) {
+            $buscararray = explode(" ", $request->buscar);
+            $valor = sizeof($buscararray);
+            if ($valor > 0) {
+                $sqls = '';
+
+                foreach ($buscararray as $valor) {
+                    if (empty($sqls)) {
+                        $sqls = "(
+                                it.numero_traspaso like '%" . $valor . "%' 
+                                or it.envase like '%" . $valor . "%' 
+                                or it.name_ori like '%" . $valor . "%'
+                                or it.name_des like '%" . $valor . "%' 
+                                or it.leyenda like '%" . $valor . "%'
+                              
+                                or it.cod_2 like '%" . $valor . "%' 
+                               )";
+                    } else {
+                        $sqls .= "and (
+                            it.numero_traspaso like '%" . $valor . "%' 
+                            or it.envase like '%" . $valor . "%' 
+                            or it.name_ori like '%" . $valor . "%'
+                            or it.name_des like '%" . $valor . "%' 
+                            or it.leyenda like '%" . $valor . "%'
+                     
+                            or it.cod_2 like '%" . $valor . "%'
+                       )";
+                    }
+                }
+                // codigo query
+                $recepcion_alm = DB::table('inv__recepcions as ir')
+                ->select(
+                    'ir.id as id', 'ir.observacion as rec_observacion', 'it.id as id_traspaso', 'aa.id as id_almacen_tienda',
+                    'it.id_prod_producto as id_prod_producto', 'pp.codigo as cod_prod', 'pp.nombre as name_prod',
+                    'pl.id as pl_id', 'pl.nombre as linea_name', 'it.envase as envase', 'it.id_tipoentrada as id_tipoentrada',
+                    'pte.nombre as tipo_name', 'it.cantidad__stock_ingreso as cantidad', 'it.fecha_vencimiento as fecha_vencimiento',
+                    'it.lote as lote', 'it.registro_sanitario as registro_sanitario', 'it.activo as activo', 'it.id_origen as id_origen',
+                    'it.id_destino as id_destino', 'it.leyenda as leyenda', 'it.glosa as glosa', 'it.numero_traspaso as numero_traspaso',
+                    'it.procesado as procesado', 'u.id as user_id', 'u.name as user_name', 'it.name_ori as name_ori',
+                    'it.name_des as name_des', 'it.cod_1 as cod_1', 'it.cod_2 as cod_2', 'lt.id as id_traslado',
+                    'lt.codigo as codigo_traslado', 'lt.tiempo as tiempo', 'lt.observacion as observacion',
+                    're.id as id_empleado', 'it.procesado as estado', 'ass.id AS id_sucursal',
+                    DB::raw('GREATEST(ir.created_at, ir.updated_at) AS fecha'),
+                    DB::raw("CONCAT_WS(' ', re.nombre, re.papellido, re.sapellido) as nom_completo"),
+                    'it.id_ingreso as id_ingreso', 'lv.id as id_vehiculo', 'lv.matricula as name_vehiculo'
+                )
+                ->join('log__traslados as lt', 'lt.id', '=', 'ir.id_traslado')
+                ->join('inv__traspasos as it', 'it.id', '=', 'lt.id_traspaso')
+                ->join('alm__almacens as aa', 'aa.codigo', '=', 'it.cod_1')
+                ->join('adm__sucursals as ass', 'ass.id', '=', 'aa.idsucursal')
+                ->join('prod__productos as pp', 'pp.id', '=', 'it.id_prod_producto')
+                ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
+                ->join('prod__tipo_entradas as pte', 'pte.id', '=', 'it.id_tipoentrada')
+                ->join('users as u', 'u.id', '=', 'ir.id_user')
+                ->leftJoin('rrh__empleados as re', 're.id', '=', 'lt.id_empleado')
+                ->leftJoin('log__vehiculos as lv', 'lv.id', '=', 'lt.id_vehiculo')
+                ->where('it.id_tipoentrada', '=', 13)
+                ->where('it.cod_2', '=', $bus)
+                ->whereRaw($sqls)
+                ->whereDate('ir.created_at', '>=', now()->subDays(30))->orderBy('id', 'desc');
+                $recepcion_tda = DB::table('inv__recepcions as ir')
+                ->select(
+                    'ir.id as id', 'ir.observacion as rec_observacion', 'it.id as id_traspaso', 'tt.id as id_almacen_tienda', 'it.id_prod_producto as id_prod_producto',
+                    'pp.codigo as cod_prod', 'pp.nombre as name_prod', 'pl.id as pl_id', 'pl.nombre as linea_name', 'it.envase as envase',
+                    'it.id_tipoentrada as id_tipoentrada', 'pte.nombre as tipo_name', 'it.cantidad__stock_ingreso as cantidad',
+                    'it.fecha_vencimiento as fecha_vencimiento', 'it.lote as lote', 'it.registro_sanitario as registro_sanitario',
+                    'it.activo as activo', 'it.id_origen as id_origen', 'it.id_destino as id_destino', 'it.leyenda as leyenda',
+                    'it.glosa as glosa', 'it.numero_traspaso as numero_traspaso', 'it.procesado as procesado', 'u.id as user_id',
+                    'u.name as user_name', 'it.name_ori as name_ori', 'it.name_des as name_des', 'it.cod_1 as cod_1', 'it.cod_2 as cod_2',
+                    'lt.id as id_traslado', 'lt.codigo as codigo_traslado', 'lt.tiempo as tiempo', 'lt.observacion as observacion',
+                    're.id as id_empleado', 'it.procesado as estado', 'ass.id AS id_sucursal',
+                    DB::raw('GREATEST(ir.created_at, ir.updated_at) AS fecha'),
+                    DB::raw("CONCAT_WS(' ', re.nombre, re.papellido, re.sapellido) as nom_completo"),
+                    'it.id_ingreso as id_ingreso', 'lv.id as id_vehiculo', 'lv.matricula as name_vehiculo'
+                )
+                ->join('log__traslados as lt', 'lt.id', '=', 'ir.id_traslado')
+                ->join('inv__traspasos as it', 'it.id', '=', 'lt.id_traspaso')
+                ->join('tda__tiendas as tt', 'tt.codigo', '=', 'it.cod_1')
+                ->join('adm__sucursals as ass', 'ass.id', '=', 'tt.idsucursal')
+                ->join('prod__productos as pp', 'pp.id', '=', 'it.id_prod_producto')
+                ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
+                ->join('prod__tipo_entradas as pte', 'pte.id', '=', 'it.id_tipoentrada')
+                ->join('users as u', 'u.id', '=', 'ir.id_user')
+                ->leftJoin('rrh__empleados as re', 're.id', '=', 'lt.id_empleado')
+                ->leftJoin('log__vehiculos as lv', 'lv.id', '=', 'lt.id_vehiculo')
+                ->where('it.id_tipoentrada', '=', 13)
+                ->where('it.cod_2', '=', $bus)
+                ->whereRaw($sqls)
+                ->whereDate('ir.created_at', '>=', now()->subDays(30))->orderBy('id', 'desc');
+                $resultadoCombinacion = $recepcion_alm->unionAll($recepcion_tda)->paginate(10);   
+            } 
+            return
+            [
+                'pagination' =>
+                [
+                    'total'         =>    $resultadoCombinacion->total(),
+                    'current_page'  =>    $resultadoCombinacion->currentPage(),
+                    'per_page'      =>    $resultadoCombinacion->perPage(),
+                    'last_page'     =>    $resultadoCombinacion->lastPage(),
+                    'from'          =>    $resultadoCombinacion->firstItem(),
+                    'to'            =>    $resultadoCombinacion->lastItem(),
+                ],
+                'resultadoCombinacion' => $resultadoCombinacion,
+            ];
+        }
+        else{
+            $recepcion_alm = DB::table('inv__recepcions as ir')
+                ->select(
+                    'ir.id as id', 'ir.observacion as rec_observacion', 'it.id as id_traspaso', 'aa.id as id_almacen_tienda',
+                    'it.id_prod_producto as id_prod_producto', 'pp.codigo as cod_prod', 'pp.nombre as name_prod',
+                    'pl.id as pl_id', 'pl.nombre as linea_name', 'it.envase as envase', 'it.id_tipoentrada as id_tipoentrada',
+                    'pte.nombre as tipo_name', 'it.cantidad__stock_ingreso as cantidad', 'it.fecha_vencimiento as fecha_vencimiento',
+                    'it.lote as lote', 'it.registro_sanitario as registro_sanitario', 'it.activo as activo', 'it.id_origen as id_origen',
+                    'it.id_destino as id_destino', 'it.leyenda as leyenda', 'it.glosa as glosa', 'it.numero_traspaso as numero_traspaso',
+                    'it.procesado as procesado', 'u.id as user_id', 'u.name as user_name', 'it.name_ori as name_ori',
+                    'it.name_des as name_des', 'it.cod_1 as cod_1', 'it.cod_2 as cod_2', 'lt.id as id_traslado',
+                    'lt.codigo as codigo_traslado', 'lt.tiempo as tiempo', 'lt.observacion as observacion',
+                    're.id as id_empleado', 'it.procesado as estado', 'ass.id AS id_sucursal',
+                    DB::raw('GREATEST(ir.created_at, ir.updated_at) AS fecha'),
+                    DB::raw("CONCAT_WS(' ', re.nombre, re.papellido, re.sapellido) as nom_completo"),
+                    'it.id_ingreso as id_ingreso', 'lv.id as id_vehiculo', 'lv.matricula as name_vehiculo'
+                )
+                ->join('log__traslados as lt', 'lt.id', '=', 'ir.id_traslado')
+                ->join('inv__traspasos as it', 'it.id', '=', 'lt.id_traspaso')
+                ->join('alm__almacens as aa', 'aa.codigo', '=', 'it.cod_1')
+                ->join('adm__sucursals as ass', 'ass.id', '=', 'aa.idsucursal')
+                ->join('prod__productos as pp', 'pp.id', '=', 'it.id_prod_producto')
+                ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
+                ->join('prod__tipo_entradas as pte', 'pte.id', '=', 'it.id_tipoentrada')
+                ->join('users as u', 'u.id', '=', 'ir.id_user')
+                ->leftJoin('rrh__empleados as re', 're.id', '=', 'lt.id_empleado')
+                ->leftJoin('log__vehiculos as lv', 'lv.id', '=', 'lt.id_vehiculo')
+                ->where('it.id_tipoentrada', '=', 13)
+                ->where('it.cod_2', '=', $bus)
+              
+                ->whereDate('ir.created_at', '>=', now()->subDays(30))->orderBy('id', 'desc');
+                $recepcion_tda = DB::table('inv__recepcions as ir')
+                ->select(
+                    'ir.id as id', 'ir.observacion as rec_observacion', 'it.id as id_traspaso', 'tt.id as id_almacen_tienda', 'it.id_prod_producto as id_prod_producto',
+                    'pp.codigo as cod_prod', 'pp.nombre as name_prod', 'pl.id as pl_id', 'pl.nombre as linea_name', 'it.envase as envase',
+                    'it.id_tipoentrada as id_tipoentrada', 'pte.nombre as tipo_name', 'it.cantidad__stock_ingreso as cantidad',
+                    'it.fecha_vencimiento as fecha_vencimiento', 'it.lote as lote', 'it.registro_sanitario as registro_sanitario',
+                    'it.activo as activo', 'it.id_origen as id_origen', 'it.id_destino as id_destino', 'it.leyenda as leyenda',
+                    'it.glosa as glosa', 'it.numero_traspaso as numero_traspaso', 'it.procesado as procesado', 'u.id as user_id',
+                    'u.name as user_name', 'it.name_ori as name_ori', 'it.name_des as name_des', 'it.cod_1 as cod_1', 'it.cod_2 as cod_2',
+                    'lt.id as id_traslado', 'lt.codigo as codigo_traslado', 'lt.tiempo as tiempo', 'lt.observacion as observacion',
+                    're.id as id_empleado', 'it.procesado as estado', 'ass.id AS id_sucursal',
+                    DB::raw('GREATEST(ir.created_at, ir.updated_at) AS fecha'),
+                    DB::raw("CONCAT_WS(' ', re.nombre, re.papellido, re.sapellido) as nom_completo"),
+                    'it.id_ingreso as id_ingreso', 'lv.id as id_vehiculo', 'lv.matricula as name_vehiculo'
+                )
+                ->join('log__traslados as lt', 'lt.id', '=', 'ir.id_traslado')
+                ->join('inv__traspasos as it', 'it.id', '=', 'lt.id_traspaso')
+                ->join('tda__tiendas as tt', 'tt.codigo', '=', 'it.cod_1')
+                ->join('adm__sucursals as ass', 'ass.id', '=', 'tt.idsucursal')
+                ->join('prod__productos as pp', 'pp.id', '=', 'it.id_prod_producto')
+                ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
+                ->join('prod__tipo_entradas as pte', 'pte.id', '=', 'it.id_tipoentrada')
+                ->join('users as u', 'u.id', '=', 'ir.id_user')
+                ->leftJoin('rrh__empleados as re', 're.id', '=', 'lt.id_empleado')
+                ->leftJoin('log__vehiculos as lv', 'lv.id', '=', 'lt.id_vehiculo')
+                ->where('it.id_tipoentrada', '=', 13)
+                ->where('it.cod_2', '=', $bus)
+               
+                ->whereDate('ir.created_at', '>=', now()->subDays(30))->orderBy('id', 'desc');
+                $resultadoCombinacion = $recepcion_alm->unionAll($recepcion_tda)->paginate(10); 
+                return
+            [
+                'pagination' =>
+                [
+                    'total'         =>    $resultadoCombinacion->total(),
+                    'current_page'  =>    $resultadoCombinacion->currentPage(),
+                    'per_page'      =>    $resultadoCombinacion->perPage(),
+                    'last_page'     =>    $resultadoCombinacion->lastPage(),
+                    'from'          =>    $resultadoCombinacion->firstItem(),
+                    'to'            =>    $resultadoCombinacion->lastItem(),
+                ],
+                'resultadoCombinacion' => $resultadoCombinacion,
+            ];
+        }
+
+ 
     }
 
     /**
@@ -38,7 +223,9 @@ class InvRecepcionController extends Controller
     {
         try {
             // Obtener los datos de la solicitud
-     
+            DB::transaction(function () use ($request) {
+
+            });
        $cod2 = $request->input('cod_2');
        
        $id_prod_producto = $request->input('id_prod_producto');
@@ -70,9 +257,10 @@ class InvRecepcionController extends Controller
    $productos = Prod_Producto::select('id', 'codigo')
             ->where('id','=',$id_prod_producto)
             ->get();
-      
-            if ($productos->isEmpty() && $resultados->isEmpty()) {
-               
+            $update = Inv_Traspaso::find($request->id_traspaso);  
+            if ($productos->isEmpty() && $resultados->isEmpty() && $update->isEmpty()) {
+                return redirect()->back()->with('error', 'Ha ocurrido un error durante el proceso. Por favor, inténtalo de nuevo.');
+       
             } else {
         $nuevoProducto->id_prod_producto = $request->id_prod_producto;
         $nuevoProducto->envase = $request->envase;
@@ -105,6 +293,9 @@ class InvRecepcionController extends Controller
         $ajusteNegativo->leyenda = $request->leyenda;
         $ajusteNegativo->descripcion = $request->numero_traspaso;    
         $ajusteNegativo->save();
+       // $update = Inv_Traspaso::find($request->id_traspaso);
+        $update->procesado=2;//0=pendiente,1=en proceso,2=procesado3=anulado
+       $update->save();        
         $recepcion=new Inv_Recepcion();
         $recepcion->id_traslado=$request->id_traslado;
         $recepcion->observacion=$request->observacion;        
@@ -113,11 +304,11 @@ class InvRecepcionController extends Controller
         $recepcion->save();
         
          }
-        } catch (\Exception  $e) {
+        } catch (\Throwable   $e) {
             DB::rollBack();
-            throw $e;
+            return redirect()->back()->with('error', 'Ha ocurrido un error durante el proceso. Por favor, inténtalo de nuevo.');
         }
-       
+      
       
     }
 
@@ -140,9 +331,11 @@ class InvRecepcionController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Inv_Recepcion $inv_Recepcion)
+    public function update(Request $request, Inv_Recepcion $inv_Recepcion)                    
     {
-        //
+        $update=Inv_Recepcion::find($request->id);
+        $update->observacion=$request->observacion;  
+        $update->save();
     }
 
     /**

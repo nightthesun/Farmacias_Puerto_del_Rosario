@@ -262,15 +262,11 @@
                             <!-- insertar datos -->
                             <div class="container">
                                 <div class="form-group row">
-                                    <label
-                                        class="col-md-3 form-control-label"
-                                        for="text-input"
-                                    >
+                                    <label class="col-md-3 form-control-label"
+                                        for="text-input" >
                                         Producto
-                                        <span
-                                            v-if="ProductoLineaIngreso == '0'"
-                                            class="error"
-                                            >(*)</span
+                                        <span v-if="ProductoLineaIngreso == '0'"
+                                            class="error"                                           >(*)</span
                                         >
                                     </label>
                                     <div class="col-md-7 input-group mb-3">
@@ -295,9 +291,7 @@
                                                     ProductoLineaIngreso.fecha_ingreso +
                                                     ' | FV: ' +
                                                     (ProductoLineaIngreso.fecha_vencimiento ===
-                                                    null
-                                                        ? '| sin registro'
-                                                        : ProductoLineaIngreso.fecha_vencimiento) +
+                                                    null ? '| sin registro' : ProductoLineaIngreso.fecha_vencimiento) +
                                                     ' | Stock: ' +
                                                     ProductoLineaIngreso.stock_ingreso
                                                 "
@@ -459,10 +453,12 @@
                                                 Seleccionar...
                                             </option>
                                             <option
-                                                v-for="Tipos in arrayTipos"
-                                                :key="arrayTipos.id"
-                                                :value="Tipos.id"
-                                                v-text="Tipos.nombre"
+                                                v-for="Tipo in arrayTipos"
+                                              
+                                                :key="arrayTipos.id" 
+                                                                                                               
+                                                :value="Tipo.id"
+                                                v-text="Tipo.nombre"
                                             ></option>
                                         </select>
                                         <span
@@ -827,7 +823,7 @@ export default {
                 .then(function (response) {
                     var respuesta = response.data;
                     me.arraySucursal = respuesta;
-                    console.log(me.arraySucursal);
+                  
                 })
                 .catch(function (error) {
                     error401(error);
@@ -843,7 +839,7 @@ export default {
                 .then(function (response) {
                     var respuesta = response.data;
                     me.arrayTipos = respuesta;
-                    console.log(me.arrayTipos);
+                    
                 })
                 .catch(function (error) {
                     error401(error);
@@ -894,7 +890,7 @@ export default {
                 var url ="/ajustes-negativo/retornarProductosIngreso?respuesta0=" + this.sucursalSeleccionada +
                     "&respuesta1=" + me.inputTextBuscarProductoIngreso;
             }
-            console.log(url);
+
             axios
                 .get(url)
                 .then(function (response) {
@@ -919,7 +915,7 @@ export default {
             let respuesta = me.arraySucursal.find(
                 (element) => element.codigo == me.sucursalSeleccionada,
             );
-            console.log("accion:" + me.tipoAccion);
+    
             switch (accion) {
                 case "registrar": {
                     me.tipoAccion = 1;
@@ -1082,13 +1078,7 @@ export default {
 
         registrorAjusteNegativo() {
             let me = this;
-            console.log(
-                me.TiposSeleccionado +
-                    " - " +
-                    me.sucursalSeleccionada +
-                    "->>>>" +
-                    me.id_ingreso,
-            );
+         
             let suma = me.cantidadProductoLineaIngreso - me.cantidadS;
 
             if (
@@ -1180,15 +1170,7 @@ export default {
         //para listar db alm__ajuste_negativos
         listarAjusteNegativos(page) {
             let me = this;
-           // console.log (me.sucursalSeleccionada);
-           // if (me.sucursalSeleccionada == 0) {
-           //     var url =     "/ajustes-negativo?page=" + page + "&buscar=" + me.buscar;
-               // me.sucursalSeleccionada = 0;
-           // } else {
-           //     var url =
-           //         "/ajustes-negativo?page="+page+"&buscar=" + me.sucursalSeleccionada;
-               // me.buscar = "";
-           // }
+          
             var url ="/ajustes-negativo?page="+page+"&buscar=" +me.buscar+"&buscarAlmTdn=" +me.sucursalSeleccionada;
             axios.get(url)
                 .then(function (response) {
@@ -1210,7 +1192,7 @@ export default {
                 .then(function (response) {
                     var respuesta = response.data;
                     me.arrayIngresoAlmacen_tienda = respuesta;
-                    console.log(me.arrayTipos);
+               
                 })
                 .catch(function (error) {
                     error401(error);

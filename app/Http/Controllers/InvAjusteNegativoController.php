@@ -655,6 +655,15 @@ class InvAjusteNegativoController extends Controller
             $updateAjusteNegativo->usuario = auth()->user()->name;
             $update = Tda_IngresoProducto::find($id_i);
             $update->stock_ingreso =($update->stock_ingreso)-$cantidad;
+            if ($updateAjusteNegativo->id_tipo==13) {
+                $id_tras=$updateAjusteNegativo->id_traspaso;
+                $tras = Inv_Traspaso::where('numero_traspaso', $id_tras)->first();
+                if ($tras) {                   
+                    $tras->procesado =0;      
+                    $tras->save();
+                }
+                 
+            }
             $update->save();
             $updateAjusteNegativo->save();
             }
