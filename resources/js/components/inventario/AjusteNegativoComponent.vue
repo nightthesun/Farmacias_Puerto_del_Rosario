@@ -108,6 +108,7 @@
                                 :key="AjusteNegativos.id"
                             >
                                 <td>
+                               
                                     <button
                                         type="button"
                                         class="btn btn-warning btn-sm"
@@ -118,9 +119,21 @@
                                             );
                                             ProductoLineaIngreso();
                                         "
+                                        v-if="AjusteNegativos.id_tipo!=13"
                                     >
                                         <i class="icon-pencil"></i>
                                     </button>
+                                 
+                                    <button
+                                        type="button"
+                                        class="btn btn-light btn-sm"
+                                        v-if="AjusteNegativos.id_tipo==13"
+                                      
+                                    >
+                                        <i class="icon-pencil"></i>
+                                    </button>
+                                 
+                                   
                                     &nbsp;
                                     <button
                                         v-if="AjusteNegativos.activo == 1"
@@ -443,12 +456,12 @@
                                         <span class="error">(*)</span>
                                     </label>
                                     <div class="col-md-9">
-                                        <select
+                                        <select 
                                             name=""
                                             id=""
                                             v-model="TiposSeleccionado"
                                             class="form-control"
-                                        >
+                                            >
                                             <option value="0" disabled>
                                                 Seleccionar...
                                             </option>
@@ -456,8 +469,9 @@
                                                 v-for="Tipo in arrayTipos"
                                               
                                                 :key="arrayTipos.id" 
-                                                                                                               
+
                                                 :value="Tipo.id"
+                                                v-if="'Tipo.id_tipo'!==13"
                                                 v-text="Tipo.nombre"
                                             ></option>
                                         </select>

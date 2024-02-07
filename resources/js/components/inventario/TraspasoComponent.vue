@@ -14,7 +14,7 @@
                     <button
                         type="button"
                         class="btn btn-secondary"
-                        @click="abrirModal('registrar'); ProductoLineaIngreso(); "
+                        @click="abrirModal('registrar'); ProductoLineaIngreso(sucursalSeleccionada);"
                         :disabled="sucursalSeleccionada == 0"
                     >
                         <i class="icon-plus"></i>&nbsp;Nuevo
@@ -128,12 +128,8 @@
                                         <button
                                         type="button"
                                         class="btn btn-warning btn-sm"
-                                        @click="
-                                            abrirModal(
-                                                'actualizar',
-                                                AjusteNegativos,
-                                            );
-                                            ProductoLineaIngreso();
+                                        @click="ProductoLineaIngreso(sucursalSeleccionada); abrirModal('actualizar',AjusteNegativos);
+                                            
                                         "
                                     >
                                         <i class="icon-pencil"></i>
@@ -288,6 +284,7 @@
                         <div class="alert alert-warning" role="alert">
                             Todos los campos con (*) son requeridos
                         </div>
+                       
                         <form action="" class="form-horizontal">
                             <div class="form-group col-sm-8" v-if="ProductoLineaIngresoSeleccionado!=''">
                                     <strong>Origen: <span>{{tipoCodigo}} -> </span> <span> {{ razon_social }}</span></strong>
@@ -356,8 +353,13 @@
                                        --> 
                                         
                                     </div>
-                               
-                                <div class="form-group col-sm-4" v-if="ProductoLineaIngresoSeleccionado!=''">
+                                    
+                                    <div class="form-group col-sm-4" v-if="ProductoLineaIngresoSeleccionado!=''&&tipoAccion==2">
+                                    <strong>pro: <span>{{ leyenda}}&nbsp;| Stock:{{ cantidadProductoLineaIngreso }}</span>
+                                    </strong>
+   
+                                </div>
+                                <div class="form-group col-sm-4" v-if="ProductoLineaIngresoSeleccionado!=''&&tipoAccion==1">
                                     <strong>Cantidad existente: <span>{{ cantidadProductoLineaIngreso }}</span></strong>
    
                                 </div>
@@ -366,23 +368,17 @@
                                     <strong>Tipo Entrada: <span> Traspaso</span></strong>
                                    
                                 </div>
-                                <div class="form-group col-sm-4" v-if="ProductoLineaIngresoSeleccionado!=''">
+                                <div class="form-group col-sm-4" v-if="ProductoLineaIngresoSeleccionado!=''&&tipoAccion==1">
                                     <strong>Lote: <span> {{ lote }}</span></strong>
                                      
                                 </div>
-                                <div class="form-group col-sm-4" v-if="ProductoLineaIngresoSeleccionado!=''">
+                                <div class="form-group col-sm-4" v-if="ProductoLineaIngresoSeleccionado!=''&&tipoAccion==1">
                                     <strong>Fecha de vencimiento: <span> {{ fecha_vencimiento }}</span></strong>
                                   
                                 </div>
                                 <div class="form-group col-sm-4" v-if="ProductoLineaIngresoSeleccionado!=''">
                                     <strong>Registro sanitario: <span> {{registro_sanitario}}</span></strong>
                                   
-                                </div>
-                                <div class="form-group col-sm-4" v-if="ProductoLineaIngresoSeleccionado!=''">
-                                    <strong>Id ingreso: <span> 000{{ id_ingreso }}</span></strong>
-                                </div>
-                                <div class="form-group col-sm-4" v-if="ProductoLineaIngresoSeleccionado!=''">
-                                    <strong>Id productor: <span> {{ id_producto}}</span></strong>
                                 </div>
         
                                       </div>
@@ -687,12 +683,7 @@
                             type="button"
                             class="btn btn-secondary"
                             data-bs-dismiss="modal"
-                            @click="
-                                cerrarModal('staticBackdrop');
-                                abrirModal('registrar');
-                                ProductoLineaIngreso();
-                            "
-                        >
+                            @click="cerrarModal('staticBackdrop');abrirModal('registrar');ProductoLineaIngreso();">
                             Cerrar
                         </button>
                    
@@ -792,6 +783,7 @@ export default {
 
     watch: {
         ProductoLineaIngresoSeleccionado: function (newValue) {
+       
             if (newValue > 0) {
                 if (this.tipoAccion === 1) {
                     this.cantidadS = 0;
@@ -800,10 +792,11 @@ export default {
                 let productoSeleccionado = this.arrayProductoLineaIngreso.find(
                     (element) => element.id_ingreso === newValue,
                 );
-              
+                
                 if (productoSeleccionado) {
                     this.cantidadProductoLineaIngreso =
                         productoSeleccionado.stock_ingreso;
+                   
                     this.codigo = productoSeleccionado.codigo_producto;
                     this.fecha_ingreso=productoSeleccionado.fecha_ingreso;
         this.fecha_vencimiento=productoSeleccionado.fecha_vencimiento;
@@ -829,7 +822,7 @@ export default {
                         productoSeleccionado.fecha_vencimiento;
                 } else {
                     console.log(
-                        "No matching element found in arrayProductoLineaIngreso.",
+                        "no se encotro el producto.",
                     );
                 }
             } else {
@@ -871,7 +864,7 @@ export default {
 
         },
 sucursalSeleccionadaDestino: function (newValue) {
-    
+   
     let sucursalSeleccionadoD = this.arraySucursalDestino.find(
         (element) => element.codigo === newValue,
     );
@@ -883,6 +876,7 @@ sucursalSeleccionadaDestino: function (newValue) {
 
 
     }
+    
 },
     },
 
@@ -937,7 +931,7 @@ sucursalSeleccionadaDestino: function (newValue) {
                 .then(function (response) {
                     var respuesta = response.data;
                     me.arraySucursal = respuesta;
-                    console.log(me.arraySucursal);
+                 
                 })
                 .catch(function (error) {
                     error401(error);
@@ -952,7 +946,7 @@ sucursalSeleccionadaDestino: function (newValue) {
                 .then(function (response) {
                     var respuesta = response.data;
                     me.arraySucursalDestino = respuesta;
-                    console.log(me.arraySucursalDestino);
+        
                 })
                 .catch(function (error) {
                     error401(error);
@@ -968,7 +962,7 @@ sucursalSeleccionadaDestino: function (newValue) {
                 .then(function (response) {
                     var respuesta = response.data;
                     me.arrayTipos = respuesta;
-                    console.log(me.arrayTipos);
+          
                 })
                 .catch(function (error) {
                     error401(error);
@@ -984,28 +978,21 @@ sucursalSeleccionadaDestino: function (newValue) {
             );
         },
 
-        ProductoLineaIngreso() {
+        ProductoLineaIngreso(cod) {
             let me = this;
-
-            if (me.tipoAccion == 1) {
-                var url =
-                    "/traspaso/listarProductoLineaIngreso?respuesta0=" +
-                    this.sucursalSeleccionada;
-            }
-            if (me.tipoAccion == 2) {
-                var url =
-                    "/traspaso/listarProductoLineaIngreso?respuesta0=" +
-                    this.sucursalSeleccionada;
-            }
-         
+             var url =
+                    "/traspaso/listarProductoLineaIngreso?respuesta0=" +cod;
+            
+        
+    
             axios
                 .get(url)
                 .then(function (response) {
                     var respuesta = response.data;
-
                     me.arrayProductoLineaIngreso = respuesta;
-
-                    console.log(me.arrayProductoLineaIngreso);
+                    console.log("--funcion ingreso--");
+                 console.log(me.arrayProductoLineaIngreso);
+                    
                 })
                 .catch(function (error) {
                     error401(error);
@@ -1015,7 +1002,7 @@ sucursalSeleccionadaDestino: function (newValue) {
 
         ListarretornarProductosIngreso() {
             let me = this;
-            console.log("--- "+me.sucursalSeleccionada+"--- "+me.inputTextBuscarProductoIngreso);
+   
             if (me.tipoAccion == 1) {
                 var url ="/traspaso/retornarProductosIngreso?respuesta0=" + this.sucursalSeleccionada +
                     "&respuesta1=" + me.inputTextBuscarProductoIngreso;
@@ -1048,7 +1035,7 @@ sucursalSeleccionadaDestino: function (newValue) {
             let respuesta = me.arraySucursal.find(
                 (element) => element.codigo == me.sucursalSeleccionada,
             );
-           
+
          switch (accion) {
                 case "registrar": {
                     me.tipoAccion = 1;
@@ -1082,8 +1069,9 @@ sucursalSeleccionadaDestino: function (newValue) {
                     break;
                 }
                 case "actualizar": {
+                   console.log(me.arrayProductoLineaIngreso);
                     me.tipoAccion = 2;
-                   
+              
                     me.id_producto = data.id_prod_producto;
                     me.ProductoLineaIngresoSeleccionado = data.id_ingreso === null ? 0 : data.id_ingreso;
                     me.sucursalSeleccionadaDestino=data.cod_2 === null ? 0 : data.cod_2;
@@ -1092,8 +1080,11 @@ sucursalSeleccionadaDestino: function (newValue) {
                     me.leyenda = data.leyenda;
                     me.id_codigo = data.cod;
                     me.tituloModal = "Traspaso origen "+respuesta.razon_social;
-                    me.codigo = data.codigo;
-                    me.cantidadProductoLineaIngreso = data.cantidad;
+                    me.codigo = data.codigo;                   
+                   
+                    me.cantidadProductoLineaIngreso = 1210;
+                    console.log("*---modal--*");
+                   console.log(me.arrayProductoLineaIngreso);
                     me.linea = data.linea;
                     me.producto = data.nombreProd;
                     me.cantidadS = data.cantidad;
@@ -1182,7 +1173,7 @@ sucursalSeleccionadaDestino: function (newValue) {
                
                     me.tituloModal = " ";
                     me.ProductoLineaIngresoSeleccionado = 0;
-                    me.id_codigo = me.sucursalSeleccionada;
+                    me.id_codigo ="";
                     me.cantidadProductoLineaIngreso = '';                 
                     me.codigo = '';
                     me.linea = '';
@@ -1220,10 +1211,7 @@ sucursalSeleccionadaDestino: function (newValue) {
 
         registrorAjusteNegativo() {
             let me = this;
-         //   console.log("-----id_almace:"+me.id_almacen_tienda +" id_pro: " +me.id_producto +" id_ingr: " + me.id_ingreso+" enva: "+me.envase+" can: "+me.cantidadS+" fech: "+me.fecha_vencimiento+" lote: "+me.lote+" reg_sani: "
-         //  +me.registro_sanitario+" id_alm_tinda: "+me.id_almacen_tienda+" lista_id_a_t: "+me.lista_id_almacen_id_tienda+" id_ingre: "+me.id_ingreso+" sucuSe: "+me.sucursalSeleccionada+" codigoDes "+me.codigoDestino
-         //   +" > "+me.leyenda+" > "+me.glosa );
-         console.log(me.producto+"-"+me.fecha_ingreso+"-"+me.id_sucursal+"-"+me.codigo+"-"+me.linea);
+       
             if (
                me.ProductoLineaIngresoSeleccionado === 0 ||
                 me.sucursalSeleccionadaDestino === 0 ||
@@ -1284,6 +1272,7 @@ sucursalSeleccionadaDestino: function (newValue) {
 
                         me.listarAjusteNegativos();
                         me.sucursalFiltro();
+                        me.ProductoLineaIngreso(me.sucursalSeleccionada);
                     })
                     .catch(function (error) {
                         error401(error);
@@ -1296,12 +1285,7 @@ sucursalSeleccionadaDestino: function (newValue) {
         actualizarAjusteNegativo() {
             let me = this;
             var mensajeX="";
-     
-       //       console.log("-----id_almace:"+me.id_almacen_tienda +" -- id_pro: " +me.id_producto +" -- id_ingr: " + me.id_ingreso+" --enva: "+me.envase+" --can: "+me.cantidadS+" fech: "+me.fecha_vencimiento+" lote: "+me.lote+" reg_sani: "
-       //   +me.registro_sanitario+" id_alm_tinda: "+me.id_almacen_tienda+" lista_id_a_t: "+me.lista_id_almacen_id_tienda+" id_ingre: "+me.id_ingreso+" sucuSe: "+me.sucursalSeleccionada+" codigoDes "+me.codigoDestino
-       //    +" > "+me.leyenda+" > "+me.glosa );
-    
-    //   console.log(me.producto+"-"+me.fecha_ingreso+"-"+me.id_sucursal+"-"+me.codigo+"-"+me.linea);
+   
         if (
                me.ProductoLineaIngresoSeleccionado === 0 ||
                 me.sucursalSeleccionadaDestino === 0 ||
@@ -1351,6 +1335,7 @@ sucursalSeleccionadaDestino: function (newValue) {
                 .then(function (response) {
                     me.listarAjusteNegativos();
                     me.sucursalFiltro();
+                    me.ProductoLineaIngreso(me.sucursalSeleccionada);
                     Swal.fire(
                         "Actualizado Correctamente!",
                         "El registro a sido actualizado Correctamente",
@@ -1390,7 +1375,7 @@ sucursalSeleccionadaDestino: function (newValue) {
                 .then(function (response) {
                     var respuesta = response.data;
                     me.arrayIngresoAlmacen_tienda = respuesta;
-                    console.log(me.arrayTipos);
+  
                 })
                 .catch(function (error) {
                     error401(error);
@@ -1400,7 +1385,6 @@ sucursalSeleccionadaDestino: function (newValue) {
 
         eliminarAjusteNegativos(idAjusteNegativos) {
             let me = this;
-           console.log(     idAjusteNegativos +     " - " + me.sucursalSeleccionada +  " - " +  me.id_ingreso    );
             const swalWithBootstrapButtons = Swal.mixin({
                 customClass: {
                     confirmButton: "btn btn-success",
@@ -1454,7 +1438,6 @@ sucursalSeleccionadaDestino: function (newValue) {
 
         activarAjusteNegativos(idAjusteNegativos) {
             let me = this;
-            console.log("----"+idAjusteNegativos);
             const swalWithBootstrapButtons = Swal.mixin({
                 customClass: {
                     confirmButton: "btn btn-success",
@@ -1513,12 +1496,13 @@ sucursalSeleccionadaDestino: function (newValue) {
 
     mounted() {
         this.classModal = new _pl.Modals();
-        this.classModal.addModal("registrar");
         this.listarAjusteNegativos(1);
         this.ajustesNegativos();
         this.cambiodeEstado();
         this.sucursalFiltro();
+        this.classModal.addModal("registrar");
         this.sucursalFiltroDestino();
+
         this.classModal.addModal("staticBackdrop");
     },
 };
