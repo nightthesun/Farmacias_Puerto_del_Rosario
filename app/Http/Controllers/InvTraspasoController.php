@@ -445,7 +445,7 @@ class InvTraspasoController extends Controller
         $update->id_almacen_tienda=$request->id_almacen_tienda;
         $update->id_prod_producto=$request->id_prod_producto;
         $update->envase=$request->envase;
-        $update->cantidad__stock_ingreso=$request->cantidad__stock_ingreso;
+        
         $update->fecha_vencimiento=$request->fecha_vencimiento;
         $update->lote=$request->lote;
         $update->registro_sanitario=$request->registro_sanitario;
@@ -461,7 +461,46 @@ class InvTraspasoController extends Controller
         $update->user_id=auth()->user()->id;
         $update->name_ori=$request->name_ori;
         $update->name_des=$request->name_des;
-        $update->save();
+        if ($update->cantidad__stock_ingreso<$request->cantidad__stock_ingreso) {
+            $update->cantidad__stock_ingreso=$request->cantidad__stock_ingreso;
+        $update->cantidad_old=$request->cantidad_old;
+        }  
+        
+
+
+
+        $ajustesNegativos = Inv_AjusteNegativo::select('inv__ajuste_negativos.id as id_ajuste_N')
+    ->join('inv__traspasos', 'inv__traspasos.numero_traspaso', '=', 'inv__ajuste_negativos.id_traspaso')
+    ->where('inv__traspasos.numero_traspaso', $request->numero_traspaso)
+    ->first(); // Obtener solo un registro, ya que estás utilizando el método find() en el siguiente paso
+
+$updateAjusteNegativo = Inv_AjusteNegativo::find($ajustesNegativos->id_ajuste_N);
+$updateAjusteNegativo->id_usuario_modifica = auth()->user()->id;
+$updateAjusteNegativo->usuario = auth()->user()->name;
+$updateAjusteNegativo->cantidad = $request->cantidad__stock_ingreso;
+$cod = $request->cod_1;
+$id_ingreso = $request->id_ingreso;
+$activador = 0;
+$consulta = DB::table('alm__ingreso_producto as aip')
+            ->select('aip.stock_ingreso as stock_ingreso')
+            ->join('alm__almacens as aa', 'aa.id', '=', 'aip.idalmacen')
+            ->where('aip.id', '=', $id_ingreso)
+            ->where('aa.codigo', '=', $cod);
+
+$consulta2 = DB::table('tda__ingreso_productos as tip')
+            ->select('tip.stock_ingreso as stock_ingreso')
+            ->join('tda__tiendas as tt', 'tt.id', '=', 'tip.idtienda')
+            ->where('tip.id', '=', $id_ingreso)
+            ->where('tt.codigo', '=', $cod);
+
+$resultado = $consulta->unionAll($consulta2)->first();
+$resultado->stock_ingreso=$request->r;
+$resultado->save();
+
+
+$updateAjusteNegativo->save();
+$update->save();
+
     }
 
 
@@ -509,8 +548,8 @@ class InvTraspasoController extends Controller
 
      public function listarProductoLineaIngreso(Request $request)
      {
-       $cod = $request->query('respuesta0');
-       
+    
+        $cod = $request->query('respuesta0');
        $productos = DB::table('prod__productos as pp')
        ->join('alm__ingreso_producto as ai', 'pp.id', '=', 'ai.id_prod_producto')
        ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
@@ -523,9 +562,18 @@ class InvTraspasoController extends Controller
        ->join('alm__almacens as aa', 'aa.id', '=', 'ai.idalmacen')
        ->join('adm__sucursals as ass', 'ass.id', '=', 'aa.idsucursal')
        ->join('prod__lineas as l', 'l.id', '=', 'pp.idlinea')
-       ->where('ai.stock_ingreso', '>', 0)
-       ->where('aa.codigo', $cod) 
-       ->where('pp.idrubro','=',1) 
+       ->when($request->tipo == 1, function ($query) use ($cod) {
+        $query->where('ai.stock_ingreso', '>', 0)
+              ->where('aa.codigo', $cod)
+              ->where('pp.idrubro','=',1)
+              ->where('pp.activo','=',1);
+        })
+        ->when($request->tipo == 2, function ($query) use ($cod) {
+        $query->where('aa.codigo', $cod)
+              ->where('pp.idrubro','=',1)
+              ->where('pp.activo','=',1);
+        })
+       
        ->select(
          'pp.codigointernacional as codigointernacional',
          'ai.registro_sanitario as registro_sanitario',
@@ -579,9 +627,17 @@ class InvTraspasoController extends Controller
    ->join('adm__sucursals as ass', 'ass.id', '=', 'ti.idtienda')
    ->join('prod__lineas as l', 'l.id', '=', 'pp.idlinea')
    ->join('tda__tiendas as tt', 'tt.id', '=', 'ti.idtienda')
-       ->where('ti.stock_ingreso', '>', 0)
-       ->where('tt.codigo', $cod) 
-       ->where('pp.idrubro','=',1) 
+   ->when($request->tipo == 1, function ($query) use ($cod) {
+    $query->where('ti.stock_ingreso', '>', 0)
+          ->where('tt.codigo', $cod)
+          ->where('pp.idrubro','=',1)
+          ->where('pp.activo','=',1);
+    })
+    ->when($request->tipo == 2, function ($query) use ($cod) {
+    $query->where('tt.codigo', $cod)
+          ->where('pp.idrubro','=',1)
+          ->where('pp.activo','=',1);
+    })       
        ->select(
          'pp.codigointernacional as codigointernacional',
          'ti.registro_sanitario as registro_sanitario',
@@ -624,7 +680,7 @@ class InvTraspasoController extends Controller
        );
  
    $result = $productos->unionAll($tiendas)->get();
- 
+
    return $result;
         
      }
@@ -696,10 +752,18 @@ class InvTraspasoController extends Controller
                 ->join('alm__almacens as aa', 'aa.id', '=', 'ai.idalmacen')
                 ->join('adm__sucursals as ass', 'ass.id', '=', 'aa.idsucursal')
                 ->join('prod__lineas as l', 'l.id', '=', 'pp.idlinea')
-                ->where('ai.stock_ingreso', '>', 0)
-                ->where('aa.codigo', $cod) 
-                ->whereRaw($sqls)
-                ->where('pp.idrubro','=',1) 
+                ->when($request->tipo == 1, function ($query) use ($cod) {
+                    $query->where('ai.stock_ingreso', '>', 0)
+                          ->where('aa.codigo', $cod)
+                          ->where('pp.idrubro','=',1)
+                          ->where('pp.activo','=',1);
+                    })
+                    ->when($request->tipo == 2, function ($query) use ($cod) {
+                    $query->where('aa.codigo', $cod)
+                          ->where('pp.idrubro','=',1)
+                          ->where('pp.activo','=',1);
+                    })
+                ->whereRaw($sqls)                
                 ->select(
                   'pp.codigointernacional as codigointernacional',
                   'ai.envase as envase',        
@@ -749,10 +813,18 @@ class InvTraspasoController extends Controller
             ->join('adm__sucursals as ass', 'ass.id', '=', 'ti.idtienda')
             ->join('prod__lineas as l', 'l.id', '=', 'pp.idlinea')
             ->join('tda__tiendas as tt', 'tt.id', '=', 'ti.idtienda')
-                ->where('ti.stock_ingreso', '>', 0)
-                ->where('tt.codigo', $cod) 
-                ->whereRaw($sqls)
-                ->where('pp.idrubro','=',1) 
+            ->when($request->tipo == 1, function ($query) use ($cod) {
+                $query->where('ti.stock_ingreso', '>', 0)
+                      ->where('tt.codigo', $cod)
+                      ->where('pp.idrubro','=',1)
+                      ->where('pp.activo','=',1);
+                })
+                ->when($request->tipo == 2, function ($query) use ($cod) {
+                $query->where('tt.codigo', $cod)
+                      ->where('pp.idrubro','=',1)
+                      ->where('pp.activo','=',1);
+                })
+                ->whereRaw($sqls)                
                 ->select(
                   'pp.codigointernacional as codigointernacional',
                   'ti.envase as envase',   
