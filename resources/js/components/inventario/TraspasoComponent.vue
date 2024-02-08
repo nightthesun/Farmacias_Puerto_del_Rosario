@@ -14,7 +14,7 @@
                     <button
                         type="button"
                         class="btn btn-secondary"
-                        @click="abrirModal('registrar'); ProductoLineaIngreso(sucursalSeleccionada);"
+                        @click="abrirModal('registrar'); ProductoLineaIngreso();"
                         :disabled="sucursalSeleccionada == 0"
                     >
                         <i class="icon-plus"></i>&nbsp;Nuevo
@@ -32,7 +32,7 @@
                             <div class="input-group">
                                 <select
                                     class="form-control"
-                                    @change="listarAjusteNegativos(0)"
+                                    @change="listarAjusteNegativos(0);ProductoLineaIngreso();"
                                     v-model="sucursalSeleccionada"
                                 >
                                     <option value="0" disabled selected>Seleccionar...</option>
@@ -128,12 +128,11 @@
                                         <button
                                         type="button"
                                         class="btn btn-warning btn-sm"
-                                        @click="ProductoLineaIngreso(sucursalSeleccionada); abrirModal('actualizar',AjusteNegativos);
-                                            
-                                        "
+                                        @click="ProductoLineaIngreso(); abrirModal('actualizar', AjusteNegativos)"                                 
                                     >
                                         <i class="icon-pencil"></i>
                                     </button>
+                                    
                                     &nbsp;
                                     <button
                                         v-if="AjusteNegativos.activo == 1"
@@ -297,26 +296,25 @@
                                    
                                     <label class="col-md-3 form-control-label" for="text-input">
                                     <strong>   Producto:</strong>
+
                                         <span
                                             v-if="ProductoLineaIngreso == '0'"
                                             class="error"
                                             >(*)</span
                                         >
                                     </label>
-                                    <div class="col-md-7 input-group mb-3">
-                                        <select v-model="ProductoLineaIngresoSeleccionado"
+                                    <div class="col-md-7 input-group mb-3" v-if="tipoAccion==1">
+                                        <select v-model="ProductoLineaIngresoSeleccionado" 
                                             class="form-control"  @change="cambioDeEstado">
                                             <option v-bind:value="0" disabled>
                                                 Seleccionar...
                                             </option>
                                             <option
-                                                v-for="ProductoLineaIngreso in arrayProductoLineaIngreso"
+                                                v-for="ProductoLineaIngreso in arrayProductoLineaIngreso" 
                                                 :key="
                                                     ProductoLineaIngreso.id_ingreso
                                                 "
-                                                v-bind:value="
-                                                    ProductoLineaIngreso.id_ingreso
-                                                "
+                                                v-bind:value=" ProductoLineaIngreso.id_ingreso" :hidden="ProductoLineaIngreso.stock_ingreso <= 0"
                                                 v-text="
                                                     ProductoLineaIngreso.leyenda +
                                                     ' | Lote: ' +
@@ -324,15 +322,13 @@
                                                     ' | FI: ' +
                                                     ProductoLineaIngreso.fecha_ingreso +
                                                     ' | FV: ' +
-                                                    (ProductoLineaIngreso.fecha_vencimiento ===
-                                                    null
-                                                        ? '| sin registro'
-                                                        : ProductoLineaIngreso.fecha_vencimiento) +
+                                                    (ProductoLineaIngreso.fecha_vencimiento === null? '| sin registro': ProductoLineaIngreso.fecha_vencimiento) +
                                                     ' | Stock: ' +
                                                     ProductoLineaIngreso.stock_ingreso
                                                 "
                                             ></option>
                                         </select>
+                                        
                                         <button
                                             class="btn btn-primary"
                                        
@@ -353,12 +349,10 @@
                                        --> 
                                         
                                     </div>
-                                    
-                                    <div class="form-group col-sm-4" v-if="ProductoLineaIngresoSeleccionado!=''&&tipoAccion==2">
-                                    <strong>pro: <span>{{ leyenda}}&nbsp;| Stock:{{ cantidadProductoLineaIngreso }}</span>
-                                    </strong>
-   
-                                </div>
+                                    <div class="col-md-7 input-group mb-3" v-if="tipoAccion==2">
+                                        <strong><span>{{ leyenda}}&nbsp;| Stock:{{ cantidadProductoLineaIngreso }}</span></strong>
+                                    </div>   
+                                  
                                 <div class="form-group col-sm-4" v-if="ProductoLineaIngresoSeleccionado!=''&&tipoAccion==1">
                                     <strong>Cantidad existente: <span>{{ cantidadProductoLineaIngreso }}</span></strong>
    
@@ -425,15 +419,15 @@
                                     <label
                                         class="col-md-3 form-control-label"
                                         for="text-input"
-                                        ><strong>Cantidad a enviar</strong> 
+                                        ><strong>Cantidad a enviar:</strong> 
                                         <span
                                             v-if="cantidadS == ''"
                                             class="error"
                                             >(*)</span
                                         >
                                     </label>
-                                    <div class="col-md-5">
-                                        <input v-if="tipoAccion == 1"
+                                    <div class="col-md-5" v-if="tipoAccion == 1">
+                                        <input 
                                             type="number"
                                             min="0"
                                             id="cantidad"
@@ -441,28 +435,40 @@
                                             v-model="cantidadS"
                                             class="form-control"
                                             placeholder="Datos de stock"
-                                            v-on:focus="selectAll"
-                                        />
-                                       <input v-if="tipoAccion == 2"
-                                            type="number"
-                                            min="0"
-                                            id="cantidad"
-                                            name="cantidad"
-                                            v-model="cantidadS"
-                                            class="form-control"
-                                            placeholder="Datos de stock"
-                                            v-on:focus="selectAll" 
-                                         
-                                        />
-                                        <span
-                                            v-if="cantidadS == ''"
-                                            class="error"
-                                            >Debe Ingresar una cantidad</span
-                                        >
+                                            v-on:focus="selectAll"/>
+                                        <span v-if="cantidadS == '' && tipoAccion==1" lass="error">Debe Ingresar una cantidad</span>
+                                                                    
                                     </div>
-
-
+                                    <div class="col-md-5" v-if="tipoAccion === 2">
+                                        <strong v-text="cantidadS"></strong>                              
+                                    </div>
                                 </div>
+                                <div class="form-group row" v-if="ProductoLineaIngresoSeleccionado!='' && tipoAccion === 2">
+                                    <label
+                                        class="col-md-3 form-control-label"
+                                        for="text-input"
+                                        ><strong>Cantidad a enviar nueva:</strong> 
+                                        <span
+                                            v-if="cantidadS2 == ''"
+                                            class="error"
+                                            >(*)</span
+                                        >
+                                    </label>
+                                    <div class="col-md-5" v-if="tipoAccion == 2">
+                                        <input 
+                                            type="number"
+                                            min="0"
+                                            
+                                            v-model="cantidadS2"
+                                            class="form-control"
+                                            placeholder="Datos de stock"
+                                            v-on:focus="selectAll"/>
+                                        <span v-if="cantidadS2 == '' && tipoAccion==2" lass="error">Debe Ingresar una cantidad</span>
+                                                                    
+                                    </div>
+                                    
+                                </div>
+                                
                                 <div class="form-group row" v-if="ProductoLineaIngresoSeleccionado!=''">
                                     <label
                                         class="col-md-3 form-control-label"
@@ -644,32 +650,12 @@
                                     </thead>
                                         
                                     <tbody>
-                                        <tr
-                                            v-for="RetornarProductosIngreso in arrayRetornarProductosIngreso" :key=" RetornarProductosIngreso.id_ingreso"  @click="abrirModal('inputModal22',RetornarProductosIngreso,
-                                                );
-                                                ListarretornarProductosIngreso();
-                                            "
-                                        >
-                                            <td
-                                                v-text="
-                                                    RetornarProductosIngreso.id_ingreso
-                                                "
-                                            ></td>
-                                            <td
-                                                v-text="
-                                                    RetornarProductosIngreso.leyenda
-                                                "
-                                            ></td>
-                                            <td
-                                                v-text="
-                                                    RetornarProductosIngreso.envase
-                                                "
-                                            ></td>
-                                            <td
-                                                v-text="
-                                                    RetornarProductosIngreso.codigointernacional
-                                                "
-                                            ></td>
+                                        <tr v-for="RetornarProductosIngreso in arrayRetornarProductosIngreso" :key=" RetornarProductosIngreso.id_ingreso"  @click="abrirModal('inputModal22',RetornarProductosIngreso);
+                                                ListarretornarProductosIngreso();">
+                                            <td v-text="RetornarProductosIngreso.id_ingreso"></td>
+                                            <td v-text="RetornarProductosIngreso.leyenda"></td>
+                                            <td v-text="RetornarProductosIngreso.envase"></td>
+                                            <td v-text="RetornarProductosIngreso.codigointernacional"></td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -737,7 +723,7 @@ export default {
             cantidadS: "",
             listarTipo: 0,
             cantidadProductoLineaIngreso: "",
-     
+            numero_traspaso:"",
             codigo: "",
             linea: "",
             producto: "",
@@ -778,12 +764,14 @@ export default {
             lista_id_almacen_id_tienda:"",
             codigoDestino:"",
             razon_social_des:"",
+            ///////
+            cantidadS2:"",
         };
     },
 
     watch: {
         ProductoLineaIngresoSeleccionado: function (newValue) {
-       
+          
             if (newValue > 0) {
                 if (this.tipoAccion === 1) {
                     this.cantidadS = 0;
@@ -831,7 +819,8 @@ export default {
         },
       
         cantidadS: function (valor) {
-            if (valor < 0) {
+            if (this.tipoAccion===1) {
+                if (valor < 0 ) {
                 if (this.tipoAccion === 1) {
                     this.cantidadS = 0;
                 }
@@ -858,10 +847,58 @@ export default {
                 console.log(
                     "No se puede ingresar datos mayor que el stock actual",
                 );
-            } else if (valor !== this.cantidadProductoLineaIngreso) {
+            } else 
+            if (valor !== this.cantidadProductoLineaIngreso) {
                 this.cantidadS = valor;
+            } 
             }
+        
+        },
+        cantidadS2: function (valor) {
+            if (this.cantidadProductoLineaIngreso===0 && this.tipoAccion===2) {
+                if (this.tipoAccion===2) {
+                if (valor < 0 ) {
+                Swal.fire(
+                    'No puede ingresar un número negativos',
+                        'Haga click en Ok',
+                        'error'
+                );
+             
+            } else if (valor !== this.cantidadProductoLineaIngreso) {
+                this.cantidadS22 = valor;
+            }
+            if (valor >= this.cantidadS) {
+                
+                    this.cantidadS2 = 0;
+          
 
+                Swal.fire(
+                    "No puede ingresar un número mayor al numero ingresado anterior mente",
+                    "Haga click en Ok",
+                    "error",
+                );
+               
+            } else if (valor !== this.cantidadProductoLineaIngreso) {
+                this.cantidadS2 = valor;
+            }
+            }                
+            } else {
+                    if (this.cantidadProductoLineaIngreso !==0 && this.tipoAccion===2) {
+                        if (valor > this.cantidadProductoLineaIngreso) {
+            
+                    this.cantidadS2 = 0;
+              Swal.fire(
+                    "No puede ingresar un número mayor al stock actual",
+                    "Haga click en Ok",
+                    "error",
+                );
+              
+            } else 
+            if (valor !== this.cantidadProductoLineaIngreso) {
+                this.cantidadS2 = valor;
+            } 
+                    }
+            }
         },
 sucursalSeleccionadaDestino: function (newValue) {
    
@@ -978,20 +1015,22 @@ sucursalSeleccionadaDestino: function (newValue) {
             );
         },
 
-        ProductoLineaIngreso(cod) {
+        ProductoLineaIngreso() {
             let me = this;
-             var url =
-                    "/traspaso/listarProductoLineaIngreso?respuesta0=" +cod;
-            
+            console.log("data:"+me.tipoAccion);
+            if (me.id_ingreso==null) {
+                var url ="/traspaso/listarProductoLineaIngreso?respuesta0=" +this.sucursalSeleccionada+"&tipo="+1;  
+            } else {               
+                    var url ="/traspaso/listarProductoLineaIngreso?respuesta0=" +this.sucursalSeleccionada+"&tipo="+2;   
         
-    
+            }
+            console.log(url);
             axios
                 .get(url)
                 .then(function (response) {
                     var respuesta = response.data;
                     me.arrayProductoLineaIngreso = respuesta;
-                    console.log("--funcion ingreso--");
-                 console.log(me.arrayProductoLineaIngreso);
+           
                     
                 })
                 .catch(function (error) {
@@ -1005,11 +1044,11 @@ sucursalSeleccionadaDestino: function (newValue) {
    
             if (me.tipoAccion == 1) {
                 var url ="/traspaso/retornarProductosIngreso?respuesta0=" + this.sucursalSeleccionada +
-                    "&respuesta1=" + me.inputTextBuscarProductoIngreso;
+                    "&respuesta1=" + me.inputTextBuscarProductoIngreso+"&tipo="+1;
             }
             if (me.tipoAccion == 2) {
                 var url ="/traspaso/retornarProductosIngreso?respuesta0=" + this.sucursalSeleccionada +
-                    "&respuesta1=" + me.inputTextBuscarProductoIngreso;
+                    "&respuesta1=" + me.inputTextBuscarProductoIngreso+"&tipo="+2;
             }
             axios
                 .get(url)
@@ -1035,7 +1074,7 @@ sucursalSeleccionadaDestino: function (newValue) {
             let respuesta = me.arraySucursal.find(
                 (element) => element.codigo == me.sucursalSeleccionada,
             );
-
+            console.log(data);
          switch (accion) {
                 case "registrar": {
                     me.tipoAccion = 1;
@@ -1066,10 +1105,11 @@ sucursalSeleccionadaDestino: function (newValue) {
                     me.envase='';
                     me.lista_id_almacen_id_tienda='';
                     me.classModal.openModal("registrar");
+                    me.cantidadS2="";
                     break;
                 }
                 case "actualizar": {
-                   console.log(me.arrayProductoLineaIngreso);
+                  
                     me.tipoAccion = 2;
               
                     me.id_producto = data.id_prod_producto;
@@ -1082,9 +1122,8 @@ sucursalSeleccionadaDestino: function (newValue) {
                     me.tituloModal = "Traspaso origen "+respuesta.razon_social;
                     me.codigo = data.codigo;                   
                    
-                    me.cantidadProductoLineaIngreso = 1210;
-                    console.log("*---modal--*");
-                   console.log(me.arrayProductoLineaIngreso);
+                    me.cantidadProductoLineaIngreso = "";
+                
                     me.linea = data.linea;
                     me.producto = data.nombreProd;
                     me.cantidadS = data.cantidad;
@@ -1101,9 +1140,10 @@ sucursalSeleccionadaDestino: function (newValue) {
                    
                     me.tipoCodigo =respuesta.tipoCodigo;
                     me.razon_social=respuesta.razon_social;
-            
+                    me.cantidadS2="";
+                    me.numero_traspaso=data.numero_traspaso;
                     me.classModal.openModal("registrar");
-
+                   
                     break;
                 }
                 case "bucarProductoIngreso": {
@@ -1149,6 +1189,7 @@ sucursalSeleccionadaDestino: function (newValue) {
                   me.cantidadS = "";
                    me.sucursalSeleccionadaDestino=0;
                 me.sucursalSeleccionadaDestino=0;
+                me.cantidadS2
                     
                     me.classModal.openModal("registrar");
                     break;
@@ -1178,7 +1219,8 @@ sucursalSeleccionadaDestino: function (newValue) {
                     me.codigo = '';
                     me.linea = '';
                     me.producto = '';
-                    me.cantidadS = '';              
+                    me.cantidadS = '';  
+                    me.cantidadS2='';            
                     me.fecha_ingreso='';
                     me.fecha_vencimiento='';
                     me.lote='';
@@ -1285,7 +1327,7 @@ sucursalSeleccionadaDestino: function (newValue) {
         actualizarAjusteNegativo() {
             let me = this;
             var mensajeX="";
-   
+            console.log(me.numero_traspaso);
         if (
                me.ProductoLineaIngresoSeleccionado === 0 ||
                 me.sucursalSeleccionadaDestino === 0 ||
@@ -1312,7 +1354,7 @@ sucursalSeleccionadaDestino: function (newValue) {
                     id_almacen_tienda: me.id_almacen_tienda,
                     id_prod_producto: me.id_producto,
                     envase: me.envase,
-                    cantidad__stock_ingreso: me.cantidadS,
+                    cantidad__stock_ingreso: me.cantidadS2,
                     fecha_vencimiento: me.fecha_vencimiento,
                     lote:me.lote, 
                     registro_sanitario:me.registro_sanitario,                  
@@ -1330,7 +1372,9 @@ sucursalSeleccionadaDestino: function (newValue) {
                        prod_name:me.producto,     
                        fecha_ingreso:me.fecha_ingreso,  
                        id_sucursal:me.id_sucursal,      
-                       codigo:me.codigo,             
+                       codigo:me.codigo,  
+                       cantidad_old:  me.cantidadS,      
+                       numero_traspaso:me.numero_traspaso,    
                 })
                 .then(function (response) {
                     me.listarAjusteNegativos();
