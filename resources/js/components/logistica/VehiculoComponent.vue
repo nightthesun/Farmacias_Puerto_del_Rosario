@@ -447,7 +447,7 @@ import { resolveTransitionHooks } from 'vue';
                
                    if (typeof id!=="undefined") {
                     var url = "/vehiculo/listarAsignar?id="+id;
-                    console.log(url);
+             
             axios
                 .get(url)
                 .then(function (response) {
@@ -503,12 +503,7 @@ import { resolveTransitionHooks } from 'vue';
             
             registrar(){
                 let me = this;
-                // console.log(+me.id_tienda_almacen+" - "+me.matricula+"-"+
-               // me.razon_social_des+"-"+me.codigo+"-"+me.telefono+"-"+me.selectTipo);
-             
-             
-
-                axios.post('/vehiculo/registrar',{
+               axios.post('/vehiculo/registrar',{
                     'id_tienda_almacen':me.id_tienda_almacen,
                     'matricula':me.matricula,
                     'razon_social_des':me.razon_social_des,
@@ -630,8 +625,7 @@ import { resolveTransitionHooks } from 'vue';
             },
             actualizar(){
                 let me =this;
-               console.log(me.id_vehiculo+"-"+me.id_tienda_almacen+" - "+me.matricula+"-"+
-              me.razon_social_des+"-"+me.codigo+"-"+me.telefono+"-"+me.selectTipo                   );
+              
                 axios.put('/vehiculo/actualizar',{
                     'id':me.id_vehiculo,
                     'id_tienda_almacen':me.id_tienda_almacen,

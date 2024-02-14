@@ -275,15 +275,15 @@
                             <!-- insertar datos -->
                             <div class="container">
                                 <div class="form-group row">
-                                    <label class="col-md-3 form-control-label"
+                                    <label class="col-md-3 form-control-label" v-if="tipoAccion == 1"
                                         for="text-input" >
-                                        Producto
+                                        Producto:
                                         <span v-if="ProductoLineaIngreso == '0'"
                                             class="error"                                           >(*)</span
                                         >
                                     </label>
-                                    <div class="col-md-7 input-group mb-3">
-                                        <select v-model="ProductoLineaIngresoSeleccionado" v-if="tipoAccion == 1"
+                                    <div class="col-md-7 input-group mb-3" v-if="tipoAccion == 1">
+                                        <select v-model="ProductoLineaIngresoSeleccionado" 
                                             class="form-control"  @change="cambioDeEstado">
                                             <option v-bind:value="0" disabled>
                                                 Seleccionar...
@@ -324,15 +324,34 @@
                                         >
                                             <i class="fa fa-search"></i>
                                         </button>
-                                        <input v-if="tipoAccion == 2"
-                                            type="text"
-                                         
-                                            v-model="leyenda"
-                                            class="form-control"
-                                            placeholder="letenda"
-                                         disabled
-                                         
-                                        />
+                                     
+                                    </div>
+                                    <div class="col-md-12 input-group mb-3" v-if="tipoAccion == 2">
+                                        <select v-model="ProductoLineaIngresoSeleccionado" v-if="tipoAccion == 2"
+                                            class="form-control"  :disabled="tipoAccion === 2" @change="cambioDeEstado">
+                                            <option v-bind:value="0" disabled>
+                                                Seleccionar...
+                                            </option>
+                                            <option 
+                                                v-for="ProductoLineaIngreso in arrayProductoLineaIngreso"
+                                                :key=" ProductoLineaIngreso.id_ingreso"
+                                                v-bind:value="ProductoLineaIngreso.id_ingreso" 
+                                                
+                                                v-text="
+                                                    ProductoLineaIngreso.leyenda +
+                                                    ' | Lote: ' +
+                                                    ProductoLineaIngreso.lote +
+                                                    ' | FI: ' +
+                                                    ProductoLineaIngreso.fecha_ingreso +
+                                                    ' | FV: ' +
+                                                    (ProductoLineaIngreso.fecha_vencimiento ===
+                                                    null ? '| sin registro' : ProductoLineaIngreso.fecha_vencimiento) +
+                                                    ' | Stock: ' +
+                                                    ProductoLineaIngreso.stock_ingreso
+                                                "
+                                                
+                                            ></option>
+                                        </select>
                                     </div>
                                     <input type="text" v-if="tipoAccion == 1" v-model="leyenda" hidden/>
                                     <input 
@@ -471,7 +490,7 @@
                                                 :key="arrayTipos.id" 
 
                                                 :value="Tipo.id"
-                                                v-if="'Tipo.id_tipo'!==13"
+                                                v-show="Tipo.id !== 13"
                                                 v-text="Tipo.nombre"
                                             ></option>
                                         </select>
@@ -874,13 +893,13 @@ export default {
 
             if (me.tipoAccion == 1) {
                 var url =
-                    "/ajustes-negativo/listarProductoLineaIngreso?respuesta0=" +
-                    this.sucursalSeleccionada;
+                    "/ajustes-negativo/listarProductoLineaIngreso?respuesta0="+this.sucursalSeleccionada +"&tipo="+me.tipoAccion;
+                    
             }
             if (me.tipoAccion == 2) {
                 var url =
-                    "/ajustes-negativo/listarProductoLineaIngreso?respuesta0=" +
-                    this.id_codigo;
+                    "/ajustes-negativo/listarProductoLineaIngreso?respuesta0="+this.id_codigo +"&tipo="+me.tipoAccion;
+                    
             }
        
             axios
@@ -1216,13 +1235,7 @@ export default {
 
         eliminarAjusteNegativos(idAjusteNegativos) {
             let me = this;
-            console.log(
-                idAjusteNegativos +
-                    " - " +
-                    me.sucursalSeleccionada +
-                    " - " +
-                    me.id_ingreso
-            );
+           
             const swalWithBootstrapButtons = Swal.mixin({
                 customClass: {
                     confirmButton: "btn btn-success",

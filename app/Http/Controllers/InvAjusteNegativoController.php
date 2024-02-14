@@ -242,6 +242,7 @@ class InvAjusteNegativoController extends Controller
     public function listarProductoLineaIngreso(Request $request)
     {
         //->where('aa.codigo', $cod) 
+     
         $cod = $request->query('respuesta0');
 
 
@@ -257,9 +258,18 @@ class InvAjusteNegativoController extends Controller
             ->join('alm__almacens as aa', 'aa.id', '=', 'ai.idalmacen')
             ->join('adm__sucursals as ass', 'ass.id', '=', 'aa.idsucursal')
             ->join('prod__lineas as l', 'l.id', '=', 'pp.idlinea')
-            ->where('ai.stock_ingreso', '>', 0)
-            ->where('aa.codigo', $cod)
-            ->where('pp.idrubro','=',1) 
+            ->when($request->tipo == 1, function ($query) use ($cod) {
+                $query->where('ai.stock_ingreso', '>', 0)
+                      ->where('aa.codigo', $cod)
+                      ->where('pp.idrubro','=',1)
+                      ->where('pp.activo','=',1);
+                })
+                ->when($request->tipo == 2, function ($query) use ($cod) {
+                $query->where('aa.codigo', $cod)
+                      ->where('pp.idrubro','=',1)
+                      ->where('pp.activo','=',1);
+                })
+ 
             ->select(
                 'pp.codigointernacional as codigointernacional',
                 'ai.envase as envase',
@@ -310,9 +320,17 @@ class InvAjusteNegativoController extends Controller
             ->join('adm__sucursals as ass', 'ass.id', '=', 'ti.idtienda')
             ->join('prod__lineas as l', 'l.id', '=', 'pp.idlinea')
             ->join('tda__tiendas as tt', 'tt.id', '=', 'ti.idtienda')
-            ->where('ti.stock_ingreso', '>', 0)
-            ->where('tt.codigo', $cod)
-            ->where('pp.idrubro','=',1) 
+            ->when($request->tipo == 1, function ($query) use ($cod) {
+                $query->where('ti.stock_ingreso', '>', 0)
+                      ->where('tt.codigo', $cod)
+                      ->where('pp.idrubro','=',1)
+                      ->where('pp.activo','=',1);
+                })
+                ->when($request->tipo == 2, function ($query) use ($cod) {
+                $query->where('tt.codigo', $cod)
+                      ->where('pp.idrubro','=',1)
+                      ->where('pp.activo','=',1);
+                })  
             ->select(
                 'pp.codigointernacional as codigointernacional',
                 'ti.envase as envase',
@@ -569,7 +587,8 @@ class InvAjusteNegativoController extends Controller
                 $id_tras=$updateAjusteNegativo->id_traspaso;
                 $tras = Inv_Traspaso::where('numero_traspaso', $id_tras)->first();
                 if ($tras) {                   
-                    $tras->procesado =3;      
+                    $tras->procesado =3; 
+                    $tras->activo = 0;     
                     $tras->save();
                 }
                  
@@ -591,7 +610,8 @@ class InvAjusteNegativoController extends Controller
                 $id_tras=$updateAjusteNegativo->id_traspaso;
                 $tras = Inv_Traspaso::where('numero_traspaso', $id_tras)->first();
                 if ($tras) {                   
-                    $tras->procesado =3;      
+                    $tras->procesado =3;  
+                    $tras->activo = 0;      
                     $tras->save();
                 }
                  
@@ -659,7 +679,8 @@ class InvAjusteNegativoController extends Controller
                 $id_tras=$updateAjusteNegativo->id_traspaso;
                 $tras = Inv_Traspaso::where('numero_traspaso', $id_tras)->first();
                 if ($tras) {                   
-                    $tras->procesado =0;      
+                    $tras->procesado =0;  
+                    $tras->activo = 0;       
                     $tras->save();
                 }
                  

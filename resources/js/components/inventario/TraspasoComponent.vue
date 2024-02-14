@@ -101,7 +101,7 @@
                         <tbody v-if="sucursalSeleccionada != 0">
                             <tr v-for="AjusteNegativos in arrayAjusteNegativos" :key="AjusteNegativos.id" >
                                 <td>
-                                    <div v-if="AjusteNegativos.estado_procesado == 3 || AjusteNegativos.estado_procesado == 1 || AjusteNegativos.estado_procesado == 2">
+                                    <div v-if="AjusteNegativos.estado_procesado == 3 || AjusteNegativos.estado_procesado == 1 || AjusteNegativos.estado_procesado == 2 ">
                                        <button type="button" class="btn btn-light  btn-sm">
                                         <i class="icon-pencil"></i>
                                         </button>
@@ -125,14 +125,20 @@
 
                                     </div>
                                     <div v-else>
-                                        <button
+                                        <button v-if="AjusteNegativos.cantidad_old != null"
+                                        type="button"
+                                        class="btn btn-light btn-sm"
+                                                                     
+                                    >
+                                        <i class="icon-pencil"></i>
+                                    </button>
+                                    <button v-if="AjusteNegativos.cantidad_old == null"
                                         type="button"
                                         class="btn btn-warning btn-sm"
                                         @click="ProductoLineaIngreso(); abrirModal('actualizar', AjusteNegativos)"                                 
                                     >
                                         <i class="icon-pencil"></i>
                                     </button>
-                                    
                                     &nbsp;
                                     <button
                                         v-if="AjusteNegativos.activo == 1"
@@ -766,6 +772,7 @@ export default {
             razon_social_des:"",
             ///////
             cantidadS2:"",
+            codigo_prod:"",
         };
     },
 
@@ -1017,14 +1024,14 @@ sucursalSeleccionadaDestino: function (newValue) {
 
         ProductoLineaIngreso() {
             let me = this;
-            console.log("data:"+me.tipoAccion);
+    
             if (me.id_ingreso==null) {
                 var url ="/traspaso/listarProductoLineaIngreso?respuesta0=" +this.sucursalSeleccionada+"&tipo="+1;  
             } else {               
                     var url ="/traspaso/listarProductoLineaIngreso?respuesta0=" +this.sucursalSeleccionada+"&tipo="+2;   
         
             }
-            console.log(url);
+    
             axios
                 .get(url)
                 .then(function (response) {
@@ -1074,7 +1081,7 @@ sucursalSeleccionadaDestino: function (newValue) {
             let respuesta = me.arraySucursal.find(
                 (element) => element.codigo == me.sucursalSeleccionada,
             );
-            console.log(data);
+            //console.log(data);
          switch (accion) {
                 case "registrar": {
                     me.tipoAccion = 1;
@@ -1189,7 +1196,7 @@ sucursalSeleccionadaDestino: function (newValue) {
                   me.cantidadS = "";
                    me.sucursalSeleccionadaDestino=0;
                 me.sucursalSeleccionadaDestino=0;
-                me.cantidadS2
+                me.cantidadS2="";
                     
                     me.classModal.openModal("registrar");
                     break;
@@ -1305,6 +1312,7 @@ sucursalSeleccionadaDestino: function (newValue) {
                         'cantidad':me.cantidadS,                
                     })
                     .then(function (response) {
+                        
                         me.cerrarModal("registrar");
                         Swal.fire(
                             "Se registro exitosamente",
@@ -1326,8 +1334,8 @@ sucursalSeleccionadaDestino: function (newValue) {
         },
         actualizarAjusteNegativo() {
             let me = this;
-            var mensajeX="";
-            console.log(me.numero_traspaso);
+          
+         
         if (
                me.ProductoLineaIngresoSeleccionado === 0 ||
                 me.sucursalSeleccionadaDestino === 0 ||
@@ -1348,6 +1356,11 @@ sucursalSeleccionadaDestino: function (newValue) {
                     "warning",
                 );
             } else {
+                if (me.cantidadS2<=0 || me.cantidadS2 =="" || me.cantidadS2 ==null) {
+                  
+                me.cantidadS2=0;  
+                }
+              
                 axios
                 .put("/traspaso/actualizar", {
                     id: me.idAjusteNegativos,
@@ -1367,14 +1380,15 @@ sucursalSeleccionadaDestino: function (newValue) {
                         glosa:me.glosa,
                        name_des:me.razon_social_des,
                        name_ori:me.razon_social,
-                       
+                     
                        linea:me.linea,   
                        prod_name:me.producto,     
                        fecha_ingreso:me.fecha_ingreso,  
                        id_sucursal:me.id_sucursal,      
                        codigo:me.codigo,  
                        cantidad_old:  me.cantidadS,      
-                       numero_traspaso:me.numero_traspaso,    
+                       numero_traspaso:me.numero_traspaso,
+                       stock:me.cantidadProductoLineaIngreso,    
                 })
                 .then(function (response) {
                     me.listarAjusteNegativos();
