@@ -246,7 +246,17 @@
                                     </strong>   
                                   </div>
           
-                                  
+                                  <div class="form-group col-sm-4" v-if="selectTraspaso!='' &&estado==1">
+                                    <strong>Estado: 
+                                        <span  style="color: green;">Listo para procesar</span>
+                                     
+                                    </strong>   
+                                  </div>
+                                  <div class="form-group col-sm-4" v-if="selectTraspaso!='' &&estado==0">
+                                    <strong>Estado: 
+                                        <span  style="color: red;">Pendiente</span>
+                                    </strong>   
+                                  </div>
                                 </div>
                                 <div class="form-group row" v-if="selectTraspaso!='' &&estado==1 &&tipoAccion==1 ">
                                       <label class="col-md-3 form-control-label" for="text-input"><strong>Observación: </strong> 
@@ -431,6 +441,7 @@ export default {
             arrayRecepcion:[],
             id_recepcion:"",
             destino:"",
+            id_destino:"",
           
         };
     },
@@ -480,6 +491,7 @@ export default {
                 this.lote=traspasO.lote;
                 this.id_sucursal=traspasO.id_sucursal;
                 this.destino=traspasO.name_des;
+                this.id_destino=traspasO.id_destino;
                 
         
               }  
@@ -528,7 +540,7 @@ export default {
         listarRecepcion(page){
             let me=this;
                 var url='/recepcion?page='+page+'&buscar='+me.buscar+'&buscarAlmTdn='+me.selectAlmTienda;
-               console.log(url);
+             
                 axios.get(url)
                 .then(function(response){
                     var respuesta = response.data;
@@ -594,16 +606,13 @@ export default {
         },
 
 
-//console.log("id_tras:"+me.id_traslado+" id_empleado:"+me.id_ingreso+" id_ve:"+me.cod_1+" time:"+me.cod_2+" obs:"+me.observacion);    
-//if (me.selectTraspaso===0 || me.observacion === "" || me.checked===false     
-        cambiarPagina(page) {
+    cambiarPagina(page) {
             let me = this;
             me.pagination.current_page = page;
            me.listarRecepcion(page);
         },
         registrar() {
             let me = this;
-     //console.log("id_tras:"+me.id_traslado+" id_empleado:"+me.id_ingreso+" id_ve:"+me.cod_1+" time:"+me.cod_2+" obs:"+me.observacion+"checked:"+me.checked);    
       if (me.selectTraspaso===0 || me.observacion === "" ) {
                 Swal.fire(
                     "No puede ingresar valor vacios.",
@@ -618,9 +627,7 @@ export default {
                     "warning",
                 );
                 } else {
-               //console.log("id_traspaso:"+me.id_traspaso+"res:"+me.id_traslado+"prod_id"+me.id_prod_producto+"envase:"+me.envase+"idtienda:"+me.id_almacen_tienda
-               //   +"cantidad:"+me.cantidad+"id_tipoentrada:"+me.id_tipoentrada+"fecha_vencimiento"+me.fecha_vencimiento
-               //   +"lote:"+me.lote+"registro_sanitario:"+me.registro_sanitario);
+               
                    axios
                     //axios.get(url)
                      .post("/recepcion/registrar", {
@@ -645,7 +652,8 @@ export default {
                     'numero_traspaso':me.numero_traspaso,
                     'id_traspaso':me.id_traspaso,
                     'destino':me.destino,
-                    
+                    'id_destino':me.id_destino,
+                
                     })
                     .then(function (response) {
                         me.cerrarModal("registrar");
@@ -668,7 +676,7 @@ export default {
         },
         actualizar() {
             let me = this;
-           console.log("id:"+me.id_recepcion+"observacion:"+this.observacion);
+          
             axios
                 .put("/recepcion/actualizar", {
                     id: me.id_recepcion,                   
@@ -734,7 +742,7 @@ export default {
                    me.linea_name="";
                    me.name_prod="";
                    me.fecha_vencimiento="";
-           
+                   me.id_destino="";
                    me.id_sucursal="";
                    me.id_recepcion="";
                    me.destino="";
@@ -742,7 +750,7 @@ export default {
                     break;
                 }
                 case "actualizar": {
-                    //console.log(data);
+            
                     me.tipoAccion = 2;
                     me.id_recepcion= data.id;
                     me.selectTraspaso=data.id_traslado === null ? 0:data.id_traslado ;
@@ -829,6 +837,7 @@ export default {
                    me.id_sucursal="";
                    me.observacion="";
                    me.id_recepcion="";
+                   me.id_destino="";
                     setTimeout(me.tiempo, 200); 
                     //me.ProductoLineaIngresoSeleccionado = 0;
                     me.inputTextBuscarProductoIngreso = "";

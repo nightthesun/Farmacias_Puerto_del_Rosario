@@ -222,37 +222,36 @@ class InvRecepcionController extends Controller
     public function store(Request $request)
     {
         try {
-            // Obtener los datos de la solicitud
-            DB::transaction(function () use ($request) {
-
-            });
+           
        $cod2 = $request->input('cod_2');
        
-       $id_prod_producto = $request->input('id_prod_producto');
-    
-       $resultadosAlmacen = Alm_IngresoProducto::join('alm__almacens', 'alm__ingreso_producto.idalmacen', '=', 'alm__almacens.id')
-       ->select('alm__almacens.id as id','alm__almacens.codigo as codigo')
-       ->where('codigo','=',$cod2)
-       ->get();
-        $resultadosTienda = Tda_IngresoProducto::join('tda__tiendas', 'tda__ingreso_productos.idtienda', '=', 'tda__tiendas.id')
-       ->select('tda__tiendas.id as id','tda__tiendas.codigo as codigo')
-       ->where('codigo','=',$cod2)
-       ->get();
+       $id_prod_producto = $request->input('id_prod_producto');    
+   
+       $resultadosAlmacen = DB::table('alm__almacens')
+       ->select('id as id', 'codigo as codigo')
+       ->where('codigo', $cod2);
+   
+       $resultadosTienda = DB::table('tda__tiendas')
+       ->select('id as id', 'codigo as codigo')
+       ->where('codigo', $cod2);
+   
+       $resultados = $resultadosAlmacen->unionAll($resultadosTienda)->get();
+       if ($resultados) {
+        if($resultadosAlmacen->count() > 0){
+            $nuevoProducto = new Alm_IngresoProducto();
+            $nuevoProducto->idalmacen = $request->id_destino;   
+           }
+            if($resultadosTienda->count() > 0){
+                $nuevoProducto = new Tda_IngresoProducto();
+                $nuevoProducto->idtienda = $request->id_destino;
+            }
+       }else{
+        dd("error");
+       }
+       
+           
 
-       if($resultadosAlmacen->isEmpty()){
-            if ($resultadosTienda->isEmpty()) {                    
-                dd("error");
-            } else {            
-            $nuevoProducto = new Tda_IngresoProducto();
-            $nuevoProducto->idtienda = $request->id_almacen_tienda;
-            }       
-        }else {           
-     
-        $nuevoProducto = new Alm_IngresoProducto();
-        $nuevoProducto->idalmacen = $request->id_almacen_tienda;     
-        }
-   // Unir los resultados de ambas consultas
-   $resultados = $resultadosAlmacen->merge($resultadosTienda);
+
 
    $productos = Prod_Producto::select('id', 'codigo')
             ->where('id','=',$id_prod_producto)
@@ -272,6 +271,7 @@ class InvRecepcionController extends Controller
         $nuevoProducto->registro_sanitario = $request->registro_sanitario;
         $nuevoProducto->id_usuario_registra=auth()->user()->id;
         $nuevoProducto->save();
+      
         $ajusteNegativo=new Inv_AjustePositivo();
         $ajusteNegativo->id_usuario = auth()->user()->id;
         $ajusteNegativo->usuario = auth()->user()->name;
@@ -306,6 +306,7 @@ class InvRecepcionController extends Controller
          }
         } catch (\Throwable   $e) {
             DB::rollBack();
+            dd("error");
             return redirect()->back()->with('error', 'Ha ocurrido un error durante el proceso. Por favor, inténtalo de nuevo.');
         }
       

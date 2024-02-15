@@ -318,16 +318,37 @@
                                         >
                                             <i class="fa fa-search"></i>
                                         </button>
-                                        <input v-if="tipoAccion == 2"
-                                            type="text"
-                                         
-                                            v-model="leyenda"
-                                            class="form-control"
-                                            placeholder="letenda"
-                                         disabled
-                                      
-                                        />
+                                       
                                     </div>
+                                    <div class="col-md-12 input-group mb-3" v-if="tipoAccion == 2">
+                                        <select v-model="ProductoLineaIngresoSeleccionado" v-if="tipoAccion == 2"
+                                            class="form-control"  :disabled="tipoAccion === 2" @change="cambioDeEstado">
+                                            <option v-bind:value="0" disabled>
+                                                Seleccionar...
+                                            </option>
+                                            <option 
+                                                v-for="ProductoLineaIngreso in arrayProductoLineaIngreso"
+                                                :key=" ProductoLineaIngreso.id_ingreso"
+                                                v-bind:value="ProductoLineaIngreso.id_ingreso" 
+                                                
+                                                v-text="
+                                                    ProductoLineaIngreso.leyenda 
+                                                    +
+                                                    ' | Stock: ' +
+                                                    ProductoLineaIngreso.stock_ingreso+
+                                                    ' | Lote: ' +
+                                                    ProductoLineaIngreso.lote +
+                                                    ' | FI: ' +
+                                                    ProductoLineaIngreso.fecha_ingreso +
+                                                    ' | FV: ' +
+                                                    (ProductoLineaIngreso.fecha_vencimiento ===
+                                                    null ? '| sin registro' : ProductoLineaIngreso.fecha_vencimiento) 
+                                                "
+                                                
+                                            ></option>
+                                        </select>
+                                    </div>
+                                 
                                     <input type="text" v-if="tipoAccion == 1" v-model="leyenda" hidden/>
                                     <input type="text" v-if="tipoAccion == 1" v-model="id_codigo"  hidden/>
                                     <input type="number" v-if="tipoAccion == 1" v-model="cantidadProductoLineaIngreso" hidden/>
@@ -422,6 +443,7 @@
                                                 v-for="Tipos in arrayTipos"
                                                 :key="arrayTipos.id"
                                                 :value="Tipos.id"
+                                                v-show="Tipos.id !== 13"
                                                 v-text="Tipos.nombre"
                                             ></option>
                                         </select>
@@ -650,6 +672,7 @@ export default {
             inputTextBuscarProductoIngreso: "",
             arrayRetornarProductosIngreso: [],
             leyenda: "",
+            stock_ingreso:"",
         };
     },
 
@@ -665,6 +688,7 @@ export default {
                 );
 
                 if (productoSeleccionado) {
+                    this.stock_ingreso.productoSeleccionado.stock_ingreso;
                     this.cantidadProductoLineaIngreso =
                         productoSeleccionado.stock_ingreso;
                     this.codigo = productoSeleccionado.codigo_producto;
@@ -769,7 +793,7 @@ export default {
                 .then(function (response) {
                     var respuesta = response.data;
                     me.arraySucursal = respuesta;
-                    console.log(me.arraySucursal);
+              
                 })
                 .catch(function (error) {
                     error401(error);
@@ -785,7 +809,7 @@ export default {
                 .then(function (response) {
                     var respuesta = response.data;
                     me.arrayTipos = respuesta;
-                    console.log(me.arrayTipos);
+               
                 })
                 .catch(function (error) {
                     error401(error);
@@ -807,14 +831,14 @@ export default {
             if (me.tipoAccion == 1) {
                 var url =
                     "/traspaso/listarProductoLineaIngreso?respuesta0=" +
-                    this.sucursalSeleccionada;
+                    this.sucursalSeleccionada+"&tipo="+me.tipoAccion;
             }
             if (me.tipoAccion == 2) {
                 var url =
                     "/traspaso/listarProductoLineaIngreso?respuesta0=" +
-                    this.id_codigo;
-            }
-            console.log(" ---  ".url);
+                    this.id_codigo+"&tipo="+me.tipoAccion;
+            
+                }
             axios
                 .get(url)
                 .then(function (response) {
@@ -822,7 +846,7 @@ export default {
 
                     me.arrayProductoLineaIngreso = respuesta;
 
-                    console.log(me.arrayProductoLineaIngreso);
+           
                 })
                 .catch(function (error) {
                     error401(error);
@@ -843,7 +867,7 @@ export default {
           //          "/ajustes-positivo/retornarProductosIngreso?respuesta0=" + this.id_codigo +"&respuesta1=" +
           //          me.inputTextBuscarProductoIngres;
           //  }
-            console.log(url);
+        
             axios
                 .get(url)
                 .then(function (response) {
@@ -894,6 +918,7 @@ export default {
                     me.id_ingreso = "";
                     me.classModal.openModal("registrar");
                     me.leyenda = "";
+                    me.stock_ingreso="";
                     break;
                 }
                 case "actualizar": {
@@ -1022,7 +1047,7 @@ export default {
                 me.TiposSeleccionado = 0;
                 me.cantidadProductoLineaIngreso = "";
                 me.tipoAccion = 1;
-
+                me.stock_ingreso ="";
                 me.codigo = "";
                 me.linea = "";
                 (me.producto = ""), (me.cantidadS = "");
@@ -1138,7 +1163,7 @@ export default {
         //para listar db alm__ajuste_negativos
         listarAjusteNegativos(page) {
             let me = this;
-           // console.log (me.sucursalSeleccionada);
+ 
            // if (me.sucursalSeleccionada == 0) {
            //     var url =     "/ajustes-positivo?page=" + page + "&buscar=" + me.buscar;
                // me.sucursalSeleccionada = 0;
@@ -1168,7 +1193,7 @@ export default {
                 .then(function (response) {
                     var respuesta = response.data;
                     me.arrayIngresoAlmacen_tienda = respuesta;
-                    console.log(me.arrayTipos);
+       
                 })
                 .catch(function (error) {
                     error401(error);
@@ -1178,13 +1203,7 @@ export default {
 
         eliminarAjusteNegativos(idAjusteNegativos) {
             let me = this;
-            console.log(
-                idAjusteNegativos +
-                    " - " +
-                    me.sucursalSeleccionada +
-                    " - " +
-                    me.id_ingreso
-            );
+          
             const swalWithBootstrapButtons = Swal.mixin({
                 customClass: {
                     confirmButton: "btn btn-success",

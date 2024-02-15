@@ -283,7 +283,7 @@
                                 </div>
                                 <div class="form-group row" v-if="selectTraspaso!=''">
                                       <label class="col-md-3 form-control-label" for="text-input">Tiempo estimado: 
-                                       
+                                        <span v-if="estimacion == ''" class="error">(*)</span>
                                       </label>
                                       <div class="col-md-7">
                                          <input type="time" id="" name="" v-model="estimacion" class="form-control" placeholder="Debe ingresar un tiempo estimado " >
@@ -292,7 +292,7 @@
                                   </div>
                                   <div class="form-group row" v-if="selectTraspaso!=''">
                                       <label class="col-md-3 form-control-label" for="text-input">Observación: 
-                                       
+                                        <span v-if="observacion == ''" class="error">(*)</span>
                                       </label>
                                       <div class="col-md-7">
                                         <textarea id="" name="" v-model="observacion" class="form-control" placeholder="Debe ingresar una observación"></textarea>
@@ -500,7 +500,7 @@ export default {
         listarTraslado(page){
             let me=this;
                 var url='/traslado?page='+page+'&buscar='+me.buscar+'&buscarAlmTdn='+me.selectAlmTienda;
-               console.log(url);
+      
                 axios.get(url)
                 .then(function(response){
                     var respuesta = response.data;
@@ -532,7 +532,7 @@ export default {
                 let me = this;
             
             var url = "/traslado/listarVehiculo?codigo="+cod;
-            console.log(url);
+          
             axios
                 .get(url)
                 .then(function (response) {
@@ -612,9 +612,8 @@ export default {
         },
         registrar(){
             let me =this;
-         //   console.log("id_tras:"+me.selectTraspaso+" id_empleado"+me.selectUsuario+" id_ve:"+me.selectVehiculo+" time:"+me.estimacion+" obs:"+me.observacion);    
-            if (me.selectTraspaso==="" || me.selectUsuario === "" ||
-            me.selectVehiculo ==="" || me.estimacion==="" || me.observacion===""
+           if (me.selectTraspaso==="" || me.selectUsuario === "" ||
+            me.selectVehiculo ===0 || me.estimacion==="" || me.observacion===""
             ) {
                 Swal.fire(
                     "No puede ingresar valor nulos  o vacios",
@@ -829,7 +828,6 @@ export default {
                 }
                 
                 case "actualizar": {
-                   // console.log(data);
                     me.tipoAccion = 2;
                     me.tituloModal = "Nombre de traspaso origen: "+me.razon_socialAlmTienda;
                     me.selectTraspaso=data.id_traslado === null ? 0:data.id_traslado ;

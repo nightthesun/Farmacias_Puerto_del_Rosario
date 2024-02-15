@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\Alm_IngresoProducto;
 use App\Models\Tda_IngresoProducto;
+use Psy\Command\WhereamiCommand;
 
 class InvAjustePositivoController extends Controller
 {
@@ -367,9 +368,17 @@ class InvAjustePositivoController extends Controller
       ->join('alm__almacens as aa', 'aa.id', '=', 'ai.idalmacen')
       ->join('adm__sucursals as ass', 'ass.id', '=', 'aa.idsucursal')
       ->join('prod__lineas as l', 'l.id', '=', 'pp.idlinea')
-      ->where('ai.stock_ingreso', '>', 0)
-      ->where('aa.codigo', $cod) 
-      ->where('pp.idrubro','=',1) 
+      ->when($request->tipo == 1, function ($query) use ($cod) {
+        $query->where('ai.stock_ingreso', '>', 0)
+              ->where('aa.codigo', $cod)
+              ->where('pp.idrubro','=',1)
+              ->where('pp.activo','=',1);
+        })
+        ->when($request->tipo == 2, function ($query) use ($cod) {
+        $query->where('aa.codigo', $cod)
+              ->where('pp.idrubro','=',1)
+              ->where('pp.activo','=',1);
+        })
       ->select(
         'pp.codigointernacional as codigointernacional',
         'ai.envase as envase',        
@@ -419,9 +428,17 @@ class InvAjustePositivoController extends Controller
   ->join('adm__sucursals as ass', 'ass.id', '=', 'ti.idtienda')
   ->join('prod__lineas as l', 'l.id', '=', 'pp.idlinea')
   ->join('tda__tiendas as tt', 'tt.id', '=', 'ti.idtienda')
-      ->where('ti.stock_ingreso', '>', 0)
-      ->where('tt.codigo', $cod)
-      ->where('pp.idrubro','=',1)  
+  ->when($request->tipo == 1, function ($query) use ($cod) {
+    $query->where('ti.stock_ingreso', '>', 0)
+          ->where('tt.codigo', $cod)
+          ->where('pp.idrubro','=',1)
+          ->where('pp.activo','=',1);
+    })
+    ->when($request->tipo == 2, function ($query) use ($cod) {
+    $query->where('tt.codigo', $cod)
+          ->where('pp.idrubro','=',1)
+          ->where('pp.activo','=',1);
+    })   
       ->select(
         'pp.codigointernacional as codigointernacional',
         'ti.envase as envase',   
@@ -469,12 +486,15 @@ class InvAjustePositivoController extends Controller
        
         $tiendas = DB::table('tda__tiendas')
         ->select('tda__tiendas.id as id_tienda', DB::raw('null as id_almacen'), 'tda__tiendas.codigo', 'adm__sucursals.razon_social', 'adm__sucursals.razon_social as sucursal','adm__sucursals.cod as codigoS', DB::raw('"Tienda" as tipoCodigo'))
-        ->join('adm__sucursals', 'tda__tiendas.idsucursal', '=', 'adm__sucursals.id');
+        ->join('adm__sucursals', 'tda__tiendas.idsucursal', '=', 'adm__sucursals.id')
+        ->where('tda__tiendas.activo','=',1)
+        ->where('adm__sucursals.activo','=',1);
 
     $almacenes = DB::table('alm__almacens as aa')
         ->join('adm__sucursals as ass', 'ass.id', '=', 'aa.idsucursal')
-        ->select(DB::raw('null as id_tienda'), 'aa.id as id_almacen', 'aa.codigo', 'aa.nombre_almacen as razon_social', 'ass.razon_social as sucursal', 'ass.cod as codigoS,',DB::raw('"Almacen" as tipoCodigo'));
-
+        ->select(DB::raw('null as id_tienda'), 'aa.id as id_almacen', 'aa.codigo', 'aa.nombre_almacen as razon_social', 'ass.razon_social as sucursal', 'ass.cod as codigoS,',DB::raw('"Almacen" as tipoCodigo'))
+        ->where('aa.activo','=',1)
+        ->where('ass.activo','=',1);
     $result = $tiendas->unionAll($almacenes)->get();
  
  
@@ -498,10 +518,12 @@ class InvAjustePositivoController extends Controller
      return $jsonSucrusal;
      
      }
+
      public function listarTipo(){
+             //->whereNotIn('id', [13])
         $productoTipo = DB::table('prod__tipo_entradas')
         ->select(DB::raw('MIN(id) as id'), 'nombre')
-        ->whereNotIn('id', [13])
+       
         ->groupBy('nombre')
         ->get();
         return $productoTipo;
