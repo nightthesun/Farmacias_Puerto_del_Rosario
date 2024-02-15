@@ -22,13 +22,13 @@ return new class extends Migration
             $table->string("linea")->comment("tipo de linea del producto");
             $table->string("producto")->comment("nombre del producto");
             $table->integer("cantidad")->comment("cantidad de ingreso");
-            $table->integer("stock")->comment("stock de ingreso mas el input");
+            $table->integer("stock")->nullable()->comment("stock de ingreso mas el input");
             $table->string("lote")->comment("stock del producto que se está ingresando por el input");
             $table->string("fecha_ingreso")->comment("fecha que se hizo el ingreso");
             $table->string("fecha_vencimiento")->comment("fecha de vencimiento");
             $table->string("descripcion")->nullable()->comment("son datos de entrada del formulario");
-            $table->smallInteger('id_usuario_modifica')->unsigned()->nullable()->comment('identificador del usuario que está modificando el almacen');
-            $table->smallInteger('id_usuario_registra')->unsigned()->nullable()->comment('identificador del usuario que está registrando el almacen');
+            $table->smallInteger('id_usuario_modifica')->nullable()->comment('identificador del usuario que está modificando el almacen');
+            $table->smallInteger('id_usuario_registra')->nullable()->comment('identificador del usuario que está registrando el almacen');
             $table->boolean('activo')->default(1)->comment('Estado del registro, 1 -> activo, 0 -> inactivo');
             $table->string("cod")->comment("codigo");
             $table->smallInteger("id_ingreso");

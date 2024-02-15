@@ -15,12 +15,12 @@ return new class extends Migration
         Schema::create('log__traslados', function (Blueprint $table) {
              // Cambiados a unsignedBigInteger si se necesita más rango
              $table->id();
-             $table->smallInteger('id_traspaso');
-             $table->smallInteger('id_empleado');
-             $table->smallInteger('id_vehiculo');
-             $table->times('tiempo');
-             $table->string('codigo')->comment('identificador del bloque');
-             $table->smallInteger('correlativo')->comment('controlador del bloque');
+             $table->smallInteger('id_traspaso')->nullable();
+             $table->smallInteger('id_empleado')->nullable();
+             $table->smallInteger('id_vehiculo')->nullable();
+             $table->time('tiempo')->nullable();
+             $table->string('codigo')->nullable()->comment('identificador del bloque');
+             $table->smallInteger('correlativo')->nullable()->comment('controlador del bloque');
              $table->string('observacion')->nullable()->comment('si se encotro alguna observacion');
              $table->boolean('activo')->default(1);
             

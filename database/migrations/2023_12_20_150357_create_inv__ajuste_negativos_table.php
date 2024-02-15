@@ -28,7 +28,7 @@ return new class extends Migration
             $table->smallInteger('id_usuario_registra')->unsigned()->nullable()->comment('identificador del usuario que está registrando el almacen');
             $table->boolean('activo')->default(1)->comment('Estado del registro, 1 -> activo, 0 -> inactivo');
             $table->string("cod")->comment("codigo");
-            $table->string("leyenda")->comment("es la union de descripcion de prodycto");
+            $table->string("leyenda",255)->comment("es la union de descripcion de prodycto");
             $table->smallInteger("id_ingreso");
             $table->timestamps();
         });
