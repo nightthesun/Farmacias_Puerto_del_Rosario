@@ -355,7 +355,7 @@ class InvAjustePositivoController extends Controller
     public function listarProductoLineaIngreso(Request $request)
     {
       $cod = $request->query('respuesta0');
-      
+    
       $productos = DB::table('prod__productos as pp')
       ->join('alm__ingreso_producto as ai', 'pp.id', '=', 'ai.id_prod_producto')
       ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
@@ -695,10 +695,20 @@ class InvAjustePositivoController extends Controller
                 ->join('alm__almacens as aa', 'aa.id', '=', 'ai.idalmacen')
                 ->join('adm__sucursals as ass', 'ass.id', '=', 'aa.idsucursal')
                 ->join('prod__lineas as l', 'l.id', '=', 'pp.idlinea')
-                ->where('ai.stock_ingreso', '>', 0)
-                ->where('aa.codigo', $cod) 
+                ->when($request->tipo == 1, function ($query) use ($cod) {
+                    $query->where('ai.stock_ingreso', '>', 0)
+                          ->where('aa.codigo', $cod)
+                          ->where('pp.idrubro','=',1)
+                          ->where('pp.activo','=',1);
+                    })
+                    ->when($request->tipo == 2, function ($query) use ($cod) {
+                    $query->where('aa.codigo', $cod)
+                          ->where('pp.idrubro','=',1)
+                          ->where('pp.activo','=',1);
+                    })
+               
                 ->whereRaw($sqls)
-                ->where('pp.idrubro','=',1) 
+              
                 ->select(
                   'pp.codigointernacional as codigointernacional',
                   'ai.envase as envase',        
@@ -748,10 +758,19 @@ class InvAjustePositivoController extends Controller
             ->join('adm__sucursals as ass', 'ass.id', '=', 'ti.idtienda')
             ->join('prod__lineas as l', 'l.id', '=', 'pp.idlinea')
             ->join('tda__tiendas as tt', 'tt.id', '=', 'ti.idtienda')
-                ->where('ti.stock_ingreso', '>', 0)
-                ->where('tt.codigo', $cod) 
+            ->when($request->tipo == 1, function ($query) use ($cod) {
+                $query->where('ai.stock_ingreso', '>', 0)
+                      ->where('aa.codigo', $cod)
+                      ->where('pp.idrubro','=',1)
+                      ->where('pp.activo','=',1);
+                })
+                ->when($request->tipo == 2, function ($query) use ($cod) {
+                $query->where('aa.codigo', $cod)
+                      ->where('pp.idrubro','=',1)
+                      ->where('pp.activo','=',1);
+                })
                 ->whereRaw($sqls)
-                ->where('pp.idrubro','=',1) 
+               
                 ->select(
                   'pp.codigointernacional as codigointernacional',
                   'ti.envase as envase',   

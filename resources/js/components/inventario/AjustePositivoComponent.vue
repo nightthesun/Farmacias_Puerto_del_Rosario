@@ -274,7 +274,7 @@
                                             >(*)</span
                                         >
                                     </label>
-                                    <div class="col-md-7 input-group mb-3">
+                                    <div class="col-md-7 input-group mb-3" v-if="tipoAccion == 1">
                                         <select v-model="ProductoLineaIngresoSeleccionado" v-if="tipoAccion == 1"
                                             class="form-control"  @change="cambioDeEstado">
                                             <option v-bind:value="0" disabled>
@@ -402,7 +402,7 @@
                                             v-model="cantidadS"
                                             class="form-control"
                                             placeholder="Datos de stock"
-                                            v-on:focus="selectAll"
+                                          
                                         />
                                        <input v-if="tipoAccion == 2"
                                             type="number"
@@ -688,7 +688,7 @@ export default {
                 );
 
                 if (productoSeleccionado) {
-                    this.stock_ingreso.productoSeleccionado.stock_ingreso;
+                    this.stock_ingreso=productoSeleccionado.stock_ingreso;
                     this.cantidadProductoLineaIngreso =
                         productoSeleccionado.stock_ingreso;
                     this.codigo = productoSeleccionado.codigo_producto;
@@ -830,12 +830,12 @@ export default {
 
             if (me.tipoAccion == 1) {
                 var url =
-                    "/traspaso/listarProductoLineaIngreso?respuesta0=" +
+                    "/ajustes-positivo/listarProductoLineaIngreso?respuesta0=" +
                     this.sucursalSeleccionada+"&tipo="+me.tipoAccion;
             }
             if (me.tipoAccion == 2) {
                 var url =
-                    "/traspaso/listarProductoLineaIngreso?respuesta0=" +
+                    "/ajustes-positivo/listarProductoLineaIngreso?respuesta0=" +
                     this.id_codigo+"&tipo="+me.tipoAccion;
             
                 }
@@ -859,14 +859,14 @@ export default {
             
             if (me.tipoAccion == 1) {
                 var url ="/ajustes-positivo/retornarProductosIngreso?respuesta0=" + this.sucursalSeleccionada +
-                    "&respuesta1=" + me.inputTextBuscarProductoIngreso;
+                    "&respuesta1=" + me.inputTextBuscarProductoIngreso+"&tipo="+me.tipoAccion;
             }
 
-          //  if (me.tipoAccion == 2) {
-          //      var url =
-          //          "/ajustes-positivo/retornarProductosIngreso?respuesta0=" + this.id_codigo +"&respuesta1=" +
-          //          me.inputTextBuscarProductoIngres;
-          //  }
+            if (me.tipoAccion == 2) {
+               var url =
+                   "/ajustes-positivo/retornarProductosIngreso?respuesta0=" + this.id_codigo +"&respuesta1=" +
+                   me.inputTextBuscarProductoIngres+"&tipo="+me.tipoAccion;
+           }
         
             axios
                 .get(url)
