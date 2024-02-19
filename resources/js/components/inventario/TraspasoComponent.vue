@@ -773,6 +773,8 @@ export default {
             ///////
             cantidadS2:"",
             codigo_prod:"",
+            error: null,
+            errorMsg: ''
         };
     },
 
@@ -1116,7 +1118,7 @@ sucursalSeleccionadaDestino: function (newValue) {
                     break;
                 }
                 case "actualizar": {
-                  
+                  console.log(data);
                     me.tipoAccion = 2;
               
                     me.id_producto = data.id_prod_producto;
@@ -1130,7 +1132,7 @@ sucursalSeleccionadaDestino: function (newValue) {
                     me.codigo = data.codigo;                   
                    
                     me.cantidadProductoLineaIngreso = "";
-                
+                    
                     me.linea = data.linea;
                     me.producto = data.nombreProd;
                     me.cantidadS = data.cantidad;
@@ -1141,10 +1143,10 @@ sucursalSeleccionadaDestino: function (newValue) {
                     me.cantidad=data.cantidad;
                     me.idAjusteNegativos = data.id;
                     me.id_sucursal = data.id_sucursal;
-                  
+                    
                     me.id_ingreso = data.id_ingreso;
                     me.glosa=data.glosa;
-                   
+                   me.cod_1=data.cod_1;
                     me.tipoCodigo =respuesta.tipoCodigo;
                     me.razon_social=respuesta.razon_social;
                     me.cantidadS2="";
@@ -1236,7 +1238,8 @@ sucursalSeleccionadaDestino: function (newValue) {
                     me.id_producto = '';
                     me.id_ingreso = '';                    
                     me.leyenda = '';
-                    //
+                    //cod_1
+                    me.cod_1='';
                     me.razon_social='';
                     me.razon_social_des='';
                     me.tipoCodigo='';
@@ -1360,7 +1363,7 @@ sucursalSeleccionadaDestino: function (newValue) {
                   
                 me.cantidadS2=0;  
                 }
-              
+              console.log(me.cod_1 +" ingreso: "+me.id_ingreso+"cod: "+me.codigoDestino);
                 axios
                 .put("/traspaso/actualizar", {
                     id: me.idAjusteNegativos,
@@ -1401,13 +1404,32 @@ sucursalSeleccionadaDestino: function (newValue) {
                     );
                 })
                 .catch(function (error) {
-                    error401(error);
-                });
+                // Manejo del error
+               // console.error(error);
+                
+                if (error.response.status === 500) {
+                    me.errorMsg = error.response.data.error; // Asigna el mensaje de error a la variable errorMsg
+                Swal.fire(
+                    "Error",
+                    "500 (Internal Server Error)"+me.errorMsg, // Muestra el mensaje de error en el alert
+                    "error"
+                );
+                }else{
+                    Swal.fire(
+                    "Error",
+                    ""+error, // Muestra el mensaje de error en el alert
+                    "error"
+                );  
+                }
+
+               
+            });
             me.cerrarModal("registrar");
             }
            
         },
         
+      
         listarAjusteNegativos(page) {
             let me = this;
          
