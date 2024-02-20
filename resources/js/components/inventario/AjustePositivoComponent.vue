@@ -156,8 +156,10 @@
                                 <td v-text="AjusteNegativos.stock"></td>
                                 <td v-text="AjusteNegativos.fecha"></td>
                                 <td v-text="AjusteNegativos.fecha_vencimiento"></td>
-                                <td v-text="AjusteNegativos.nombreTipo"></td>
-                                <!--td v-text="AjusteNegativos.descripcion"></td>-->
+
+                                <td v-text="AjusteNegativos.nombreTipo + ' ' + AjusteNegativos.tras" v-if="AjusteNegativos.nombreTipo === 'Traspaso'"></td>
+<td v-else v-text="AjusteNegativos.nombreTipo"></td>
+                               
                                         <td
                                     v-text="AjusteNegativos.nombre_usuario"
                                 ></td>
