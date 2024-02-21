@@ -158,63 +158,37 @@ class InvAjustePositivoController extends Controller
      */
     public function store(Request $request, Inv_AjustePositivo $inv_AjustePositivo,Alm_IngresoProducto $alm_IngresoProducto,Tda_IngresoProducto $tda_IngresoProducto)
     {
-        $cod = $request->cod;
-        $id_ingreso = $request->id_ingreso;
-        $activador = 0;
-        $almacenIngreso = DB::table('alm__ingreso_producto as ai')
-            ->join('alm__almacens as aa', 'ai.idalmacen', '=', 'aa.id')
-            ->where('ai.id', '=', $id_ingreso)
-            ->where('aa.codigo', '=', $cod)
-            ->select('ai.id as id', 'aa.codigo as codigo')
-            ->first();
-        $tinedaIngreso = DB::table('tda__ingreso_productos as ti')
-            ->join('tda__tiendas as tt', 'ti.idtienda', '=', 'tt.idsucursal')
-            ->where('ti.id', '=', $id_ingreso)
-            ->where('tt.codigo', '=', $cod)
-            ->select('ti.id as id', 'tt.codigo as codigo')
-            ->first();
-        if ($almacenIngreso) {
-            $activador = 1;
-            $id = $almacenIngreso->id;
-            $codigo = $almacenIngreso->codigo;
-        } else {
-            if ($tinedaIngreso) {
-                $activador = 2;
-                $id = $tinedaIngreso->id;
-                $codigo = $tinedaIngreso->codigo;
+        try {
+            $cod = $request->cod;
+            $id_ingreso = $request->id_ingreso;
+            $activador = 0;
+            $almacenIngreso = DB::table('alm__ingreso_producto as ai')
+                ->join('alm__almacens as aa', 'ai.idalmacen', '=', 'aa.id')
+                ->where('ai.id', '=', $id_ingreso)
+                ->where('aa.codigo', '=', $cod)
+                ->select('ai.id as id', 'aa.codigo as codigo')
+                ->first();
+            $tinedaIngreso = DB::table('tda__ingreso_productos as ti')
+                ->join('tda__tiendas as tt', 'ti.idtienda', '=', 'tt.idsucursal')
+                ->where('ti.id', '=', $id_ingreso)
+                ->where('tt.codigo', '=', $cod)
+                ->select('ti.id as id', 'tt.codigo as codigo')
+                ->first();
+            if ($almacenIngreso) {
+                $activador = 1;
+                $id = $almacenIngreso->id;
+                $codigo = $almacenIngreso->codigo;
             } else {
-                $activador = 0;
+                if ($tinedaIngreso) {
+                    $activador = 2;
+                    $id = $tinedaIngreso->id;
+                    $codigo = $tinedaIngreso->codigo;
+                } else {
+                    $activador = 0;
+                }
             }
-        }
-        
-        if ($activador==1) {
-            $ajusteNegativo=new Inv_AjustePositivo();
-            $ajusteNegativo->id_usuario = auth()->user()->id;
-            $ajusteNegativo->usuario = auth()->user()->name;
-            $ajusteNegativo->id_usuario_registra = auth()->user()->id;
-            $ajusteNegativo->id_tipo=$request->id_tipo;
-            $ajusteNegativo->id_producto_linea=$request->id_producto_linea;
-            $ajusteNegativo->codigo=$request->codigo;
-            $ajusteNegativo->linea=$request->linea;
-            $ajusteNegativo->producto=$request->producto;
-            $ajusteNegativo->cantidad=$request->cantidad;
-            $ajusteNegativo->stock=$request->stock;
-           // $ajusteNegativo->descripcion=$request->descripcion;
-            $ajusteNegativo->fecha_ingreso=$request->fecha_ingreso;
-            $ajusteNegativo->fecha_vencimiento=$request->fecha_vencimiento;
-            $ajusteNegativo->lote=$request->lote;
-            $ajusteNegativo->activo=$request->activo;
-            $ajusteNegativo->id_sucursal=$request->id_sucursal;
-            $ajusteNegativo->cod=$codigo;
-            $ajusteNegativo->id_ingreso=$id;
-            $ajusteNegativo->leyenda = $request->leyenda;
-            $update=Alm_IngresoProducto::find($id);
-            $update->stock_ingreso=$request->stock;
-            $update->save();
-           $ajusteNegativo->save();
-//s
-        }else {
-            if ($activador==2) {
+            
+            if ($activador==1) {
                 $ajusteNegativo=new Inv_AjustePositivo();
                 $ajusteNegativo->id_usuario = auth()->user()->id;
                 $ajusteNegativo->usuario = auth()->user()->name;
@@ -227,23 +201,55 @@ class InvAjustePositivoController extends Controller
                 $ajusteNegativo->cantidad=$request->cantidad;
                 $ajusteNegativo->stock=$request->stock;
                // $ajusteNegativo->descripcion=$request->descripcion;
-               $ajusteNegativo->fecha_ingreso=$request->fecha_ingreso;
-               $ajusteNegativo->fecha_vencimiento=$request->fecha_vencimiento;
-               $ajusteNegativo->lote=$request->lote;
+                $ajusteNegativo->fecha_ingreso=$request->fecha_ingreso;
+                $ajusteNegativo->fecha_vencimiento=$request->fecha_vencimiento;
+                $ajusteNegativo->lote=$request->lote;
                 $ajusteNegativo->activo=$request->activo;
                 $ajusteNegativo->id_sucursal=$request->id_sucursal;
                 $ajusteNegativo->cod=$codigo;
                 $ajusteNegativo->id_ingreso=$id;
                 $ajusteNegativo->leyenda = $request->leyenda;
-                $update=Tda_IngresoProducto::find($id);
+                $update=Alm_IngresoProducto::find($id);
                 $update->stock_ingreso=$request->stock;
                 $update->save();
                $ajusteNegativo->save();
-            } else {
-                dd("error");
+    //s
+            }else {
+                if ($activador==2) {
+                    $ajusteNegativo=new Inv_AjustePositivo();
+                    $ajusteNegativo->id_usuario = auth()->user()->id;
+                    $ajusteNegativo->usuario = auth()->user()->name;
+                    $ajusteNegativo->id_usuario_registra = auth()->user()->id;
+                    $ajusteNegativo->id_tipo=$request->id_tipo;
+                    $ajusteNegativo->id_producto_linea=$request->id_producto_linea;
+                    $ajusteNegativo->codigo=$request->codigo;
+                    $ajusteNegativo->linea=$request->linea;
+                    $ajusteNegativo->producto=$request->producto;
+                    $ajusteNegativo->cantidad=$request->cantidad;
+                    $ajusteNegativo->stock=$request->stock;
+                   // $ajusteNegativo->descripcion=$request->descripcion;
+                   $ajusteNegativo->fecha_ingreso=$request->fecha_ingreso;
+                   $ajusteNegativo->fecha_vencimiento=$request->fecha_vencimiento;
+                   $ajusteNegativo->lote=$request->lote;
+                    $ajusteNegativo->activo=$request->activo;
+                    $ajusteNegativo->id_sucursal=$request->id_sucursal;
+                    $ajusteNegativo->cod=$codigo;
+                    $ajusteNegativo->id_ingreso=$id;
+                    $ajusteNegativo->leyenda = $request->leyenda;
+                    $update=Tda_IngresoProducto::find($id);
+                    $update->stock_ingreso=$request->stock;
+                    $update->save();
+                   $ajusteNegativo->save();
+                } else {
+                    dd("error");
+                }
+                
             }
-            
+        } catch (\Throwable $th) {
+            DB::rollback();
+            return response()->json(['error' => $th->getMessage()],500);
         }
+       
     }
 
     /**
@@ -267,84 +273,19 @@ class InvAjustePositivoController extends Controller
      */
     public function update(Request $request, Inv_AjustePositivo $inv_AjustePositivo)
     {
-      
-        //$id_ingreso=$request->id_ingreso;
-       // $activador=0;
+      try {
+        $update=Inv_AjustePositivo::find($request->id);
+        $update->id_usuario_modifica= auth()->user()->id;
+        $update->usuario = auth()->user()->name;
+       $update->id_tipo=$request->id_tipo;
+   
+       $update->save();
+   
+      } catch (\Throwable $th) {
 
-       // $almacenIngreso = DB::table('alm__ingreso_producto as ai')
-       // ->join('alm__almacens as aa', 'ai.idalmacen', '=', 'aa.id')
-      //  ->where('ai.id', '=', $id_ingreso)
-      //  ->where('aa.codigo', '=', $cod)
-      //  ->select('ai.id as id', 'aa.codigo as codigo')
-      //  ->first();
-      //  $tinedaIngreso = DB::table('tda__ingreso_productos as ti')
-      //  ->join('tda__tiendas as tt', 'ti.idtienda', '=', 'tt.idsucursal')
-       // ->where('ti.id', '=', $id_ingreso)
-       // ->where('tt.codigo', '=', $cod)
-      //  ->select('ti.id as id', 'tt.codigo as codigo')
-      //  ->first();
-      //  if ($almacenIngreso) {
-      //      $activador=1;  
-      //      $id_i = $almacenIngreso->id;
-        //    $codigo = $almacenIngreso->codigo;          
-       // } else {
-       //     if ($tinedaIngreso) {
-       //         $activador=2; 
-       //         $id_i = $tinedaIngreso->id;
-       //         $codigo = $tinedaIngreso->codigo;
-       //     } else {
-       //         $activador=0; 
-       //     }
+        return response()->json(['error' => $th->getMessage()],500);
+      }
             
-        //}
-       // if ($activador==1) {
-            $update=Inv_AjustePositivo::find($request->id);
-            $update->id_usuario_modifica= auth()->user()->id;
-            $update->usuario = auth()->user()->name;
-           $update->id_tipo=$request->id_tipo;
-        //   $updateAjusteNegativo->id_producto_linea=$request->id_producto_linea;
-       //    $updateAjusteNegativo->codigo=$request->codigo;
-       //    $updateAjusteNegativo->linea=$request->linea;
-       //   $updateAjusteNegativo->producto=$request->producto;
-       //     $updateAjusteNegativo->cantidad=$request->cantidad;           
-          // $updateAjusteNegativo->descripcion=$request->descripcion;
-       //     $updateAjusteNegativo->fecha=$request->fecha;
-       //    $updateAjusteNegativo->id_sucursal=$request->id_sucursal;
-      //      $updateAjusteNegativo->cod=$codigo;
-       //     $updateAjusteNegativo->id_ingreso=$id_i;
-       //     $update=Alm_IngresoProducto::find($id_i);
-           
-      //      $update->stock_ingreso=$request->cantidad;
-      //     $update->save();
-           $update->save();
-           
-        
-      //  }else{
-      //      if ($activador==2) {
-      //          $updateAjusteNegativo=Inv_AjustePositivo::find($request->id);
-      //          $updateAjusteNegativo->id_usuario_modifica= auth()->user()->id;
-      //      $updateAjusteNegativo->usuario = auth()->user()->name;
-      //     $updateAjusteNegativo->id_tipo=$request->id_tipo;
-      //     $updateAjusteNegativo->id_producto_linea=$request->id_producto_linea;
-      //     $updateAjusteNegativo->codigo=$request->codigo;
-      //     $updateAjusteNegativo->linea=$request->linea;
-      //    $updateAjusteNegativo->producto=$request->producto;
-       //     $updateAjusteNegativo->cantidad=$request->cantidad;           
-          // $updateAjusteNegativo->descripcion=$request->descripcion;
-      //      $updateAjusteNegativo->fecha=$request->fecha;
-      //     $updateAjusteNegativo->id_sucursal=$request->id_sucursal;
-      //      $updateAjusteNegativo->cod=$codigo;
-       //     $updateAjusteNegativo->id_ingreso=$id_i;
-       //         $update=Tda_IngresoProducto::find($id_i);
-             
-       //         $update->stock_ingreso=$request->cantidad;
-       //         $update->save();
-       //        $updateAjusteNegativo->save();
-       //     } else {
-       //         echo "error..";
-                
-       //     }
-     //   }
     }
 
     /**

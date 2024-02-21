@@ -94,7 +94,7 @@
                                 <th>Cantidad</th>
                                 <th>Tipo</th>
                                 <th>Descripción</th>
-                                <th>Fecha</th>
+                                <th>Fecha/Hora</th>
                                 <th>Usuario</th>
                                 <th>Estado</th>
                             </tr>
@@ -165,7 +165,8 @@
                                 <td v-text="AjusteNegativos.linea"></td>
                                 <td v-text="AjusteNegativos.leyenda"></td>
                                 <td v-text="AjusteNegativos.cantidad"></td>
-                                <td v-text="AjusteNegativos.nombreTipo"></td>
+                                <td v-text="AjusteNegativos.nombreTipo + ' ' + AjusteNegativos.numero_traspaso" v-if="AjusteNegativos.nombreTipo === 'Traspaso'"></td>
+                                <td v-else v-text="AjusteNegativos.nombreTipo"></td>
                                 <td v-text="AjusteNegativos.descripcion"></td>
                                 <td
                                     v-text="AjusteNegativos.fecha"
@@ -297,15 +298,18 @@
                                                     ProductoLineaIngreso.id_ingreso
                                                 "
                                                 v-text="
-                                                    ProductoLineaIngreso.leyenda +
-                                                    ' | Lote: ' +
-                                                    ProductoLineaIngreso.lote +
-                                                    ' | FI: ' +
+                                                    'Cod: ' +ProductoLineaIngreso.codigo_producto+'  '+
+                                                    ProductoLineaIngreso.leyenda +                                                   
+                                                    '  FI: ' +
+                                                    
                                                     ProductoLineaIngreso.fecha_ingreso +
-                                                    ' | FV: ' +
+                                                    '  Lote: ' +
+                                                    ProductoLineaIngreso.lote +
+                                                    '  FV: ' +
                                                     (ProductoLineaIngreso.fecha_vencimiento ===
-                                                    null ? '| sin registro' : ProductoLineaIngreso.fecha_vencimiento) +
-                                                    ' | Stock: ' +
+                                                    null ? ' sin registro' : ProductoLineaIngreso.fecha_vencimiento) +
+                                                    
+                                                    '  Stock: ' +
                                                     ProductoLineaIngreso.stock_ingreso
                                                 "
                                             ></option>
@@ -764,11 +768,12 @@ export default {
                     this.id_ingreso = productoSeleccionado.id_ingreso;
                     this.leyenda =
                         productoSeleccionado.leyenda +
-                        " | lote: " +
-                        productoSeleccionado.lote +
-                        " | FI:" +
+                        
+                        " FI:" +
                         productoSeleccionado.fecha_ingreso +
-                        " | FV:" +
+                        " Lote: " +
+                        productoSeleccionado.lote +
+                        " FV:" +
                         productoSeleccionado.fecha_vencimiento;
                 } else {
                     console.log(
@@ -901,7 +906,7 @@ export default {
                     "/ajustes-negativo/listarProductoLineaIngreso?respuesta0="+this.id_codigo +"&tipo="+me.tipoAccion;
                     
             }
-       
+       console.log(url);
             axios
                 .get(url)
                 .then(function (response) {
@@ -1158,10 +1163,30 @@ export default {
                         me.listarAjusteNegativos();
                         me.sucursalFiltro();
                     })
-                    .catch(function (error) {
-                        error401(error);
-                        console.log(error);
-                    });
+                    
+                  //  .catch(function (error) {
+                  //      error401(error);
+                  //      console.log(error);
+                  //  });
+                  .catch(function (error) {           
+                
+                if (error.response.status === 500) {
+                    me.errorMsg = error.response.data.error; // Asigna el mensaje de error a la variable errorMsg
+                Swal.fire(
+                    "Error",
+                    "500 (Internal Server Error)"+me.errorMsg, // Muestra el mensaje de error en el alert
+                    "error"
+                );
+                }else{
+                    Swal.fire(
+                    "Error",
+                    ""+error, // Muestra el mensaje de error en el alert
+                    "error"
+                );  
+                }
+
+               
+            });
             }
         },
         actualizarAjusteNegativo() {
@@ -1195,9 +1220,28 @@ export default {
                         "success",
                     );
                 })
-                .catch(function (error) {
-                    error401(error);
-                });
+                //.catch(function (error) {
+                //    error401(error);
+                //});
+                .catch(function (error) {           
+                
+                if (error.response.status === 500) {
+                    me.errorMsg = error.response.data.error; // Asigna el mensaje de error a la variable errorMsg
+                Swal.fire(
+                    "Error",
+                    "500 (Internal Server Error)"+me.errorMsg, // Muestra el mensaje de error en el alert
+                    "error"
+                );
+                }else{
+                    Swal.fire(
+                    "Error",
+                    ""+error, // Muestra el mensaje de error en el alert
+                    "error"
+                );  
+                }
+
+               
+            });
             me.cerrarModal("registrar");
         },
         //para listar db alm__ajuste_negativos
@@ -1270,10 +1314,29 @@ export default {
                                 );
                                 me.listarAjusteNegativos();
                             })
-                            .catch(function (error) {
-                                error401(error);
-                                console.log(error);
-                            });
+                           // .catch(function (error) {
+                           //     error401(error);
+                           //     console.log(error);
+                           // });
+                           .catch(function (error) {           
+                
+                if (error.response.status === 500) {
+                    me.errorMsg = error.response.data.error; // Asigna el mensaje de error a la variable errorMsg
+                Swal.fire(
+                    "Error",
+                    "500 (Internal Server Error)"+me.errorMsg, // Muestra el mensaje de error en el alert
+                    "error"
+                );
+                }else{
+                    Swal.fire(
+                    "Error",
+                    ""+error, // Muestra el mensaje de error en el alert
+                    "error"
+                );  
+                }
+
+               
+            });
                     } else if (
                         /* Read more about handling dismissals below */
                         result.dismiss === Swal.DismissReason.cancel
@@ -1322,10 +1385,29 @@ export default {
                                     "success",
                                 );
                             })
-                            .catch(function (error) {
-                                error401(error);
-                                console.log(error);
-                            });
+                          //  .catch(function (error) {
+                          //      error401(error);
+                          //      console.log(error);
+                           // });
+                           .catch(function (error) {           
+                
+                if (error.response.status === 500) {
+                    me.errorMsg = error.response.data.error; // Asigna el mensaje de error a la variable errorMsg
+                Swal.fire(
+                    "Error",
+                    "500 (Internal Server Error)"+me.errorMsg, // Muestra el mensaje de error en el alert
+                    "error"
+                );
+                }else{
+                    Swal.fire(
+                    "Error",
+                    ""+error, // Muestra el mensaje de error en el alert
+                    "error"
+                );  
+                }
+
+               
+            });
                     } else if (
                         /* Read more about handling dismissals below */
                         result.dismiss === Swal.DismissReason.cancel

@@ -606,7 +606,7 @@ class InvTraspasoController extends Controller
     
             } 
         } catch (\Throwable $th) {
-          
+            DB::rollback();
             return response()->json(['error' => $th->getMessage()],500);
         }
      
@@ -679,12 +679,12 @@ class InvTraspasoController extends Controller
        ->join('prod__lineas as l', 'l.id', '=', 'pp.idlinea')
        ->when($request->tipo == 1, function ($query) use ($cod) {
         $query->where('ai.stock_ingreso', '>', 0)
-              ->where('aa.codigo', $cod)
+              ->where('aa.codigo', '=',$cod)
               ->where('pp.idrubro','=',1)
               ->where('pp.activo','=',1);
         })
         ->when($request->tipo == 2, function ($query) use ($cod) {
-        $query->where('aa.codigo', $cod)
+        $query->where('aa.codigo','=', $cod)
               ->where('pp.idrubro','=',1)
               ->where('pp.activo','=',1);
         })
@@ -744,12 +744,12 @@ class InvTraspasoController extends Controller
    ->join('tda__tiendas as tt', 'tt.id', '=', 'ti.idtienda')
    ->when($request->tipo == 1, function ($query) use ($cod) {
     $query->where('ti.stock_ingreso', '>', 0)
-          ->where('tt.codigo', $cod)
+          ->where('tt.codigo','=', $cod)
           ->where('pp.idrubro','=',1)
           ->where('pp.activo','=',1);
     })
     ->when($request->tipo == 2, function ($query) use ($cod) {
-    $query->where('tt.codigo', $cod)
+    $query->where('tt.codigo','=', $cod)
           ->where('pp.idrubro','=',1)
           ->where('pp.activo','=',1);
     })       
