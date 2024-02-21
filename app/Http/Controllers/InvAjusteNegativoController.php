@@ -76,7 +76,7 @@ class InvAjusteNegativoController extends Controller
                         'aan.id_traspaso as numero_traspaso'
                     )
                     ->where('aan.cod', '=', $bus)
-                   
+                    ->whereDate('aan.created_at', '>=', now()->subDays(30))
                     ->whereRaw($sqls)
                     ->orderByDesc('aan.id')
                     ->paginate(15);
@@ -123,6 +123,7 @@ class InvAjusteNegativoController extends Controller
                     'aan.id_traspaso as numero_traspaso'
                 )
                 ->where('aan.cod', '=', $bus)
+                ->whereDate('aan.created_at', '>=', now()->subDays(30))
                 ->orderByDesc('aan.id')
                 ->paginate(15);
             return [
