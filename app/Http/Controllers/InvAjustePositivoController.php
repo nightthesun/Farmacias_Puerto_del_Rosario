@@ -352,9 +352,9 @@ class InvAjustePositivoController extends Controller
         'ai.idalmacen as id_almacen',
         DB::raw("
             CASE
-                WHEN ai.envase = 'primario' THEN CONCAT(COALESCE(pp.codigo, ''), ' ', COALESCE(pp.nombre, ''), ' ', COALESCE(pd_1.nombre, ''), ' X ', COALESCE(pp.cantidadprimario, ''), ' - ', COALESCE(ff_1.nombre, ''))
-                WHEN ai.envase = 'secundario' THEN CONCAT(COALESCE(pp.codigo, ''), ' ', COALESCE(pp.nombre, ''), ' ', COALESCE(pd_2.nombre, ''), ' X ', COALESCE(pp.cantidadsecundario, ''), ' - ', COALESCE(ff_2.nombre, ''))
-                WHEN ai.envase = 'terciario' THEN CONCAT(COALESCE(pp.codigo, ''), ' ', COALESCE(pp.nombre, ''), ' ', COALESCE(pd_3.nombre, ''), ' X ', COALESCE(pp.cantidadterciario, ''), ' - ', COALESCE(ff_3.nombre, ''))
+                WHEN ai.envase = 'primario' THEN CONCAT(COALESCE(pp.nombre, ''), ' ', COALESCE(pd_1.nombre, ''), ' x ', COALESCE(pp.cantidadprimario, ''), '  ', COALESCE(ff_1.nombre, ''))
+                WHEN ai.envase = 'secundario' THEN CONCAT(COALESCE(pp.nombre, ''), ' ', COALESCE(pd_2.nombre, ''), ' x ', COALESCE(pp.cantidadsecundario, ''), '  ', COALESCE(ff_2.nombre, ''))
+                WHEN ai.envase = 'terciario' THEN CONCAT(COALESCE(pp.nombre, ''), ' ', COALESCE(pd_3.nombre, ''), ' x ', COALESCE(pp.cantidadterciario, ''), '  ', COALESCE(ff_3.nombre, ''))
                 ELSE NULL
             END AS leyenda
         ")
@@ -374,12 +374,12 @@ class InvAjustePositivoController extends Controller
   ->join('tda__tiendas as tt', 'tt.id', '=', 'ti.idtienda')
   ->when($request->tipo == 1, function ($query) use ($cod) {
     $query->where('ti.stock_ingreso', '>', 0)
-          ->where('tt.codigo', $cod)
+          ->where('tt.codigo', '=' ,$cod)
           ->where('pp.idrubro','=',1)
           ->where('pp.activo','=',1);
     })
     ->when($request->tipo == 2, function ($query) use ($cod) {
-    $query->where('tt.codigo', $cod)
+    $query->where('tt.codigo', '=' ,$cod)
           ->where('pp.idrubro','=',1)
           ->where('pp.activo','=',1);
     })   
@@ -412,9 +412,9 @@ class InvAjustePositivoController extends Controller
         DB::raw('null as id_almacen'),
         DB::raw("
         CASE
-            WHEN ti.envase = 'primario' THEN CONCAT(COALESCE(pp.codigo, ''), ' ', COALESCE(pp.nombre, ''), ' ', COALESCE(pd_1.nombre, ''), ' X ', COALESCE(pp.cantidadprimario, ''), ' - ', COALESCE(ff_1.nombre, ''))
-            WHEN ti.envase = 'secundario' THEN CONCAT(COALESCE(pp.codigo, ''), ' ', COALESCE(pp.nombre, ''), ' ', COALESCE(pd_2.nombre, ''), ' X ', COALESCE(pp.cantidadsecundario, ''), ' - ', COALESCE(ff_2.nombre, ''))
-            WHEN ti.envase = 'terciario' THEN CONCAT(COALESCE(pp.codigo, ''), ' ', COALESCE(pp.nombre, ''), ' ', COALESCE(pd_3.nombre, ''), ' X ', COALESCE(pp.cantidadterciario, ''), ' - ', COALESCE(ff_3.nombre, ''))
+            WHEN ti.envase = 'primario' THEN CONCAT(COALESCE(pp.nombre, ''), ' ', COALESCE(pd_1.nombre, ''), ' x ', COALESCE(pp.cantidadprimario, ''), '  ', COALESCE(ff_1.nombre, ''))
+            WHEN ti.envase = 'secundario' THEN CONCAT(COALESCE(pp.nombre, ''), ' ', COALESCE(pd_2.nombre, ''), ' x ', COALESCE(pp.cantidadsecundario, ''), '  ', COALESCE(ff_2.nombre, ''))
+            WHEN ti.envase = 'terciario' THEN CONCAT(COALESCE(pp.nombre, ''), ' ', COALESCE(pd_3.nombre, ''), ' x ', COALESCE(pp.cantidadterciario, ''), '  ', COALESCE(ff_3.nombre, ''))
             ELSE NULL
         END AS leyenda
     ")
@@ -434,15 +434,13 @@ class InvAjustePositivoController extends Controller
         ->where('tda__tiendas.activo','=',1)
         ->where('adm__sucursals.activo','=',1);
 
-    $almacenes = DB::table('alm__almacens as aa')
+        $almacenes = DB::table('alm__almacens as aa')
         ->join('adm__sucursals as ass', 'ass.id', '=', 'aa.idsucursal')
         ->select(DB::raw('null as id_tienda'), 'aa.id as id_almacen', 'aa.codigo', 'aa.nombre_almacen as razon_social', 'ass.razon_social as sucursal', 'ass.cod as codigoS,',DB::raw('"Almacen" as tipoCodigo'))
         ->where('aa.activo','=',1)
         ->where('ass.activo','=',1);
-    $result = $tiendas->unionAll($almacenes)->get();
- 
- 
-         $jsonSucrusal = [];
+        $result = $tiendas->unionAll($almacenes)->get();
+        $jsonSucrusal = [];
  
  foreach ($result as $key=>$sucursal) {
      $elemento = [

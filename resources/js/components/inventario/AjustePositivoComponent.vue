@@ -92,7 +92,7 @@
                                 <th>Producto</th>
                                 <th>Cantidad de ingreso</th>
                                 <th>Stock</th>
-                                <th>Fecha de Ingreso</th>
+                                <th>Fecha de Ingreso / Hora</th>
                                 <th>Fecha de vencimiento</th>
                                 <th>Tipo</th>
                                 <th>Usuario</th>
@@ -290,7 +290,7 @@
                                                 v-bind:value="
                                                     ProductoLineaIngreso.id_ingreso
                                                 "
-                                                v-text="
+                                                v-text="'Cod: '+ProductoLineaIngreso.codigo_producto+
                                                     ProductoLineaIngreso.leyenda +
                                                     ' | Lote: ' +
                                                     ProductoLineaIngreso.lote +
@@ -336,13 +336,13 @@
                                                 v-text="
                                                     ProductoLineaIngreso.leyenda 
                                                     +
-                                                    ' | Stock: ' +
+                                                    ' Stock: ' +
                                                     ProductoLineaIngreso.stock_ingreso+
-                                                    ' | Lote: ' +
+                                                    ' Lote: ' +
                                                     ProductoLineaIngreso.lote +
-                                                    ' | FI: ' +
+                                                    ' FI: ' +
                                                     ProductoLineaIngreso.fecha_ingreso +
-                                                    ' | FV: ' +
+                                                    ' FV: ' +
                                                     (ProductoLineaIngreso.fecha_vencimiento ===
                                                     null ? '| sin registro' : ProductoLineaIngreso.fecha_vencimiento) 
                                                 "
@@ -704,12 +704,12 @@ export default {
          this.lote=productoSeleccionado.lote;   
          this.cantidad=productoSeleccionado.cantidad_ingreso;
                     this.leyenda =
-                        productoSeleccionado.leyenda +
-                        " | lote: " +
-                        productoSeleccionado.lote +
-                        " | FI:" +
+                        productoSeleccionado.leyenda +                       
+                        "  FI:" +
                         productoSeleccionado.fecha_ingreso +
-                        " | FV:" +
+                        "  Lote: " +
+                        productoSeleccionado.lote +
+                        "  FV:" +
                         productoSeleccionado.fecha_vencimiento;
                 } else {
                     console.log(
@@ -1120,10 +1120,25 @@ export default {
                         me.listarAjusteNegativos();
                         me.sucursalFiltro();
                     })
-                    .catch(function (error) {
-                        error401(error);
-                        console.log(error);
-                    });
+                   // .catch(function (error) {
+                   //     error401(error);
+                   //     console.log(error);
+                   // });
+                   .catch(function (error) {                
+                if (error.response.status === 500) {
+                    me.errorMsg = error.response.data.error; // Asigna el mensaje de error a la variable errorMsg
+                Swal.fire(
+                    "Error",
+                    "500 (Internal Server Error)"+me.errorMsg, // Muestra el mensaje de error en el alert
+                    "error"       );
+                }else{
+                    Swal.fire(
+                    "Error",
+                    ""+error, // Muestra el mensaje de error en el alert
+                    "error"
+                );  
+                }              
+            });
             }
         },
         actualizarAjusteNegativo() {
@@ -1157,9 +1172,24 @@ export default {
                         "success",
                     );
                 })
-                .catch(function (error) {
-                    error401(error);
-                });
+                //.catch(function (error) {
+                //    error401(error);
+                //});
+                .catch(function (error) {                
+                if (error.response.status === 500) {
+                    me.errorMsg = error.response.data.error; // Asigna el mensaje de error a la variable errorMsg
+                Swal.fire(
+                    "Error",
+                    "500 (Internal Server Error)"+me.errorMsg, // Muestra el mensaje de error en el alert
+                    "error"       );
+                }else{
+                    Swal.fire(
+                    "Error",
+                    ""+error, // Muestra el mensaje de error en el alert
+                    "error"
+                );  
+                }              
+            });
             me.cerrarModal("registrar");
         },
         //para listar db alm__ajuste_negativos
@@ -1204,8 +1234,7 @@ export default {
         },
 
         eliminarAjusteNegativos(idAjusteNegativos) {
-            let me = this;
-          
+            let me = this;          
             const swalWithBootstrapButtons = Swal.mixin({
                 customClass: {
                     confirmButton: "btn btn-success",
@@ -1213,7 +1242,6 @@ export default {
                 },
                 buttonsStyling: false,
             });
-
             swalWithBootstrapButtons
                 .fire({
                     title: "Esta Seguro de Desactivar?",
@@ -1240,10 +1268,25 @@ export default {
                                 );
                                 me.listarAjusteNegativos();
                             })
-                            .catch(function (error) {
-                                error401(error);
-                                console.log(error);
-                            });
+                       //     .catch(function (error) {
+                       //         error401(error);
+                       //         console.log(error);
+                       //     });
+                       .catch(function (error) {                
+                if (error.response.status === 500) {
+                    me.errorMsg = error.response.data.error; // Asigna el mensaje de error a la variable errorMsg
+                Swal.fire(
+                    "Error",
+                    "500 (Internal Server Error)"+me.errorMsg, // Muestra el mensaje de error en el alert
+                    "error"       );
+                }else{
+                    Swal.fire(
+                    "Error",
+                    ""+error, // Muestra el mensaje de error en el alert
+                    "error"
+                );  
+                }              
+            });
                     } else if (
                         /* Read more about handling dismissals below */
                         result.dismiss === Swal.DismissReason.cancel
@@ -1296,7 +1339,7 @@ export default {
                            //     error401(error);
                            //     console.log(error);
                            // });
-                           .catch(function (error) {                
+            .catch(function (error) {                
                 if (error.response.status === 500) {
                     me.errorMsg = error.response.data.error; // Asigna el mensaje de error a la variable errorMsg
                 Swal.fire(

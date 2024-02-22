@@ -906,7 +906,7 @@ export default {
                     "/ajustes-negativo/listarProductoLineaIngreso?respuesta0="+this.id_codigo +"&tipo="+me.tipoAccion;
                     
             }
-       console.log(url);
+  
             axios
                 .get(url)
                 .then(function (response) {
@@ -1168,20 +1168,24 @@ export default {
                   //      error401(error);
                   //      console.log(error);
                   //  });
-                  .catch(function (error) {                
+                  .catch(function (error) {           
+                
                 if (error.response.status === 500) {
                     me.errorMsg = error.response.data.error; // Asigna el mensaje de error a la variable errorMsg
                 Swal.fire(
                     "Error",
                     "500 (Internal Server Error)"+me.errorMsg, // Muestra el mensaje de error en el alert
-                    "error"       );
+                    "error"
+                );
                 }else{
                     Swal.fire(
                     "Error",
                     ""+error, // Muestra el mensaje de error en el alert
                     "error"
                 );  
-                }              
+                }
+
+               
             });
             }
         },

@@ -778,6 +778,8 @@ export default {
                     var respuesta = response.data;
                     me.pagination = respuesta.pagination;
                     me.arraySucursales = respuesta.sucursales.data;
+                    console.log("--------------*------");
+                    console.log(me.arraySucursales);
                     let resp = me.arraySucursales.find(element => element.tipo == 'Casa_Matriz');
                     if (resp != undefined) {
                         if (resp.tipo == 'Casa_Matriz')
@@ -806,13 +808,15 @@ export default {
                             copiaArrayAlmacenesTiendas.push(element);
                         }
                     });
-                    me.arrayAlmacenesTiendas = copiaArrayAlmacenesTiendas;
+                    me.arrayAlmacenesTiendas = copiaArrayAlmacenesTiendas;                   
+
                 })
                 .catch(function (error) {
                     error401(error);
                 });
-
-            let me2 = this;
+                console.log("------------****-------------");
+                    console.log(me.arrayAlmacenesTiendas);  
+          //  let me2 = this;
             let arrayTiendas = [];
             let copiaArrayTiendas = [];
 
@@ -837,10 +841,13 @@ export default {
                             copiaArrayTiendas.push(tienda);
                         }
                     });
-
-                    me2.arrayAlmacenesTiendas = me2.arrayAlmacenesTiendas.concat(copiaArrayTiendas);
+                    console.log(copiaArrayTiendas);
+                    me.arrayAlmacenesTiendas = me.arrayAlmacenesTiendas.concat(copiaArrayTiendas);
+                    console.log("-------------------------");
+                    console.log(me.arrayAlmacenesTiendas);  
                     
                 })
+                
                 .catch(function (error) {
                     error401(error);
                 });
@@ -1286,8 +1293,8 @@ export default {
         this.listarTipoEntradaProducto();
         this.listarAlmacenesTiendas(1);
         this.listarSucursales(1);
-        this.selectDepartamentos();
-        this.selectCiudades();
+       // this.selectDepartamentos();
+       // this.selectCiudades();
         this.classModal = new _pl.Modals();
         this.classModal.addModal('calculadoraModal');
         //console.log('Component mounted.')
