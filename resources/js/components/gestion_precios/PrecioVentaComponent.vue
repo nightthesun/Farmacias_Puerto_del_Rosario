@@ -814,6 +814,8 @@ export default {
                 .catch(function (error) {
                     error401(error);
                 });
+                console.log("--------copia-----almacens--------");
+                console.log(copiaArrayAlmacenesTiendas);
                 console.log("------------****-------------");
                     console.log(me.arrayAlmacenesTiendas);  
           //  let me2 = this;
@@ -839,9 +841,12 @@ export default {
                             tienda.telefono = tienda.telefonos;
                             tienda.tipo = "Tienda";
                             copiaArrayTiendas.push(tienda);
+                            copiaArrayAlmacenesTiendas.push(tienda);
                         }
                     });
+                    console.log("--------copia------tienda-------");
                     console.log(copiaArrayTiendas);
+                    console.log("-------------------------");
                     me.arrayAlmacenesTiendas = me.arrayAlmacenesTiendas.concat(copiaArrayTiendas);
                     console.log("-------------------------");
                     console.log(me.arrayAlmacenesTiendas);  

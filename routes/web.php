@@ -48,6 +48,8 @@ use App\Http\Controllers\InvTrasladoController;
 use App\Http\Controllers\InvTraspasoController;
 use App\Http\Controllers\LogTrasladoController;
 use App\Http\Controllers\LogVehiculoController;
+use App\Http\Controllers\GesPreVenta2Controller;
+
 
 
 use App\Models\Alm_IngresoProducto;
@@ -384,10 +386,13 @@ Route::group(['middleware' => 'auth'], function () {
     Route::put('/tienda/ingreso-producto/desactivar', [TdaIngresoProductoController::class, 'desactivar']);
     Route::put('/tienda/ingreso-producto/activar', [TdaIngresoProductoController::class, 'activar']);
 
-    //////// Gestion Precio Venta
+    //////////////////////////////// Gestion Precio Venta//////////////////////////////////////////
+        //---endpoint Inge.Helio
     Route::post('/gestionprecioventa/actualizar-registrar', [GesPreVentaController::class, 'update_store']);
     Route::get('/gestionprecioventa/verificarProductoConPrecio', [GesPreVentaController::class, 'verificarProductoPrecio']);
-
+        //---endpoint Inge.Remberto
+    Route::get('/gestionprecioventa2/listarSucursal', [GesPreVenta2Controller::class, 'listarSucursal']);
+    Route::get('/gestionprecioventa2', [GesPreVenta2Controller::class, 'index']);
     /////////////////////////////////////////////Inventario///////////////////////////////////////////////////
 
     Route::get('/ajustes-negativo', [InvAjusteNegativoController::class, 'index']);

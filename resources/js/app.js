@@ -64,6 +64,7 @@ createApp ({
 
     //Gestion de precios
     .component('precio-venta-component', require('./components/gestion_precios/PrecioVentaComponent.vue').default)
+    .component('precio-venta-component2', require('./components/gestion_precios/PrecioVenta2Component.vue').default)
     
     //Inventario 
     .component('ajuste-negativo-component', require('./components/inventario/AjusteNegativoComponent.vue').default)
