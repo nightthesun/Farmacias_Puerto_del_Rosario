@@ -79,8 +79,58 @@
                         </thead>
                         <tr v-for="producto in arrayProductosAlterado" :key="producto.id" :style="[ producto.listo_venta == 1 ? '':'background-color: #FAD537' ]">
                             <td>
+                                <button type="button" class="btn btn-warning btn-sm"
+                                        @click="abrirModal('editarPrecioUtilidadProducto', producto)" :disabled="producto.stock_ingreso == 0">
+                                        <i class="icon-pencil"></i>
+                                </button> &nbsp;
 
                             </td>
+                            <td v-text="producto.codigo_producto"></td>
+                            <td v-text="producto.nombre_linea"></td>
+                            <td v-text="producto.leyenda"></td>
+                            <td v-text="producto.cantidad_ingreso"></td>
+                            <td v-text="producto.stock_ingreso"></td>
+                            <td><!-- Precio lista -->
+                                    <div v-if="producto.listo_venta == 1">
+                                        <span class="">
+                                          {{ producto.precio_lista_gespreventa === null ? "0.00": producto.precio_lista_gespreventa }}
+                                        </span>
+                                    </div>
+                                    <div v-else>
+                                        <span class="">
+                                            {{ producto.precio_lista_gespreventa === null ? "0.00": producto.precio_lista_gespreventa }}
+                                        </span>
+                                    </div>
+                            </td>
+                            <td><!-- Costo Compra -->
+                                    <div v-if="producto.listo_venta == 1">
+                                        <span>{{ producto.costo_compra_gespreventa === null ? "0.00":producto.costo_compra_gespreventa }}</span>
+                                    </div>
+                                    <div v-else>
+                                        <span>{{ producto.costo_compra_gespreventa === null ? "0.00":producto.costo_compra_gespreventa }}</span>
+                                    </div>
+                            </td>
+                            <td><!-- Precio de Venta -->
+                                    <div v-if="producto.listo_venta == 1">
+                                        <span  >
+                                            {{ producto.precio_venta_gespreventa === null ? "0.00": producto.precio_venta_gespreventa }} 
+                                        </span>
+                                    </div>
+                                    <div v-else>
+                                        <span class="">
+                                            {{ producto.precio_venta_gespreventa === null ? "0.00": producto.precio_venta_gespreventa }} 
+                                        </span>
+                                    </div>
+                                </td>
+                                <td><!-- % Utilidad Bruta -->
+                                    <div v-if="producto.listo_venta == 1">
+                                        <span  >{{ producto.utilidad_neto_gespreventa === null ? "0.00":producto.utilidad_neto_gespreventa }}</span>
+                                    </div>
+                                    <div v-else>
+                                        <span class="">{{ producto.utilidad_neto_gespreventa === null ? "0.00":producto.utilidad_neto_gespreventa }}  </span>
+                                    </div>
+                                </td>
+                                <td>{{ producto.tipoentrada }}</td><!-- Tipo Entrada -->      
                         </tr>     
                     </table>    
                 </div>        
