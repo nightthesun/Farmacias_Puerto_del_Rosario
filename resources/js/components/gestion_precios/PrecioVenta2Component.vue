@@ -26,30 +26,25 @@
                                         :value="sucursal.codigo"
                                         v-text="sucursal.codigoS + ' -> ' +
                                             sucursal.codigo+ ' ' +
-                                            sucursal.razon_social
+                                            sucursal.razon_social        
                                             
                                         "
                                     ></option>
                                 </select>
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-5">
                             <div class="input-group">
-                                <input
-                                    type="text"
-                                    id="texto"
-                                    name="texto"
-                                    class="form-control"
-                                    placeholder="Texto a buscar"
-                                    v-model="buscar"
-                               
+                                <input type="text" id="texto" name="texto" class="form-control"
+                                    placeholder="Texto a buscar" v-model="buscar"
+                                    @keyup.enter="listarProductosTiendaAlmacen(1)" 
                                     :hidden="tiendaalmacenselected == 0"
                                     :disabled="tiendaalmacenselected == 0"
                                 />
                                 <button
                                     type="submit"
                                     class="btn btn-primary"
-                                 
+                                    @click="listarProductosTiendaAlmacen(1)"
                                     :hidden="tiendaalmacenselected == 0"
                                     :disabled="tiendaalmacenselected == 0"
                                 >
@@ -79,11 +74,319 @@
                         </thead>
                         <tr v-for="producto in arrayProductosAlterado" :key="producto.id" :style="[ producto.listo_venta == 1 ? '':'background-color: #FAD537' ]">
                             <td>
-
+                                <button type="button" class="btn btn-warning btn-sm"
+                                        @click="abrirModal('editarPrecioUtilidadProducto', producto)" :disabled="producto.stock_ingreso == 0">
+                                        <i class="icon-pencil"></i>
+                                </button> &nbsp; 
                             </td>
+                            <td v-text="producto.codigo_producto"></td>
+                            <td v-text="producto.nombre_linea"></td>
+                            <td v-text="producto.leyenda+' FI:'+producto.fecha_ingreso+' Lote:'+producto.lote+' FV:'+producto.fecha_vencimiento"></td>
+                            <td v-text="producto.cantidad_ingreso"></td>
+                            <td v-text="producto.stock_ingreso"></td>
+                            <td><!-- Precio lista -->
+                                    <div v-if="producto.listo_venta == 1">
+                                        <span class="">
+                                          {{ producto.precio_lista_gespreventa === null ? "0.00": producto.precio_lista_gespreventa }}
+                                        </span>
+                                    </div>
+                                    <div v-else>
+                                        <span class="">
+                                            {{ producto.precio_lista_gespreventa === null ? "0.00": producto.precio_lista_gespreventa }}
+                                        </span>
+                                    </div>
+                            </td>
+                            <td><!-- Costo Compra -->
+                                    <div v-if="producto.listo_venta == 1">
+                                        <span>{{ producto.costo_compra_gespreventa === null ? "0.00":producto.costo_compra_gespreventa }}</span>
+                                    </div>
+                                    <div v-else>
+                                        <span>{{ producto.costo_compra_gespreventa === null ? "0.00":producto.costo_compra_gespreventa }}</span>
+                                    </div>
+                            </td>
+                            <td><!-- Precio de Venta -->
+                                    <div v-if="producto.listo_venta == 1">
+                                        <span  >
+                                            {{ producto.precio_venta_gespreventa === null ? "0.00": producto.precio_venta_gespreventa }} 
+                                        </span>
+                                    </div>
+                                    <div v-else>
+                                        <span class="">
+                                            {{ producto.precio_venta_gespreventa === null ? "0.00": producto.precio_venta_gespreventa }} 
+                                        </span>
+                                    </div>
+                            </td>
+                            <td><!-- % Utilidad Bruta -->
+                                    <div v-if="producto.listo_venta == 1">
+                                        <span  >{{ producto.utilidad_neto_gespreventa === null ? "0.00":producto.utilidad_neto_gespreventa }}</span>
+                                    </div>
+                                    <div v-else>
+                                        <span class="">{{ producto.utilidad_neto_gespreventa === null ? "0.00":producto.utilidad_neto_gespreventa }}  </span>
+                                    </div>
+                            </td>
+                            <td v-text="producto.tipoentrada"></td><!-- Tipo Entrada -->
+                            <td> <!-- Fecha de Utilidad -->
+                                    <div v-if="producto.listo_venta == 1">
+                                        <span  >{{ producto.fecha_utilidad}}</span>
+                                    </div>
+                                    <div v-else>
+                                        <span class="">DD/MM/AAAA</span>
+                                    </div>
+                            </td> 
+                            <td>
+                                <div v-if="producto.listo_venta == 1">
+                                        <span  >{{ producto.user_name}}</span>
+                                    </div>
+                                    <div v-else>
+                                        <span class="">S/M</span>
+                                    </div>
+                            </td> 
+                            
                         </tr>     
                     </table>    
                 </div>        
+            </div>
+             <!-- Fin ejemplo de tabla Listado -->
+        </div>
+            <!-- Modal -->
+        <div class="modal fade" id="calculadoraModal" tabindex="-1" aria-labelledby="calculadoraModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-primary modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="calculadoraModalLabel">{{ tituloModal }}</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="container-fluid">
+                            <form action="" class="form-horizontal">
+                                <div class="form-group row">
+                                    <div class="col-md-8">
+                                        <div class="alert alert-primary" role="alert">
+                                           <b>Ingreso:</b> {{ caracteristicasProductoModificar }}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="alert alert-primary" role="alert">
+                                            <b>Cant. Ingreso: </b>{{ cantidadIngresoAlmacen }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <div class="col-md-2">
+                                        <label>Precio de Lista</label>
+                                        <div class="input-group mb-3">
+                                            <input type="text" class="form-control" v-model="p_lista"
+                                                aria-describedby="basic-addon3" readonly>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <label for="basic-url">Cantidad Envase o Embalaje</label>
+                                        <div class="input-group mb-3">
+                                            <input type="text" class="form-control" v-model="c_disp"
+                                                aria-describedby="basic-addon3" readonly>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-2">
+                                        <label>Costo de Compra</label>
+                                        <div class="input-group mb-3">
+                                            <input type="number" min="0" id="p_compra" class="form-control" v-model.number="p_compra"
+                                                aria-describedby="basic-addon3" onkeypress="return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46 )">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <label>Precio de Venta</label>
+                                        <div class="input-group mb-3">
+                                            <input type="text" id="p_venta" class="form-control" v-model="p_venta"
+                                                aria-describedby="basic-addon3" readonly>
+                                            <button class="btn btn-warning" type="button" @click="utilidad">
+                                                <i class="fa fa-calculator" aria-hidden="true"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <div class="col-md-2">
+                                        <label for="basic-url">Margen 20%</label>
+                                        <div class="input-group mb-3">
+                                            <input type="text" class="form-control" v-model="margen_20"
+                                                aria-describedby="basic-addon3" readonly>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-2">
+                                        <label for="basic-url">Margen 30%</label>
+                                        <div class="input-group mb-3">
+                                            <input type="text" class="form-control" v-model="margen_30"
+                                                aria-describedby="basic-addon3" readonly>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label>Utilidad Bruta</label>
+                                        <div class="input-group mb-3">
+                                            <input type="text" class="form-control" v-model="utilidad_bruta"
+                                                aria-describedby="basic-addon3" readonly>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- cambiar la utilidad bruta variable y en la base de datos ojo muy importante -->
+                                    <div class="col-md-3">
+                                        <label>Utilidad Neta (%)</label>
+                                        <div class="input-group mb-3">
+                                            <input type="text" class="form-control" v-model="utilidad_neta" 
+                                                aria-describedby="basic-addon3" readonly>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-4" id="area-botones-guarcancelar">
+                                        <button type="button" class="btn btn-success" :disabled="!sicompleto" @click="actualizarRegistrarPrecioVenta">Guardar</button>
+                                        <button type="button" class="btn btn-danger" style="margin-left: 10px;" data-dismiss="modal" @click="cerrarModal('calculadoraModal')">Cancelar</button>
+                                    </div>                                    
+                                </div>
+                                
+                                <hr>
+                                <div>
+                                    <h5>Gestor Costo Compra</h5><br>
+                                </div>
+
+
+                                <div class="form-group row">
+                                    <div class="col-md-2">
+                                        <label for="basic-url">Precio de Compra</label>
+                                        <div class="input-group mb-3">
+                                            <input type="text" class="form-control" id="pcc" v-model="pcc"
+                                                aria-describedby="basic-addon3" onkeypress="return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46)">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-2">
+                                        <label for="basic-url">Desc. 1 %</label>
+                                        <div class="input-group mb-3">
+                                            <input type="text" class="form-control" id="dpc1" v-model="dpc1"
+                                                aria-describedby="basic-addon3" onkeypress="return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46)">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-2">
+                                        <label for="basic-url">Desc. 2 %</label>
+                                        <div class="input-group mb-3">
+                                            <input type="text" class="form-control" id="dpc2" v-model="dpc2"
+                                                aria-describedby="basic-addon3" onkeypress="return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46)">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-2">
+                                        <label for="basic-url">Desc. 3 %</label>
+                                        <div class="input-group mb-3">
+                                            <input type="text" class="form-control" id="dpc3" v-model="dpc3"
+                                                aria-describedby="basic-addon3" onkeypress="return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46)">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-2">
+                                        <label for="basic-url">Descuento Bs.</label>
+                                        <div class="input-group mb-3">
+                                            <input type="text" class="form-control" id="dbsc" v-model="dbsc"
+                                                aria-describedby="basic-addon3" onkeypress="return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46)">
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+
+                                <div class="form-group row">
+                                    <div class="col-md-3">
+                                        <label for="basic-url">Costo Compra C/Desc.</label>
+                                        <div class="input-group mb-3">
+                                            <input type="text" class="form-control" id="pcdc" v-model="pcdc"
+                                                aria-describedby="basic-addon3" onkeypress="return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46)">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <label for="basic-url">Precio Unitario</label>
+                                        <div class="input-group mb-3">
+                                            <input type="text" class="form-control" id="puc" v-model="puc"
+                                                aria-describedby="basic-addon3" onkeypress="return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46)">
+                                            <button class="btn btn-warning" type="button" @click="calculadoraCostoCompra">
+                                                <i class="fa fa-calculator" aria-hidden="true"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <hr>
+                                <div>
+                                    <h5>Gestor Precio Venta</h5><br>
+                                </div>
+                                <div class="form-group row">
+                                    <div class="col-md-2">
+                                        <label for="basic-url">P/U de Compra</label>
+                                        <div class="input-group mb-3">
+                                            <input type="text" class="form-control" id="pucc" v-model="pucc"
+                                                aria-describedby="basic-addon3" onkeypress="return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46)">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-2">
+                                        <label for="basic-url">Liq. 20 %</label>
+                                        <div class="input-group mb-3">
+                                            <input type="text" class="form-control" id="l20pc" v-model="l20pc"
+                                                aria-describedby="basic-addon3">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-2">
+                                        <label for="basic-url">Liq. 30%</label>
+                                        <div class="input-group mb-3">
+                                            <input type="text" class="form-control" id="l30pc" v-model="l30pc"
+                                                aria-describedby="basic-addon3">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-2">
+                                        <label for="basic-url">Utilidad Bruta%</label>
+                                        <div class="input-group mb-3">
+                                            <input type="text" class="form-control" id="upc" v-model="upc"
+                                                aria-describedby="basic-addon3">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-3">
+                                        <label for="basic-url">Precio de Venta</label>
+                                        <div class="input-group mb-3">
+                                            <input type="text" class="form-control" id="pvc" v-model="pvc"
+                                                aria-describedby="basic-addon3" onkeypress="return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46)">
+                                            <button class="btn btn-warning" type="button" @click="calculadoraPrecioVenta">
+                                                <i class="fa fa-calculator" aria-hidden="true"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                <div class="form-group row">
+                                    <!-- <div class="col-md-2">
+                                        <label for="basic-url">Utilidad Bruta</label>
+                                        <div class="input-group mb-3">
+                                            <input type="text" class="form-control" id="ubc" v-model="ubc"
+                                                aria-describedby="basic-addon3">
+                                        </div>
+                                    </div> -->
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <!-- <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                        <button type="button" class="btn btn-primary" :disabled="!sicompleto" @click="actualizarRegistrarPrecioVenta">Guardar Cambios</button> -->
+                    </div>
+                </div>
             </div>
         </div>
     </main>
@@ -104,13 +407,52 @@ export default {
                 'to': 0
             },
             offset: 3,
-            tituloModal:'',
+            
             tipo: 0,
             tipoAccion: 1, 
             buscar:'',
             tiendaalmacenselected:0,  
             arrayAlmacenesTiendas:[],
-            arrayProductosAlterado:[],        
+            arrayProductosAlterado:[],    
+            id_gespreventa:'',
+            //modal
+            codigo:'',
+            tituloModal:'',
+            caracteristicasProductoModificar:'',
+            cantidadIngresoAlmacen:'',
+            p_lista:'',//precio de lista
+            c_disp:'',//Cantidad Envase o Embalaje
+            p_compra:'',//Costo de Compra
+            p_venta:'',//Precio de Venta
+            id_ingreso:'',
+            alm_tda:'',
+            tienda_gespreventa:'',
+            almacen_gespreventa:'',
+            //poracion de utilidad
+            margen_20:0,
+            margen_30:0,
+            utilidad_bruta:0,
+            utilidad_neta:0,
+            //gestor costo compra
+            pcc:0,//Precio de Compra
+            dpc1:0,//descuento uno
+            dpc2:0,//descuento dos
+            dpc3:0,//descuento tres
+            dbsc:0,//Descuento Bs.
+            pcdc:0,//Costo Compra C/Desc.
+            puc:0,//Precio Unitario
+            //Gestor Precio Venta
+            pucc:0,//P/U de Compra
+            l20pc:0,//Liq. 20 %
+            l30pc:0,//Liq. 30 %
+            upc:0,//Utilidad Bruta%
+            pvc:0,//Precio de venta  gestion 
+
+
+
+
+            
+
         }
 
     },
@@ -154,6 +496,38 @@ pagesNumber: function () {
 
 },
 methods: {
+    actualizarRegistrarPrecioVenta() {
+            let me = this;
+            axios.post('/gestionprecioventa2/actualizar-registrar', {
+                'codigo':me.codigo,
+                
+                'id_table_ingreso_tienda_almacen':me.id_ingreso,
+                'id':me.id_gespreventa,
+      
+                'tienda':me.tienda_gespreventa,
+                'almacen':me.almacen_gespreventa,
+                'precio_lista_gespreventa':me.p_lista,
+                'precio_venta_gespreventa':me.p_venta,
+                'cantidad_envase_gespreventa':me.c_disp,
+                'costo_compra_gespreventa':me.p_compra,
+                'margen_20p_gespreventa':me.margen_20,
+                'margen_30p_gespreventa':me.margen_30,
+                'utilidad_bruta_gespreventa':me.utilidad_bruta,
+                'utilidad_neto_gespreventa':me.utilidad_neta,
+            }).then(function (response) {
+                me.cerrarModal('calculadoraModal');
+                Swal.fire(
+                    'Almacen Registrado exitosamente',
+                    'Haga click en Ok',
+                    'success'
+                );
+                me.listarProductosTiendaAlmacen();
+                
+            }).catch(function (error) {
+                error401(error);
+                console.log(error);
+            });
+        },
     listarProductosTiendaAlmacen(page) {
         let me=this;
                 var url='/gestionprecioventa2?page='+page+'&buscar='+me.buscar+'&buscarAlmTdn='+me.tiendaalmacenselected;
@@ -186,15 +560,54 @@ methods: {
      
     abrirModal(accion, data = []) {
             let me = this;
+            
+            console.log(data);
             switch (accion) {
                
-
                 case 'editarPrecioUtilidadProducto':
                     {
                         let me = this;
-                        me.tituloModal = 'Modificar Utilidad del Producto';
-                     
+                        me.codigo=data.cod;
+                        me.id_gespreventa=data.gpv_id;
+                        me.tituloModal = 'Modificar Utilidad del Producto2';
+                        me.caracteristicasProductoModificar=data.leyenda;
+                        me.cantidadIngresoAlmacen=data.cantidad_ingreso;
+                        me.p_lista=data.preciolistaEnvase;
+                        me.c_disp=data.cantidadEnvase;
+                        me.p_compra=data.costocompraEnvase;
+                        me.p_venta=data.precioventaEnvase;
+                        me.margen_20=0;
+                        me.margen_30=0;
+                        me.utilidad_bruta=0;
+                        me.utilidad_neta=0;
+                        me.pcc=data.preciolistaEnvase;
+                        me.dpc1=0;
+                        me.dpc2=0;
+                        me.dpc3=0;
+                        me.dbsc=0;
+                        me.pcdc=data.preciolistaEnvase;
+                        me.puc=data.costocompraEnvase;
+                        me.pucc=0;                 
+                        me.l20pc=0;
+                        me.l30pc=0;
+                        me.upc=0;
+                        me.pvc=0;   
+                        me.id_ingreso=data.id_ingreso;    
+                        me.alm_tda=data.cod.substring(0, (data.cod).length - 3); 
+                        if(me.alm_tda==='TDA'){
+                            me.tienda_gespreventa=1;
+                            me.almacen_gespreventa=0;
+                        } else {
+                            if (me.alm_tda==='ALM') {
+                            me.almacen_gespreventa=1; 
+                            me.tienda_gespreventa=0; 
+                            }else{
+                                console.log("error");
+                            }
+                        }   
+                             
                         me.classModal.openModal('calculadoraModal');
+                        
                         break;
                     }
 
@@ -203,28 +616,29 @@ methods: {
         },
         cerrarModal(accion) {
             let me = this;
-            me.existe_registro_gespreventa = 0;
-            me.id_gespreventa = 0;
-            me.tienda_gespreventa = 0;
-            me.almacen_gespreventa = 0;
-            me.tipoAccion = 1;
-            me.margen_20 = 0;
-            me.margen_30 = 0;
-            me.p_venta = 0;
-            me.utilidad_bruta = 0;
-            me.utilidad_neta = 0;
-            me.dpc1 = 0;
-            me.dpc2 = 0;
-            me.dpc3 = 0;
-            me.dbsc = 0;
-            me.l20pc = 0;
-            me.l30pc = 0;
-            me.pucc = 0;
-            me.ubc = 0;
-            me.upc =  0;
-            me.pvc = 0;
-            me.pcc = 0;
-            me.pcdc = 0;
+            me.caracteristicasProductoModificar='';
+            me.cantidadIngresoAlmacen='';
+            me.p_lista='';
+            me.c_disp='';
+            me.p_compra='';
+            me.p_venta='';
+
+            me.margen_20=0;
+                        me.margen_30=0;
+                        me.utilidad_bruta=0;
+                        me.utilidad_neta=0;
+                        me.pcc=0;
+                        me.dpc1=0;
+                        me.dpc2=0;
+                        me.dpc3=0;
+                        me.dbsc=0;
+                        me.pcdc=0;
+                        me.puc=0;
+                        me.pucc=0;                 
+                        me.l20pc=0;
+                        me.l30pc=0;
+                        me.upc=0;
+                        me.pvc=0;  
             me.classModal.closeModal(accion);        
         },
         selectAll: function (event) {
@@ -270,27 +684,7 @@ me.pcdc = me.pcdc.toFixed(2);
 },
 calculadoraPrecioVenta() {
             let me = this;
-            // me.pcc = parseFloat(me.pcc);
-            // me.dpc1 = parseFloat(me.dpc1);
-            // me.dpc2 = parseFloat(me.dpc2);
-            // me.dpc3 = parseFloat(me.dpc3);
-            // me.dbsc = parseFloat(me.dbsc);
-            // var cd = parseInt((/[a-z]/.test(me.c_disp.toLowerCase())?1:me.c_disp));
-            // me.pcdc = (me.pcc - me.dbsc - (me.pcc * me.dpc1 / 100)).toFixed(2);
-            // me.pcdc = (me.pcdc - (me.pcdc * me.dpc2 / 100)).toFixed(2);
-            // me.pcdc = (me.pcdc - (me.pcdc * me.dpc3 / 100)).toFixed(2);
-            // me.puc = (me.pcdc / cd).toFixed(2);
-            // me.l20pc = ((me.puc * 100) / 70).toFixed(2);
-            // me.l30pc = ((me.puc * 100) / 60).toFixed(2);
-            // me.pucc = parseFloat(me.pucc).toFixed(2);
-            // me.pvc = parseFloat(me.pvc).toFixed(2);
-            // me.ubc = (me.pvc - me.pucc).toFixed(2);
-            // me.upc = ((me.ubc * 100) / me.pvc).toFixed(2);
-            // me.pcc = me.pcc.toFixed(2);
-            // me.dpc1 = me.dpc1.toFixed(2);
-            // me.dpc2 = me.dpc2.toFixed(2);
-            // me.dpc3 = me.dpc3.toFixed(2);
-            // me.dbsc = me.dbsc.toFixed(2);
+         
             
 
             me.pcdc = parseFloat(me.pcdc);
@@ -300,18 +694,6 @@ calculadoraPrecioVenta() {
             me.l30pc = ((me.pucc * 100) / 70); // l30pc = Liq. 30 %
             me.ubc = (me.pvc - me.pucc); // ubc = Utilidad Bruta
             me.upc = ((me.ubc * 100) / me.pvc); //  upc = Utilidad Bruta%
-
-            // console.log("**********Utilidad********");
-            // console.log(        
-            // 'pdcd: '+me.pcdc+'\n'+
-            // 'puc: '+me.puc+'\n'+
-            // 'l20pc: '+me.l20pc+'\n'+
-            // 'l30pc: '+me.l30pc+'\n'+
-            // 'ubc : '+me.ubc +'\n'+
-            // 'upc: '+me.upc+'\n'+
-            // 'pucc: '+me.pucc+'\n'+
-            // 'pvc: '+me.pvc+'\n'
-            // );
 
 
             me.pcdc = me.pcdc.toFixed(2);            
