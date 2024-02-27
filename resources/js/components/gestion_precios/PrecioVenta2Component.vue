@@ -16,7 +16,7 @@
                         </div>
                         <div class="col-md-5">
                             <div class="input-group">
-                                <select class="form-control"  @change="listarProductosTiendaAlmacen(1)"
+                                <select class="form-control"  @change="listarProductosTiendaAlmacen(0)"
                                 v-model="tiendaalmacenselected">
                                     
                                     <option value="0" disabled selected>Seleccionar...</option>
@@ -127,7 +127,7 @@
                             <td v-text="producto.tipoentrada"></td><!-- Tipo Entrada -->
                             <td> <!-- Fecha de Utilidad -->
                                     <div v-if="producto.listo_venta == 1">
-                                        <span  >{{ producto.fecha_utilidad}}</span>
+                                        <span  >{{ producto.fecha}}</span>
                                     </div>
                                     <div v-else>
                                         <span class="">DD/MM/AAAA</span>
@@ -143,7 +143,57 @@
                             </td> 
                             
                         </tr>     
-                    </table>    
+                    </table>   
+                    <nav>
+                        <ul class="pagination">
+                            <li
+                                class="page-item"
+                                v-if="pagination.current_page > 1"
+                            >
+                                <a
+                                    class="page-link"
+                                    href="#"
+                                    @click.prevent="
+                                        cambiarPagina(
+                                            pagination.current_page - 1,
+                                        )
+                                    "
+                                    >Ant</a
+                                >
+                            </li>
+                            <li
+                                class="page-item"
+                                v-for="page in pagesNumber"
+                                :key="page"
+                                :class="[page == isActived ? 'active' : '']"
+                            >
+                                <a
+                                    class="page-link"
+                                    href="#"
+                                    @click.prevent="cambiarPagina(page)"
+                                    v-text="page"
+                                ></a>
+                            </li>
+                            <li
+                                class="page-item"
+                                v-if="
+                                    pagination.current_page <
+                                    pagination.last_page
+                                "
+                            >
+                                <a
+                                    class="page-link"
+                                    href="#"
+                                    @click.prevent="
+                                        cambiarPagina(
+                                            pagination.current_page + 1,
+                                        )
+                                    "
+                                    >Sig</a
+                                >
+                            </li>
+                        </ul>
+                    </nav>
                 </div>        
             </div>
              <!-- Fin ejemplo de tabla Listado -->
@@ -399,12 +449,12 @@ export default {
     data() {
         return {
             pagination: {
-                'total': 0,
-                'current_page': 0,
-                'per_page': 0,
-                'last_page': 0,
-                'from': 0,
-                'to': 0
+                total: 0,
+                current_page: 0,
+                per_page: 0,
+                last_page: 0,
+                from: 0,
+                to: 0
             },
             offset: 3,
             
@@ -416,6 +466,7 @@ export default {
             arrayProductosAlterado:[],    
             id_gespreventa:'',
             //modal
+            listo_venta:0,
             codigo:'',
             tituloModal:'',
             caracteristicasProductoModificar:'',
@@ -460,7 +511,7 @@ export default {
 
 sicompleto(){
     let me = this;
-    if(me.p_venta > 0 && me.margen_20>0 && me.margen_30>0 && me.utilidad_neta>=0)
+    if(me.p_venta > 0 && me.margen_20>=0 && me.margen_30>=0 && me.utilidad_neta>=0)
     {
         return true;
     }
@@ -496,16 +547,24 @@ pagesNumber: function () {
 
 },
 methods: {
+    cambiarPestana(idPestana) {
+            this.pestañaActiva = idPestana;
+
+            // Agrega aquí la lógica adicional que necesites al cambiar la pestaña
+        },
+    cambiarPagina(page) {
+            let me = this;
+            me.pagination.current_page = page;
+            me.listarProductosTiendaAlmacen(page);
+        },
     actualizarRegistrarPrecioVenta() {
             let me = this;
             axios.post('/gestionprecioventa2/actualizar-registrar', {
-                'codigo':me.codigo,
-                
-                'id_table_ingreso_tienda_almacen':me.id_ingreso,
                 'id':me.id_gespreventa,
-      
+                'codigo':me.codigo,                
+                'id_table_ingreso_tienda_almacen':me.id_ingreso,   
                 'tienda':me.tienda_gespreventa,
-                'almacen':me.almacen_gespreventa,
+                'almacen':me.almacen_gespreventa,                
                 'precio_lista_gespreventa':me.p_lista,
                 'precio_venta_gespreventa':me.p_venta,
                 'cantidad_envase_gespreventa':me.c_disp,
@@ -523,9 +582,30 @@ methods: {
                 );
                 me.listarProductosTiendaAlmacen();
                 
-            }).catch(function (error) {
-                error401(error);
-                console.log(error);
+            })
+            
+            //.catch(function (error) {
+            //    error401(error);
+            //    console.log(error);
+           // });
+           .catch(function (error) {           
+                
+                if (error.response.status === 500) {
+                    me.errorMsg = error.response.data.error; // Asigna el mensaje de error a la variable errorMsg
+                Swal.fire(
+                    "Error",
+                    "500 (Internal Server Error)"+me.errorMsg, // Muestra el mensaje de error en el alert
+                    "error"
+                );
+                }else{
+                    Swal.fire(
+                    "Error",
+                    ""+error, // Muestra el mensaje de error en el alert
+                    "error"
+                );  
+                }
+
+               
             });
         },
     listarProductosTiendaAlmacen(page) {
@@ -576,10 +656,18 @@ methods: {
                         me.c_disp=data.cantidadEnvase;
                         me.p_compra=data.costocompraEnvase;
                         me.p_venta=data.precioventaEnvase;
+                        if(data.listo_venta===1){
+                        me.margen_20=data.margen_20p_gespreventa;
+                        me.margen_30=data.margen_30p_gespreventa;
+                        me.utilidad_bruta=data.utilidad_bruta_gespreventa;
+                        me.utilidad_neta=data.utilidad_neto_gespreventa;
+                        }else{
                         me.margen_20=0;
                         me.margen_30=0;
                         me.utilidad_bruta=0;
                         me.utilidad_neta=0;
+                        }
+                        
                         me.pcc=data.preciolistaEnvase;
                         me.dpc1=0;
                         me.dpc2=0;
