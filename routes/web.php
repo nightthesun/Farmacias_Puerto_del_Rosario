@@ -393,6 +393,8 @@ Route::group(['middleware' => 'auth'], function () {
         //---endpoint Inge.Remberto
     Route::get('/gestionprecioventa2/listarSucursal', [GesPreVenta2Controller::class, 'listarSucursal']);
     Route::get('/gestionprecioventa2', [GesPreVenta2Controller::class, 'index']);
+    Route::post('/gestionprecioventa2/actualizar-registrar', [GesPreVenta2Controller::class, 'update']);
+   
     /////////////////////////////////////////////Inventario///////////////////////////////////////////////////
 
     Route::get('/ajustes-negativo', [InvAjusteNegativoController::class, 'index']);
