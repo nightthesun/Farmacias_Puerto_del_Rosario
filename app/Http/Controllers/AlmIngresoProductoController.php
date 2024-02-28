@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Alm_IngresoProducto;
+use App\Models\Pivot_Modulo_tienda_almacen;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -112,18 +113,52 @@ class AlmIngresoProductoController extends Controller
      */
     public function store(Request $request)
     {
-        $nuevoProducto = new Alm_IngresoProducto();
-        $nuevoProducto->id_prod_producto = $request->id_prod_producto;
-        $nuevoProducto->envase = $request->envase;
-        $nuevoProducto->idalmacen = $request->idalmacen;
-        $nuevoProducto->cantidad = $request->cantidad;
-        $nuevoProducto->stock_ingreso = $request->cantidad;
-        $nuevoProducto->id_tipoentrada = $request->id_tipo_entrada;
-        $nuevoProducto->fecha_vencimiento = $request->fecha_vencimiento;
-        $nuevoProducto->lote = $request->lote;
-        $nuevoProducto->registro_sanitario = $request->registro_sanitario;
-        $nuevoProducto->id_usuario_registra=auth()->user()->id;
-        $nuevoProducto->save();
+        $primerGuardadoExitoso = false;
+
+try {
+    // Iniciar una transacción
+    DB::beginTransaction();
+
+    $nuevoProducto = new Alm_IngresoProducto();
+    $nuevoProducto->id_prod_producto = $request->id_prod_producto;
+    $nuevoProducto->envase = $request->envase;
+    $nuevoProducto->idalmacen = $request->idalmacen;
+    $nuevoProducto->cantidad = $request->cantidad;
+    $nuevoProducto->stock_ingreso = $request->cantidad;
+    $nuevoProducto->id_tipoentrada = $request->id_tipo_entrada;
+    $nuevoProducto->fecha_vencimiento = $request->fecha_vencimiento;
+    $nuevoProducto->lote = $request->lote;
+    $nuevoProducto->registro_sanitario = $request->registro_sanitario;
+    $nuevoProducto->id_usuario_registra = auth()->user()->id;
+    $nuevoProducto->save();
+    // Obtener el ID asignado al nuevo producto
+    $nuevoProductoID = $nuevoProducto->id;
+    // Indicar que el primer guardado fue exitoso
+    $primerGuardadoExitoso = true;         
+            $datos = [
+                'id_tienda_almacen' => $request->idalmacen,              
+                'id_ingreso' => $nuevoProductoID,
+                'tipo' => "ALM",               
+            ];
+        
+    DB::table('pivot__modulo_tienda_almacens')->insert($datos);
+   // $pivote = new Pivot_Modulo_tienda_almacen();
+   // $pivote->id_tienda_almacen = $request->idalmacen;
+   // $pivote->id_ingreso = $nuevoProductoID;
+   // $pivote->save();
+
+    // Si llegamos aquí sin errores, confirmamos la transacción
+    DB::commit();
+} catch (\Throwable $th) {
+    // Si el primer guardado fue exitoso y ocurre un error, revertimos la transacción
+    if ($primerGuardadoExitoso) {
+        DB::rollback();
+        // Eliminar el producto guardado
+        $nuevoProducto->delete();
+    }
+    return response()->json(['error' => $th->getMessage()],500);
+}
+        
     }
 
     /**

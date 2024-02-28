@@ -54,20 +54,46 @@ class TdaTiendaController extends Controller
     }
 
     public function store(Request $request)
-    {
-        $nuevoProducto = new Tda_IngresoProducto();
-        $nuevoProducto->id_prod_producto = $request->id_prod_producto;
-        $nuevoProducto->envase = $request->envase;
-        $nuevoProducto->idtienda = $request->idtienda;
-        $nuevoProducto->cantidad = $request->cantidad;
-        $nuevoProducto->stock_ingreso = $request->cantidad;
-        $nuevoProducto->id_tipoentrada = $request->id_tipo_entrada;
-        $nuevoProducto->fecha_vencimiento = $request->fecha_vencimiento;
-        $nuevoProducto->lote = $request->lote;
-        $nuevoProducto->registro_sanitario = $request->registro_sanitario;
-        $nuevoProducto->activo = 1;
-        $nuevoProducto->id_usuario_registra=auth()->user()->id;
-        $nuevoProducto->save();
+    { 
+        $primerGuardadoExitoso = false;
+        try {
+              // Iniciar una transacción
+             DB::beginTransaction();
+            $nuevoProducto = new Tda_IngresoProducto();
+            $nuevoProducto->id_prod_producto = $request->id_prod_producto;
+            $nuevoProducto->envase = $request->envase;
+            $nuevoProducto->idtienda = $request->idtienda;
+            $nuevoProducto->cantidad = $request->cantidad;
+            $nuevoProducto->stock_ingreso = $request->cantidad;
+            $nuevoProducto->id_tipoentrada = $request->id_tipo_entrada;
+            $nuevoProducto->fecha_vencimiento = $request->fecha_vencimiento;
+            $nuevoProducto->lote = $request->lote;
+            $nuevoProducto->registro_sanitario = $request->registro_sanitario;
+            $nuevoProducto->activo = 1;
+            $nuevoProducto->id_usuario_registra=auth()->user()->id;
+            $nuevoProducto->save();
+            // Obtener el ID asignado al nuevo producto
+            $nuevoProductoID = $nuevoProducto->id;
+            // Indicar que el primer guardado fue exitoso
+        $primerGuardadoExitoso = true;         
+            $datos = [
+                'id_tienda_almacen' => $request->idtienda,              
+                'id_ingreso' => $nuevoProductoID,
+                'tipo' => "TDA",               
+            ];
+            DB::table('pivot__modulo_tienda_almacens')->insert($datos);
+            // Si llegamos aquí sin errores, confirmamos la transacción
+            DB::commit();
+        } catch (\Throwable $th) {
+            // Si el primer guardado fue exitoso y ocurre un error, revertimos la transacción
+            if ($primerGuardadoExitoso) {
+                DB::rollback();
+                // Eliminar el producto guardado
+                $nuevoProducto->delete();
+            }
+            return response()->json(['error' => $th->getMessage()],500);
+        }
+       
     }
 
 

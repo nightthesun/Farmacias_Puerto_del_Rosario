@@ -28,7 +28,7 @@ return new class extends Migration
             $table->integer('idusuario')->comment('identificador del usuario que registro dicha gestion de precio de un producto');
             $table->tinyInteger('listo_venta')->default(0)->comment('Columna que hace referencia a que si un prodicto esta listo para la venta, esto significa que se llenaron los datos en la tabla ges_pre__ventas');
             $table->timestamps();
-            $table->foreign('id_table_ingreso_tienda_almacen')->references('id')->on('alm__ingreso_producto');       
+            $table->foreign('id_table_ingreso_tienda_almacen')->references('id')->on('pivot__modulo_tienda_almacens');       
         });
     }
 
