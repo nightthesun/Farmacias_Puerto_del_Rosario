@@ -346,9 +346,7 @@ class InvRecepcionController extends Controller
     {
         //
     }
-    public function listarSucursal(){
-       
-   
+    public function listarSucursal(){  
         $resultado  = DB::table(DB::raw('(SELECT
         tda__tiendas.id AS id_tienda,
         NULL AS id_almacen,

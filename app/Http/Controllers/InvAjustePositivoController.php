@@ -159,7 +159,10 @@ class InvAjustePositivoController extends Controller
      */
     public function store(Request $request, Inv_AjustePositivo $inv_AjustePositivo,Alm_IngresoProducto $alm_IngresoProducto,Tda_IngresoProducto $tda_IngresoProducto)
     {
+        $primerGuardadoExitoso = false;
         try {
+            // Iniciar una transacción
+            DB::beginTransaction();
             $cod = $request->cod;
             $id_ingreso = $request->id_ingreso;
             $activador = 0;
@@ -210,10 +213,15 @@ class InvAjustePositivoController extends Controller
                 $ajusteNegativo->cod=$codigo;
                 $ajusteNegativo->id_ingreso=$id;
                 $ajusteNegativo->leyenda = $request->leyenda;
+                $ajusteNegativo->save();
+
+                $primerGuardadoExitoso = true;   
+                  // Si llegamos aquí sin errores, confirmamos la transacción
+                DB::commit();
                 $update=Alm_IngresoProducto::find($id);
                 $update->stock_ingreso=$request->stock;
                 $update->save();
-               $ajusteNegativo->save();
+            
     //s
             }else {
                 if ($activador==2) {
@@ -237,17 +245,26 @@ class InvAjustePositivoController extends Controller
                     $ajusteNegativo->cod=$codigo;
                     $ajusteNegativo->id_ingreso=$id;
                     $ajusteNegativo->leyenda = $request->leyenda;
+                    $ajusteNegativo->save();
+                    $primerGuardadoExitoso = true;   
+                      // Si llegamos aquí sin errores, confirmamos la transacción
+                     DB::commit();
                     $update=Tda_IngresoProducto::find($id);
                     $update->stock_ingreso=$request->stock;
                     $update->save();
-                   $ajusteNegativo->save();
+                 
                 } else {
                     dd("error");
                 }
                 
             }
         } catch (\Throwable $th) {
-            DB::rollback();
+            // Si el primer guardado fue exitoso y ocurre un error, revertimos la transacción
+            if ($primerGuardadoExitoso) {
+                DB::rollback();
+                // Eliminar el producto guardado
+                $ajusteNegativo->delete();
+            }
             return response()->json(['error' => $th->getMessage()],500);
         }
        
@@ -471,7 +488,9 @@ class InvAjustePositivoController extends Controller
         return $productoTipo;
     }
     public function desactivar(Request $request){
+       
         try {
+         
             $activador = 0;
             $updateAjusteNegativo = Inv_AjustePositivo::findOrFail($request->id);
             $updateAjusteNegativo->activo=0;
@@ -512,6 +531,7 @@ class InvAjustePositivoController extends Controller
             $update = Alm_IngresoProducto::find($id_i);
             $update->stock_ingreso =($update->stock_ingreso)-$cantidad;
             $update->save();
+
             $updateAjusteNegativo->stock= $update->stock_ingreso; 
             $updateAjusteNegativo->save();
         } else {
@@ -713,8 +733,8 @@ class InvAjustePositivoController extends Controller
             ->join('prod__lineas as l', 'l.id', '=', 'pp.idlinea')
             ->join('tda__tiendas as tt', 'tt.id', '=', 'ti.idtienda')
             ->when($request->tipo == 1, function ($query) use ($cod) {
-                $query->where('ai.stock_ingreso', '>', 0)
-                      ->where('aa.codigo', $cod)
+                $query->where('ti.stock_ingreso', '>', 0)
+                      ->where('tt.codigo', $cod)
                       ->where('pp.idrubro','=',1)
                       ->where('pp.activo','=',1);
                 })
@@ -876,10 +896,358 @@ class InvAjustePositivoController extends Controller
         $result = $productos->unionAll($tiendas)->get();
      
         return $result;
-        }
-        
+        }   
+       
+    }
+
+    ///retorno de stock en cero
+    public function retornarProductosIngresoCero(Request $request)
+    {
+        $cod = $request->query('respuesta0');
+       // $buscar = $request->query('respuesta1');
+        $buscararray=array();
+       
+        if(!empty($request->respuesta1))
+        {
+            $buscararray = explode(" ",$request->respuesta1);
+            $valor=sizeof($buscararray);
+            if($valor > 0){
+                $sqls='';
+                
+                foreach($buscararray as $valor)
+                {
+                    if(empty($sqls)){
+                        $sqls="(
+                                pp.codigointernacional like '%".$valor."%' 
+                                or pp.nombre like '%".$valor."%' 
+                               
+                                or pp.codigo like '%".$valor."%'
+                            
+                               )";
+                    }
+                    else
+                    {
+                        $sqls.="and ( pp.codigointernacional like '%".$valor."%' 
+                        or pp.nombre like '%".$valor."%' 
+                  
+                        or pp.codigo like '%".$valor."%' 
+                       )";
+                    }
+    
+                }
+                $productos = DB::table('prod__productos as pp')
+                ->join('alm__ingreso_producto as ai', 'pp.id', '=', 'ai.id_prod_producto')
+                ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
+                ->leftJoin('prod__dispensers as pd_1', 'pd_1.id', '=', 'pp.iddispenserprimario')
+                ->leftJoin('prod__dispensers as pd_2', 'pd_2.id', '=', 'pp.iddispensersecundario')
+                ->leftJoin('prod__dispensers as pd_3', 'pd_3.id', '=', 'pp.iddispenserterciario')
+                ->leftJoin('prod__forma_farmaceuticas as ff_1', 'ff_1.id', '=', 'pp.idformafarmaceuticaprimario')
+                ->leftJoin('prod__forma_farmaceuticas as ff_2', 'ff_2.id', '=', 'pp.idformafarmaceuticasecundario')
+                ->leftJoin('prod__forma_farmaceuticas as ff_3', 'ff_3.id', '=', 'pp.idformafarmaceuticaterciario')
+                ->join('alm__almacens as aa', 'aa.id', '=', 'ai.idalmacen')
+                ->join('adm__sucursals as ass', 'ass.id', '=', 'aa.idsucursal')
+                ->join('prod__lineas as l', 'l.id', '=', 'pp.idlinea')
+                ->where('ai.stock_ingreso', '=', 0)
+                          ->where('aa.codigo', $cod)
+                          ->where('pp.idrubro','=',1)
+                          ->where('pp.activo','=',1)
+           
+                    
+               
+                ->whereRaw($sqls)
+              
+                ->select(
+                    'ai.idalmacen as id_alm_tda',
+                  'pp.codigointernacional as codigointernacional',
+                  'ai.id_tipoentrada as id_tipoentrada',
+                  'ai.registro_sanitario as registro_sanitario',
+                  'ai.envase as envase',        
+                  'aa.codigo as cod',
+                  'ai.id as id_ingreso',
+                  'ai.id_prod_producto as id_producto',
+                  'ai.lote as lote',
+                  'ai.stock_ingreso as stock_ingreso',
+                  'ai.cantidad as cantidad_ingreso',
+                  'ai.created_at as fecha_ingreso',
+                  'ai.fecha_vencimiento as fecha_vencimiento',
+                  'pp.nombre as nombre',
+                  'pp.codigo as codigo_producto',
+                  'pp.cantidadprimario as cantidad_dispenser_p',
+                  'pp.cantidadsecundario as cantidad_dispenser_s',
+                  'pp.cantidadterciario as cantidad_dispenser_t',
+                  'l.nombre as nombre_linea',
+                  'pd_1.nombre as nombre_dispenser_1',
+                  'pd_2.nombre as nombre_dispenser_2',
+                  'pd_3.nombre as nombre_dispenser_3',
+                  'ff_1.nombre as nombre_farmaceutica_1',
+                  'ff_2.nombre as nombre_farmaceutica_2',
+                  'ff_3.nombre as nombre_farmaceutica_3',
+                  'ass.id AS id_sucursal',
+                  'ass.razon_social as razon_social',
+                       DB::raw('null as id_tienda'),
+                  'ai.idalmacen as id_almacen',
+                  DB::raw("
+                  CASE
+                      WHEN ai.envase = 'primario' THEN CONCAT(COALESCE(pp.nombre, ''), ' ', COALESCE(pd_1.nombre, ''), ' x ', COALESCE(pp.cantidadprimario, ''), '  ', COALESCE(ff_1.nombre, ''))
+                      WHEN ai.envase = 'secundario' THEN CONCAT(COALESCE(pp.nombre, ''), ' ', COALESCE(pd_2.nombre, ''), ' x ', COALESCE(pp.cantidadsecundario, ''), '  ', COALESCE(ff_2.nombre, ''))
+                      WHEN ai.envase = 'terciario' THEN CONCAT(COALESCE(pp.nombre, ''), ' ', COALESCE(pd_3.nombre, ''), ' x ', COALESCE(pp.cantidadterciario, ''), '  ', COALESCE(ff_3.nombre, ''))
+                      ELSE NULL
+                  END AS leyenda
+              ")
+              );
+          
+            $tiendas = DB::table('prod__productos as pp')
+            ->join('tda__ingreso_productos as ti', 'pp.id', '=', 'ti.id_prod_producto')
+            ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
+            ->leftJoin('prod__dispensers as pd_1', 'pd_1.id', '=', 'pp.iddispenserprimario')
+            ->leftJoin('prod__dispensers as pd_2', 'pd_2.id', '=', 'pp.iddispensersecundario')
+            ->leftJoin('prod__dispensers as pd_3', 'pd_3.id', '=', 'pp.iddispenserterciario')
+            ->leftJoin('prod__forma_farmaceuticas as ff_1', 'ff_1.id', '=', 'pp.idformafarmaceuticaprimario')
+            ->leftJoin('prod__forma_farmaceuticas as ff_2', 'ff_2.id', '=', 'pp.idformafarmaceuticasecundario')
+            ->leftJoin('prod__forma_farmaceuticas as ff_3', 'ff_3.id', '=', 'pp.idformafarmaceuticaterciario')
+            ->join('adm__sucursals as ass', 'ass.id', '=', 'ti.idtienda')
+            ->join('prod__lineas as l', 'l.id', '=', 'pp.idlinea')
+            ->join('tda__tiendas as tt', 'tt.id', '=', 'ti.idtienda')
+            ->where('ti.stock_ingreso', '=', 0)
+                      ->where('tt.codigo', $cod)
+                      ->where('pp.idrubro','=',1)
+                      ->where('pp.activo','=',1)
+             
+               
+                ->whereRaw($sqls)
+               
+                ->select(
+                    'ti.idtienda as id_alm_tda',
+                  'pp.codigointernacional as codigointernacional',
+                  'ti.id_tipoentrada as id_tipoentrada',
+                  'ti.registro_sanitario as registro_sanitario',
+                  'ti.envase as envase',   
+                  'tt.codigo as cod',
+                  'ti.id as id_ingreso',
+                  'ti.id_prod_producto as id_producto',
+                  'ti.lote as lote',
+                  'ti.stock_ingreso as stock_ingreso',
+                  'ti.cantidad as cantidad_ingreso',
+                  'ti.created_at as fecha_ingreso',
+                  'ti.fecha_vencimiento as fecha_vencimiento',
+                  'pp.nombre as nombre',
+                  'pp.codigo as codigo_producto',
+                  'pp.cantidadprimario as cantidad_dispenser_p',
+                  'pp.cantidadsecundario as cantidad_dispenser_s',
+                  'pp.cantidadterciario as cantidad_dispenser_t',
+                  'l.nombre as nombre_linea',
+                  'pd_1.nombre as nombre_dispenser_1',
+                  'pd_2.nombre as nombre_dispenser_2',
+                  'pd_3.nombre as nombre_dispenser_3',
+                  'ff_1.nombre as nombre_farmaceutica_1',
+                  'ff_2.nombre as nombre_farmaceutica_2',
+                  'ff_3.nombre as nombre_farmaceutica_3',
+                  'ass.id AS id_sucursal',
+                  'ass.razon_social as razon_social',
+                  'ti.idtienda as id_tienda',
+                  DB::raw('null as id_almacen'),
+                  DB::raw("
+            CASE
+                WHEN ti.envase = 'primario' THEN CONCAT(COALESCE(pp.nombre, ''), ' ', COALESCE(pd_1.nombre, ''), ' x ', COALESCE(pp.cantidadprimario, ''), '  ', COALESCE(ff_1.nombre, ''))
+                WHEN ti.envase = 'secundario' THEN CONCAT(COALESCE(pp.nombre, ''), ' ', COALESCE(pd_2.nombre, ''), ' x ', COALESCE(pp.cantidadsecundario, ''), '  ', COALESCE(ff_2.nombre, ''))
+                WHEN ti.envase = 'terciario' THEN CONCAT(COALESCE(pp.nombre, ''), ' ', COALESCE(pd_3.nombre, ''), ' x ', COALESCE(pp.cantidadterciario, ''), '  ', COALESCE(ff_3.nombre, ''))
+                ELSE NULL
+            END AS leyenda
+        ")
+                );
+          
+            $result = $productos->unionAll($tiendas)->get();
+                        
+            }
       
+            return $result;
+        }else {
+
+            $productos = DB::table('prod__productos as pp')
+            ->join('alm__ingreso_producto as ai', 'pp.id', '=', 'ai.id_prod_producto')
+            ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
+            ->leftJoin('prod__dispensers as pd_1', 'pd_1.id', '=', 'pp.iddispenserprimario')
+            ->leftJoin('prod__dispensers as pd_2', 'pd_2.id', '=', 'pp.iddispensersecundario')
+            ->leftJoin('prod__dispensers as pd_3', 'pd_3.id', '=', 'pp.iddispenserterciario')
+            ->leftJoin('prod__forma_farmaceuticas as ff_1', 'ff_1.id', '=', 'pp.idformafarmaceuticaprimario')
+            ->leftJoin('prod__forma_farmaceuticas as ff_2', 'ff_2.id', '=', 'pp.idformafarmaceuticasecundario')
+            ->leftJoin('prod__forma_farmaceuticas as ff_3', 'ff_3.id', '=', 'pp.idformafarmaceuticaterciario')
+            ->join('alm__almacens as aa', 'aa.id', '=', 'ai.idalmacen')
+            ->join('adm__sucursals as ass', 'ass.id', '=', 'aa.idsucursal')
+            ->join('prod__lineas as l', 'l.id', '=', 'pp.idlinea')
+            ->where('ai.stock_ingreso', '=', 0)
+            ->where('aa.codigo', $cod) 
+            ->where('pp.idrubro','=',1) 
+            ->select(
+                'ai.idalmacen as id_alm_tda',
+              'pp.codigointernacional as codigointernacional',
+              'ai.id_tipoentrada as id_tipoentrada',
+              'ai.registro_sanitario as registro_sanitario',
+              'ai.envase as envase',        
+              'aa.codigo as cod',
+              'ai.id as id_ingreso',
+              'ai.id_prod_producto as id_producto',
+              'ai.lote as lote',
+              'ai.stock_ingreso as stock_ingreso',
+              'ai.cantidad as cantidad_ingreso',
+              'ai.created_at as fecha_ingreso',
+              'ai.fecha_vencimiento as fecha_vencimiento',
+              'pp.nombre as nombre',
+              'pp.codigo as codigo_producto',
+              'pp.cantidadprimario as cantidad_dispenser_p',
+              'pp.cantidadsecundario as cantidad_dispenser_s',
+              'pp.cantidadterciario as cantidad_dispenser_t',
+              'l.nombre as nombre_linea',
+              'pd_1.nombre as nombre_dispenser_1',
+              'pd_2.nombre as nombre_dispenser_2',
+              'pd_3.nombre as nombre_dispenser_3',
+              'ff_1.nombre as nombre_farmaceutica_1',
+              'ff_2.nombre as nombre_farmaceutica_2',
+              'ff_3.nombre as nombre_farmaceutica_3',
+              'ass.id AS id_sucursal',
+              'ass.razon_social as razon_social',
+              DB::raw('null as id_tienda'),
+              'ai.idalmacen as id_almacen',
+              DB::raw("
+            CASE
+                WHEN ai.envase = 'primario' THEN CONCAT(COALESCE(pp.nombre, ''), ' ', COALESCE(pd_1.nombre, ''), ' x ', COALESCE(pp.cantidadprimario, ''), '  ', COALESCE(ff_1.nombre, ''))
+                WHEN ai.envase = 'secundario' THEN CONCAT(COALESCE(pp.nombre, ''), ' ', COALESCE(pd_2.nombre, ''), ' x ', COALESCE(pp.cantidadsecundario, ''), '  ', COALESCE(ff_2.nombre, ''))
+                WHEN ai.envase = 'terciario' THEN CONCAT(COALESCE(pp.nombre, ''), ' ', COALESCE(pd_3.nombre, ''), ' x ', COALESCE(pp.cantidadterciario, ''), '  ', COALESCE(ff_3.nombre, ''))
+                ELSE NULL
+            END AS leyenda
+        ")
+          );
+      
+        $tiendas = DB::table('prod__productos as pp')
+        ->join('tda__ingreso_productos as ti', 'pp.id', '=', 'ti.id_prod_producto')
+        ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
+        ->leftJoin('prod__dispensers as pd_1', 'pd_1.id', '=', 'pp.iddispenserprimario')
+        ->leftJoin('prod__dispensers as pd_2', 'pd_2.id', '=', 'pp.iddispensersecundario')
+        ->leftJoin('prod__dispensers as pd_3', 'pd_3.id', '=', 'pp.iddispenserterciario')
+        ->leftJoin('prod__forma_farmaceuticas as ff_1', 'ff_1.id', '=', 'pp.idformafarmaceuticaprimario')
+        ->leftJoin('prod__forma_farmaceuticas as ff_2', 'ff_2.id', '=', 'pp.idformafarmaceuticasecundario')
+        ->leftJoin('prod__forma_farmaceuticas as ff_3', 'ff_3.id', '=', 'pp.idformafarmaceuticaterciario')
+        ->join('adm__sucursals as ass', 'ass.id', '=', 'ti.idtienda')
+        ->join('prod__lineas as l', 'l.id', '=', 'pp.idlinea')
+        ->join('tda__tiendas as tt', 'tt.id', '=', 'ti.idtienda')
+            ->where('ti.stock_ingreso', '=', 0)
+            ->where('tt.codigo', $cod) 
+            ->where('pp.idrubro','=',1) 
+            ->select(
+                'ti.idtienda as id_alm_tda',
+              'pp.codigointernacional as codigointernacional',
+              'ti.registro_sanitario as registro_sanitario',
+              'ti.id_tipoentrada as id_tipoentrada',
+              'ti.envase as envase',   
+              'tt.codigo as cod',
+              'ti.id as id_ingreso',
+              'ti.id_prod_producto as id_producto',
+              'ti.lote as lote',
+              'ti.stock_ingreso as stock_ingreso',
+              'ti.cantidad as cantidad_ingreso',
+              'ti.created_at as fecha_ingreso',
+              'ti.fecha_vencimiento as fecha_vencimiento',
+              'pp.nombre as nombre',
+              'pp.codigo as codigo_producto',
+              'pp.cantidadprimario as cantidad_dispenser_p',
+              'pp.cantidadsecundario as cantidad_dispenser_s',
+              'pp.cantidadterciario as cantidad_dispenser_t',
+              'l.nombre as nombre_linea',
+              'pd_1.nombre as nombre_dispenser_1',
+              'pd_2.nombre as nombre_dispenser_2',
+              'pd_3.nombre as nombre_dispenser_3',
+              'ff_1.nombre as nombre_farmaceutica_1',
+              'ff_2.nombre as nombre_farmaceutica_2',
+              'ff_3.nombre as nombre_farmaceutica_3',
+              'ass.id AS id_sucursal',
+              'ass.razon_social as razon_social',
+              'ti.idtienda as id_tienda',
+              DB::raw('null as id_almacen'),
+             
+              DB::raw("
+              CASE
+                  WHEN ti.envase = 'primario' THEN CONCAT(COALESCE(pp.nombre, ''), ' ', COALESCE(pd_1.nombre, ''), ' x ', COALESCE(pp.cantidadprimario, ''), '  ', COALESCE(ff_1.nombre, ''))
+                  WHEN ti.envase = 'secundario' THEN CONCAT(COALESCE(pp.nombre, ''), ' ', COALESCE(pd_2.nombre, ''), ' x ', COALESCE(pp.cantidadsecundario, ''), '  ', COALESCE(ff_2.nombre, ''))
+                  WHEN ti.envase = 'terciario' THEN CONCAT(COALESCE(pp.nombre, ''), ' ', COALESCE(pd_3.nombre, ''), ' x ', COALESCE(pp.cantidadterciario, ''), '  ', COALESCE(ff_3.nombre, ''))
+                  ELSE NULL
+              END AS leyenda
+          ")
+            );
+      
+        $result = $productos->unionAll($tiendas)->get();
      
-        
-}
+        return $result;
+        }   
+       
+    }
+    public function updateTdaAlm(Request $request)
+    {
+        $primerGuardadoExitoso = false;
+        try {
+          // Iniciar una transacción
+          DB::beginTransaction();
+          $codigo  = substr($request->cod, 0, 3);
+          if ($codigo == "TDA") {
+              $actualizarProducto = Tda_IngresoProducto::findOrFail($request->id);
+  
+          } else {
+              if ($codigo == "ALM") {
+              $actualizarProducto = Alm_IngresoProducto::findOrFail($request->id);              
+              }
+              else{
+                  dd("error");
+              }
+          }
+  
+          $actualizarProducto->cantidad = $request->cantidad;
+          $actualizarProducto->stock_ingreso = $request->cantidad;
+          $actualizarProducto->id_tipoentrada = $request->id_tipo_entrada;
+          $actualizarProducto->fecha_vencimiento = $request->fecha_vencimiento;
+          $actualizarProducto->lote = $request->lote;
+          $actualizarProducto->registro_sanitario = $request->registro_sanitario;
+          $actualizarProducto->id_usuario_modifica = auth()->user()->id;
+          $actualizarProducto->save();
+                // Indicar que el primer guardado fue exitoso
+                $primerGuardadoExitoso = true;   
+    
+          
+  
+  
+                  $ajusteNegativo=new Inv_AjustePositivo();
+                  $ajusteNegativo->id_usuario = auth()->user()->id;
+                  $ajusteNegativo->usuario = auth()->user()->name;
+                  $ajusteNegativo->id_usuario_registra = auth()->user()->id;
+                  $ajusteNegativo->id_tipo=$request->id_tipo_entrada;
+                  $ajusteNegativo->id_producto_linea=$request->id;
+                  $ajusteNegativo->codigo=$request->codigo;                
+                  $ajusteNegativo->linea=$request->linea;                
+                  $ajusteNegativo->producto=$request->producto;                
+                  $ajusteNegativo->cantidad=$request->cantidad;
+                  $ajusteNegativo->stock=$request->cantidad;
+                  $ajusteNegativo->descripcion="stock en cero";
+  
+                  $ajusteNegativo->fecha_ingreso=$actualizarProducto->updated_at;
+                  $ajusteNegativo->fecha_vencimiento=$request->fecha_vencimiento;
+                  $ajusteNegativo->lote=$request->lote;
+             
+                  $ajusteNegativo->id_sucursal=$request->id_sucursal;
+                  $ajusteNegativo->cod=$request->cod;
+                  $ajusteNegativo->id_ingreso=$request->id;
+                  $cadena = $request->leyenda . " FI:" . $actualizarProducto->updated_at . " Lote:" . $request->lote . " FV:" . $request->fecha_vencimiento;
+                  $ajusteNegativo->leyenda = $cadena;               
+                  $ajusteNegativo->save();
+                  DB::commit();
+        } catch (\Throwable $th) {
+            // Si el primer guardado fue exitoso y ocurre un error, revertimos la transacción
+            if ($primerGuardadoExitoso) {
+                DB::rollback();
+                // Eliminar el producto guardado
+                $actualizarProducto->delete();
+            }
+            return response()->json(['error' => $th->getMessage()],500);
+        }
+       
+    }
+
+
 }
