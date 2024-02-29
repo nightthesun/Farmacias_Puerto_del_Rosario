@@ -147,7 +147,7 @@
                                 </div>
                                 <div class="form-group col-sm-4">
                                     <strong>Lote: <span  v-if="lote==''" class="error">(*)</span></strong>
-                                    <input type="text" class="form-control" placeholder="Lote" onkeypress="return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 48 && event.charCode <= 57))" v-model="lote" v-on:focus="selectAll">
+                                    <input type="text" class="form-control" placeholder="Lote"  v-model="lote" v-on:focus="selectAll">
                                     <span  v-if="lote==''" class="error">Debe Ingresar el lote</span>
                                 </div>
                             </div>
@@ -777,10 +777,27 @@ import { error401 } from '../../errores';
                     Swal.fire('Registrado Correctamente')
                     me.cerrarModal('registrar');
                     me.listarProductosAlmacen(1);
-                }).catch(function(error){
-                    error401(error);
-                    console.log(error);
-                });
+                })
+                //.catch(function(error){
+                //    error401(error);
+                //    console.log(error);
+                //});
+                .catch(function (error) {                  
+                if (error.response.status === 500) {
+                    me.errorMsg = error.response.data.error; // Asigna el mensaje de error a la variable errorMsg
+                Swal.fire(
+                    "Error",
+                    "500 (Internal Server Error)"+me.errorMsg, // Muestra el mensaje de error en el alert
+                    "error"
+                );
+                }else{
+                    Swal.fire(
+                    "Error",
+                    ""+error, // Muestra el mensaje de error en el alert
+                    "error"
+                );  
+                }              
+            });
             },
 
             eliminarProductoAlmacen(idproductoalmacen){

@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Tda_IngresoProducto;
+use App\Models\Pivot_Modulo_tienda_almacen;
+
 use Illuminate\Support\Facades\DB;
 
 class TdaIngresoProductoController extends Controller
@@ -96,6 +98,7 @@ class TdaIngresoProductoController extends Controller
 
     public function store(Request $request)
     {
+        
         $nuevoProducto = new Tda_IngresoProducto();
         $nuevoProducto->id_prod_producto = $request->id_prod_producto;
         $nuevoProducto->envase = $request->envase;
@@ -107,7 +110,8 @@ class TdaIngresoProductoController extends Controller
         $nuevoProducto->lote = $request->lote;
         $nuevoProducto->registro_sanitario = $request->registro_sanitario;
         $nuevoProducto->id_usuario_registra=auth()->user()->id;
-        $nuevoProducto->save();
+        $nuevoProducto->save();      
+        
     }
 
     public function update(Request $request)

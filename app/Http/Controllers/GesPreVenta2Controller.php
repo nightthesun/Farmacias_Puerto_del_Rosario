@@ -41,10 +41,11 @@ class GesPreVenta2Controller extends Controller
                     }
                 } 
                 // query start 
-                $almacen = DB::table('prod__productos as pp')
+
+                $almacen = DB::table('pivot__modulo_tienda_almacens as pivot')
                 ->select(
-                    'ai.id as id',
-                    'gpv.id as gpv_id,',
+                    'pivot.id as id',
+                    'gpv.id as gpv_id',
                     'aa.codigo as cod',
                     'ai.id as id_ingreso',
                     'ai.lote as lote',
@@ -140,7 +141,12 @@ class GesPreVenta2Controller extends Controller
                     'gpv.listo_venta as listo_venta',
                     'pte.nombre as tipoentrada'
                 )
-                ->join('alm__ingreso_producto as ai', 'pp.id', '=', 'ai.id_prod_producto')
+                
+            
+                ->join('alm__almacens as aa', 'aa.id', '=', 'pivot.id_tienda_almacen')
+                ->join('alm__ingreso_producto as ai', 'ai.id', '=', 'pivot.id_ingreso')
+                ->join('prod__productos as pp', 'pp.id', '=', 'ai.id_prod_producto')
+                
                 ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
                 ->join('prod__tipo_entradas as pte', 'pte.id', '=', 'ai.id_tipoentrada')
            
@@ -150,16 +156,16 @@ class GesPreVenta2Controller extends Controller
                 ->leftJoin('prod__forma_farmaceuticas as ff_1', 'ff_1.id', '=', 'pp.idformafarmaceuticaprimario')
                 ->leftJoin('prod__forma_farmaceuticas as ff_2', 'ff_2.id', '=', 'pp.idformafarmaceuticasecundario')
                 ->leftJoin('prod__forma_farmaceuticas as ff_3', 'ff_3.id', '=', 'pp.idformafarmaceuticaterciario')
-                ->join('alm__almacens as aa', 'aa.id', '=', 'ai.idalmacen')
+               
                 ->join('adm__sucursals as ass', 'ass.id', '=', 'aa.idsucursal')
                 ->join('prod__lineas as l', 'l.id', '=', 'pp.idlinea')
-                ->leftJoin('ges_pre__venta2s as gpv', 'gpv.id_table_ingreso_tienda_almacen', '=', 'ai.id')
+                ->leftJoin('ges_pre__venta2s as gpv', 'gpv.id_table_ingreso_tienda_almacen', '=', 'pivot.id')
                 ->leftJoin('users as u', 'u.id', '=', 'gpv.idusuario')
                 ;
-                $tienda = DB::table('prod__productos as pp')
+                $tienda = DB::table('pivot__modulo_tienda_almacens as pivot')
                 ->select(
-                    'ti.id as id',
-                    'gpv.id as gpv_id,',
+                    'pivot.id as id',
+                    'gpv.id as gpv_id',
                     'tt.codigo as cod',
                     'ti.id as id_ingreso',
                     'ti.lote as lote',
@@ -255,7 +261,11 @@ class GesPreVenta2Controller extends Controller
                     'gpv.listo_venta as listo_venta',
                     'pte.nombre as tipoentrada'
                 )
-                ->join('tda__ingreso_productos as ti', 'pp.id', '=', 'ti.id_prod_producto')
+                ->join('tda__tiendas as tt', 'tt.id', '=', 'pivot.id_tienda_almacen')
+             ->join('tda__ingreso_productos as ti', 'ti.id', '=', 'pivot.id_ingreso')
+             ->join('prod__productos as pp', 'pp.id', '=', 'ti.id_prod_producto')
+
+                
                 ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
                 ->join('prod__tipo_entradas as pte', 'pte.id', '=', 'ti.id_tipoentrada')
            
@@ -267,8 +277,8 @@ class GesPreVenta2Controller extends Controller
                 ->leftJoin('prod__forma_farmaceuticas as ff_3', 'ff_3.id', '=', 'pp.idformafarmaceuticaterciario')
                 ->join('adm__sucursals as ass', 'ass.id', '=', 'ti.idtienda')
                 ->join('prod__lineas as l', 'l.id', '=', 'pp.idlinea')
-                ->join('tda__tiendas as tt', 'tt.id', '=', 'ti.idtienda')
-                ->leftJoin('ges_pre__venta2s as gpv', 'gpv.id_table_ingreso_tienda_almacen', '=', 'ti.id')
+            
+                ->leftJoin('ges_pre__venta2s as gpv', 'gpv.id_table_ingreso_tienda_almacen', '=', 'pivot.id')
                 ->leftJoin('users as u', 'u.id', '=', 'gpv.idusuario')
                ;
                $queryCombinacion = $almacen->where('aa.codigo', '=', $bus)->whereRaw($sqls)
@@ -290,10 +300,10 @@ class GesPreVenta2Controller extends Controller
             ];
         } else {
              // query start 
-             $almacen = DB::table('prod__productos as pp')
+             $almacen = DB::table('pivot__modulo_tienda_almacens as pivot')
              ->select(
-                 'ai.id as id',
-                 'gpv.id as gpv_id,',
+                'pivot.id as id',
+                 'gpv.id as gpv_id',
                  'aa.codigo as cod',
                  'ai.id as id_ingreso',
                  'ai.lote as lote',
@@ -389,26 +399,27 @@ class GesPreVenta2Controller extends Controller
                  'gpv.listo_venta as listo_venta',
                  'pte.nombre as tipoentrada'
              )
-             ->join('alm__ingreso_producto as ai', 'pp.id', '=', 'ai.id_prod_producto')
+             ->join('alm__almacens as aa', 'aa.id', '=', 'pivot.id_tienda_almacen')
+             ->join('alm__ingreso_producto as ai', 'ai.id', '=', 'pivot.id_ingreso')
+             ->join('prod__productos as pp', 'pp.id', '=', 'ai.id_prod_producto')
              ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
              ->join('prod__tipo_entradas as pte', 'pte.id', '=', 'ai.id_tipoentrada')
-           
              ->leftJoin('prod__dispensers as pd_1', 'pd_1.id', '=', 'pp.iddispenserprimario')
              ->leftJoin('prod__dispensers as pd_2', 'pd_2.id', '=', 'pp.iddispensersecundario')
              ->leftJoin('prod__dispensers as pd_3', 'pd_3.id', '=', 'pp.iddispenserterciario')
              ->leftJoin('prod__forma_farmaceuticas as ff_1', 'ff_1.id', '=', 'pp.idformafarmaceuticaprimario')
              ->leftJoin('prod__forma_farmaceuticas as ff_2', 'ff_2.id', '=', 'pp.idformafarmaceuticasecundario')
              ->leftJoin('prod__forma_farmaceuticas as ff_3', 'ff_3.id', '=', 'pp.idformafarmaceuticaterciario')
-             ->join('alm__almacens as aa', 'aa.id', '=', 'ai.idalmacen')
+          
              ->join('adm__sucursals as ass', 'ass.id', '=', 'aa.idsucursal')
              ->join('prod__lineas as l', 'l.id', '=', 'pp.idlinea')
-             ->leftJoin('ges_pre__venta2s as gpv', 'gpv.id_table_ingreso_tienda_almacen', '=', 'ai.id')
+             ->leftJoin('ges_pre__venta2s as gpv', 'gpv.id_table_ingreso_tienda_almacen', '=', 'pivot.id')
              ->leftJoin('users as u', 'u.id', '=', 'gpv.idusuario')
              ;
-             $tienda = DB::table('prod__productos as pp')
+             $tienda = DB::table('pivot__modulo_tienda_almacens as pivot')
              ->select(
-                 'ti.id as id',
-                 'gpv.id as gpv_id,',
+                'pivot.id as id',
+                 'gpv.id as gpv_id',
                  'tt.codigo as cod',
                  'ti.id as id_ingreso',
                  'ti.lote as lote',
@@ -505,7 +516,11 @@ class GesPreVenta2Controller extends Controller
                  'gpv.listo_venta as listo_venta',
                  'pte.nombre as tipoentrada'
              )
-             ->join('tda__ingreso_productos as ti', 'pp.id', '=', 'ti.id_prod_producto')
+
+             ->join('tda__tiendas as tt', 'tt.id', '=', 'pivot.id_tienda_almacen')
+             ->join('tda__ingreso_productos as ti', 'ti.id', '=', 'pivot.id_ingreso')
+             ->join('prod__productos as pp', 'pp.id', '=', 'ti.id_prod_producto')
+
              ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
              ->join('prod__tipo_entradas as pte', 'pte.id', '=', 'ti.id_tipoentrada')
            
@@ -517,12 +532,12 @@ class GesPreVenta2Controller extends Controller
              ->leftJoin('prod__forma_farmaceuticas as ff_3', 'ff_3.id', '=', 'pp.idformafarmaceuticaterciario')
              ->join('adm__sucursals as ass', 'ass.id', '=', 'ti.idtienda')
              ->join('prod__lineas as l', 'l.id', '=', 'pp.idlinea')
-             ->join('tda__tiendas as tt', 'tt.id', '=', 'ti.idtienda')
-             ->leftJoin('ges_pre__venta2s as gpv', 'gpv.id_table_ingreso_tienda_almacen', '=', 'ti.id')
+            
+             ->leftJoin('ges_pre__venta2s as gpv', 'gpv.id_table_ingreso_tienda_almacen', '=', 'pivot.id')
              ->leftJoin('users as u', 'u.id', '=', 'gpv.idusuario')
             ;
-            $queryCombinacion = $almacen->where('aa.codigo', '=', $bus)
-            ->unionAll($tienda->where('tt.codigo','=',$bus)); 
+            $queryCombinacion = $almacen->where('pivot.tipo', '=', 'ALM')->where('aa.codigo', '=', $bus)
+            ->unionAll($tienda->where('pivot.tipo', '=', 'TDA')->where('tt.codigo','=',$bus)); 
             $queryCombinacion = $queryCombinacion -> orderByRaw('id DESC')->paginate(15); 
             return [
                 'pagination' => [
@@ -545,7 +560,28 @@ class GesPreVenta2Controller extends Controller
      */
     public function store(Request $request)
     {
-        //
+            try {
+                $precioVentaProducto = new GesPre_Venta2();
+            $precioVentaProducto->codigo=$request->codigo;
+            $precioVentaProducto->id_table_ingreso_tienda_almacen = $request->id_table_ingreso_tienda_almacen;
+            $precioVentaProducto->tienda = $request->tienda;
+            $precioVentaProducto->almacen = $request->almacen;
+            $precioVentaProducto->precio_lista_gespreventa = $request->precio_lista_gespreventa;
+            $precioVentaProducto->precio_venta_gespreventa = $request->precio_venta_gespreventa;
+            $precioVentaProducto->cantidad_envase_gespreventa = $request->cantidad_envase_gespreventa;
+            //$precioVentaProducto->cantidad_envase_gespreventa = preg_match('/[a-z]/',strtolower($request->cantidad_envase_gespreventa)) == 1 ? 1 :$request->cantidad_envase_gespreventa;
+            $precioVentaProducto->costo_compra_gespreventa = $request->costo_compra_gespreventa;
+            $precioVentaProducto->margen_20p_gespreventa = $request->margen_20p_gespreventa;
+            $precioVentaProducto->margen_30p_gespreventa = $request->margen_30p_gespreventa;
+            $precioVentaProducto->utilidad_bruta_gespreventa = $request->utilidad_bruta_gespreventa; 
+            $precioVentaProducto->utilidad_neto_gespreventa = $request->utilidad_neto_gespreventa;
+            $precioVentaProducto->listo_venta = 1;
+            $precioVentaProducto->idusuario = auth()->user()->id;
+            $precioVentaProducto->save();
+            } catch (\Throwable $th) {
+                return response()->json(['error' => $th->getMessage()],500);
+            }
+         
     }
 
     
@@ -555,29 +591,31 @@ class GesPreVenta2Controller extends Controller
      */
     public function update(Request $request, GesPre_Venta2 $gesPre_Venta2)
     {
-        if ($request->id != null  ){
-            $precioVentaProducto = GesPre_Venta2 :: firstWhere('id',$request->id);
+        try {
+            //$precioVentaProducto = GesPre_Venta2 :: firstWhere('id',$request->id);
+            $precioVentaProducto = GesPre_Venta2::where('codigo', $request->codigo)
+            ->where('id', $request->id)
+            ->first();
+            // $precioVentaProducto->codigo=$request->codigo;
+           // $precioVentaProducto->id_table_ingreso_tienda_almacen = $request->id_table_ingreso_tienda_almacen;
+          //  $precioVentaProducto->tienda = $request->tienda;
+          //  $precioVentaProducto->almacen = $request->almacen;
+            $precioVentaProducto->precio_lista_gespreventa = $request->precio_lista_gespreventa;
+            $precioVentaProducto->precio_venta_gespreventa = $request->precio_venta_gespreventa;
+            $precioVentaProducto->cantidad_envase_gespreventa = $request->cantidad_envase_gespreventa;
+            //$precioVentaProducto->cantidad_envase_gespreventa = preg_match('/[a-z]/',strtolower($request->cantidad_envase_gespreventa)) == 1 ? 1 :$request->cantidad_envase_gespreventa;
+            $precioVentaProducto->costo_compra_gespreventa = $request->costo_compra_gespreventa;
+            $precioVentaProducto->margen_20p_gespreventa = $request->margen_20p_gespreventa;
+            $precioVentaProducto->margen_30p_gespreventa = $request->margen_30p_gespreventa;
+            $precioVentaProducto->utilidad_bruta_gespreventa = $request->utilidad_bruta_gespreventa; 
+            $precioVentaProducto->utilidad_neto_gespreventa = $request->utilidad_neto_gespreventa;
+            $precioVentaProducto->listo_venta = 1;
+            $precioVentaProducto->idusuario = auth()->user()->id;
+            $precioVentaProducto->save();
+        } catch (\Throwable $th) {
+            return response()->json(['error' => $th->getMessage()],500);
         }
-        else {
-            $precioVentaProducto = new GesPre_Venta2();
-        }
-                
-        $precioVentaProducto->codigo=$request->codigo;
-        $precioVentaProducto->id_table_ingreso_tienda_almacen = $request->id_table_ingreso_tienda_almacen;
-        $precioVentaProducto->tienda = $request->tienda;
-        $precioVentaProducto->almacen = $request->almacen;
-        $precioVentaProducto->precio_lista_gespreventa = $request->precio_lista_gespreventa;
-        $precioVentaProducto->precio_venta_gespreventa = $request->precio_venta_gespreventa;
-        $precioVentaProducto->cantidad_envase_gespreventa = $request->cantidad_envase_gespreventa;
-        //$precioVentaProducto->cantidad_envase_gespreventa = preg_match('/[a-z]/',strtolower($request->cantidad_envase_gespreventa)) == 1 ? 1 :$request->cantidad_envase_gespreventa;
-        $precioVentaProducto->costo_compra_gespreventa = $request->costo_compra_gespreventa;
-        $precioVentaProducto->margen_20p_gespreventa = $request->margen_20p_gespreventa;
-        $precioVentaProducto->margen_30p_gespreventa = $request->margen_30p_gespreventa;
-        $precioVentaProducto->utilidad_bruta_gespreventa = $request->utilidad_bruta_gespreventa; 
-        $precioVentaProducto->utilidad_neto_gespreventa = $request->utilidad_neto_gespreventa;
-        $precioVentaProducto->listo_venta = 1;
-        $precioVentaProducto->idusuario = auth()->user()->id;
-        $precioVentaProducto->save();
+        
         
        // return $request;
     }

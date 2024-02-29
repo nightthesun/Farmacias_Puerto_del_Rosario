@@ -491,9 +491,187 @@ methods: {
             me.pagination.current_page = page;
             me.listarProductosTiendaAlmacen(page);
         },
-    actualizarRegistrarPrecioVenta() {
+   
+    listarProductosTiendaAlmacen(page) {
+        let me=this;
+                var url='/gestionprecioventa2?page='+page+'&buscar='+me.buscar+'&buscarAlmTdn='+me.tiendaalmacenselected;
+             
+                axios.get(url)
+                .then(function(response){
+                    var respuesta = response.data;
+                    me.pagination = respuesta.pagination;
+                    me.arrayProductosAlterado = respuesta.queryCombinacion.data;
+                })
+                .catch(function(error){
+                    error401(error);
+                });
+        
+    },  
+    listarAlmTienda() {
             let me = this;
-            axios.post('/gestionprecioventa2/actualizar-registrar', {
+            var url = "/gestionprecioventa2/listarSucursal";
+            axios
+                .get(url)
+                .then(function (response) {
+                    var respuesta = response.data;
+                    me.arrayAlmacenesTiendas = respuesta;                 
+                })
+                .catch(function (error) {
+                    error401(error);
+                    console.log(error);
+                });
+        },
+     
+    abrirModal(accion, data = []) {
+            let me = this;
+            console.log("---");
+            console.log(data);
+            switch (accion) {
+               
+                case 'editarPrecioUtilidadProducto':
+                    {
+                        let me = this;
+                        me.codigo=data.cod;
+                       
+                        me.id_gespreventa=data.gpv_id;
+              
+                        me.tituloModal = 'Modificar Utilidad del Producto2';
+                        me.caracteristicasProductoModificar=data.leyenda;
+                        me.cantidadIngresoAlmacen=data.cantidad_ingreso;
+                        me.p_lista=data.preciolistaEnvase;
+                        me.c_disp=data.cantidadEnvase;
+                        me.p_compra=data.costocompraEnvase;
+                        me.p_venta=data.precioventaEnvase;
+                        if(data.listo_venta===null){
+                            me.margen_20=0;
+                        me.margen_30=0;
+                        me.utilidad_bruta=0;
+                        me.utilidad_neta=0;
+                        }else{
+                            me.margen_20=data.margen_20p_gespreventa;
+                        me.margen_30=data.margen_30p_gespreventa;
+                        me.utilidad_bruta=data.utilidad_bruta_gespreventa;
+                        me.utilidad_neta=data.utilidad_neto_gespreventa;
+                       
+                        }
+                        
+                        me.pcc=data.preciolistaEnvase;
+                        me.dpc1=0;
+                        me.dpc2=0;
+                        me.dpc3=0;
+                        me.dbsc=0;
+                        me.pcdc=data.preciolistaEnvase;
+                        me.puc=data.costocompraEnvase;
+                        me.pucc=0;                 
+                        me.l20pc=0;
+                        me.l30pc=0;
+                        me.upc=0;
+                        me.pvc=0;   
+                        me.id_ingreso=data.id;    
+                        me.alm_tda=data.cod.substring(0, (data.cod).length - 3); 
+                        if(me.alm_tda==='TDA'){
+                            me.tienda_gespreventa=1;
+                            me.almacen_gespreventa=0;
+                        } else {
+                            if (me.alm_tda==='ALM') {
+                            me.almacen_gespreventa=1; 
+                            me.tienda_gespreventa=0; 
+                            }else{
+                                console.log("error");
+                            }
+                        }   
+                             
+                        me.classModal.openModal('calculadoraModal');
+                        
+                        break;
+                    }
+
+            }
+
+        },
+        cerrarModal(accion) {
+            let me = this;
+            me.caracteristicasProductoModificar='';
+            me.cantidadIngresoAlmacen='';
+            me.p_lista='';
+            me.c_disp='';
+            me.p_compra='';
+            me.p_venta='';
+            me.id_gespreventa='';
+            me.margen_20=0;
+                        me.margen_30=0;
+                        me.utilidad_bruta=0;
+                        me.utilidad_neta=0;
+                        me.pcc=0;
+                        me.dpc1=0;
+                        me.dpc2=0;
+                        me.dpc3=0;
+                        me.dbsc=0;
+                        me.pcdc=0;
+                        me.puc=0;
+                        me.pucc=0;                 
+                        me.l20pc=0;
+                        me.l30pc=0;
+                        me.upc=0;
+                        me.pvc=0;  
+            me.classModal.closeModal(accion);        
+        },
+        selectAll: function (event) {
+            setTimeout(function () {
+                event.target.select()
+            }, 0)
+        },
+        actualizarRegistrarPrecioVenta() {
+            let me = this;
+            console.log("id_gespreventa:"+me.id_gespreventa+"codigo"+me.codigo);
+            if (me.id_gespreventa==undefined || me.id_gespreventa==null ) {
+                axios.post('/gestionprecioventa2/registrar', {
+               // 'id':me.id_gespreventa,
+                'codigo':me.codigo,                
+                'id_table_ingreso_tienda_almacen':me.id_ingreso,   
+                'tienda':me.tienda_gespreventa,
+                'almacen':me.almacen_gespreventa,                
+                'precio_lista_gespreventa':me.p_lista,
+                'precio_venta_gespreventa':me.p_venta,
+                'cantidad_envase_gespreventa':me.c_disp,
+                'costo_compra_gespreventa':me.p_compra,
+                'margen_20p_gespreventa':me.margen_20,
+                'margen_30p_gespreventa':me.margen_30,
+                'utilidad_bruta_gespreventa':me.utilidad_bruta,
+                'utilidad_neto_gespreventa':me.utilidad_neta,
+            }).then(function (response) {
+                me.cerrarModal('calculadoraModal');
+                Swal.fire(
+                    'Almacen Registrado exitosamente',
+                    'Haga click en Ok',
+                    'success'
+                );
+                me.listarProductosTiendaAlmacen();
+                
+            })
+            
+            //.catch(function (error) {
+            //    error401(error);
+            //    console.log(error);
+           // });
+           .catch(function (error) {                  
+                if (error.response.status === 500) {
+                    me.errorMsg = error.response.data.error; // Asigna el mensaje de error a la variable errorMsg
+                Swal.fire(
+                    "Error",
+                    "500 (Internal Server Error)"+me.errorMsg, // Muestra el mensaje de error en el alert
+                    "error"
+                );
+                }else{
+                    Swal.fire(
+                    "Error",
+                    ""+error, // Muestra el mensaje de error en el alert
+                    "error"
+                );  
+                }              
+            });
+            }else{
+                axios.post('/gestionprecioventa2/actualizar', {
                 'id':me.id_gespreventa,
                 'codigo':me.codigo,                
                 'id_table_ingreso_tienda_almacen':me.id_ingreso,   
@@ -541,132 +719,9 @@ methods: {
 
                
             });
-        },
-    listarProductosTiendaAlmacen(page) {
-        let me=this;
-                var url='/gestionprecioventa2?page='+page+'&buscar='+me.buscar+'&buscarAlmTdn='+me.tiendaalmacenselected;
-             
-                axios.get(url)
-                .then(function(response){
-                    var respuesta = response.data;
-                    me.pagination = respuesta.pagination;
-                    me.arrayProductosAlterado = respuesta.queryCombinacion.data;
-                })
-                .catch(function(error){
-                    error401(error);
-                });
-        
-    },  
-    listarAlmTienda() {
-            let me = this;
-            var url = "/gestionprecioventa2/listarSucursal";
-            axios
-                .get(url)
-                .then(function (response) {
-                    var respuesta = response.data;
-                    me.arrayAlmacenesTiendas = respuesta;                 
-                })
-                .catch(function (error) {
-                    error401(error);
-                    console.log(error);
-                });
-        },
-     
-    abrirModal(accion, data = []) {
-            let me = this;
-            
-            console.log(data);
-            switch (accion) {
-               
-                case 'editarPrecioUtilidadProducto':
-                    {
-                        let me = this;
-                        me.codigo=data.cod;
-                        me.id_gespreventa=data.gpv_id;
-                        me.tituloModal = 'Modificar Utilidad del Producto2';
-                        me.caracteristicasProductoModificar=data.leyenda;
-                        me.cantidadIngresoAlmacen=data.cantidad_ingreso;
-                        me.p_lista=data.preciolistaEnvase;
-                        me.c_disp=data.cantidadEnvase;
-                        me.p_compra=data.costocompraEnvase;
-                        me.p_venta=data.precioventaEnvase;
-                        if(data.listo_venta===1){
-                        me.margen_20=data.margen_20p_gespreventa;
-                        me.margen_30=data.margen_30p_gespreventa;
-                        me.utilidad_bruta=data.utilidad_bruta_gespreventa;
-                        me.utilidad_neta=data.utilidad_neto_gespreventa;
-                        }else{
-                        me.margen_20=0;
-                        me.margen_30=0;
-                        me.utilidad_bruta=0;
-                        me.utilidad_neta=0;
-                        }
-                        
-                        me.pcc=data.preciolistaEnvase;
-                        me.dpc1=0;
-                        me.dpc2=0;
-                        me.dpc3=0;
-                        me.dbsc=0;
-                        me.pcdc=data.preciolistaEnvase;
-                        me.puc=data.costocompraEnvase;
-                        me.pucc=0;                 
-                        me.l20pc=0;
-                        me.l30pc=0;
-                        me.upc=0;
-                        me.pvc=0;   
-                        me.id_ingreso=data.id_ingreso;    
-                        me.alm_tda=data.cod.substring(0, (data.cod).length - 3); 
-                        if(me.alm_tda==='TDA'){
-                            me.tienda_gespreventa=1;
-                            me.almacen_gespreventa=0;
-                        } else {
-                            if (me.alm_tda==='ALM') {
-                            me.almacen_gespreventa=1; 
-                            me.tienda_gespreventa=0; 
-                            }else{
-                                console.log("error");
-                            }
-                        }   
-                             
-                        me.classModal.openModal('calculadoraModal');
-                        
-                        break;
-                    }
-
             }
-
-        },
-        cerrarModal(accion) {
-            let me = this;
-            me.caracteristicasProductoModificar='';
-            me.cantidadIngresoAlmacen='';
-            me.p_lista='';
-            me.c_disp='';
-            me.p_compra='';
-            me.p_venta='';
-
-            me.margen_20=0;
-                        me.margen_30=0;
-                        me.utilidad_bruta=0;
-                        me.utilidad_neta=0;
-                        me.pcc=0;
-                        me.dpc1=0;
-                        me.dpc2=0;
-                        me.dpc3=0;
-                        me.dbsc=0;
-                        me.pcdc=0;
-                        me.puc=0;
-                        me.pucc=0;                 
-                        me.l20pc=0;
-                        me.l30pc=0;
-                        me.upc=0;
-                        me.pvc=0;  
-            me.classModal.closeModal(accion);        
-        },
-        selectAll: function (event) {
-            setTimeout(function () {
-                event.target.select()
-            }, 0)
+            
+            
         },
         utilidad() {
 
