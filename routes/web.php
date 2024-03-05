@@ -428,6 +428,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::put('/traspaso/activar', [InvTraspasoController::class, 'activar']);
     Route::get('/traspaso/retornarProductosIngreso', [InvTraspasoController::class, 'retornarProductosIngreso']);
     Route::put('/traspaso/actualizar', [InvTraspasoController::class, 'update']);
+    Route::put('/traspaso/activarListo', [InvTraspasoController::class, 'activarListo']);
+    Route::put('/traspaso/desactivarListo', [InvTraspasoController::class, 'desactivarListo']);
 
     Route::get('/recepcion', [InvRecepcionController::class, 'index']);
     Route::get('/recepcion/listarSucursal', [InvRecepcionController::class, 'listarSucursal']);   

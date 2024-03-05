@@ -735,7 +735,7 @@
                     <div class="modal-body">
                         <form  enctype="multipart/form-data" class="form-horizontal">
                             <div class="form-group row">
-                                <strong class="col-md-3 form-control-label" for="text-input">Producto: {{productoX_name}}</strong>
+                                <strong class="col-md-9 form-control-label" for="text-input">Producto: {{productoX_name}}</strong>
                             
                                
                             </div>

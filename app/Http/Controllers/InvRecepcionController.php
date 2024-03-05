@@ -221,8 +221,14 @@ class InvRecepcionController extends Controller
      */
     public function store(Request $request)
     {
+        $primerGuardadoExitoso = false;
+        $segundoGuardadoExitoso = false;
+        $terceroGuardadoExitoso = false;
+        $cuartoGuardadoExitoso =false;
         try {
-           
+        // Iniciar una transacción
+        DB::beginTransaction();
+        $tipo_tienda_almacen='';   
        $cod2 = $request->input('cod_2');
        
        $id_prod_producto = $request->input('id_prod_producto');    
@@ -240,10 +246,12 @@ class InvRecepcionController extends Controller
         if($resultadosAlmacen->count() > 0){
             $nuevoProducto = new Alm_IngresoProducto();
             $nuevoProducto->idalmacen = $request->id_destino;   
+            $tipo_tienda_almacen='ALM';
            }
             if($resultadosTienda->count() > 0){
                 $nuevoProducto = new Tda_IngresoProducto();
                 $nuevoProducto->idtienda = $request->id_destino;
+                $tipo_tienda_almacen='TDA';
             }
        }else{
         dd("error");
@@ -271,43 +279,83 @@ class InvRecepcionController extends Controller
         $nuevoProducto->registro_sanitario = $request->registro_sanitario;
         $nuevoProducto->id_usuario_registra=auth()->user()->id;
         $nuevoProducto->save();
-      
-        $ajusteNegativo=new Inv_AjustePositivo();
-        $ajusteNegativo->id_usuario = auth()->user()->id;
-        $ajusteNegativo->usuario = auth()->user()->name;
-        $ajusteNegativo->id_usuario_registra = auth()->user()->id;
-        $ajusteNegativo->id_tipo=$request->id_tipoentrada;
-        $ajusteNegativo->id_producto_linea=$nuevoProducto->id;
-        $ajusteNegativo->codigo=$request->cod_prod;
-        $ajusteNegativo->linea=$request->linea_name;
-        $ajusteNegativo->producto=$request->name_prod;
-        $ajusteNegativo->cantidad=$request->cantidad;
-        $ajusteNegativo->stock=$request->cantidad;
-        $ajusteNegativo->fecha_ingreso=$nuevoProducto->created_at;
-        $ajusteNegativo->fecha_vencimiento=$request->fecha_vencimiento;
-        $ajusteNegativo->lote=$request->lote;
-        $ajusteNegativo->activo=1;
-        $ajusteNegativo->id_sucursal=$request->id_sucursal;
-        $ajusteNegativo->cod=$cod2;
-        $ajusteNegativo->id_ingreso=$nuevoProducto->id;
-        $ajusteNegativo->leyenda = $request->leyenda;
-        $ajusteNegativo->descripcion = $request->numero_traspaso;    
-        $ajusteNegativo->save();
+        $primerGuardadoExitoso = true;  
+        
+
+        $ajustePositivo=new Inv_AjustePositivo();
+        $ajustePositivo->id_usuario = auth()->user()->id;
+        $ajustePositivo->usuario = auth()->user()->name;
+        $ajustePositivo->id_usuario_registra = auth()->user()->id;
+        $ajustePositivo->id_tipo=$request->id_tipoentrada;
+        $ajustePositivo->id_producto_linea=$nuevoProducto->id;
+        $ajustePositivo->codigo=$request->cod_prod;
+        $ajustePositivo->linea=$request->linea_name;
+        $ajustePositivo->producto=$request->name_prod;
+        $ajustePositivo->cantidad=$request->cantidad;
+        $ajustePositivo->stock=$request->cantidad;
+        $ajustePositivo->fecha_ingreso=$nuevoProducto->created_at;
+        $ajustePositivo->fecha_vencimiento=$request->fecha_vencimiento;
+        $ajustePositivo->lote=$request->lote;
+        $ajustePositivo->activo=1;
+        $ajustePositivo->id_sucursal=$request->id_sucursal;
+        $ajustePositivo->cod=$cod2;
+        $ajustePositivo->id_ingreso=$nuevoProducto->id;
+        $ajustePositivo->leyenda = $request->leyenda;
+        $ajustePositivo->descripcion = $request->numero_traspaso;    
+        $ajustePositivo->save();
+        $segundoGuardadoExitoso=true;
        // $update = Inv_Traspaso::find($request->id_traspaso);
         $update->procesado=2;//0=pendiente,1=en proceso,2=procesado3=anulado
-       $update->save();        
+       $update->save();   
+       $terceroGuardadoExitoso=true;     
         $recepcion=new Inv_Recepcion();
         $recepcion->id_traslado=$request->id_traslado;
         $recepcion->observacion=$request->observacion;        
         $recepcion->id_user=auth()->user()->id;
         $recepcion->id_usuario_registra=auth()->user()->id;
         $recepcion->save();
+        $cuartoGuardadoExitoso=true;    
+        $nuevoProductoID = $nuevoProducto->id;
+        $datos = [
+            'id_tienda_almacen' => $request->id_destino,              
+            'id_ingreso' => $nuevoProductoID,
+            'tipo' => $tipo_tienda_almacen,               
+        ];
+    
+DB::table('pivot__modulo_tienda_almacens')->insert($datos);
         
+    // Si llegamos aquí sin errores, confirmamos la transacción
+    DB::commit();
          }
-        } catch (\Throwable   $e) {
-            DB::rollBack();
-            dd("error");
-            return redirect()->back()->with('error', 'Ha ocurrido un error durante el proceso. Por favor, inténtalo de nuevo.');
+        } catch (\Throwable $th) {
+           
+            if ($primerGuardadoExitoso) {
+       
+                // Eliminar el producto guardado
+                $nuevoProducto->delete();
+            }
+            if ($segundoGuardadoExitoso) {
+   
+                // Eliminar el producto guardado
+                $ajustePositivo->delete();
+            }
+            if ($terceroGuardadoExitoso) {
+        
+                // Eliminar el producto guardado
+                $update->delete();
+            }
+            if ($cuartoGuardadoExitoso) {
+          
+                // Eliminar el producto guardado
+                $recepcion->delete();
+            }
+            if ($primerGuardadoExitoso ==true||$segundoGuardadoExitoso ==true
+            ||$terceroGuardadoExitoso ==true||$cuartoGuardadoExitoso ==true) {
+                DB::rollback();
+              
+            }
+            
+            return response()->json(['error' => $th->getMessage()],500);
         }
       
       
