@@ -101,46 +101,40 @@
                         <tbody v-if="sucursalSeleccionada != 0">
                             <tr v-for="AjusteNegativos in arrayAjusteNegativos" :key="AjusteNegativos.id" >
                                 <td>
-                                    <div v-if="AjusteNegativos.estado_procesado == 3 || AjusteNegativos.estado_procesado == 1 || AjusteNegativos.estado_procesado == 2 ">
-                                       <button type="button" class="btn btn-light  btn-sm">
+                                    <div v-if="AjusteNegativos.estado_procesado == 3 || AjusteNegativos.estado_procesado == 1 || AjusteNegativos.estado_procesado == 2" >
+                                       <button type="button" class="btn btn-light  btn-sm" >
                                         <i class="icon-pencil"></i>
                                         </button>
-                                    &nbsp;
-                                    <button
-                                        v-if="AjusteNegativos.activo == 1"
-                                        type="button"
-                                        class="btn btn-light  btn-sm"
-                                      
-                                    >
+                            
+                                    <button v-if="AjusteNegativos.activo == 1"
+                                        type="button" class="btn btn-light  btn-sm" >
                                         <i class="fa fa-hand-paper-o"></i>
-                                    </button>
-                                    
-                                    <button
-                                        v-else
-                                        type="button"
-                                        class="btn btn-light  btn-sm"
-                                     
-                                    >
+                                    </button>                                    
+                                    <button v-else
+                                        type="button" class="btn btn-light  btn-sm" >
                                         <i class="icon-check"></i>
                                     </button>
+                           
                                     <!----------------->
-                                    &nbsp;
+                                    
                                     <button v-if="AjusteNegativos.estado_procesado == 4"
-                                        type="button" class="btn btn-light  btn-sm">
+                                        type="button" class="btn btn-light  btn-sm" >
                                         <i class="fa fa-square-o" aria-hidden="true"></i>
                                     </button>
                                     
                                     <button v-else
-                                        type="button" class="btn btn-light  btn-sm">
+                                        type="button" class="btn btn-light  btn-sm" >
                                         <i class="fa fa-check-square-o" aria-hidden="true"></i>
                                     </button>
 
                                     </div>
                                     <div v-else>
+
                                         <button v-if="AjusteNegativos.cantidad_old != null"
                                         type="button" class="btn btn-light btn-sm">
                                         <i class="icon-pencil"></i>
                                     </button>
+                            
                                     <button v-if="AjusteNegativos.cantidad_old == null"
                                         type="button"
                                         class="btn btn-warning btn-sm"
@@ -148,23 +142,20 @@
                                     >
                                         <i class="icon-pencil"></i>
                                     </button>
-                                    &nbsp;
+                                 
                                     <button
                                         v-if="AjusteNegativos.activo == 1"
                                         type="button"
                                         class="btn btn-danger btn-sm"
-                                        @click="
-                                            eliminarAjusteNegativos(
-                                                AjusteNegativos.id,
-                                            )
-                                        "
-                                    >
+                                    
+                                        @click="eliminarAjusteNegativos(AjusteNegativos.id)">
                                         <i class="fa fa-hand-paper-o"></i>
                                     </button>
                                     <button
                                         v-else
                                         type="button"
                                         class="btn btn-info btn-sm"
+                                      
                                         @click="
                                             activarAjusteNegativos(
                                                 AjusteNegativos.id,
@@ -174,18 +165,19 @@
                                         <i class="icon-check"></i>
                                     </button>
                                     <!----------------->
-                                    &nbsp;
+                                    <br>
                                     <button v-if="AjusteNegativos.estado_procesado == 4"
-                                        type="button" class="btn btn-danger  btn-sm"
-                                        @click="desactivarListo(AjusteNegativos.id)">
-                                        <i class="fa fa-square-o" aria-hidden="true"></i>
+                                        type="button" class="btn btn-secondary btn-sm" 
+                                        @click="desactivarListo(AjusteNegativos.id)"
+                                        style=" font-size: 15px;color: aliceblue;">
+                                        <i class="fa fa-check-square-o" aria-hidden="true"></i>
                                     </button>
                                     
                                     <button v-else
-                                        type="button" class="btn btn-primary  btn-sm"
-                                        @click="activarListo(AjusteNegativos.id)">
-                                     
-                                        <i class="fa fa-check-square-o" aria-hidden="true"></i>
+                                        type="button" class="btn btn-secondary btn-sm" 
+                                        @click="activarListo(AjusteNegativos.id)"
+                                        style=" font-size: 15px; color: aliceblue; width:32px;" >                                        
+                                        <i class="fa fa-square-o" aria-hidden="true"></i>
                                     </button>
                                     </div>     
                                     
