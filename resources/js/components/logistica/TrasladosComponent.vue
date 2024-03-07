@@ -38,14 +38,7 @@
                                         v-for="sucursal in arrayAlmTienda"
                                         :key="sucursal.id"
                                         :value="sucursal.codigo"
-                                        v-text="
-                                            sucursal.codigoS +
-                                            ' -> ' +
-                                            sucursal.codigo+
-                                            ' ' +
-                                            sucursal.razon_social
-                                            +' ('+sucursal.veces_repetido+')'
-                                        "
+                                        v-html="`${sucursal.codigoS} -> ${sucursal.codigo} ${sucursal.razon_social} (<span style='background-color: yellow; border-radius: 50%; padding: 2px 6px;'>${sucursal.veces_repetido_l}</span>)`"
                                     ></option>
                                 </select>
                             </div>

@@ -259,41 +259,45 @@ class LogTrasladoController extends Controller
     public function listarSucursal(){
        
    
-  $resultado  = DB::table(DB::raw('(SELECT
-  tda__tiendas.id AS id_tienda,
-  NULL AS id_almacen,
-  tda__tiendas.codigo,
-  adm__sucursals.razon_social,
-  adm__sucursals.razon_social AS sucursal,
-  adm__sucursals.cod AS codigoS,
-  "Tienda" AS tipoCodigo,
-  tda__tiendas.id AS id_tienda_almacen
-FROM
-  tda__tiendas
-JOIN adm__sucursals ON tda__tiendas.idsucursal = adm__sucursals.id
+        $resultado = DB::table(DB::raw('(SELECT
+        tda__tiendas.id AS id_tienda,
+        NULL AS id_almacen,
+        tda__tiendas.codigo,
+        adm__sucursals.razon_social,
+        adm__sucursals.razon_social AS sucursal,
+        adm__sucursals.cod AS codigoS,
+        "Tienda" AS tipoCodigo,
+        tda__tiendas.id AS id_tienda_almacen
+      FROM
+        tda__tiendas
+      JOIN adm__sucursals ON tda__tiendas.idsucursal = adm__sucursals.id
+      
+      UNION ALL
+      
+      SELECT
+        NULL AS id_tienda,
+        aa.id AS id_almacen,
+        aa.codigo,
+        aa.nombre_almacen AS razon_social,
+        ass.razon_social AS sucursal,
+        ass.cod AS codigoS,
+        "Almacen" AS tipoCodigo,
+        aa.id AS id_tienda_almacen
+      FROM
+        alm__almacens AS aa
+      JOIN adm__sucursals AS ass ON ass.id = aa.idsucursal) AS result'))
+      ->leftJoin(DB::raw('(SELECT cod_1, COUNT(*) AS veces_repetido
+      FROM inv__traspasos
+      WHERE procesado = 0
+      GROUP BY cod_1) AS traspasos'), 'result.codigo', '=', 'traspasos.cod_1')
+      ->leftJoin(DB::raw('(SELECT cod_1, COUNT(*) AS veces_repetido_L
+      FROM inv__traspasos
+      WHERE procesado = 4
+      GROUP BY cod_1) AS traspasos_2'), 'result.codigo', '=', 'traspasos_2.cod_1')
+      ->select('result.*', DB::raw('IFNULL(traspasos.veces_repetido, 0) AS veces_repetido'),
+                           DB::raw('IFNULL(traspasos_2.veces_repetido_L, 0) AS veces_repetido_l') )
+      ->get();
 
-UNION ALL
-
-SELECT
-  NULL AS id_tienda,
-  aa.id AS id_almacen,
-  aa.codigo,
-  aa.nombre_almacen AS razon_social,
-  ass.razon_social AS sucursal,
-  ass.cod AS codigoS,
-  "Almacen" AS tipoCodigo,
-  aa.id AS id_tienda_almacen
-FROM
-  alm__almacens AS aa
-JOIN adm__sucursals AS ass ON ass.id = aa.idsucursal) AS result'))
-->leftJoin(DB::raw('(SELECT cod_1, COUNT(*) AS veces_repetido
-FROM inv__traspasos
-WHERE procesado = 0
-GROUP BY cod_1) AS traspasos'), 'result.codigo', '=', 'traspasos.cod_1')
-->select('result.*', DB::raw('IFNULL(traspasos.veces_repetido, 0) AS veces_repetido'))
-->get();
-
- 
          $jsonSucrusal = [];
  
  foreach ($resultado as $key=>$sucursal) {
