@@ -248,7 +248,7 @@
           
                                   <div class="form-group col-sm-4" v-if="selectTraspaso!='' &&estado==1">
                                     <strong>Estado: 
-                                        <span  style="color: green;">Listo para procesar</span>
+                                        <span  style="color: green;">Listo para concluir</span>
                                      
                                     </strong>   
                                   </div>
@@ -274,6 +274,7 @@
                                         <textarea id="" name="" v-model="observacion" class="form-control" placeholder="Debe ingresar una observación"></textarea>
                                         </div>
                                   </div> 
+                                    <!---
                                   <div class="row justify-content-center" v-if="selectTraspaso!='' &&estado==1  &&tipoAccion==1">
                                     <input type="checkbox" id="checkbox" v-model="checked" hidden/>
                                     <label for="checkbox" v-if="checked === false" style="background-color: rgb(51, 118, 145); color: white; border: 1px solid #ccc; padding: 8px; border-radius: 4px;">
@@ -283,7 +284,8 @@
                                      <strong>Deshacer</strong>
                                      </label>
                                   </div>  
-                                  <div class="row justify-content-center" v-if="selectTraspaso!='' &&tipoAccion==2">
+                                
+                                    <div class="row justify-content-center" v-if="selectTraspaso!='' &&tipoAccion==2">
                                     <input type="checkbox" id="checkbox" v-model="checked" hidden/>
                                     <label for="checkbox" v-if="checked === false" style="background-color: rgb(51, 118, 145); color: white; border: 1px solid #ccc; padding: 8px; border-radius: 4px;">
                                      <strong>Aceptar</strong>
@@ -292,6 +294,8 @@
                                      <strong>Deshacer</strong>
                                      </label>
                                   </div>  
+                                    --->
+                                  
                               </div>
                         </form>
                     </div>
@@ -504,8 +508,7 @@ export default {
            if (
           
                me.selectTraspaso != "" &&
-               me.observacion != "" &&
-               me.checked!=false
+               me.observacion != ""
            )
              return true;
            else return false;

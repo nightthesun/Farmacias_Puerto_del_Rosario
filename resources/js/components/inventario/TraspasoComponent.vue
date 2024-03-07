@@ -210,7 +210,7 @@
                                         <span class="badge badge-warning">Pendiente</span>
                                     </div>
                                     <div v-if="AjusteNegativos.estado_procesado == 1">
-                                        <span class="badge badge-primary">En Proceso</span>
+                                        <span class="badge badge-primary">En Camino</span>
                                     </div>
                                     <div v-if="AjusteNegativos.estado_procesado == 2">
                                         <span class="badge badge-success">concluido</span>

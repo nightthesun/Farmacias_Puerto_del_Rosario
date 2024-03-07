@@ -321,7 +321,6 @@ class LogTrasladoController extends Controller
      }
 
      public function listarTraspaso(Request $request){
-
               
         $query1 = DB::table('inv__traspasos as it')
         ->select('it.id as id', 'aa.id as id_almacen_tienda', 'it.id_prod_producto as id_prod_producto', 'pp.codigo as cod_prod', 'pp.nombre as name_prod',
@@ -334,7 +333,10 @@ class LogTrasladoController extends Controller
         ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
         ->join('prod__tipo_entradas as pte', 'pte.id', '=', 'it.id_tipoentrada')
         ->join('users as u', 'u.id', '=', 'it.user_id')
-        ->where('it.procesado', '=', 0)
+        ->where(function ($query) {
+            $query->where('it.procesado', '=', 0)
+                  ->orWhere('it.procesado', '=', 4);
+        })
         ->where('it.activo', '=', 1)
         ->where('it.id_tipoentrada', '=', 13)
         ->where('it.cod_1', '=', $request->codigo)
@@ -351,7 +353,10 @@ class LogTrasladoController extends Controller
         ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
         ->join('prod__tipo_entradas as pte', 'pte.id', '=', 'it.id_tipoentrada')
         ->join('users as u', 'u.id', '=', 'it.user_id')
-        ->where('it.procesado', '=', 0)
+        ->where(function ($query) {
+            $query->where('it.procesado', '=', 0)
+                  ->orWhere('it.procesado', '=', 4);
+        })
         ->where('it.activo', '=', 1)
         ->where('it.id_tipoentrada', '=', 13)
         ->where('it.cod_1', '=', $request->codigo)
@@ -407,7 +412,10 @@ class LogTrasladoController extends Controller
                 ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
                 ->join('prod__tipo_entradas as pte', 'pte.id', '=', 'it.id_tipoentrada')
                 ->join('users as u', 'u.id', '=', 'it.user_id')
-                ->where('it.procesado', '=', 0)
+                ->where(function ($query) {
+                    $query->where('it.procesado', '=', 0)
+                          ->orWhere('it.procesado', '=', 4);
+                })
                 ->where('it.id_tipoentrada', '=', 13)
                 ->where('it.activo', '=', 1)
                 ->whereRaw($sqls)
@@ -425,7 +433,10 @@ class LogTrasladoController extends Controller
                 ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
                 ->join('prod__tipo_entradas as pte', 'pte.id', '=', 'it.id_tipoentrada')
                 ->join('users as u', 'u.id', '=', 'it.user_id')
-                ->where('it.procesado', '=', 0)
+                ->where(function ($query) {
+                    $query->where('it.procesado', '=', 0)
+                          ->orWhere('it.procesado', '=', 4);
+                })
                 ->where('it.id_tipoentrada', '=', 13)
                 ->where('it.activo', '=', 1)
                 ->whereRaw($sqls)
@@ -447,7 +458,10 @@ class LogTrasladoController extends Controller
             ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
             ->join('prod__tipo_entradas as pte', 'pte.id', '=', 'it.id_tipoentrada')
             ->join('users as u', 'u.id', '=', 'it.user_id')
-            ->where('it.procesado', '=', 0)
+            ->where(function ($query) {
+                $query->where('it.procesado', '=', 0)
+                      ->orWhere('it.procesado', '=', 4);
+            })
             ->where('it.id_tipoentrada', '=', 13)
             ->where('it.activo', '=', 1)
             ->where('it.cod_1', '=', $request->codigo)
@@ -464,7 +478,10 @@ class LogTrasladoController extends Controller
             ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
             ->join('prod__tipo_entradas as pte', 'pte.id', '=', 'it.id_tipoentrada')
             ->join('users as u', 'u.id', '=', 'it.user_id')
-            ->where('it.procesado', '=', 0)
+            ->where(function ($query) {
+                $query->where('it.procesado', '=', 0)
+                      ->orWhere('it.procesado', '=', 4);
+            })
             ->where('it.id_tipoentrada', '=', 13)
             ->where('it.activo', '=', 1)
             ->where('it.cod_1', '=', $request->codigo)
