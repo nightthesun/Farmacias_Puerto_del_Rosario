@@ -28,28 +28,15 @@
            
                         <div class="col-md-6">
                             <div class="input-group">
-                                <select
-                                    class="form-control"
-                                    @change="listarTraslado(0)"
-                                    v-model="selectAlmTienda"
-                                >
+                                <select class="form-control" @change="listarTraslado(0)" v-model="selectAlmTienda" >
                                     <option value="0" disabled selected>Seleccionar...</option>
-                                    <option
-                                        v-for="sucursal in arrayAlmTienda"
-                                        :key="sucursal.id"
-                                        :value="sucursal.codigo"
-                                   
-                                        v-text="
-                                            sucursal.codigoS +
-                                            ' -> ' +
-                                            sucursal.codigo+
-                                            ' ' +
-                                            sucursal.razon_social
-                                            + ' P:('+sucursal.veces_repetido
-                                            + ') L:('+sucursal.veces_repetido_l+')'
-                                        "
-                                     
-                                    ></option>
+                                    <option v-for="sucursal in arrayAlmTienda"
+                                            :key="sucursal.id"
+                                            :value="sucursal.codigo" v-text="sucursal.codigoS +' -> '+sucursal.codigo+
+                                            ' ' + sucursal.razon_social
+                                            +' ('+sucursal.veces_repetido+')'
+                                            +' ('+sucursal.veces_repetido_l+')'">
+                                    </option>
                                 </select>
                             </div>
                         </div>
@@ -102,7 +89,9 @@
                         <tr v-for="tras in arrayTraslado" :key="tras.id"> 
                             <td>
                                 <button type="button" class="btn btn-warning btn-sm"
-                                        @click="abrirModal('actualizar',tras); listarVehiculo(cod_alm_tienda);listarTraspaso();
+                                        @click="abrirModal('actualizar',tras,
+                                            );
+                                            listarVehiculo(cod_alm_tienda);listarTraspaso();
                                         "
                                     >
                                         <i class="icon-pencil"></i>
@@ -193,7 +182,6 @@
                                         <span v-if="selectTraspaso == '0'" class="error">(*)</span>
                                     </label>
                                     <div class="col-md-7 input-group mb-3">
-                                       
                                         <select v-model="selectTraspaso" v-if="tipoAccion==1"
                                             class="form-control">
                                             <option v-bind:value="0" disabled>
@@ -217,28 +205,13 @@
                                         </button>  
                                         <div v-if="tipoAccion == 2">
                                             <strong>Nro:{{numero_traspaso}}|{{leyenda}}| Destino:{{destino}}|Cantidad:{{cantidad}}</strong>
-                                            
                                         </div>
                                       
                                     </div>
                                         <!-- debe ingresar los datos de para asignar datos del array-->
                                 </div>
-                                <div class="form-group row" v-if="selectTraspaso!='' && tipoAccion ==1"> 
-                                 <label class="col-md-3 form-control-label" >
-                                    Estado: </label>
-                                   <div class="col-md-7">
-                                    <div v-if="procesado==='0'">
-                                               Pendiente
-                                            </div>
-                                            <div v-else>
-                                                Listo
-                                            </div>
-                                                              
-                                   </div>
-                               </div>
+                              
                                 <div class="form-group row" v-if="selectTraspaso!=''"> 
-                                   
-                                     
                                     <label class="col-md-3 form-control-label" for="text-input">
                                     Persona a enviar:    
                                     <span v-if="selectUsuario == '0'" class="error">(*)</span>
@@ -267,8 +240,6 @@
                               
                                     </div>
                                 </div>
-
-                             
 
                                 <div class="form-group row" v-if="selectTraspaso!=''"> 
                                     <label class="col-md-3 form-control-label" for="text-input">
@@ -377,7 +348,6 @@
                                             <th scope="col">Nro Traspaso.</th>
                                             <th scope="col">Descripcion Prod.</th>
                                             <th scope="col">Cantidad.</th>
-                                            <th scope="col">Estado.</th>
                                        </tr>
                                     </thead>
                                     <tbody>  
@@ -385,10 +355,6 @@
                                         <td v-text="RetornarProductosIngreso.numero_traspaso"></td>
                                         <td v-text="RetornarProductosIngreso.leyenda"></td>
                                         <td v-text="RetornarProductosIngreso.cantidad"></td>
-                                        <td v-if="RetornarProductosIngreso.procesado === '0'" >Pendiente</td>
-                                        <td v-else  style="color: green;">Listo</td>
-                                         
-                                        
                                       </tr>
                                     </tbody>
                             </table>
@@ -452,7 +418,12 @@ export default {
             numero_traspaso:"",
             destino:"",
             leyenda:"",
-            procesado:"",                  
+
+           
+           
+           
+          
+                       
             
         };
     },
@@ -476,8 +447,7 @@ export default {
                 this.numero_traspaso=traspasO.numero_traspaso;            
                 this.leyenda=traspasO.leyenda;
                 this.destino=traspasO.destino; 
-                this.cantidad=traspasO.cantidad;   
-                this.procesado=traspasO.procesado;                              
+                this.cantidad=traspasO.cantidad;                                 
               }  
         } 
     },
@@ -647,8 +617,10 @@ export default {
                         'id_empleado': me.selectUsuario,
                         'id_vehiculo': me.selectVehiculo,
                        'time':me.estimacion, 
-                       'observacion':me.observacion,                     
-                        'activo': 1,                    
+                       'observacion':me.observacion,
+                     
+                        'activo': 1,
+                    
                      
                     }).then(function(response){
                         me.cerrarModal('registrar');
@@ -687,7 +659,9 @@ export default {
                 }).catch(function(error){
                     error401(error);
                     console.log(error);
-                });             
+                });
+
+                
 
             }
         }, 
@@ -838,7 +812,7 @@ export default {
                    me.destino="";   
                    me.numero_traspaso="";
                    me.id_traslado="";
-                     me.procesado="";   
+                        
                     me.classModal.openModal("registrar");
                     break;
                 }
@@ -857,10 +831,9 @@ export default {
                    me.leyenda=data.leyenda;
                    me.destino=data.destino;  
                    me.id_traslado=data.id; 
-                   me.numero_traspaso=data.numero_traspaso;  
-                            
+                   me.numero_traspaso=data.numero_traspaso;           
                     me.classModal.openModal("registrar");
-                
+
                     break;
                 }
                 case 'bucarProductoIngreso':
@@ -892,13 +865,11 @@ export default {
                    me.destino="";   
                    me.numero_traspaso="";
                    me.id_traslado="";
-                   me.procesado="";
                     setTimeout(me.tiempo, 200);              
             } else {
                 me.classModal.closeModal(accion);
                 me.tipoEvento=1;
                 me.selectTraspaso=0;
-                me.procesado="";
                 me.classModal.openModal("registrar");
             }
         },

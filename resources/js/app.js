@@ -49,6 +49,7 @@ createApp ({
     .component('categoria-component', require('./components/productos/CategoriaComponent.vue').default)
     .component('tipo-entrada-component', require('./components/productos/TipoEntradaComponent.vue').default)
     .component('lista-component', require('./components/productos/ListaComponent.vue').default)
+    
     //Almacen
     .component('codificacion-component', require('./components/almacenes/CodificacionComponent.vue').default)
     .component('almacen-component', require('./components/almacenes/AlmacenComponent.vue').default)
