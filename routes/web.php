@@ -50,6 +50,7 @@ use App\Http\Controllers\LogTrasladoController;
 use App\Http\Controllers\LogVehiculoController;
 use App\Http\Controllers\GesPreVenta2Controller;
 use App\Http\Controllers\ProdListaController;
+use App\Http\Controllers\ProdRegistroPreXListController;
 use App\Models\Alm_IngresoProducto;
 use App\Models\Tda_Tienda;
 
@@ -304,8 +305,12 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/producto/getProductosTiendaEnvase', [ProdProductoController::class, 'getProductosTiendaEnvase']);
     Route::get('/producto/selectproductoperecedero', [ProdProductoController::class, 'selectProductoPerecedero']);
 
-    Route::get('/producto/listarSucursal', [ProdListaController::class, 'listarSucursal']); 
-    Route::get('/producto/listarProducto', [ProdListaController::class, 'listarProducto']);  
+   //------------------------------lista de productos 
+   Route::get('/lista/listarSucursal', [ProdListaController::class, 'listarSucursal']); 
+   Route::post('/lista/registrar', [ProdListaController::class, 'store']);
+    Route::get('/producto/listarSucursal', [ProdRegistroPreXListController::class, 'listarSucursal']); 
+    Route::get('/producto/listarProducto', [ProdRegistroPreXListController::class, 'listarProducto']);  
+    //------------------------fin de lista de prodcutos
 
     Route::get('/dispenser', [ProdDispenserController::class, 'index']);
     Route::post('/dispenser/registrar', [ProdDispenserController::class, 'store']);

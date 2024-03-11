@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Prod_Lista;
+use App\Models\Prod_Registro_pre_x_list;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class ProdListaController extends Controller
+class ProdRegistroPreXListController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -16,61 +16,30 @@ class ProdListaController extends Controller
         //
     }
 
-  
+    /**
+     * Show the form for creating a new resource.
+     */
+    public function create()
+    {
+        //
+    }
 
     /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
     {
-        try {
-            $maxcorrelativo = Prod_Lista::select(DB::raw('max(correlativo) as maximo'))
-            //->where('idlinea',$request->idlinea)
-            ->get()->toArray();
+        //
+    }
 
-$correlativo=$maxcorrelativo[0]['maximo'];
-if(is_null($correlativo))
-$correlativo=1;
-else
-$correlativo=$correlativo+1;
+  
 
-if($correlativo<10)
-$codigo='00'.$correlativo;
-else
-if($correlativo<100)
-$codigo='0'.$correlativo;
-else
-{
-//if($correlativo<1000)
-//    $codigo='0';
-//else
-$codigo=$correlativo;
-}
-
-
-$codigo="LIS".$codigo;
-
-           $nuevaLista=new Prod_Lista();
-           $nuevaLista->nombre_lista=$request->nombreLista;
-           
-           $nuevaLista->codigo=$codigo;
-           $nuevaLista->codigo_tda_alm=$request->codigo;
-           $nuevaLista->id_tda_alm=$request->lista_id_almacen_id_tienda;
-           $nuevaLista->correlativo = $correlativo;
-           $nuevaLista->id_usuario= auth()->user()->id;
-           $nuevaLista->id_usuario_registra= auth()->user()->id;
-           $nuevaLista->save();
-
-        } catch (\Throwable $th) {
-          
-            return response()->json(['error' => $th->getMessage()],500);
-        }
-    }  
+   
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Prod_Lista $prod_Lista)
+    public function update(Request $request, Prod_Registro_pre_x_list $prod_Registro_pre_x_list)
     {
         //
     }
@@ -207,5 +176,4 @@ $codigo="LIS".$codigo;
         return $resultado;
         
      } 
-  
 }

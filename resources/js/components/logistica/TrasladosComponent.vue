@@ -373,7 +373,7 @@
                                        </tr>
                                     </thead>
                                     <tbody>  
-                                        <tr v-for="RetornarProductosIngreso  in arrayRetornarTraspaso" :key="RetornarProductosIngreso.id" @click="abrirModal('registrar',RetornarProductosIngreso);listarRetornoTraspaso();" >
+                                        <tr v-for="RetornarProductosIngreso  in arrayRetornarTraspaso" :key="RetornarProductosIngreso.id" @click="abrirModal('registrar',RetornarProductosIngreso);listarTraspaso();" >
                                         <td v-text="RetornarProductosIngreso.numero_traspaso"></td>
                                         <td v-text="RetornarProductosIngreso.leyenda"></td>
                                         <div v-if="RetornarProductosIngreso.procesado==='0'">
