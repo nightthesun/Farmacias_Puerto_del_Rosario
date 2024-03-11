@@ -101,37 +101,40 @@
                         <tbody v-if="sucursalSeleccionada != 0">
                             <tr v-for="AjusteNegativos in arrayAjusteNegativos" :key="AjusteNegativos.id" >
                                 <td>
-                                    <div v-if="AjusteNegativos.estado_procesado == 3 || AjusteNegativos.estado_procesado == 1 || AjusteNegativos.estado_procesado == 2 ">
-                                       <button type="button" class="btn btn-light  btn-sm">
+                                    <div v-if="AjusteNegativos.estado_procesado == 3 || AjusteNegativos.estado_procesado == 1 || AjusteNegativos.estado_procesado == 2" >
+                                       <button type="button" class="btn btn-light  btn-sm" >
                                         <i class="icon-pencil"></i>
                                         </button>
-                                    &nbsp;
-                                    <button
-                                        v-if="AjusteNegativos.activo == 1"
-                                        type="button"
-                                        class="btn btn-light  btn-sm"
-                                      
-                                    >
+                            
+                                    <button v-if="AjusteNegativos.activo == 1"
+                                        type="button" class="btn btn-light  btn-sm" >
                                         <i class="fa fa-hand-paper-o"></i>
-                                    </button>
-                                    <button
-                                        v-else
-                                        type="button"
-                                        class="btn btn-light  btn-sm"
-                                     
-                                    >
+                                    </button>                                    
+                                    <button v-else
+                                        type="button" class="btn btn-light  btn-sm" >
                                         <i class="icon-check"></i>
+                                    </button>
+                           
+                                    <!----------------->
+                                    
+                                    <button v-if="AjusteNegativos.estado_procesado == 4"
+                                        type="button" class="btn btn-light  btn-sm" >
+                                        <i class="fa fa-square-o" aria-hidden="true"></i>
+                                    </button>
+                                    
+                                    <button v-else
+                                        type="button" class="btn btn-light  btn-sm" >
+                                        <i class="fa fa-check-square-o" aria-hidden="true"></i>
                                     </button>
 
                                     </div>
                                     <div v-else>
+
                                         <button v-if="AjusteNegativos.cantidad_old != null"
-                                        type="button"
-                                        class="btn btn-light btn-sm"
-                                                                     
-                                    >
+                                        type="button" class="btn btn-light btn-sm">
                                         <i class="icon-pencil"></i>
                                     </button>
+                            
                                     <button v-if="AjusteNegativos.cantidad_old == null"
                                         type="button"
                                         class="btn btn-warning btn-sm"
@@ -139,23 +142,20 @@
                                     >
                                         <i class="icon-pencil"></i>
                                     </button>
-                                    &nbsp;
+                                 
                                     <button
                                         v-if="AjusteNegativos.activo == 1"
                                         type="button"
                                         class="btn btn-danger btn-sm"
-                                        @click="
-                                            eliminarAjusteNegativos(
-                                                AjusteNegativos.id,
-                                            )
-                                        "
-                                    >
+                                    
+                                        @click="eliminarAjusteNegativos(AjusteNegativos.id)">
                                         <i class="fa fa-hand-paper-o"></i>
                                     </button>
                                     <button
                                         v-else
                                         type="button"
                                         class="btn btn-info btn-sm"
+                                      
                                         @click="
                                             activarAjusteNegativos(
                                                 AjusteNegativos.id,
@@ -163,6 +163,21 @@
                                         "
                                     >
                                         <i class="icon-check"></i>
+                                    </button>
+                                    <!----------------->
+                                    <br>
+                                    <button v-if="AjusteNegativos.estado_procesado == 4"
+                                        type="button" class="btn btn-secondary btn-sm" 
+                                        @click="desactivarListo(AjusteNegativos.id)"
+                                        style=" font-size: 15px;color: aliceblue;">
+                                        <i class="fa fa-check-square-o" aria-hidden="true"></i>
+                                    </button>
+                                    
+                                    <button v-else
+                                        type="button" class="btn btn-secondary btn-sm" 
+                                        @click="activarListo(AjusteNegativos.id)"
+                                        style=" font-size: 15px; color: aliceblue; width:32px;" >                                        
+                                        <i class="fa fa-square-o" aria-hidden="true"></i>
                                     </button>
                                     </div>     
                                     
@@ -195,13 +210,16 @@
                                         <span class="badge badge-warning">Pendiente</span>
                                     </div>
                                     <div v-if="AjusteNegativos.estado_procesado == 1">
-                                        <span class="badge badge-primary">En Proceso</span>
+                                        <span class="badge badge-primary">En Camino</span>
                                     </div>
                                     <div v-if="AjusteNegativos.estado_procesado == 2">
-                                        <span class="badge badge-success">Procesado</span>
+                                        <span class="badge badge-success">concluido</span>
                                     </div>
                                     <div v-if="AjusteNegativos.estado_procesado == 3">
                                         <span class="badge badge-danger">Anulado</span>
+                                    </div>
+                                    <div v-if="AjusteNegativos.estado_procesado == 4">
+                                        <span class="badge badge-warning">Listo</span>
                                     </div>
                                   
                                     
@@ -1562,6 +1580,109 @@ sucursalSeleccionadaDestino: function (newValue) {
                         /* swalWithBootstrapButtons.fire(
                     'Cancelado!',
                     'El Registro no fue Activado',
+                    'error'
+                    ) */
+                    }
+                });
+        },
+        activarListo(idAjusteNegativos) {
+            let me = this;
+            const swalWithBootstrapButtons = Swal.mixin({
+                customClass: {
+                    confirmButton: "btn btn-success",
+                    cancelButton: "btn btn-danger",
+                },
+                buttonsStyling: false,
+            });
+            swalWithBootstrapButtons
+                .fire({
+                    title: "Esta Seguro de Activar?",
+                    text: "Es una Activacion logica",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Si, Activar",
+                    cancelButtonText: "No, Cancelar",
+                    reverseButtons: true,
+                })
+                .then((result) => {
+                    if (result.isConfirmed) {
+                        axios
+                            .put("/traspaso/activarListo", {
+                                id: idAjusteNegativos,
+                                cod: me.sucursalSeleccionada,
+                                id_ingreso: me.id_ingreso,
+                            })
+                            .then(function (response) {
+                                me.listarAjusteNegativos();
+                                swalWithBootstrapButtons.fire(
+                                    "Activado!",
+                                    "El registro a sido Activado Correctamente",
+                                    "success",
+                                );
+                            })
+                            .catch(function (error) {
+                                error401(error);
+                                console.log(error);
+                            });
+                    } else if (
+                        /* Read more about handling dismissals below */
+                        result.dismiss === Swal.DismissReason.cancel
+                    ) {
+                        /* swalWithBootstrapButtons.fire(
+                    'Cancelado!',
+                    'El Registro no fue Activado',
+                    'error'
+                    ) */
+                    }
+                });
+        },
+        desactivarListo(idAjusteNegativos) {
+            let me = this;
+            const swalWithBootstrapButtons = Swal.mixin({
+                customClass: {
+                    confirmButton: "btn btn-success",
+                    cancelButton: "btn btn-danger",
+                },
+                buttonsStyling: false,
+            });
+
+            swalWithBootstrapButtons
+                .fire({
+                    title: "Esta Seguro de Desactivar?",
+                    text: "Es una eliminacion logica",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Si, Desactivar",
+                    cancelButtonText: "No, Cancelar",
+                    reverseButtons: true,
+                })
+                .then((result) => {
+                    if (result.isConfirmed) {
+                        axios
+                            .put("/traspaso/desactivarListo", {
+                                id: idAjusteNegativos,
+                                
+                            })
+                            .then(function (response) {
+                                me.listarAjusteNegativos();
+                                swalWithBootstrapButtons.fire(
+                                    "Desactivado!",
+                                    "El registro a sido desactivado Correctamente",
+                                    "success",
+                                );
+                                me.listarAjusteNegativos();
+                            })
+                            .catch(function (error) {
+                                error401(error);
+                                console.log(error);
+                            });
+                    } else if (
+                        /* Read more about handling dismissals below */
+                        result.dismiss === Swal.DismissReason.cancel
+                    ) {
+                        /* swalWithBootstrapButtons.fire(
+                    'Cancelado!',
+                    'El Registro no fue desactivado',
                     'error'
                     ) */
                     }

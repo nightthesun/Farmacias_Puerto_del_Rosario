@@ -28,25 +28,15 @@
            
                         <div class="col-md-6">
                             <div class="input-group">
-                                <select
-                                    class="form-control"
-                                    @change="listarTraslado(0)"
-                                    v-model="selectAlmTienda"
-                                >
+                                <select class="form-control" @change="listarTraslado(0)" v-model="selectAlmTienda" >
                                     <option value="0" disabled selected>Seleccionar...</option>
-                                    <option
-                                        v-for="sucursal in arrayAlmTienda"
-                                        :key="sucursal.id"
-                                        :value="sucursal.codigo"
-                                        v-text="
-                                            sucursal.codigoS +
-                                            ' -> ' +
-                                            sucursal.codigo+
-                                            ' ' +
-                                            sucursal.razon_social
+                                    <option v-for="sucursal in arrayAlmTienda"
+                                            :key="sucursal.id"
+                                            :value="sucursal.codigo" v-text="sucursal.codigoS +' -> '+sucursal.codigo+
+                                            ' ' + sucursal.razon_social
                                             +' ('+sucursal.veces_repetido+')'
-                                        "
-                                    ></option>
+                                            +' ('+sucursal.veces_repetido_l+')'">
+                                    </option>
                                 </select>
                             </div>
                         </div>

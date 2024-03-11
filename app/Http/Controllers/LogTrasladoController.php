@@ -259,41 +259,45 @@ class LogTrasladoController extends Controller
     public function listarSucursal(){
        
    
-  $resultado  = DB::table(DB::raw('(SELECT
-  tda__tiendas.id AS id_tienda,
-  NULL AS id_almacen,
-  tda__tiendas.codigo,
-  adm__sucursals.razon_social,
-  adm__sucursals.razon_social AS sucursal,
-  adm__sucursals.cod AS codigoS,
-  "Tienda" AS tipoCodigo,
-  tda__tiendas.id AS id_tienda_almacen
-FROM
-  tda__tiendas
-JOIN adm__sucursals ON tda__tiendas.idsucursal = adm__sucursals.id
+        $resultado = DB::table(DB::raw('(SELECT
+        tda__tiendas.id AS id_tienda,
+        NULL AS id_almacen,
+        tda__tiendas.codigo,
+        adm__sucursals.razon_social,
+        adm__sucursals.razon_social AS sucursal,
+        adm__sucursals.cod AS codigoS,
+        "Tienda" AS tipoCodigo,
+        tda__tiendas.id AS id_tienda_almacen
+      FROM
+        tda__tiendas
+      JOIN adm__sucursals ON tda__tiendas.idsucursal = adm__sucursals.id
+      
+      UNION ALL
+      
+      SELECT
+        NULL AS id_tienda,
+        aa.id AS id_almacen,
+        aa.codigo,
+        aa.nombre_almacen AS razon_social,
+        ass.razon_social AS sucursal,
+        ass.cod AS codigoS,
+        "Almacen" AS tipoCodigo,
+        aa.id AS id_tienda_almacen
+      FROM
+        alm__almacens AS aa
+      JOIN adm__sucursals AS ass ON ass.id = aa.idsucursal) AS result'))
+      ->leftJoin(DB::raw('(SELECT cod_1, COUNT(*) AS veces_repetido
+      FROM inv__traspasos
+      WHERE procesado = 0
+      GROUP BY cod_1) AS traspasos'), 'result.codigo', '=', 'traspasos.cod_1')
+      ->leftJoin(DB::raw('(SELECT cod_1, COUNT(*) AS veces_repetido_L
+      FROM inv__traspasos
+      WHERE procesado = 4
+      GROUP BY cod_1) AS traspasos_2'), 'result.codigo', '=', 'traspasos_2.cod_1')
+      ->select('result.*', DB::raw('IFNULL(traspasos.veces_repetido, 0) AS veces_repetido'),
+                           DB::raw('IFNULL(traspasos_2.veces_repetido_L, 0) AS veces_repetido_l') )
+      ->get();
 
-UNION ALL
-
-SELECT
-  NULL AS id_tienda,
-  aa.id AS id_almacen,
-  aa.codigo,
-  aa.nombre_almacen AS razon_social,
-  ass.razon_social AS sucursal,
-  ass.cod AS codigoS,
-  "Almacen" AS tipoCodigo,
-  aa.id AS id_tienda_almacen
-FROM
-  alm__almacens AS aa
-JOIN adm__sucursals AS ass ON ass.id = aa.idsucursal) AS result'))
-->leftJoin(DB::raw('(SELECT cod_1, COUNT(*) AS veces_repetido
-FROM inv__traspasos
-WHERE procesado = 0
-GROUP BY cod_1) AS traspasos'), 'result.codigo', '=', 'traspasos.cod_1')
-->select('result.*', DB::raw('IFNULL(traspasos.veces_repetido, 0) AS veces_repetido'))
-->get();
-
- 
          $jsonSucrusal = [];
  
  foreach ($resultado as $key=>$sucursal) {
@@ -317,7 +321,6 @@ GROUP BY cod_1) AS traspasos'), 'result.codigo', '=', 'traspasos.cod_1')
      }
 
      public function listarTraspaso(Request $request){
-
               
         $query1 = DB::table('inv__traspasos as it')
         ->select('it.id as id', 'aa.id as id_almacen_tienda', 'it.id_prod_producto as id_prod_producto', 'pp.codigo as cod_prod', 'pp.nombre as name_prod',
@@ -330,7 +333,10 @@ GROUP BY cod_1) AS traspasos'), 'result.codigo', '=', 'traspasos.cod_1')
         ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
         ->join('prod__tipo_entradas as pte', 'pte.id', '=', 'it.id_tipoentrada')
         ->join('users as u', 'u.id', '=', 'it.user_id')
-        ->where('it.procesado', '=', 0)
+        ->where(function ($query) {
+            $query->where('it.procesado', '=', 0)
+                  ->orWhere('it.procesado', '=', 4);
+        })
         ->where('it.activo', '=', 1)
         ->where('it.id_tipoentrada', '=', 13)
         ->where('it.cod_1', '=', $request->codigo)
@@ -347,7 +353,10 @@ GROUP BY cod_1) AS traspasos'), 'result.codigo', '=', 'traspasos.cod_1')
         ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
         ->join('prod__tipo_entradas as pte', 'pte.id', '=', 'it.id_tipoentrada')
         ->join('users as u', 'u.id', '=', 'it.user_id')
-        ->where('it.procesado', '=', 0)
+        ->where(function ($query) {
+            $query->where('it.procesado', '=', 0)
+                  ->orWhere('it.procesado', '=', 4);
+        })
         ->where('it.activo', '=', 1)
         ->where('it.id_tipoentrada', '=', 13)
         ->where('it.cod_1', '=', $request->codigo)
@@ -403,7 +412,10 @@ GROUP BY cod_1) AS traspasos'), 'result.codigo', '=', 'traspasos.cod_1')
                 ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
                 ->join('prod__tipo_entradas as pte', 'pte.id', '=', 'it.id_tipoentrada')
                 ->join('users as u', 'u.id', '=', 'it.user_id')
-                ->where('it.procesado', '=', 0)
+                ->where(function ($query) {
+                    $query->where('it.procesado', '=', 0)
+                          ->orWhere('it.procesado', '=', 4);
+                })
                 ->where('it.id_tipoentrada', '=', 13)
                 ->where('it.activo', '=', 1)
                 ->whereRaw($sqls)
@@ -421,7 +433,10 @@ GROUP BY cod_1) AS traspasos'), 'result.codigo', '=', 'traspasos.cod_1')
                 ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
                 ->join('prod__tipo_entradas as pte', 'pte.id', '=', 'it.id_tipoentrada')
                 ->join('users as u', 'u.id', '=', 'it.user_id')
-                ->where('it.procesado', '=', 0)
+                ->where(function ($query) {
+                    $query->where('it.procesado', '=', 0)
+                          ->orWhere('it.procesado', '=', 4);
+                })
                 ->where('it.id_tipoentrada', '=', 13)
                 ->where('it.activo', '=', 1)
                 ->whereRaw($sqls)
@@ -443,7 +458,10 @@ GROUP BY cod_1) AS traspasos'), 'result.codigo', '=', 'traspasos.cod_1')
             ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
             ->join('prod__tipo_entradas as pte', 'pte.id', '=', 'it.id_tipoentrada')
             ->join('users as u', 'u.id', '=', 'it.user_id')
-            ->where('it.procesado', '=', 0)
+            ->where(function ($query) {
+                $query->where('it.procesado', '=', 0)
+                      ->orWhere('it.procesado', '=', 4);
+            })
             ->where('it.id_tipoentrada', '=', 13)
             ->where('it.activo', '=', 1)
             ->where('it.cod_1', '=', $request->codigo)
@@ -460,7 +478,10 @@ GROUP BY cod_1) AS traspasos'), 'result.codigo', '=', 'traspasos.cod_1')
             ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
             ->join('prod__tipo_entradas as pte', 'pte.id', '=', 'it.id_tipoentrada')
             ->join('users as u', 'u.id', '=', 'it.user_id')
-            ->where('it.procesado', '=', 0)
+            ->where(function ($query) {
+                $query->where('it.procesado', '=', 0)
+                      ->orWhere('it.procesado', '=', 4);
+            })
             ->where('it.id_tipoentrada', '=', 13)
             ->where('it.activo', '=', 1)
             ->where('it.cod_1', '=', $request->codigo)

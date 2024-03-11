@@ -49,9 +49,7 @@ use App\Http\Controllers\InvTraspasoController;
 use App\Http\Controllers\LogTrasladoController;
 use App\Http\Controllers\LogVehiculoController;
 use App\Http\Controllers\GesPreVenta2Controller;
-
-
-
+use App\Http\Controllers\ProdListaController;
 use App\Models\Alm_IngresoProducto;
 use App\Models\Tda_Tienda;
 
@@ -306,13 +304,16 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/producto/getProductosTiendaEnvase', [ProdProductoController::class, 'getProductosTiendaEnvase']);
     Route::get('/producto/selectproductoperecedero', [ProdProductoController::class, 'selectProductoPerecedero']);
 
+    Route::get('/producto/listarSucursal', [ProdListaController::class, 'listarSucursal']); 
+    Route::get('/producto/listarProducto', [ProdListaController::class, 'listarProducto']);  
+
     Route::get('/dispenser', [ProdDispenserController::class, 'index']);
     Route::post('/dispenser/registrar', [ProdDispenserController::class, 'store']);
     Route::put('/dispenser/actualizar', [ProdDispenserController::class, 'update']);
     Route::put('/dispenser/desactivar', [ProdDispenserController::class, 'desactivar']);
     Route::put('/dispenser/activar', [ProdDispenserController::class, 'activar']);
     Route::get('/dispenser/selectdispenser', [ProdDispenserController::class, 'selectDispenser']);
-    Route::get('/dispenser/selectdispenser2', [ProdDispenserController::class, 'selectDispenser2']);
+    Route::get('/dispenser/selectdispenser2', [ProdDispenserController::class, 'selectDispenser2']);  
 
     Route::get('/formafarm', [ProdFormaFarmaceuticaController::class, 'index']);
     Route::post('/formafarm/registrar', [ProdFormaFarmaceuticaController::class, 'store']);
@@ -321,7 +322,6 @@ Route::group(['middleware' => 'auth'], function () {
     Route::put('/formafarm/activar', [ProdFormaFarmaceuticaController::class, 'activar']);
     Route::get('/formafarm/selectformafarm', [ProdFormaFarmaceuticaController::class, 'selectFormaFarm']);
     Route::get('/formafarm/selectformafarm2', [ProdFormaFarmaceuticaController::class, 'selectFormaFarm2']);
-
 
     Route::get('/categoria', [ProdCategoriaController::class, 'index']);
     Route::post('/categoria/registrar', [ProdCategoriaController::class, 'store']);
@@ -353,6 +353,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::put('/almacen/desactivar', [AlmAlmacenController::class, 'desactivar']);
     Route::put('/almacen/activar', [AlmAlmacenController::class, 'activar']);
     Route::get('/almacen/listaralmacenes', [AlmAlmacenController::class, 'listaralmacenes']);
+
+    
 
     //Ingreso de productos al almacen
     Route::get('/almacen/ingreso-producto', [AlmIngresoProductoController::class, 'index']);
@@ -417,6 +419,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::put('/ajustes-positivo/activar', [InvAjustePositivoController::class, 'activar']);
     Route::get('/ajustes-positivo/listarSucursal', [InvAjustePositivoController::class, 'listarSucursal']);
     Route::get('/ajustes-positivo/retornarProductosIngreso', [InvAjustePositivoController::class, 'retornarProductosIngreso']);
+    Route::get('/ajustes-positivo/retornarProductosIngresoCero', [InvAjustePositivoController::class, 'retornarProductosIngresoCero']);
+    Route::put('/ajustes-positivo/actualizarTdaAlm', [InvAjustePositivoController::class, 'updateTdaAlm']);   
 
     Route::get('/traspaso', [InvTraspasoController::class, 'index']);
     Route::get('/traspaso/listarSucursal', [InvTraspasoController::class, 'listarSucursal']);
@@ -426,6 +430,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::put('/traspaso/activar', [InvTraspasoController::class, 'activar']);
     Route::get('/traspaso/retornarProductosIngreso', [InvTraspasoController::class, 'retornarProductosIngreso']);
     Route::put('/traspaso/actualizar', [InvTraspasoController::class, 'update']);
+    Route::put('/traspaso/activarListo', [InvTraspasoController::class, 'activarListo']);
+    Route::put('/traspaso/desactivarListo', [InvTraspasoController::class, 'desactivarListo']);
 
     Route::get('/recepcion', [InvRecepcionController::class, 'index']);
     Route::get('/recepcion/listarSucursal', [InvRecepcionController::class, 'listarSucursal']);   

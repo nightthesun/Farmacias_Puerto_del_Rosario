@@ -265,16 +265,8 @@
                             <!-- insertar datos -->
                             <div class="container">
                                 <div class="form-group row">
-                                    <label
-                                        class="col-md-3 form-control-label"
-                                        for="text-input"
-                                    >
-                                        Producto
-                                        <span
-                                            v-if="ProductoLineaIngreso == '0'"
-                                            class="error"
-                                            >(*)</span
-                                        >
+                                    <label class="col-md-3 form-control-label" for="text-input">Producto:<span
+                                            v-if="ProductoLineaIngreso == '0'" class="error">(*)</span>
                                     </label>
                                     <div class="col-md-7 input-group mb-3" v-if="tipoAccion == 1">
                                         <select v-model="ProductoLineaIngresoSeleccionado" v-if="tipoAccion == 1"
@@ -306,18 +298,17 @@
                                                 "
                                             ></option>
                                         </select>
+                                        <button class="btn btn-primary" v-if="tipoAccion == 1" type="button" id="button-addon1"
+                                            @click="abrirModal('bucarProductoIngreso'); ListarretornarProductosIngreso();"
+                                            data-bs-toggle="tooltip" data-bs-placement="top" title="Muestra los productos mayores a cero">
+                                            <i class="fa fa-search"></i>
+                                        </button>
+                                        <br>
+                                        <!--boton de busqueda de productos en stock 0-->
                                         <button
-                                            class="btn btn-primary"
-                                            v-if="tipoAccion == 1"
-                                            type="button"
-                                            id="button-addon1"
-                                            @click="
-                                                abrirModal(
-                                                    'bucarProductoIngreso',
-                                                );
-                                                ListarretornarProductosIngreso();
-                                            "
-                                        >
+                                            class="btn btn-danger" v-if="tipoAccion == 1" type="button"
+                                            id="button-addon1" @click="abrirModal('stockCero');ListarretornarProductosIngresoCero();"
+                                            data-bs-toggle="tooltip" data-bs-placement="top" title="Muestra los productos en cero" >
                                             <i class="fa fa-search"></i>
                                         </button>
                                        
@@ -389,7 +380,7 @@
                                     <label
                                         class="col-md-3 form-control-label"
                                         for="text-input"
-                                        >Cantidad
+                                        >Cantidad:
                                         <span
                                             v-if="cantidadS == ''"
                                             class="error"
@@ -424,12 +415,8 @@
                                 </div>
 
                                 <div class="form-group row">
-                                    <label
-                                        class="col-md-3 form-control-label"
-                                        for="text-input"
-                                    >
-                                        Tipo
-                                        <span class="error">(*)</span>
+                                    <label class="col-md-3 form-control-label" for="text-input">
+                                        Tipo: <span class="error">(*)</span>
                                     </label>
                                     <div class="col-md-9">
                                         <select
@@ -452,8 +439,7 @@
                                         <span
                                             v-if="TiposSeleccionado == 0"
                                             class="error"
-                                            >Debe seleccionar una opcion</span
-                                        >
+                                            >Debe seleccionar una opcion</span>
                                     </div>
                                 </div>
                             
@@ -615,6 +601,210 @@
             </div>
         </div>
         <!-- Fun Modal para la busqueda de producto por lote -->
+          <!-- Modal para la busqueda de producto por stock cero -->
+          <div
+            class="modal fade"
+            id="modalCero"
+            tabindex="-2"
+            aria-labelledby="exampleModalLabel"
+            aria-hidden="true"
+        >
+            <div class="modal-dialog modal-dialog-scrollable modal-danger">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">
+                            Busqueda de Productos en stock cero
+                        </h5>
+                        <button
+                            type="button"
+                            @click="cerrarModal('modalCero')"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Close"
+                        >
+                            X
+                        </button>
+                    </div>
+
+                    <div class="modal-body">
+                        <form>
+                            <div class="mb-3">
+                                <label
+                                    for="exampleInputEmail1"
+                                    class="form-label"
+                                    >Introduzca descripcion:
+                                </label>
+                                <input
+                                    type="text"
+                                    id="texto"
+                                    name="texto"
+                                    class="form-control"
+                                    placeholder="Texto a buscar"
+                                    v-model="inputTextBuscarProductoIngresoCero"
+                                    @input="ListarretornarProductosIngresoCero()"
+                                />
+                                <!-- <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div> -->
+                            </div>
+                            <div>
+                                <table
+                                    class="table table-hover"
+                                    id="tablaProductosIngreso"
+                                    style="
+                                        height: 350px;
+                                        display: block;
+                                        overflow: scroll;
+                                    "
+                                >
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Nro Lote.</th>
+                                            <th scope="col">
+                                                Descripcion Prod.
+                                            </th>
+                                            <th scope="col">Envase</th>
+                                            <th scope="col">
+                                                Codigo Internacional
+                                            </th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        <tr  v-for="RetornarProductosIngreso in arrayRetornarProductosIngresoCero" :key="
+                                             RetornarProductosIngreso.id_ingreso"  @click="abrirModal('registrarCeroX',RetornarProductosIngreso);
+                                             ">
+                                            <td
+                                                v-text="
+                                                    RetornarProductosIngreso.lote
+                                                "
+                                            ></td>
+                                            <td
+                                                v-text="RetornarProductosIngreso.codigo_producto +' '+
+                                                    RetornarProductosIngreso.leyenda
+                                                "
+                                            ></td>
+                                            <td
+                                                v-text="
+                                                    RetornarProductosIngreso.envase
+                                                "
+                                            ></td>
+                                            <td
+                                                v-text="
+                                                    RetornarProductosIngreso.codigointernacional
+                                                "
+                                            ></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button
+                            type="button"
+                            class="btn btn-secondary"
+                            data-bs-dismiss="modal"
+                            @click="
+                                cerrarModal('modalCero');
+                                abrirModal('registrar');
+                                ProductoLineaIngreso();
+                            "
+                        >
+                            Cerrar
+                        </button>
+                        <!--
+                      <button type="button" v-if="tipoAccion==2" class="btn btn-secondary" data-bs-dismiss="modal" @click="cerrarModal('staticBackdrop');abrirModal('actualizar',AjusteNegativos);ProductoLineaIngreso();">Cerraaaa</button>
+                    
+                    --->
+
+                        <!-- <button type="button" class="btn btn-primary">Save changes</button> -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Fun Modal stock cero para la busqueda de producto por lote -->
+         <!--Inicio del modal actualizar stock cero-->
+         <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" id="registrarCero" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+            <div class="modal-dialog modal-danger modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">{{ tituloModal }}</h4>
+                        <button type="button" class="close"  aria-label="Close" @click="cerrarModal('registrarCero')">
+                            <span aria-hidden="true">×</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form  enctype="multipart/form-data" class="form-horizontal">
+                            <div class="form-group row">
+                                <strong class="col-md-9 form-control-label" for="text-input">Producto: {{productoX_name}}</strong>
+                            
+                               
+                            </div>
+                            
+                            <div class="row">
+                                <div class="form-group col-sm-4">
+                                    <strong>Cantidad: <span  v-if="cantidadX==0" class="error">(*)</span></strong>
+                                    <input type="number" min="0" class="form-control" v-model="cantidadX" style="text-align:right" placeholder="0" v-on:focus="selectAll" onkeypress="return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 48 && event.charCode <= 57))">
+                                    <span  v-if="cantidadX==0" class="error">Debe Ingresar la Cantidad </span>
+                                </div>
+                                <div class="form-group col-sm-4">
+                                    <strong>Tipo Entrada:</strong>
+                                    <select
+                                            name=""
+                                            id=""
+                                            v-model="TiposSeleccionado"
+                                            class="form-control"
+                                        >
+                                            <option value="0" disabled>
+                                                Seleccionar...
+                                            </option>
+                                            <option
+                                                v-for="Tipos in arrayTipos"
+                                                :key="arrayTipos.id"
+                                                :value="Tipos.id"
+                                               
+                                                v-text="Tipos.nombre"
+                                            ></option>
+                                        </select>
+                                        <span
+                                            v-if="TiposSeleccionado == 0"
+                                            class="error"
+                                            >Debe seleccionar una opcion</span>
+                                </div>
+                                <div class="form-group col-sm-4">
+                                    <strong>Lote: <span  v-if="loteX==''" class="error">(*)</span></strong>
+                                    <input type="text" class="form-control" placeholder="Lote"  v-model="loteX" v-on:focus="selectAll">
+                                    <span  v-if="loteX==''" class="error">Debe Ingresar el lote</span>
+                                </div>
+                            </div>
+                            <div class="row">
+                               
+                                <div class="form-group col-sm-4" >
+                                    <strong>Fecha de Vencimiento: <span  v-if="fecha_vencimientoX==''" class="error">(*)</span></strong>
+                                    <input type="date"  class="form-control" v-model="fecha_vencimientoX">
+                                    <span  v-if="fecha_vencimientoX==''" class="error">Debe Ingresar la fecha de Vencimiento</span>
+                                </div>
+                                
+                                <div class="form-group col-sm-4">
+                                    <strong>Registro Sanitario:<span  v-if="registrosanitarioX==''" class="error">(*)</span></strong>
+                                    <input type="text" class="form-control" placeholder="Registro Sanitario" v-model="registrosanitarioX" v-on:focus="selectAll" onkeypress="return (event.charCode !=8 && event.charCode == 0 || (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 45 || event.charCode == 13 || event.charCode == 32 )">
+                                    <span  v-if="registrosanitarioX==''" class="error">Debe Ingresar el Registro Sanitario</span>
+                                </div>
+                            </div>
+                          
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary"  @click="cerrarModal('registrarCero')">Cerrar</button>
+                        <button type="button" v-if="tipoAccion==1" class="btn btn-primary"  @click="actualizarProductoCeroTdaAlm()" >Guardar</button>
+                    
+                    </div>
+                </div>
+                <!-- /.modal-content -->
+            </div>
+            <!-- /.modal-dialog -->
+        </div>
+        <!--Fin del modal-->
+        
     </main>
 </template>
 
@@ -675,6 +865,22 @@ export default {
             arrayRetornarProductosIngreso: [],
             leyenda: "",
             stock_ingreso:"",
+
+            //retorncero
+            arrayRetornarProductosIngresoCero:[],    
+            inputTextBuscarProductoIngresoCero:"",
+            //modal actualizacion de datos
+            cantidadX:"",
+            fecha_vencimientoX:"",
+            registrosanitarioX:"",
+            loteX:"",
+            productoX_name:"",
+            id_ingresoX:"",
+            codX:"",
+            id_productoX:"",
+            envaseX:"",
+            id_alm_tda:"",
+
         };
     },
 
@@ -787,6 +993,7 @@ export default {
 
             // Agrega aquí la lógica adicional que necesites al cambiar la pestaña
         },
+
         sucursalFiltro() {
             let me = this;
             var url = "/ajustes-positivo/listarSucursal";
@@ -877,6 +1084,30 @@ export default {
 
                     me.arrayRetornarProductosIngreso = respuesta;
    })
+                .catch(function (error) {
+                    error401(error);
+                    console.log(error);
+                });
+        },
+        ListarretornarProductosIngresoCero() {
+            let me = this;
+            
+            if (me.tipoAccion == 1) {
+                var url ="/ajustes-positivo/retornarProductosIngresoCero?respuesta0=" + this.sucursalSeleccionada +
+                    "&respuesta1=" + me.inputTextBuscarProductoIngresoCero+"&tipo="+me.tipoAccion;
+            }
+
+            if (me.tipoAccion == 2) {
+               var url ="/ajustes-positivo/retornarProductosIngresoCero?respuesta0=" + this.id_codigo +"&respuesta1=" +
+                   me.inputTextBuscarProductoIngresoCero+"&tipo="+me.tipoAccion;
+           }
+        
+            axios 
+                .get(url)
+                .then(function (response) {
+                    var respuesta = response.data;
+                    me.arrayRetornarProductosIngresoCero = respuesta;
+                 })
                 .catch(function (error) {
                     error401(error);
                     console.log(error);
@@ -1037,7 +1268,40 @@ export default {
                     data.id_tipo === null ? 0 : data.id_tipo;
                     me.ProductoLineaIngresoSeleccionado =
                         data.id_ingreso === null ? 0 : data.id_ingreso;
+                    me.leyenda = data.nombre;
+                }
+                case "stockCero":{
+                    (me.inputTextBuscarProductoIngresoCero = ""),
+                        (me.arrayRetornarProductosIngresoCero = ""),
+                        me.classModal.openModal("modalCero");
+                    break;
+                }
+                case "registrarCeroX":{
+                
+                    me.productoX_name=data.leyenda;
+                    me.tipoAccion = 1;
+                    me.cantidadX=data.stock_ingreso;
+                    me.fecha_vencimientoX=data.fecha_vencimiento;
+                    me.registrosanitarioX=data.registro_sanitario;
+                    me.loteX=data.lote;
+                    me.TiposSeleccionado =data.id_tipoentrada === null ? 0 : data.id_tipoentrada;
+                    me.id_ingresoX=data.id_ingreso;
+                    me.codX=data.cod;
+                    me.id_productoX=data.id_producto;                    
+                    me.envaseX=data.envase;
+
                     me.leyenda = data.leyenda;
+                    me.id_codigo = data.cod;                    
+                    me.codigo = data.codigo_producto;                 
+                    me.linea = data.nombre_linea;
+                    me.producto = data.nombre;                   
+                    me.fecha_vencimiento=data.fecha_vencimiento;          
+                    me.id_sucursal = data.id_sucursal;
+                    me.id_producto = data.cod;         
+                    
+                    me.tituloModal = "Actualizacion de producto ";
+                    me.classModal.openModal("registrarCero");
+                    break;
                 }
             }
         },
@@ -1063,9 +1327,34 @@ export default {
                 me.id_producto = "";
                 me.leyenda = "";
             } else {
-                me.classModal.closeModal(accion);
+                if (accion == "registrarCeroX") {
+                    me.productoX_name="";
+                    me.tipoAccion = 1;
+                    me.cantidadX="";
+                    me.fecha_vencimientoX="";
+                    me.registrosanitarioX="";
+                    me.loteX="";
+                    me.TiposSeleccionado =0;
+                    me.id_ingresoX="";
+                    me.codX="";
+                    me.id_productoX="";                    
+                    me.envaseX="";
+
+                    me.leyenda = "";
+                    me.id_codigo = "";                    
+                    me.codigo = "";                 
+                    me.linea = "";
+                    me.producto = "";                   
+                    me.fecha_vencimiento="";          
+                    me.id_sucursal = "";
+                    me.id_producto = ""; 
+                    me.classModal.closeModal(accion);
+                } else {
+                    me.classModal.closeModal(accion);
                 //me.idproductoselected = me.idproductoselected;
-                me.classModal.openModal("registrar");
+            //    me.classModal.openModal("registrar"); 
+                }
+                
             }
         },
 
@@ -1299,7 +1588,56 @@ export default {
                     }
                 });
         },
+        actualizarProductoCeroTdaAlm(){
+                let me =this;
+                
+                axios.put('/ajustes-positivo/actualizarTdaAlm',{
+                    'cod':me.codX,
+                    'id':me.id_ingresoX,
+                    'id_prod_producto':me.id_productoX,
+                    'envase':me.envaseX,
+                    'idtienda':me.id_alm_tda,
+                    'cantidad':me.cantidadX,
+                    'id_tipo_entrada':me.TiposSeleccionado,
+                    'fecha_vencimiento':me.fecha_vencimientoX,
+                    'lote':me.loteX,
+                    'registro_sanitario':me.registrosanitarioX,
 
+                    'leyenda': me.leyenda,
+                    'id_codigo': me.id_codigo,                    
+                    'codigo' : me.codigo,                 
+                    'linea': me.linea,
+                    'producto' : me.producto,                   
+                    'fecha_vencimiento':me.fecha_vencimiento,          
+                    'id_sucursal' : me.id_sucursal,
+                    'id_producto' : me.id_producto
+
+
+                }).then(function (response) {
+                    me.cerrarModal("registrarCero");
+                    me.cerrarModal("modalCero");
+                     me.cerrarModal("registrar");
+                    Swal.fire('Actualizado Correctamente')
+                  
+                    me.listarAjusteNegativos();
+                        me.sucursalFiltro();
+                }) .catch(function (error) {                
+                if (error.response.status === 500) {
+                    me.errorMsg = error.response.data.error; // Asigna el mensaje de error a la variable errorMsg
+                Swal.fire(
+                    "Error",
+                    "500 (Internal Server Error)"+me.errorMsg, // Muestra el mensaje de error en el alert
+                    "error"       );
+                }else{
+                    Swal.fire(
+                    "Error",
+                    ""+error, // Muestra el mensaje de error en el alert
+                    "error"
+                );  
+                }              
+            });
+               
+            },
         activarAjusteNegativos(idAjusteNegativos) {
             let me = this;
             const swalWithBootstrapButtons = Swal.mixin({
@@ -1381,6 +1719,8 @@ export default {
         this.cambiodeEstado();
         this.sucursalFiltro();
         this.classModal.addModal("staticBackdrop");
+        this.classModal.addModal("modalCero");
+        this.classModal.addModal("registrarCero");
     },
 };
 </script>

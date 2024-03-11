@@ -821,6 +821,28 @@ class InvTraspasoController extends Controller
         $traspaso->id_usuario_modifico=auth()->user()->id;
        $traspaso->save();
      }
+     public function desactivarListo(Request $request)
+     {
+         $traspaso = Inv_Traspaso::findOrFail($request->id);
+   
+         $traspaso->procesado = 0;
+         $traspaso->user_id = auth()->user()->id;         
+         $traspaso->id_usuario_modifico=auth()->user()->id;
+
+
+        $traspaso->save();
+     }
+ 
+     public function activarListo(Request $request)
+     {
+       
+ 
+        $traspaso = Inv_Traspaso::findOrFail($request->id);
+        $traspaso->procesado = 4;
+        $traspaso->user_id = auth()->user()->id;         
+        $traspaso->id_usuario_modifico=auth()->user()->id;
+       $traspaso->save();
+     }
      public function retornarProductosIngreso(Request $request)
     {
         $cod = $request->query('respuesta0');
