@@ -567,3 +567,4 @@ class LogTrasladoController extends Controller
     }
 
 }
+

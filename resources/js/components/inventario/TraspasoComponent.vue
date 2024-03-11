@@ -213,7 +213,7 @@
                                         <span class="badge badge-primary">En Camino</span>
                                     </div>
                                     <div v-if="AjusteNegativos.estado_procesado == 2">
-                                        <span class="badge badge-success">concluido</span>
+                                        <span class="badge badge-success">Concluido</span>
                                     </div>
                                     <div v-if="AjusteNegativos.estado_procesado == 3">
                                         <span class="badge badge-danger">Anulado</span>
