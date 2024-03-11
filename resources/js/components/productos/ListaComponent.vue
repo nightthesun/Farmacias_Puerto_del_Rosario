@@ -133,13 +133,22 @@
                                     </select>
                                 </div>
                             </div>
+                            <div class="border rounded p-4">
+                                <div class="mb-3" v-if="tipoAccion == 1 && selectEnvase != 0 && selectProducto !=0 ">
+                                    Rubro: {{rubro}}
+                                </div>   
+                                <div class="mb-3" v-if="tipoAccion == 1 && selectEnvase != 0 && selectProducto !=0 ">
+                                    Linea:{{linea_cod}} {{linea}}
+                                </div>  
+                            </div>       
+          
                             <div class="row">
-                            <div class="form-group col-sm-6" v-if="tipoAccion == 1 && selectEnvase != 0">
+                            <div class="form-group col-sm-6" v-if="tipoAccion == 1 && selectEnvase != 0 && selectProducto !=0 ">
                                Rubro: {{rubro}}
                              
                             
                             </div>
-                            <div class="form-group col-sm-6" v-if="tipoAccion == 1 && selectEnvase != 0">
+                            <div class="form-group col-sm-6" v-if="tipoAccion == 1 && selectEnvase != 0 && selectProducto !=0">
                               Linea:{{linea_cod}} {{linea}}
                 
                             </div>
@@ -147,7 +156,7 @@
 
 
                                    <div class="form-group row">
-                                      <label class="col-md-3 form-control-label" for="text-input">Cantidad
+                                      <label class="col-md-3 form-control-label" for="text-input">Nombre
                                         <span   class="error">(*)</span>
                                       </label>
                                         <div class="col-md-9">

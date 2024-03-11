@@ -34,8 +34,8 @@
                                             :key="sucursal.id"
                                             :value="sucursal.codigo" v-text="sucursal.codigoS +' -> '+sucursal.codigo+
                                             ' ' + sucursal.razon_social
-                                            +' ('+sucursal.veces_repetido+')'
-                                            +' ('+sucursal.veces_repetido_l+')'">
+                                            +' P: ('+sucursal.veces_repetido+')'
+                                            +' L: ('+sucursal.veces_repetido_l+')'">
                                     </option>
                                 </select>
                             </div>
@@ -210,7 +210,28 @@
                                     </div>
                                         <!-- debe ingresar los datos de para asignar datos del array-->
                                 </div>
-                              
+                                <div class="form-group row" v-if="selectTraspaso!=''"> 
+                                    <label class="col-md-3 form-control-label" for="text-input">
+                                    Estado:   
+                                    </label>
+                                    <div class="col-md-7">
+                                        <label class="col-md-3 form-control-label" for="text-input" v-if="procesado=='0'">
+                                            Pendiente                              
+                                        </label>
+                                        <label class="col-md-3 form-control-label" for="text-input" v-if="procesado=='4'">
+                                            Listo                              
+                                        </label>
+                                        <label class="col-md-3 form-control-label" for="text-input" v-if="procesado=='1'">
+                                            En camino                              
+                                        </label>
+                                        <label class="col-md-3 form-control-label" for="text-input" v-if="procesado=='2'">
+                                            Concluido                              
+                                        </label>
+                                        <label class="col-md-3 form-control-label" for="text-input" v-if="procesado=='3'">
+                                            Anulado                            
+                                        </label>
+                                    </div>
+                                </div>
                                 <div class="form-group row" v-if="selectTraspaso!=''"> 
                                     <label class="col-md-3 form-control-label" for="text-input">
                                     Persona a enviar:    
@@ -347,6 +368,7 @@
                                         <tr>
                                             <th scope="col">Nro Traspaso.</th>
                                             <th scope="col">Descripcion Prod.</th>
+                                            <th scope="col">Estado.</th>
                                             <th scope="col">Cantidad.</th>
                                        </tr>
                                     </thead>
@@ -354,6 +376,21 @@
                                         <tr v-for="RetornarProductosIngreso  in arrayRetornarTraspaso" :key="RetornarProductosIngreso.id" @click="abrirModal('registrar',RetornarProductosIngreso);listarRetornoTraspaso();" >
                                         <td v-text="RetornarProductosIngreso.numero_traspaso"></td>
                                         <td v-text="RetornarProductosIngreso.leyenda"></td>
+                                        <div v-if="RetornarProductosIngreso.procesado==='0'">
+                                        <td>Pendiente</td>  
+                                        </div>
+                                        <div v-if="RetornarProductosIngreso.procesado==='1'">
+                                        <td>En Camino</td>  
+                                        </div>
+                                        <div v-if="RetornarProductosIngreso.procesado==='2'">
+                                        <td>Concluido</td>  
+                                        </div>
+                                        <div v-if="RetornarProductosIngreso.procesado==='3'">
+                                        <td>Anulado</td>  
+                                        </div>
+                                        <div v-if="RetornarProductosIngreso.procesado==='4'">
+                                        <td>Listo</td>  
+                                        </div>
                                         <td v-text="RetornarProductosIngreso.cantidad"></td>
                                       </tr>
                                     </tbody>
@@ -418,7 +455,7 @@ export default {
             numero_traspaso:"",
             destino:"",
             leyenda:"",
-
+            procesado:"",
            
            
            
@@ -447,7 +484,8 @@ export default {
                 this.numero_traspaso=traspasO.numero_traspaso;            
                 this.leyenda=traspasO.leyenda;
                 this.destino=traspasO.destino; 
-                this.cantidad=traspasO.cantidad;                                 
+                this.cantidad=traspasO.cantidad;   
+                this.procesado=traspasO.procesado;                              
               }  
         } 
     },
@@ -812,7 +850,7 @@ export default {
                    me.destino="";   
                    me.numero_traspaso="";
                    me.id_traslado="";
-                        
+                      me.procesado="";  
                     me.classModal.openModal("registrar");
                     break;
                 }
