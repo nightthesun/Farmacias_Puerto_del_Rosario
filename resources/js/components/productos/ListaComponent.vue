@@ -19,43 +19,45 @@
                     <div class="form-group row">
                         <div class="col-md-6">
                             <div class="input-group">
-                                <input type="text" id="texto" name="texto" class="form-control" placeholder="Texto a buscar" v-model="buscar"  @keyup.enter="listarAlmacenes(1)">
-                                <button type="submit" class="btn btn-primary" @click="listarAlmacenes(1)"><i class="fa fa-search" ></i> Buscar</button>
-                            </div>
+                       <input type="text" id="texto" name="texto" class="form-control" placeholder="Texto a buscar" v-model="buscar" @keyup.enter="listarLista(1)">
+                         <button type="button" class="btn btn-primary" @click="listarLista(1)"><i class="fa fa-search"></i> Buscar</button>
                         </div>
+                        </div>
+                       
                     </div>
                     <table class="table table-bordered table-striped table-sm table-responsive">
                         <thead>
                             <tr>
                                 <th>Opciones</th>
                                 <th>Codigo</th>
-                                <th>Nombre</th>                                
+                                <th>Nombre</th>
+                                <th>Tienda/Almacen</th>
+                                <th>Razon social</th>
+                                <th>Usuario</th>                                    
                                 <th>Estado</th>
                             </tr>
                         </thead>
-                        <!--
-                            <tbody>
-                            <tr v-for="almacen in arrayAlmacenes" :key="almacen.id">
-                                <td>
-                                    <button type="button" class="btn btn-warning btn-sm" @click="abrirModal('actualizar',almacen)">
+                        <tbody>
+                            <tr v-for="lista in arrayLista" :key="lista.id">
+                                <td>                                    
+                                    <button type="button" class="btn btn-warning btn-sm" @click="abrirModal('actualizar',lista)" >
                                         <i class="icon-pencil"></i>
                                     </button> &nbsp;
-                                    <button v-if="almacen.activo==1" type="button" class="btn btn-danger btn-sm" @click="eliminarAlmacen(almacen.id)" >
+                                    <button v-if="lista.activo==1" type="button" class="btn btn-danger btn-sm" @click="eliminar(lista.id)" >
                                         <i class="icon-trash"></i>
                                     </button>
-                                    <button v-else type="button" class="btn btn-info btn-sm" @click="activarAlamcen(almacen.id)" >
+                                    <button v-else type="button" class="btn btn-info btn-sm"  @click="activar(lista.id)">
                                         <i class="icon-check"></i>
                                     </button>
+                                
                                 </td>
-                                <td v-text="almacen.codigo"></td>
-                                <td>{{ almacen.razon_social }} <br> {{ almacen.tipo }} {{ almacen.tipo == 'Sucursal'? almacen.correlativo:'' }}</td>
-                                <td v-text="almacen.nombre_almacen"></td>
-                                <td v-text="almacen.telefono"></td>
-                                <td v-text="almacen.direccion"></td>
-                                <td v-text="almacen.departamento"></td>
-                                <td>{{ almacen.ciudad }}</td>
+                                <td v-text="lista.codigo_lista"></td>
+                                <td v-text="lista.nombre_lista"></td>
+                                <td v-text="lista.codigo_tda_alm"></td>
+                                <td v-text="lista.razon_social"></td>
+                                <td v-text="lista.user_name"></td>
                                 <td>
-                                    <div v-if="almacen.activo==1">
+                                    <div v-if="lista.activo==1">
                                         <span class="badge badge-success">Activo</span>
                                     </div>
                                     <div v-else>
@@ -64,9 +66,8 @@
                                     
                                 </td>
                             </tr>
-                           
                         </tbody>
-                      -->
+                    
                         
                     </table>
                     <nav>
@@ -162,7 +163,7 @@ import { error401 } from '../../errores';
                     'to':0
                 },
                 offset:3,
-
+                buscar:'',
                 tituloModal:'',    
                 tipoAccion:1,          
                 selectAlmTienda:0,
@@ -170,44 +171,7 @@ import { error401 } from '../../errores';
                 nombreLista:'',
                 codigo:'',
                 lista_id_almacen_id_tienda:'',
-                arrayLista:[],
-
-
-
-                nombre:'',
-                tipo:0,
-                nit:'',
-                direccion:'',
-                arraySucursales:[],
-                tituloModal:'',
-                tipoAccion:1,
-                idsucursal:'',
-                buscar:'',
-                razonsocial:'',
-                nombrealmacen:'',
-                telefono:'',
-                
-                arrayciudad:[
-                                {'id':1,'valor':'La Paz'},
-                                {'id':2,'valor':'Santa Cruz'},
-                                {'id':3,'valor':'Cochabamba'},
-                                {'id':4,'valor':'Oruro'},
-                                {'id':5,'valor':'Potosi'},
-                                {'id':6,'valor':'Sucre'},
-                                {'id':7,'valor':'Tarija'},
-                                {'id':8,'valor':'Pando'},
-                                {'id':9,'valor':'Beni'},
-                            ],
-                matriz:0,
-                arrayRubros:[],
-                idrubro:0,
-                sucursalSeleccionado:0,
-                departamento:0,
-                ciudad:'',
-                idalmacen:0,
-                arrayCiudad:[],
-                arrayDepto:[],
-                arrayAlmacenes:[]
+                arrayLista:[]
                 
             }
 
@@ -261,11 +225,14 @@ import { error401 } from '../../errores';
             listarLista(page){
                 let me=this;
                 var url="/lista?page="+page+"&buscar="+me.buscar;
+                console.log(url);
                 axios.get(url)
                      .then(function (response){
+
                         var respuesta = response.data; 
                         me.pagination = respuesta.pagination;
                         me.arrayLista=respuesta.resultadoCombinacion.data;
+                       
                      })
                      .catch(function (error){
                         error401(error);
@@ -322,111 +289,15 @@ import { error401 } from '../../errores';
             });
             },
 
-
-
-
-
-
-
-
-
-
-
-
-
-            caracteresPermitidosTelefono(ex){
-                let me=this;
-                if(ex.keyCode==32 || ex.keyCode==43 || ex.keyCode==8 || ex.keyCode == 45 || (ex.keyCode >= 48 && ex.keyCode <= 57) )
-                {
-                    me.telefono = me.telefono+ex.key;
-                } 
-            },  
-
-            selectDepartamentos(){
-                let me=this;
-                var url='/depto/selectdepto';
-                axios.get(url).then(function(response){
-                    var respuesta=response.data;
-                    me.arrayDepto=respuesta;
-                })
-                .catch(function(error){
-                    error401(error);
-                    console.log(error);
-                });
-            },
-
-            listarSucursales(page){
-                let me=this;
-                var url='/sucursal?page='+page+'&buscar='+me.buscar;
-                axios.get(url)
-                .then(function(response){
-                    var respuesta=response.data;
-                    me.pagination=respuesta.pagination;
-                    me.arraySucursales=respuesta.sucursales.data;
-                    let resp=me.arraySucursales.find(element=>element.tipo=='Casa_Matriz');
-                    if(resp!= undefined)
-                    {
-                        if(resp.tipo=='Casa_Matriz')
-                            me.matriz=1;
-                        else
-                            me.matriz=0;
-                    }
-                    else
-                        me.matriz=0;
-                })
-                .catch(function(error){
-                    error401(error);
-                });
-            },
-
-            listarAlmacenes(page)
-            {
-                let me=this;
-                var url='/almacen?page='+page+'&buscar='+me.buscar;
-                axios.get(url)
-                .then(function(response){
-                    var respuesta = response.data;
-                    me.pagination = respuesta.pagination;
-                    me.arrayAlmacenes = respuesta.almacenes.data;
-                })
-                .catch(function(error){
-                    error401(error);
-                });
-            },
-
-            cambiarPagina(page){
+           cambiarPagina(page){
                 let me =this;
                 me.pagination.current_page = page;
-                me.listarAlmacenes(page);
+                me.listarLista(page);
             },
             
-            registrarAlmacen(){
-                let me = this;
-                axios.post('/almacen/registrar',{
-                    'idsucursal':me.sucursalSeleccionado,
-                    'nombre_almacen':me.nombrealmacen,
-                    'telefono':me.telefono,
-                    'direccion':me.direccion,
-                    'departamento':me.departamento,
-                    'ciudad':me.ciudad,
-                    'activo':1,
-                    'estado':1,
-                }).then(function(response){
-                    me.cerrarModal('registrar');
-                    Swal.fire(
-                        'Almacen Registrado exitosamente',
-                        'Haga click en Ok',
-                        'success'
-                    )
-                    me.listarAlmacenes();
-                    me.listarSucursales();
-                }).catch(function(error){
-                    error401(error);
-                    console.log(error);
-                });
-            },
+       
 
-            eliminarAlmacen(idalmacen){
+            eliminar(idalmacen){
                 let me=this;
                 const swalWithBootstrapButtons = Swal.mixin({
                 customClass: {
@@ -449,7 +320,7 @@ import { error401 } from '../../errores';
                      axios.put('/almacen/desactivar',{
                         'id': idalmacen
                     }).then(function (response) {
-                        me.listarAlmacenes();
+                        me.listarLista();
                         swalWithBootstrapButtons.fire(
                             'Desactivado!',
                             'El registro a sido desactivado Correctamente',
@@ -473,7 +344,7 @@ import { error401 } from '../../errores';
                 }
                 })
             },
-            activarAlamcen(idalmacen){
+            activar(idalmacen){
                 let me=this;
                 const swalWithBootstrapButtons = Swal.mixin({
                 customClass: {
@@ -495,7 +366,7 @@ import { error401 } from '../../errores';
                      axios.put('/almacen/activar',{
                         'id': idalmacen
                     }).then(function (response) {
-                        me.listarAlmacenes();
+                        me.listarLista();
                         swalWithBootstrapButtons.fire(
                             'Activado!',
                             'El registro a sido Activado Correctamente',
@@ -519,7 +390,7 @@ import { error401 } from '../../errores';
                 }
                 })
             },
-            actualizarAlmacen(){
+            actualizar(){
                 let me =this;
                 axios.put('/almacen/actualizar',{
                     'id':me.idalmacen,
@@ -530,7 +401,7 @@ import { error401 } from '../../errores';
                     'departamento':me.departamento,
                     'ciudad':me.ciudad,
                 }).then(function (response) {
-                    me.listarAlmacenes();
+                    me.listarLista();
                     Swal.fire(
                         'Actualizado Correctamente!',
                         'El registro a sido actualizado Correctamente',
@@ -552,8 +423,8 @@ import { error401 } from '../../errores';
                         me.tipo=0;
                         me.selectAlmTienda=0;
                         me.nombreLista='';
-                        me.codigo='',
-                        me.lista_id_almacen_id_tienda='',
+                        me.codigo='';
+                        me.lista_id_almacen_id_tienda='';
                         
                         me.classModal.openModal('registrar');
                         break;
@@ -561,16 +432,16 @@ import { error401 } from '../../errores';
                     
                     case 'actualizar':
                     {
-                        me.sucursalSeleccionado=data.idsucursal===null?0:data.idsucursal;
-                        me.tipoAccion=2;
-                        me.tituloModal='Actualizar Datos del Almacen';
-                        me.tipo=data.tipo;
-                        me.nombrealmacen=data.nombre_almacen;
-                        me.telefono=data.telefono;
-                        me.direccion=data.direccion;
-                        me.ciudad=data.ciudad;
-                        me.departamento=data.departamento;
-                        me.idalmacen=data.id;
+                       // me.sucursalSeleccionado=data.idsucursal===null?0:data.idsucursal;
+                       // me.tipoAccion=2;
+                       // me.tituloModal='Actualizar Datos del Almacen';
+                       // me.tipo=data.tipo;
+                       // me.nombrealmacen=data.nombre_almacen;
+                       // me.telefono=data.telefono;
+                       // me.direccion=data.direccion;
+                       // me.ciudad=data.ciudad;
+                       // me.departamento=data.departamento;
+                       // me.idalmacen=data.id;
                         me.classModal.openModal('registrar');
                         break;
                     }
@@ -583,14 +454,11 @@ import { error401 } from '../../errores';
                 let me = this;
                 me.classModal.closeModal(accion);
                 me.tipoAccion=1;
-                me.tipo=0;
-                me.nombrealmacen='';
-                me.telefono='';
-                me.nit='';
-                me.direccion='';
-                me.ciudad=0;
-                me.tipoAccion=1;
-                me.idrubro=0;                
+                        me.tipo=0;
+                        me.selectAlmTienda=0;
+                        me.nombreLista='';
+                        me.codigo='';
+                        me.lista_id_almacen_id_tienda='';              
             },
 
             selectAll: function (event) {
@@ -599,27 +467,11 @@ import { error401 } from '../../errores';
                 }, 0)
             },
 
-            selectRubros(){
-                let me=this;
-                var url='/rubro/selectrubro';
-                axios.get(url).then(function(response){
-                    var respuesta=response.data;
-                    me.arrayRubros=respuesta;
-                })
-                .catch(function(error){
-                    error401(error);
-                    console.log(error);
-                });
-            },
+       
         },
 
         mounted() {
-            this.selectRubros();
-
-            
-            this.listarAlmacenes(1);
-            this.listarSucursales(1);
-            this.selectDepartamentos();
+           
             this.classModal = new _pl.Modals();
             this.classModal.addModal('registrar');
             this.listarLista(1);

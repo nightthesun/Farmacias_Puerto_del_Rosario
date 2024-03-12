@@ -36,30 +36,29 @@ class ProdListaController extends Controller
                        )";
                     }
                 }
-                $tienda = DB::table('prod__listas as pl')
-                ->join('tda__tiendas as tt', 'tt.id', '=', 'pl.id_tda_alm')
-                ->join('adm__sucursals as ass', 'ass.id', '=', 'tt.idsucursal')
-                ->join('users as u', 'u.id', '=', 'pl.id_usuario')
-                ->where('tt.codigo', '=', 'pl.codigo_tda_alm') // Changed aa to tt here
-                ->whereRaw($sqls)
-                ->select('pl.id as id', 'pl.nombre_lista as nombre_lista', 'pl.codigo as codigo_lista',
-                         'pl.codigo_tda_alm as codigo_tda_alm', 'pl.id_tda_alm as id_tda_alm',
-                         'ass.razon_social as razon_social', 'ass.cod', 'u.name as user_name',
-                         'pl.estado as estado', 'pl.activo as activo');
-            
-            $almacen = DB::table('prod__listas as pl')
-                ->join('alm__almacens as aa', 'aa.id', '=', 'pl.id_tda_alm')
-                ->join('adm__sucursals as ass', 'ass.id', '=', 'aa.idsucursal')
-                ->join('users as u', 'u.id', '=', 'pl.id_usuario')
-                ->where('aa.codigo', '=', 'pl.codigo_tda_alm')
-                ->whereRaw($sqls)
-                ->select('pl.id as id', 'pl.nombre_lista as nombre_lista', 'pl.codigo as codigo_lista',
-                         'pl.codigo_tda_alm as codigo_tda_alm', 'pl.id_tda_alm as id_tda_alm',
-                         'aa.nombre_almacen as razon_social', 'ass.cod', 'u.name as user_name',
-                         'pl.estado as estado', 'pl.activo as activo'); 
-            
-            $union = $tienda->unionAll($almacen);
-            $resultadoCombinacion = $union->orderBy('id', 'desc')->paginate(15);
+                $resultadoCombinacion = DB::table('prod__listas as pl')
+            ->select('pl.id as id', 'pl.nombre_lista as nombre_lista', 'pl.codigo as codigo_lista', 'pl.codigo_tda_alm as codigo_tda_alm',
+                     'pl.id_tda_alm as id_tda_alm', 'ass.razon_social as razon_social', 'ass.cod as cod', 'u.name as user_name',
+                     'pl.estado as estado', 'pl.activo as activo')
+            ->join('tda__tiendas as tt', 'tt.id', '=', 'pl.id_tda_alm')
+            ->join('adm__sucursals as ass', 'ass.id', '=', 'tt.idsucursal')
+            ->join('users as u', 'u.id', '=', 'pl.id_usuario')
+            ->whereColumn('tt.codigo', '=', 'pl.codigo_tda_alm')
+            ->whereRaw($sqls)
+            ->unionAll(
+                DB::table('prod__listas as pl')
+                    ->select('pl.id as id', 'pl.nombre_lista as nombre_lista', 'pl.codigo as codigo_lista', 'pl.codigo_tda_alm as codigo_tda_alm',
+                             'pl.id_tda_alm as id_tda_alm', 'aa.nombre_almacen as razon_social', 'ass.cod as cod', 'u.name as user_name',
+                             'pl.estado as estado', 'pl.activo as activo')
+                    ->join('alm__almacens as aa', 'aa.id', '=', 'pl.id_tda_alm')
+                    ->join('adm__sucursals as ass', 'ass.id', '=', 'aa.idsucursal')
+                    ->join('users as u', 'u.id', '=', 'pl.id_usuario')
+                    ->whereColumn('aa.codigo', '=', 'pl.codigo_tda_alm')
+                    ->whereRaw($sqls)
+            )
+            ->orderByDesc('id')
+            ->paginate(15);
+              
             }    
             return
             [
@@ -75,30 +74,26 @@ class ProdListaController extends Controller
                 'resultadoCombinacion' => $resultadoCombinacion,
             ];
         } else{
-            $tienda = DB::table('prod__listas as pl')
-                ->join('tda__tiendas as tt', 'tt.id', '=', 'pl.id_tda_alm')
-                ->join('adm__sucursals as ass', 'ass.id', '=', 'tt.idsucursal')
-                ->join('users as u', 'u.id', '=', 'pl.id_usuario')
-                ->where('tt.codigo', '=', 'pl.codigo_tda_alm') 
-             
-                ->select('pl.id as id', 'pl.nombre_lista as nombre_lista', 'pl.codigo as codigo_lista',
-                         'pl.codigo_tda_alm as codigo_tda_alm', 'pl.id_tda_alm as id_tda_alm',
-                         'ass.razon_social as razon_social', 'ass.cod', 'u.name as user_name',
-                         'pl.estado as estado', 'pl.activo as activo');
-            
-            $almacen = DB::table('prod__listas as pl')
-                ->join('alm__almacens as aa', 'aa.id', '=', 'pl.id_tda_alm')
-                ->join('adm__sucursals as ass', 'ass.id', '=', 'aa.idsucursal')
-                ->join('users as u', 'u.id', '=', 'pl.id_usuario')
-                ->where('aa.codigo', '=', 'pl.codigo_tda_alm')
-           
-                ->select('pl.id as id', 'pl.nombre_lista as nombre_lista', 'pl.codigo as codigo_lista',
-                         'pl.codigo_tda_alm as codigo_tda_alm', 'pl.id_tda_alm as id_tda_alm',
-                         'aa.nombre_almacen as razon_social', 'ass.cod', 'u.name as user_name',
-                         'pl.estado as estado', 'pl.activo as activo'); 
-            
-            $union = $tienda->unionAll($almacen);
-            $resultadoCombinacion = $union->orderBy('id', 'desc')->paginate(15);   
+            $resultadoCombinacion = DB::table('prod__listas as pl')
+            ->select('pl.id as id', 'pl.nombre_lista as nombre_lista', 'pl.codigo as codigo_lista', 'pl.codigo_tda_alm as codigo_tda_alm',
+                     'pl.id_tda_alm as id_tda_alm', 'ass.razon_social as razon_social', 'ass.cod as cod', 'u.name as user_name',
+                     'pl.estado as estado', 'pl.activo as activo')
+            ->join('tda__tiendas as tt', 'tt.id', '=', 'pl.id_tda_alm')
+            ->join('adm__sucursals as ass', 'ass.id', '=', 'tt.idsucursal')
+            ->join('users as u', 'u.id', '=', 'pl.id_usuario')
+            ->whereColumn('tt.codigo', '=', 'pl.codigo_tda_alm')
+            ->unionAll(
+                DB::table('prod__listas as pl')
+                    ->select('pl.id as id', 'pl.nombre_lista as nombre_lista', 'pl.codigo as codigo_lista', 'pl.codigo_tda_alm as codigo_tda_alm',
+                             'pl.id_tda_alm as id_tda_alm', 'aa.nombre_almacen as razon_social', 'ass.cod as cod', 'u.name as user_name',
+                             'pl.estado as estado', 'pl.activo as activo')
+                    ->join('alm__almacens as aa', 'aa.id', '=', 'pl.id_tda_alm')
+                    ->join('adm__sucursals as ass', 'ass.id', '=', 'aa.idsucursal')
+                    ->join('users as u', 'u.id', '=', 'pl.id_usuario')
+                    ->whereColumn('aa.codigo', '=', 'pl.codigo_tda_alm')
+            )
+            ->orderByDesc('id')
+            ->paginate(15);
             return
             [
                 'pagination' =>
