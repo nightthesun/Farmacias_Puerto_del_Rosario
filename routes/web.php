@@ -308,6 +308,8 @@ Route::group(['middleware' => 'auth'], function () {
    //------------------------------lista de productos 
    Route::get('/lista/listarSucursal', [ProdListaController::class, 'listarSucursal']); 
    Route::post('/lista/registrar', [ProdListaController::class, 'store']);
+   Route::get('/lista', [ProdListaController::class, 'index']); 
+
     Route::get('/producto/listarSucursal', [ProdRegistroPreXListController::class, 'listarSucursal']); 
     Route::get('/producto/listarProducto', [ProdRegistroPreXListController::class, 'listarProducto']);  
     //------------------------fin de lista de prodcutos

@@ -34,7 +34,7 @@
                             </tr>
                         </thead>
                         <!--
-<tbody>
+                            <tbody>
                             <tr v-for="almacen in arrayAlmacenes" :key="almacen.id">
                                 <td>
                                     <button type="button" class="btn btn-warning btn-sm" @click="abrirModal('actualizar',almacen)">
@@ -66,8 +66,7 @@
                             </tr>
                            
                         </tbody>
-
-                        -->
+                      -->
                         
                     </table>
                     <nav>
@@ -109,17 +108,14 @@
                                 <div class="col-md-9">
                                     <select class="form-control"  v-model="selectAlmTienda">
                                     <option value="0" disabled selected>Seleccionar...</option>
-                                    <option
-                                        v-for="sucursal in arrayAlmTienda"
+                                    <option v-for="sucursal in arrayAlmTienda"
                                         :key="sucursal.codigo"
                                         :value="sucursal.codigo"
                                         v-text="sucursal.codigoS +
                                             ' -> ' + sucursal.codigo+' ' +
-                                            sucursal.razon_social"></option>
-                                </select>
-
-
-
+                                            sucursal.razon_social">
+                                    </option>
+                                    </select>
                                     
                                 </div>
                             </div>
@@ -131,10 +127,7 @@
                                     <input type="tex" id="nombrealmacen" name="nombrealmacen" class="form-control"  v-model="nombreLista" v-on:focus="selectAll"  >
                                     <span  v-if="nombreLista==''" class="error">Debe Ingresar el nombre de lista</span>
                                 </div>
-                            </div>
-                           
-                    
-                            
+                            </div>                           
                         </form>
                     </div>
                     <div class="modal-footer">
@@ -177,7 +170,7 @@ import { error401 } from '../../errores';
                 nombreLista:'',
                 codigo:'',
                 lista_id_almacen_id_tienda:'',
-
+                arrayLista:[],
 
 
 
@@ -264,6 +257,21 @@ import { error401 } from '../../errores';
         }
        }, 
         methods :{
+            //then entonces
+            listarLista(page){
+                let me=this;
+                var url="/lista?page="+page+"&buscar="+me.buscar;
+                axios.get(url)
+                     .then(function (response){
+                        var respuesta = response.data; 
+                        me.pagination = respuesta.pagination;
+                        me.arrayLista=respuesta.resultadoCombinacion.data;
+                     })
+                     .catch(function (error){
+                        error401(error);
+                     });   
+
+            },
             listarAlmTienda() {
             let me = this;
             var url = "/lista/listarSucursal";
@@ -295,8 +303,8 @@ import { error401 } from '../../errores';
                     )
 
                     ///añadir lista
-                   // me.listarAlmacenes();
-                   // me.listarSucursales();
+                    me.listarLista();
+                   
                 }).catch(function (error) {                
                 if (error.response.status === 500) {
                     me.errorMsg = error.response.data.error; // Asigna el mensaje de error a la variable errorMsg
@@ -607,11 +615,14 @@ import { error401 } from '../../errores';
 
         mounted() {
             this.selectRubros();
+
+            
             this.listarAlmacenes(1);
             this.listarSucursales(1);
             this.selectDepartamentos();
             this.classModal = new _pl.Modals();
             this.classModal.addModal('registrar');
+            this.listarLista(1);
             //console.log('Component mounted.')
         }
     }
