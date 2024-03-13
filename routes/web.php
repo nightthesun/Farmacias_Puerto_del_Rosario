@@ -306,12 +306,18 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/producto/selectproductoperecedero', [ProdProductoController::class, 'selectProductoPerecedero']);
 
    //------------------------------lista de productos 
-   Route::get('/lista/listarSucursal', [ProdListaController::class, 'listarSucursal']); 
-   Route::post('/lista/registrar', [ProdListaController::class, 'store']);
-   Route::get('/lista', [ProdListaController::class, 'index']); 
+    Route::get('/lista/listarSucursal', [ProdListaController::class, 'listarSucursal']); 
+    Route::post('/lista/registrar', [ProdListaController::class, 'store']);
+    Route::get('/lista', [ProdListaController::class, 'index']); 
+    Route::put('/lista/actualizar', [ProdListaController::class, 'update']);
+    Route::put('/lista/desactivar', [ProdListaController::class, 'desactivar']);
+    Route::put('/lista/activar', [ProdListaController::class, 'activar']);
+       
 
     Route::get('/producto/listarSucursal', [ProdRegistroPreXListController::class, 'listarSucursal']); 
-    Route::get('/producto/listarProducto', [ProdRegistroPreXListController::class, 'listarProducto']);  
+    Route::get('/producto/listarProducto', [ProdRegistroPreXListController::class, 'listarProducto']);
+    Route::get('/producto/listarLista', [ProdRegistroPreXListController::class, 'listarLista']);    
+    Route::get('/producto/listarProductoRetorno', [ProdRegistroPreXListController::class, 'listarProductoRetorno']);
     //------------------------fin de lista de prodcutos
 
     Route::get('/dispenser', [ProdDispenserController::class, 'index']);

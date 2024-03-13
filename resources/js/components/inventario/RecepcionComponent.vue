@@ -341,7 +341,7 @@
                 <div class="modal-body">
                     <form>
                         <div class="mb-3">
-                            <label for="exampleInputEmail1" class="form-label">Introdusca una loque quiere buscar: </label>
+                            <label for="exampleInputEmail1" class="form-label">Introdusca descripcion a buscar: </label>
                             <input type="text" id="texto" name="texto" class="form-control" placeholder="Texto a buscar" 
                             v-model="inputTextBuscar"
                                @input="listarRetornoTraspaso()">

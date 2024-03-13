@@ -40,7 +40,7 @@
                         <tbody>
                             <tr v-for="lista in arrayLista" :key="lista.id">
                                 <td>                                    
-                                    <button type="button" class="btn btn-warning btn-sm" @click="abrirModal('actualizar',lista)" >
+                                    <button type="button" class="btn btn-warning btn-sm" @click="abrirModal('actualizar',lista,listarAlmTienda())" >
                                         <i class="icon-pencil"></i>
                                     </button> &nbsp;
                                     <button v-if="lista.activo==1" type="button" class="btn btn-danger btn-sm" @click="eliminar(lista.id)" >
@@ -134,7 +134,7 @@
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary"  @click="cerrarModal('registrar')">Cerrar</button>
                         <button type="button" v-if="tipoAccion==1" class="btn btn-primary" @click="registrarLista()" :disabled="!sicompleto">Guardar</button>
-                        <button type="button" v-if="tipoAccion==2" class="btn btn-primary" @click="actualizarAlmacen()">Actualizar</button>
+                        <button type="button" v-if="tipoAccion==2" class="btn btn-primary" @click="actualizar()">Actualizar</button>
                     </div>
                 </div>
                 <!-- /.modal-content -->
@@ -171,7 +171,8 @@ import { error401 } from '../../errores';
                 nombreLista:'',
                 codigo:'',
                 lista_id_almacen_id_tienda:'',
-                arrayLista:[]
+                arrayLista:[],
+                id_o:'',
                 
             }
 
@@ -215,8 +216,10 @@ import { error401 } from '../../errores';
             let sucursalAbuscar = this.arrayAlmTienda.find(
                     (element) => element.codigo === codigo);
                     if (sucursalAbuscar) {                        
-                        this.codigo=sucursalAbuscar.codigo;
+                       this.codigo=sucursalAbuscar.codigo;
                        this.lista_id_almacen_id_tienda=sucursalAbuscar.lista_id_almacen_id_tienda;
+                       this.id=sucursalAbuscar.sucursalAbuscar;
+                       
                     }
         }
        }, 
@@ -225,7 +228,7 @@ import { error401 } from '../../errores';
             listarLista(page){
                 let me=this;
                 var url="/lista?page="+page+"&buscar="+me.buscar;
-                console.log(url);
+                
                 axios.get(url)
                      .then(function (response){
 
@@ -256,7 +259,7 @@ import { error401 } from '../../errores';
         },
         registrarLista(){
                 let me = this;
-                console.log( me.codigo+' '+ me.lista_id_almacen_id_tienda+' '+me.nombreLista);
+                
                 axios.post('/lista/registrar',{
                     'codigo':me.codigo,
                     'lista_id_almacen_id_tienda':me.lista_id_almacen_id_tienda,
@@ -297,7 +300,7 @@ import { error401 } from '../../errores';
             
        
 
-            eliminar(idalmacen){
+            eliminar(id){
                 let me=this;
                 const swalWithBootstrapButtons = Swal.mixin({
                 customClass: {
@@ -317,8 +320,8 @@ import { error401 } from '../../errores';
                 reverseButtons: true
                 }).then((result) => {
                 if (result.isConfirmed) {
-                     axios.put('/almacen/desactivar',{
-                        'id': idalmacen
+                     axios.put('/lista/desactivar',{
+                        'id': id
                     }).then(function (response) {
                         me.listarLista();
                         swalWithBootstrapButtons.fire(
@@ -344,7 +347,7 @@ import { error401 } from '../../errores';
                 }
                 })
             },
-            activar(idalmacen){
+            activar(id){
                 let me=this;
                 const swalWithBootstrapButtons = Swal.mixin({
                 customClass: {
@@ -363,8 +366,8 @@ import { error401 } from '../../errores';
                 reverseButtons: true
                 }).then((result) => {
                 if (result.isConfirmed) {
-                     axios.put('/almacen/activar',{
-                        'id': idalmacen
+                     axios.put('/lista/activar',{
+                        'id': id
                     }).then(function (response) {
                         me.listarLista();
                         swalWithBootstrapButtons.fire(
@@ -390,28 +393,7 @@ import { error401 } from '../../errores';
                 }
                 })
             },
-            actualizar(){
-                let me =this;
-                axios.put('/almacen/actualizar',{
-                    'id':me.idalmacen,
-                    'idsucursal':me.sucursalSeleccionado,
-                    'nombre_almacen':me.nombrealmacen,
-                    'telefono':me.telefono,
-                    'direccion':me.direccion,
-                    'departamento':me.departamento,
-                    'ciudad':me.ciudad,
-                }).then(function (response) {
-                    me.listarLista();
-                    Swal.fire(
-                        'Actualizado Correctamente!',
-                        'El registro a sido actualizado Correctamente',
-                        'success'
-                    )
-                }).catch(function (error) {
-                    error401(error);
-                });
-                me.cerrarModal('registrar');
-            },
+            
 
             abrirModal(accion,data= []){
                 let me=this;
@@ -420,7 +402,7 @@ import { error401 } from '../../errores';
                     {
                         me.tituloModal='Registar Nueva Lista'
                         me.tipoAccion=1;
-                        me.tipo=0;
+                        me.codigo_tda_alm="";
                         me.selectAlmTienda=0;
                         me.nombreLista='';
                         me.codigo='';
@@ -432,24 +414,56 @@ import { error401 } from '../../errores';
                     
                     case 'actualizar':
                     {
-                       // me.sucursalSeleccionado=data.idsucursal===null?0:data.idsucursal;
-                       // me.tipoAccion=2;
-                       // me.tituloModal='Actualizar Datos del Almacen';
-                       // me.tipo=data.tipo;
-                       // me.nombrealmacen=data.nombre_almacen;
-                       // me.telefono=data.telefono;
-                       // me.direccion=data.direccion;
-                       // me.ciudad=data.ciudad;
-                       // me.departamento=data.departamento;
-                       // me.idalmacen=data.id;
+                   
+                        me.tipoAccion=2;
+                        me.selectAlmTienda=data.codigo_tda_alm==null?0:data.codigo_tda_alm;
+                        me.nombreLista=data.nombre_lista;
+                        me.id_o=data.id;          
+                        
+                        me.lista_id_almacen_id_tienda=data.id_tda_alm;
                         me.classModal.openModal('registrar');
+                        
                         break;
                     }
 
                 }
                 
             },
-
+            actualizar(){
+                let me =this;
+                axios.put('/lista/actualizar',{
+                    id:me.id_o,
+                    codigo:me.selectAlmTienda,
+                    lista_id_almacen_id_tienda:me.lista_id_almacen_id_tienda,
+                    nombreLista:me.nombreLista    
+                    
+                }).then(function (response) {
+                    me.listarLista(1);
+                    Swal.fire(
+                        'Actualizado Correctamente!',
+                        'El registro a sido actualizado Correctamente',
+                        'success'
+                    )
+                }).catch(function (error) {                
+                if (error.response.status === 500) {
+                    me.listarLista(1);
+                    me.errorMsg = error.response.data.error; // Asigna el mensaje de error a la variable errorMsg
+                Swal.fire(
+                    
+                    "Error",
+                    "500 (Internal Server Error)"+me.errorMsg, // Muestra el mensaje de error en el alert
+                    "error"       );
+                }else{
+                    me.listarLista(1);
+                    Swal.fire(
+                    "Error",
+                    ""+error, // Muestra el mensaje de error en el alert
+                    "error"
+                );  
+                }              
+            });
+                me.cerrarModal('registrar');
+            },
             cerrarModal(accion){
                 let me = this;
                 me.classModal.closeModal(accion);
@@ -458,7 +472,8 @@ import { error401 } from '../../errores';
                         me.selectAlmTienda=0;
                         me.nombreLista='';
                         me.codigo='';
-                        me.lista_id_almacen_id_tienda='';              
+                        me.lista_id_almacen_id_tienda='';   
+                        me.id_o='';           
             },
 
             selectAll: function (event) {
@@ -475,7 +490,7 @@ import { error401 } from '../../errores';
             this.classModal = new _pl.Modals();
             this.classModal.addModal('registrar');
             this.listarLista(1);
-            //console.log('Component mounted.')
+            
         }
     }
 </script>

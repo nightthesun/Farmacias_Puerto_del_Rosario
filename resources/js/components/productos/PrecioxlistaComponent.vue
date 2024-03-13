@@ -104,7 +104,7 @@
                                     <span   class="error">(*)</span>
                                 </label>
                                 <div class="col-md-9">
-                                    <select name="" id="" v-model="selectEnvase" @change="listarProducto()" v-if="tipoAccion==1" class="form-control">
+                                    <select name="" id="" v-model="selectEnvase" @change="listarProducto();" v-if="tipoAccion==1" class="form-control">
                                         <option v-bind:value="0" disabled>Seleccior... </option>
                                         <option
                                           v-for="env in arrayEnvase"
@@ -116,12 +116,13 @@
                                 </div>
                             </div>
                             <div class="form-group row" v-if="selectEnvase != 0">
+                                
                                 <label class="col-md-3 form-control-label" for="text-input">
                                     Producto:
                                     <span   class="error">(*)</span>
                                 </label>
-                                <div class="col-md-9">
-                                    <select name="" id="" v-model="selectProducto"   class="form-control">
+                                <div class="col-md-9 input-group mb-3 ">
+                                    <select name="" id="" v-model="selectProducto" @change="listarLista()"  class="form-control">
                                         <option v-bind:value="0" disabled>-Seleccionar... </option>
                                         <option
                                           v-for="prod in arrayProducto"
@@ -131,18 +132,36 @@
                                       ></option>
                                        
                                     </select>
+                                    <button class="btn btn-primary" 
+                                  v-if="tipoAccion == 1"
+                                  type="button" id="button-addon1"
+                                  @click="abrirModal('bucarProducto');listarProductoRetorno();">                                           
+                                                                                
+                                      <i class="fa fa-search"></i>                                            
+                                  </button> 
                                 </div>
+                                
                             </div>
+                
                             <div class="form-group row" v-if="selectEnvase != 0 && selectProducto !=0">
-                                      <label class="col-md-3 form-control-label" for="text-input">Nombre de lista
+                                      <label class="col-md-3 form-control-label" for="text-input">Lista
                                         <span   class="error">(*)</span>
                                       </label>
                                         <div class="col-md-9">
-                                         <input type="text" id="lista_name" name="lista_name" class="form-control" placeholder="Nombre de la lista" >
+                                        <select name="" id="" v-model="selectLista"   class="form-control">
+                                        <option v-bind:value="0" disabled>-Seleccionar... </option>
+                                        <option
+                                          v-for="list in arrayLista"
+                                          :key="list.id"
+                                          v-bind:value="list.id"
+                                          v-text="list.codigo_lista+' '+list.nombre_lista">
+                                        </option>
+                                       
+                                    </select>
                                       </div>
                                   </div>  
-
-                                  <div class="row">
+                            <div v-if="selectEnvase != 0 && selectProducto !=0">
+                                <div class="row">
                                             <div class="form-group col-sm-4">
                                                 <strong>Precio de Lista:</strong>
                                                 <input type="text" class="form-control" min="0" id="precioventaEnvase" v-model="preciolistaEnvase" step="any" v-on:focus="selectAll" style="text-align:right" onkeypress="return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46 )">
@@ -151,11 +170,12 @@
                                                 <strong>Precio de Venta:</strong>
                                                 <input type="text" id="precioventaEnvase" min="0" class="form-control" v-model="precioventaEnvase" step="any" v-on:focus="selectAll" style="text-align:right" onkeypress="return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46 )">
                                             </div>
+                                         
                                             <div class="form-group col-sm-4">
                                                 <strong>Ciclo de Pedido:</strong>
                                                 <select v-model="tiempopedidoselectedprimario" class="form-control">
-                                                    <option value="0">Seleccionar</option>
-                                                    <option v-for="tiempo in tiempopedido" :key="tiempo.id" :value="tiempo.dato" v-text="tiempo.tiempo"></option>
+                                                    <option v-bind:value="0" disabled>-Seleccionar... </option>
+                                                    <option v-for="tiempo in tiempopedido" :key="tiempo.dato" :value="tiempo.dato" v-text="tiempo.tiempo"></option>
                                                 </select>
                                                 <span class="error" v-if="tiempopedidoselectedprimario==0">Debe seleccionar el tiempo de pedido</span>
                                             </div>
@@ -164,7 +184,8 @@
                                             <div class="form-group col-sm-4">
                                                 <strong>Clasificación ABC:</strong>
                                                 <select v-model="metodoselectedprimario" class="form-control">
-                                                    <option v-for="metodo in arrayMetodo" :key="metodo.id" :value="metodo.id" v-text="metodo.letra"></option>
+                                                    <option v-bind:value="0" disabled>-Seleccionar... </option>
+                                                    <option v-for="metodo in arrayMetodo" :key="metodo.letra" :value="metodo.letra" v-text="metodo.letra"></option>
                                                 </select>
                                             </div>
                                             <div class="form-group col-sm-4">
@@ -179,6 +200,7 @@
                                              </div>
 
                                         </div>
+                            </div>     
 
        
                         </div>
@@ -197,6 +219,60 @@
             </div>
         </div>
         <!--fin del modal-->
+
+               <!-- Modal para la busqueda de producto por lote -->
+ <div class="modal fade" id="staticBackdrop" tabindex="-2" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-scrollable modal-primary">
+                <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Busqueda de producto</h5>
+                    <button type="button" @click="cerrarModal('staticBackdrop')" class="btn-close" data-bs-dismiss="modal" aria-label="Close">X</button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="mb-3">
+                            <label for="exampleInputEmail1" class="form-label">Introdusca descripcion a buscar: </label>
+                            <input type="text" id="texto" name="texto" class="form-control" placeholder="Texto a buscar" 
+                            v-model="inputTextBuscar"
+                               @input="listarProductoRetorno()">
+                            <!-- <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div> -->
+                        </div>
+                        <div>
+                            <table class="table table-hover" id="tablaProductosIngreso"  style="width: 100%; display: block; overflow-y: auto;">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">id.</th>
+                                            <th scope="col">codigo.</th>
+                                            <th scope="col">linea.</th>
+                                            <th scope="col">producto.</th>
+                                         </tr>
+                                    </thead>
+                                    <tbody>  
+                                       <tr v-for=" ret in arrayRetorno " :key="ret.id" @click="abrirModal('registrar_retorno',selectEnvase,ret);" >
+                                        <td v-text="ret.id"></td>
+                                        <td v-text="ret.prod_cod"></td>
+                                        <td v-text="ret.linea_name"></td>
+                                        <td v-text="ret.leyenda"></td>
+                                    
+                                       </tr>
+                                      
+                                    </tbody>
+                            </table>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    
+                 
+                    <button type="button" v-if="tipoAccion==1" class="btn btn-secondary" data-bs-dismiss="modal" @click="cerrarModal('staticBackdrop');abrirModal('registrar');" >Cerrar</button>
+     
+                    
+                    <!-- <button type="button" class="btn btn-primary">Save changes</button> -->
+                </div>
+                </div>
+            </div>
+     </div>
+     <!---fin de modal 2-->
     </main>
 </template>
 
@@ -233,6 +309,13 @@
                 preciolistaEnvase:'',
                 tiempopedidoEnvase:'',
                 metodoabcEnvase:'',
+                selectLista:0,
+                arrayLista:[],
+
+                tiempopedidoselectedprimario:0,
+                metodoselectedprimario:0,
+                inputTextBuscar:'',
+                arrayRetorno:[],
             }
         },
         
@@ -240,7 +323,8 @@
         selectProducto: function(id){
             let prodcutoAbuscar = this.arrayProducto.find(
                     (element) => element.id === id);
-                    if (prodcutoAbuscar) {                        
+                    if (prodcutoAbuscar) {  
+                                          
                         this.id_prod=prodcutoAbuscar.id;
                        this.rubro=prodcutoAbuscar.rubro_name;
                        this.linea_cod=prodcutoAbuscar.linea_cod;
@@ -250,16 +334,61 @@
                        this.precioventaEnvase=prodcutoAbuscar.precioventaEnvase;
                        this.tiempopedidoEnvase=prodcutoAbuscar.tiempopedidoEnvase;
                        this.metodoabcEnvase=prodcutoAbuscar.metodoabcEnvase;
-
+                       this.tiempopedidoselectedprimario=this.tiempopedidoEnvase;
+                       this.metodoselectedprimario=this.metodoabcEnvase;
                     }
         }
        }, 
        methods :{
+        listarProductoRetorno(){
+            let me = this;
+            let parteCodigo = me.selectAlmTienda.substring(0, 3);
+            var pase="";
+            me.tiempopedidoselectedprimario= 12;
+            if(parteCodigo==='ALM' || parteCodigo==='TDA'){
+                
+
+            var url ="/producto/listarProductoRetorno?codigo=" + parteCodigo + "&envase=" + me.selectEnvase+"&input="+me.inputTextBuscar;
+                    axios
+                .get(url)
+                .then(function (response) {
+                    var respuesta = response.data;
+                    me.arrayRetorno = respuesta;
+                    
+                 
+                })
+                    
+                .catch(function (error) {
+                    error401(error);
+                    console.log(error);
+                });
+            }
+            else{
+                error401(error);
+                console.log(error); 
+            } 
+        },
+        listarLista(){
+            let me = this;
+            var url = "/producto/listarLista?codigo="+me.selectAlmTienda+"&envase=" + me.selectEnvase;
+       
+            axios
+                .get(url)
+                .then(function (response) {
+                    var respuesta = response.data;
+                    me.arrayLista = respuesta;
+                 
+                })
+                .catch(function (error) {
+                    error401(error);
+                    console.log(error);
+                });
+        },
         listarProducto() {
             let me = this;
             let parteCodigo = me.selectAlmTienda.substring(0, 3);
             var pase="";
-            console.log(parteCodigo);
+            me.tiempopedidoselectedprimario= 12;
             if(parteCodigo==='ALM' || parteCodigo==='TDA'){
                 
 
@@ -283,7 +412,8 @@
                 });
             }
             else{
-
+                error401(error);
+                console.log(error); 
             } 
             
          
@@ -315,7 +445,8 @@
 
                 switch(accion){
                     case 'registrar':
-                    {
+                    {   
+                       
                         me.tituloModal='Lista de precios en '+me.selectAlmTienda;
                         me.selectEnvase=0;
                         me.selectProducto=0;
@@ -326,8 +457,11 @@
                         me.lineaS="";
                         me.preciolistaEnvase="";
                         me.precioventaEnvase="";
-                        me.tiempopedidoEnvase="";
+                        
                         me.metodoabcEnvase="";
+                        me.selectLista=0;
+                        me.tiempopedidoselectedprimario=0;
+                        me.metodoselectedprimario=0;
                         me.classModal.openModal('registrar');
                         break;
                     }
@@ -335,6 +469,32 @@
                         {
                             me.classModal.openModal('registrar');
                         }
+                    case 'bucarProducto':{
+                        me.inputTextBuscar="";
+                        me.classModal.openModal('staticBackdrop');
+                    break;
+                    } 
+                    case 'registrar_retorno':
+                    {   
+                        console.log(data);
+                        me.tituloModal='Lista de precios en '+me.selectAlmTienda;
+                        me.selectEnvase=0;
+                        me.selectProducto=0;
+                        me.id_prod="";
+                        me.linea="";
+                        me.linea_cod="";
+                        me.rubro="";
+                        me.lineaS="";
+                        me.preciolistaEnvase="";
+                        me.precioventaEnvase="";
+                        
+                        me.metodoabcEnvase="";
+                        me.selectLista=0;
+                        me.tiempopedidoselectedprimario=0;
+                        me.metodoselectedprimario=0;
+                        me.classModal.openModal('registrar');
+                        break;
+                    }   
                  
 
                 }
@@ -342,6 +502,7 @@
             },
             cerrarModal(accion){
                 let me = this;
+                me.inputTextBuscar="";
                 me.classModal.closeModal(accion);
                            
             },
@@ -350,6 +511,7 @@
        
        mounted() {
         this.classModal = new _pl.Modals();
+        this.classModal.addModal("staticBackdrop");
         this.listarAlmTienda();
         this.classModal.addModal('registrar');
  
