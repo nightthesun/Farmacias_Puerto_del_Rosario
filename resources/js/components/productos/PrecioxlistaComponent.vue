@@ -163,7 +163,7 @@
                             <div v-if="selectEnvase != 0 && selectProducto !=0">
                                 <div class="row">
                                             <div class="form-group col-sm-4">
-                                                <strong>Precio de Lista:</strong>
+                                                <strong>Precio de Lista:</strong>     
                                                 <input type="text" class="form-control" min="0" id="precioventaEnvase" v-model="preciolistaEnvase" step="any" v-on:focus="selectAll" style="text-align:right" onkeypress="return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46 )">
                                             </div>
                                             <div class="form-group col-sm-4">
@@ -348,7 +348,7 @@
                     (element) => element.codigo  === codigo);
                     if (alm_tda_buscar) {  
                                           
-                        this.lista_id_almacen_id_tienda=alm_tda_buscar.lista_id_almacen_id_tienda;
+                       this.lista_id_almacen_id_tienda=alm_tda_buscar.lista_id_almacen_id_tienda;
                        this.codigo_tda_alm=alm_tda_buscar.codigo;
                        this.tipoCodigo=alm_tda_buscar.tipoCodigo;
                   
@@ -356,6 +356,7 @@
         }
        }, 
        methods :{
+       
         listarProductoRetorno(){
             let me = this;
             let parteCodigo = me.selectAlmTienda.substring(0, 3);
@@ -369,11 +370,9 @@
                 .get(url)
                 .then(function (response) {
                     var respuesta = response.data;
-                    me.arrayRetorno = respuesta;
-                    
+                    me.arrayRetorno = respuesta;                    
                  
-                })
-                    
+                })                    
                 .catch(function (error) {
                     error401(error);
                     console.log(error);
@@ -456,22 +455,46 @@
             },
     registrarLisxPre() {
             let me = this;
+            var numero_lista = 0;
+            var numero_venta = 0; 
+
+    if (!isNaN(parseFloat(me.preciolistaEnvase))) {
+        // Redondear a dos decimales
+        numero_lista = parseFloat(me.preciolistaEnvase).toFixed(2);
+        } else {
+        numero_lista = 'string';
+        }
+    if (!isNaN(parseFloat(me.precioventaEnvase))) {
+        // Redondear a dos decimales
+        numero_venta = parseFloat(me.precioventaEnvase).toFixed(2);
+        } else {
+            numero_venta = 'string';
+        }
+
+
       if (me.selectLista===0 || me.selectLista === "" ||  me.precioventaEnvase==="" || me.preciolistaEnvase==="" || me.tiempopedidoEnvase===""
-                || me.metodoabcEnvase==="") {
+                || me.metodoselectedprimario==="" || numero_lista ==="string" || numero_venta === "string") {
                 Swal.fire(
                     "No puede ingresar valor vacios.",
                     "Haga click en Ok",
                     "warning",
                 );
             } else {
-                        console.log("ev:"+me.selectEnvase+" id_p: "+me.id_prod
+                        console.log(
+                        "ev:"+me.selectEnvase+" id_p: "+me.id_prod
                         +" id_li"+me.selectLista+"id_t_a:"+me.lista_id_almacen_id_tienda
-                        +" "+me.codigo_tda_alm+" "+me.tipoCodigo+" "+me.precioventaEnvase+" "+me.preciolistaEnvase+" "+me.tiempopedidoEnvase+" "+me.metodoabcEnvase );     
+                        +" cod: "+me.codigo_tda_alm
+                        +" tipo_tda_alm: "+me.tipoCodigo
+                        +" precio_d: "+me.precioventaEnvase
+                        +" pre_lista: "+me.preciolistaEnvase
+                        +" tiempo: "+me.tiempopedidoselectedprimario
+                        +" metodoABC: "+me.metodoselectedprimario
+                        +"---"+numero);
+                        //this.metodoabcEnvase; );     
                    axios                   
                      .post("/producto/registrarLista---", {
-                       'envase': me.id_traslado,
-                       
-                
+                        'envase': me.selectEnvase,
+                        'id_producto':me.id_prod,           
                     })
                     .then(function (response) {
                         me.cerrarModal("registrar");
@@ -488,15 +511,10 @@
                         error401(error);
                         console.log(error);
                     });
-                
-               
-            }
+             }
         },    
         abrirModal(accion,data= []){
             let me=this;
-               
-             
-
                 switch(accion){
                     case 'registrar':
                     {   
