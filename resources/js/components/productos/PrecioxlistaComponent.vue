@@ -104,11 +104,11 @@
                                     <span   class="error">(*)</span>
                                 </label>
                                 <div class="col-md-9">
-                                    <select name="" id="" v-model="selectEnvase" @change="listarProducto();" v-if="tipoAccion==1" class="form-control">
+                                    <select name="" id="" v-model="selectEnvase" @change="listarProducto();" class="form-control">
                                         <option v-bind:value="0" disabled>Seleccior... </option>
                                         <option
                                           v-for="env in arrayEnvase"
-                                          :key="env.id"
+                                          :key="env.envase"
                                           v-bind:value="env.envase"
                                           v-text="'tipo -> '+env.envase"
                                       ></option>
@@ -133,7 +133,7 @@
                                        
                                     </select>
                                     <button class="btn btn-primary" 
-                                  v-if="tipoAccion == 1"
+                                  v-if="tipoAccion == 1 || tipoAccion == 0"
                                   type="button" id="button-addon1"
                                   @click="abrirModal('bucarProducto');listarProductoRetorno();">                                           
                                                                                 
@@ -209,9 +209,10 @@
 
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" @click="cerrarModal('registrar')">Cerrar</button>
-                    <button type="button"  class="btn btn-primary" >Guardar</button>
-                        <button type="button" class="btn btn-primary" >Actualizar</button>
+                    <button type="button" v-if="tipoAccion==1" class="btn btn-secondary" @click="cerrarModal('registrar');cerrarModal('registrar_retorno');">Cerrar</button>
+    
+                    <button type="button" v-if="tipoAccion==1"  class="btn btn-primary" @click="registrarLisxPre()">Guardar</button>
+                        <button type="button" v-if="tipoAccion==2" class="btn btn-primary" >Actualizar</button>
                    
                 </div>
                 </div>
@@ -248,7 +249,7 @@
                                          </tr>
                                     </thead>
                                     <tbody>  
-                                       <tr v-for=" ret in arrayRetorno " :key="ret.id" @click="abrirModal('registrar_retorno',selectEnvase,ret);" >
+                                       <tr v-for=" ret in arrayRetorno " :key="ret.id" @click="abrirModal('registrar_retorno',ret);" >
                                         <td v-text="ret.id"></td>
                                         <td v-text="ret.prod_cod"></td>
                                         <td v-text="ret.linea_name"></td>
@@ -316,6 +317,10 @@
                 metodoselectedprimario:0,
                 inputTextBuscar:'',
                 arrayRetorno:[],
+
+                lista_id_almacen_id_tienda:'',
+                codigo_tda_alm:'',
+                tipoCodigo:'',
             }
         },
         
@@ -336,6 +341,17 @@
                        this.metodoabcEnvase=prodcutoAbuscar.metodoabcEnvase;
                        this.tiempopedidoselectedprimario=this.tiempopedidoEnvase;
                        this.metodoselectedprimario=this.metodoabcEnvase;
+                    }
+        },
+        selectAlmTienda: function(codigo){
+            let alm_tda_buscar = this.arrayAlmTienda.find(
+                    (element) => element.codigo  === codigo);
+                    if (alm_tda_buscar) {  
+                                          
+                        this.lista_id_almacen_id_tienda=alm_tda_buscar.lista_id_almacen_id_tienda;
+                       this.codigo_tda_alm=alm_tda_buscar.codigo;
+                       this.tipoCodigo=alm_tda_buscar.tipoCodigo;
+                  
                     }
         }
        }, 
@@ -436,8 +452,46 @@
         cambiarPagina(page){
                 let me =this;
                 me.pagination.current_page = page;
-                me.listarAlmacenes(page);
+                //me.listarAlmacenes(page);
             },
+    registrarLisxPre() {
+            let me = this;
+      if (me.selectLista===0 || me.selectLista === "" ||  me.precioventaEnvase==="" || me.preciolistaEnvase==="" || me.tiempopedidoEnvase===""
+                || me.metodoabcEnvase==="") {
+                Swal.fire(
+                    "No puede ingresar valor vacios.",
+                    "Haga click en Ok",
+                    "warning",
+                );
+            } else {
+                        console.log("ev:"+me.selectEnvase+" id_p: "+me.id_prod
+                        +" id_li"+me.selectLista+"id_t_a:"+me.lista_id_almacen_id_tienda
+                        +" "+me.codigo_tda_alm+" "+me.tipoCodigo+" "+me.precioventaEnvase+" "+me.preciolistaEnvase+" "+me.tiempopedidoEnvase+" "+me.metodoabcEnvase );     
+                   axios                   
+                     .post("/producto/registrarLista---", {
+                       'envase': me.id_traslado,
+                       
+                
+                    })
+                    .then(function (response) {
+                        me.cerrarModal("registrar");
+                        Swal.fire(
+                            "Se registro exitosamente",
+                            "Haga click en Ok",
+                            "success",
+                        );
+
+                       me.listarRecepcion();
+                        me.listarAlmTienda();
+                    })
+                    .catch(function (error) {
+                        error401(error);
+                        console.log(error);
+                    });
+                
+               
+            }
+        },    
         abrirModal(accion,data= []){
             let me=this;
                
@@ -446,7 +500,7 @@
                 switch(accion){
                     case 'registrar':
                     {   
-                       
+                       me.tipoAccion=1;
                         me.tituloModal='Lista de precios en '+me.selectAlmTienda;
                         me.selectEnvase=0;
                         me.selectProducto=0;
@@ -467,18 +521,44 @@
                     }
                     case 'actualizar':
                         {
+                            me.tipoAccion=2;
                             me.classModal.openModal('registrar');
                         }
                     case 'bucarProducto':{
                         me.inputTextBuscar="";
+                        me.tipoAccion=1;
                         me.classModal.openModal('staticBackdrop');
                     break;
                     } 
                     case 'registrar_retorno':
                     {   
-                        console.log(data);
+                        me.tipoAccion=1;
+                        this.listarLista();
                         me.tituloModal='Lista de precios en '+me.selectAlmTienda;
-                        me.selectEnvase=0;
+                        me.selectEnvase=data.tipoE;
+                        me.selectProducto=data.id;
+                        me.id_prod="";
+                        me.linea="";
+                        me.linea_cod="";
+                        me.rubro="";
+                        me.lineaS="";
+                        me.preciolistaEnvase="";
+                        me.precioventaEnvase="";
+                        
+                        me.metodoabcEnvase="";
+                        me.selectLista=0;
+                        me.tiempopedidoselectedprimario=0;
+                        me.metodoselectedprimario=0;
+                        
+                        me.classModal.openModal('registrar');
+                        break;
+                    }  
+                }                
+            },
+            cerrarModal(accion){
+                let me = this;
+                me.inputTextBuscar="";
+                me.selectEnvase=0;
                         me.selectProducto=0;
                         me.id_prod="";
                         me.linea="";
@@ -492,17 +572,6 @@
                         me.selectLista=0;
                         me.tiempopedidoselectedprimario=0;
                         me.metodoselectedprimario=0;
-                        me.classModal.openModal('registrar');
-                        break;
-                    }   
-                 
-
-                }
-                
-            },
-            cerrarModal(accion){
-                let me = this;
-                me.inputTextBuscar="";
                 me.classModal.closeModal(accion);
                            
             },
