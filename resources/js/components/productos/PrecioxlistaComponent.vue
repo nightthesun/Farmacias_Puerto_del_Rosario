@@ -479,22 +479,19 @@
                     "Haga click en Ok",
                     "warning",
                 );
-            } else {
-                        console.log(
-                        "ev:"+me.selectEnvase+" id_p: "+me.id_prod
-                        +" id_li"+me.selectLista+"id_t_a:"+me.lista_id_almacen_id_tienda
-                        +" cod: "+me.codigo_tda_alm
-                        +" tipo_tda_alm: "+me.tipoCodigo
-                        +" precio_d: "+me.precioventaEnvase
-                        +" pre_lista: "+me.preciolistaEnvase
-                        +" tiempo: "+me.tiempopedidoselectedprimario
-                        +" metodoABC: "+me.metodoselectedprimario
-                        +"---"+numero);
-                        //this.metodoabcEnvase; );     
+            } else { 
                    axios                   
-                     .post("/producto/registrarLista---", {
+                     .post("/producto/registrarLista", {
                         'envase': me.selectEnvase,
-                        'id_producto':me.id_prod,           
+                        'id_producto':me.id_prod,  
+                        'id_lista':me.selectLista,  
+                        'id_tda_alm':me.lista_id_almacen_id_tienda,  
+                        'cod_tda_alm':me.codigo_tda_alm, 
+                        'tipo_tda_alm':me.tipoCodigo,   
+                        'preciolista':numero_lista,
+                        'precioventa':numero_venta, 
+                        'tiempopedido':me.tiempopedidoselectedprimario, 
+                        'metodoabc':me.metodoselectedprimario,        
                     })
                     .then(function (response) {
                         me.cerrarModal("registrar");
@@ -507,10 +504,21 @@
                        me.listarRecepcion();
                         me.listarAlmTienda();
                     })
-                    .catch(function (error) {
-                        error401(error);
-                        console.log(error);
-                    });
+                    .catch(function (error) {                
+                if (error.response.status === 500) {
+                    me.errorMsg = error.response.data.error; // Asigna el mensaje de error a la variable errorMsg
+                Swal.fire(
+                    "Error",
+                    "500 (Internal Server Error)"+me.errorMsg, // Muestra el mensaje de error en el alert
+                    "error"       );
+                }else{
+                    Swal.fire(
+                    "Error",
+                    ""+error, // Muestra el mensaje de error en el alert
+                    "error"
+                );  
+                }              
+            });
              }
         },    
         abrirModal(accion,data= []){

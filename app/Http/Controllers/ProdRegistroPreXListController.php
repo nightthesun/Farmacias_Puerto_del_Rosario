@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Prod_Registro_pre_x_list;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class ProdRegistroPreXListController extends Controller
@@ -31,6 +32,18 @@ class ProdRegistroPreXListController extends Controller
     {
         try {
             $NuevaLista=new Prod_Registro_pre_x_list(); 
+            $NuevaLista->envase=$request->envase;
+            $NuevaLista->id_producto=$request->id_producto;
+            $NuevaLista->id_lista=$request->id_lista;
+            $NuevaLista->id_tda_alm=$request->id_tda_alm;
+            $NuevaLista->cod_tda_alm=$request->cod_tda_alm;
+            $NuevaLista->tipo_tda_alm=$request->tipo_tda_alm;
+            $NuevaLista->preciolista=$request->preciolista; 
+            $NuevaLista->precioventa=$request->precioventa;
+            $NuevaLista->tiempopedido=$request->tiempopedido;
+            $NuevaLista->metodoabc=$request->metodoabc;
+            $NuevaLista->id_usuario=auth()->user()->id;
+            $NuevaLista->id_usuario_registra=auth()->user()->id;
             $NuevaLista->save();
         } catch (\Throwable $th) {
             return response()->json(['error' => $th->getMessage()],500);
@@ -43,7 +56,7 @@ class ProdRegistroPreXListController extends Controller
      */
     public function update(Request $request, Prod_Registro_pre_x_list $prod_Registro_pre_x_list)
     {
-        //
+        
     }
     public function listarLista(Request $request){
         $resultadoCombinacion = DB::table('prod__listas as pl')
