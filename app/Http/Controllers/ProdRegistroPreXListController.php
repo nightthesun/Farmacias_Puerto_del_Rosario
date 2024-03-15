@@ -12,9 +12,183 @@ class ProdRegistroPreXListController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $buscararray = array();
+        $bus = $request->query('buscarAlmTdn');
+        if (!empty($request->buscar)) {
+            $buscararray = explode(" ", $request->buscar);
+            $valor = sizeof($buscararray);
+            if ($valor > 0) {
+                $sqls = '';
+                foreach ($buscararray as $valor) {
+                    if (empty($sqls)) {
+                        $sqls = "(
+                                it.numero_traspaso like '%" . $valor . "%' 
+                                or it.envase like '%" . $valor . "%' 
+                                or it.name_ori like '%" . $valor . "%'
+                                or it.name_des like '%" . $valor . "%' 
+                                or it.leyenda like '%" . $valor . "%'
+                              
+                                or it.cod_2 like '%" . $valor . "%' 
+                               )";
+                    } else {
+                        $sqls .= "and (
+                            it.numero_traspaso like '%" . $valor . "%' 
+                            or it.envase like '%" . $valor . "%' 
+                            or it.name_ori like '%" . $valor . "%'
+                            or it.name_des like '%" . $valor . "%' 
+                            or it.leyenda like '%" . $valor . "%'
+                     
+                            or it.cod_2 like '%" . $valor . "%'
+                       )";
+                    }
+                }
+                // codigo query
+                $tienda= DB::table('prod__registro_pre_x_lists as prp')
+                ->select('prp.id as id', 'prp.envase as envase', 'prp.id_producto as id_producto', 'pp.codigo as codigo_prod', 'pp.nombre as name_prod',
+                    DB::raw('CASE 
+                        WHEN prp.envase = "primario" THEN CONCAT(COALESCE(pp.nombre, ""), " ", COALESCE(pd_1.nombre, ""), " x ", COALESCE(pp.cantidadprimario, ""), " ", COALESCE(ff_1.nombre, ""))
+                        WHEN prp.envase = "secundario" THEN CONCAT(COALESCE(pp.nombre, ""), " ", COALESCE(pd_2.nombre, ""), " x ", COALESCE(pp.cantidadsecundario, ""), " ", COALESCE(ff_2.nombre, ""))
+                        WHEN prp.envase = "terciario" THEN CONCAT(COALESCE(pp.nombre, ""), " ", COALESCE(pd_3.nombre, ""), " x ", COALESCE(pp.cantidadterciario, ""), " ", COALESCE(ff_3.nombre, ""))
+                        ELSE NULL 
+                    END AS leyenda'),
+                    'prp.tipo_tda_alm as tipo_tienda_almacen', 'prp.id_tda_alm as id_tda_alm', 'prp.cod_tda_alm  as cod_tda_alm', 'ass.razon_social as razon_social', 'prp.preciolista as preciolista', 'prp.precioventa as precioventa',
+                    'prp.tiempopedido as tiempopedido', 'prp.metodoabc as metodoabc', 'prp.activo as activo', 'prp.estado as estado', 'u.id as id_name', 'u.name as user_name', 'pl.nombre as linea_name')
+                ->join('prod__productos as pp', 'pp.id', '=', 'prp.id_producto')
+                ->join('prod__listas as plist', 'plist.id', '=', 'prp.id_lista')
+                ->join('tda__tiendas as tt', 'tt.codigo', '=', 'prp.cod_tda_alm')
+                ->join('adm__sucursals as ass', 'ass.id', '=', 'tt.idsucursal')
+                ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
+                ->join('users as u', 'u.id', '=', 'prp.id_usuario')
+                ->leftJoin('prod__dispensers AS pd_1', 'pd_1.id', '=', 'pp.iddispenserprimario')
+                ->leftJoin('prod__dispensers AS pd_2', 'pd_2.id', '=', 'pp.iddispensersecundario')
+                ->leftJoin('prod__dispensers AS pd_3', 'pd_3.id', '=', 'pp.iddispenserterciario')
+                ->leftJoin('prod__forma_farmaceuticas AS ff_1', 'ff_1.id', '=', 'pp.idformafarmaceuticaprimario')
+                ->leftJoin('prod__forma_farmaceuticas AS ff_2', 'ff_2.id', '=', 'pp.idformafarmaceuticasecundario')
+                ->leftJoin('prod__forma_farmaceuticas AS ff_3', 'ff_3.id', '=', 'pp.idformafarmaceuticaterciario')
+                ->where('prp.cod_tda_alm ', '=', $bus)
+                ->whereRaw($sqls)
+                ->where('pp.idrubro', '=', 1)
+            ->where('pp.activo', '=', 1)
+            ->orderBy('prp.id', 'desc')
+                ;
+                $almacen= DB::table('prod__registro_pre_x_lists as prp')
+                ->select('prp.id as id', 'prp.envase as envase', 'prp.id_producto as id_producto', 'pp.codigo as codigo_prod', 'pp.nombre as name_prod',
+                    DB::raw('CASE 
+                                WHEN prp.envase = "primario" THEN CONCAT(COALESCE(pp.nombre, ""), " ", COALESCE(pd_1.nombre, ""), " x ", COALESCE(pp.cantidadprimario, ""), " ", COALESCE(ff_1.nombre, ""))
+                                WHEN prp.envase = "secundario" THEN CONCAT(COALESCE(pp.nombre, ""), " ", COALESCE(pd_2.nombre, ""), " x ", COALESCE(pp.cantidadsecundario, ""), " ", COALESCE(ff_2.nombre, ""))
+                                WHEN prp.envase = "terciario" THEN CONCAT(COALESCE(pp.nombre, ""), " ", COALESCE(pd_3.nombre, ""), " x ", COALESCE(pp.cantidadterciario, ""), " ", COALESCE(ff_3.nombre, ""))
+                                ELSE NULL 
+                            END AS leyenda'),
+                    'prp.tipo_tda_alm as tipo_tienda_almacen', 'prp.id_tda_alm as id_tda_alm', 'prp.cod_tda_alm  as cod_tda_alm', 'ass.razon_social as razon_social', 'prp.preciolista as preciolista', 'prp.precioventa as precioventa',
+                    'prp.tiempopedido as tiempopedido', 'prp.metodoabc as metodoabc', 'prp.activo as activo', 'prp.estado as estado', 'u.id as id_name', 'u.name as user_name', 'pl.nombre as linea_name','plist.id as id_lista','plist.nombre_lista as nombre_lista' 
+                    )
+                ->join('prod__productos as pp', 'pp.id', '=', 'prp.id_producto')
+                ->join('prod__listas as plist', 'plist.id', '=', 'prp.id_lista')
+                ->join('alm__almacens as aa', 'aa.codigo', '=', 'prp.cod_tda_alm')
+                ->join('adm__sucursals as ass', 'ass.id', '=', 'aa.idsucursal')
+                ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
+                ->join('users as u', 'u.id', '=', 'prp.id_usuario')
+                ->leftJoin('prod__dispensers AS pd_1', 'pd_1.id', '=', 'pp.iddispenserprimario')
+                ->leftJoin('prod__dispensers AS pd_2', 'pd_2.id', '=', 'pp.iddispensersecundario')
+                ->leftJoin('prod__dispensers AS pd_3', 'pd_3.id', '=', 'pp.iddispenserterciario')
+                ->leftJoin('prod__forma_farmaceuticas AS ff_1', 'ff_1.id', '=', 'pp.idformafarmaceuticaprimario')
+                ->leftJoin('prod__forma_farmaceuticas AS ff_2', 'ff_2.id', '=', 'pp.idformafarmaceuticasecundario')
+                ->leftJoin('prod__forma_farmaceuticas AS ff_3', 'ff_3.id', '=', 'pp.idformafarmaceuticaterciario')
+                ->where('prp.cod_tda_alm ', '=', $bus)
+                ->whereRaw($sqls)
+                ->where('pp.idrubro', '=', 1)
+            ->where('pp.activo', '=', 1)
+                
+                ->orderBy('prp.id', 'desc')
+                ;
+            $resultadocombinado= $tienda->unionAll($almacen)->paginate(10);    
+            }
+            return 
+            [
+                    'pagination'=>
+                        [
+                            'total'         =>    $resultadocombinado->total(),
+                            'current_page'  =>    $resultadocombinado->currentPage(),
+                            'per_page'      =>    $resultadocombinado->perPage(),
+                            'last_page'     =>    $resultadocombinado->lastPage(),
+                            'from'          =>    $resultadocombinado->firstItem(),
+                            'to'            =>    $resultadocombinado->lastItem(),
+                        ] ,
+                    'resultadocombinado'=>$resultadocombinado,
+            ];
+        }  else{
+            $tienda= DB::table('prod__registro_pre_x_lists as prp')
+                ->select('prp.id as id', 'prp.envase as envase', 'prp.id_producto as id_producto', 'pp.codigo as codigo_prod', 'pp.nombre as name_prod',
+                    DB::raw('CASE 
+                        WHEN prp.envase = "primario" THEN CONCAT(COALESCE(pp.nombre, ""), " ", COALESCE(pd_1.nombre, ""), " x ", COALESCE(pp.cantidadprimario, ""), " ", COALESCE(ff_1.nombre, ""))
+                        WHEN prp.envase = "secundario" THEN CONCAT(COALESCE(pp.nombre, ""), " ", COALESCE(pd_2.nombre, ""), " x ", COALESCE(pp.cantidadsecundario, ""), " ", COALESCE(ff_2.nombre, ""))
+                        WHEN prp.envase = "terciario" THEN CONCAT(COALESCE(pp.nombre, ""), " ", COALESCE(pd_3.nombre, ""), " x ", COALESCE(pp.cantidadterciario, ""), " ", COALESCE(ff_3.nombre, ""))
+                        ELSE NULL 
+                    END AS leyenda'),
+                    'prp.tipo_tda_alm as tipo_tienda_almacen', 'prp.id_tda_alm as id_tda_alm', 'prp.cod_tda_alm  as cod_tda_alm', 'ass.razon_social as razon_social', 'prp.preciolista as preciolista', 'prp.precioventa as precioventa',
+                    'prp.tiempopedido as tiempopedido', 'prp.metodoabc as metodoabc', 'prp.activo as activo', 'prp.estado as estado', 'u.id as id_name', 'u.name as user_name', 'pl.nombre as linea_name','plist.id as id_lista','plist.nombre_lista as nombre_lista','plist.id as id_lista','plist.nombre_lista as nombre_lista')
+                ->join('prod__productos as pp', 'pp.id', '=', 'prp.id_producto')
+                ->join('prod__listas as plist', 'plist.id', '=', 'prp.id_lista')
+                ->join('tda__tiendas as tt', 'tt.codigo', '=', 'prp.cod_tda_alm')
+                ->join('adm__sucursals as ass', 'ass.id', '=', 'tt.idsucursal')
+                ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
+                ->join('users as u', 'u.id', '=', 'prp.id_usuario')
+                ->leftJoin('prod__dispensers AS pd_1', 'pd_1.id', '=', 'pp.iddispenserprimario')
+                ->leftJoin('prod__dispensers AS pd_2', 'pd_2.id', '=', 'pp.iddispensersecundario')
+                ->leftJoin('prod__dispensers AS pd_3', 'pd_3.id', '=', 'pp.iddispenserterciario')
+                ->leftJoin('prod__forma_farmaceuticas AS ff_1', 'ff_1.id', '=', 'pp.idformafarmaceuticaprimario')
+                ->leftJoin('prod__forma_farmaceuticas AS ff_2', 'ff_2.id', '=', 'pp.idformafarmaceuticasecundario')
+                ->leftJoin('prod__forma_farmaceuticas AS ff_3', 'ff_3.id', '=', 'pp.idformafarmaceuticaterciario')
+                ->where('prp.cod_tda_alm ', '=', $bus)
+           
+                ->where('pp.idrubro', '=', 1)
+            ->where('pp.activo', '=', 1)
+            ->orderBy('prp.id', 'desc')
+                ;
+                $almacen= DB::table('prod__registro_pre_x_lists as prp')
+                ->select('prp.id as id', 'prp.envase as envase', 'prp.id_producto as id_producto', 'pp.codigo as codigo_prod', 'pp.nombre as name_prod',
+                    DB::raw('CASE 
+                                WHEN prp.envase = "primario" THEN CONCAT(COALESCE(pp.nombre, ""), " ", COALESCE(pd_1.nombre, ""), " x ", COALESCE(pp.cantidadprimario, ""), " ", COALESCE(ff_1.nombre, ""))
+                                WHEN prp.envase = "secundario" THEN CONCAT(COALESCE(pp.nombre, ""), " ", COALESCE(pd_2.nombre, ""), " x ", COALESCE(pp.cantidadsecundario, ""), " ", COALESCE(ff_2.nombre, ""))
+                                WHEN prp.envase = "terciario" THEN CONCAT(COALESCE(pp.nombre, ""), " ", COALESCE(pd_3.nombre, ""), " x ", COALESCE(pp.cantidadterciario, ""), " ", COALESCE(ff_3.nombre, ""))
+                                ELSE NULL 
+                            END AS leyenda'),
+                    'prp.tipo_tda_alm as tipo_tienda_almacen', 'prp.id_tda_alm as id_tda_alm', 'prp.cod_tda_alm  as cod_tda_alm', 'ass.razon_social as razon_social', 'prp.preciolista as preciolista', 'prp.precioventa as precioventa',
+                    'prp.tiempopedido as tiempopedido', 'prp.metodoabc as metodoabc', 'prp.activo as activo', 'prp.estado as estado', 'u.id as id_name', 'u.name as user_name', 'pl.nombre as linea_name','plist.id as id_lista','plist.nombre_lista as nombre_lista')
+                ->join('prod__productos as pp', 'pp.id', '=', 'prp.id_producto')
+                ->join('prod__listas as plist', 'plist.id', '=', 'prp.id_lista')
+                ->join('alm__almacens as aa', 'aa.codigo', '=', 'prp.cod_tda_alm')
+                ->join('adm__sucursals as ass', 'ass.id', '=', 'aa.idsucursal')
+                ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
+                ->join('users as u', 'u.id', '=', 'prp.id_usuario')
+                ->leftJoin('prod__dispensers AS pd_1', 'pd_1.id', '=', 'pp.iddispenserprimario')
+                ->leftJoin('prod__dispensers AS pd_2', 'pd_2.id', '=', 'pp.iddispensersecundario')
+                ->leftJoin('prod__dispensers AS pd_3', 'pd_3.id', '=', 'pp.iddispenserterciario')
+                ->leftJoin('prod__forma_farmaceuticas AS ff_1', 'ff_1.id', '=', 'pp.idformafarmaceuticaprimario')
+                ->leftJoin('prod__forma_farmaceuticas AS ff_2', 'ff_2.id', '=', 'pp.idformafarmaceuticasecundario')
+                ->leftJoin('prod__forma_farmaceuticas AS ff_3', 'ff_3.id', '=', 'pp.idformafarmaceuticaterciario')
+                ->where('prp.cod_tda_alm ', '=', $bus)
+                
+                ->where('pp.idrubro', '=', 1)
+            ->where('pp.activo', '=', 1)
+                
+                ->orderBy('prp.id', 'desc')
+                ;
+            $resultadocombinado= $tienda->unionAll($almacen)->paginate(10);   
+            return [
+                'pagination'=>[
+                    'total'         =>    $resultadocombinado->total(),
+                    'current_page'  =>    $resultadocombinado->currentPage(),
+                    'per_page'      =>    $resultadocombinado->perPage(),
+                    'last_page'     =>    $resultadocombinado->lastPage(),
+                    'from'          =>    $resultadocombinado->firstItem(),
+                    'to'            =>    $resultadocombinado->lastItem(),
+                ] ,
+                'resultadocombinado'=>$resultadocombinado,
+           ];
+        }
     }
 
     /**
@@ -212,6 +386,7 @@ return $resultadoCombinacion;
                     ELSE NULL 
                 END AS costocompraEnvase"))
             ->where('pp.idrubro', '=', 1)
+            ->where('pp.activo', '=', 1)
             ->whereRaw($where)
             ->get(); 
         
@@ -361,6 +536,8 @@ return $resultadoCombinacion;
                             END AS costocompraEnvase")
                         )
                         ->where('pp.idrubro', '=', 1)
+                        
+                        ->where('pp.activo', '=', 1)
                         ->whereRaw(implode(' AND ', $where))
                         ->whereRaw($sqls)
                         ->get(); 
@@ -486,6 +663,8 @@ $resultado = DB::table('prod__productos as pp')
         END AS costocompraEnvase")
     )
     ->where('pp.idrubro', '=', 1)
+   
+            ->where('pp.activo', '=', 1)
     ->whereRaw(implode(' AND ', $where))
     ->get(); 
 

@@ -32,7 +32,7 @@
                             <div class="input-group">
                                 <select
                                     class="form-control"
-                                    @change="listarRecepcion(0)"
+                                    @change="listarRecepcion(1)"
                                   v-model="selectAlmTienda"
                                 >
                                     <option value="0" disabled selected>Seleccionar...</option>

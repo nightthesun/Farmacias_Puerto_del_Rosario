@@ -29,7 +29,7 @@
                         </div>
                         <div class="col-md-6">
                             <div class="input-group">
-                                <select class="form-control"  v-model="selectAlmTienda">
+                                <select class="form-control"  @change="listarPrecioxlista(1)" v-model="selectAlmTienda">
                                     <option value="0" disabled selected>Seleccionar...</option>
                                     <option
                                         v-for="sucursal in arrayAlmTienda"
@@ -47,19 +47,52 @@
                         <thead>
                             <tr>
                                 <th>Opciones</th>
-                             
+                                <th>Codigó</th>
+                                <th>Linea</th>
+                                <th>Producto</th>
+                                <th>Envase</th>
+                                <th>Lista</th>
+                                <th>Tiempo Pedido</th>
+                                <th>Precio Lista</th>
+                                <th>Precio Venta</th>
+                                <th>Metodo</th>                              
                                 <th>Estado</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            
-                           <tr>
-                            <h4 style="text-align: center;"> Sin datos123...</h4>
-                          
-                            <td>1</td>
-                            <td>2</td>
-                           
-                           </tr>
+                        <tbody v-if="selectAlmTienda == 0"></tbody>
+                        <tbody v-if="selectAlmTienda != 0">
+                            <tr v-for="p_xlist in arrayPrecioxlista" :key="p_xlist.id">
+                              <td>                            
+                               <button type="button" class="btn btn-warning btn-sm"
+                                   @click="abrirModal('actualizar',p_xlist);">
+                                <i class="icon-pencil"></i>
+                               </button>                            
+                               <button type="button" class="btn btn-light btn-sm">
+                                   <i class="icon-pencil"></i>
+                               </button>
+                                &nbsp;
+                               <button  v-if="p_xlist.activo == 1" type="button"
+                                   class="btn btn-danger btn-sm"
+                                   @click="eliminar(p_xlist.id)">
+                                   <i class="icon-trash"></i>
+                               </button>
+                               <button v-else
+                                   type="button" class="btn btn-info btn-sm"
+                                   @click="activar(p_xlist.id)">
+                                   <i class="icon-check"></i>
+                               </button>                               
+                              </td>
+                              <td v-text="p_xlist.codigo_prod"></td>
+                              <td v-text="p_xlist.linea_name"></td>  
+                              <td v-text="p_xlist.leyenda"></td>
+                              <td v-text="p_xlist.envase"></td> 
+                              <td v-text="p_xlist.nombre_lista"></td>    
+                              <td>
+                                <div v-for="t in tiempopedido">
+                                    <span v-if="t.dato===p_xlist.tiempopedido">{{t.tiempo}}</span>
+                                </div>
+                              </td>                             
+                            </tr>
                         </tbody>
                     </table>
                     <nav>
@@ -321,6 +354,8 @@
                 lista_id_almacen_id_tienda:'',
                 codigo_tda_alm:'',
                 tipoCodigo:'',
+                arrayPrecioxlista:[],
+                buscar:'',
             }
         },
         
@@ -357,6 +392,21 @@
        }, 
        methods :{
        
+        listarPrecioxlista(page){
+            let me=this;
+                var url='/producto/index?page='+page+'&buscar='+me.buscar+'&buscarAlmTdn='+me.selectAlmTienda;
+             
+                axios.get(url)
+                .then(function(response){
+                    var respuesta = response.data;
+                    me.pagination = respuesta.pagination;
+                    me.arrayPrecioxlista = respuesta.resultadocombinado.data;
+                })
+                .catch(function(error){
+                    error401(error);
+                });
+        },
+
         listarProductoRetorno(){
             let me = this;
             let parteCodigo = me.selectAlmTienda.substring(0, 3);
