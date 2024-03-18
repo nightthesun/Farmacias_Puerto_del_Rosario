@@ -280,7 +280,7 @@
                                         for="text-input" >
                                         Producto:
                                         <span v-if="ProductoLineaIngreso == '0'"
-                                            class="error"                                           >(*)</span
+                                            class="error">(*)</span
                                         >
                                     </label>
                                     <div class="col-md-7 input-group mb-3" v-if="tipoAccion == 1">

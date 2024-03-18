@@ -67,9 +67,7 @@
                                    @click="abrirModal('actualizar',p_xlist);">
                                 <i class="icon-pencil"></i>
                                </button>                            
-                               <button type="button" class="btn btn-light btn-sm">
-                                   <i class="icon-pencil"></i>
-                               </button>
+                          
                                 &nbsp;
                                <button  v-if="p_xlist.activo == 1" type="button"
                                    class="btn btn-danger btn-sm"
@@ -89,21 +87,36 @@
                               <td v-text="p_xlist.nombre_lista"></td>    
                               <td>
                                 <div v-for="t in tiempopedido">
-                                    <span v-if="t.dato===p_xlist.tiempopedido">{{t.tiempo}}</span>
-                                </div>
-                              </td>                             
+                                    <span v-if="t.dato==p_xlist.tiempopedido1" v-text="t.tiempo"></span>
+                                  </div>
+                              </td>
+                              <td v-text="p_xlist.preciolista"></td>
+                              <td v-text="p_xlist.precioventa"></td> 
+                              <td>
+                                <div v-for="m in arrayMetodo">
+                                    <span v-if="m.letra==p_xlist.metodoabc" v-text="m.letra"></span>
+                                  </div>
+                              </td> 
+                              <td>
+                                    <div v-if="p_xlist.activo==1">
+                                        <span class="badge badge-success">Activo</span>
+                                    </div>
+                                    <div v-else>
+                                        <span class="badge badge-warning">Desactivado</span>
+                                    </div>
+                                </td>                       
                             </tr>
                         </tbody>
                     </table>
                     <nav>
                         <ul class="pagination">
-                            <li class="page-item">
+                            <li class="page-item" v-if="pagination.current_page > 1">
                                 <a class="page-link" href="#" @click.prevent="cambiarPagina(pagination.current_page - 1)">Ant</a>
                             </li>
-                            <li class="page-item">
-                                <a class="page-link" href="#" @click.prevent="cambiarPagina(pagination.current_page - 1)">Ant</a>
+                            <li class="page-item" v-for="page in pagesNumber" :key="page" :class="[page == isActived ? 'active':'']">
+                                <a class="page-link" href="#" @click.prevent="cambiarPagina(page)" v-text="page"></a>
                             </li>
-                            <li class="page-item">
+                            <li class="page-item" v-if="pagination.current_page< pagination.last_page">
                                 <a class="page-link" href="#" @click.prevent="cambiarPagina(pagination.current_page + 1)">Sig</a>
                             </li>
                         </ul>
@@ -134,7 +147,7 @@
                             <div class="form-group row">
                                 <label class="col-md-3 form-control-label" for="text-input">
                                     Envase:
-                                    <span   class="error">(*)</span>
+                                    <span v-if="selectEnvase == 0"  class="error">(*)</span>
                                 </label>
                                 <div class="col-md-9">
                                     <select name="" id="" v-model="selectEnvase" @change="listarProducto();" class="form-control">
@@ -152,7 +165,7 @@
                                 
                                 <label class="col-md-3 form-control-label" for="text-input">
                                     Producto:
-                                    <span   class="error">(*)</span>
+                                    <span  v-if="selectProducto == 0" class="error">(*)</span>
                                 </label>
                                 <div class="col-md-9 input-group mb-3 ">
                                     <select name="" id="" v-model="selectProducto" @change="listarLista()"  class="form-control">
@@ -178,7 +191,7 @@
                 
                             <div class="form-group row" v-if="selectEnvase != 0 && selectProducto !=0">
                                       <label class="col-md-3 form-control-label" for="text-input">Lista
-                                        <span   class="error">(*)</span>
+                                        <span v-if="selectLista == 0"  class="error">(*)</span>
                                       </label>
                                         <div class="col-md-9">
                                         <select name="" id="" v-model="selectLista"   class="form-control">
@@ -317,8 +330,18 @@
      export default{
         data(){
             return{
+                pagination: {
+                total: 0,
+                current_page: 0,
+                per_page: 0,
+                last_page: 0,
+                from: 0,
+                to: 0,
+            },
+            offset:3,
                 tituloModal:'',    
-                tipoAccion:1,          
+                tipoAccion:1,   
+                
                 selectAlmTienda:0,
                 arrayAlmTienda:[],
                 selectEnvase:0,
@@ -390,6 +413,43 @@
                     }
         }
        }, 
+    computed: {
+      sicompleto() {
+      let me = this;
+           if (
+          
+               me.selectEnvase != 0 &&
+               me.selectProducto != 0 &&
+               me.selectLista !=0
+            )
+             return true;
+           else return false;
+       },
+       isActived:function(){
+                return this.pagination.current_page;
+            },
+            pagesNumber:function(){
+                if(!this.pagination.to){
+                    return[];
+                }
+                var from = this.pagination.current_page - this.offset;
+                if(from<1){
+                    from=1;
+                }
+                var to = from +(this.offset * 2);
+                if(to>= this.pagination.last_page){
+                    to=this.pagination.last_page;
+                }
+                var pagesArray =[];
+                while(from<=to){
+                    pagesArray.push(from);
+                    from++
+                }
+                return pagesArray;
+            },
+
+    },
+
        methods :{
        
         listarPrecioxlista(page){
@@ -501,7 +561,7 @@
         cambiarPagina(page){
                 let me =this;
                 me.pagination.current_page = page;
-                //me.listarAlmacenes(page);
+                me.listarPrecioxlista(page);
             },
     registrarLisxPre() {
             let me = this;
@@ -551,7 +611,7 @@
                             "success",
                         );
 
-                       me.listarRecepcion();
+                       me.listarPrecioxlista();
                         me.listarAlmTienda();
                     })
                     .catch(function (error) {                
@@ -651,7 +711,11 @@
                 me.classModal.closeModal(accion);
                            
             },
-
+            selectAll: function (event) {
+            setTimeout(function () {
+                event.target.select();
+            }, 0);
+        },
        },
        
        mounted() {
