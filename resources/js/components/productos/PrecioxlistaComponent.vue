@@ -64,7 +64,7 @@
                             <tr v-for="p_xlist in arrayPrecioxlista" :key="p_xlist.id">
                               <td>                            
                                <button type="button" class="btn btn-warning btn-sm"
-                                   @click="abrirModal('actualizar',p_xlist);">
+                               @click="abrirModal('actualizar',p_xlist);listarLista(); listarProducto();">
                                 <i class="icon-pencil"></i>
                                </button>                            
                           
@@ -179,7 +179,7 @@
                                        
                                     </select>
                                     <button class="btn btn-primary" 
-                                  v-if="tipoAccion == 1 || tipoAccion == 0"
+                                  v-if="tipoAccion== 1 || tipoAccion== 0"
                                   type="button" id="button-addon1"
                                   @click="abrirModal('bucarProducto');listarProductoRetorno();">                                           
                                                                                 
@@ -255,7 +255,7 @@
 
                 </div>
                 <div class="modal-footer">
-                    <button type="button" v-if="tipoAccion==1" class="btn btn-secondary" @click="cerrarModal('registrar');cerrarModal('registrar_retorno');">Cerrar</button>
+                    <button type="button" class="btn btn-secondary" @click="cerrarModal('registrar');cerrarModal('registrar_retorno');">Cerrar</button>
     
                     <button type="button" v-if="tipoAccion==1"  class="btn btn-primary" @click="registrarLisxPre()">Guardar</button>
                         <button type="button" v-if="tipoAccion==2" class="btn btn-primary" >Actualizar</button>
@@ -513,6 +513,7 @@
             let me = this;
             let parteCodigo = me.selectAlmTienda.substring(0, 3);
             var pase="";
+            console.log("*-*"+me.selectProducto);
             me.tiempopedidoselectedprimario= 12;
             if(parteCodigo==='ALM' || parteCodigo==='TDA'){
                 
@@ -524,11 +525,14 @@
                 .then(function (response) {
                     var respuesta = response.data;
                     me.arrayProducto = respuesta;
-                    me.selectProducto=0;
+                    if(me.tipoAccion==1){
+                        me.selectProducto=0;
                     me.id_prod="";
                         me.linea="";
                         me.linea_cod="";
                         me.rubro="";
+                    }
+                    
                 })
                     
                 .catch(function (error) {
@@ -657,8 +661,28 @@
                     }
                     case 'actualizar':
                         {
+                            console.log(data);                        
+                            me.tituloModal='Lista de precios en '+me.selectAlmTienda;                            
                             me.tipoAccion=2;
+                            me.selectEnvase=data.envase==null?0:data.envase;                         
+                            me.selectProducto=data.id_producto==null?0:data.id_producto;                           
+                            me.selectLista=data.id_lista==null?0:data.id_lista;
+                            me.id_prod=data.id_producto;
+                            me.linea="";
+                            me.linea_cod="";
+                            me.rubro="";
+                            me.lineaS="";
+                            me.preciolistaEnvase=data.preciolista;
+                            me.precioventaEnvase=data.precioventa;
+
+                            me.metodoabcEnvase=data.metodoabc;
+                         
+                            me.tiempopedidoselectedprimario=data.tiempopedido1==null?0:data.tiempopedido1;
+                            
+                            me.metodoselectedprimario=data.metodoabc==null?0:data.metodoabc;
                             me.classModal.openModal('registrar');
+                          
+                            break;
                         }
                     case 'bucarProducto':{
                         me.inputTextBuscar="";
