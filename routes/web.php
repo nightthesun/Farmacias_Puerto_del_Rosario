@@ -320,6 +320,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/producto/listarProductoRetorno', [ProdRegistroPreXListController::class, 'listarProductoRetorno']);
     Route::post('/producto/registrarLista', [ProdRegistroPreXListController::class, 'store']);
     Route::get('/producto/index', [ProdRegistroPreXListController::class, 'index']); 
+    Route::put('/producto/desactivarListaX', [ProdRegistroPreXListController::class, 'desactivar']);
+    Route::put('/producto/activarListaX', [ProdRegistroPreXListController::class, 'activar']);
+    Route::put('/producto/actualizarListaX', [ProdRegistroPreXListController::class, 'update']);
     //------------------------fin de lista de prodcutos
 
     Route::get('/dispenser', [ProdDispenserController::class, 'index']);
@@ -454,6 +457,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/recepcion/listarRetornoTraspaso', [InvRecepcionController::class, 'listarRetornoTraspaso']); 
     Route::post('/recepcion/registrar', [InvRecepcionController::class, 'store']);
     Route::put('/recepcion/actualizar', [InvRecepcionController::class, 'update']); 
+    Route::put('/recepcion/desactivar', [InvRecepcionController::class, 'desactivar']);
+    Route::put('/recepcion/activar', [InvRecepcionController::class, 'activar']);
    
     Route::get('/procesar-traspaso', [InvProcesarTraspasoController::class, 'index']);
     Route::get('/procesar-traspaso/listarSucursal', [InvProcesarTraspasoController::class, 'listarSucursal']);

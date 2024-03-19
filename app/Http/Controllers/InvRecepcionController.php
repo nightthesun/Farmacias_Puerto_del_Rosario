@@ -386,6 +386,23 @@ DB::table('pivot__modulo_tienda_almacens')->insert($datos);
         $update->observacion=$request->observacion;  
         $update->save();
     }
+    public function desactivar(Request $request)
+    {
+      
+        $update = Inv_Recepcion::findOrFail($request->id);
+        $update->activo = 0;
+        $update->id_user=auth()->user()->id;
+        $update->id_usuario_modifica=auth()->user()->id;
+        $update->save();
+    }
+
+    public function activar(Request $request)
+    {  $update = Inv_Recepcion::findOrFail($request->id);
+        $update->activo = 1;
+        $update->id_user=auth()->user()->id;
+        $update->id_usuario_modifica=auth()->user()->id;
+        $update->save();
+    }
 
     /**
      * Remove the specified resource from storage.

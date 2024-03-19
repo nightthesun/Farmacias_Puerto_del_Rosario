@@ -41,6 +41,30 @@
                                 </select>
                            </div>
                         </div>
+                        <div class="col-md-4">
+                            <div class="input-group">
+                                <input
+                                    type="text"
+                                    id="texto"
+                                    name="texto"
+                                    class="form-control"
+                                    placeholder="Texto a buscar"
+                                    v-model="buscar"
+                                    @keyup.enter="listarPrecioxlista(1)"
+                                    :hidden="selectAlmTienda == 0"
+                                    :disabled="selectAlmTienda == 0"
+                                />
+                                <button
+                                    type="submit"
+                                    class="btn btn-primary"
+                                    @click="listarPrecioxlista(1)"
+                                    :hidden="selectAlmTienda == 0"
+                                    :disabled="selectAlmTienda == 0"
+                                >
+                                    <i class="fa fa-search"></i> Buscar
+                                </button>
+                            </div>
+                        </div>
                     </div>
           
                     <table class="table table-bordered table-striped table-sm table-responsive">
@@ -64,7 +88,7 @@
                             <tr v-for="p_xlist in arrayPrecioxlista" :key="p_xlist.id">
                               <td>                            
                                <button type="button" class="btn btn-warning btn-sm"
-                               @click="abrirModal('actualizar',p_xlist);listarLista(); listarProducto();">
+                               @click="cambioAccion();abrirModal('actualizar',p_xlist);listarLista();">
                                 <i class="icon-pencil"></i>
                                </button>                            
                           
@@ -141,8 +165,8 @@
                         Todos los campos con (*) son requeridos
                     </div>
                     <form action="" class="form-horizontal">
-                        <!-- insertar datos -->
-                        <div class="container">
+                        <!-- insertar datos accion 1-->
+                        <div class="container" v-if="tipoAccion==1">
                          
                             <div class="form-group row">
                                 <label class="col-md-3 form-control-label" for="text-input">
@@ -250,7 +274,96 @@
 
        
                         </div>
+                       <!--end de accion 1-->
                        
+                         <!-- insertar datos accion 2-->
+                         <div class="container" v-else>
+                         
+                         <div class="form-group row">
+                             <label class="col-md-3 form-control-label" for="text-input">
+                                 Envase:
+                               
+                             </label>
+                             <div class="col-md-9">
+                                <span class="form-control" style="background: #C2CFD6;">{{selectEnvase}}</span>
+                                                     
+                             </div>
+                         </div>
+                         <div class="form-group row">                             
+                             <label class="col-md-3 form-control-label" for="text-input">
+                                 Producto:
+                               
+                             </label>
+                             <div class="col-md-9 input-group mb-3 ">
+                                <span class="form-control" style="background: #C2CFD6;">{{codigo_prod}} {{selectProducto}}</span>
+                           
+                             
+                             </div>
+                             
+                         </div>
+             
+                         <div class="form-group row" >
+                                   <label class="col-md-3 form-control-label" for="text-input">Lista
+                                     <span v-if="selectLista == 0"  class="error">(*)</span>
+                                   </label>
+                                     <div class="col-md-9">
+                                     <select name="" id="" v-model="selectLista"   class="form-control">
+                                     <option v-bind:value="0" disabled>-Seleccionar... </option>
+                                     <option
+                                       v-for="list in arrayLista"
+                                       :key="list.id"
+                                       v-bind:value="list.id"
+                                       v-text="list.codigo_lista+' '+list.nombre_lista">
+                                     </option>
+                                    
+                                 </select>
+                                   </div>
+                               </div>  
+                         <div v-if="selectEnvase != 0 && selectProducto !=0">
+                             <div class="row">
+                                         <div class="form-group col-sm-4">
+                                             <strong>Precio de Lista:</strong>     
+                                             <input type="text" class="form-control" min="0" id="precioventaEnvase" v-model="preciolistaEnvase" step="any" v-on:focus="selectAll" style="text-align:right" onkeypress="return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46 )">
+                                         </div>
+                                         <div class="form-group col-sm-4">
+                                             <strong>Precio de Venta:</strong>
+                                             <input type="text" id="precioventaEnvase" min="0" class="form-control" v-model="precioventaEnvase" step="any" v-on:focus="selectAll" style="text-align:right" onkeypress="return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46 )">
+                                         </div>
+                                      
+                                         <div class="form-group col-sm-4">
+                                             <strong>Ciclo de Pedido:</strong>
+                                             <select v-model="tiempopedidoselectedprimario" class="form-control">
+                                                 <option v-bind:value="0" disabled>-Seleccionar... </option>
+                                                 <option v-for="tiempo in tiempopedido" :key="tiempo.dato" :value="tiempo.dato" v-text="tiempo.tiempo"></option>
+                                             </select>
+                                             <span class="error" v-if="tiempopedidoselectedprimario==0">Debe seleccionar el tiempo de pedido</span>
+                                         </div>
+                                     </div>
+                                     <div class="row">
+                                         <div class="form-group col-sm-4">
+                                             <strong>Clasificación ABC:</strong>
+                                             <select v-model="metodoselectedprimario" class="form-control">
+                                                 <option v-bind:value="0" disabled>-Seleccionar... </option>
+                                                 <option v-for="metodo in arrayMetodo" :key="metodo.letra" :value="metodo.letra" v-text="metodo.letra"></option>
+                                             </select>
+                                         </div>
+                                         <div class="form-group col-sm-4">
+                                             <strong>Rubro:</strong>
+                                             <input type="text"  class="form-control" v-model="rubro" disabled>
+                                          
+                                         </div>
+                                         <div class="form-group col-sm-4">
+                                             <strong>Linea:</strong>
+                                             <input type="text"  class="form-control" v-model="lineaS" disabled>
+                                          
+                                          </div>
+
+                                     </div>
+                         </div>     
+
+    
+                     </div>
+                       <!--- end de accion 2-->
                     </form>
 
                 </div>
@@ -258,7 +371,7 @@
                     <button type="button" class="btn btn-secondary" @click="cerrarModal('registrar');cerrarModal('registrar_retorno');">Cerrar</button>
     
                     <button type="button" v-if="tipoAccion==1"  class="btn btn-primary" @click="registrarLisxPre()">Guardar</button>
-                        <button type="button" v-if="tipoAccion==2" class="btn btn-primary" >Actualizar</button>
+                        <button type="button" v-if="tipoAccion==2" class="btn btn-primary" @click="actualizar()">Actualizar</button>
                    
                 </div>
                 </div>
@@ -379,6 +492,9 @@
                 tipoCodigo:'',
                 arrayPrecioxlista:[],
                 buscar:'',
+                codigo_prod:'',
+                id_pre_x:'',
+                tipo_tienda_almacen:'',
             }
         },
         
@@ -451,7 +567,12 @@
     },
 
        methods :{
-       
+        cambioAccion(){
+        let me = this;
+        
+        me.tipoAccion=2;
+        
+       },
         listarPrecioxlista(page){
             let me=this;
                 var url='/producto/index?page='+page+'&buscar='+me.buscar+'&buscarAlmTdn='+me.selectAlmTienda;
@@ -513,7 +634,7 @@
             let me = this;
             let parteCodigo = me.selectAlmTienda.substring(0, 3);
             var pase="";
-            console.log("*-*"+me.selectProducto);
+          
             me.tiempopedidoselectedprimario= 12;
             if(parteCodigo==='ALM' || parteCodigo==='TDA'){
                 
@@ -635,8 +756,80 @@
             });
              }
         },    
+        actualizar() {
+            let me = this;
+            var numero_lista = 0;
+            var numero_venta = 0; 
+
+    if (!isNaN(parseFloat(me.preciolistaEnvase))) {
+        // Redondear a dos decimales
+        numero_lista = parseFloat(me.preciolistaEnvase).toFixed(2);
+        } else {
+        numero_lista = 'string';
+        }
+    if (!isNaN(parseFloat(me.precioventaEnvase))) {
+        // Redondear a dos decimales
+        numero_venta = parseFloat(me.precioventaEnvase).toFixed(2);
+        } else {
+            numero_venta = 'string';
+        }
+          if (me.selectLista===0 || me.selectLista === ""  || me.tiempopedidoselectedprimario===""
+                || me.metodoselectedprimario==="" || numero_lista ==="string" || numero_venta === "string") {
+                Swal.fire(
+                    "No puede ingresar valor vacios.",
+                    "Haga click en Ok",
+                    "warning",
+                );
+            } else {
+                axios
+                .put("/producto/actualizarListaX", {
+                    id: me.id_pre_x,
+                    tipo_tienda_almacen:me.tipo_tienda_almacen,
+                    id_lista:me.selectLista,  
+                    preciolista:numero_lista,
+                    precioventa:numero_venta, 
+                    tiempopedido:me.tiempopedidoselectedprimario, 
+                    metodoabc:me.metodoselectedprimario 
+                })
+                .then(function (response) {
+                    me.listarPrecioxlista();
+                        me.listarAlmTienda();
+                    Swal.fire(
+                        "Actualizado Correctamente!",
+                        "El registro a sido actualizado Correctamente",
+                        "success",
+                    );
+                })
+                //.catch(function (error) {
+                //    error401(error);
+                //});
+                .catch(function (error) {           
+                
+                if (error.response.status === 500) {
+                    me.errorMsg = error.response.data.error; // Asigna el mensaje de error a la variable errorMsg
+                Swal.fire(
+                    "Error",
+                    "500 (Internal Server Error)"+me.errorMsg, // Muestra el mensaje de error en el alert
+                    "error"
+                );
+                }else{
+                    Swal.fire(
+                    "Error",
+                    ""+error, // Muestra el mensaje de error en el alert
+                    "error"
+                );  
+                }
+
+               
+            });
+            me.cerrarModal("registrar");
+            }
+          
+
+        },
         abrirModal(accion,data= []){
             let me=this;
+           
                 switch(accion){
                     case 'registrar':
                     {   
@@ -651,7 +844,7 @@
                         me.lineaS="";
                         me.preciolistaEnvase="";
                         me.precioventaEnvase="";
-                        
+                        me.codigo_prod="";
                         me.metodoabcEnvase="";
                         me.selectLista=0;
                         me.tiempopedidoselectedprimario=0;
@@ -661,22 +854,24 @@
                     }
                     case 'actualizar':
                         {
-                            console.log(data);                        
-                            me.tituloModal='Lista de precios en '+me.selectAlmTienda;                            
                             me.tipoAccion=2;
-                            me.selectEnvase=data.envase==null?0:data.envase;                         
-                            me.selectProducto=data.id_producto==null?0:data.id_producto;                           
+                                               
+                            me.tituloModal='Lista de precios en '+me.selectAlmTienda;                            
+                           
+                            me.selectEnvase=data.envase;                         
+                            me.selectProducto=data.leyenda;                           
                             me.selectLista=data.id_lista==null?0:data.id_lista;
                             me.id_prod=data.id_producto;
                             me.linea="";
                             me.linea_cod="";
-                            me.rubro="";
-                            me.lineaS="";
+                            me.rubro=data.rubro_name;
+                            me.lineaS=data.linea_name;
                             me.preciolistaEnvase=data.preciolista;
                             me.precioventaEnvase=data.precioventa;
-
+                            me.codigo_prod=data.codigo_prod;
                             me.metodoabcEnvase=data.metodoabc;
-                         
+                            me.id_pre_x=data.id;
+                            me.tipo_tienda_almacen=data.tipo_tienda_almacen;
                             me.tiempopedidoselectedprimario=data.tiempopedido1==null?0:data.tiempopedido1;
                             
                             me.metodoselectedprimario=data.metodoabc==null?0:data.metodoabc;
@@ -715,10 +910,108 @@
                     }  
                 }                
             },
+            eliminar(id_pre_x){
+                let me=this;
+                const swalWithBootstrapButtons = Swal.mixin({
+                customClass: {
+                    confirmButton: 'btn btn-success',
+                    cancelButton: 'btn btn-danger'
+                },
+                buttonsStyling: false
+                })
+
+                swalWithBootstrapButtons.fire({
+                title: '¿Esta Seguro de Desactivar?',
+                text: "Es una eliminacion logica",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Si, Desactivar',
+                cancelButtonText: 'No, Cancelar',
+                reverseButtons: true
+                }).then((result) => {
+                if (result.isConfirmed) {
+                     axios.put('/producto/desactivarListaX',{
+                        'id': id_pre_x
+                    }).then(function (response) {
+                        me.listarPrecioxlista();
+                        swalWithBootstrapButtons.fire(
+                            'Desactivado!',
+                            'El registro a sido desactivado Correctamente',
+                            'success'
+                        )
+                   
+                     
+                        
+                    }).catch(function (error) {
+                        error401(error);
+                        console.log(error);
+                    });
+                } else if (
+                    /* Read more about handling dismissals below */
+                    result.dismiss === Swal.DismissReason.cancel
+                ) {
+                    /* swalWithBootstrapButtons.fire(
+                    'Cancelado!',
+                    'El Registro no fue desactivado',
+                    'error'
+                    ) */
+                }
+                })
+            },
+            activar(id_pre_x){
+                let me=this;
+                const swalWithBootstrapButtons = Swal.mixin({
+                customClass: {
+                    confirmButton: 'btn btn-success',
+                    cancelButton: 'btn btn-danger'
+                },
+                buttonsStyling: false
+                })
+                swalWithBootstrapButtons.fire({
+                title: 'Esta Seguro de Activar?',
+                text: "Es una Activacion logica",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Si, Activar',
+                cancelButtonText: 'No, Cancelar',
+                reverseButtons: true
+                }).then((result) => {
+                if (result.isConfirmed) {
+                     axios.put('/producto/activarListaX',{
+                        'id': id_pre_x
+                    }).then(function (response) {
+                        me.listarPrecioxlista();
+                    
+                        swalWithBootstrapButtons.fire(
+                            'Activado!',
+                            'El registro a sido Activado Correctamente',
+                            'success'
+                        )
+                    }).catch(function (error) {
+                        error401(error);
+                        console.log(error);
+                    });
+                    
+                    
+                } else if (
+                    /* Read more about handling dismissals below */
+                    result.dismiss === Swal.DismissReason.cancel
+                ) {
+                    /* swalWithBootstrapButtons.fire(
+                    'Cancelado!',
+                    'El Registro no fue Activado',
+                    'error'
+                    ) */
+                }
+                })
+            },
             cerrarModal(accion){
                 let me = this;
                 me.inputTextBuscar="";
                 me.selectEnvase=0;
+                me.tipoAccion=1;
+                me.id_pre_x="";
+                            me.tipo_tienda_almacen="";
                         me.selectProducto=0;
                         me.id_prod="";
                         me.linea="";
@@ -727,7 +1020,7 @@
                         me.lineaS="";
                         me.preciolistaEnvase="";
                         me.precioventaEnvase="";
-                        
+                        me.codigo_prod="";
                         me.metodoabcEnvase="";
                         me.selectLista=0;
                         me.tiempopedidoselectedprimario=0;

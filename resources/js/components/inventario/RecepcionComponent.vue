@@ -107,7 +107,7 @@
                                         <i class="icon-pencil"></i>
                                 </button>
                                     &nbsp;
-                             <!--   <button
+                                <button
                                         v-if="rec.activo == 1"
                                         type="button"
                                         class="btn btn-danger btn-sm"
@@ -124,7 +124,7 @@
                                     >
                                         <i class="icon-check"></i>
                                     </button>
-                             -->  
+                             
                             </td>
                             <td v-text="rec.numero_traspaso"></td>
                             <td v-text="rec.leyenda"></td>
@@ -623,13 +623,7 @@ export default {
                     "warning",
                 );
             } else {
-                if (me.checked===false) {
-                    Swal.fire(
-                    "Tiene que aceptar el traspaso, tiene que apretar el boton de aceptar.",
-                    "Haga click en Ok",
-                    "warning",
-                );
-                } else {
+                
                
                    axios
                     //axios.get(url)
@@ -673,7 +667,7 @@ export default {
                         error401(error);
                         console.log(error);
                     });
-                }
+                
                
             }
         },
@@ -853,7 +847,101 @@ export default {
                 me.classModal.openModal("registrar");
             }
         },
+        eliminar(id_recepcion){
+                let me=this;
+                const swalWithBootstrapButtons = Swal.mixin({
+                customClass: {
+                    confirmButton: 'btn btn-success',
+                    cancelButton: 'btn btn-danger'
+                },
+                buttonsStyling: false
+                })
 
+                swalWithBootstrapButtons.fire({
+                title: '¿Esta Seguro de Desactivar?',
+                text: "Es una eliminacion logica",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Si, Desactivar',
+                cancelButtonText: 'No, Cancelar',
+                reverseButtons: true
+                }).then((result) => {
+                if (result.isConfirmed) {
+                     axios.put('/recepcion/desactivar',{
+                        'id': id_recepcion
+                    }).then(function (response) {
+                        me.listarRecepcion();
+                        swalWithBootstrapButtons.fire(
+                            'Desactivado!',
+                            'El registro a sido desactivado Correctamente',
+                            'success'
+                        )
+                   
+                     
+                        
+                    }).catch(function (error) {
+                        error401(error);
+                        console.log(error);
+                    });
+                } else if (
+                    /* Read more about handling dismissals below */
+                    result.dismiss === Swal.DismissReason.cancel
+                ) {
+                    /* swalWithBootstrapButtons.fire(
+                    'Cancelado!',
+                    'El Registro no fue desactivado',
+                    'error'
+                    ) */
+                }
+                })
+            },
+        activar(id_recepcion){
+                let me=this;
+                const swalWithBootstrapButtons = Swal.mixin({
+                customClass: {
+                    confirmButton: 'btn btn-success',
+                    cancelButton: 'btn btn-danger'
+                },
+                buttonsStyling: false
+                })
+                swalWithBootstrapButtons.fire({
+                title: 'Esta Seguro de Activar?',
+                text: "Es una Activacion logica",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Si, Activar',
+                cancelButtonText: 'No, Cancelar',
+                reverseButtons: true
+                }).then((result) => {
+                if (result.isConfirmed) {
+                     axios.put('/recepcion/activar',{
+                        'id': id_recepcion
+                    }).then(function (response) {
+                        me.listarRecepcion();
+                    
+                        swalWithBootstrapButtons.fire(
+                            'Activado!',
+                            'El registro a sido Activado Correctamente',
+                            'success'
+                        )
+                    }).catch(function (error) {
+                        error401(error);
+                        console.log(error);
+                    });
+                    
+                    
+                } else if (
+                    /* Read more about handling dismissals below */
+                    result.dismiss === Swal.DismissReason.cancel
+                ) {
+                    /* swalWithBootstrapButtons.fire(
+                    'Cancelado!',
+                    'El Registro no fue Activado',
+                    'error'
+                    ) */
+                }
+                })
+            },
         selectAll: function (event) {
             setTimeout(function () {
                 event.target.select();

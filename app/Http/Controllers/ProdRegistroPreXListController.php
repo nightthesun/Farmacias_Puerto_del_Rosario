@@ -24,23 +24,22 @@ class ProdRegistroPreXListController extends Controller
                 foreach ($buscararray as $valor) {
                     if (empty($sqls)) {
                         $sqls = "(
-                                it.numero_traspaso like '%" . $valor . "%' 
-                                or it.envase like '%" . $valor . "%' 
-                                or it.name_ori like '%" . $valor . "%'
-                                or it.name_des like '%" . $valor . "%' 
-                                or it.leyenda like '%" . $valor . "%'
+                                pp.codigo like '%" . $valor . "%' 
+                                or pl.nombre like '%" . $valor . "%' 
+                                or pp.nombre like '%" . $valor . "%'
+                                or prp.envase like '%" . $valor . "%' 
+                                or plist.nombre_lista like '%" . $valor . "%'
                               
-                                or it.cod_2 like '%" . $valor . "%' 
+                             
                                )";
                     } else {
                         $sqls .= "and (
-                            it.numero_traspaso like '%" . $valor . "%' 
-                            or it.envase like '%" . $valor . "%' 
-                            or it.name_ori like '%" . $valor . "%'
-                            or it.name_des like '%" . $valor . "%' 
-                            or it.leyenda like '%" . $valor . "%'
+                            pp.codigo like '%" . $valor . "%' 
+                            or pl.nombre like '%" . $valor . "%'
+                            or pp.nombre like '%" . $valor . "%' 
+                            or prp.envase like '%" . $valor . "%'
+                            or plist.nombre_lista like '%" . $valor . "%'
                      
-                            or it.cod_2 like '%" . $valor . "%'
                        )";
                     }
                 }
@@ -54,7 +53,7 @@ class ProdRegistroPreXListController extends Controller
                                 ELSE NULL 
                             END AS leyenda'),
                     'prp.tipo_tda_alm as tipo_tienda_almacen', 'prp.id_tda_alm as id_tda_alm', 'prp.cod_tda_alm  as cod_tda_alm', 'ass.razon_social as razon_social', 'prp.preciolista as preciolista', 'prp.precioventa as precioventa',
-                    'prp.tiempopedido as tiempopedido1', 'prp.metodoabc as metodoabc', 'prp.activo as activo', 'prp.estado as estado', 'u.id as id_name', 'u.name as user_name', 'pl.nombre as linea_name', 'plist.id as id_lista', 'plist.nombre_lista AS nombre_lista')
+                    'prp.tiempopedido as tiempopedido1', 'prp.metodoabc as metodoabc', 'prp.activo as activo', 'prp.estado as estado', 'u.id as id_name', 'u.name as user_name', 'pl.nombre as linea_name', 'plist.id as id_lista', 'plist.nombre_lista as nombre_lista','ar.nombre as rubro_name')
                 ->join('prod__productos as pp', 'pp.id', '=', 'prp.id_producto')
                 ->join('prod__listas as plist', 'plist.id', '=', 'prp.id_lista')
                 ->join('tda__tiendas as tt', 'tt.codigo', '=', 'prp.cod_tda_alm')
@@ -67,7 +66,7 @@ class ProdRegistroPreXListController extends Controller
                 ->leftJoin('prod__forma_farmaceuticas AS ff_1', 'ff_1.id', '=', 'pp.idformafarmaceuticaprimario')
                 ->leftJoin('prod__forma_farmaceuticas AS ff_2', 'ff_2.id', '=', 'pp.idformafarmaceuticasecundario')
                 ->leftJoin('prod__forma_farmaceuticas AS ff_3', 'ff_3.id', '=', 'pp.idformafarmaceuticaterciario')
-               
+                ->join('adm__rubros as ar', 'ar.id', '=', 'pp.idrubro')             
    
                 ->where('prp.cod_tda_alm', '=', $bus)
                 ->whereRaw($sqls)
@@ -76,28 +75,28 @@ class ProdRegistroPreXListController extends Controller
             ->orderBy('prp.id', 'desc')
                 ;
                 $almacen = DB::table('prod__registro_pre_x_lists as prp')
-                ->select('prp.id as id', 'prp.envase as envase', 'prp.id_producto as id_producto', 'pp.codigo as codigo_prod', 'pp.nombre as name_prod',
-                    DB::raw('CASE 
-                                WHEN prp.envase = "primario" THEN CONCAT(IFNULL(pp.nombre, ""), " ", IFNULL(pd_1.nombre, ""), " x ", IFNULL(pp.cantidadprimario, ""), " ", IFNULL(ff_1.nombre, ""))
-                                WHEN prp.envase = "secundario" THEN CONCAT(IFNULL(pp.nombre, ""), " ", IFNULL(pd_2.nombre, ""), " x ", IFNULL(pp.cantidadsecundario, ""), " ", IFNULL(ff_2.nombre, ""))
-                                WHEN prp.envase = "terciario" THEN CONCAT(IFNULL(pp.nombre, ""), " ", IFNULL(pd_3.nombre, ""), " x ", IFNULL(pp.cantidadterciario, ""), " ", IFNULL(ff_3.nombre, ""))
-                                ELSE NULL 
-                            END AS leyenda'),
-                    'prp.tipo_tda_alm as tipo_tienda_almacen', 'prp.id_tda_alm as id_tda_alm', 'prp.cod_tda_alm  as cod_tda_alm', 'ass.razon_social as razon_social', 'prp.preciolista as preciolista', 'prp.precioventa as precioventa',
-                    'prp.tiempopedido as tiempopedido1', 'prp.metodoabc as metodoabc', 'prp.activo as activo', 'prp.estado as estado', 'u.id as id_name', 'u.name as user_name', 'pl.nombre as linea_name', 'plist.id as id_lista', 'plist.nombre_lista as nombre_lista')
-                ->join('prod__productos as pp', 'pp.id', '=', 'prp.id_producto')
-                ->join('prod__listas as plist', 'plist.id', '=', 'prp.id_lista')
-                ->join('alm__almacens as aa', 'aa.codigo', '=', 'prp.cod_tda_alm')
-                ->join('adm__sucursals as ass', 'ass.id', '=', 'aa.idsucursal')
-                ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
-                ->join('users as u', 'u.id', '=', 'prp.id_usuario')
-                ->leftJoin('prod__dispensers AS pd_1', 'pd_1.id', '=', 'pp.iddispenserprimario')
-                ->leftJoin('prod__dispensers AS pd_2', 'pd_2.id', '=', 'pp.iddispensersecundario')
-                ->leftJoin('prod__dispensers AS pd_3', 'pd_3.id', '=', 'pp.iddispenserterciario')
-                ->leftJoin('prod__forma_farmaceuticas AS ff_1', 'ff_1.id', '=', 'pp.idformafarmaceuticaprimario')
-                ->leftJoin('prod__forma_farmaceuticas AS ff_2', 'ff_2.id', '=', 'pp.idformafarmaceuticasecundario')
-                ->leftJoin('prod__forma_farmaceuticas AS ff_3', 'ff_3.id', '=', 'pp.idformafarmaceuticaterciario')
-               
+    ->select('prp.id as id', 'prp.envase as envase', 'prp.id_producto as id_producto', 'pp.codigo as codigo_prod', 'pp.nombre as name_prod',
+        DB::raw('CASE 
+                    WHEN prp.envase = "primario" THEN CONCAT(IFNULL(pp.nombre, ""), " ", IFNULL(pd_1.nombre, ""), " x ", IFNULL(pp.cantidadprimario, ""), " ", IFNULL(ff_1.nombre, ""))
+                    WHEN prp.envase = "secundario" THEN CONCAT(IFNULL(pp.nombre, ""), " ", IFNULL(pd_2.nombre, ""), " x ", IFNULL(pp.cantidadsecundario, ""), " ", IFNULL(ff_2.nombre, ""))
+                    WHEN prp.envase = "terciario" THEN CONCAT(IFNULL(pp.nombre, ""), " ", IFNULL(pd_3.nombre, ""), " x ", IFNULL(pp.cantidadterciario, ""), " ", IFNULL(ff_3.nombre, ""))
+                    ELSE NULL 
+                END AS leyenda'),
+        'prp.tipo_tda_alm as tipo_tienda_almacen', 'prp.id_tda_alm as id_tda_alm', 'prp.cod_tda_alm  as cod_tda_alm', 'ass.razon_social as razon_social', 'prp.preciolista as preciolista', 'prp.precioventa as precioventa',
+        'prp.tiempopedido as tiempopedido1', 'prp.metodoabc as metodoabc', 'prp.activo as activo', 'prp.estado as estado', 'u.id as id_name', 'u.name as user_name', 'pl.nombre as linea_name', 'plist.id as id_lista', 'plist.nombre_lista as nombre_lista','ar.nombre as rubro_name')
+    ->join('prod__productos as pp', 'pp.id', '=', 'prp.id_producto')
+    ->join('prod__listas as plist', 'plist.id', '=', 'prp.id_lista')
+    ->join('alm__almacens as aa', 'aa.codigo', '=', 'prp.cod_tda_alm')
+    ->join('adm__sucursals as ass', 'ass.id', '=', 'aa.idsucursal')
+    ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
+    ->join('users as u', 'u.id', '=', 'prp.id_usuario')
+    ->leftJoin('prod__dispensers AS pd_1', 'pd_1.id', '=', 'pp.iddispenserprimario')
+    ->leftJoin('prod__dispensers AS pd_2', 'pd_2.id', '=', 'pp.iddispensersecundario')
+    ->leftJoin('prod__dispensers AS pd_3', 'pd_3.id', '=', 'pp.iddispenserterciario')
+    ->leftJoin('prod__forma_farmaceuticas AS ff_1', 'ff_1.id', '=', 'pp.idformafarmaceuticaprimario')
+    ->leftJoin('prod__forma_farmaceuticas AS ff_2', 'ff_2.id', '=', 'pp.idformafarmaceuticasecundario')
+    ->leftJoin('prod__forma_farmaceuticas AS ff_3', 'ff_3.id', '=', 'pp.idformafarmaceuticaterciario')
+    ->join('adm__rubros as ar', 'ar.id', '=', 'pp.idrubro')
                 ->where('prp.cod_tda_alm', '=', $bus)
                 ->whereRaw($sqls)
                 ->where('pp.idrubro', '=', 1)
@@ -130,7 +129,7 @@ class ProdRegistroPreXListController extends Controller
                             ELSE NULL 
                         END AS leyenda'),
                 'prp.tipo_tda_alm as tipo_tienda_almacen', 'prp.id_tda_alm as id_tda_alm', 'prp.cod_tda_alm  as cod_tda_alm', 'ass.razon_social as razon_social', 'prp.preciolista as preciolista', 'prp.precioventa as precioventa',
-                'prp.tiempopedido as tiempopedido1', 'prp.metodoabc as metodoabc', 'prp.activo as activo', 'prp.estado as estado', 'u.id as id_name', 'u.name as user_name', 'pl.nombre as linea_name', 'plist.id as id_lista', 'plist.nombre_lista as nombre_lista')
+                'prp.tiempopedido as tiempopedido1', 'prp.metodoabc as metodoabc', 'prp.activo as activo', 'prp.estado as estado', 'u.id as id_name', 'u.name as user_name', 'pl.nombre as linea_name', 'plist.id as id_lista', 'plist.nombre_lista as nombre_lista','ar.nombre as rubro_name')
             ->join('prod__productos as pp', 'pp.id', '=', 'prp.id_producto')
             ->join('prod__listas as plist', 'plist.id', '=', 'prp.id_lista')
             ->join('tda__tiendas as tt', 'tt.codigo', '=', 'prp.cod_tda_alm')
@@ -143,7 +142,7 @@ class ProdRegistroPreXListController extends Controller
             ->leftJoin('prod__forma_farmaceuticas AS ff_1', 'ff_1.id', '=', 'pp.idformafarmaceuticaprimario')
             ->leftJoin('prod__forma_farmaceuticas AS ff_2', 'ff_2.id', '=', 'pp.idformafarmaceuticasecundario')
             ->leftJoin('prod__forma_farmaceuticas AS ff_3', 'ff_3.id', '=', 'pp.idformafarmaceuticaterciario')
-           
+            ->join('adm__rubros as ar', 'ar.id', '=', 'pp.idrubro')
                 ->where('prp.cod_tda_alm', '=', $bus)
            
                 ->where('pp.idrubro', '=', 1)
@@ -159,7 +158,7 @@ class ProdRegistroPreXListController extends Controller
                     ELSE NULL 
                 END AS leyenda'),
         'prp.tipo_tda_alm as tipo_tienda_almacen', 'prp.id_tda_alm as id_tda_alm', 'prp.cod_tda_alm  as cod_tda_alm', 'ass.razon_social as razon_social', 'prp.preciolista as preciolista', 'prp.precioventa as precioventa',
-        'prp.tiempopedido as tiempopedido1', 'prp.metodoabc as metodoabc', 'prp.activo as activo', 'prp.estado as estado', 'u.id as id_name', 'u.name as user_name', 'pl.nombre as linea_name', 'plist.id as id_lista', 'plist.nombre_lista as nombre_lista')
+        'prp.tiempopedido as tiempopedido1', 'prp.metodoabc as metodoabc', 'prp.activo as activo', 'prp.estado as estado', 'u.id as id_name', 'u.name as user_name', 'pl.nombre as linea_name', 'plist.id as id_lista', 'plist.nombre_lista as nombre_lista','ar.nombre as rubro_name')
     ->join('prod__productos as pp', 'pp.id', '=', 'prp.id_producto')
     ->join('prod__listas as plist', 'plist.id', '=', 'prp.id_lista')
     ->join('alm__almacens as aa', 'aa.codigo', '=', 'prp.cod_tda_alm')
@@ -172,7 +171,7 @@ class ProdRegistroPreXListController extends Controller
     ->leftJoin('prod__forma_farmaceuticas AS ff_1', 'ff_1.id', '=', 'pp.idformafarmaceuticaprimario')
     ->leftJoin('prod__forma_farmaceuticas AS ff_2', 'ff_2.id', '=', 'pp.idformafarmaceuticasecundario')
     ->leftJoin('prod__forma_farmaceuticas AS ff_3', 'ff_3.id', '=', 'pp.idformafarmaceuticaterciario')
-   
+    ->join('adm__rubros as ar', 'ar.id', '=', 'pp.idrubro')
                 ->where('prp.cod_tda_alm', '=', $bus)
                 
                 ->where('pp.idrubro', '=', 1)
@@ -233,8 +232,18 @@ class ProdRegistroPreXListController extends Controller
      * Update the specified resource in storage.
      */
     public function update(Request $request, Prod_Registro_pre_x_list $prod_Registro_pre_x_list)
-    {
-        
+    { 
+        try {
+            $update=Prod_Registro_pre_x_list::find($request->id);
+            $update->id_lista=$request->id_lista;
+            $update->preciolista=$request->preciolista;
+            $update->precioventa=$request->precioventa;
+            $update->tiempopedido=$request->tiempopedido;
+            $update->metodoabc=$request->metodoabc;
+            $update->save();
+        } catch (\Throwable $th) {
+            return response()->json(['error' => $th->getMessage()],500);
+        }
     }
     public function listarLista(Request $request){
         $resultadoCombinacion = DB::table('prod__listas as pl')
@@ -679,5 +688,21 @@ return $resultado;
        
      }
      
-
+     public function desactivar(Request $request)
+     {
+       
+         $update = Prod_Registro_pre_x_list::findOrFail($request->id);
+         $update->activo = 0;
+         $update->id_usuario=auth()->user()->id;
+         $update->id_usuario_modifica=auth()->user()->id;
+         $update->save();
+     }
+ 
+     public function activar(Request $request)
+     {  $update = Prod_Registro_pre_x_list::findOrFail($request->id);
+         $update->activo = 1;
+         $update->id_usuario=auth()->user()->id;
+         $update->id_usuario_modifica=auth()->user()->id;
+         $update->save();
+     }
 }
