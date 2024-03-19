@@ -415,6 +415,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/gestionprecioventa2', [GesPreVenta2Controller::class, 'index']);
     Route::post('/gestionprecioventa2/registrar', [GesPreVenta2Controller::class, 'store']);
     Route::post('/gestionprecioventa2/actualizar', [GesPreVenta2Controller::class, 'update']);
+    Route::get('/gestionprecioventa2/listarLista', [GesPreVenta2Controller::class, 'listarLista']);    
    
     /////////////////////////////////////////////Inventario///////////////////////////////////////////////////
 

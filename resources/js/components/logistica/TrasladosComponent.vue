@@ -98,7 +98,7 @@
                                     </button>
                                     &nbsp;
                                     <button
-                                        v-if="tras.activo == 1"
+                                        v-if="tras.activo==1"
                                         type="button"
                                         class="btn btn-danger btn-sm"
                                         @click="eliminar(tras.id)"
@@ -138,6 +138,19 @@
                     </tbody>               
             </table>
             <!--fin de tabla-->
+            <nav>
+                        <ul class="pagination">
+                            <li class="page-item" v-if="pagination.current_page > 1">
+                                <a class="page-link" href="#" @click.prevent="cambiarPagina(pagination.current_page - 1)">Ant</a>
+                            </li>
+                            <li class="page-item" v-for="page in pagesNumber" :key="page" :class="[page == isActived ? 'active':'']">
+                                <a class="page-link" href="#" @click.prevent="cambiarPagina(page)" v-text="page"></a>
+                            </li>
+                            <li class="page-item" v-if="pagination.current_page< pagination.last_page">
+                                <a class="page-link" href="#" @click.prevent="cambiarPagina(pagination.current_page + 1)">Sig</a>
+                            </li>
+                        </ul>
+                    </nav>
         </div>
             </div>   
   
@@ -429,7 +442,7 @@ export default {
                 from: 0,
                 to: 0,
             },
-          
+            offset:3,
             tipoAccion:1,
             tituloModal: "",
             selectAlmTienda:0,
@@ -502,25 +515,25 @@ export default {
             return this.pagination.current_page;
         },
 
-        pagesNumber: function () {
-            if (!this.pagination.to) {
-                return [];
-            }
-            var from = this.pagination.current_page - this.offset;
-            if (from < 1) {
-                from = 1;
-            }
-            var to = from + this.offset * 2;
-            if (to >= this.pagination.last_page) {
-                to = this.pagination.last_page;
-            }
-            var pagesArray = [];
-            while (from <= to) {
-                pagesArray.push(from);
-                from++;
-            }
-            return pagesArray;
-        },
+        pagesNumber:function(){
+                if(!this.pagination.to){
+                    return[];
+                }
+                var from = this.pagination.current_page - this.offset;
+                if(from<1){
+                    from=1;
+                }
+                var to = from +(this.offset * 2);
+                if(to>= this.pagination.last_page){
+                    to=this.pagination.last_page;
+                }
+                var pagesArray =[];
+                while(from<=to){
+                    pagesArray.push(from);
+                    from++
+                }
+                return pagesArray;
+            },
     },
 
     methods: {
@@ -632,7 +645,6 @@ export default {
         },
 
 
-
         cambiarPagina(page) {
             let me = this;
             me.pagination.current_page = page;
@@ -655,10 +667,8 @@ export default {
                         'id_empleado': me.selectUsuario,
                         'id_vehiculo': me.selectVehiculo,
                        'time':me.estimacion, 
-                       'observacion':me.observacion,
-                     
-                        'activo': 1,
-                    
+                       'observacion':me.observacion,                     
+                        'activo': 1,                    
                      
                     }).then(function(response){
                         me.cerrarModal('registrar');

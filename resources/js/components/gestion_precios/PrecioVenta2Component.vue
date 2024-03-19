@@ -456,6 +456,9 @@ export default {
                 from: 0,
                 to: 0
             },
+            selectLista:0,
+            arrayLista:[],
+
             offset: 3,
             
             tipo: 0,
@@ -573,6 +576,22 @@ methods: {
                 });
         
     },  
+    listarLista(){
+            let me = this;
+            var url = "/gestionprecioventa2/listarLista?codigo="+me.tiendaalmacenselected;
+       
+            axios
+                .get(url)
+                .then(function (response) {
+                    var respuesta = response.data;
+                    me.arrayLista = respuesta;
+                 
+                })
+                .catch(function (error) {
+                    error401(error);
+                    console.log(error);
+                });
+        },
     listarAlmTienda() {
             let me = this;
             var url = "/gestionprecioventa2/listarSucursal";
