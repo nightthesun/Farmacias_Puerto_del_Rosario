@@ -275,7 +275,7 @@ return $resultadoCombinacion;
     public function listarSucursal(){
        
         $tiendas = DB::table('tda__tiendas')
-        ->select('tda__tiendas.id as id_tienda', DB::raw('null as id_almacen'), 'tda__tiendas.codigo', 'adm__sucursals.razon_social', 'adm__sucursals.razon_social as sucursal','adm__sucursals.cod as codigoS', DB::raw('"Tienda" as tipoCodigo'),'tda__tiendas.id as lista_id_almacen_id_tienda')
+        ->select('tda__tiendas.id as id_tienda', DB::raw('null as id_almacen'), 'tda__tiendas.codigo', 'adm__sucursals.razon_social', 'adm__sucursals.razon_social as sucursal','adm__sucursals.cod as codigoS', DB::raw('"TDA" as tipoCodigo'),'tda__tiendas.id as lista_id_almacen_id_tienda')
         ->join('adm__sucursals', 'tda__tiendas.idsucursal', '=', 'adm__sucursals.id')
         ->where('tda__tiendas.activo','=',1)
         ->where('adm__sucursals.activo','=',1)
@@ -285,7 +285,7 @@ return $resultadoCombinacion;
         ->join('adm__sucursals as ass', 'ass.id', '=', 'aa.idsucursal')
         ->where('aa.activo','=',1)
         ->where('ass.activo','=',1)
-        ->select(DB::raw('null as id_tienda'), 'aa.id as id_almacen', 'aa.codigo', 'aa.nombre_almacen as razon_social', 'ass.razon_social as sucursal', 'ass.cod as codigoS,',DB::raw('"Almacen" as tipoCodigo'),'aa.id  as lista_id_almacen_id_tienda');
+        ->select(DB::raw('null as id_tienda'), 'aa.id as id_almacen', 'aa.codigo', 'aa.nombre_almacen as razon_social', 'ass.razon_social as sucursal', 'ass.cod as codigoS,',DB::raw('"ALM" as tipoCodigo'),'aa.id  as lista_id_almacen_id_tienda');
 
     $result = $tiendas->unionAll($almacenes)->get();
       return $result;

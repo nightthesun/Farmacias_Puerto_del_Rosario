@@ -638,30 +638,18 @@ class GesPreVenta2Controller extends Controller
            
      }
      public function listarLista(Request $request){
-        $resultadoCombinacion = DB::table('prod__listas as pl')
-    ->select('pl.id as id', 'pl.nombre_lista as nombre_lista', 'pl.codigo as codigo_lista', 'pl.codigo_tda_alm as codigo_tda_alm',
-             'pl.id_tda_alm as id_tda_alm', 'ass.razon_social as razon_social', 'ass.cod as cod', 'u.name as user_name',
-             'pl.estado as estado', 'pl.activo as activo')
-    ->join('tda__tiendas as tt', 'tt.id', '=', 'pl.id_tda_alm')
-    ->join('adm__sucursals as ass', 'ass.id', '=', 'tt.idsucursal')
-    ->join('users as u', 'u.id', '=', 'pl.id_usuario')
-    ->whereColumn('tt.codigo', '=', 'pl.codigo_tda_alm')
-    ->where('pl.activo', '=', 1)
-    ->where('pl.codigo_tda_alm', '=', $request->codigo)
-    ->unionAll(
-        DB::table('prod__listas as pl')
-            ->select('pl.id as id', 'pl.nombre_lista as nombre_lista', 'pl.codigo as codigo_lista', 'pl.codigo_tda_alm as codigo_tda_alm',
-                     'pl.id_tda_alm as id_tda_alm', 'aa.nombre_almacen as razon_social', 'ass.cod as cod', 'u.name as user_name',
-                     'pl.estado as estado', 'pl.activo as activo')
-            ->join('alm__almacens as aa', 'aa.id', '=', 'pl.id_tda_alm')
-            ->join('adm__sucursals as ass', 'ass.id', '=', 'aa.idsucursal')
-            ->join('users as u', 'u.id', '=', 'pl.id_usuario')
-            ->whereColumn('aa.codigo', '=', 'pl.codigo_tda_alm')
-            ->where('pl.activo', '=', 1)
-            ->where('pl.codigo_tda_alm', '=', $request->codigo)
-    )->get();
+        $resultado = DB::table('prod__registro_pre_x_lists as prp')
+        ->select(DB::raw('MAX(prp.id) AS id'), 'plist.id AS id_lista', DB::raw('MAX(plist.nombre_lista) AS nombre_lista'), 'prp.cod_tda_alm as cod_tda_alm', 'prp.tipo_tda_alm AS tipo_tda_alm','plist.codigo AS codigo_lista')
+        ->join('prod__listas as plist', 'plist.id', '=', 'prp.id_lista')
+        ->where('prp.cod_tda_alm', '=', $request->codigo) // Corregido aquí
+        ->where('prp.activo', '=', 1)
+        ->where('plist.activo', '=', 1)
+        ->groupBy('plist.id', 'cod_tda_alm', 'prp.tipo_tda_alm','plist.codigo')
+        ->get();
+    
 
-return $resultadoCombinacion;
+
+        return $resultado;
 
     }
 

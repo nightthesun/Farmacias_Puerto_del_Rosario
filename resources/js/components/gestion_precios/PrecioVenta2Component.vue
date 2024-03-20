@@ -16,7 +16,7 @@
                         </div>
                         <div class="col-md-5">
                             <div class="input-group">
-                                <select class="form-control"  @change="listarProductosTiendaAlmacen(0)"
+                                <select class="form-control"  @change="listarLista(tiendaalmacenselected);"
                                 v-model="tiendaalmacenselected">
                                     
                                     <option value="0" disabled selected>Seleccionar...</option>
@@ -33,26 +33,50 @@
                                 </select>
                             </div>
                         </div>
+                     
+                        
                         <div class="col-md-5">
                             <div class="input-group">
                                 <input type="text" id="texto" name="texto" class="form-control"
                                     placeholder="Texto a buscar" v-model="buscar"
                                     @keyup.enter="listarProductosTiendaAlmacen(1)" 
-                                    :hidden="tiendaalmacenselected == 0"
-                                    :disabled="tiendaalmacenselected == 0"
+                                    :hidden="selectLista == 0"
+                                    :disabled="selectLista == 0"
                                 />
                                 <button
                                     type="submit"
                                     class="btn btn-primary"
                                     @click="listarProductosTiendaAlmacen(1)"
-                                    :hidden="tiendaalmacenselected == 0"
-                                    :disabled="tiendaalmacenselected == 0"
+                                    :hidden="selectLista == 0"
+                                    :disabled="selectLista == 0"
                                 >
                                     <i class="fa fa-search"></i> Buscar
                                 </button>
                             </div>
                         </div>
                     </div>
+                    <div class="form-group row" v-if="tiendaalmacenselected!=0">
+                        <div class="col-md-2" style="text-align:center">
+                            <label for="">Lista Disponibles:</label>
+                        </div>
+                        <div class="col-md-5" >
+                            <div class="input-group">
+                                <select class="form-control" @change="listarProductosTiendaAlmacen(0);listarLista(tiendaalmacenselected);"
+                                v-model="selectLista" >
+                                    
+                                    <option value="0" disabled selected>Seleccionar...</option>
+                                    <option value="x"  >Sin Lista</option>
+                                    <option
+                                        v-for="l in arrayLista"
+                                        :key="l.id"
+                                        :value="l.id"
+                                        v-text="l.codigo_lista + ' -> ' +l.nombre_lista"
+                                    ></option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                   
                     <!--fin de form-group row-->
                     <table class="table table-bordered table-striped table-sm table-responsive">
                         <thead>
@@ -456,11 +480,7 @@ export default {
                 from: 0,
                 to: 0
             },
-            selectLista:0,
-            arrayLista:[],
-
-            offset: 3,
-            
+            offset: 3,           
             tipo: 0,
             tipoAccion: 1, 
             buscar:'',
@@ -501,7 +521,10 @@ export default {
             l30pc:0,//Liq. 30 %
             upc:0,//Utilidad Bruta%
             pvc:0,//Precio de venta  gestion 
-
+            //lista...
+            listaX:'',
+            selectLista:0,
+            arrayLista:[],
 
 
 
@@ -510,6 +533,8 @@ export default {
         }
 
     },
+   
+       
     computed: {
 
 sicompleto(){
@@ -563,8 +588,8 @@ methods: {
    
     listarProductosTiendaAlmacen(page) {
         let me=this;
-                var url='/gestionprecioventa2?page='+page+'&buscar='+me.buscar+'&buscarAlmTdn='+me.tiendaalmacenselected;
-             
+                var url='/gestionprecioventa2?page='+page+'&buscar='+me.buscar+'&buscarAlmTdn='+me.tiendaalmacenselected+'&lista='+me.selectLista;
+             console.log(url);
                 axios.get(url)
                 .then(function(response){
                     var respuesta = response.data;
@@ -576,9 +601,9 @@ methods: {
                 });
         
     },  
-    listarLista(){
+    listarLista(code){
             let me = this;
-            var url = "/gestionprecioventa2/listarLista?codigo="+me.tiendaalmacenselected;
+            var url = "/gestionprecioventa2/listarLista?codigo="+code;
        
             axios
                 .get(url)
