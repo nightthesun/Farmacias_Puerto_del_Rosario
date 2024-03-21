@@ -14,16 +14,18 @@ class GesPreVenta2Controller extends Controller
      */
     public function index(Request $request)
     {
+       
+       
         $buscararray = array();
         $bus = $request->query('buscarAlmTdn');
-        if (!empty($request->buscar)) {
-            $buscararray = explode(" ", $request->buscar);
-            $valor = sizeof($buscararray);
+        if (!empty($request->buscar)) {          
+            $buscararray = explode(" ", $request->buscar);           
+            $valor = sizeof($buscararray);       
             if ($valor > 0) {
                 $sqls = '';
-
-                foreach ($buscararray as $valor) {
-                    if (empty($sqls)) {
+                foreach ($buscararray as $valor) {                   
+                    if (empty($sqls)) {    
+                                        
                         $sqls = "(
                                 pp.codigo like '%" . $valor . "%' 
                                 or pl.nombre like '%" . $valor . "%'
@@ -32,6 +34,7 @@ class GesPreVenta2Controller extends Controller
                             
                                )";
                     } else {
+                      
                         $sqls .= "and (
                              pp.codigo like '%" . $valor . "%' 
                                 or pl.nombre like '%" . $valor . "%'
@@ -41,7 +44,7 @@ class GesPreVenta2Controller extends Controller
                     }
                 } 
                 // query start 
-
+            
                 $almacen = DB::table('pivot__modulo_tienda_almacens as pivot')
                 ->select(
                     'pivot.id as id',
