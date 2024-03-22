@@ -78,7 +78,6 @@
                     </div>
                    
                     <!--fin de form-group row-->
-<<<<<<< HEAD
                     <table class="table table-bordered table-striped table-sm table-responsive">
                         <thead>
                             <tr>
@@ -153,7 +152,6 @@
                             </li>
                         </ul>
                     </nav>
-=======
                 
                         <div   v-if="tiendaalmacenselected==0">
  
@@ -312,7 +310,6 @@
                         </div>
                        
                     </div>
->>>>>>> 78474d21ab1a227fa3ab1cf490a6a8e915fbc1d1
                 </div>        
             </div>
              <!-- Fin ejemplo de tabla Listado -->
