@@ -16,7 +16,7 @@
                         </div>
                         <div class="col-md-5">
                             <div class="input-group">
-                                <select class="form-control"  @change="listarProductosTiendaAlmacen(0)"
+                                <select class="form-control"  @change="listarLista(tiendaalmacenselected);cambiarEstado();"
                                 v-model="tiendaalmacenselected">
                                     
                                     <option value="0" disabled selected>Seleccionar...</option>
@@ -33,27 +33,52 @@
                                 </select>
                             </div>
                         </div>
+                     
+                        
                         <div class="col-md-5">
                             <div class="input-group">
                                 <input type="text" id="texto" name="texto" class="form-control"
                                     placeholder="Texto a buscar" v-model="buscar"
                                     @keyup.enter="listarProductosTiendaAlmacen(1)" 
-                                    :hidden="tiendaalmacenselected == 0"
-                                    :disabled="tiendaalmacenselected == 0"
+                                    :hidden="selectLista == 0"
+                                    :disabled="selectLista == 0"
                                 />
                                 <button
                                     type="submit"
                                     class="btn btn-primary"
                                     @click="listarProductosTiendaAlmacen(1)"
-                                    :hidden="tiendaalmacenselected == 0"
-                                    :disabled="tiendaalmacenselected == 0"
+                                    :hidden="selectLista == 0"
+                                    :disabled="selectLista == 0"
                                 >
                                     <i class="fa fa-search"></i> Buscar
                                 </button>
                             </div>
                         </div>
                     </div>
+                    <div class="form-group row" v-if="tiendaalmacenselected!=0">
+                        <div class="col-md-2" style="text-align:center">
+                            <label for="">Lista Disponibles:</label>
+                        </div>
+                        <div class="col-md-5" >
+                            <div class="input-group">
+                                <select class="form-control" @change="listarProductosTiendaAlmacen(0);listarLista(tiendaalmacenselected);"
+                                v-model="selectLista" >
+                                    
+                                    <option value="0" disabled selected>Seleccionar...</option>
+                                    <option value="x"  >Sin Lista</option>
+                                    <option
+                                        v-for="l in arrayLista"
+                                        :key="l.id_lista"
+                                        :value="l.id_lista"
+                                        v-text="l.codigo_lista + ' -> ' +l.nombre_lista"
+                                    ></option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                   
                     <!--fin de form-group row-->
+<<<<<<< HEAD
                     <table class="table table-bordered table-striped table-sm table-responsive">
                         <thead>
                             <tr>
@@ -128,6 +153,166 @@
                             </li>
                         </ul>
                     </nav>
+=======
+                
+                        <div   v-if="tiendaalmacenselected==0">
+ 
+</div>
+              
+                    <div v-else>
+                        <div class="alert alert-warning" role="alert" v-if="selectLista==0">
+                            <h4 class="alert-heading">Intrucciones!</h4>
+  <p>Para poder ver el listado de productos primero debe escoger una tienda o almacén después escoger una lista, para ver listado por default solo debe escoger <strong>Sin Lista</strong>.</p>
+  <hr>
+  <p class="mb-0">El precio se verá dependiendo de la lista que escogió por la cantidad de productos que existe.</p>
+                        </div>
+                        <div v-else>
+                            <table class="table table-bordered table-striped table-sm table-responsive" >
+                   
+                   <thead>
+                       <tr>
+                           <th>Opciones</th>
+                           <th>Codigo</th>
+                           <th>Linea o Marca</th>
+                           <th>Entrada</th>
+                           <th>Cantidad</th>
+                           <th>Stock</th>
+                           <th>Precio Lista</th>
+                           <th>Costo Compra</th>
+                           <th>Precio Venta</th>
+                           <th>% Utilidad Bruta</th>
+                           <th>Tipo Entrada</th>
+                           <th>Fecha y Hora</th>
+                           <th>Usuario</th>
+                       </tr>
+                   </thead>
+                  
+                   <tr v-for="producto in arrayProductosAlterado" :key="producto.id" :style="[ producto.listo_venta == 1 ? '':'background-color: #FAD537' ]">
+                       <td>
+                           <button type="button" class="btn btn-warning btn-sm"
+                                   @click="abrirModal('editarPrecioUtilidadProducto', producto)" :disabled="producto.stock_ingreso == 0">
+                                   <i class="icon-pencil"></i>
+                           </button> &nbsp; 
+                       </td>
+                       <td v-text="producto.codigo_producto"></td>
+                       <td v-text="producto.nombre_linea"></td>
+                       <td v-text="producto.leyenda+' FI:'+producto.fecha_ingreso+' Lote:'+producto.lote+' FV:'+producto.fecha_vencimiento"></td>
+                       <td v-text="producto.cantidad_ingreso"></td>
+                       <td v-text="producto.stock_ingreso"></td>
+                       <td><!-- Precio lista -->
+                               <div v-if="producto.listo_venta == 1">
+                                   <span class="">
+                                     {{ producto.precio_lista_gespreventa === null ? "0.00": producto.precio_lista_gespreventa }}
+                                   </span>
+                               </div>
+                               <div v-else>
+                                   <span class="">
+                                       {{ producto.precio_lista_gespreventa === null ? "0.00": producto.precio_lista_gespreventa }}
+                                   </span>
+                               </div>
+                       </td>
+                       <td><!-- Costo Compra -->
+                               <div v-if="producto.listo_venta == 1">
+                                   <span>{{ producto.costo_compra_gespreventa === null ? "0.00":producto.costo_compra_gespreventa }}</span>
+                               </div>
+                               <div v-else>
+                                   <span>{{ producto.costo_compra_gespreventa === null ? "0.00":producto.costo_compra_gespreventa }}</span>
+                               </div>
+                       </td>
+                       <td><!-- Precio de Venta -->
+                               <div v-if="producto.listo_venta == 1">
+                                   <span  >
+                                       {{ producto.precio_venta_gespreventa === null ? "0.00": producto.precio_venta_gespreventa }} 
+                                   </span>
+                               </div>
+                               <div v-else>
+                                   <span class="">
+                                       {{ producto.precio_venta_gespreventa === null ? "0.00": producto.precio_venta_gespreventa }} 
+                                   </span>
+                               </div>
+                       </td>
+                       <td><!-- % Utilidad Bruta -->
+                               <div v-if="producto.listo_venta == 1">
+                                   <span  >{{ producto.utilidad_neto_gespreventa === null ? "0.00":producto.utilidad_neto_gespreventa }}</span>
+                               </div>
+                               <div v-else>
+                                   <span class="">{{ producto.utilidad_neto_gespreventa === null ? "0.00":producto.utilidad_neto_gespreventa }}  </span>
+                               </div>
+                       </td>
+                       <td v-text="producto.tipoentrada"></td><!-- Tipo Entrada -->
+                       <td> <!-- Fecha de Utilidad -->
+                               <div v-if="producto.listo_venta == 1">
+                                   <span  >{{ producto.fecha}}</span>
+                               </div>
+                               <div v-else>
+                                   <span class="">DD/MM/AAAA</span>
+                               </div>
+                       </td> 
+                       <td>
+                           <div v-if="producto.listo_venta == 1">
+                                   <span  >{{ producto.user_name}}</span>
+                               </div>
+                               <div v-else>
+                                   <span class="">S/M</span>
+                               </div>
+                       </td> 
+                       
+                   </tr>     
+               </table>   
+               <nav>
+                   <ul class="pagination">
+                       <li
+                           class="page-item"
+                           v-if="pagination.current_page > 1"
+                       >
+                           <a
+                               class="page-link"
+                               href="#"
+                               @click.prevent="
+                                   cambiarPagina(
+                                       pagination.current_page - 1,
+                                   )
+                               "
+                               >Ant</a
+                           >
+                       </li>
+                       <li
+                           class="page-item"
+                           v-for="page in pagesNumber"
+                           :key="page"
+                           :class="[page == isActived ? 'active' : '']"
+                       >
+                           <a
+                               class="page-link"
+                               href="#"
+                               @click.prevent="cambiarPagina(page)"
+                               v-text="page"
+                           ></a>
+                       </li>
+                       <li
+                           class="page-item"
+                           v-if="
+                               pagination.current_page <
+                               pagination.last_page
+                           "
+                       >
+                           <a
+                               class="page-link"
+                               href="#"
+                               @click.prevent="
+                                   cambiarPagina(
+                                       pagination.current_page + 1,
+                                   )
+                               "
+                               >Sig</a
+                           >
+                       </li>
+                   </ul>
+               </nav>
+                        </div>
+                       
+                    </div>
+>>>>>>> 78474d21ab1a227fa3ab1cf490a6a8e915fbc1d1
                 </div>        
             </div>
              <!-- Fin ejemplo de tabla Listado -->
@@ -390,8 +575,7 @@ export default {
                 from: 0,
                 to: 0
             },
-            offset: 3,
-            
+            offset: 3,           
             tipo: 0,
             tipoAccion: 1, 
             buscar:'',
@@ -432,7 +616,11 @@ export default {
             l30pc:0,//Liq. 30 %
             upc:0,//Utilidad Bruta%
             pvc:0,//Precio de venta  gestion 
-
+            //lista...
+            listaX:'',
+            selectLista:0,
+            arrayLista:[],
+            clear:0,
 
 
 
@@ -441,6 +629,8 @@ export default {
         }
 
     },
+   
+       
     computed: {
 
 sicompleto(){
@@ -491,22 +681,57 @@ methods: {
             me.pagination.current_page = page;
             me.listarProductosTiendaAlmacen(page);
         },
-   
-    listarProductosTiendaAlmacen(page) {
+        cambiarEstado() {
+    this.selectLista = 0;
+    this.arrayProductosAlterado = [];
+    this.pagination = {
+      total: 0,
+      current_page: 0,
+      per_page: 0,
+      last_page: 0,
+      from: 0,
+      to: 0
+    };
+  },
+    listarProductosTiendaAlmacen(page) {       
         let me=this;
-                var url='/gestionprecioventa2?page='+page+'&buscar='+me.buscar+'&buscarAlmTdn='+me.tiendaalmacenselected;
-             
+        if (page!=undefined&&+me.tiendaalmacenselected!=0&&me.selectLista!=0) {
+            var url='/gestionprecioventa2?page='+page+'&buscar='+me.buscar+'&buscarAlmTdn='+me.tiendaalmacenselected+'&lista='+me.selectLista;
+             console.log(url);
                 axios.get(url)
                 .then(function(response){
                     var respuesta = response.data;
                     me.pagination = respuesta.pagination;
                     me.arrayProductosAlterado = respuesta.queryCombinacion.data;
+                   
                 })
                 .catch(function(error){
                     error401(error);
                 });
+        } 
+     
+          me.clear=0;      
         
     },  
+    listarLista(code){
+            let me = this;
+            var url = "/gestionprecioventa2/listarLista?codigo="+code;
+       
+            axios
+                .get(url)
+                .then(function (response) {
+                    var respuesta = response.data;
+                    me.arrayLista = respuesta;
+                   
+                       
+                   
+                 
+                })
+                .catch(function (error) {
+                    error401(error);
+                    console.log(error);
+                });
+        },
     listarAlmTienda() {
             let me = this;
             var url = "/gestionprecioventa2/listarSucursal";

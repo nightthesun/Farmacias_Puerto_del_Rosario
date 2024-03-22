@@ -5,72 +5,80 @@
             <li class="breadcrumb-item">Home</li>
             <li class="breadcrumb-item"><a href="#">Admin</a></li>
             <li class="breadcrumb-item active">Dashboard</li>
-      
         </ol>
         <div class="container-fluid">
             <!-- Ejemplo de tabla Listado -->
             <div class="card">
                 <div class="card-header">
-                    <i class="fa fa-align-justify"></i> Listas
-                    <button type="button" class="btn btn-secondary"
-                            @click="abrirModal('registrar')
-                                   "
-                                    :disabled="selectAlmTienda == 0">
+                    <i class="fa fa-align-justify"></i> Lista
+                    <button type="button" class="btn btn-secondary" @click="abrirModal('registrar',listarAlmTienda())">
                         <i class="icon-plus"></i>&nbsp;Nuevo
                     </button>
-                    <span v-if="selectAlmTienda == 0" class="error"
-                        >&nbsp; &nbsp;Debe Seleccionar un almacen o
-                        tienda.</span >
                 </div>
                 <div class="card-body">
                     <div class="form-group row">
-                        <div class="col-md-2" style="text-align: center">
-                           <label for="">Almacen o Tienda:</label>
-                        </div>
                         <div class="col-md-6">
                             <div class="input-group">
-                                <select class="form-control"  v-model="selectAlmTienda">
-                                    <option value="0" disabled selected>Seleccionar...</option>
-                                    <option
-                                        v-for="sucursal in arrayAlmTienda"
-                                        :key="sucursal.codigo"
-                                        :value="sucursal.codigo"
-                                        v-text="sucursal.codigoS +
-                                            ' -> ' + sucursal.codigo+' ' +
-                                            sucursal.razon_social"></option>
-                                </select>
-                           </div>
+                       <input type="text" id="texto" name="texto" class="form-control" placeholder="Texto a buscar" v-model="buscar" @keyup.enter="listarLista(1)">
+                         <button type="button" class="btn btn-primary" @click="listarLista(1)"><i class="fa fa-search"></i> Buscar</button>
                         </div>
+                        </div>
+                       
                     </div>
-          
                     <table class="table table-bordered table-striped table-sm table-responsive">
                         <thead>
                             <tr>
                                 <th>Opciones</th>
-                             
+                                <th>Codigo</th>
+                                <th>Nombre</th>
+                                <th>Tienda/Almacen</th>
+                                <th>Razon social</th>
+                                <th>Usuario</th>                                    
                                 <th>Estado</th>
                             </tr>
                         </thead>
                         <tbody>
-                            
-                           <tr>
-                            <h4 style="text-align: center;"> Sin datos123...</h4>
-                          
-                            <td>1</td>
-                            <td>2</td>
-                           
-                           </tr>
+                            <tr v-for="lista in arrayLista" :key="lista.id">
+                                <td>                                    
+                                    <button type="button" class="btn btn-warning btn-sm" @click="abrirModal('actualizar',lista,listarAlmTienda())" >
+                                        <i class="icon-pencil"></i>
+                                    </button> &nbsp;
+                                    <button v-if="lista.activo==1" type="button" class="btn btn-danger btn-sm" @click="eliminar(lista.id)" >
+                                        <i class="icon-trash"></i>
+                                    </button>
+                                    <button v-else type="button" class="btn btn-info btn-sm"  @click="activar(lista.id)">
+                                        <i class="icon-check"></i>
+                                    </button>
+                                
+                                </td>
+                                <td v-text="lista.codigo_lista"></td>
+                                <td v-text="lista.nombre_lista"></td>
+                                <td v-text="lista.codigo_tda_alm"></td>
+                                <td v-text="lista.razon_social"></td>
+                                <td v-text="lista.user_name"></td>
+                                <td>
+                                    <div v-if="lista.activo==1">
+                                        <span class="badge badge-success">Activo</span>
+                                    </div>
+                                    <div v-else>
+                                        <span class="badge badge-warning">Desactivado</span>
+                                    </div>
+                                    
+                                </td>
+                            </tr>
                         </tbody>
+                    
+                        
                     </table>
                     <nav>
                         <ul class="pagination">
-                            <li class="page-item">
+                            <li class="page-item" v-if="pagination.current_page > 1">
                                 <a class="page-link" href="#" @click.prevent="cambiarPagina(pagination.current_page - 1)">Ant</a>
                             </li>
-                            <li class="page-item">
-                                <a class="page-link" href="#" @click.prevent="cambiarPagina(pagination.current_page - 1)">Ant</a>
+                            <li class="page-item" v-for="page in pagesNumber" :key="page" :class="[page == isActived ? 'active':'']">
+                                <a class="page-link" href="#" @click.prevent="cambiarPagina(page)" v-text="page"></a>
                             </li>
-                            <li class="page-item">
+                            <li class="page-item" v-if="pagination.current_page< pagination.last_page">
                                 <a class="page-link" href="#" @click.prevent="cambiarPagina(pagination.current_page + 1)">Sig</a>
                             </li>
                         </ul>
@@ -80,200 +88,163 @@
             <!-- Fin ejemplo de tabla Listado -->
         </div>
         <!--Inicio del modal agregar/actualizar-->
-        <div class="modal fade" tabindex="-1" role="dialog" arial-labelledby="myModalLabel" id="registrar" aria-hidden="true" data-backdrop="static" data-key="false">
+        <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" id="registrar" aria-hidden="true" data-backdrop="static" data-keyboard="false">
             <div class="modal-dialog modal-primary modal-lg" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                    <h4 class="modal-title">{{ tituloModal }}</h4>
-                    <button  type="button" class="close" aria-label="Close" @click="cerrarModal('registrar')">
-                        <span aria-hidden="true">x</span>
-                    </button>
-                    
-                </div>
-                <div class="modal-body">
-                    <div class="alert alert-warning" role="alert">
-                        Todos los campos con (*) son requeridos
+                        <h4 class="modal-title">{{ tituloModal }}</h4>
+                        <button type="button" class="close"  aria-label="Close" @click="cerrarModal('registrar')">
+                            <span aria-hidden="true">×</span>
+                        </button>
                     </div>
-                    <form action="" class="form-horizontal">
-                        <!-- insertar datos -->
-                        <div class="container">
-                         
-                            <div class="form-group row">
-                                <label class="col-md-3 form-control-label" for="text-input">
-                                    Envase:
-                                    <span   class="error">(*)</span>
-                                </label>
-                                <div class="col-md-9">
-                                    <select name="" id="" v-model="selectEnvase" @change="listarProducto()" v-if="tipoAccion==1" class="form-control">
-                                        <option v-bind:value="0" disabled>Seleccior... </option>
-                                        <option
-                                          v-for="env in arrayEnvase"
-                                          :key="env.id"
-                                          v-bind:value="env.envase"
-                                          v-text="'tipo -> '+env.envase"
-                                      ></option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="form-group row" v-if="selectEnvase != 0">
-                                <label class="col-md-3 form-control-label" for="text-input">
-                                    Producto:
-                                    <span   class="error">(*)</span>
-                                </label>
-                                <div class="col-md-9">
-                                    <select name="" id="" v-model="selectProducto"   class="form-control">
-                                        <option v-bind:value="0" disabled>-Seleccionar... </option>
-                                        <option
-                                          v-for="prod in arrayProducto"
-                                          :key="prod.id"
-                                          v-bind:value="prod.id"
-                                          v-text="prod.prod_cod+' '+prod.leyenda"
-                                      ></option>
-                                       
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="border rounded p-4">
-                                <div class="mb-3" v-if="tipoAccion == 1 && selectEnvase != 0 && selectProducto !=0 ">
-                                    Rubro: {{rubro}}
-                                </div>   
-                                <div class="mb-3" v-if="tipoAccion == 1 && selectEnvase != 0 && selectProducto !=0 ">
-                                    Linea:{{linea_cod}} {{linea}}
-                                </div>  
-                            </div>       
-          
-                            <div class="row">
-                            <div class="form-group col-sm-6" v-if="tipoAccion == 1 && selectEnvase != 0 && selectProducto !=0 ">
-                               Rubro: {{rubro}}
-                             
-                            
-                            </div>
-                            <div class="form-group col-sm-6" v-if="tipoAccion == 1 && selectEnvase != 0 && selectProducto !=0">
-                              Linea:{{linea_cod}} {{linea}}
-                
-                            </div>
+                    <div class="modal-body">
+                        <div class="alert alert-warning" role="alert">
+                            Todos los campos con (*) son requeridos
                         </div>
-
-
-                                   <div class="form-group row">
-                                      <label class="col-md-3 form-control-label" for="text-input">Nombre
-                                        <span   class="error">(*)</span>
-                                      </label>
-                                        <div class="col-md-9">
-                                         <input type="text" id="cantidad" name="cantidad" class="form-control" placeholder="Datos de stock" >
-                                      </div>
-                                  </div>   
-
-                         
+                        <form action=""  class="form-horizontal">
                             <div class="form-group row">
-                                      <label class="col-md-3 form-control-label" for="text-input">Descripción
-                                        <span   class="error">(*)</span>
-                                      </label>
-                                        <div class="col-md-9">
-                                            <textarea class="form-control" id="descripcion" name="descripcion" rows="3"></textarea>
+                                <label class="col-md-3 form-control-label" for="text-input">
+                                    Asignar Local/Tienda:
+                                </label>
+                                <div class="col-md-9">
+                                    <select class="form-control"  v-model="selectAlmTienda">
+                                    <option value="0" disabled selected>Seleccionar...</option>
+                                    <option v-for="sucursal in arrayAlmTienda"
+                                        :key="sucursal.codigo"
+                                        :value="sucursal.codigo"
+                                        v-text="sucursal.codigoS +
+                                            ' -> ' + sucursal.codigo+' ' +
+                                            sucursal.razon_social">
+                                    </option>
+                                    </select>
+                                    
+                                </div>
+                            </div>
                            
-                                      </div>
-                                  </div> 
-                            
-                        </div>
-                       
-                    </form>
-
+                            <!-- Esto es para Nombre de lista -->
+                            <div class="form-group row">
+                                <label class="col-md-3 form-control-label" for="text-input">Nombre de lista: <span  v-if="nombreLista==''" class="error">(*)</span></label>
+                                <div class="col-md-9">
+                                    <input type="tex" id="nombrealmacen" name="nombrealmacen" class="form-control"  v-model="nombreLista" v-on:focus="selectAll"  >
+                                    <span  v-if="nombreLista==''" class="error">Debe Ingresar el nombre de lista</span>
+                                </div>
+                            </div>                           
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary"  @click="cerrarModal('registrar')">Cerrar</button>
+                        <button type="button" v-if="tipoAccion==1" class="btn btn-primary" @click="registrarLista()" :disabled="!sicompleto">Guardar</button>
+                        <button type="button" v-if="tipoAccion==2" class="btn btn-primary" @click="actualizar()">Actualizar</button>
+                    </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" @click="cerrarModal('registrar')">Cerrar</button>
-                    <button type="button"  class="btn btn-primary" >Guardar</button>
-                        <button type="button" class="btn btn-primary" >Actualizar</button>
-                   
-                </div>
-                </div>
-                
+                <!-- /.modal-content -->
             </div>
+            <!-- /.modal-dialog -->
         </div>
-        <!--fin del modal-->
+        <!--Fin del modal-->
+        
+        
     </main>
 </template>
 
 <script>
-    import Swal from 'sweetalert2';
-    import { error401 } from '../../errores';
-     //Vue.use(VeeValidate);
-     export default{
+import Swal from 'sweetalert2';
+import { error401 } from '../../errores';
+//Vue.use(VeeValidate);
+    export default {
         data(){
             return{
+                pagination:{
+                    'total' :0,
+                    'current_page':0,
+                    'per_page':0,
+                    'last_page':0,
+                    'from':0,
+                    'to':0
+                },
+                offset:3,
+                buscar:'',
                 tituloModal:'',    
                 tipoAccion:1,          
                 selectAlmTienda:0,
                 arrayAlmTienda:[],
-                selectEnvase:0,
-                arrayEnvase:[{id:1,envase:'primario'},
-                            {id:2,envase:'secundario'},
-                            {id:3,envase:'terciario'}],
-                arrayProducto:[],
-                selectProducto:0,
-                id_prod:'',
-                rubro:'',
-                linea:'',
-                linea_cod:'',
-                selectTiempo:0,
-                tiempopedido:[{'id':1,'dato':'1','tiempo':'un mes'},
-                                {'id':2,'dato':'3','tiempo':'tres meses'},
-                                {'id':3,'dato':'6','tiempo':'seis meses'},
-                                {'id':4,'dato':'12','tiempo':'doce meses'}],
-                selectMetodo:'A',
-                arrayMetodo:[{'id':1,'letra':'A'},{'id':2,'letra':'B'},{'id':3,'letra':'C'}],
+                nombreLista:'',
+                codigo:'',
+                lista_id_almacen_id_tienda:'',
+                arrayLista:[],
+                id_o:'',
+                
             }
+
         },
-        
-       watch:{
-        selectProducto: function(id){
-            let prodcutoAbuscar = this.arrayProducto.find(
-                    (element) => element.id === id);
-                    if (prodcutoAbuscar) {                        
-                        this.id_prod=prodcutoAbuscar.id;
-                       this.rubro=prodcutoAbuscar.rubro_name;
-                       this.linea_cod=prodcutoAbuscar.linea_cod;
-                       this.linea=prodcutoAbuscar.linea_name;
+        computed:{
+            
+            sicompleto(){
+                let me=this;
+                if (me.nombreLista!=''  && me.selectAlmTienda!=0 )
+                    return true;
+                else
+                    return false;
+            },
+            isActived:function(){
+                return this.pagination.current_page;
+            },
+            pagesNumber:function(){
+                if(!this.pagination.to){
+                    return[];
+                }
+                var from = this.pagination.current_page - this.offset;
+                if(from<1){
+                    from=1;
+                }
+                var to = from +(this.offset * 2);
+                if(to>= this.pagination.last_page){
+                    to=this.pagination.last_page;
+                }
+                var pagesArray =[];
+                while(from<=to){
+                    pagesArray.push(from);
+                    from++
+                }
+                return pagesArray;
+            },
+
+
+        },
+        watch:{
+            selectAlmTienda: function(codigo){
+            let sucursalAbuscar = this.arrayAlmTienda.find(
+                    (element) => element.codigo === codigo);
+                    if (sucursalAbuscar) {                        
+                       this.codigo=sucursalAbuscar.codigo;
+                       this.lista_id_almacen_id_tienda=sucursalAbuscar.lista_id_almacen_id_tienda;
+                       this.id=sucursalAbuscar.sucursalAbuscar;
+                       
                     }
         }
        }, 
-       methods :{
-        listarProducto() {
-            let me = this;
-            let parteCodigo = me.selectAlmTienda.substring(0, 3);
-            var pase="";
-            console.log(parteCodigo);
-            if(parteCodigo==='ALM' || parteCodigo==='TDA'){
+        methods :{
+            //then entonces
+            listarLista(page){
+                let me=this;
+                var url="/lista?page="+page+"&buscar="+me.buscar;
                 
+                axios.get(url)
+                     .then(function (response){
 
-            var url ="/producto/listarProducto?codigo=" + parteCodigo +
-                    "&envase=" + me.selectEnvase;
-                    axios
-                .get(url)
-                .then(function (response) {
-                    var respuesta = response.data;
-                    me.arrayProducto = respuesta;
-                    me.selectProducto=0;
-                    me.id_prod="";
-                        me.linea="";
-                        me.linea_cod="";
-                        me.rubro="";
-                })
-                    
-                .catch(function (error) {
-                    error401(error);
-                    console.log(error);
-                });
-            }
-            else{
+                        var respuesta = response.data; 
+                        me.pagination = respuesta.pagination;
+                        me.arrayLista=respuesta.resultadoCombinacion.data;
+                       
+                     })
+                     .catch(function (error){
+                        error401(error);
+                     });   
 
-            } 
-            
-         
-        },
-        listarAlmTienda() {
+            },
+            listarAlmTienda() {
             let me = this;
-            var url = "/producto/listarSucursal";
+            var url = "/lista/listarSucursal";
             axios
                 .get(url)
                 .then(function (response) {
@@ -286,54 +257,242 @@
                     console.log(error);
                 });
         },
-        cambiarPagina(page){
+        registrarLista(){
+                let me = this;
+                
+                axios.post('/lista/registrar',{
+                    'codigo':me.codigo,
+                    'lista_id_almacen_id_tienda':me.lista_id_almacen_id_tienda,
+                    'nombreLista':me.nombreLista                    
+                }).then(function(response){
+                    me.cerrarModal('registrar');
+                    Swal.fire(
+                        'Almacen Registrado exitosamente',
+                        'Haga click en Ok',
+                        'success'
+                    )
+
+                    ///añadir lista
+                    me.listarLista();
+                   
+                }).catch(function (error) {                
+                if (error.response.status === 500) {
+                    me.errorMsg = error.response.data.error; // Asigna el mensaje de error a la variable errorMsg
+                Swal.fire(
+                    "Error",
+                    "500 (Internal Server Error)"+me.errorMsg, // Muestra el mensaje de error en el alert
+                    "error"       );
+                }else{
+                    Swal.fire(
+                    "Error",
+                    ""+error, // Muestra el mensaje de error en el alert
+                    "error"
+                );  
+                }              
+            });
+            },
+
+           cambiarPagina(page){
                 let me =this;
                 me.pagination.current_page = page;
-                me.listarAlmacenes(page);
+                me.listarLista(page);
             },
-        abrirModal(accion,data= []){
-            let me=this;
-               
-             
+            
+       
 
+            eliminar(id){
+                let me=this;
+                const swalWithBootstrapButtons = Swal.mixin({
+                customClass: {
+                    confirmButton: 'btn btn-success',
+                    cancelButton: 'btn btn-danger'
+                },
+                buttonsStyling: false
+                })
+
+                swalWithBootstrapButtons.fire({
+                title: 'Esta Seguro de Desactivar?',
+                text: "Es una eliminacion logica",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Si, Desactivar',
+                cancelButtonText: 'No, Cancelar',
+                reverseButtons: true
+                }).then((result) => {
+                if (result.isConfirmed) {
+                     axios.put('/lista/desactivar',{
+                        'id': id
+                    }).then(function (response) {
+                        me.listarLista();
+                        swalWithBootstrapButtons.fire(
+                            'Desactivado!',
+                            'El registro a sido desactivado Correctamente',
+                            'success'
+                        )
+                        me.listarSucursales();
+                        
+                    }).catch(function (error) {
+                        error401(error);
+                        console.log(error);
+                    });
+                } else if (
+                    /* Read more about handling dismissals below */
+                    result.dismiss === Swal.DismissReason.cancel
+                ) {
+                    /* swalWithBootstrapButtons.fire(
+                    'Cancelado!',
+                    'El Registro no fue desactivado',
+                    'error'
+                    ) */
+                }
+                })
+            },
+            activar(id){
+                let me=this;
+                const swalWithBootstrapButtons = Swal.mixin({
+                customClass: {
+                    confirmButton: 'btn btn-success',
+                    cancelButton: 'btn btn-danger'
+                },
+                buttonsStyling: false
+                })
+                swalWithBootstrapButtons.fire({
+                title: 'Esta Seguro de Activar?',
+                text: "Es una Activacion logica",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Si, Activar',
+                cancelButtonText: 'No, Cancelar',
+                reverseButtons: true
+                }).then((result) => {
+                if (result.isConfirmed) {
+                     axios.put('/lista/activar',{
+                        'id': id
+                    }).then(function (response) {
+                        me.listarLista();
+                        swalWithBootstrapButtons.fire(
+                            'Activado!',
+                            'El registro a sido Activado Correctamente',
+                            'success'
+                        )
+                    }).catch(function (error) {
+                        error401(error);
+                        console.log(error);
+                    });
+                    
+                    
+                } else if (
+                    /* Read more about handling dismissals below */
+                    result.dismiss === Swal.DismissReason.cancel
+                ) {
+                    /* swalWithBootstrapButtons.fire(
+                    'Cancelado!',
+                    'El Registro no fue Activado',
+                    'error'
+                    ) */
+                }
+                })
+            },
+            
+
+            abrirModal(accion,data= []){
+                let me=this;
                 switch(accion){
                     case 'registrar':
                     {
-                        me.tituloModal='Lista de precios en '+me.selectAlmTienda;
-                        me.selectEnvase=0;
-                        me.selectProducto=0;
-                        me.id_prod="";
-                        me.linea="";
-                        me.linea_cod="";
-                        me.rubro="";
+                        me.tituloModal='Registar Nueva Lista'
+                        me.tipoAccion=1;
+                        me.codigo_tda_alm="";
+                        me.selectAlmTienda=0;
+                        me.nombreLista='';
+                        me.codigo='';
+                        me.lista_id_almacen_id_tienda='';
+                        
                         me.classModal.openModal('registrar');
                         break;
                     }
+                    
                     case 'actualizar':
-                        {
-                            me.classModal.openModal('registrar');
-                        }
-                 
+                    {
+                   
+                        me.tipoAccion=2;
+                        me.selectAlmTienda=data.codigo_tda_alm==null?0:data.codigo_tda_alm;
+                        me.nombreLista=data.nombre_lista;
+                        me.id_o=data.id;          
+                        
+                        me.lista_id_almacen_id_tienda=data.id_tda_alm;
+                        me.classModal.openModal('registrar');
+                        
+                        break;
+                    }
 
                 }
                 
             },
+            actualizar(){
+                let me =this;
+                axios.put('/lista/actualizar',{
+                    id:me.id_o,
+                    codigo:me.selectAlmTienda,
+                    lista_id_almacen_id_tienda:me.lista_id_almacen_id_tienda,
+                    nombreLista:me.nombreLista    
+                    
+                }).then(function (response) {
+                    me.listarLista(1);
+                    Swal.fire(
+                        'Actualizado Correctamente!',
+                        'El registro a sido actualizado Correctamente',
+                        'success'
+                    )
+                }).catch(function (error) {                
+                if (error.response.status === 500) {
+                    me.listarLista(1);
+                    me.errorMsg = error.response.data.error; // Asigna el mensaje de error a la variable errorMsg
+                Swal.fire(
+                    
+                    "Error",
+                    "500 (Internal Server Error)"+me.errorMsg, // Muestra el mensaje de error en el alert
+                    "error"       );
+                }else{
+                    me.listarLista(1);
+                    Swal.fire(
+                    "Error",
+                    ""+error, // Muestra el mensaje de error en el alert
+                    "error"
+                );  
+                }              
+            });
+                me.cerrarModal('registrar');
+            },
             cerrarModal(accion){
                 let me = this;
                 me.classModal.closeModal(accion);
-                           
+                me.tipoAccion=1;
+                        me.tipo=0;
+                        me.selectAlmTienda=0;
+                        me.nombreLista='';
+                        me.codigo='';
+                        me.lista_id_almacen_id_tienda='';   
+                        me.id_o='';           
             },
 
-       },
+            selectAll: function (event) {
+                setTimeout(function () {
+                    event.target.select()
+                }, 0)
+            },
+
        
-       mounted() {
-        this.classModal = new _pl.Modals();
-        this.listarAlmTienda();
-        this.classModal.addModal('registrar');
- 
-        
-       }
-     }
+        },
+
+        mounted() {
+           
+            this.classModal = new _pl.Modals();
+            this.classModal.addModal('registrar');
+            this.listarLista(1);
+            
+        }
+    }
 </script>
 <style scoped>
 .error{

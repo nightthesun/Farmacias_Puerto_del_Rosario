@@ -37,10 +37,12 @@ return new class extends Migration
             $table->smallInteger('id_usuario_registro');	           
             $table->boolean('procesado')->default(0)->comment('Estado del registro, 1 -> procesado, 0 -> no procesado');	          
             $table->timestamps();
-            $table->smallInteger('user_id')->nullable(); 
-            $table->string('name_des');
-            $table->string('name_ori');
-            $table->smallInteger('correlativo');
+            $table->smallInteger('user_id')->comment('Registra segun la accion');
+            $table->string('name_des')->nullable();
+            $table->string('name_ori')->nullable();
+            $table->smallInteger('correlativo')->nullable();
+            $table->integer('cantidad_old')->nullable()->comment('Cantidad antes de la modificacion');
+    
            	           
         });
     }

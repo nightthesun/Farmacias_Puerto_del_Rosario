@@ -76,10 +76,12 @@ class AdmVentanaModuloSeeder extends Seeder
         DB::table('adm__ventana_modulos')->insert(['codventana'=>'704','idmodulo'=>$prod->id,'nombre'=>'Forma o U. Medida','template'=>'formafarm-component']);
         DB::table('adm__ventana_modulos')->insert(['codventana'=>'705','idmodulo'=>$prod->id,'nombre'=>'Categorias','template'=>'categoria-component']);
         DB::table('adm__ventana_modulos')->insert(['codventana'=>'706','idmodulo'=>$prod->id,'nombre'=>'Tipo Entrada','template'=>'tipo-entrada-component']);
+        DB::table('adm__ventana_modulos')->insert(['codventana'=>'707','idmodulo'=>$prod->id,'nombre'=>'Nueva Lista','template'=>'lista-component']);
+        DB::table('adm__ventana_modulos')->insert(['codventana'=>'708','idmodulo'=>$prod->id,'nombre'=>'Registro precio x lista','template'=>'reg-pre-x-lista-component']);
 
         //gestion de productos 800
         DB::table('adm__ventana_modulos')->insert(['codventana'=>'801','idmodulo'=>$gestprec->id,'nombre'=>'Costo Compra','template'=>'precio-venta-component']);
-        
+        DB::table('adm__ventana_modulos')->insert(['codventana'=>'802','idmodulo'=>$gestprec->id,'nombre'=>'Costo Compra 2','template'=>'precio-venta-component2']);
         //inventario 900
         DB::table('adm__ventana_modulos')->insert(['codventana'=>'901','idmodulo'=>$inv->id,'nombre'=>'Ajustes Negativos','template'=>'ajuste-negativo-component']);
         DB::table('adm__ventana_modulos')->insert(['codventana'=>'902','idmodulo'=>$inv->id,'nombre'=>'Ajustes Positivos','template'=>'ajuste-positivo-component']);

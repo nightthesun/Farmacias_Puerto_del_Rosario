@@ -5,9 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Prod_Lista extends Model
+class GesPre_Venta_lista extends Model
 {
     use HasFactory;
-
-    protected $table='prod__listas';
+    protected $table='ges_pre__venta_listas';      
 }

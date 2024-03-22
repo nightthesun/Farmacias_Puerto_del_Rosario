@@ -14,16 +14,17 @@ class GesPreVenta2Controller extends Controller
      */
     public function index(Request $request)
     {
+      
         $buscararray = array();
         $bus = $request->query('buscarAlmTdn');
-        if (!empty($request->buscar)) {
-            $buscararray = explode(" ", $request->buscar);
-            $valor = sizeof($buscararray);
+        if (!empty($request->buscar)) {          
+            $buscararray = explode(" ", $request->buscar);           
+            $valor = sizeof($buscararray);       
             if ($valor > 0) {
                 $sqls = '';
-
-                foreach ($buscararray as $valor) {
-                    if (empty($sqls)) {
+                foreach ($buscararray as $valor) {                   
+                    if (empty($sqls)) {    
+                                        
                         $sqls = "(
                                 pp.codigo like '%" . $valor . "%' 
                                 or pl.nombre like '%" . $valor . "%'
@@ -32,6 +33,7 @@ class GesPreVenta2Controller extends Controller
                             
                                )";
                     } else {
+                      
                         $sqls .= "and (
                              pp.codigo like '%" . $valor . "%' 
                                 or pl.nombre like '%" . $valor . "%'
@@ -41,7 +43,7 @@ class GesPreVenta2Controller extends Controller
                     }
                 } 
                 // query start 
-
+            
                 $almacen = DB::table('pivot__modulo_tienda_almacens as pivot')
                 ->select(
                     'pivot.id as id',
@@ -636,6 +638,21 @@ class GesPreVenta2Controller extends Controller
     $result = $tiendas->unionAll($almacenes)->get();    
     return $result;
            
-           }
+     }
+     public function listarLista(Request $request){
+        $resultado = DB::table('prod__registro_pre_x_lists as prp')
+        ->select(DB::raw('MAX(prp.id) AS id'), 'plist.id AS id_lista', DB::raw('MAX(plist.nombre_lista) AS nombre_lista'), 'prp.cod_tda_alm as cod_tda_alm', 'prp.tipo_tda_alm AS tipo_tda_alm','plist.codigo AS codigo_lista')
+        ->join('prod__listas as plist', 'plist.id', '=', 'prp.id_lista')
+        ->where('prp.cod_tda_alm', '=', $request->codigo) // Corregido aquí
+        ->where('prp.activo', '=', 1)
+        ->where('plist.activo', '=', 1)
+        ->groupBy('plist.id', 'cod_tda_alm', 'prp.tipo_tda_alm','plist.codigo')
+        ->get();
+    
+
+
+        return $resultado;
+
+    }
 
 }

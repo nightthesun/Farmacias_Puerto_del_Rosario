@@ -31,6 +31,8 @@ return new class extends Migration
             $table->string("leyenda")->comment("es la union de descripcion de prodycto");
             $table->smallInteger("id_ingreso");
             $table->timestamps();
+            $table->string('id_traspaso')->nullable()->comment('solo es para traspasos');
+      
         });
     }
 

@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('ges_pre__venta2s', function (Blueprint $table) {
+        Schema::create('ges_pre__venta_listas', function (Blueprint $table) {
             $table->id();
             $table->string('codigo');
             $table->unsignedBigInteger('id_table_ingreso_tienda_almacen')->comment('identificador unico que hace referencia al id de la tabla alm__ingreso_producto, especificamente al producto ingresado');
@@ -29,7 +29,7 @@ return new class extends Migration
             $table->tinyInteger('listo_venta')->default(0)->comment('Columna que hace referencia a que si un prodicto esta listo para la venta, esto significa que se llenaron los datos en la tabla ges_pre__ventas');
             $table->timestamps();
             $table->unsignedBigInteger('id_lista')->default(0);
-            $table->foreign('id_table_ingreso_tienda_almacen')->references('id')->on('pivot__modulo_tienda_almacens');       
+            $table->foreign('id_table_ingreso_tienda_almacen')->references('id')->on('pivot__modulo_tienda_almacens');   
         });
     }
 
@@ -38,6 +38,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('ges_pre__venta2s');
+        Schema::dropIfExists('ges_pre__venta_listas');
     }
 };

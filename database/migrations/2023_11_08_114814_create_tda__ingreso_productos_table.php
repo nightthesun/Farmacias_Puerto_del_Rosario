@@ -27,7 +27,8 @@ return new class extends Migration
             $table->timestamps();
             $table->smallInteger('id_usuario_modifica')->unsigned()->nullable()->comment('identificador del usuario que esta modificando el registo');
             $table->smallInteger('id_usuario_registra')->unsigned()->nullable()->comment('identificador del usuario que esta registrando el registro');
-            
+            $table->string('num_traspaso')->nullable()->comment('identifica el numero de traspaso');
+
             $table->foreign('idtienda')->references('id')->on('tda__tiendas')
                   ->onDelete('cascade')
                   ->onUpdate('cascade');

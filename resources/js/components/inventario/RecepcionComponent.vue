@@ -32,7 +32,7 @@
                             <div class="input-group">
                                 <select
                                     class="form-control"
-                                    @change="listarRecepcion(0)"
+                                    @change="listarRecepcion(1)"
                                   v-model="selectAlmTienda"
                                 >
                                     <option value="0" disabled selected>Seleccionar...</option>
@@ -107,8 +107,9 @@
                                         <i class="icon-pencil"></i>
                                 </button>
                                     &nbsp;
-                             <!--   <button
-                                        v-if="rec.activo == 1"
+                                  
+                                    <button
+                                        v-if="rec.activo==1"
                                         type="button"
                                         class="btn btn-danger btn-sm"
                                         @click="eliminar(rec.id)"
@@ -124,7 +125,8 @@
                                     >
                                         <i class="icon-check"></i>
                                     </button>
-                             -->  
+
+                             
                             </td>
                             <td v-text="rec.numero_traspaso"></td>
                             <td v-text="rec.leyenda"></td>
@@ -148,6 +150,19 @@
                         </tr>
                     </tbody>      
             </table>
+                    <nav>
+                        <ul class="pagination">
+                            <li class="page-item" v-if="pagination.current_page > 1">
+                                <a class="page-link" href="#" @click.prevent="cambiarPagina(pagination.current_page - 1)">Ant</a>
+                            </li>
+                            <li class="page-item" v-for="page in pagesNumber" :key="page" :class="[page == isActived ? 'active':'']">
+                                <a class="page-link" href="#" @click.prevent="cambiarPagina(page)" v-text="page"></a>
+                            </li>
+                            <li class="page-item" v-if="pagination.current_page< pagination.last_page">
+                                <a class="page-link" href="#" @click.prevent="cambiarPagina(pagination.current_page + 1)">Sig</a>
+                            </li>
+                        </ul>
+                    </nav>
         </div>
             </div>   
   
@@ -341,7 +356,7 @@
                 <div class="modal-body">
                     <form>
                         <div class="mb-3">
-                            <label for="exampleInputEmail1" class="form-label">Introdusca una loque quiere buscar: </label>
+                            <label for="exampleInputEmail1" class="form-label">Introdusca descripcion a buscar: </label>
                             <input type="text" id="texto" name="texto" class="form-control" placeholder="Texto a buscar" 
                             v-model="inputTextBuscar"
                                @input="listarRetornoTraspaso()">
@@ -397,7 +412,7 @@ export default {
                 from: 0,
                 to: 0,
             },
-          
+            offset:3,
 
             tituloModal: "",
             selectAlmTienda:0,
@@ -517,29 +532,29 @@ export default {
             return this.pagination.current_page;
         },
 
-        pagesNumber: function () {
-            if (!this.pagination.to) {
-                return [];
-            }
-            var from = this.pagination.current_page - this.offset;
-            if (from < 1) {
-                from = 1;
-            }
-            var to = from + this.offset * 2;
-            if (to >= this.pagination.last_page) {
-                to = this.pagination.last_page;
-            }
-            var pagesArray = [];
-            while (from <= to) {
-                pagesArray.push(from);
-                from++;
-            }
-            return pagesArray;
-        },
+        pagesNumber:function(){
+                if(!this.pagination.to){
+                    return[];
+                }
+                var from = this.pagination.current_page - this.offset;
+                if(from<1){
+                    from=1;
+                }
+                var to = from +(this.offset * 2);
+                if(to>= this.pagination.last_page){
+                    to=this.pagination.last_page;
+                }
+                var pagesArray =[];
+                while(from<=to){
+                    pagesArray.push(from);
+                    from++
+                }
+                return pagesArray;
+            },
+
     },
 
-    methods: {
-        
+    methods: {        
         listarRecepcion(page){
             let me=this;
                 var url='/recepcion?page='+page+'&buscar='+me.buscar+'&buscarAlmTdn='+me.selectAlmTienda;
@@ -623,13 +638,7 @@ export default {
                     "warning",
                 );
             } else {
-                if (me.checked===false) {
-                    Swal.fire(
-                    "Tiene que aceptar el traspaso, tiene que apretar el boton de aceptar.",
-                    "Haga click en Ok",
-                    "warning",
-                );
-                } else {
+                
                
                    axios
                     //axios.get(url)
@@ -673,7 +682,7 @@ export default {
                         error401(error);
                         console.log(error);
                     });
-                }
+                
                
             }
         },
@@ -853,7 +862,101 @@ export default {
                 me.classModal.openModal("registrar");
             }
         },
+        eliminar(id_recepcion){
+                let me=this;
+                const swalWithBootstrapButtons = Swal.mixin({
+                customClass: {
+                    confirmButton: 'btn btn-success',
+                    cancelButton: 'btn btn-danger'
+                },
+                buttonsStyling: false
+                })
 
+                swalWithBootstrapButtons.fire({
+                title: '¿Esta Seguro de Desactivar?',
+                text: "Es una eliminacion logica",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Si, Desactivar',
+                cancelButtonText: 'No, Cancelar',
+                reverseButtons: true
+                }).then((result) => {
+                if (result.isConfirmed) {
+                     axios.put('/recepcion/desactivar',{
+                        id: id_recepcion
+                    }).then(function (response) {
+                        me.listarRecepcion();
+                        swalWithBootstrapButtons.fire(
+                            'Desactivado!',
+                            'El registro a sido desactivado Correctamente',
+                            'success'
+                        )
+                   
+                     
+                        
+                    }).catch(function (error) {
+                        error401(error);
+                        console.log(error);
+                    });
+                } else if (
+                    /* Read more about handling dismissals below */
+                    result.dismiss === Swal.DismissReason.cancel
+                ) {
+                    /* swalWithBootstrapButtons.fire(
+                    'Cancelado!',
+                    'El Registro no fue desactivado',
+                    'error'
+                    ) */
+                }
+                })
+            },
+        activar(id_recepcion){
+                let me=this;
+                const swalWithBootstrapButtons = Swal.mixin({
+                customClass: {
+                    confirmButton: 'btn btn-success',
+                    cancelButton: 'btn btn-danger'
+                },
+                buttonsStyling: false
+                })
+                swalWithBootstrapButtons.fire({
+                title: 'Esta Seguro de Activar?',
+                text: "Es una Activacion logica",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Si, Activar',
+                cancelButtonText: 'No, Cancelar',
+                reverseButtons: true
+                }).then((result) => {
+                if (result.isConfirmed) {
+                     axios.put('/recepcion/activar',{
+                        id: id_recepcion
+                    }).then(function (response) {
+                        me.listarRecepcion();
+                    
+                        swalWithBootstrapButtons.fire(
+                            'Activado!',
+                            'El registro a sido Activado Correctamente',
+                            'success'
+                        )
+                    }).catch(function (error) {
+                        error401(error);
+                        console.log(error);
+                    });
+                    
+                    
+                } else if (
+                    /* Read more about handling dismissals below */
+                    result.dismiss === Swal.DismissReason.cancel
+                ) {
+                    /* swalWithBootstrapButtons.fire(
+                    'Cancelado!',
+                    'El Registro no fue Activado',
+                    'error'
+                    ) */
+                }
+                })
+            },
         selectAll: function (event) {
             setTimeout(function () {
                 event.target.select();
