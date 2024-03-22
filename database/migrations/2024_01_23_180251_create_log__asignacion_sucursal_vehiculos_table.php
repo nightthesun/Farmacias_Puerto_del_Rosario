@@ -16,7 +16,7 @@ return new class extends Migration
             $table->smallInteger('id_veiculo');
             $table->smallInteger('id_sucursal');
             $table->smallInteger('id_alm_tda');
-            $table->string('cod');
+            $table->string('cod')->nullable();
             
         });
     }

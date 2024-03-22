@@ -22,7 +22,7 @@ return new class extends Migration
             $table->string("linea")->comment("tipo de linea del producto");
             $table->string("producto")->comment("nombre del producto");
             $table->integer("cantidad")->comment("cantidad de ingreso");
-            $table->integer("stock")->comment("stock de ingreso mas el input");
+            $table->integer("stock")->nullable()->comment("stock de ingreso mas el input");
             $table->string("lote")->comment("stock del producto que se está ingresando por el input");
             $table->string("fecha_ingreso")->comment("fecha que se hizo el ingreso");
             $table->string("fecha_vencimiento")->comment("fecha de vencimiento");
