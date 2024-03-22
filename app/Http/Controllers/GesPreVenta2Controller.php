@@ -14,8 +14,7 @@ class GesPreVenta2Controller extends Controller
      */
     public function index(Request $request)
     {
-       
-       
+      
         $buscararray = array();
         $bus = $request->query('buscarAlmTdn');
         if (!empty($request->buscar)) {          
