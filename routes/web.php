@@ -304,7 +304,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/producto/getProductosTiendaAlamcenEnvase', [ProdProductoController::class, 'getProductosTiendaAlamcenEnvase']);
     Route::get('/producto/getProductosTiendaEnvase', [ProdProductoController::class, 'getProductosTiendaEnvase']);
     Route::get('/producto/selectproductoperecedero', [ProdProductoController::class, 'selectProductoPerecedero']);
-
+   
    //------------------------------lista de productos 
     Route::get('/lista/listarSucursal', [ProdListaController::class, 'listarSucursal']); 
     Route::post('/lista/registrar', [ProdListaController::class, 'store']);
@@ -405,7 +405,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::put('/tienda/ingreso-producto/actualizar', [TdaIngresoProductoController::class, 'update']);
     Route::put('/tienda/ingreso-producto/desactivar', [TdaIngresoProductoController::class, 'desactivar']);
     Route::put('/tienda/ingreso-producto/activar', [TdaIngresoProductoController::class, 'activar']);
-
+   
     //////////////////////////////// Gestion Precio Venta//////////////////////////////////////////
         //---endpoint Inge.Helio
     Route::post('/gestionprecioventa/actualizar-registrar', [GesPreVentaController::class, 'update_store']);

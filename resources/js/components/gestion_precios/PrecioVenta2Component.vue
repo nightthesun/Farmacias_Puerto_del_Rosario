@@ -717,6 +717,12 @@ methods: {
                         me.pvc=0;   
                         me.id_ingreso=data.id;    
                         me.alm_tda=data.cod.substring(0, (data.cod).length - 3); 
+                        if(me.selectLista=='x'){
+                        me.listaX="x";    
+                        }
+                        else{
+                        me.listaX=data.id_id_lista;    
+                        }
                         if(me.alm_tda==='TDA'){
                             me.tienda_gespreventa=1;
                             me.almacen_gespreventa=0;
@@ -747,6 +753,7 @@ methods: {
             me.p_venta='';
             me.id_gespreventa='';
             me.margen_20=0;
+            me.listaX='';
                         me.margen_30=0;
                         me.utilidad_bruta=0;
                         me.utilidad_neta=0;
@@ -833,6 +840,7 @@ methods: {
                 'margen_30p_gespreventa':me.margen_30,
                 'utilidad_bruta_gespreventa':me.utilidad_bruta,
                 'utilidad_neto_gespreventa':me.utilidad_neta,
+                'id_lista':me.listaX,
             }).then(function (response) {
                 me.cerrarModal('calculadoraModal');
                 Swal.fire(
