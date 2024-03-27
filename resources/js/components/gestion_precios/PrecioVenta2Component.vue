@@ -158,7 +158,12 @@
 </div>
               
                     <div v-else>
-                     
+                        <div class="alert alert-warning" role="alert" v-if="selectLista==0">
+                            <h4 class="alert-heading">Intrucciones!</h4>
+  <p>Para poder ver el listado de productos primero debe escoger una tienda o almacén después escoger una lista, para ver listado por default solo debe escoger <strong>Sin Lista</strong>.</p>
+  <hr>
+  <p class="mb-0">El precio se verá dependiendo de la lista que escogió por la cantidad de productos que existe.</p>
+                        </div>
                         <div v-else>
                             <table class="table table-bordered table-striped table-sm table-responsive" >
                    
