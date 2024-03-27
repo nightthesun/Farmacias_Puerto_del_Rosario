@@ -45,8 +45,14 @@ class ProdRegistroPreXListController extends Controller
                 }
                 // codigo query
                 $tienda = DB::table('prod__registro_pre_x_lists as prp')
-                ->select('prp.id as id', 'prp.envase as envase', 'prp.id_producto as id_producto', 'pp.codigo as codigo_prod', 'pp.nombre as name_prod',
-                    DB::raw('CASE 
+                ->select('prp.id as id', 'prp.envase as envase', 'prp.id_producto as id_producto', 'pp.codigo as codigo_prod', 'pp.nombre as name_prod','ti.cantidad as cantidad','ti.lote as lote',
+                DB::raw('CASE 
+                                WHEN prp.envase = "primario" THEN CONCAT(IFNULL(pd_1.nombre, ""))
+                                WHEN prp.envase = "secundario" THEN CONCAT(IFNULL(pd_2.nombre, ""))
+                                WHEN prp.envase = "terciario" THEN CONCAT(IFNULL(pd_3.nombre, ""))
+                                ELSE NULL 
+                            END AS cantidadEnvase'),  
+                DB::raw('CASE 
                                 WHEN prp.envase = "primario" THEN CONCAT(IFNULL(pp.nombre, ""), " ", IFNULL(pd_1.nombre, ""), " x ", IFNULL(pp.cantidadprimario, ""), " ", IFNULL(ff_1.nombre, ""))
                                 WHEN prp.envase = "secundario" THEN CONCAT(IFNULL(pp.nombre, ""), " ", IFNULL(pd_2.nombre, ""), " x ", IFNULL(pp.cantidadsecundario, ""), " ", IFNULL(ff_2.nombre, ""))
                                 WHEN prp.envase = "terciario" THEN CONCAT(IFNULL(pp.nombre, ""), " ", IFNULL(pd_3.nombre, ""), " x ", IFNULL(pp.cantidadterciario, ""), " ", IFNULL(ff_3.nombre, ""))
@@ -67,7 +73,7 @@ class ProdRegistroPreXListController extends Controller
                 ->leftJoin('prod__forma_farmaceuticas AS ff_2', 'ff_2.id', '=', 'pp.idformafarmaceuticasecundario')
                 ->leftJoin('prod__forma_farmaceuticas AS ff_3', 'ff_3.id', '=', 'pp.idformafarmaceuticaterciario')
                 ->join('adm__rubros as ar', 'ar.id', '=', 'pp.idrubro')             
-   
+                ->join('tda__ingreso_productos as ti','ti.id', '=','prp.id_ingreso') 
                 ->where('prp.cod_tda_alm', '=', $bus)
                 ->whereRaw($sqls)
                 ->where('pp.idrubro', '=', 1)
@@ -75,8 +81,14 @@ class ProdRegistroPreXListController extends Controller
             ->orderBy('prp.id', 'desc')
                 ;
                 $almacen = DB::table('prod__registro_pre_x_lists as prp')
-    ->select('prp.id as id', 'prp.envase as envase', 'prp.id_producto as id_producto', 'pp.codigo as codigo_prod', 'pp.nombre as name_prod',
-        DB::raw('CASE 
+    ->select('prp.id as id', 'prp.envase as envase', 'prp.id_producto as id_producto', 'pp.codigo as codigo_prod', 'pp.nombre as name_prod','ai.cantidad','ai.lote',
+    DB::raw('CASE 
+    WHEN prp.envase = "primario" THEN CONCAT(IFNULL(pd_1.nombre, ""))
+    WHEN prp.envase = "secundario" THEN CONCAT(IFNULL(pd_2.nombre, ""))
+    WHEN prp.envase = "terciario" THEN CONCAT(IFNULL(pd_3.nombre, ""))
+    ELSE NULL 
+END AS cantidadEnvase'),    
+    DB::raw('CASE 
                     WHEN prp.envase = "primario" THEN CONCAT(IFNULL(pp.nombre, ""), " ", IFNULL(pd_1.nombre, ""), " x ", IFNULL(pp.cantidadprimario, ""), " ", IFNULL(ff_1.nombre, ""))
                     WHEN prp.envase = "secundario" THEN CONCAT(IFNULL(pp.nombre, ""), " ", IFNULL(pd_2.nombre, ""), " x ", IFNULL(pp.cantidadsecundario, ""), " ", IFNULL(ff_2.nombre, ""))
                     WHEN prp.envase = "terciario" THEN CONCAT(IFNULL(pp.nombre, ""), " ", IFNULL(pd_3.nombre, ""), " x ", IFNULL(pp.cantidadterciario, ""), " ", IFNULL(ff_3.nombre, ""))
@@ -97,6 +109,7 @@ class ProdRegistroPreXListController extends Controller
     ->leftJoin('prod__forma_farmaceuticas AS ff_2', 'ff_2.id', '=', 'pp.idformafarmaceuticasecundario')
     ->leftJoin('prod__forma_farmaceuticas AS ff_3', 'ff_3.id', '=', 'pp.idformafarmaceuticaterciario')
     ->join('adm__rubros as ar', 'ar.id', '=', 'pp.idrubro')
+    ->join('alm__ingreso_producto as ai','ai.id', '=','prp.id_ingreso') 
                 ->where('prp.cod_tda_alm', '=', $bus)
                 ->whereRaw($sqls)
                 ->where('pp.idrubro', '=', 1)
@@ -121,8 +134,14 @@ class ProdRegistroPreXListController extends Controller
             ];
         }  else{
             $tienda = DB::table('prod__registro_pre_x_lists as prp')
-            ->select('prp.id as id', 'prp.envase as envase', 'prp.id_producto as id_producto', 'pp.codigo as codigo_prod', 'pp.nombre as name_prod',
-                DB::raw('CASE 
+            ->select('prp.id as id', 'prp.envase as envase', 'prp.id_producto as id_producto', 'pp.codigo as codigo_prod', 'pp.nombre as name_prod','ti.cantidad','ti.lote',
+            DB::raw('CASE 
+            WHEN prp.envase = "primario" THEN CONCAT(IFNULL(pd_1.nombre, ""))
+            WHEN prp.envase = "secundario" THEN CONCAT(IFNULL(pd_2.nombre, ""))
+            WHEN prp.envase = "terciario" THEN CONCAT(IFNULL(pd_3.nombre, ""))
+            ELSE NULL 
+        END AS cantidadEnvase'),      
+            DB::raw('CASE 
                             WHEN prp.envase = "primario" THEN CONCAT(IFNULL(pp.nombre, ""), " ", IFNULL(pd_1.nombre, ""), " x ", IFNULL(pp.cantidadprimario, ""), " ", IFNULL(ff_1.nombre, ""))
                             WHEN prp.envase = "secundario" THEN CONCAT(IFNULL(pp.nombre, ""), " ", IFNULL(pd_2.nombre, ""), " x ", IFNULL(pp.cantidadsecundario, ""), " ", IFNULL(ff_2.nombre, ""))
                             WHEN prp.envase = "terciario" THEN CONCAT(IFNULL(pp.nombre, ""), " ", IFNULL(pd_3.nombre, ""), " x ", IFNULL(pp.cantidadterciario, ""), " ", IFNULL(ff_3.nombre, ""))
@@ -143,6 +162,7 @@ class ProdRegistroPreXListController extends Controller
             ->leftJoin('prod__forma_farmaceuticas AS ff_2', 'ff_2.id', '=', 'pp.idformafarmaceuticasecundario')
             ->leftJoin('prod__forma_farmaceuticas AS ff_3', 'ff_3.id', '=', 'pp.idformafarmaceuticaterciario')
             ->join('adm__rubros as ar', 'ar.id', '=', 'pp.idrubro')
+            ->join('tda__ingreso_productos as ti','ti.id', '=','prp.id_ingreso') 
                 ->where('prp.cod_tda_alm', '=', $bus)
            
                 ->where('pp.idrubro', '=', 1)
@@ -150,8 +170,14 @@ class ProdRegistroPreXListController extends Controller
             ->orderBy('prp.id', 'desc')
                 ;
                 $almacen = DB::table('prod__registro_pre_x_lists as prp')
-    ->select('prp.id as id', 'prp.envase as envase', 'prp.id_producto as id_producto', 'pp.codigo as codigo_prod', 'pp.nombre as name_prod',
-        DB::raw('CASE 
+    ->select('prp.id as id', 'prp.envase as envase', 'prp.id_producto as id_producto', 'pp.codigo as codigo_prod', 'pp.nombre as name_prod','ai.cantidad','ai.lote',
+    DB::raw('CASE 
+    WHEN prp.envase = "primario" THEN CONCAT(IFNULL(pd_1.nombre, ""))
+    WHEN prp.envase = "secundario" THEN CONCAT(IFNULL(pd_2.nombre, ""))
+    WHEN prp.envase = "terciario" THEN CONCAT(IFNULL(pd_3.nombre, ""))
+    ELSE NULL 
+END AS cantidadEnvase'),    
+    DB::raw('CASE 
                     WHEN prp.envase = "primario" THEN CONCAT(IFNULL(pp.nombre, ""), " ", IFNULL(pd_1.nombre, ""), " x ", IFNULL(pp.cantidadprimario, ""), " ", IFNULL(ff_1.nombre, ""))
                     WHEN prp.envase = "secundario" THEN CONCAT(IFNULL(pp.nombre, ""), " ", IFNULL(pd_2.nombre, ""), " x ", IFNULL(pp.cantidadsecundario, ""), " ", IFNULL(ff_2.nombre, ""))
                     WHEN prp.envase = "terciario" THEN CONCAT(IFNULL(pp.nombre, ""), " ", IFNULL(pd_3.nombre, ""), " x ", IFNULL(pp.cantidadterciario, ""), " ", IFNULL(ff_3.nombre, ""))
@@ -172,6 +198,7 @@ class ProdRegistroPreXListController extends Controller
     ->leftJoin('prod__forma_farmaceuticas AS ff_2', 'ff_2.id', '=', 'pp.idformafarmaceuticasecundario')
     ->leftJoin('prod__forma_farmaceuticas AS ff_3', 'ff_3.id', '=', 'pp.idformafarmaceuticaterciario')
     ->join('adm__rubros as ar', 'ar.id', '=', 'pp.idrubro')
+    ->join('alm__ingreso_producto as ai','ai.id', '=','prp.id_ingreso') 
                 ->where('prp.cod_tda_alm', '=', $bus)
                 
                 ->where('pp.idrubro', '=', 1)
@@ -221,6 +248,7 @@ class ProdRegistroPreXListController extends Controller
             $NuevaLista->metodoabc=$request->metodoabc;
             $NuevaLista->id_usuario=auth()->user()->id;
             $NuevaLista->id_usuario_registra=auth()->user()->id;
+            $NuevaLista->id_ingreso=$request->id_ingreso;
             $NuevaLista->save();
         } catch (\Throwable $th) {
             return response()->json(['error' => $th->getMessage()],500);
@@ -295,6 +323,7 @@ return $resultadoCombinacion;
      public function listarProducto(Request $request){
         $envase = $request->envase;
         $codigo = $request->codigo;
+        $tienda_almacen =$request->alm_tda;
         $where="";
         if ($codigo=="TDA") {
             if ($envase=="primario") {
@@ -305,22 +334,10 @@ return $resultadoCombinacion;
             }
             if ($envase=="terciario") {
                 $where="(pp.tiendaterciario=1)";
-            }          
-        }
-        if ($codigo=="ALM") {
-            if ($envase=="primario") {
-                $where="(pp.almacenprimario=1)";
-            }
-            if ($envase=="secundario") {
-                $where="(pp.almacensecundario=1)";
-            }
-            if ($envase=="terciario") {
-                $where="(pp.almacenterciario=1)";
-            }   
-           
-        }
-       
-        $resultado = DB::table('prod__productos as pp')
+            }  
+            $resultado = DB::table('tda__ingreso_productos as ti')
+            ->join('prod__productos as pp', 'ti.id_prod_producto', '=', 'pp.id')
+            ->join('tda__tiendas as tt','ti.idtienda','=','tt.id' ) 
             ->join('adm__rubros as ar', 'pp.idrubro', '=', 'ar.id')
             ->join('prod__lineas as pl', 'pp.idlinea', '=', 'pl.id')
             ->leftJoin('prod__dispensers as pd_1', 'pd_1.id', '=', 'pp.iddispenserprimario')
@@ -330,7 +347,7 @@ return $resultadoCombinacion;
             ->leftJoin('prod__forma_farmaceuticas as ff_2', 'ff_2.id', '=', 'pp.idformafarmaceuticasecundario')
             ->leftJoin('prod__forma_farmaceuticas as ff_3', 'ff_3.id', '=', 'pp.idformafarmaceuticaterciario')
             ->select('pp.id as id','pp.codigo as prod_cod','pl.nombre as linea_name', 'pl.codigo as linea_cod', 'pp.codigo as cod_prod', 'pp.nombre as cod_name', 'ar.nombre as rubro_name', 
-
+            'ti.cantidad as cantidad','ti.lote as lote','ti.id as id_ingreso',
             DB::raw("CONCAT(pl.codigo, ' ', pl.nombre) AS lineaS"),
                 DB::raw("CASE 
                     WHEN '$envase' = 'primario' THEN CONCAT(COALESCE(pp.nombre, ''), ' ', COALESCE(pd_1.nombre, ''), ' x ', COALESCE(pp.cantidadprimario, ''), ' ', COALESCE(ff_1.nombre, '')) 
@@ -400,9 +417,111 @@ return $resultadoCombinacion;
                 END AS costocompraEnvase"))
             ->where('pp.idrubro', '=', 1)
             ->where('pp.activo', '=', 1)
+            ->where('tt.codigo','=',$tienda_almacen)
+            ->whereRaw($where)
+            ->get(); 
+                
+        }
+        if ($codigo=="ALM") {
+            if ($envase=="primario") {
+                $where="(pp.almacenprimario=1)";
+            }
+            if ($envase=="secundario") {
+                $where="(pp.almacensecundario=1)";
+            }
+            if ($envase=="terciario") {
+                $where="(pp.almacenterciario=1)";
+            }   
+            $resultado = DB::table('alm__ingreso_producto as ai')
+            ->join('prod__productos as pp', 'ai.id_prod_producto', '=', 'pp.id')
+            ->join('alm__almacens as aa','ai.idalmacen','=','aa.id' ) 
+            ->join('adm__rubros as ar', 'pp.idrubro', '=', 'ar.id')
+            ->join('prod__lineas as pl', 'pp.idlinea', '=', 'pl.id')
+            ->leftJoin('prod__dispensers as pd_1', 'pd_1.id', '=', 'pp.iddispenserprimario')
+            ->leftJoin('prod__dispensers as pd_2', 'pd_2.id', '=', 'pp.iddispensersecundario')
+            ->leftJoin('prod__dispensers as pd_3', 'pd_3.id', '=', 'pp.iddispenserterciario')
+            ->leftJoin('prod__forma_farmaceuticas as ff_1', 'ff_1.id', '=', 'pp.idformafarmaceuticaprimario')
+            ->leftJoin('prod__forma_farmaceuticas as ff_2', 'ff_2.id', '=', 'pp.idformafarmaceuticasecundario')
+            ->leftJoin('prod__forma_farmaceuticas as ff_3', 'ff_3.id', '=', 'pp.idformafarmaceuticaterciario')
+            ->select('pp.id as id','pp.codigo as prod_cod','pl.nombre as linea_name', 'pl.codigo as linea_cod', 'pp.codigo as cod_prod', 'pp.nombre as cod_name', 'ar.nombre as rubro_name', 
+            'ai.cantidad as cantidad','ai.lote as lote','ai.id as id_ingreso',
+            DB::raw("CONCAT(pl.codigo, ' ', pl.nombre) AS lineaS"),
+                DB::raw("CASE 
+                    WHEN '$envase' = 'primario' THEN CONCAT(COALESCE(pp.nombre, ''), ' ', COALESCE(pd_1.nombre, ''), ' x ', COALESCE(pp.cantidadprimario, ''), ' ', COALESCE(ff_1.nombre, '')) 
+                    WHEN '$envase' = 'secundario' THEN CONCAT(COALESCE(pp.nombre, ''), ' ', COALESCE(pd_2.nombre, ''), ' x ', COALESCE(pp.cantidadsecundario, ''), ' ', COALESCE(ff_2.nombre, '')) 
+                    WHEN '$envase' = 'terciario' THEN CONCAT(COALESCE(pp.nombre, ''), ' ', COALESCE(pd_3.nombre, ''), ' x ', COALESCE(pp.cantidadterciario, ''), ' ', COALESCE(ff_3.nombre, '')) 
+                    ELSE NULL 
+                END AS leyenda"),
+                DB::raw("CASE 
+                    WHEN '$envase' = 'primario' THEN COALESCE(pp.iddispenserprimario, '') 
+                    WHEN '$envase' = 'secundario' THEN COALESCE(pp.iddispensersecundario, '') 
+                    WHEN '$envase' = 'terciario' THEN COALESCE(pp.iddispenserterciario, '') 
+                    ELSE NULL 
+                END AS iddispenserEnvase"),
+                DB::raw("CASE 
+                    WHEN '$envase' = 'primario' THEN COALESCE(pp.cantidadprimario, '') 
+                    WHEN '$envase' = 'secundario' THEN COALESCE(pp.cantidadsecundario, '') 
+                    WHEN '$envase' = 'terciario' THEN COALESCE(pp.cantidadterciario, '') 
+                    ELSE NULL 
+                END AS cantidadEnvase"),
+                DB::raw("CASE 
+                    WHEN '$envase' = 'primario' THEN COALESCE(pp.idformafarmaceuticaprimario, '') 
+                    WHEN '$envase' = 'secundario' THEN COALESCE(pp.idformafarmaceuticasecundario, '') 
+                    WHEN '$envase' = 'terciario' THEN COALESCE(pp.idformafarmaceuticaterciario, '') 
+                    ELSE NULL 
+                END AS idformafarmaceuticaEnvase"),
+                DB::raw("CASE 
+                    WHEN '$envase' = 'primario' THEN COALESCE(pp.preciolistaprimario, '') 
+                    WHEN '$envase' = 'secundario' THEN COALESCE(pp.preciolistasecundario, '') 
+                    WHEN '$envase' = 'terciario' THEN COALESCE(pp.preciolistaterciario, '') 
+                    ELSE NULL 
+                END AS preciolistaEnvase"),
+                DB::raw("CASE 
+                    WHEN '$envase' = 'primario' THEN COALESCE(pp.precioventaprimario, '') 
+                    WHEN '$envase' = 'secundario' THEN COALESCE(pp.precioventasecundario, '') 
+                    WHEN '$envase' = 'terciario' THEN COALESCE(pp.precioventaterciario, '') 
+                    ELSE NULL 
+                END AS precioventaEnvase"),
+                DB::raw("CASE 
+                    WHEN '$envase' = 'primario' THEN COALESCE(pp.tiempopedidoprimario, '') 
+                    WHEN '$envase' = 'secundario' THEN COALESCE(pp.tiempopedidosecundario, '') 
+                    WHEN '$envase' = 'terciario' THEN COALESCE(pp.tiempopedidoterciario, '') 
+                    ELSE NULL 
+                END AS tiempopedidoEnvase"),
+                DB::raw("CASE 
+                    WHEN '$envase' = 'primario' THEN COALESCE(pp.metodoabcprimario, '') 
+                    WHEN '$envase' = 'secundario' THEN COALESCE(pp.metodoabcsecundario, '') 
+                    WHEN '$envase' = 'terciario' THEN COALESCE(pp.metodoabcterciario, '') 
+                    ELSE NULL 
+                END AS metodoabcEnvase"),
+                DB::raw("CASE 
+                    WHEN '$envase' = 'primario' THEN COALESCE(pp.tiendaprimario, '') 
+                    WHEN '$envase' = 'secundario' THEN COALESCE(pp.tiendasecundario, '') 
+                    WHEN '$envase' = 'terciario' THEN COALESCE(pp.tiendaterciario, '') 
+                    ELSE NULL 
+                END AS tiendaEnvase"),
+                DB::raw("CASE 
+                    WHEN '$envase' = 'primario' THEN COALESCE(pp.almacenprimario, '') 
+                    WHEN '$envase' = 'secundario' THEN COALESCE(pp.almacensecundario, '') 
+                    WHEN '$envase' = 'terciario' THEN COALESCE(pp.almacenterciario, '') 
+                    ELSE NULL 
+                END AS almacenEnvase"),
+                DB::raw("CASE 
+                    WHEN '$envase' = 'primario' THEN COALESCE(FORMAT(pp.preciolistaprimario / pp.cantidadprimario, 2), '') 
+                    WHEN '$envase' = 'secundario' THEN COALESCE(FORMAT(pp.preciolistasecundario / pp.cantidadsecundario, 2), '') 
+                    WHEN '$envase' = 'terciario' THEN COALESCE(FORMAT(pp.preciolistaterciario / pp.cantidadterciario, 2), '') 
+                    ELSE NULL 
+                END AS costocompraEnvase"))
+            ->where('pp.idrubro', '=', 1)
+            ->where('pp.activo', '=', 1)
+            ->where('aa.codigo','=',$tienda_almacen)
             ->whereRaw($where)
             ->get(); 
         
+           
+        }
+   
+      
         return $resultado;
         
      }
@@ -423,6 +542,7 @@ return $resultadoCombinacion;
                                 pp.codigo like '%".$valor."%'                               
                                 or pp.nombre like '%".$valor."%'                                
                                 or pl.nombre  like '%".$valor."%' 
+                      
                                 )";
                         }
                         else
@@ -431,12 +551,14 @@ return $resultadoCombinacion;
                                 pp.codigo like '%".$valor."%'                               
                                 or pp.nombre like '%".$valor."%'                                
                                 or pl.nombre  like '%".$valor."%' 
+                 
                                  )";
                         }
                     }
                     //query...................
                     $envase = $request->envase;
                     $codigo = $request->codigo;
+                    $tienda_almacen =$request->alm_tda;
                     $where = [];
                     
                     if ($codigo == "TDA") {
@@ -449,20 +571,9 @@ return $resultadoCombinacion;
                         if ($envase == "terciario") {
                             $where[] = "(pp.tiendaterciario=1)";
                         }
-                    }
-                    if ($codigo == "ALM") {
-                        if ($envase == "primario") {
-                            $where[] = "(pp.almacenprimario=1)";
-                        }
-                        if ($envase == "secundario") {
-                            $where[] = "(pp.almacensecundario=1)";
-                        }
-                        if ($envase == "terciario") {
-                            $where[] = "(pp.almacenterciario=1)";
-                        }
-                    }
-                    
-                    $resultado = DB::table('prod__productos as pp')
+                        $resultado = DB::table('tda__ingreso_productos as ti')
+                    ->join('prod__productos as pp', 'ti.id_prod_producto', '=', 'pp.id')
+                    ->join('tda__tiendas as tt','ti.idtienda','=','tt.id' ) 
                         ->join('adm__rubros as ar', 'pp.idrubro', '=', 'ar.id')
                         ->join('prod__lineas as pl', 'pp.idlinea', '=', 'pl.id')
                         ->leftJoin('prod__dispensers as pd_1', 'pd_1.id', '=', 'pp.iddispenserprimario')
@@ -479,6 +590,9 @@ return $resultadoCombinacion;
                             'pp.codigo as cod_prod',
                             'pp.nombre as cod_name',
                             'ar.nombre as rubro_name',
+                            'ti.cantidad as cantidad',
+                            'ti.lote as lote',
+                            'ti.id as id_ingreso',
                             DB::raw("'$envase' as tipoE"),
                             DB::raw("CONCAT(pl.codigo, ' ', pl.nombre) AS lineaS"),
                             DB::raw("CASE 
@@ -549,11 +663,122 @@ return $resultadoCombinacion;
                             END AS costocompraEnvase")
                         )
                         ->where('pp.idrubro', '=', 1)
-                        
+                        ->where('tt.codigo','=',$tienda_almacen)
                         ->where('pp.activo', '=', 1)
                         ->whereRaw(implode(' AND ', $where))
                         ->whereRaw($sqls)
                         ->get(); 
+                    }
+                    if ($codigo == "ALM") {
+                        if ($envase == "primario") {
+                            $where[] = "(pp.almacenprimario=1)";
+                        }
+                        if ($envase == "secundario") {
+                            $where[] = "(pp.almacensecundario=1)";
+                        }
+                        if ($envase == "terciario") {
+                            $where[] = "(pp.almacenterciario=1)";
+                        }
+                        $resultado = DB::table('alm__ingreso_producto as ai')
+                        ->join('prod__productos as pp', 'ai.id_prod_producto', '=', 'pp.id')
+                        ->join('alm__almacens as aa','ai.idalmacen','=','aa.id' ) 
+                        ->join('adm__rubros as ar', 'pp.idrubro', '=', 'ar.id')
+                        ->join('prod__lineas as pl', 'pp.idlinea', '=', 'pl.id')
+                        ->leftJoin('prod__dispensers as pd_1', 'pd_1.id', '=', 'pp.iddispenserprimario')
+                        ->leftJoin('prod__dispensers as pd_2', 'pd_2.id', '=', 'pp.iddispensersecundario')
+                        ->leftJoin('prod__dispensers as pd_3', 'pd_3.id', '=', 'pp.iddispenserterciario')
+                        ->leftJoin('prod__forma_farmaceuticas as ff_1', 'ff_1.id', '=', 'pp.idformafarmaceuticaprimario')
+                        ->leftJoin('prod__forma_farmaceuticas as ff_2', 'ff_2.id', '=', 'pp.idformafarmaceuticasecundario')
+                        ->leftJoin('prod__forma_farmaceuticas as ff_3', 'ff_3.id', '=', 'pp.idformafarmaceuticaterciario')
+                        ->select(
+                            'pp.id as id',
+                            'pp.codigo as prod_cod',
+                            'pl.nombre as linea_name',
+                            'pl.codigo as linea_cod',
+                            'pp.codigo as cod_prod',
+                            'pp.nombre as cod_name',
+                            'ar.nombre as rubro_name',
+                            'ai.cantidad as cantidad',
+                            'ai.lote as lote',
+                            'ai.id as id_ingreso',
+                            DB::raw("'$envase' as tipoE"),
+                            DB::raw("CONCAT(pl.codigo, ' ', pl.nombre) AS lineaS"),
+                            DB::raw("CASE 
+                                WHEN '$envase' = 'primario' THEN CONCAT(COALESCE(pp.nombre, ''), ' ', COALESCE(pd_1.nombre, ''), ' x ', COALESCE(pp.cantidadprimario, ''), ' ', COALESCE(ff_1.nombre, '')) 
+                                WHEN '$envase' = 'secundario' THEN CONCAT(COALESCE(pp.nombre, ''), ' ', COALESCE(pd_2.nombre, ''), ' x ', COALESCE(pp.cantidadsecundario, ''), ' ', COALESCE(ff_2.nombre, '')) 
+                                WHEN '$envase' = 'terciario' THEN CONCAT(COALESCE(pp.nombre, ''), ' ', COALESCE(pd_3.nombre, ''), ' x ', COALESCE(pp.cantidadterciario, ''), ' ', COALESCE(ff_3.nombre, '')) 
+                                ELSE NULL 
+                            END AS leyenda"),
+                            DB::raw("CASE 
+                                WHEN '$envase' = 'primario' THEN COALESCE(pp.iddispenserprimario, '') 
+                                WHEN '$envase' = 'secundario' THEN COALESCE(pp.iddispensersecundario, '') 
+                                WHEN '$envase' = 'terciario' THEN COALESCE(pp.iddispenserterciario, '') 
+                                ELSE NULL 
+                            END AS iddispenserEnvase"),
+                            DB::raw("CASE 
+                                WHEN '$envase' = 'primario' THEN COALESCE(pp.cantidadprimario, '') 
+                                WHEN '$envase' = 'secundario' THEN COALESCE(pp.cantidadsecundario, '') 
+                                WHEN '$envase' = 'terciario' THEN COALESCE(pp.cantidadterciario, '') 
+                                ELSE NULL 
+                            END AS cantidadEnvase"),
+                            DB::raw("CASE 
+                                WHEN '$envase' = 'primario' THEN COALESCE(pp.idformafarmaceuticaprimario, '') 
+                                WHEN '$envase' = 'secundario' THEN COALESCE(pp.idformafarmaceuticasecundario, '') 
+                                WHEN '$envase' = 'terciario' THEN COALESCE(pp.idformafarmaceuticaterciario, '') 
+                                ELSE NULL 
+                            END AS idformafarmaceuticaEnvase"),
+                            DB::raw("CASE 
+                                WHEN '$envase' = 'primario' THEN COALESCE(pp.preciolistaprimario, '') 
+                                WHEN '$envase' = 'secundario' THEN COALESCE(pp.preciolistasecundario, '') 
+                                WHEN '$envase' = 'terciario' THEN COALESCE(pp.preciolistaterciario, '') 
+                                ELSE NULL 
+                            END AS preciolistaEnvase"),
+                            DB::raw("CASE 
+                                WHEN '$envase' = 'primario' THEN COALESCE(pp.precioventaprimario, '') 
+                                WHEN '$envase' = 'secundario' THEN COALESCE(pp.precioventasecundario, '') 
+                                WHEN '$envase' = 'terciario' THEN COALESCE(pp.precioventaterciario, '') 
+                                ELSE NULL 
+                            END AS precioventaEnvase"),
+                            DB::raw("CASE 
+                                WHEN '$envase' = 'primario' THEN COALESCE(pp.tiempopedidoprimario, '') 
+                                WHEN '$envase' = 'secundario' THEN COALESCE(pp.tiempopedidosecundario, '') 
+                                WHEN '$envase' = 'terciario' THEN COALESCE(pp.tiempopedidoterciario, '') 
+                                ELSE NULL 
+                            END AS tiempopedidoEnvase"),
+                            DB::raw("CASE 
+                                WHEN '$envase' = 'primario' THEN COALESCE(pp.metodoabcprimario, '') 
+                                WHEN '$envase' = 'secundario' THEN COALESCE(pp.metodoabcsecundario, '') 
+                                WHEN '$envase' = 'terciario' THEN COALESCE(pp.metodoabcterciario, '') 
+                                ELSE NULL 
+                            END AS metodoabcEnvase"),
+                            DB::raw("CASE 
+                                WHEN '$envase' = 'primario' THEN COALESCE(pp.tiendaprimario, '') 
+                                WHEN '$envase' = 'secundario' THEN COALESCE(pp.tiendasecundario, '') 
+                                WHEN '$envase' = 'terciario' THEN COALESCE(pp.tiendaterciario, '') 
+                                ELSE NULL 
+                            END AS tiendaEnvase"),
+                            DB::raw("CASE 
+                                WHEN '$envase' = 'primario' THEN COALESCE(pp.almacenprimario, '') 
+                                WHEN '$envase' = 'secundario' THEN COALESCE(pp.almacensecundario, '') 
+                                WHEN '$envase' = 'terciario' THEN COALESCE(pp.almacenterciario, '') 
+                                ELSE NULL 
+                            END AS almacenEnvase"),
+                            DB::raw("CASE 
+                                WHEN '$envase' = 'primario' THEN COALESCE(FORMAT(pp.preciolistaprimario / pp.cantidadprimario, 2), '') 
+                                WHEN '$envase' = 'secundario' THEN COALESCE(FORMAT(pp.preciolistasecundario / pp.cantidadsecundario, 2), '') 
+                                WHEN '$envase' = 'terciario' THEN COALESCE(FORMAT(pp.preciolistaterciario / pp.cantidadterciario, 2), '') 
+                                ELSE NULL 
+                            END AS costocompraEnvase")
+                        )
+                        ->where('pp.idrubro', '=', 1)
+                        ->where('aa.codigo','=',$tienda_almacen)
+                        ->where('pp.activo', '=', 1)
+                        ->whereRaw(implode(' AND ', $where))
+                        ->whereRaw($sqls)
+                        ->get(); 
+                    }
+                    
+                    
                     
                    
                 }
@@ -564,6 +789,7 @@ return $resultadoCombinacion;
            
             $envase = $request->envase;
 $codigo = $request->codigo;
+$tienda_almacen =$request->alm_tda;
 $where = [];
 
 if ($codigo == "TDA") {
@@ -576,20 +802,9 @@ if ($codigo == "TDA") {
     if ($envase == "terciario") {
         $where[] = "(pp.tiendaterciario=1)";
     }
-}
-if ($codigo == "ALM") {
-    if ($envase == "primario") {
-        $where[] = "(pp.almacenprimario=1)";
-    }
-    if ($envase == "secundario") {
-        $where[] = "(pp.almacensecundario=1)";
-    }
-    if ($envase == "terciario") {
-        $where[] = "(pp.almacenterciario=1)";
-    }
-}
-
-$resultado = DB::table('prod__productos as pp')
+    $resultado = DB::table('tda__ingreso_productos as ti')
+->join('prod__productos as pp', 'ti.id_prod_producto', '=', 'pp.id')
+->join('tda__tiendas as tt','ti.idtienda','=','tt.id' ) 
     ->join('adm__rubros as ar', 'pp.idrubro', '=', 'ar.id')
     ->join('prod__lineas as pl', 'pp.idlinea', '=', 'pl.id')
     ->leftJoin('prod__dispensers as pd_1', 'pd_1.id', '=', 'pp.iddispenserprimario')
@@ -606,6 +821,9 @@ $resultado = DB::table('prod__productos as pp')
         'pp.codigo as cod_prod',
         'pp.nombre as cod_name',
         'ar.nombre as rubro_name',
+        'ti.cantidad as cantidad',
+        'ti.lote as lote',
+        'ti.id as id_ingreso',
         DB::raw("'$envase' as tipoE"),
         DB::raw("CONCAT(pl.codigo, ' ', pl.nombre) AS lineaS"),
         DB::raw("CASE 
@@ -676,10 +894,120 @@ $resultado = DB::table('prod__productos as pp')
         END AS costocompraEnvase")
     )
     ->where('pp.idrubro', '=', 1)
-   
+    ->where('tt.codigo','=',$tienda_almacen)
             ->where('pp.activo', '=', 1)
     ->whereRaw(implode(' AND ', $where))
     ->get(); 
+}
+if ($codigo == "ALM") {
+    if ($envase == "primario") {
+        $where[] = "(pp.almacenprimario=1)";
+    }
+    if ($envase == "secundario") {
+        $where[] = "(pp.almacensecundario=1)";
+    }
+    if ($envase == "terciario") {
+        $where[] = "(pp.almacenterciario=1)";
+    }
+    $resultado = DB::table('alm__ingreso_producto as ai')
+    ->join('prod__productos as pp', 'ai.id_prod_producto', '=', 'pp.id')
+    ->join('alm__almacens as aa','ai.idalmacen','=','aa.id' ) 
+    ->join('adm__rubros as ar', 'pp.idrubro', '=', 'ar.id')
+    ->join('prod__lineas as pl', 'pp.idlinea', '=', 'pl.id')
+    ->leftJoin('prod__dispensers as pd_1', 'pd_1.id', '=', 'pp.iddispenserprimario')
+    ->leftJoin('prod__dispensers as pd_2', 'pd_2.id', '=', 'pp.iddispensersecundario')
+    ->leftJoin('prod__dispensers as pd_3', 'pd_3.id', '=', 'pp.iddispenserterciario')
+    ->leftJoin('prod__forma_farmaceuticas as ff_1', 'ff_1.id', '=', 'pp.idformafarmaceuticaprimario')
+    ->leftJoin('prod__forma_farmaceuticas as ff_2', 'ff_2.id', '=', 'pp.idformafarmaceuticasecundario')
+    ->leftJoin('prod__forma_farmaceuticas as ff_3', 'ff_3.id', '=', 'pp.idformafarmaceuticaterciario')
+    ->select(
+        'pp.id as id',
+        'pp.codigo as prod_cod',
+        'pl.nombre as linea_name',
+        'pl.codigo as linea_cod',
+        'pp.codigo as cod_prod',
+        'pp.nombre as cod_name',
+        'ar.nombre as rubro_name',
+        'ai.cantidad as cantidad',
+        'ai.lote as lote',
+        'ai.id as id_ingreso',
+        DB::raw("'$envase' as tipoE"),
+        DB::raw("CONCAT(pl.codigo, ' ', pl.nombre) AS lineaS"),
+        DB::raw("CASE 
+            WHEN '$envase' = 'primario' THEN CONCAT(COALESCE(pp.nombre, ''), ' ', COALESCE(pd_1.nombre, ''), ' x ', COALESCE(pp.cantidadprimario, ''), ' ', COALESCE(ff_1.nombre, '')) 
+            WHEN '$envase' = 'secundario' THEN CONCAT(COALESCE(pp.nombre, ''), ' ', COALESCE(pd_2.nombre, ''), ' x ', COALESCE(pp.cantidadsecundario, ''), ' ', COALESCE(ff_2.nombre, '')) 
+            WHEN '$envase' = 'terciario' THEN CONCAT(COALESCE(pp.nombre, ''), ' ', COALESCE(pd_3.nombre, ''), ' x ', COALESCE(pp.cantidadterciario, ''), ' ', COALESCE(ff_3.nombre, '')) 
+            ELSE NULL 
+        END AS leyenda"),
+        DB::raw("CASE 
+            WHEN '$envase' = 'primario' THEN COALESCE(pp.iddispenserprimario, '') 
+            WHEN '$envase' = 'secundario' THEN COALESCE(pp.iddispensersecundario, '') 
+            WHEN '$envase' = 'terciario' THEN COALESCE(pp.iddispenserterciario, '') 
+            ELSE NULL 
+        END AS iddispenserEnvase"),
+        DB::raw("CASE 
+            WHEN '$envase' = 'primario' THEN COALESCE(pp.cantidadprimario, '') 
+            WHEN '$envase' = 'secundario' THEN COALESCE(pp.cantidadsecundario, '') 
+            WHEN '$envase' = 'terciario' THEN COALESCE(pp.cantidadterciario, '') 
+            ELSE NULL 
+        END AS cantidadEnvase"),
+        DB::raw("CASE 
+            WHEN '$envase' = 'primario' THEN COALESCE(pp.idformafarmaceuticaprimario, '') 
+            WHEN '$envase' = 'secundario' THEN COALESCE(pp.idformafarmaceuticasecundario, '') 
+            WHEN '$envase' = 'terciario' THEN COALESCE(pp.idformafarmaceuticaterciario, '') 
+            ELSE NULL 
+        END AS idformafarmaceuticaEnvase"),
+        DB::raw("CASE 
+            WHEN '$envase' = 'primario' THEN COALESCE(pp.preciolistaprimario, '') 
+            WHEN '$envase' = 'secundario' THEN COALESCE(pp.preciolistasecundario, '') 
+            WHEN '$envase' = 'terciario' THEN COALESCE(pp.preciolistaterciario, '') 
+            ELSE NULL 
+        END AS preciolistaEnvase"),
+        DB::raw("CASE 
+            WHEN '$envase' = 'primario' THEN COALESCE(pp.precioventaprimario, '') 
+            WHEN '$envase' = 'secundario' THEN COALESCE(pp.precioventasecundario, '') 
+            WHEN '$envase' = 'terciario' THEN COALESCE(pp.precioventaterciario, '') 
+            ELSE NULL 
+        END AS precioventaEnvase"),
+        DB::raw("CASE 
+            WHEN '$envase' = 'primario' THEN COALESCE(pp.tiempopedidoprimario, '') 
+            WHEN '$envase' = 'secundario' THEN COALESCE(pp.tiempopedidosecundario, '') 
+            WHEN '$envase' = 'terciario' THEN COALESCE(pp.tiempopedidoterciario, '') 
+            ELSE NULL 
+        END AS tiempopedidoEnvase"),
+        DB::raw("CASE 
+            WHEN '$envase' = 'primario' THEN COALESCE(pp.metodoabcprimario, '') 
+            WHEN '$envase' = 'secundario' THEN COALESCE(pp.metodoabcsecundario, '') 
+            WHEN '$envase' = 'terciario' THEN COALESCE(pp.metodoabcterciario, '') 
+            ELSE NULL 
+        END AS metodoabcEnvase"),
+        DB::raw("CASE 
+            WHEN '$envase' = 'primario' THEN COALESCE(pp.tiendaprimario, '') 
+            WHEN '$envase' = 'secundario' THEN COALESCE(pp.tiendasecundario, '') 
+            WHEN '$envase' = 'terciario' THEN COALESCE(pp.tiendaterciario, '') 
+            ELSE NULL 
+        END AS tiendaEnvase"),
+        DB::raw("CASE 
+            WHEN '$envase' = 'primario' THEN COALESCE(pp.almacenprimario, '') 
+            WHEN '$envase' = 'secundario' THEN COALESCE(pp.almacensecundario, '') 
+            WHEN '$envase' = 'terciario' THEN COALESCE(pp.almacenterciario, '') 
+            ELSE NULL 
+        END AS almacenEnvase"),
+        DB::raw("CASE 
+            WHEN '$envase' = 'primario' THEN COALESCE(FORMAT(pp.preciolistaprimario / pp.cantidadprimario, 2), '') 
+            WHEN '$envase' = 'secundario' THEN COALESCE(FORMAT(pp.preciolistasecundario / pp.cantidadsecundario, 2), '') 
+            WHEN '$envase' = 'terciario' THEN COALESCE(FORMAT(pp.preciolistaterciario / pp.cantidadterciario, 2), '') 
+            ELSE NULL 
+        END AS costocompraEnvase")
+    )
+    ->where('pp.idrubro', '=', 1)
+    ->where('aa.codigo','=',$tienda_almacen)
+            ->where('pp.activo', '=', 1)
+    ->whereRaw(implode(' AND ', $where))
+    ->get(); 
+}
+
+
 
 return $resultado;
                 

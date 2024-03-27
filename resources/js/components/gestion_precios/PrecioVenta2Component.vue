@@ -158,12 +158,7 @@
 </div>
               
                     <div v-else>
-                        <div class="alert alert-warning" role="alert" v-if="selectLista==0">
-                            <h4 class="alert-heading">Intrucciones!</h4>
-  <p>Para poder ver el listado de productos primero debe escoger una tienda o almacén después escoger una lista, para ver listado por default solo debe escoger <strong>Sin Lista</strong>.</p>
-  <hr>
-  <p class="mb-0">El precio se verá dependiendo de la lista que escogió por la cantidad de productos que existe.</p>
-                        </div>
+                     
                         <div v-else>
                             <table class="table table-bordered table-striped table-sm table-responsive" >
                    
@@ -753,10 +748,8 @@ methods: {
                 case 'editarPrecioUtilidadProducto':
                     {
                         let me = this;
-                        me.codigo=data.cod;
-                       
-                        me.id_gespreventa=data.gpv_id;
-              
+                        me.codigo=data.cod;                       
+                        me.id_gespreventa=data.gpv_id;              
                         me.tituloModal = 'Modificar Utilidad del Producto2';
                         me.caracteristicasProductoModificar=data.leyenda;
                         me.cantidadIngresoAlmacen=data.cantidad_ingreso;
@@ -791,6 +784,12 @@ methods: {
                         me.pvc=0;   
                         me.id_ingreso=data.id;    
                         me.alm_tda=data.cod.substring(0, (data.cod).length - 3); 
+                        if(me.selectLista=='x'){
+                        me.listaX="x";    
+                        }
+                        else{
+                        me.listaX=data.id_lista;    
+                        }
                         if(me.alm_tda==='TDA'){
                             me.tienda_gespreventa=1;
                             me.almacen_gespreventa=0;
@@ -821,6 +820,7 @@ methods: {
             me.p_venta='';
             me.id_gespreventa='';
             me.margen_20=0;
+            me.listaX='';
                         me.margen_30=0;
                         me.utilidad_bruta=0;
                         me.utilidad_neta=0;
@@ -845,8 +845,8 @@ methods: {
         },
         actualizarRegistrarPrecioVenta() {
             let me = this;
-            console.log("id_gespreventa:"+me.id_gespreventa+"codigo"+me.codigo);
-            if (me.id_gespreventa==undefined || me.id_gespreventa==null ) {
+            console.log("id_gespreventa:"+me.id_gespreventa+"codigo"+me.codigo+" "+me.listaX);
+            if (me.id_gespreventa==undefined || me.id_gespreventa==null  ) {
                 axios.post('/gestionprecioventa2/registrar', {
                // 'id':me.id_gespreventa,
                 'codigo':me.codigo,                
@@ -861,14 +861,16 @@ methods: {
                 'margen_30p_gespreventa':me.margen_30,
                 'utilidad_bruta_gespreventa':me.utilidad_bruta,
                 'utilidad_neto_gespreventa':me.utilidad_neta,
+                'id_lista':me.listaX,
             }).then(function (response) {
                 me.cerrarModal('calculadoraModal');
+                me.listarProductosTiendaAlmacen(1);
                 Swal.fire(
                     'Almacen Registrado exitosamente',
                     'Haga click en Ok',
                     'success'
                 );
-                me.listarProductosTiendaAlmacen();
+                
                 
             })
             
@@ -907,14 +909,15 @@ methods: {
                 'margen_30p_gespreventa':me.margen_30,
                 'utilidad_bruta_gespreventa':me.utilidad_bruta,
                 'utilidad_neto_gespreventa':me.utilidad_neta,
+                'id_lista':me.listaX,
             }).then(function (response) {
                 me.cerrarModal('calculadoraModal');
+                me.listarProductosTiendaAlmacen(1);
                 Swal.fire(
                     'Almacen Registrado exitosamente',
                     'Haga click en Ok',
                     'success'
-                );
-                me.listarProductosTiendaAlmacen();
+                );          
                 
             })
             

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\GesPre_Venta2;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Models\GesPre_Venta_lista;
 use PHPUnit\TextUI\Configuration\Merger;
 
 class GesPreVenta2Controller extends Controller
@@ -14,7 +15,9 @@ class GesPreVenta2Controller extends Controller
      */
     public function index(Request $request)
     {
-      
+        if ($request->lista=='x') {
+          //** lista normal por default */
+             
         $buscararray = array();
         $bus = $request->query('buscarAlmTdn');
         if (!empty($request->buscar)) {          
@@ -553,6 +556,503 @@ class GesPreVenta2Controller extends Controller
                 'queryCombinacion' => $queryCombinacion
             ];
         }
+        } else {
+    /************************************ trabajo con lista ****************/
+         
+    $buscararray = array();
+    $bus = $request->query('buscarAlmTdn');
+    if (!empty($request->buscar)) {          
+        $buscararray = explode(" ", $request->buscar);           
+        $valor = sizeof($buscararray);       
+        if ($valor > 0) {
+            $sqls = '';
+            foreach ($buscararray as $valor) {                   
+                if (empty($sqls)) {    
+                                    
+                    $sqls = "(
+                            pp.codigo like '%" . $valor . "%' 
+                            or pl.nombre like '%" . $valor . "%'
+                            or pp.nombre like '%" . $valor . "%' 
+                            or u.name like '%" . $valor . "%'
+                        
+                           )";
+                } else {
+                  
+                    $sqls .= "and (
+                         pp.codigo like '%" . $valor . "%' 
+                            or pl.nombre like '%" . $valor . "%'
+                            or pp.nombre like '%" . $valor . "%' 
+                            or u.name like '%" . $valor . "%'
+                   )";
+                }
+            } 
+            // query start 
+        
+            $almacen = DB::table('pivot__modulo_tienda_almacens AS pivot')
+            ->select('pivot.id AS id',
+                'gpv.id AS gpv_id',
+                'aa.codigo AS cod',
+                'ai.id AS id_ingreso',
+                'ai.lote AS lote',
+                'ai.stock_ingreso AS stock_ingreso',
+                'ai.cantidad AS cantidad_ingreso',
+                'ai.created_at AS fecha_ingreso',
+                'ai.fecha_vencimiento AS fecha_vencimiento',
+                'pp.id AS id_producto',
+                'pp.nombre AS nombre',
+                'pp.codigo AS codigo_producto',
+                'pl.nombre AS nombre_linea',
+                'ass.id AS id_sucursal',
+                'ass.razon_social AS razon_social',
+                DB::raw('NULL AS id_tienda'),
+                'ai.idalmacen AS id_almacen',
+                'prp.envase AS envase',
+                'prp.id AS id_lista',
+                'plist.id AS plist_id',
+                'plist.nombre_lista AS nombre_lista',
+                'plist.codigo AS cod_lista',
+                DB::raw("CASE 
+                    WHEN ai.envase = 'primario' THEN CONCAT(COALESCE(pp.nombre, ''), ' ', COALESCE(pd_1.nombre, ''), ' x ', COALESCE(pp.cantidadprimario, ''), ' ', COALESCE(ff_1.nombre, '')) 
+                    WHEN ai.envase = 'secundario' THEN CONCAT(COALESCE(pp.nombre, ''), ' ', COALESCE(pd_2.nombre, ''), ' x ', COALESCE(pp.cantidadsecundario, ''), ' ', COALESCE(ff_2.nombre, '')) 
+                    WHEN ai.envase = 'terciario' THEN CONCAT(COALESCE(pp.nombre, ''), ' ', COALESCE(pd_3.nombre, ''), ' x ', COALESCE(pp.cantidadterciario, ''), ' ', COALESCE(ff_3.nombre, '')) 
+                    ELSE NULL 
+                END AS leyenda"),
+                DB::raw("CASE 
+                    WHEN ai.envase = 'primario' THEN COALESCE(pp.iddispenserprimario, '') 
+                    WHEN ai.envase = 'secundario' THEN COALESCE(pp.iddispensersecundario, '') 
+                    WHEN ai.envase = 'terciario' THEN COALESCE(pp.iddispenserterciario, '') 
+                    ELSE NULL 
+                END AS iddispenserEnvase"),
+                DB::raw("CASE 
+                    WHEN ai.envase = 'primario' THEN COALESCE(pp.cantidadprimario, '') 
+                    WHEN ai.envase = 'secundario' THEN COALESCE(pp.cantidadsecundario, '') 
+                    WHEN ai.envase = 'terciario' THEN COALESCE(pp.cantidadterciario, '') 
+                    ELSE NULL 
+                END AS cantidadEnvase"),
+                DB::raw("CASE 
+                    WHEN ai.envase = 'primario' THEN COALESCE(pp.idformafarmaceuticaprimario, '') 
+                    WHEN ai.envase = 'secundario' THEN COALESCE(pp.idformafarmaceuticasecundario, '') 
+                    WHEN ai.envase = 'terciario' THEN COALESCE(pp.idformafarmaceuticaterciario, '') 
+                    ELSE NULL 
+                END AS idformafarmaceuticaEnvase"),
+                'prp.preciolista AS preciolistaEnvase',
+                'prp.precioventa AS precioventaEnvase',
+                'prp.tiempopedido AS tiempopedidoEnvase',
+                'prp.metodoabc AS metodoabcEnvase',
+                DB::raw("CASE 
+                    WHEN ai.envase = 'primario' THEN COALESCE(pp.tiendaprimario, '') 
+                    WHEN ai.envase = 'secundario' THEN COALESCE(pp.tiendasecundario, '') 
+                    WHEN ai.envase = 'terciario' THEN COALESCE(pp.tiendaterciario, '') 
+                    ELSE NULL 
+                END AS tiendaEnvase"),
+                DB::raw("CASE 
+                    WHEN ai.envase = 'primario' THEN COALESCE(pp.almacenprimario, '') 
+                    WHEN ai.envase = 'secundario' THEN COALESCE(pp.almacensecundario, '') 
+                    WHEN ai.envase = 'terciario' THEN COALESCE(pp.almacenterciario, '') 
+                    ELSE NULL 
+                END AS almacenEnvase"),
+                DB::raw("CASE
+                    WHEN ai.envase = 'primario' THEN COALESCE(FORMAT(prp.preciolista / pp.cantidadprimario, 2), '')
+                    WHEN ai.envase = 'secundario' THEN COALESCE(FORMAT(prp.preciolista / pp.cantidadsecundario, 2), '')
+                    WHEN ai.envase = 'terciario' THEN COALESCE(FORMAT(prp.preciolista / pp.cantidadterciario, 2), '')
+                    ELSE NULL
+                END AS costocompraEnvase"),
+                'gpv.precio_lista_gespreventa AS precio_lista_gespreventa',
+                'gpv.precio_venta_gespreventa AS precio_venta_gespreventa',
+                'gpv.cantidad_envase_gespreventa AS cantidad_envase_gespreventa',
+                'gpv.costo_compra_gespreventa AS costo_compra_gespreventa',
+                'gpv.margen_20p_gespreventa AS margen_20p_gespreventa',
+                'gpv.margen_30p_gespreventa AS margen_30p_gespreventa',
+                'gpv.utilidad_bruta_gespreventa AS utilidad_bruta_gespreventa',
+                'gpv.utilidad_neto_gespreventa AS utilidad_neto_gespreventa',
+                'u.name AS user_name',
+                DB::raw("GREATEST(gpv.created_at, gpv.updated_at) AS fecha"),
+                'gpv.listo_venta AS listo_venta',
+                'pte.nombre AS tipoentrada')
+            ->join('prod__registro_pre_x_lists AS prp', 'prp.id_ingreso', '=', 'pivot.id_ingreso')
+            ->join('alm__almacens AS aa', 'aa.id', '=', 'pivot.id_tienda_almacen')
+            ->join('prod__productos AS pp', 'pp.id', '=', 'prp.id_producto')
+            ->join('prod__lineas AS pl', 'pl.id', '=', 'pp.idlinea')
+            ->join('prod__listas AS plist', 'plist.id', '=', 'prp.id_lista')
+            ->join('alm__ingreso_producto AS ai', 'ai.id', '=', 'pivot.id_ingreso')
+            ->join('prod__tipo_entradas AS pte', 'pte.id', '=', 'ai.id_tipoentrada')
+            ->leftJoin('prod__dispensers AS pd_1', 'pd_1.id', '=', 'pp.iddispenserprimario')
+            ->leftJoin('prod__dispensers AS pd_2', 'pd_2.id', '=', 'pp.iddispensersecundario')
+            ->leftJoin('prod__dispensers AS pd_3', 'pd_3.id', '=', 'pp.iddispenserterciario')
+            ->leftJoin('prod__forma_farmaceuticas AS ff_1', 'ff_1.id', '=', 'pp.idformafarmaceuticaprimario')
+            ->leftJoin('prod__forma_farmaceuticas AS ff_2', 'ff_2.id', '=', 'pp.idformafarmaceuticasecundario')
+            ->leftJoin('prod__forma_farmaceuticas AS ff_3', 'ff_3.id', '=', 'pp.idformafarmaceuticaterciario')
+            ->join('adm__sucursals AS ass', 'ass.id', '=', 'ai.idalmacen')
+            ->join('prod__lineas AS l', 'l.id', '=', 'pp.idlinea')
+            ->leftJoin('ges_pre__venta_listas AS gpv', 'gpv.id_table_ingreso_tienda_almacen', '=', 'pivot.id')
+            ->leftJoin('users AS u', 'u.id', '=', 'gpv.idusuario')
+            ;
+            $tienda = DB::table('pivot__modulo_tienda_almacens as pivot')
+            ->select(
+                'pivot.id AS id',
+                'gpv.id AS gpv_id',
+                'tt.codigo AS cod',
+                'ti.id AS id_ingreso',
+                'ti.lote AS lote',
+                'ti.stock_ingreso AS stock_ingreso',
+                'ti.cantidad AS cantidad_ingreso',
+                'ti.created_at AS fecha_ingreso',
+                'ti.fecha_vencimiento AS fecha_vencimiento',
+                'pp.id AS id_producto',
+                'pp.nombre AS nombre',
+                'pp.codigo AS codigo_producto',
+                'pl.nombre AS nombre_linea',
+                'ass.id AS id_sucursal',
+                'ass.razon_social AS razon_social',
+                'ti.idtienda AS id_tienda',
+                DB::raw('null AS id_almacen'),
+                'prp.envase as envase',
+                'prp.id as id_lista',
+                'plist.id as plist_id',
+                'plist.nombre_lista as nombre_lista',
+                'plist.codigo as cod_lista',
+                DB::raw("
+                    CASE 
+                        WHEN ti.envase = 'primario' THEN CONCAT(COALESCE(pp.nombre, ''), ' ', COALESCE(pd_1.nombre, ''), ' x ', COALESCE(pp.cantidadprimario, ''), ' ', COALESCE(ff_1.nombre, '')) 
+                        WHEN ti.envase = 'secundario' THEN CONCAT(COALESCE(pp.nombre, ''), ' ', COALESCE(pd_2.nombre, ''), ' x ', COALESCE(pp.cantidadsecundario, ''), ' ', COALESCE(ff_2.nombre, '')) 
+                        WHEN ti.envase = 'terciario' THEN CONCAT(COALESCE(pp.nombre, ''), ' ', COALESCE(pd_3.nombre, ''), ' x ', COALESCE(pp.cantidadterciario, ''), ' ', COALESCE(ff_3.nombre, '')) 
+                        ELSE NULL 
+                    END AS leyenda"
+                ),
+                DB::raw("
+                    CASE 
+                        WHEN ti.envase = 'primario' THEN CONCAT(COALESCE(pp.iddispenserprimario, '')) 
+                        WHEN ti.envase = 'secundario' THEN CONCAT(COALESCE(pp.iddispensersecundario, '')) 
+                        WHEN ti.envase = 'terciario' THEN CONCAT(COALESCE(pp.iddispenserterciario, '')) 
+                        ELSE NULL 
+                    END AS iddispenserEnvase"
+                ),
+                DB::raw("
+                    CASE 
+                        WHEN ti.envase = 'primario' THEN CONCAT(COALESCE(pp.cantidadprimario, '')) 
+                        WHEN ti.envase = 'secundario' THEN CONCAT(COALESCE(pp.cantidadsecundario, '')) 
+                        WHEN ti.envase = 'terciario' THEN CONCAT(COALESCE(pp.cantidadterciario, '')) 
+                        ELSE NULL 
+                    END AS cantidadEnvase"
+                ),
+                DB::raw("
+                    CASE 
+                        WHEN ti.envase = 'primario' THEN CONCAT(COALESCE(pp.idformafarmaceuticaprimario, '')) 
+                        WHEN ti.envase = 'secundario' THEN CONCAT(COALESCE(pp.idformafarmaceuticasecundario, '')) 
+                        WHEN ti.envase = 'terciario' THEN CONCAT(COALESCE(pp.idformafarmaceuticaterciario, '')) 
+                        ELSE NULL 
+                    END AS idformafarmaceuticaEnvase"
+                ),
+                'prp.preciolista as preciolistaEnvase',
+                'prp.precioventa as precioventaEnvase',
+                'prp.tiempopedido as tiempopedidoEnvase',
+                'prp.metodoabc as metodoabcEnvase',
+                DB::raw("
+                    CASE 
+                        WHEN ti.envase = 'primario' THEN CONCAT(COALESCE(pp.tiendaprimario, '')) 
+                        WHEN ti.envase = 'secundario' THEN CONCAT(COALESCE(pp.tiendasecundario, '')) 
+                        WHEN ti.envase = 'terciario' THEN CONCAT(COALESCE(pp.tiendaterciario, '')) 
+                        ELSE NULL 
+                    END AS tiendaEnvase"
+                ),
+                DB::raw("
+                    CASE 
+                        WHEN ti.envase = 'primario' THEN CONCAT(COALESCE(pp.almacenprimario, '')) 
+                        WHEN ti.envase = 'secundario' THEN CONCAT(COALESCE(pp.almacensecundario, '')) 
+                        WHEN ti.envase = 'terciario' THEN CONCAT(COALESCE(pp.almacenterciario, '')) 
+                        ELSE NULL 
+                    END AS almacenEnvase"
+                ),
+                DB::raw("
+                    CASE
+                        WHEN ti.envase = 'primario' THEN CONCAT(COALESCE(FORMAT(prp.preciolista / pp.cantidadprimario, 2), ''), '')
+                        WHEN ti.envase = 'secundario' THEN CONCAT(COALESCE(FORMAT(prp.preciolista / pp.cantidadsecundario, 2), ''), '')
+                        WHEN ti.envase = 'terciario' THEN CONCAT(COALESCE(FORMAT(prp.preciolista / pp.cantidadterciario, 2), ''), '')
+                        ELSE NULL
+                    END AS costocompraEnvase"
+                ),
+                'gpv.precio_lista_gespreventa AS precio_lista_gespreventa',
+                'gpv.precio_venta_gespreventa AS precio_venta_gespreventa',
+                'gpv.cantidad_envase_gespreventa AS cantidad_envase_gespreventa',
+                'gpv.costo_compra_gespreventa AS costo_compra_gespreventa',
+                'gpv.margen_20p_gespreventa AS margen_20p_gespreventa',
+                'gpv.margen_30p_gespreventa AS margen_30p_gespreventa',
+                'gpv.utilidad_bruta_gespreventa AS utilidad_bruta_gespreventa',
+                'gpv.utilidad_neto_gespreventa AS utilidad_neto_gespreventa',
+                'u.name AS user_name',
+                DB::raw("GREATEST(gpv.created_at, gpv.updated_at) AS fecha"),
+                'gpv.listo_venta AS listo_venta',
+                'pte.nombre AS tipoentrada'
+            )
+            ->join('prod__registro_pre_x_lists AS prp', 'prp.id_ingreso', '=', 'pivot.id_ingreso')
+            ->join('tda__tiendas AS tt', 'tt.id', '=', 'pivot.id_tienda_almacen')
+            ->join('prod__productos AS pp', 'pp.id', '=', 'prp.id_producto')
+            ->join('prod__lineas AS pl', 'pl.id', '=', 'pp.idlinea')
+            ->join('prod__listas as plist', 'plist.id', '=', 'prp.id_lista')
+            ->join('tda__ingreso_productos as ti', 'ti.id', '=', 'pivot.id_ingreso')
+            ->join('prod__tipo_entradas AS pte', 'pte.id', '=', 'ti.id_tipoentrada')
+    ->leftJoin('prod__dispensers AS pd_1', 'pd_1.id', '=', 'pp.iddispenserprimario')
+    ->leftJoin('prod__dispensers AS pd_2', 'pd_2.id', '=', 'pp.iddispensersecundario')
+    ->leftJoin('prod__dispensers AS pd_3', 'pd_3.id', '=', 'pp.iddispenserterciario')
+    ->leftJoin('prod__forma_farmaceuticas AS ff_1', 'ff_1.id', '=', 'pp.idformafarmaceuticaprimario')
+    ->leftJoin('prod__forma_farmaceuticas AS ff_2', 'ff_2.id', '=', 'pp.idformafarmaceuticasecundario')
+    ->leftJoin('prod__forma_farmaceuticas AS ff_3', 'ff_3.id', '=', 'pp.idformafarmaceuticaterciario')
+    ->join('adm__sucursals AS ass', 'ass.id', '=', 'ti.idtienda')
+    ->leftJoin('prod__lineas AS l', 'l.id', '=', 'pp.idlinea')
+    ->leftJoin('ges_pre__venta_listas AS gpv', 'gpv.id_table_ingreso_tienda_almacen', '=', 'pivot.id')
+    ->leftJoin('users AS u', 'u.id', '=', 'gpv.idusuario')
+           ;
+           $queryCombinacion = $almacen->where('prp.id_lista', '=', $request->lista)->whereRaw($sqls)
+           ->unionAll($tienda->where('prp.id_lista', '=', $request->lista)->whereRaw($sqls)); 
+           $queryCombinacion = $queryCombinacion -> orderByRaw('id DESC')->paginate(15); 
+        }    
+        return
+        [
+            'pagination' =>
+            [
+                'total'         =>    $queryCombinacion->total(),
+                'current_page'  =>    $queryCombinacion->currentPage(),
+                'per_page'      =>    $queryCombinacion->perPage(),
+                'last_page'     =>    $queryCombinacion->lastPage(),
+                'from'          =>    $queryCombinacion->firstItem(),
+                'to'            =>    $queryCombinacion->lastItem(),
+            ],
+            'queryCombinacion' => $queryCombinacion,
+        ];
+    } else {
+         // query start 
+        
+         $almacen = DB::table('pivot__modulo_tienda_almacens AS pivot')
+         ->select('pivot.id AS id',
+             'gpv.id AS gpv_id',
+             'aa.codigo AS cod',
+             'ai.id AS id_ingreso',
+             'ai.lote AS lote',
+             'ai.stock_ingreso AS stock_ingreso',
+             'ai.cantidad AS cantidad_ingreso',
+             'ai.created_at AS fecha_ingreso',
+             'ai.fecha_vencimiento AS fecha_vencimiento',
+             'pp.id AS id_producto',
+             'pp.nombre AS nombre',
+             'pp.codigo AS codigo_producto',
+             'pl.nombre AS nombre_linea',
+             'ass.id AS id_sucursal',
+             'ass.razon_social AS razon_social',
+             DB::raw('NULL AS id_tienda'),
+             'ai.idalmacen AS id_almacen',
+             'prp.envase AS envase',
+             'prp.id AS id_lista',
+             'plist.id AS plist_id',
+             'plist.nombre_lista AS nombre_lista',
+             'plist.codigo AS cod_lista',
+             DB::raw("CASE 
+                 WHEN ai.envase = 'primario' THEN CONCAT(COALESCE(pp.nombre, ''), ' ', COALESCE(pd_1.nombre, ''), ' x ', COALESCE(pp.cantidadprimario, ''), ' ', COALESCE(ff_1.nombre, '')) 
+                 WHEN ai.envase = 'secundario' THEN CONCAT(COALESCE(pp.nombre, ''), ' ', COALESCE(pd_2.nombre, ''), ' x ', COALESCE(pp.cantidadsecundario, ''), ' ', COALESCE(ff_2.nombre, '')) 
+                 WHEN ai.envase = 'terciario' THEN CONCAT(COALESCE(pp.nombre, ''), ' ', COALESCE(pd_3.nombre, ''), ' x ', COALESCE(pp.cantidadterciario, ''), ' ', COALESCE(ff_3.nombre, '')) 
+                 ELSE NULL 
+             END AS leyenda"),
+             DB::raw("CASE 
+                 WHEN ai.envase = 'primario' THEN COALESCE(pp.iddispenserprimario, '') 
+                 WHEN ai.envase = 'secundario' THEN COALESCE(pp.iddispensersecundario, '') 
+                 WHEN ai.envase = 'terciario' THEN COALESCE(pp.iddispenserterciario, '') 
+                 ELSE NULL 
+             END AS iddispenserEnvase"),
+             DB::raw("CASE 
+                 WHEN ai.envase = 'primario' THEN COALESCE(pp.cantidadprimario, '') 
+                 WHEN ai.envase = 'secundario' THEN COALESCE(pp.cantidadsecundario, '') 
+                 WHEN ai.envase = 'terciario' THEN COALESCE(pp.cantidadterciario, '') 
+                 ELSE NULL 
+             END AS cantidadEnvase"),
+             DB::raw("CASE 
+                 WHEN ai.envase = 'primario' THEN COALESCE(pp.idformafarmaceuticaprimario, '') 
+                 WHEN ai.envase = 'secundario' THEN COALESCE(pp.idformafarmaceuticasecundario, '') 
+                 WHEN ai.envase = 'terciario' THEN COALESCE(pp.idformafarmaceuticaterciario, '') 
+                 ELSE NULL 
+             END AS idformafarmaceuticaEnvase"),
+             'prp.preciolista AS preciolistaEnvase',
+             'prp.precioventa AS precioventaEnvase',
+             'prp.tiempopedido AS tiempopedidoEnvase',
+             'prp.metodoabc AS metodoabcEnvase',
+             DB::raw("CASE 
+                 WHEN ai.envase = 'primario' THEN COALESCE(pp.tiendaprimario, '') 
+                 WHEN ai.envase = 'secundario' THEN COALESCE(pp.tiendasecundario, '') 
+                 WHEN ai.envase = 'terciario' THEN COALESCE(pp.tiendaterciario, '') 
+                 ELSE NULL 
+             END AS tiendaEnvase"),
+             DB::raw("CASE 
+                 WHEN ai.envase = 'primario' THEN COALESCE(pp.almacenprimario, '') 
+                 WHEN ai.envase = 'secundario' THEN COALESCE(pp.almacensecundario, '') 
+                 WHEN ai.envase = 'terciario' THEN COALESCE(pp.almacenterciario, '') 
+                 ELSE NULL 
+             END AS almacenEnvase"),
+             DB::raw("CASE
+                 WHEN ai.envase = 'primario' THEN COALESCE(FORMAT(prp.preciolista / pp.cantidadprimario, 2), '')
+                 WHEN ai.envase = 'secundario' THEN COALESCE(FORMAT(prp.preciolista / pp.cantidadsecundario, 2), '')
+                 WHEN ai.envase = 'terciario' THEN COALESCE(FORMAT(prp.preciolista / pp.cantidadterciario, 2), '')
+                 ELSE NULL
+             END AS costocompraEnvase"),
+             'gpv.precio_lista_gespreventa AS precio_lista_gespreventa',
+             'gpv.precio_venta_gespreventa AS precio_venta_gespreventa',
+             'gpv.cantidad_envase_gespreventa AS cantidad_envase_gespreventa',
+             'gpv.costo_compra_gespreventa AS costo_compra_gespreventa',
+             'gpv.margen_20p_gespreventa AS margen_20p_gespreventa',
+             'gpv.margen_30p_gespreventa AS margen_30p_gespreventa',
+             'gpv.utilidad_bruta_gespreventa AS utilidad_bruta_gespreventa',
+             'gpv.utilidad_neto_gespreventa AS utilidad_neto_gespreventa',
+             'u.name AS user_name',
+             DB::raw("GREATEST(gpv.created_at, gpv.updated_at) AS fecha"),
+             'gpv.listo_venta AS listo_venta',
+             'pte.nombre AS tipoentrada')
+         ->join('prod__registro_pre_x_lists AS prp', 'prp.id_ingreso', '=', 'pivot.id_ingreso')
+         ->join('alm__almacens AS aa', 'aa.id', '=', 'pivot.id_tienda_almacen')
+         ->join('prod__productos AS pp', 'pp.id', '=', 'prp.id_producto')
+         ->join('prod__lineas AS pl', 'pl.id', '=', 'pp.idlinea')
+         ->join('prod__listas AS plist', 'plist.id', '=', 'prp.id_lista')
+         ->join('alm__ingreso_producto AS ai', 'ai.id', '=', 'pivot.id_ingreso')
+         ->join('prod__tipo_entradas AS pte', 'pte.id', '=', 'ai.id_tipoentrada')
+         ->leftJoin('prod__dispensers AS pd_1', 'pd_1.id', '=', 'pp.iddispenserprimario')
+         ->leftJoin('prod__dispensers AS pd_2', 'pd_2.id', '=', 'pp.iddispensersecundario')
+         ->leftJoin('prod__dispensers AS pd_3', 'pd_3.id', '=', 'pp.iddispenserterciario')
+         ->leftJoin('prod__forma_farmaceuticas AS ff_1', 'ff_1.id', '=', 'pp.idformafarmaceuticaprimario')
+         ->leftJoin('prod__forma_farmaceuticas AS ff_2', 'ff_2.id', '=', 'pp.idformafarmaceuticasecundario')
+         ->leftJoin('prod__forma_farmaceuticas AS ff_3', 'ff_3.id', '=', 'pp.idformafarmaceuticaterciario')
+         ->join('adm__sucursals AS ass', 'ass.id', '=', 'ai.idalmacen')
+         ->join('prod__lineas AS l', 'l.id', '=', 'pp.idlinea')
+         ->leftJoin('ges_pre__venta_listas AS gpv', 'gpv.id_table_ingreso_tienda_almacen', '=', 'pivot.id')
+         ->leftJoin('users AS u', 'u.id', '=', 'gpv.idusuario')
+         ;
+         $tienda = DB::table('pivot__modulo_tienda_almacens as pivot')
+         ->select(
+             'pivot.id AS id',
+             'gpv.id AS gpv_id',
+             'tt.codigo AS cod',
+             'ti.id AS id_ingreso',
+             'ti.lote AS lote',
+             'ti.stock_ingreso AS stock_ingreso',
+             'ti.cantidad AS cantidad_ingreso',
+             'ti.created_at AS fecha_ingreso',
+             'ti.fecha_vencimiento AS fecha_vencimiento',
+             'pp.id AS id_producto',
+             'pp.nombre AS nombre',
+             'pp.codigo AS codigo_producto',
+             'pl.nombre AS nombre_linea',
+             'ass.id AS id_sucursal',
+             'ass.razon_social AS razon_social',
+             'ti.idtienda AS id_tienda',
+             DB::raw('null AS id_almacen'),
+             'prp.envase as envase',
+             'prp.id as id_lista',
+             'plist.id as plist_id',
+             'plist.nombre_lista as nombre_lista',
+             'plist.codigo as cod_lista',
+             DB::raw("
+                 CASE 
+                     WHEN ti.envase = 'primario' THEN CONCAT(COALESCE(pp.nombre, ''), ' ', COALESCE(pd_1.nombre, ''), ' x ', COALESCE(pp.cantidadprimario, ''), ' ', COALESCE(ff_1.nombre, '')) 
+                     WHEN ti.envase = 'secundario' THEN CONCAT(COALESCE(pp.nombre, ''), ' ', COALESCE(pd_2.nombre, ''), ' x ', COALESCE(pp.cantidadsecundario, ''), ' ', COALESCE(ff_2.nombre, '')) 
+                     WHEN ti.envase = 'terciario' THEN CONCAT(COALESCE(pp.nombre, ''), ' ', COALESCE(pd_3.nombre, ''), ' x ', COALESCE(pp.cantidadterciario, ''), ' ', COALESCE(ff_3.nombre, '')) 
+                     ELSE NULL 
+                 END AS leyenda"
+             ),
+             DB::raw("
+                 CASE 
+                     WHEN ti.envase = 'primario' THEN CONCAT(COALESCE(pp.iddispenserprimario, '')) 
+                     WHEN ti.envase = 'secundario' THEN CONCAT(COALESCE(pp.iddispensersecundario, '')) 
+                     WHEN ti.envase = 'terciario' THEN CONCAT(COALESCE(pp.iddispenserterciario, '')) 
+                     ELSE NULL 
+                 END AS iddispenserEnvase"
+             ),
+             DB::raw("
+                 CASE 
+                     WHEN ti.envase = 'primario' THEN CONCAT(COALESCE(pp.cantidadprimario, '')) 
+                     WHEN ti.envase = 'secundario' THEN CONCAT(COALESCE(pp.cantidadsecundario, '')) 
+                     WHEN ti.envase = 'terciario' THEN CONCAT(COALESCE(pp.cantidadterciario, '')) 
+                     ELSE NULL 
+                 END AS cantidadEnvase"
+             ),
+             DB::raw("
+                 CASE 
+                     WHEN ti.envase = 'primario' THEN CONCAT(COALESCE(pp.idformafarmaceuticaprimario, '')) 
+                     WHEN ti.envase = 'secundario' THEN CONCAT(COALESCE(pp.idformafarmaceuticasecundario, '')) 
+                     WHEN ti.envase = 'terciario' THEN CONCAT(COALESCE(pp.idformafarmaceuticaterciario, '')) 
+                     ELSE NULL 
+                 END AS idformafarmaceuticaEnvase"
+             ),
+             'prp.preciolista as preciolistaEnvase',
+             'prp.precioventa as precioventaEnvase',
+             'prp.tiempopedido as tiempopedidoEnvase',
+             'prp.metodoabc as metodoabcEnvase',
+             DB::raw("
+                 CASE 
+                     WHEN ti.envase = 'primario' THEN CONCAT(COALESCE(pp.tiendaprimario, '')) 
+                     WHEN ti.envase = 'secundario' THEN CONCAT(COALESCE(pp.tiendasecundario, '')) 
+                     WHEN ti.envase = 'terciario' THEN CONCAT(COALESCE(pp.tiendaterciario, '')) 
+                     ELSE NULL 
+                 END AS tiendaEnvase"
+             ),
+             DB::raw("
+                 CASE 
+                     WHEN ti.envase = 'primario' THEN CONCAT(COALESCE(pp.almacenprimario, '')) 
+                     WHEN ti.envase = 'secundario' THEN CONCAT(COALESCE(pp.almacensecundario, '')) 
+                     WHEN ti.envase = 'terciario' THEN CONCAT(COALESCE(pp.almacenterciario, '')) 
+                     ELSE NULL 
+                 END AS almacenEnvase"
+             ),
+             DB::raw("
+                 CASE
+                     WHEN ti.envase = 'primario' THEN CONCAT(COALESCE(FORMAT(prp.preciolista / pp.cantidadprimario, 2), ''), '')
+                     WHEN ti.envase = 'secundario' THEN CONCAT(COALESCE(FORMAT(prp.preciolista / pp.cantidadsecundario, 2), ''), '')
+                     WHEN ti.envase = 'terciario' THEN CONCAT(COALESCE(FORMAT(prp.preciolista / pp.cantidadterciario, 2), ''), '')
+                     ELSE NULL
+                 END AS costocompraEnvase"
+             ),
+             'gpv.precio_lista_gespreventa AS precio_lista_gespreventa',
+             'gpv.precio_venta_gespreventa AS precio_venta_gespreventa',
+             'gpv.cantidad_envase_gespreventa AS cantidad_envase_gespreventa',
+             'gpv.costo_compra_gespreventa AS costo_compra_gespreventa',
+             'gpv.margen_20p_gespreventa AS margen_20p_gespreventa',
+             'gpv.margen_30p_gespreventa AS margen_30p_gespreventa',
+             'gpv.utilidad_bruta_gespreventa AS utilidad_bruta_gespreventa',
+             'gpv.utilidad_neto_gespreventa AS utilidad_neto_gespreventa',
+             'u.name AS user_name',
+             DB::raw("GREATEST(gpv.created_at, gpv.updated_at) AS fecha"),
+             'gpv.listo_venta AS listo_venta',
+             'pte.nombre AS tipoentrada'
+         )
+         ->join('prod__registro_pre_x_lists AS prp', 'prp.id_ingreso', '=', 'pivot.id_ingreso')
+         ->join('tda__tiendas AS tt', 'tt.id', '=', 'pivot.id_tienda_almacen')
+         ->join('prod__productos AS pp', 'pp.id', '=', 'prp.id_producto')
+         ->join('prod__lineas AS pl', 'pl.id', '=', 'pp.idlinea')
+         ->join('prod__listas as plist', 'plist.id', '=', 'prp.id_lista')
+         ->join('tda__ingreso_productos as ti', 'ti.id', '=', 'pivot.id_ingreso')
+         ->join('prod__tipo_entradas AS pte', 'pte.id', '=', 'ti.id_tipoentrada')
+ ->leftJoin('prod__dispensers AS pd_1', 'pd_1.id', '=', 'pp.iddispenserprimario')
+ ->leftJoin('prod__dispensers AS pd_2', 'pd_2.id', '=', 'pp.iddispensersecundario')
+ ->leftJoin('prod__dispensers AS pd_3', 'pd_3.id', '=', 'pp.iddispenserterciario')
+ ->leftJoin('prod__forma_farmaceuticas AS ff_1', 'ff_1.id', '=', 'pp.idformafarmaceuticaprimario')
+ ->leftJoin('prod__forma_farmaceuticas AS ff_2', 'ff_2.id', '=', 'pp.idformafarmaceuticasecundario')
+ ->leftJoin('prod__forma_farmaceuticas AS ff_3', 'ff_3.id', '=', 'pp.idformafarmaceuticaterciario')
+ ->join('adm__sucursals AS ass', 'ass.id', '=', 'ti.idtienda')
+ ->leftJoin('prod__lineas AS l', 'l.id', '=', 'pp.idlinea')
+ ->leftJoin('ges_pre__venta_listas AS gpv', 'gpv.id_table_ingreso_tienda_almacen', '=', 'pivot.id')
+ ->leftJoin('users AS u', 'u.id', '=', 'gpv.idusuario')
+        ;
+        $queryCombinacion = $almacen->where('prp.id_lista', '=', $request->lista)
+        ->unionAll($tienda->where('prp.id_lista', '=', $request->lista)); 
+        $queryCombinacion = $queryCombinacion -> orderByRaw('id DESC')->paginate(15); 
+        return [
+            'pagination' => [
+                'total'         =>    $queryCombinacion->total(),
+                'current_page'  =>    $queryCombinacion->currentPage(),
+                'per_page'      =>    $queryCombinacion->perPage(),
+                'last_page'     =>    $queryCombinacion->lastPage(),
+                'from'          =>    $queryCombinacion->firstItem(),
+                'to'            =>    $queryCombinacion->lastItem(),
+            ],
+            'queryCombinacion' => $queryCombinacion
+        ];
+    }
+        }
+       
          
 
     }
@@ -563,23 +1063,46 @@ class GesPreVenta2Controller extends Controller
     public function store(Request $request)
     {
             try {
-                $precioVentaProducto = new GesPre_Venta2();
-            $precioVentaProducto->codigo=$request->codigo;
-            $precioVentaProducto->id_table_ingreso_tienda_almacen = $request->id_table_ingreso_tienda_almacen;
-            $precioVentaProducto->tienda = $request->tienda;
-            $precioVentaProducto->almacen = $request->almacen;
-            $precioVentaProducto->precio_lista_gespreventa = $request->precio_lista_gespreventa;
-            $precioVentaProducto->precio_venta_gespreventa = $request->precio_venta_gespreventa;
-            $precioVentaProducto->cantidad_envase_gespreventa = $request->cantidad_envase_gespreventa;
-            //$precioVentaProducto->cantidad_envase_gespreventa = preg_match('/[a-z]/',strtolower($request->cantidad_envase_gespreventa)) == 1 ? 1 :$request->cantidad_envase_gespreventa;
-            $precioVentaProducto->costo_compra_gespreventa = $request->costo_compra_gespreventa;
-            $precioVentaProducto->margen_20p_gespreventa = $request->margen_20p_gespreventa;
-            $precioVentaProducto->margen_30p_gespreventa = $request->margen_30p_gespreventa;
-            $precioVentaProducto->utilidad_bruta_gespreventa = $request->utilidad_bruta_gespreventa; 
-            $precioVentaProducto->utilidad_neto_gespreventa = $request->utilidad_neto_gespreventa;
-            $precioVentaProducto->listo_venta = 1;
-            $precioVentaProducto->idusuario = auth()->user()->id;
-            $precioVentaProducto->save();
+                if ($request->id_lista=="x") {
+                    $precioVentaProducto = new GesPre_Venta2();
+                    $precioVentaProducto->codigo=$request->codigo;
+                    $precioVentaProducto->id_table_ingreso_tienda_almacen = $request->id_table_ingreso_tienda_almacen;
+                    $precioVentaProducto->tienda = $request->tienda;
+                    $precioVentaProducto->almacen = $request->almacen;
+                    $precioVentaProducto->precio_lista_gespreventa = $request->precio_lista_gespreventa;
+                    $precioVentaProducto->precio_venta_gespreventa = $request->precio_venta_gespreventa;
+                    $precioVentaProducto->cantidad_envase_gespreventa = $request->cantidad_envase_gespreventa;
+                    //$precioVentaProducto->cantidad_envase_gespreventa = preg_match('/[a-z]/',strtolower($request->cantidad_envase_gespreventa)) == 1 ? 1 :$request->cantidad_envase_gespreventa;
+                    $precioVentaProducto->costo_compra_gespreventa = $request->costo_compra_gespreventa;
+                    $precioVentaProducto->margen_20p_gespreventa = $request->margen_20p_gespreventa;
+                    $precioVentaProducto->margen_30p_gespreventa = $request->margen_30p_gespreventa;
+                    $precioVentaProducto->utilidad_bruta_gespreventa = $request->utilidad_bruta_gespreventa; 
+                    $precioVentaProducto->utilidad_neto_gespreventa = $request->utilidad_neto_gespreventa;
+                    $precioVentaProducto->listo_venta = 1;
+                    $precioVentaProducto->idusuario = auth()->user()->id;
+                    $precioVentaProducto->id_lista=$request->id_lista;
+                    $precioVentaProducto->save();
+                }else{
+                    $precioVentaProducto = new GesPre_Venta_lista();
+                    $precioVentaProducto->codigo=$request->codigo;
+                    $precioVentaProducto->id_table_ingreso_tienda_almacen = $request->id_table_ingreso_tienda_almacen;
+                    $precioVentaProducto->tienda = $request->tienda;
+                    $precioVentaProducto->almacen = $request->almacen;
+                    $precioVentaProducto->precio_lista_gespreventa = $request->precio_lista_gespreventa;
+                    $precioVentaProducto->precio_venta_gespreventa = $request->precio_venta_gespreventa;
+                    $precioVentaProducto->cantidad_envase_gespreventa = $request->cantidad_envase_gespreventa;
+                    //$precioVentaProducto->cantidad_envase_gespreventa = preg_match('/[a-z]/',strtolower($request->cantidad_envase_gespreventa)) == 1 ? 1 :$request->cantidad_envase_gespreventa;
+                    $precioVentaProducto->costo_compra_gespreventa = $request->costo_compra_gespreventa;
+                    $precioVentaProducto->margen_20p_gespreventa = $request->margen_20p_gespreventa;
+                    $precioVentaProducto->margen_30p_gespreventa = $request->margen_30p_gespreventa;
+                    $precioVentaProducto->utilidad_bruta_gespreventa = $request->utilidad_bruta_gespreventa; 
+                    $precioVentaProducto->utilidad_neto_gespreventa = $request->utilidad_neto_gespreventa;
+                    $precioVentaProducto->listo_venta = 1;
+                    $precioVentaProducto->idusuario = auth()->user()->id;
+                    $precioVentaProducto->id_lista=$request->id_lista;
+                    $precioVentaProducto->save(); 
+                }
+                
             } catch (\Throwable $th) {
                 return response()->json(['error' => $th->getMessage()],500);
             }

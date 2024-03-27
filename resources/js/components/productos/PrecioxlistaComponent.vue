@@ -106,7 +106,7 @@
                               </td>
                               <td v-text="p_xlist.codigo_prod"></td>
                               <td v-text="p_xlist.linea_name"></td>  
-                              <td v-text="p_xlist.leyenda"></td>
+                              <td v-text="p_xlist.leyenda+' Cantidad:'+p_xlist.cantidad+''+p_xlist.cantidadEnvase+' Lote:'+p_xlist.lote"></td>
                               <td v-text="p_xlist.envase"></td> 
                               <td v-text="p_xlist.nombre_lista"></td>    
                               <td>
@@ -198,7 +198,7 @@
                                           v-for="prod in arrayProducto"
                                           :key="prod.id"
                                           v-bind:value="prod.id"
-                                          v-text="prod.prod_cod+' '+prod.leyenda"
+                                          v-text="prod.prod_cod+' '+prod.leyenda+' C:'+prod.cantidad+' L:'+prod.lote"
                                       ></option>
                                        
                                     </select>
@@ -401,10 +401,12 @@
                             <table class="table table-hover" id="tablaProductosIngreso"  style="width: 100%; display: block; overflow-y: auto;">
                                     <thead>
                                         <tr>
-                                            <th scope="col">id.</th>
-                                            <th scope="col">codigo.</th>
-                                            <th scope="col">linea.</th>
-                                            <th scope="col">producto.</th>
+                                            <th scope="col">ID.</th>
+                                            <th scope="col">Codigo.</th>
+                                            <th scope="col">Linea.</th>
+                                            <th scope="col">Producto.</th>
+                                            <th scope="col">Lote.</th>
+                                            <th scope="col">Cantidad.</th>
                                          </tr>
                                     </thead>
                                     <tbody>  
@@ -413,7 +415,8 @@
                                         <td v-text="ret.prod_cod"></td>
                                         <td v-text="ret.linea_name"></td>
                                         <td v-text="ret.leyenda"></td>
-                                    
+                                        <td v-text="ret.lote"></td>
+                                        <td v-text="ret.cantidad"></td>
                                        </tr>
                                       
                                     </tbody>
@@ -495,6 +498,7 @@
                 codigo_prod:'',
                 id_pre_x:'',
                 tipo_tienda_almacen:'',
+                id_ingreso:'',
             }
         },
         
@@ -503,7 +507,7 @@
             let prodcutoAbuscar = this.arrayProducto.find(
                     (element) => element.id === id);
                     if (prodcutoAbuscar) {  
-                                          
+                        this.id_ingreso=prodcutoAbuscar.id_ingreso;               
                         this.id_prod=prodcutoAbuscar.id;
                        this.rubro=prodcutoAbuscar.rubro_name;
                        this.linea_cod=prodcutoAbuscar.linea_cod;
@@ -596,7 +600,7 @@
             if(parteCodigo==='ALM' || parteCodigo==='TDA'){
                 
 
-            var url ="/producto/listarProductoRetorno?codigo=" + parteCodigo + "&envase=" + me.selectEnvase+"&input="+me.inputTextBuscar;
+            var url ="/producto/listarProductoRetorno?codigo=" + parteCodigo + "&envase=" + me.selectEnvase+"&input="+me.inputTextBuscar+"&alm_tda="+me.selectAlmTienda;
                     axios
                 .get(url)
                 .then(function (response) {
@@ -636,11 +640,11 @@
             var pase="";
           
             me.tiempopedidoselectedprimario= 12;
-            if(parteCodigo==='ALM' || parteCodigo==='TDA'){
-                
+            if(parteCodigo==='ALM' || parteCodigo==='TDA'){                
 
-            var url ="/producto/listarProducto?codigo=" + parteCodigo +
-                    "&envase=" + me.selectEnvase;
+            var url ="/producto/listarProducto?codigo="+parteCodigo+
+                    "&envase=" + me.selectEnvase+"&alm_tda="+me.selectAlmTienda;
+                    console.log(url);
                     axios
                 .get(url)
                 .then(function (response) {
@@ -717,6 +721,7 @@
             } else { 
                    axios                   
                      .post("/producto/registrarLista", {
+                        'id_ingreso':me.id_ingreso,
                         'envase': me.selectEnvase,
                         'id_producto':me.id_prod,  
                         'id_lista':me.selectLista,  
@@ -783,6 +788,7 @@
             } else {
                 axios
                 .put("/producto/actualizarListaX", {
+            
                     id: me.id_pre_x,
                     tipo_tienda_almacen:me.tipo_tienda_almacen,
                     id_lista:me.selectLista,  
@@ -849,13 +855,14 @@
                         me.selectLista=0;
                         me.tiempopedidoselectedprimario=0;
                         me.metodoselectedprimario=0;
+                        me.id_ingreso="";
                         me.classModal.openModal('registrar');
                         break;
                     }
                     case 'actualizar':
                         {
                             me.tipoAccion=2;
-                                               
+                            me.id_ingreso="";                       
                             me.tituloModal='Lista de precios en '+me.selectAlmTienda;                            
                            
                             me.selectEnvase=data.envase;                         
@@ -887,6 +894,7 @@
                     } 
                     case 'registrar_retorno':
                     {   
+                        me.id_ingreso="";
                         me.tipoAccion=1;
                         this.listarLista();
                         me.tituloModal='Lista de precios en '+me.selectAlmTienda;
@@ -1011,7 +1019,8 @@
                 me.selectEnvase=0;
                 me.tipoAccion=1;
                 me.id_pre_x="";
-                            me.tipo_tienda_almacen="";
+                me.id_ingreso="";
+                        me.tipo_tienda_almacen="";
                         me.selectProducto=0;
                         me.id_prod="";
                         me.linea="";
