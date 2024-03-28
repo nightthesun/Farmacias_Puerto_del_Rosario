@@ -77,7 +77,9 @@ createApp ({
     //Logistica
     .component('vehiculo-component', require('./components/logistica/VehiculoComponent.vue').default)
     .component('traslado-component', require('./components/logistica/TrasladosComponent.vue').default)
-
+    //Directorio
+    .component('cliente-component', require('./components/directorio/ClienteComponent.vue').default)
+    
 
 
 
