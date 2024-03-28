@@ -264,7 +264,7 @@
 <script>
     import Swal from 'sweetalert2';
     import { error401 } from '../../errores';
-    import CAccordionBody from '@coreui/vue/src/components/accordion/CAccordionBody';
+    
      //Vue.use(VeeValidate);
      export default{
         data(){
