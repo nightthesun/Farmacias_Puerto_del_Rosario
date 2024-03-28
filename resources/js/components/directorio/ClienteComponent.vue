@@ -12,7 +12,7 @@
             <div class="card">
                 <div class="card-header">
                     <i class="fa fa-align-justify"></i> Gestion de clientes
-                    <button type="button" class="btn btn-secondary" @click="abrirModal('registrar')" :disabled="selectTipo == 0">
+                    <button type="button" class="btn btn-secondary" @click="abrirModal('registrar');listarTipoDoc();" :disabled="selectTipo == 0">
                         <i class="icon-plus"></i>&nbsp;Nuevo
                     </button>
                 </div>
@@ -127,20 +127,89 @@
                     <form action="" class="form-horizontal">
                         <!-- insertar datos -->
                         <div class="container">
-                         
-                                    <div class="form-group row">
+                            <div class="form-group row">
                                 <label class="col-md-3 form-control-label" for="text-input">
-                                    Producto
+                                    Tipo de docuemento:
                                     <span   class="error">(*)</span>
                                 </label>
-                                <div class="col-md-9">
-                                    <select name="" id=""  class="form-control">
+                                <div class="col-md-9">   
+            
+                                    <select name="" id=""  class="form-control" v-model="selectTipoDoc">
                                         <option value="0" selected disabled>-Seleccione un dato</option>
-                                        <option value="1" >1</option>
-                                        <option value="2" >1</option>
+                                        <option v-for="t in arrayTipoDocumento" :key="t.id"
+                                            :value="t.id"
+                                            v-text="t.datos+'-'+t.nombre_doc">
+                                        </option>
+                                      
                                     </select>
                                 </div>
                             </div>
+                            <CAccordion :active-item-key="2" always-open>
+                                <CAccordionItem :item-key="1">
+                                  <CAccordionHeader>
+                                    Accordion Item #1
+                                  </CAccordionHeader>
+                                  <CAccordionBody>
+                                    <strong>This is the first item's accordion body.</strong> It is hidden by default,
+                                    until the collapse plugin adds the appropriate classes that we use to style each
+                                    element. These classes control the overall appearance, as well as the showing and
+                                    hiding via CSS transitions. You can modify any of this with custom CSS or overriding
+                                    our default variables. It's also worth noting that just about any HTML can go within
+                                    the <code>.accordion-body</code>, though the transition does limit overflow.
+                                  </CAccordionBody>
+                                </CAccordionItem>
+                                <CAccordionItem :item-key="2">
+                                  <CAccordionHeader>
+                                    Accordion Item #2
+                                  </CAccordionHeader>
+                                  <CAccordionBody>
+                                    <strong>This is the second item's accordion body.</strong> It is hidden by default,
+                                    until the collapse plugin adds the appropriate classes that we use to style each
+                                    element. These classes control the overall appearance, as well as the showing and
+                                    hiding via CSS transitions. You can modify any of this with custom CSS or overriding
+                                    our default variables. It's also worth noting that just about any HTML can go within
+                                    the <code>.accordion-body</code>, though the transition does limit overflow.
+                                  </CAccordionBody>
+                                </CAccordionItem>
+                                <CAccordionItem :item-key="3">
+                                  <CAccordionHeader>
+                                    Accordion Item #3
+                                  </CAccordionHeader>
+                                  <CAccordionBody>
+                                    <strong>This is the third item's accordion body.</strong> It is hidden by default,
+                                    until the collapse plugin adds the appropriate classes that we use to style each
+                                    element. These classes control the overall appearance, as well as the showing and
+                                    hiding via CSS transitions. You can modify any of this with custom CSS or overriding
+                                    our default variables. It's also worth noting that just about any HTML can go within
+                                    the <code>.accordion-body</code>, though the transition does limit overflow.
+                                  </CAccordionBody>
+                                </CAccordionItem>
+                              </CAccordion>
+                            <div class="card">
+                                <div class="card-header">
+                                  Datos de persona
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="form-group col-sm-4">
+                                            <strong>Nombre: <span  v-if="nombres==''" class="error">(*)</span></strong>
+                                            <input type="text" class="form-control" v-model="nombres"  placeholder="Nombres." v-on:focus="selectAll" >
+                                            <span  v-if="nombres==''" class="error">Debe ingresar un nombre</span>
+                                        </div>
+                                        <div class="form-group col-sm-4">
+                                            <strong>Apellidos: <span  v-if="apellidos==''" class="error">(*)</span></strong>
+                                            <input type="text" class="form-control" placeholder="Apellido Paterno / Apellido Materno."  v-model="apellidos" v-on:focus="selectAll">
+                                            <span  v-if="apellidos==''" class="error">Debe Ingresar un o ambos apellidos</span>
+                                        </div>
+                                        <div class="form-group col-sm-4">
+                                            <strong>Doc Identidad: <span  v-if="documento_identidad==''" class="error">(*)</span></strong>
+                                            <input type="text" class="form-control" placeholder="C.I."  v-model="documento_identidad" v-on:focus="selectAll">
+                                            <span  v-if="documento_identidad==''" class="error">Debe Ingresar el documento de identidad</span>
+                                        </div>
+                                     
+                                    </div>
+                                </div>
+                              </div> 
                                    <div class="form-group row">
                                       <label class="col-md-3 form-control-label" for="text-input">Cantidad
                                         <span   class="error">(*)</span>
@@ -195,6 +264,7 @@
 <script>
     import Swal from 'sweetalert2';
     import { error401 } from '../../errores';
+    import CAccordionBody from '@coreui/vue/src/components/accordion/CAccordionBody';
      //Vue.use(VeeValidate);
      export default{
         data(){
@@ -212,7 +282,26 @@
                             {id:2,tipo:'Empresa'}],
                 selectTipo:0,  
                 buscar:'',
-                
+                arrayTipoDocumento:[],    
+                selectTipoDoc:0,
+                //datos de persona
+                nombres:'',
+                apellidos:'',
+                documento_identidad:'',
+                complemento:'',
+                //datos de empresa
+                razon_social:'',
+                nom_local:'',  
+                //datos de cliente
+                cod_cliente:'',                
+                correro:'',
+                telefono:'',
+                direccion:'',
+                nombre_a_facturar:'',
+                pais:'',
+                ciudad:'',
+                numero_tributario:'',            
+                codigo_cliente:'',
                 arrayTipos:[],
                 listarTipo:0,
             }
@@ -220,20 +309,18 @@
         
        methods :{
         
-
-        ajustesNegativos(){
-                let me=this;
-                var url='/ajustesNeg/listarTipo';
-                axios.get(url).then(function(response){
-                    var respuesta=response.data;
-                    me.arrayTipos=respuesta;
-                    console.log( me.arrayTipos);
-                })
-                .catch(function(error){
+        listarTipoDoc(){
+            let me=this;
+            var url='/directorio/listarTipoDoc';
+            axios.get(url).then(function(response){
+                var respuesta=response.data;
+                    me.arrayTipoDocumento=respuesta;
+            }).catch(function(error){
                     error401(error);
                     console.log(error);
-                });
-            },
+                })
+        },
+       
 
         cambiarPagina(page){
                 let me =this;
@@ -248,7 +335,7 @@
                 switch(accion){
                     case 'registrar':
                     {
-                        me.tituloModal='Ajuste de negativos'
+                        me.tituloModal='Registro de cliente'
                         
                         me.classModal.openModal('registrar');
                         break;
@@ -273,7 +360,7 @@
        mounted() {
         this.classModal = new _pl.Modals();
         this.classModal.addModal('registrar');
-        this.ajustesNegativos();
+       
         
        }
      }

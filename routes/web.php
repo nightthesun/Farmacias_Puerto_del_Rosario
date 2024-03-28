@@ -18,6 +18,7 @@ use App\Http\Controllers\AdmVentanaModuloController;
 use App\Http\Controllers\AlmAlmacenController;
 use App\Http\Controllers\AlmCodificacionController;
 use App\Http\Controllers\AlmIngresoProductoController;
+use App\Http\Controllers\DirClienteController;
 use App\Http\Controllers\TdaTiendaController;
 use App\Http\Controllers\GesPreVentaController;
 use App\Http\Controllers\ParClienteController;
@@ -486,5 +487,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::put('/traslado/desactivar', [LogTrasladoController::class, 'desactivar']);
     Route::put('/traslado/activar', [LogTrasladoController::class, 'activar']);
     Route::put('/traslado/actualizar', [LogTrasladoController::class, 'update']);
+
+    //////////////////////////////////////////////DIRECTORIO///////////////////////////////////////////////////
+    Route::get('/directorio/listarTipoDoc', [DirClienteController::class, 'listarTipoDoc']);
+    
    
 });

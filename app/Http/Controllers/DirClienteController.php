@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Dir_Cliente;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\DB;
 class DirClienteController extends Controller
 {
     /**
@@ -55,11 +55,10 @@ class DirClienteController extends Controller
         //
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Dir_Cliente $dir_Cliente)
+    public function listarTipoDoc(Request $request)
     {
-        //
+        $tiposDocumento = DB::table('dir__tipo_doc')->get();
+        return $tiposDocumento;
     }
+   
 }

@@ -11,10 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('dir__tipo_doc', function (Blueprint $table) {
+        Schema::create('dir__empresas', function (Blueprint $table) {
             $table->id();
-            $table->string('nombre_doc');
-            $table->string('datos')->nullable();        
+            $table->string('razon_social');           
+            $table->string('nom_local')->nullable();
+            $table->timestamps();
         });
     }
 
@@ -23,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        //
+        Schema::dropIfExists('dir__empresas');
     }
 };
