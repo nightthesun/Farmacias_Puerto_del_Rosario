@@ -60,5 +60,10 @@ class DirClienteController extends Controller
         $tiposDocumento = DB::table('dir__tipo_doc')->get();
         return $tiposDocumento;
     }
+    public function listarEx()
+    {
+        $ex = DB::table('adm__departamentos')->get();
+        return $ex;
+    }
    
 }

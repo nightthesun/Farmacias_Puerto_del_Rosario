@@ -12,7 +12,7 @@
             <div class="card">
                 <div class="card-header">
                     <i class="fa fa-align-justify"></i> Gestion de clientes
-                    <button type="button" class="btn btn-secondary" @click="abrirModal('registrar');listarTipoDoc();" :disabled="selectTipo == 0">
+                    <button type="button" class="btn btn-secondary" @click="abrirModal('registrar');listarTipoDoc();listarEX();" :disabled="selectTipo == 0">
                         <i class="icon-plus"></i>&nbsp;Nuevo
                     </button>
                 </div>
@@ -134,8 +134,8 @@
                                 </label>
                                 <div class="col-md-9">   
             
-                                    <select name="" id=""  class="form-control" v-model="selectTipoDoc">
-                                        <option value="0" selected disabled>-Seleccione un dato</option>
+                                    <select name="" id=""  class="form-control" v-model="selectTipoDoc" @change="estadoEX">
+                                        <option value="0" selected disabled>-Seleccione un dato </option>
                                         <option v-for="t in arrayTipoDocumento" :key="t.id"
                                             :value="t.id"
                                             v-text="t.datos+'-'+t.nombre_doc">
@@ -144,105 +144,107 @@
                                     </select>
                                 </div>
                             </div>
-                            <CAccordion :active-item-key="2" always-open>
-                                <CAccordionItem :item-key="1">
-                                  <CAccordionHeader>
-                                    Accordion Item #1
-                                  </CAccordionHeader>
-                                  <CAccordionBody>
-                                    <strong>This is the first item's accordion body.</strong> It is hidden by default,
-                                    until the collapse plugin adds the appropriate classes that we use to style each
-                                    element. These classes control the overall appearance, as well as the showing and
-                                    hiding via CSS transitions. You can modify any of this with custom CSS or overriding
-                                    our default variables. It's also worth noting that just about any HTML can go within
-                                    the <code>.accordion-body</code>, though the transition does limit overflow.
-                                  </CAccordionBody>
-                                </CAccordionItem>
-                                <CAccordionItem :item-key="2">
-                                  <CAccordionHeader>
-                                    Accordion Item #2
-                                  </CAccordionHeader>
-                                  <CAccordionBody>
-                                    <strong>This is the second item's accordion body.</strong> It is hidden by default,
-                                    until the collapse plugin adds the appropriate classes that we use to style each
-                                    element. These classes control the overall appearance, as well as the showing and
-                                    hiding via CSS transitions. You can modify any of this with custom CSS or overriding
-                                    our default variables. It's also worth noting that just about any HTML can go within
-                                    the <code>.accordion-body</code>, though the transition does limit overflow.
-                                  </CAccordionBody>
-                                </CAccordionItem>
-                                <CAccordionItem :item-key="3">
-                                  <CAccordionHeader>
-                                    Accordion Item #3
-                                  </CAccordionHeader>
-                                  <CAccordionBody>
-                                    <strong>This is the third item's accordion body.</strong> It is hidden by default,
-                                    until the collapse plugin adds the appropriate classes that we use to style each
-                                    element. These classes control the overall appearance, as well as the showing and
-                                    hiding via CSS transitions. You can modify any of this with custom CSS or overriding
-                                    our default variables. It's also worth noting that just about any HTML can go within
-                                    the <code>.accordion-body</code>, though the transition does limit overflow.
-                                  </CAccordionBody>
-                                </CAccordionItem>
-                              </CAccordion>
-                            <div class="card">
-                                <div class="card-header">
-                                  Datos de persona
-                                </div>
-                                <div class="card-body">
-                                    <div class="row">
-                                        <div class="form-group col-sm-4">
-                                            <strong>Nombre: <span  v-if="nombres==''" class="error">(*)</span></strong>
-                                            <input type="text" class="form-control" v-model="nombres"  placeholder="Nombres." v-on:focus="selectAll" >
-                                            <span  v-if="nombres==''" class="error">Debe ingresar un nombre</span>
-                                        </div>
-                                        <div class="form-group col-sm-4">
-                                            <strong>Apellidos: <span  v-if="apellidos==''" class="error">(*)</span></strong>
-                                            <input type="text" class="form-control" placeholder="Apellido Paterno / Apellido Materno."  v-model="apellidos" v-on:focus="selectAll">
-                                            <span  v-if="apellidos==''" class="error">Debe Ingresar un o ambos apellidos</span>
-                                        </div>
-                                        <div class="form-group col-sm-4">
-                                            <strong>Doc Identidad: <span  v-if="documento_identidad==''" class="error">(*)</span></strong>
-                                            <input type="text" class="form-control" placeholder="C.I."  v-model="documento_identidad" v-on:focus="selectAll">
-                                            <span  v-if="documento_identidad==''" class="error">Debe Ingresar el documento de identidad</span>
-                                        </div>
-                                     
-                                    </div>
-                                </div>
-                              </div> 
-                                   <div class="form-group row">
-                                      <label class="col-md-3 form-control-label" for="text-input">Cantidad
-                                        <span   class="error">(*)</span>
-                                      </label>
-                                        <div class="col-md-9">
-                                         <input type="text" id="cantidad" name="cantidad" class="form-control" placeholder="Datos de stock" >
-                                      </div>
-                                  </div>   
-
-                           <div class="form-group row">
-                                <label class="col-md-3 form-control-label" for="text-input">
-                                    Tipo
-                                    <span   class="error">(*)</span>
-                                </label>
-                                <div class="col-md-9">
-                                    <select name="" id=""  class="form-control">
-                                        <option value="0" disabled>-Seleccione un tipo</option>
-                                        <option value="1" >1</option>
-                                        <option value="2" >1</option>
+                            <!---- acoordion ----> 
+                            <div class="accordion" id="accordionExample" v-if="selectTipoDoc!=0">
+                                <div class="card">
+                                  <div class="card-header" id="headingOne">
+                                    <h2 class="mb-0">
+                                      <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                        Datos de persona
+                                      </button>
+                                    </h2>
+                                  </div>
+                              
+                                  <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordionExample">
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="form-group col-sm-4">
+                                                <strong>Nombre: </strong>
+                                                <input type="text" class="form-control" v-model="nombres"  placeholder="Nombres."  >
+                                              
+                                            </div>
+                                            <div class="form-group col-sm-4">
+                                                <strong>Apellidos:</strong>
+                                                <input type="text" class="form-control" placeholder="Apellido Paterno / Apellido Materno."  v-model="apellidos" >
+                                              
+                                            </div>
+                                            <div class="form-group col-sm-4">
+                                                <strong>Número Documento: <span  v-if="num_documento==''" class="error">(*)</span></strong>
+                                                <input type="text" class="form-control" :placeholder="selectTipoDoc == 1 ? 'C.I.' : (selectTipoDoc == 2 ? 'C.I. Extranjero' : (selectTipoDoc == 3 ? 'Número pasaporte' : (selectTipoDoc == 4 ? 'Otro documento' : 'Nit')))" v-model="num_documento" v-on:focus="selectAll">
+                                                <span  v-if="num_documento==''" class="error">Debe ingresar el documento de identidad</span>
+                                            </div>
+                                        </div> 
+                                            <div class="row">
+                                                <div class="form-group col-sm-4" >
+                                                    <strong>EX: </strong>
+                                                 
+                                    <select name="" id=""  class="form-control" v-model="selectEX" :disabled="selectTipoDoc != 1">
+                                        <option value="0" selected disabled>-Seleccione un EX.</option>
+                                        <option v-for="e in arrayEX" :key="e.id"
+                                            :value="e.id"
+                                            v-text="e.abrev">
+                                        </option>
+                                      
                                     </select>
+                                                </div>
+                                                <div class="form-group col-sm-4">
+                                                    <strong>Correo: <span  v-if="correo==''" class="error">(*)</span></strong>
+                                                    <input type="email" class="form-control" placeholder="Correo@correo.es"  v-model="correo" v-on:focus="selectAll">
+                                                    <span  v-if="correo==''" class="error">Debe Ingresar un correo</span>
+                                                </div>
+                                                <div class="form-group col-sm-4">
+                                                    <strong>Nombre a Facturar: <span  v-if="nombre_a_facturar==''" class="error">(*)</span></strong>
+                                                    <input type="text" class="form-control" placeholder="Razon social"  v-model="nombre_a_facturar" v-on:focus="selectAll">
+                                                    <span  v-if="nombre_a_facturar==''" class="error">Debe ingresar un nombre a quien va la factura</span>
+                                                </div>                                             
+                                            </div>
+
+                                        
+                                    </div>
+                                  </div>
                                 </div>
-                            </div>
-                            <div class="form-group row">
-                                      <label class="col-md-3 form-control-label" for="text-input">Descripción
-                                        <span   class="error">(*)</span>
-                                      </label>
-                                        <div class="col-md-9">
-                                            <textarea class="form-control" id="descripcion" name="descripcion" rows="3"></textarea>
-                           
-                                      </div>
-                                  </div> 
-                            
-                        </div>
+                                <div class="card">
+                                  <div class="card-header" id="headingTwo">
+                                    <h2 class="mb-0">
+                                      <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                        Datos Adicionales
+                                      </button>
+                                    </h2>
+                                  </div>
+                                  <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionExample">
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="form-group col-sm-6">
+                                                <strong>Dispositivo de comunicación fijo o móvil:</strong>
+                                                <input type="text" class="form-control" v-model="telefono"  placeholder="Celular/telefono."  >
+                                              
+                                            </div>
+                                            <div class="form-group col-sm-6">
+                                                <strong>Dirección:</strong>
+                                                <input type="text" class="form-control" placeholder="Zona/Calle/Barrio/Numero de puerta."  v-model="direccion" >
+                                            
+                                            </div>
+                                        
+                                        </div> 
+                                        <div class="row">
+                                            <div class="form-group col-sm-6">
+                                                <strong>País:</strong>
+                                                <input type="text" class="form-control" v-model="pais"  placeholder="Lugar donde radica."  >
+                                              
+                                            </div>
+                                            <div class="form-group col-sm-6">
+                                                <strong>Ciudad:</strong>
+                                                <input type="text" class="form-control" placeholder="ciudad donde vive."  v-model="ciudad">
+                                            
+                                            </div>
+                                        
+                                        </div> 
+                                    </div>
+                                  </div>
+                                </div>
+                          
+                              </div>
+                          </div>
                        
                     </form>
 
@@ -284,17 +286,20 @@
                 buscar:'',
                 arrayTipoDocumento:[],    
                 selectTipoDoc:0,
+                arrayEX:[],
+                selectEX:0,    
+
                 //datos de persona
                 nombres:'',
                 apellidos:'',
-                documento_identidad:'',
+                num_documento:'',
                 complemento:'',
                 //datos de empresa
                 razon_social:'',
                 nom_local:'',  
                 //datos de cliente
                 cod_cliente:'',                
-                correro:'',
+                correo:'',
                 telefono:'',
                 direccion:'',
                 nombre_a_facturar:'',
@@ -308,10 +313,28 @@
         },
         
        methods :{
-        
+        estadoEX(){
+            if (this.selectTipoDoc!=1) {
+                this.selectEX=0;  
+            }
+        },
+        listarEX(){
+            let me=this;
+            var url='/directorio/listarEx';
+           
+            axios.get(url).then(function(response){
+                var respuesta=response.data;
+                    me.arrayEX=respuesta;
+            }).catch(function(error){
+                    error401(error);
+                    console.log(error);
+                })
+        },
+
         listarTipoDoc(){
             let me=this;
             var url='/directorio/listarTipoDoc';
+            
             axios.get(url).then(function(response){
                 var respuesta=response.data;
                     me.arrayTipoDocumento=respuesta;
