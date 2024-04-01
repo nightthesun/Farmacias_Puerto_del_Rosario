@@ -134,7 +134,7 @@
                                 </label>
                                 <div class="col-md-9">   
             
-                                    <select name="" id=""  class="form-control" v-model="selectTipoDoc" @change="estadoEX">
+                                    <select name="" id=""  class="form-control" v-model="selectTipoDoc" >
                                         <option value="0" selected disabled>-Seleccione un dato </option>
                                         <option v-for="t in arrayTipoDocumento" :key="t.id"
                                             :value="t.id"
@@ -148,14 +148,20 @@
                             <div class="accordion" id="accordionExample" v-if="selectTipoDoc!=0">
                                 <div class="card">
                                   <div class="card-header" id="headingOne">
-                                    <h2 class="mb-0">
+                                    <h2 class="mb-0" v-if="selectTipo==1">
                                       <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
                                         Datos de persona
                                       </button>
                                     </h2>
+                                    <h2 class="mb-0" v-else>
+                                      <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                        Empresa
+                                      </button>
+                                    </h2>
+                                    
                                   </div>
                               
-                                  <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordionExample">
+                                  <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordionExample" v-if="selectTipo==1">
                                     <div class="card-body">
                                         <div class="row">
                                             <div class="form-group col-sm-4">
@@ -170,7 +176,7 @@
                                             </div>
                                             <div class="form-group col-sm-4">
                                                 <strong>Número Documento: <span  v-if="num_documento==''" class="error">(*)</span></strong>
-                                                <input type="text" class="form-control" :placeholder="selectTipoDoc == 1 ? 'C.I.' : (selectTipoDoc == 2 ? 'C.I. Extranjero' : (selectTipoDoc == 3 ? 'Número pasaporte' : (selectTipoDoc == 4 ? 'Otro documento' : 'Nit')))" v-model="num_documento" v-on:focus="selectAll">
+                                                <input type="text" @input="validateInput()" class="form-control" :placeholder="selectTipoDoc == 1 ? 'C.I.' : (selectTipoDoc == 2 ? 'C.I. Extranjero' : (selectTipoDoc == 3 ? 'Número pasaporte' : (selectTipoDoc == 4 ? 'Otro documento' : 'Nit')))" v-model="num_documento" v-on:focus="selectAll" >
                                                 <span  v-if="num_documento==''" class="error">Debe ingresar el documento de identidad</span>
                                             </div>
                                         </div> 
@@ -194,7 +200,7 @@
                                                 </div>
                                                 <div class="form-group col-sm-4">
                                                     <strong>Nombre a Facturar: <span  v-if="nombre_a_facturar==''" class="error">(*)</span></strong>
-                                                    <input type="text" class="form-control" placeholder="Razon social"  v-model="nombre_a_facturar" v-on:focus="selectAll">
+                                                    <input type="text" @input="validateInput" class="form-control" placeholder="Razon social"  v-model="nombre_a_facturar" v-on:focus="selectAll">
                                                     <span  v-if="nombre_a_facturar==''" class="error">Debe ingresar un nombre a quien va la factura</span>
                                                 </div>                                             
                                             </div>
@@ -202,6 +208,32 @@
                                         
                                     </div>
                                   </div>
+                                <!------else del if-------->
+                                <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordionExample" v-else>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="form-group col-sm-4">
+                                                <strong>Razon_social: <span  v-if="nombre_a_facturar==''" class="error">(*)</span></strong>
+                                                <input type="text" class="form-control" placeholder="Nombre a Facturar"  v-model="nombre_a_facturar" v-on:focus="selectAll">
+                                                <span  v-if="nombre_a_facturar==''" class="error">Debe ingresar un nombre del establecimiento</span>
+                                            </div>  
+                                            <div class="form-group col-sm-4">
+                                                <strong>Correo: <span  v-if="correo==''" class="error">(*)</span></strong>
+                                                <input type="email" class="form-control" placeholder="Correo@correo.es"  v-model="correo" v-on:focus="selectAll">
+                                                <span  v-if="correo==''" class="error">Debe Ingresar un correo</span>
+                                            </div>
+                                            <div class="form-group col-sm-4">
+                                                <strong>Número Documento: <span  v-if="num_documento==''" class="error">(*)</span></strong>
+                                                <input type="text" @input="validateInput()" class="form-control" :placeholder="selectTipoDoc == 1 ? 'C.I.' : (selectTipoDoc == 2 ? 'C.I. Extranjero' : (selectTipoDoc == 3 ? 'Número pasaporte' : (selectTipoDoc == 4 ? 'Otro documento' : 'Nit')))" v-model="num_documento" v-on:focus="selectAll">
+                                                <span  v-if="num_documento==''" class="error">Debe ingresar el documento de identidad</span>
+                                            </div>
+                                        </div> 
+                                           
+
+                                        
+                                    </div>
+                                  </div>
+
                                 </div>
                                 <div class="card">
                                   <div class="card-header" id="headingTwo">
@@ -251,8 +283,8 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" @click="cerrarModal('registrar')">Cerrar</button>
-                    <button type="button"  class="btn btn-primary" >Guardar</button>
-                        <button type="button" class="btn btn-primary" >Actualizar</button>
+                    <button type="button"  class="btn btn-primary" v-if="tipoAccion==1" @click="registrar()">Guardar</button>
+                        <button type="button" class="btn btn-primary" v-if="tipoAccion==2" >Actualizar</button>
                    
                 </div>
                 </div>
@@ -271,15 +303,18 @@
      export default{
         data(){
             return{
-                pagination: {
-                total: 0,
-                current_page: 0,
-                per_page: 0,
-                last_page: 0,
-                from: 0,
-                to: 0
-            },
-                tituloModal:'',
+                pagination:{
+                    'total' :0,
+                    'current_page':0,
+                    'per_page':0,
+                    'last_page':0,
+                    'from':0,
+                    'to':0
+                },
+                offset:3,
+                buscar:'',
+                tituloModal:'',    
+                tipoAccion:1, 
                 arrayTipo:[{id:1,tipo:'Persona'},
                             {id:2,tipo:'Empresa'}],
                 selectTipo:0,  
@@ -293,7 +328,7 @@
                 nombres:'',
                 apellidos:'',
                 num_documento:'',
-                complemento:'',
+               
                 //datos de empresa
                 razon_social:'',
                 nom_local:'',  
@@ -305,14 +340,16 @@
                 nombre_a_facturar:'',
                 pais:'',
                 ciudad:'',
-                numero_tributario:'',            
+               
                 codigo_cliente:'',
-                arrayTipos:[],
-                listarTipo:0,
+                
             }
         },
         
        methods :{
+        validateInput() {
+        this.num_documento = this.num_documento.replace(/[^a-zA-Z0-9]/g, '');
+        },
         estadoEX(){
             if (this.selectTipoDoc!=1) {
                 this.selectEX=0;  
@@ -359,7 +396,26 @@
                     case 'registrar':
                     {
                         me.tituloModal='Registro de cliente'
+                        me.tipoAccion=1;
+                        me.selectTipoDoc=0;              
+                        me.selectEX=0;
+                        me.nombres="";
+                        me.apellidos="";
+                        me.num_documento="";
+
+                        me.razon_social="";
+                        me.nom_local="",  
+                //datos de cliente
+                        me.cod_cliente="";                
+                        me.correo="";
+                        me.telefono="";
+                        me.direccion="";
+                        me.nombre_a_facturar="";
+                        me.pais="";
+                        me.ciudad="";
                         
+                       // me.codigo_cliente:'',
+                 
                         me.classModal.openModal('registrar');
                         break;
                     }
@@ -372,11 +428,92 @@
                 }
                 
             },
+
             cerrarModal(accion){
                 let me = this;
+                me.tipoAccion=1;
+                        me.selectTipoDoc=0;              
+                        me.selectEX=0;
+                        me.nombres="";
+                        me.apellidos="";
+                        me.num_documento="";
+
+                        me.razon_social="";
+                        me.nom_local="",  
+                //datos de cliente
+                        me.cod_cliente="";                
+                        me.correo="";
+                        me.telefono="";
+                        me.direccion="";
+                        me.nombre_a_facturar="";
+                        me.pais="";
+                        me.ciudad="";
                 me.classModal.closeModal(accion);
                            
             },
+
+            registrar() {
+            let me = this;  
+            if (
+                me.selectTipoDoc === 0 ||              
+                me.num_documento === "" ||
+                me.nombre_a_facturar === "" ||
+                me.correo === ""                
+            ) {
+                Swal.fire(
+                    "No puede ingresar valor nulos  o vacios",
+                    "Haga click en Ok",
+                    "warning",
+                );
+            } else {
+                    axios
+                    .post("/directorio/registrar", {
+                        tipo_per_emp: me.selectTipo,
+                        id_tipo_doc: me.selectTipoDoc,
+                        nombre: me.nombres,
+                        apellido: me.apellidos,
+                        num_documento: me.num_documento,
+                        ex: me.selectEX,                       
+                        correo: me.correo,
+                        nom_a_facturar: me.nombre_a_facturar,
+                        telefono: me.telefono,                      
+                        direccion: me.direccion,
+                        pais: me.pais,
+                        ciudad: me.ciudad
+                
+                    })
+                    .then(function (response) {
+                        me.cerrarModal("registrar");
+                        Swal.fire(
+                            "Registro exitosamente",
+                            "Haga click en Ok",
+                            "success",
+                        );
+
+                   //     me.listarAjusteNegativos();
+                   //     me.sucursalFiltro();
+                    })
+                  .catch(function (error) {           
+                
+                if (error.response.status === 500) {
+                    me.errorMsg = error.response.data.error; // Asigna el mensaje de error a la variable errorMsg
+                Swal.fire(
+                    "Error",
+                    "500 (Internal Server Error)"+me.errorMsg, // Muestra el mensaje de error en el alert
+                    "error"
+                );
+                }else{
+                    Swal.fire(
+                    "Error",
+                    ""+error, // Muestra el mensaje de error en el alert
+                    "error"
+                );  
+                }
+
+               
+            });
+            }
+        },
 
        },
        

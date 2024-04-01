@@ -491,5 +491,5 @@ Route::group(['middleware' => 'auth'], function () {
     //////////////////////////////////////////////DIRECTORIO///////////////////////////////////////////////////
     Route::get('/directorio/listarTipoDoc', [DirClienteController::class, 'listarTipoDoc']);
     Route::get('/directorio/listarEx', [DirClienteController::class, 'listarEx']); 
-   
+    Route::post('/directorio/registrar', [DirClienteController::class, 'store']); 
 });
