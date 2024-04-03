@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('dir__empresas', function (Blueprint $table) {
             $table->id();
             $table->string('razon_social');           
-            $table->string('nom_local')->nullable();
+            $table->string('nit')->nullable();
             $table->timestamps();
         });
     }

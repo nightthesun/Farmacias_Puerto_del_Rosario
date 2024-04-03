@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('dir__clientes', function (Blueprint $table) {
             $table->id();
            
-            $table->string('correro')->nullable();
+            $table->string('correo')->nullable();
             $table->string('telefono')->nullable();
             $table->string('direccion')->nullable();
             $table->smallInteger('id_tipo_doc');
@@ -26,9 +26,9 @@ return new class extends Migration
             $table->smallInteger('id_usuario_registra')->unsigned()->nullable()->comment('identificador del usuario que esta registrando el almacen');
             $table->timestamps();
             $table->smallInteger('id_per_emp');
-            $table->string('num_tributario');
+            $table->string('num_documento');
             $table->tinyInteger('tipo_per_emp')->comment('si es persona tiene el valor 0, si es empresa valor 1');
-
+            $table->tinyInteger('activo')->default(1);
         });
     }
 
