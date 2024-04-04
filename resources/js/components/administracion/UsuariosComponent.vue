@@ -101,7 +101,8 @@
                             <span aria-hidden="true">×</span>
                         </button>
                     </div>
-                    <div class="modal-body">
+                   
+                    <div class="modal-body" v-if="arrayEmpleado.length > 0 || tipoAccion == 2">
                         <form action=""  class="form-horizontal">
                             <div class="form-group row">
                                 <label class="col-md-3 form-control-label" for="text-input">Empleado: <span  v-if="idempleado==0" class="error">(*)</span></label>
@@ -161,9 +162,17 @@
                             
                         </form>
                     </div>
+                    <div class="modal-body" v-else>
+                        <div class="alert alert-primary d-flex align-items-center" role="alert">
+                            <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Info:"><use xlink:href="#info-fill"/></svg>
+                            <div><i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+                              Debe registrar al empleado primero en el modulo de <i class="fa fa-handshake-o" aria-hidden="true"></i> RRHH en empleados.
+                            </div>
+                          </div>
+                    </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary"  @click="cerrarModal('registrar')">Cerrar</button>
-                        <button type="button" v-if="tipoAccion==1" class="btn btn-primary" @click="registrarUsuario()" :disabled="!sicompleto">Guardar</button>
+                        <button type="button" v-if="tipoAccion==1 && arrayEmpleado.length > 0 " class="btn btn-primary" @click="registrarUsuario()" :disabled="!sicompleto">Guardar</button>
                         <button type="button" v-if="tipoAccion==2" class="btn btn-primary" @click="actualizarUsuario()">Actualizar</button>
                     </div>
                 </div>
