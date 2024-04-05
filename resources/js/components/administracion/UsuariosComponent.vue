@@ -235,10 +235,14 @@
                                     </select>
                                 </td>
                                 <td>
-                                    <button  type="button" class="btn btn-success btn-sm" @click="AgregarRolSuc()" >
+                                    <button  type="button" class="btn btn-warning btn-sm" style="color: white;" v-if="rol==0 || sucursal==0"  disabled >
+                                        Debe seleccionar Rol-Sucursal
+                                    </button>&nbsp;
+                                    <button  type="button" class="btn btn-success btn-sm" v-else @click="AgregarRolSuc()" >
                                         Agregar Rol-Sucursal
                                     </button>&nbsp;
                                 </td>
+                               
                                 
                                 
                                 
@@ -300,11 +304,25 @@ import { error401 } from '../../errores';
                 arrayRoles:[],
                 arrayRolSucursal:[],
                 idrolsuc:'',
+
+                id_sucursal:0,
                 
 
             }
 
         },
+        watch:{
+            sucursal: function(id){
+           
+            let sucursalss = this.arraySucursal.find(
+                    (element) => element.id === id);
+                    if (sucursalss) {                        
+                        this.id_sucursal=sucursalss.id;
+                    
+                       
+                    }
+        },
+    },
         computed:{
             sinombre(){
                 let me=this;
@@ -348,10 +366,24 @@ import { error401 } from '../../errores';
         },
         methods :{
             AgregarRolSuc(){
-                let me = this;
-                //console.log(me.idusuario);
+                let me = this;                
                 let user=me.idusuario;
-                axios.post('/userrolesuc/registrar',{
+                var bandera=0;
+              
+                this.arrayRolSucursal.forEach(item => {
+                     if (item.idrole === me.rol && item.idsucursal === me.sucursal) {
+                      bandera = 1;
+                    return; // Termina el ciclo forEach
+                      }
+                });
+             if (bandera==1) {
+                Swal.fire(
+                    "El rol y la sucursal ya existe para el usuario debe seleccionar otro rol y sucursal que no este en la tabla.",
+                    "Haga click en Ok",
+                    "warning",
+                );
+             } else {
+                axios.post('/userrolesuc/registrar------',{
                     'iduser':user,
                     'idsucursal':me.sucursal,
                     'idrole':me.rol,
@@ -363,9 +395,9 @@ import { error401 } from '../../errores';
                     error401(error);
                     console.log(error);
                 });
-
-
+             }
             },
+
             listarUserRolSuc(){
                 let me=this;
                 var url='/userrolesuc?iduser='+me.idusuario;
@@ -661,6 +693,7 @@ import { error401 } from '../../errores';
                         me.password='';
                         me.rol=0;
                         me.sucursal=0;
+                        
                         me.classModal.openModal('registrar');
                         this.selectEmpleados();
                         break;
@@ -676,8 +709,12 @@ import { error401 } from '../../errores';
                         me.nombre=data.nombre;
                         me.email=data.email;
                         me.password='';
-                        me.rol=data.rolsucursal[0].idrole;
-                        me.sucursal=data.rolsucursal[0].idsucursal;
+                        me.rol=0;
+                        me.sucursal=0;
+                        //me.rol=data.rolsucursal[0].idrole;
+                        //me.sucursal=data.rolsucursal[0].idsucursal;
+                   
+                        id_sucursal=0;
                         me.classModal.openModal('registrar');
                         break;
                     }
@@ -685,17 +722,21 @@ import { error401 } from '../../errores';
                         {
                             console.log(data);
 
-                            me.classModal.openModal('addrolsuc');
+                           
                             me.arrayRolSucursal=data.rolsucursal;
                             me.tituloModal='Editar - Agregar Rol Sucursal';
                             me.idusuario=data.id;
-                            me.idsucursal=data.rolsucursal.idsucursal;
-                            me.idrole=data.rolsucursal.idrole;
-
+                            me.idsucursal=0;
+                            me.idrole=0;
+                            me.id_sucursal=0;
+                            me.rol=0;
+                             me.sucursal=0;
+                            me.classModal.openModal('addrolsuc');    
+                            break;
                         }
 
                 }
-                
+               
             },
             cerrarModal(accion){
                 let me = this;
@@ -706,6 +747,8 @@ import { error401 } from '../../errores';
                 me.password=true;
                 me.siactualizar=0;
                 me.tituloModal='';
+                me.rol=0;
+                             me.sucursal=0;
                 
             },
             selectAll: function (event) {
@@ -744,7 +787,7 @@ import { error401 } from '../../errores';
                 axios.get(url).then(function(response){
                     var respuesta=response.data;
                     me.arraySucursal=respuesta;
-                    
+           
                 })
                 .catch(function(error){
                     console.log(error);
@@ -770,5 +813,5 @@ import { error401 } from '../../errores';
     color: red;
     font-size: 10px;
     
-}
+    }
 </style>
