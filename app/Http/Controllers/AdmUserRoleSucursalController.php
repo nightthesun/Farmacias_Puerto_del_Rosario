@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Adm_AsigPermisoEA;
 use App\Models\Adm_UserRoleSucursal;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -58,7 +59,54 @@ class AdmUserRoleSucursalController extends Controller
         $userrolesuc->id_usuario_registra=auth()->user()->id;
         $userrolesuc->save();
     }
+    public function registrarEditar_Activar(Request $request){
+        // Buscar asignaciones existentes 
+       $asignarExistente = Adm_AsigPermisoEA::where('id_user_role_sucu', $request->id)->get();
 
+       // Si existen asignaciones, eliminarlas
+       if ($asignarExistente->count() > 0) {
+        Adm_AsigPermisoEA::where('id_user_role_sucu', $request->id)->delete();
+       }
+       $datos = [
+        'id_user_role_sucu' => $request->id,
+        'edit' => $request->editar,
+        'activar' => $request->activar      
+        ];
+    DB::table('adm__asig_permiso_e_a_s')->insert($datos); 
+    }
+
+    public function listarPermiso_Activacion(Request $request){
+        $results = DB::table('adm__asig_permiso_e_a_s')->get();
+        return $results;
+    }
+
+    public function listarMas_sucursales(Request $request){
+
+    }
+    
+    public function registrar_mas_sucursales(Request $request){
+
+    }
+    public function listarSucursales_almacen(Request $request){
+        if ($request->id != "undefined" || !empty($request->id)) {
+         $alm = DB::table('log__asignacion_sucursal_vehiculos as tip')
+         ->join('adm__sucursals as ass', 'ass.id', '=', 'tip.id_sucursal')
+         ->join('alm__almacens as aa', 'aa.codigo', '=', 'tip.cod')
+         ->where('tip.id_vehiculo', '=', $request->id)
+         ->select('tip.id_vehiculo as id','tip.id_sucursal as id_sucursal','tip.id_alm_tda as id_alm_tda','aa.nombre_almacen as nombre', 'tip.cod as codigo');
+     
+     $tda = DB::table('log__asignacion_sucursal_vehiculos as tip')
+         ->join('adm__sucursals as ass', 'ass.id', '=', 'tip.id_sucursal')
+         ->join('tda__tiendas as tt', 'tt.codigo', '=', 'tip.cod')
+         ->where('tip.id_vehiculo', '=', $request->id)
+         ->select('tip.id_vehiculo as id', 'tip.id_sucursal as id_sucursal','tip.id_alm_tda as id_alm_tda','ass.razon_social as nombre', 'tip.cod as codigo');
+     
+     $resultado = $alm->unionAll($tda)->get();
+     
+     return $resultado;
+        }       
+         
+     }
     /**
      * Display the specified resource.
      *

@@ -177,7 +177,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::put('/usuario/activar', [AdmUserController::class, 'activar']);
     Route::get('/usuario/listar-usuarios', [AdmUserController::class, 'listaUsuarios']);
     Route::get('/usuario/selectusuario', [AdmUserController::class, 'selectUsuario']);
-
+  
+    
 
     Route::get('/role', [AdmRoleController::class, 'index']);
     Route::post('/role/registrar', [AdmRoleController::class, 'store']);
@@ -190,7 +191,14 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/userrolesuc/registrar', [AdmUserRoleSucursalController::class, 'store']);
     Route::put('/userrolesuc/desactivar', [AdmUserRoleSucursalController::class, 'desactivar']);
     Route::put('/userrolesuc/activar', [AdmUserRoleSucursalController::class, 'activar']);
+    Route::post('/userrolesuc/registrarEditar_Activar', [AdmUserRoleSucursalController::class, 'registrarEditar_Activar']);
+    Route::post('/userrolesuc/registrar_mas_sucursales', [AdmUserRoleSucursalController::class, 'registrar_mas_sucursales']);
 
+    //*******para listar si tiene permisos de edicion y activacion usar en todos los reporte o modulos*/
+    Route::get('/userrolesuc/listarPermiso_Activacion', [AdmUserRoleSucursalController::class, 'listarPermiso_Activacion']);
+    //*******para listar si tiene permisos de ver esa sucursal, tienda , almacen....*/
+    Route::get('/userrolesuc/listarMas_sucursales', [AdmUserRoleSucursalController::class, 'listarMas_sucursales']);
+    
     Route::get('/depto/selectdepto', [AdmDepartamentoController::class, 'selectDepartamento']);
 
     Route::get('/ciudad/selectciudad', [AdmCiudadController::class, 'selectCiudad']);

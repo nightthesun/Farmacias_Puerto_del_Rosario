@@ -49,7 +49,15 @@
                                         </button>&nbsp;
                                         <button  type="button" class="btn btn-success btn-sm" @click="abrirModal('addrolsuc',usuario)">
                                             <!-- <i class="icon-pencil"></i> -->Editar Rol-Sucursal
-                                        </button> 
+                                        </button>&nbsp;
+                                        <button type="button" style="color: aliceblue;" class="btn btn-primary btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Añadir editar o activar"
+                                        @click="abrirModal('registrar_E_A',usuario);">
+                                            <i class="fa fa-address-card" aria-hidden="true"></i>
+                                        </button>&nbsp;
+                                        <button type="button" style="color: aliceblue;" class="btn btn-dark btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Añadir Añadir sucursales"
+                                        >
+                                            <i class="fa fa-address-card" aria-hidden="true"></i>
+                                        </button>
                                     </div>
                                     
                                 </td>
@@ -267,6 +275,133 @@
             <!-- /.modal-dialog -->
         </div>
         <!--Fin del modal-->
+
+        <!-----------------------------MODAL AÑADIR PERMISOS EDITAR /ACTIVAR------------------------------------------------>
+        <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" id="registrar_E_A" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+            <div class="modal-dialog modal-primary modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">{{ tituloModal }}</h4>
+                        <button type="button" class="close"  aria-label="Close" @click="cerrarModal('registrar_E_A')">
+                            <span aria-hidden="true">×</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <table class="table table-bordered table-striped table-sm table-responsive">
+                        <thead>
+                            <tr>
+                              
+                                <th style="width: 20px;">Editar</th>
+                                <th style="width: 20px;">Activar</th>
+                            </tr>
+                        </thead>
+                        <tbody>                            
+                            <tr>
+                                <td>
+                                    <div class="form-check-inline">
+                                        <label class="form-check-label">
+                                            <input type="radio" class="form-check-input" name="optradio" v-model="permiso_Editar" :value="1"> Si
+                                        </label>
+                                    </div>
+                                    <div class="form-check-inline">
+                                        <label class="form-check-label">
+                                            <input type="radio" class="form-check-input" name="optradio" v-model="permiso_Editar" :value="2"> No 
+                                        </label>
+                                    </div>
+                                </td>
+            
+                                <td>
+                                <div class="form-check-inline">
+                                        <label class="form-check-label">
+                                            <input type="radio" class="form-check-input" name="optradio2" v-model="permiso_Activar" :value="1"> Si
+                                        </label>
+                                    </div>
+                                    <div class="form-check-inline">
+                                        <label class="form-check-label">
+                                            <input type="radio" class="form-check-input" name="optradio2" v-model="permiso_Activar" :value="2"> No
+                                        </label>
+                                    </div>
+                                </td>
+                            </tr>  
+                                                     
+                        </tbody>
+                    </table>
+                        
+                    </div>
+
+
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary"  @click="cerrarModal('registrar_E_A')">Cerrar</button>
+                      
+                        <button type="button"  class="btn btn-primary" @click="registrarEditar_Activar()" >Actualizar</button>
+                    </div>
+                </div>
+                <!-- /.modal-content -->
+            </div>
+            <!-- /.modal-dialog -->
+        </div>
+        <!--Fin del modal activar editar-->
+
+   <!--Inicio del modal asignacion de mas sucusales -->
+   <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" id="registrar_mas_sucursales" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+            <div class="modal-dialog modal-primary modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">{{ tituloModal }}</h4>
+                        <button type="button" class="close"  aria-label="Close" @click="cerrarModal('registrar_mas_sucursales')">
+                            <span aria-hidden="true">×</span>
+                        </button>
+                    </div>
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-12" >
+                                <div class="modal-body">
+                     
+
+
+                     <form action=""  class="form-horizontal">
+
+                       
+                             <label class="col-md-6 form-control-label" for="text-input"><strong>Lista de sucursales:</strong> </label>
+                             <div class="col-md-9">
+                                <table class="table table-bordered table-striped table-sm table-responsive">
+                                    <thead>
+                                        <tr>
+                                            <th></th>
+                                            <th>Nombre</th>
+                                            <th>Cod Sucursal</th>
+                                            <th>Codigo</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                       
+                                    </tbody>
+                                </table>
+
+                            
+                        
+                             </div>
+                       
+
+                     </form>
+                 </div>
+                            </div>
+                         
+                            </div>
+                        </div>
+                   
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary"  @click="cerrarModal1('registrar1')">Cerrar</button>
+                        <button type="button" v-if="selectAlmTda2==false" class="btn btn-primary" disabled>Asignar</button>
+                        <button type="button" v-if="selectAlmTda2!=false" class="btn btn-primary" @click="asignarSucursal()">Asignar</button>
+                    </div>
+                </div>
+                <!-- /.modal-content -->
+            </div>
+            <!-- /.modal-dialog -->
+        </div>
+        <!--Fin del modal-->
     </main>
 </template>
 
@@ -306,7 +441,12 @@ import { error401 } from '../../errores';
                 idrolsuc:'',
 
                 id_sucursal:0,
-                
+                //añadir permisos de editar y activar
+                arrayPermisoEditar_Activar:[],
+                permiso_Editar:0,
+                permiso_Activar:0,
+                id_user_permiso:'',  
+                //añadir mas sucursales                   
 
             }
 
@@ -317,9 +457,7 @@ import { error401 } from '../../errores';
             let sucursalss = this.arraySucursal.find(
                     (element) => element.id === id);
                     if (sucursalss) {                        
-                        this.id_sucursal=sucursalss.id;
-                    
-                       
+                        this.id_sucursal=sucursalss.id;                       
                     }
         },
     },
@@ -365,6 +503,48 @@ import { error401 } from '../../errores';
 
         },
         methods :{
+            
+        listarPermiso_activar() {
+            let me = this;
+            var url = "/userrolesuc/listarPermiso_Activacion";
+            axios
+                .get(url)
+                .then(function (response) {
+                    var respuesta = response.data;
+                    me.arrayPermisoEditar_Activar = respuesta;
+              
+                })
+                .catch(function (error) {
+                    error401(error);
+                    console.log(error);
+                });
+        },
+
+        registrarEditar_Activar(){   
+              if (this.permiso_Activar==0 ) {
+                this.permiso_Activa=2;
+              } 
+              if (this.permiso_Editar==0 ) {
+                this.permiso_Editar=2;
+              } 
+                           let me = this;                         
+                axios.post('/userrolesuc/registrarEditar_Activar',{
+                 
+                    'id':me.id_user_permiso,
+                    'activar':me.permiso_Activar,
+                    'editar':me.permiso_Editar,
+                   
+                }).then(function(response){
+                    me.cerrarModal('registrar_E_A');
+                    me.listarUsuarios();
+                    me.listarPermiso_activar();
+                }).catch(function(error){
+                    error401(error);
+                    console.log(error);
+                });
+
+            },
+
             AgregarRolSuc(){
                 let me = this;                
                 let user=me.idusuario;
@@ -383,7 +563,7 @@ import { error401 } from '../../errores';
                     "warning",
                 );
              } else {
-                axios.post('/userrolesuc/registrar------',{
+                axios.post('/userrolesuc/registrar',{
                     'iduser':user,
                     'idsucursal':me.sucursal,
                     'idrole':me.rol,
@@ -711,18 +891,17 @@ import { error401 } from '../../errores';
                         me.password='';
                         me.rol=0;
                         me.sucursal=0;
+                       
                         //me.rol=data.rolsucursal[0].idrole;
                         //me.sucursal=data.rolsucursal[0].idsucursal;
                    
-                        id_sucursal=0;
+                       
                         me.classModal.openModal('registrar');
                         break;
                     }
                     case 'addrolsuc':
                         {
-                            console.log(data);
-
-                           
+                                
                             me.arrayRolSucursal=data.rolsucursal;
                             me.tituloModal='Editar - Agregar Rol Sucursal';
                             me.idusuario=data.id;
@@ -734,7 +913,32 @@ import { error401 } from '../../errores';
                             me.classModal.openModal('addrolsuc');    
                             break;
                         }
+                        case 'registrar_E_A':
+                        {
+                            me.tituloModal='Añadir permisos de edicion o activar';
+                            me.id_user_permiso=data.id;                            
+                          // Se busca un elemento en el array arrayPermisoEditar_Activar donde id_user_role_sucu coincida con data.id
+                            let user1 = this.arrayPermisoEditar_Activar.find((element) => element.id_user_role_sucu === data.id);
 
+                        // Si se encuentra un elemento que coincida, se establecen las variables permiso_Editar y permiso_Activar en los valores edit y activar del elemento encontrado, respectivamente
+                        if (user1) {
+                          this.permiso_Editar = user1.edit;
+                          this.permiso_Activar = user1.activar;
+                        } else { // Si no se encuentra ningún elemento que coincida, se establecen las variables permiso_Editar y permiso_Activar en 0
+                          this.permiso_Editar = 0;
+                          this.permiso_Activar = 0;
+                        }
+                            me.classModal.openModal('registrar_E_A');    
+                            break;
+                        } 
+                        case 'registrar_mas_sucursales':
+                        {        
+                        me.tituloModal='Asignar mas sucursales';
+                       // me.id_user_role_sucu=data.id;
+                        //me.id_vehiculo=data.id;
+                        me.classModal.openModal('registrar_mas_sucursales');                   
+                        break;
+                        }                      
                 }
                
             },
@@ -748,7 +952,9 @@ import { error401 } from '../../errores';
                 me.siactualizar=0;
                 me.tituloModal='';
                 me.rol=0;
-                             me.sucursal=0;
+                me.sucursal=0;
+                me.permiso_Editar=0;                
+                me.permiso_Activar=0;
                 
             },
             selectAll: function (event) {
@@ -799,11 +1005,16 @@ import { error401 } from '../../errores';
         mounted() {
             this.listarUsuarios(1);
             this.selectRoles();
+            this.listarPermiso_activar();
             this.selectSucursales();
             this.selectEmpleados();
             this.classModal = new _pl.Modals();
             this.classModal.addModal('registrar');
             this.classModal.addModal('addrolsuc');
+            this.classModal.addModal('registrar_E_A');
+            this.classModal.addModal('registrar_mas_sucursales');
+            this.classModal.addModal('registrar_sucursal');
+            
             //console.log('Component mounted.')
         }
     }
