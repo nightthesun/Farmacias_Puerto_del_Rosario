@@ -108,8 +108,8 @@
                                 :key="AjusteNegativos.id"
                             >
                                 <td>
-                               
-                                    <button
+                                    <div v-if="e_1==1">
+                                        <button
                                         type="button"
                                         class="btn btn-warning btn-sm"
                                         @click="
@@ -132,10 +132,13 @@
                                     >
                                         <i class="icon-pencil"></i>
                                     </button>
+                                    </div>
+                                    
                                  
                                    
                                     &nbsp;
-                                    <button
+                                    <div v-if="a_1==1">
+                                        <button
                                         v-if="AjusteNegativos.activo == 1"
                                         type="button"
                                         class="btn btn-danger btn-sm"
@@ -159,6 +162,8 @@
                                     >
                                         <i class="icon-check"></i>
                                     </button>
+                                    </div>
+                                  
                                 </td>
 
                                 <td v-text="AjusteNegativos.codigo"></td>
@@ -742,6 +747,11 @@ export default {
             inputTextBuscarProductoIngreso: "",
             arrayRetornarProductosIngreso: [],
             leyenda: "",
+
+            //cargarpermisos
+            e_1:"",
+            a_1:"",
+           
         };
     },
 
@@ -848,6 +858,23 @@ export default {
     },
 
     methods: {
+        permisoEditar_Activar(){
+            let me = this;
+            var url = "/permisos_editar_activar";
+            axios
+                .get(url)
+                .then(function (response) {
+                    var respuesta = response.data;                    
+                    me.e_1=respuesta[0].edit;
+                    me.a_1=respuesta[0].activar;
+                                  
+                })
+                .catch(function (error) {
+                    error401(error);
+                
+                });
+        },
+
         cambiarPestana(idPestana) {
             this.pestañaActiva = idPestana;
 
@@ -1434,6 +1461,7 @@ export default {
         this.ajustesNegativos();
         this.cambiodeEstado();
         this.sucursalFiltro();
+        this.permisoEditar_Activar();
         this.classModal.addModal("staticBackdrop");
     },
 };

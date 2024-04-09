@@ -50,6 +50,7 @@ use App\Http\Controllers\InvTraspasoController;
 use App\Http\Controllers\LogTrasladoController;
 use App\Http\Controllers\LogVehiculoController;
 use App\Http\Controllers\GesPreVenta2Controller;
+use App\Http\Controllers\GetController;
 use App\Http\Controllers\ProdListaController;
 use App\Http\Controllers\ProdRegistroPreXListController;
 use App\Models\Alm_IngresoProducto;
@@ -132,6 +133,10 @@ Route::post('/registro', [AdmRegistroController::class, 'store'])
 
 Route::group(['middleware' => 'auth'], function () {
 
+    //////////////////////////////////////controlador  generales/////////////////////////////////////////////////////////////
+    Route::get('/permisos_editar_activar', [GetController::class, 'permisos_editar_activar']);
+    Route::get('/listarSucursal', [GetController::class, 'listarSucursal']);
+
     //adm///////////////////////////////////////////////////////////////////////////////////
 
     Route::get('/rubro', [AdmRubroController::class, 'index']);
@@ -192,13 +197,16 @@ Route::group(['middleware' => 'auth'], function () {
     Route::put('/userrolesuc/desactivar', [AdmUserRoleSucursalController::class, 'desactivar']);
     Route::put('/userrolesuc/activar', [AdmUserRoleSucursalController::class, 'activar']);
     Route::post('/userrolesuc/registrarEditar_Activar', [AdmUserRoleSucursalController::class, 'registrarEditar_Activar']);
-    Route::post('/userrolesuc/registrar_mas_sucursales', [AdmUserRoleSucursalController::class, 'registrar_mas_sucursales']);
+    Route::post('/userrolesuc/asignar', [AdmUserRoleSucursalController::class, 'asignar']);
 
     //*******para listar si tiene permisos de edicion y activacion usar en todos los reporte o modulos*/
     Route::get('/userrolesuc/listarPermiso_Activacion', [AdmUserRoleSucursalController::class, 'listarPermiso_Activacion']);
     //*******para listar si tiene permisos de ver esa sucursal, tienda , almacen....*/
     Route::get('/userrolesuc/listarMas_sucursales', [AdmUserRoleSucursalController::class, 'listarMas_sucursales']);
-    
+    //*****************************************funcino de sucursales y almacenes ********************************************************** */
+    Route::get('/userrolesuc/listarSucursal', [AdmUserRoleSucursalController::class, 'listarSucursal']);
+
+
     Route::get('/depto/selectdepto', [AdmDepartamentoController::class, 'selectDepartamento']);
 
     Route::get('/ciudad/selectciudad', [AdmCiudadController::class, 'selectCiudad']);
@@ -427,7 +435,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/gestionprecioventa2/listarLista', [GesPreVenta2Controller::class, 'listarLista']);    
    
     /////////////////////////////////////////////Inventario///////////////////////////////////////////////////
-
+    
     Route::get('/ajustes-negativo', [InvAjusteNegativoController::class, 'index']);
     Route::get('/ajustes-negativo/listarTipo', [InvAjusteNegativoController::class, 'listarTipo']);
     Route::get('/ajustes-negativo/listarProductoLineaIngreso', [InvAjusteNegativoController::class, 'listarProductoLineaIngreso']);

@@ -27,7 +27,7 @@
                     <table class="table table-bordered table-striped table-sm table-responsive">
                         <thead>
                             <tr>
-                                <th>Opciones</th>
+                                <th>Opciones</th>                          
                                 <th>Nombre</th>
                                 <th>email</th>
                                 <th>rol - sucursal</th>
@@ -55,12 +55,13 @@
                                             <i class="fa fa-address-card" aria-hidden="true"></i>
                                         </button>&nbsp;
                                         <button type="button" style="color: aliceblue;" class="btn btn-dark btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Añadir Añadir sucursales"
-                                        >
+                                        @click="abrirModal('registrar_mas_sucursales',usuario);sucursalAlmTda();listarMasSucursales(usuario.id);" >
                                             <i class="fa fa-address-card" aria-hidden="true"></i>
                                         </button>
                                     </div>
-                                    
+                                      
                                 </td>
+                               
                                     <td v-text="usuario.nombre"></td>
                                     <td v-text="usuario.email"></td>
                                     <td><div  v-for="rolsuc in usuario.rolsucursal" :key="rolsuc.id" >
@@ -375,7 +376,15 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                       
+                                        <tr v-for="option in arraySucursalAlmTda" :key="option.id" >
+                                            <td>
+                                                <input type="checkbox" :value="{ codigo: option.codigo, id_sucursal: option.id_sucursal, id_tienda_almacen: option.id_tienda_almacen }" v-model="selectAlmTda2">
+                                            </td>
+                                            
+                                            <td v-text="option.razon_social"></td>
+                                            <td v-text="option.codigoS"></td>
+                                            <td v-text="option.codigo"></td>
+                                        </tr>
                                     </tbody>
                                 </table>
 
@@ -392,9 +401,10 @@
                         </div>
                    
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary"  @click="cerrarModal1('registrar1')">Cerrar</button>
-                        <button type="button" v-if="selectAlmTda2==false" class="btn btn-primary" disabled>Asignar</button>
-                        <button type="button" v-if="selectAlmTda2!=false" class="btn btn-primary" @click="asignarSucursal()">Asignar</button>
+                        <button type="button" class="btn btn-secondary"  @click="cerrarModal('registrar_mas_sucursales')">Cerrar</button>
+                      
+                        <button type="button" class="btn btn-primary" @click="asignarSucursal()">Asignar</button>
+
                     </div>
                 </div>
                 <!-- /.modal-content -->
@@ -447,7 +457,11 @@ import { error401 } from '../../errores';
                 permiso_Activar:0,
                 id_user_permiso:'',  
                 //añadir mas sucursales                   
-
+                arraySucursalAlmTda:[],
+                selectAlmTda2:[],
+                arrayFalso:[],
+                arrayMasSucursales:[],
+                
             }
 
         },
@@ -503,7 +517,84 @@ import { error401 } from '../../errores';
 
         },
         methods :{
+
+            listarMasSucursales(id)
+            {
+                   let me = this;               
+                   if (typeof id!=="undefined") {
+                    var url = "/userrolesuc/listarMas_sucursales?id="+id;             
+            axios
+                .get(url)
+                .then(function (response) {
+                    var respuesta = response.data;
+                   //  me.arrayVehucloX = respuesta.datos.data;
+                   me.arrayMasSucursales = respuesta;      
+                   console.log(me.arrayMasSucursales);   
+                   me.arraySucursalAlmTda.forEach(function(elemento1) {
+                   me.arrayMasSucursales.forEach(function(elementoInterno) {
+                    if (elemento1.codigo === elementoInterno.codigo) {
+                    me.arrayFalso.push({
+                    codigo: elemento1.codigo,
+                    id_sucursal: elemento1.id_sucursal,
+                    id_tienda_almacen: elemento1.id_tienda_almacen,       
+                    });
+                } 
+            });  
+        });
+                })
+                .catch(function (error) {
+                    error401(error);
+                    console.log(error);
+                });  
+                   }
             
+            },
+
+            asignarSucursal(){
+            let me =this;                
+            let cadena=[];
+            for (const selectedOption of this.selectAlmTda2) {
+                let elemento = {
+                'codigo': selectedOption.codigo,
+                'id_sucursal': selectedOption.id_sucursal,
+                'id_tienda_almacen': selectedOption.id_tienda_almacen
+            };
+            cadena.push(elemento);
+            }                
+                axios.post('/userrolesuc/asignar',{
+                    id:me.id_user_permiso,
+                    bloque:cadena,
+                    
+                }).then(function (response) {
+                    
+                    Swal.fire(
+                        'Asigno Correctamente!',
+                        'El Accion realizada Correctamente',
+                        'success'
+                    )
+                }).catch(function (error) {
+                    error401(error);
+                });
+                me.arrayFalso=[];
+                me.cerrarModal('registrar_mas_sucursales');
+            },   
+
+            sucursalAlmTda() {
+            let me = this;
+            var url = "/userrolesuc/listarSucursal";
+            axios
+                .get(url)
+                .then(function (response) {
+                    var respuesta = response.data;
+                    me.arraySucursalAlmTda = respuesta;
+  
+                })
+                .catch(function (error) {
+                    error401(error);
+                    console.log(error);
+                });
+            },
+
         listarPermiso_activar() {
             let me = this;
             var url = "/userrolesuc/listarPermiso_Activacion";
@@ -934,6 +1025,8 @@ import { error401 } from '../../errores';
                         case 'registrar_mas_sucursales':
                         {        
                         me.tituloModal='Asignar mas sucursales';
+                        me.selectAlmTda2=me.arrayFalso;
+                        me.id_user_permiso=data.id;
                        // me.id_user_role_sucu=data.id;
                         //me.id_vehiculo=data.id;
                         me.classModal.openModal('registrar_mas_sucursales');                   
@@ -955,6 +1048,11 @@ import { error401 } from '../../errores';
                 me.sucursal=0;
                 me.permiso_Editar=0;                
                 me.permiso_Activar=0;
+               
+
+                me.arrayFalso=[];
+                me.selectAlmTda2=[];
+                me.arrayMasSucursales=[];
                 
             },
             selectAll: function (event) {
@@ -1008,6 +1106,7 @@ import { error401 } from '../../errores';
             this.listarPermiso_activar();
             this.selectSucursales();
             this.selectEmpleados();
+            this.listarMasSucursales();
             this.classModal = new _pl.Modals();
             this.classModal.addModal('registrar');
             this.classModal.addModal('addrolsuc');
