@@ -107,64 +107,63 @@
                                 v-for="AjusteNegativos in arrayAjusteNegativos"
                                 :key="AjusteNegativos.id"
                             >
-                                <td>
-                                    <div v-if="e_1==1">
-                                        <button
-                                        type="button"
-                                        class="btn btn-warning btn-sm"
-                                        @click="
-                                            abrirModal(
-                                                'actualizar',
-                                                AjusteNegativos,
-                                            );
-                                            ProductoLineaIngreso();
-                                        "
-                                        v-if="AjusteNegativos.id_tipo!=13"
-                                    >
-                                        <i class="icon-pencil"></i>
-                                    </button>
-                                 
-                                    <button
-                                        type="button"
-                                        class="btn btn-light btn-sm"
-                                        v-if="AjusteNegativos.id_tipo==13"
-                                      
-                                    >
-                                        <i class="icon-pencil"></i>
-                                    </button>
-                                    </div>
-                                    
-                                 
-                                   
-                                    &nbsp;
-                                    <div v-if="a_1==1">
-                                        <button
-                                        v-if="AjusteNegativos.activo == 1"
-                                        type="button"
-                                        class="btn btn-danger btn-sm"
-                                        @click="
-                                            eliminarAjusteNegativos(
-                                                AjusteNegativos.id,
-                                            )
-                                        "
-                                    >
-                                        <i class="icon-trash"></i>
-                                    </button>
-                                    <button
-                                        v-else
-                                        type="button"
-                                        class="btn btn-info btn-sm"
-                                        @click="
-                                            activarAjusteNegativos(
-                                                AjusteNegativos.id,
-                                            )
-                                        "
-                                    >
-                                        <i class="icon-check"></i>
-                                    </button>
-                                    </div>
-                                  
-                                </td>
+                            <td>
+    <div class="button-container">
+        <div class="d-flex" v-if="e_1==1">
+            <button
+                type="button"
+                class="btn btn-warning btn-sm mr-2"
+                @click="
+                    abrirModal(
+                        'actualizar',
+                        AjusteNegativos,
+                    );
+                    ProductoLineaIngreso();
+                "
+                v-if="AjusteNegativos.id_tipo!=13"
+            >
+                <i class="icon-pencil"></i>
+            </button>
+
+            <button
+                type="button"
+                class="btn btn-light btn-sm"
+                v-if="AjusteNegativos.id_tipo==13"
+            >
+                <i class="icon-pencil"></i>
+            </button>
+        </div>
+        
+        <div class="d-flex" v-if="a_1==1">
+            <button
+                v-if="AjusteNegativos.activo == 1"
+                type="button"
+                class="btn btn-danger btn-sm mr-2"
+                @click="
+                    eliminarAjusteNegativos(
+                        AjusteNegativos.id,
+                    )
+                "
+            >
+                <i class="icon-trash"></i>
+            </button>
+            
+            <button
+                v-else
+                type="button"
+                class="btn btn-info btn-sm"
+                @click="
+                    activarAjusteNegativos(
+                        AjusteNegativos.id,
+                    )
+                "
+            >
+                <i class="icon-check"></i>
+            </button>
+        </div>
+    </div>
+</td>
+
 
                                 <td v-text="AjusteNegativos.codigo"></td>
                                 <td v-text="AjusteNegativos.linea"></td>
@@ -882,8 +881,9 @@ export default {
         },
         sucursalFiltro() {
             let me = this;
-            var url = "/ajustes-negativo/listarSucursal";
-            axios
+            //var url = "/ajustes-negativo/listarSucursal";
+           var url = "/listarSucursal"; 
+           axios
                 .get(url)
                 .then(function (response) {
                     var respuesta = response.data;
