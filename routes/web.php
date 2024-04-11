@@ -53,6 +53,7 @@ use App\Http\Controllers\GesPreVenta2Controller;
 use App\Http\Controllers\GetController;
 use App\Http\Controllers\ProdListaController;
 use App\Http\Controllers\ProdRegistroPreXListController;
+use App\Http\Controllers\VenGestorVentaController;
 use App\Models\Alm_IngresoProducto;
 use App\Models\Tda_Tienda;
 
@@ -136,7 +137,9 @@ Route::group(['middleware' => 'auth'], function () {
     //////////////////////////////////////controlador  generales/////////////////////////////////////////////////////////////
     Route::get('/permisos_editar_activar', [GetController::class, 'permisos_editar_activar']);
     Route::get('/listarSucursal', [GetController::class, 'listarSucursal']);
-
+    Route::get('/listarSucursalGet', [GetController::class, 'listarSucursalGet']);
+    
+   
     //adm///////////////////////////////////////////////////////////////////////////////////
 
     Route::get('/rubro', [AdmRubroController::class, 'index']);
@@ -512,4 +515,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::put('/directorio/desactivar', [DirClienteController::class, 'desactivar']);
     Route::put('/directorio/activar', [DirClienteController::class, 'activar']);
     Route::put('/directorio/actualizar', [DirClienteController::class, 'update']);
+
+    /////////////////////////////////////////////////VENTAS_PRODCUTOS///////////////////////////////////////////////////////    
+    Route::get('/gestor_ventas/listarUsuario', [VenGestorVentaController::class, 'listarUsuario']);
 });

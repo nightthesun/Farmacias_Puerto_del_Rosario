@@ -251,7 +251,7 @@
                                                 </div>
                                                 <div class="form-group col-sm-4">
                                                     <strong>Correo: <span  v-if="correo==''" class="error">(*)</span></strong>
-                                                    <input type="email" class="form-control" placeholder="Correo@correo.es"  v-model="correo" v-on:focus="selectAll">
+                                                    <input type="email" class="form-control" placeholder="Correo@correo.es"  v-model="correo" v-on:focus="selectAll" required>
                                                     <span  v-if="correo==''" class="error">Debe Ingresar un correo</span>
                                                 </div>
                                                 <div class="form-group col-sm-4">
@@ -275,7 +275,7 @@
                                             </div>  
                                             <div class="form-group col-sm-4">
                                                 <strong>Correo: <span  v-if="correo==''" class="error">(*)</span></strong>
-                                                <input type="email" class="form-control" placeholder="Correo@correo.es"  v-model="correo" v-on:focus="selectAll">
+                                                <input type="email" class="form-control" placeholder="Correo@correo.es"  v-model="correo" v-on:focus="selectAll" pattern="[a-zA-Z0-9_]+([.][a-zA-Z0-9_]+)*@[a-zA-Z0-9_]+([.][a-zA-Z0-9_]+)*[.][a-zA-Z]{1,5}" required>
                                                 <span  v-if="correo==''" class="error">Debe Ingresar un correo</span>
                                             </div>
                                             <div class="form-group col-sm-4">
@@ -406,10 +406,12 @@
         computed: {
         sicompleto() {
             let me = this;
+            const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (
                 me.selectTipoDoc != 0 &&
                 me.nombre_a_facturar != "" &&
-                me.correo != "" &&
+                regex.test(me.correo) &&
+                
                 me.num_documento != ""
             )
                 return true;
@@ -574,8 +576,19 @@
             },
 
             registrar() {
-            let me = this;  
-            if (
+            let me = this;
+            // Expresión regular para verificar el formato del correo electrónico
+            const correoRegex = /^[a-zA-Z0-9_]+([.][a-zA-Z0-9_]+)*@[a-zA-Z0-9_]+([.][a-zA-Z0-9_]+)*[.][a-zA-Z]{1,5}$/;
+            // Verificar si el correo cumple con el formato válido
+            if (!correoRegex.test(me.correo)) {
+                this.correoInvalido = true;
+                Swal.fire(
+                    "Formato de correo invalido.",
+                    "asegúrese si esta bien escrito el correo, no olvide la @ y la extencion ejemplo correo@correo.es",
+                    "warning",
+                );
+            } else {
+                if (
                 me.selectTipoDoc === 0 ||              
                 me.num_documento === "" ||
                 me.nombre_a_facturar === "" ||
@@ -587,6 +600,8 @@
                     "warning",
                 );
             } else {
+                
+                if (me.num_documento!=99001&&me.num_documento!=99002&&me.num_documento!=99003) {
                     axios
                     .post("/directorio/registrar", {
                         tipo_per_emp: me.selectTipo,
@@ -631,11 +646,30 @@
 
                
             });
+                }   else {
+                    Swal.fire(
+                    "Los numeros 99001, 99002, 99003. Esta ocupado para actividades especiales",
+                    "Haga click en Ok",
+                    "warning",
+                ); 
+                }
             }
+            }  
+           
         },
         actualizar() {
             let me = this;
-            if (
+                    // Expresión regular para verificar el formato del correo electrónico
+                    const correoRegex = /^[a-zA-Z0-9_]+([.][a-zA-Z0-9_]+)*@[a-zA-Z0-9_]+([.][a-zA-Z0-9_]+)*[.][a-zA-Z]{1,5}$/;
+                    if (!correoRegex.test(me.correo)) {
+                this.correoInvalido = true;
+                Swal.fire(
+                    "Formato de correo invalido.",
+                    "asegúrese si esta bien escrito el correo, no olvide la @ y la extencion ejemplo correo@correo.es",
+                    "warning",
+                );
+            } else {
+                if (
                 me.selectTipoDoc === 0 ||              
                 me.num_documento === "" ||
                 me.nombre_a_facturar === "" ||
@@ -648,7 +682,8 @@
                 );
             }
             else{
-                axios 
+                if (me.num_documento!=99001&&me.num_documento!=99002&&me.num_documento!=99003) {
+                    axios 
             .put("/directorio/actualizar", {
                         id:me.id,
                         id_per_emp:me.id_per_emp,
@@ -697,8 +732,17 @@
                
             });
             me.cerrarModal("registrar"); 
-            }
-            
+                }else{
+                    Swal.fire(
+                    "Los numeros 99001, 99002, 99003. Esta ocupado para actividades especiales",
+                    "Haga click en Ok",
+                    "warning",
+                ); 
+                }
+
+                
+            }    
+            }                          
         },
         eliminar(id){
                 let me=this;

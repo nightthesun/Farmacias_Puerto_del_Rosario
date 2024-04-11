@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Ven_GestorVenta;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class VenGestorVentaController extends Controller
 {
@@ -54,12 +55,39 @@ class VenGestorVentaController extends Controller
     {
         //
     }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Ven_GestorVenta $ven_GestorVenta)
-    {
-        //
+    public function listarUsuario(Request $request){
+        $resultado = DB::table('dir__clientes as dc')
+        ->select('dc.id', 
+                 'dc.nom_a_facturar', 
+                 'dc.id_per_emp', 
+                 'dc.num_documento', 
+                 'dtd.id as id_tipo_doc',
+                 'dtd.nombre_doc as tipo_doc_nombre',
+                 'dtd.datos as tipo_doc_datos',
+                 DB::raw("CONCAT(dp.nombres, ' ', dp.apellidos) AS nombre_completo"))
+        ->join('dir__tipo_doc as dtd', 'dc.id_tipo_doc', '=', 'dtd.id')
+        ->join('dir__personas as dp', 'dc.id_per_emp', '=', 'dp.id')
+        ->where('dc.tipo_per_emp', 1)
+        ->where('dc.activo', 1)
+        ->where('dc.num_documento',  $request->num_doc)
+        ->unionAll(DB::table('dir__clientes as dc')
+            ->select('dc.id', 
+                     'dc.nom_a_facturar', 
+                     'dc.id_per_emp', 
+                     'dc.num_documento', 
+                     'dtd.id as id_tipo_doc',
+                     'dtd.nombre_doc as tipo_doc_nombre',
+                     'dtd.datos as tipo_doc_datos',
+                     'de.razon_social AS nombre_completo')
+            ->join('dir__empresas as de', 'dc.id_per_emp', '=', 'de.id')
+            ->join('dir__tipo_doc as dtd', 'dc.id_tipo_doc', '=', 'dtd.id')
+            ->where('dc.tipo_per_emp', 2)
+            ->where('dc.activo', 1)
+            ->where('dc.num_documento', $request->num_doc))
+       
+        ->first();
+  
+        return $resultado;
     }
+   
 }

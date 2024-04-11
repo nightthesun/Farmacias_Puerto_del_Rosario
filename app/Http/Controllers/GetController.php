@@ -33,45 +33,45 @@ class GetController extends Controller
         }      
     }
 
+
+
     //******************************permisos para ver lista por defecto */
-    public function listarSucursal()
-    {
-        $idsuc = session('idsuc');
-        $user_1 = Auth()->user()->id;
-        $asignaciones = Adm_AsigMasSucursales::where('id_user_role_sucu', $user_1)->get();
-        $where1 = ''; // Definir $where1 con un valor predeterminado
-    $where2 = ''; // Definir $where2 con un valor predeterminado
+        public function listarSucursal()
+        {
+            $idsuc = session('idsuc');
+            $user_1 = Auth()->user()->id;
+            $asignaciones = Adm_AsigMasSucursales::where('id_user_role_sucu', $user_1)->get();
+            $where1 = ''; // Definir $where1 con un valor predeterminado
+            $where2 = ''; // Definir $where2 con un valor predeterminado
 
-if ($asignaciones->count() > 0) {
+            if ($asignaciones->count() > 0) {
     
-    $codigos = [];
-    foreach ($asignaciones as $asignacion) {
-        $codigos[] = "'" . $asignacion->cod . "'"; // Agregar comillas simples alrededor de cada valor
-    }
-    $where1 = 'tda__tiendas.codigo IN (' . implode(',', $codigos) . ')';
-    $where2 = 'aa.codigo IN (' . implode(',', $codigos) . ')';
-
-    // No es necesario hacer nada si hay asignaciones
-} else {
-    // Modificar $where solo si no hay asignaciones
-    $where1 = "(ass.id = $idsuc)";
-    $where2 = "(ass.id = $idsuc)";
-    
-}
-if ($user_1 == 1) {
-    $tiendas = DB::table('tda__tiendas')
-    ->join('adm__sucursals as ass', 'tda__tiendas.idsucursal', '=', 'ass.id')
-    ->select(
-        'tda__tiendas.id as id_tienda',
-        DB::raw('NULL as id_almacen'),
-        'tda__tiendas.codigo',
-        'ass.razon_social',
-        'ass.razon_social as sucursal',
-        'ass.cod as codigoS',
-        DB::raw('"Tienda" as tipoCodigo'),
-        'tda__tiendas.id AS id_tienda_almacen',
-        'ass.id AS id_sucursal'
-    );
+            $codigos = [];
+            foreach ($asignaciones as $asignacion) {
+            $codigos[] = "'" . $asignacion->cod . "'"; // Agregar comillas simples alrededor de cada valor
+            }
+            $where1 = 'tda__tiendas.codigo IN (' . implode(',', $codigos) . ')';
+            $where2 = 'aa.codigo IN (' . implode(',', $codigos) . ')';
+            // No es necesario hacer nada si hay asignaciones
+            } else {
+            // Modificar $where solo si no hay asignaciones
+            $where1 = "(ass.id = $idsuc)";
+            $where2 = "(ass.id = $idsuc)";
+            }
+                if ($user_1 == 1) {
+                $tiendas = DB::table('tda__tiendas')
+                ->join('adm__sucursals as ass', 'tda__tiendas.idsucursal', '=', 'ass.id')
+                ->select(
+                'tda__tiendas.id as id_tienda',
+                DB::raw('NULL as id_almacen'),
+                'tda__tiendas.codigo',
+                'ass.razon_social',
+                'ass.razon_social as sucursal',
+                'ass.cod as codigoS',
+                DB::raw('"Tienda" as tipoCodigo'),
+                'tda__tiendas.id AS id_tienda_almacen',
+                'ass.id AS id_sucursal'
+        );
 
 $almacenes = DB::table('alm__almacens as aa')
     ->join('adm__sucursals as ass', 'ass.id', '=', 'aa.idsucursal')
@@ -132,5 +132,26 @@ return $result;
 
     }
 
-    
+    //*****************************solo para mostrar sucursales*******************/
+    public function listarSucursalGet()
+    {
+       
+        $idsuc = session('idsuc');
+        $user_1 = Auth()->user()->id;
+        if($user_1==1){
+            $sucursalesActivas = DB::table('adm__sucursals')
+            ->select('id', 'cod', 'razon_social')
+            ->where('activo', 1)
+            ->get();
+            return $sucursalesActivas;  
+        }else{
+            $where = "(adm__sucursals.id = $idsuc)";
+            $sucursalesActivas = DB::table('adm__sucursals')
+            ->select('id', 'cod', 'razon_social')
+            ->where('activo', 1)
+            ->whereRaw($where)
+            ->get();
+            return $sucursalesActivas;
+        }
+    }
 }

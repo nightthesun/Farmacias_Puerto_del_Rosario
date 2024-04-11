@@ -9,47 +9,64 @@
         <!-- inicio de index -->
         <div class="container-fluid">
             <div class="card">
-                <div class="card-header">
-                    <i class="fa fa-align-justify"></i> Venta de productos 
+                <div class="card-header d-flex">
+                    <span>Venta de productos </span>  
                  
+                    &nbsp;
+      <select class="form-control form-control-sm" v-model="selectSucursalGet" style="width: 200px;">
+        <option value="0" selected disabled>Seleccionar sucursal...</option>
+        <option  v-for="get in arraySucursalGet"  :key="get.id" 
+        v-text="get.razon_social"></option>      
      
-      <select class="custom-select mr-sm-2" >
-        <option value="0" selected>Seleccionar sucursal</option>
-        <option value="1">One1111111111</option>
-        <option value="2">Two1111111111111</option>
-        <option value="3">Three1111111111</option>
       </select>
-    
-      <select class="custom-select mr-sm-2" >
-        <option value="0" selected>Seleccionar tienda o almacen</option>
-        <option value="1">2222</option>
-        <option value="2">333333333333333</option>
-        <option value="3">55555555</option>
-      </select>                          
+
+
+     
+    <select class="form-control form-control-sm" v-model="selectAlmTienda" style="width: 200px;">
+        <option value="0" selected disabled>Seleccionar tienda o almacen...</option>
+        <option v-for="sucursal in arrayAlmTienda" :key="sucursal.codigo" :value="sucursal.codigo"
+            v-text="sucursal.codigoS + ' -> ' + sucursal.codigo+' '+sucursal.razon_social"></option>
+    </select>                          
                     
                     
                 </div>
-        <div class="card-body">
+        <div class="card-body" style="padding-top: 1px;">
             <div class="form-group row">
 
-                <table class="table">
-  <thead class="thead-dark">
-    <tr>
-      <th colspan="5" >Detalle de cliente</th>
+                <div class="card w-100">
+                  
+                    <div class="card-body">
+                      <strong >Detalle de cliente</strong> 
 
-    </tr>
-  </thead>
-  <tbody>
-    <tr>      
-      <td width="100"><input type="text" placeholder="codigo cliente" ></td>
-      <td><button>add</button></td>
-      <td><input type="text" placeholder="Nombre cliente" style="width: 90px;"></td>
-      <td><input type="text" placeholder="Nombre a facturar" style="width: 90px;"></td>
-      <td><button>add</button></td>
-    </tr>
- 
-  </tbody>
-</table>
+
+                      <hr> <!-- Línea horizontal -->
+                      
+                      <div class="row">
+                    
+                        <div class="form-group col-sm-4" style="display: flex; align-items: center;">
+                            <input type="text" class="form-control"  placeholder="Número de Cliente" v-model="buscarCliente">
+                            <button class="btn btn-primary" type="button" 
+                                    @click="listarUsuario()" :disabled="buscarCliente==''">
+                                Buscar
+                            </button>
+                          
+                        </div>
+                        <div class="form-group col-sm-5" style="display: flex; align-items: center;">
+                            <input type="text" class="form-control"  v-model="datos_cliete" disabled placeholder="Número Documento/Número de Cliente">
+                            <button class="btn btn-primary" type="button">
+                                <i class="fa fa-search-plus" aria-hidden="true"></i>
+                            </button>
+                            <button class="btn btn-info" type="button" style="color: white;">
+                                <i class="fa fa-user-plus" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                   
+                       
+                      
+                        
+                    </div> 
+                    </div>
+                  </div>
 
 
 
@@ -192,8 +209,23 @@ export default {
           
 
             tituloModal: "",
+            //selecto get sucursal
+            selectSucursalGet:0,
+            arraySucursalGet:[],    
+            id_sucu_get:'',
+            razon_social_sucu_get:'',
+            cod_sucu_get:'',            
+            //sucusales_tienda_almacen   
             selectAlmTienda:0,
             arrayAlmTienda:[],
+            //clientes
+            buscarCliente:'',
+            cliente_id:'',
+            datos_cliete:'',
+            nom_a_facturar:'',
+
+            
+            
             buscar:"",
             tipoAccion:1,
             
@@ -203,17 +235,17 @@ export default {
    
 
     computed: {
-      //  sicompleto() {
-      //      let me = this;
-       //     if (
+        sicompleto() {
+           let me = this;
+     //       if (
           
-     //           me.glosa != "" &&
-     //           me.cantidadS != "" &&
+       //         me.glosa != "" &&
+       //         me.cantidadS != "" &&
      //           me.ProductoLineaIngresoSeleccionado
      //       )
        //         return true;
       //      else return false;
-      //  },
+      },
         isActived: function () {
             return this.pagination.current_page;
         },
@@ -240,9 +272,52 @@ export default {
     },
 
     methods: {
+       
+        listarUsuario() {
+            let me = this;
+            var url = "/gestor_ventas/listarUsuario?num_doc="+me.buscarCliente;
+            if (me.buscarCliente==99001) {
+                
+            }
+            axios
+                .get(url)
+                .then(function (response) {
+                    var respuesta = response.data;
+                    me.cliente_id=response.data.id;
+                    if (me.cliente_id==undefined) {
+                        me.datos_cliete="No se encontro cliente..."
+                    } else {
+                        
+                        me.nom_a_facturar=response.data.nom_a_facturar;
+                        me.datos_cliete=response.data.nom_a_facturar+"/"+response.data.num_documento+"/"+response.data.tipo_doc_nombre;  
+                    }
+                  
+                })
+                .catch(function (error) {
+                    error401(error);
+                    console.log(error);
+                });
+        },
+
+        listarSucursalGet() {
+            let me = this;
+            var url = "/listarSucursalGet";
+            axios
+                .get(url)
+                .then(function (response) {
+                    var respuesta = response.data;
+                    me.arraySucursalGet = respuesta;
+                    
+                })
+                .catch(function (error) {
+                    error401(error);
+                    console.log(error);
+                });
+        },
+
         listarAlmTienda() {
             let me = this;
-            var url = "/traslado/listarSucursal";
+            var url = "listarSucursal";
             axios
                 .get(url)
                 .then(function (response) {
@@ -326,6 +401,7 @@ export default {
     mounted() {
         this.classModal = new _pl.Modals();
         this.listarAlmTienda();
+        this.listarSucursalGet();
         this.classModal.addModal("registrar");
     
     
