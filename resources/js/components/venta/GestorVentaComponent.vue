@@ -188,6 +188,40 @@
             </div>
         </div>
         <!--fin del modal-->
+          <!-- MODAL CLIENTE MODAL CLIENTE MODAL CLIENTE MODAL CLIENTE MODAL CLIENTE  -->
+          <div class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" id="cliente_modal"  data-backdrop="static" data-keyboard="false">
+            <div class="modal-dialog modal-primary">
+                <div class="modal-content animated fadeIn">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Datos de cliente</h4>
+                        <button class="close" @click="cerrarModal('cliente_modal')">x</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                            <strong>NO ESCRITO EN EL PADRÓN</strong> <br>
+                            OD-OTRO DOCUMENTO DE IDENTIDAD 99001.
+                           
+                          </div>
+                          <div class="row justify-content-center">
+                            <div class="form-group col-sm-6">
+                                <strong>Razon social:</strong>
+                                <input type="text" class="form-control" v-model="razon_social_99001">
+                            </div>
+                        </div>
+                        
+                    
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" @click="cerrarModal('cliente_modal')">Cerrar</button>
+                        <button :disabled="razon_social_99001==''" class="btn btn-primary" >Guardar</button>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- fin modal add cliente -->
+        
+
     </main>
 </template>
 
@@ -223,9 +257,11 @@ export default {
             cliente_id:'',
             datos_cliete:'',
             nom_a_facturar:'',
+            //casos especiales
+        
+            id_tipo_doc:'',
+            razon_social_99001:'',    
 
-            
-            
             buscar:"",
             tipoAccion:1,
             
@@ -273,21 +309,27 @@ export default {
 
     methods: {
        
+      guardadRazon_social(){
+        
+      },
+      
         listarUsuario() {
             let me = this;
             var url = "/gestor_ventas/listarUsuario?num_doc="+me.buscarCliente;
             if (me.buscarCliente==99001) {
-                
+               
+                me.abrirModal('cliente_modal');
             }
             axios
                 .get(url)
                 .then(function (response) {
                     var respuesta = response.data;
+                    console.log(response.data);
                     me.cliente_id=response.data.id;
                     if (me.cliente_id==undefined) {
                         me.datos_cliete="No se encontro cliente..."
                     } else {
-                        
+                        me.id_tipo_doc=response.data.id_tipo_doc;
                         me.nom_a_facturar=response.data.nom_a_facturar;
                         me.datos_cliete=response.data.nom_a_facturar+"/"+response.data.num_documento+"/"+response.data.tipo_doc_nombre;  
                     }
@@ -359,34 +401,27 @@ export default {
                     break;
                 }
                 case "actualizar": {
-                    me.tipoAccion = 2;
-                   
-          
-            
+                    me.tipoAccion = 2;                 
+                      
                     me.classModal.openModal("registrar");
-
+                    break;
+                }
+                case "cliente_modal":{
+                    me.v99001='';
+                    me.id_tipo_doc=4;
+                    me.razon_social_99001="";
+                    me.classModal.openModal("cliente_modal");
                     break;
                 }
             
             }
         },
         cerrarModal(accion) {
-            let me = this;
-            if (accion == "registrar") {
-                me.classModal.closeModal(accion);
-               
-                    me.tituloModal = " ";
-             
-                    setTimeout(me.tiempo, 200); 
-                    //me.ProductoLineaIngresoSeleccionado = 0;
-                    me.inputTextBuscarProductoIngreso = "";
-                        me.arrayRetornarProductosIngreso = "";
-              
-            } else {
-                me.classModal.closeModal(accion);
-              
-                me.classModal.openModal("registrar");
-            }
+            let me = this;          
+            me.classModal.closeModal(accion);
+            me.tituloModal = "";
+            me.v99001="";               
+            
         },
 
      
@@ -403,7 +438,8 @@ export default {
         this.listarAlmTienda();
         this.listarSucursalGet();
         this.classModal.addModal("registrar");
-    
+        this.classModal.addModal("cliente_modal");
+        
     
     },
 };

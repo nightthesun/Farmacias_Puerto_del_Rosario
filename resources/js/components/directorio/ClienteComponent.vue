@@ -190,7 +190,7 @@
                                 </label>
                                 <div class="col-md-9">   
             
-                                    <select name="" id=""  class="form-control" v-model="selectTipoDoc" >
+                                    <select name="" id=""  class="form-control" v-model="selectTipoDoc" @change="estadoEX();" >
                                         <option value="0" selected disabled>-Seleccione un dato </option>
                                         <option v-for="t in arrayTipoDocumento" :key="t.id"
                                             :value="t.id"
