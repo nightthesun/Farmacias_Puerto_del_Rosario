@@ -89,5 +89,99 @@ class VenGestorVentaController extends Controller
   
         return $resultado;
     }
-   
+    public function listarUsuarioRetorno(Request $request){
+        $buscararray = array();
+    
+        if (!empty($request->buscar)) {
+            $buscararray = explode(" ", $request->buscar);
+            $valor = sizeof($buscararray);
+            if ($valor > 0) {
+                $sqls = '';
+
+                foreach ($buscararray as $valor) {
+                    if (empty($sqls)) {
+                        $sqls = "(
+                            dc.id like '%" . $valor . "%' 
+                            or dc.nom_a_facturar like '%" . $valor . "%' 
+                            or dc.num_documento like '%" . $valor . "%' 
+                            or dc.created_at like '%" . $valor . "%' 
+                               )";
+                    } else {
+                        $sqls .= "and (dc.id like '%" . $valor . "%' 
+                        or dc.nom_a_facturar like '%" . $valor . "%' 
+                        or dc.num_documento like '%" . $valor . "%' 
+                        or dc.created_at like '%" . $valor . "%' 
+                       
+                       )";
+                    }
+                }
+                //consulta---------------------------------------------------
+                $resultado = DB::table('dir__clientes as dc')
+                ->select('dc.id', 
+                         'dc.nom_a_facturar', 
+                         'dc.id_per_emp', 
+                         'dc.num_documento', 
+                         'dtd.id as id_tipo_doc',
+                         'dtd.nombre_doc as tipo_doc_nombre',
+                         'dtd.datos as tipo_doc_datos',
+                         DB::raw("CONCAT(dp.nombres, ' ', dp.apellidos) AS nombre_completo"),'dc.created_at as fecha')
+                ->join('dir__tipo_doc as dtd', 'dc.id_tipo_doc', '=', 'dtd.id')
+                ->join('dir__personas as dp', 'dc.id_per_emp', '=', 'dp.id')
+                ->where('dc.tipo_per_emp', 1)
+                ->where('dc.activo', 1)
+               
+                ->whereRaw($sqls)
+                ->unionAll(DB::table('dir__clientes as dc')
+                    ->select('dc.id', 
+                             'dc.nom_a_facturar', 
+                             'dc.id_per_emp', 
+                             'dc.num_documento', 
+                             'dtd.id as id_tipo_doc',
+                             'dtd.nombre_doc as tipo_doc_nombre',
+                             'dtd.datos as tipo_doc_datos',
+                             'de.razon_social AS nombre_completo','dc.created_at as fecha')
+                    ->join('dir__empresas as de', 'dc.id_per_emp', '=', 'de.id')
+                    ->join('dir__tipo_doc as dtd', 'dc.id_tipo_doc', '=', 'dtd.id')
+                    ->where('dc.tipo_per_emp', 2)
+                    ->where('dc.activo', 1)
+                  )
+                    ->whereRaw($sqls)
+                ->get();       
+            }    
+            return $resultado;
+        } else{
+            $resultado = DB::table('dir__clientes as dc')
+            ->select('dc.id', 
+                     'dc.nom_a_facturar', 
+                     'dc.id_per_emp', 
+                     'dc.num_documento', 
+                     'dtd.id as id_tipo_doc',
+                     'dtd.nombre_doc as tipo_doc_nombre',
+                     'dtd.datos as tipo_doc_datos',
+                     DB::raw("CONCAT(dp.nombres, ' ', dp.apellidos) AS nombre_completo"),'dc.created_at as fecha')
+            ->join('dir__tipo_doc as dtd', 'dc.id_tipo_doc', '=', 'dtd.id')
+            ->join('dir__personas as dp', 'dc.id_per_emp', '=', 'dp.id')
+            ->where('dc.tipo_per_emp', 1)
+            ->where('dc.activo', 1)
+            
+      
+            ->unionAll(DB::table('dir__clientes as dc')
+                ->select('dc.id', 
+                         'dc.nom_a_facturar', 
+                         'dc.id_per_emp', 
+                         'dc.num_documento', 
+                         'dtd.id as id_tipo_doc',
+                         'dtd.nombre_doc as tipo_doc_nombre',
+                         'dtd.datos as tipo_doc_datos',
+                         'de.razon_social AS nombre_completo','dc.created_at as fecha')
+                ->join('dir__empresas as de', 'dc.id_per_emp', '=', 'de.id')
+                ->join('dir__tipo_doc as dtd', 'dc.id_tipo_doc', '=', 'dtd.id')
+                ->where('dc.tipo_per_emp', 2)
+                ->where('dc.activo', 1)
+                )
+             
+                ->take(1000)->get();  
+            return  $resultado;
+        }   
+    }    
 }

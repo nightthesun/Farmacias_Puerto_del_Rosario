@@ -59,8 +59,8 @@ $clientesPersonas = DB::table('dir__clientes as dc')
     'dc.id_per_emp as id_persona_empresa',
     'dp.nombres as nombre','dp.apellidos as apellido',
     DB::raw("CONCAT(dp.nombres, ' ', dp.apellidos) AS nombre_completo"),
-    DB::raw("CONCAT(COALESCE(dp.documento_identidad, ''), ' ', COALESCE(ad.abrev, '')) AS documento_identidad"),
-    'ad.id as id_complemento',
+    DB::raw("CONCAT(COALESCE(dp.documento_identidad, ''), ' ', COALESCE(dp.complemento, '')) AS documento_identidad"),
+    'dp.complemento as id_complemento',
     'dc.correo as correo',
     'dc.telefono as telefono',
     'dc.direccion as direccion',
@@ -81,7 +81,7 @@ $clientesPersonas = DB::table('dir__clientes as dc')
 ->join('dir__tipo_doc as dt', 'dc.id_tipo_doc', '=', 'dt.id')
 ->join('users as u', 'dc.id_user', '=', 'u.id')
 ->join('dir__personas as dp', 'dp.id', '=', 'dc.id_per_emp')
-->leftJoin('adm__departamentos as ad', 'ad.id', '=', 'dp.complemento')
+
 ->whereRaw($sqls)
 ->where('dc.tipo_per_emp', '=', $bus);
 
@@ -114,7 +114,7 @@ $clientesEmpresas = DB::table('dir__clientes as dc')
 )
 ->join('dir__tipo_doc as dt', 'dc.id_tipo_doc', '=', 'dt.id')
 ->join('users as u', 'dc.id_user', '=', 'u.id')
-->join('dir__empresas as de', 'de.id', '=', 'dc.id_per_emp')
+
 ->whereRaw($sqls)
 ->where('dc.tipo_per_emp', '=', $bus);
 
@@ -143,8 +143,8 @@ $clientes = $clientes->orderByDesc('id')->paginate(10);
             'dc.id_per_emp as id_persona_empresa',
             'dp.nombres as nombre','dp.apellidos as apellido',
             DB::raw("CONCAT(dp.nombres, ' ', dp.apellidos) AS nombre_completo"),
-            DB::raw("CONCAT(COALESCE(dp.documento_identidad, ''), ' ', COALESCE(ad.abrev, '')) AS documento_identidad"),
-            'ad.id as id_complemento',
+            DB::raw("CONCAT(COALESCE(dp.documento_identidad, ''), ' ', COALESCE(dp.complemento, '')) AS documento_identidad"),
+            'dp.complemento as id_complemento',
             'dc.correo as correo',
             'dc.telefono as telefono',
             'dc.direccion as direccion',
@@ -165,7 +165,7 @@ $clientes = $clientes->orderByDesc('id')->paginate(10);
         ->join('dir__tipo_doc as dt', 'dc.id_tipo_doc', '=', 'dt.id')
         ->join('users as u', 'dc.id_user', '=', 'u.id')
         ->join('dir__personas as dp', 'dp.id', '=', 'dc.id_per_emp')
-        ->leftJoin('adm__departamentos as ad', 'ad.id', '=', 'dp.complemento')
+       
       
         ->where('dc.tipo_per_emp', '=', $bus);
         

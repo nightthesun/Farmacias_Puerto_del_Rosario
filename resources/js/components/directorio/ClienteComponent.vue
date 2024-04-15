@@ -195,8 +195,7 @@
                                         <option v-for="t in arrayTipoDocumento" :key="t.id"
                                             :value="t.id"
                                             v-text="t.datos+'-'+t.nombre_doc">
-                                        </option>
-                                      
+                                        </option>                                      
                                     </select>
                                 </div>
                             </div>
@@ -238,16 +237,9 @@
                                         </div> 
                                             <div class="row">
                                                 <div class="form-group col-sm-4" >
-                                                    <strong>EX: </strong>
-                                                 
-                                    <select name="" id=""  class="form-control" v-model="selectEX" :disabled="selectTipoDoc != 1">
-                                        <option value="0" selected disabled>-Seleccione un EX.</option>
-                                        <option v-for="e in arrayEX" :key="e.id"
-                                            :value="e.id"
-                                            v-text="e.abrev">
-                                        </option>
-                                      
-                                    </select>
+                                                    <strong>complemento de C.I.: </strong>
+                                                    <input type="text" class="form-control" placeholder="Solo si tiene C.I." :maxlength="4"  v-model="complemento_"  :disabled="selectTipoDoc != 1">
+                                  
                                                 </div>
                                                 <div class="form-group col-sm-4">
                                                     <strong>Correo: <span  v-if="correo==''" class="error">(*)</span></strong>
@@ -259,9 +251,7 @@
                                                     <input type="text" @input="validateInput" class="form-control" placeholder="Razon social"  v-model="nombre_a_facturar" v-on:focus="selectAll">
                                                     <span  v-if="nombre_a_facturar==''" class="error">Debe ingresar un nombre a quien va la factura</span>
                                                 </div>                                             
-                                            </div>
-
-                                        
+                                            </div>                                       
                                     </div>
                                   </div>
                                 <!------else del if-------->
@@ -378,7 +368,7 @@
                 arrayTipoDocumento:[],    
                 selectTipoDoc:0,
                 arrayEX:[],
-                selectEX:0,    
+                complemento_:'',    
 
                 //datos de persona
                 nombres:'',
@@ -462,12 +452,12 @@
         },
         estadoEX(){
             if (this.selectTipoDoc!=1) {
-                this.selectEX=0;  
+                this.complemento_='';  
             }
         },
         listarEX(){
             let me=this;
-            var url='/directorio/listarEx';           
+            var url='/listarEx';           
             axios.get(url).then(function(response){
                 var respuesta=response.data;
                     me.arrayEX=respuesta;
@@ -476,10 +466,10 @@
                     console.log(error);
                 })
         },
-
+        
         listarTipoDoc(){
             let me=this;
-            var url='/directorio/listarTipoDoc';
+            var url='/listarTipoDoc';
             
             axios.get(url).then(function(response){
                 var respuesta=response.data;
@@ -505,7 +495,7 @@
                         me.tituloModal='Registro de cliente'
                         me.tipoAccion=1;
                         me.selectTipoDoc=0;              
-                        me.selectEX=0;
+                        me.complemento_='';
                         me.nombres="";
                         me.apellidos="";
                         me.num_documento="";
@@ -533,7 +523,7 @@
                         me.nombres=data.nombre;
                         me.apellidos=data.apellido;
                         me.num_documento=data.num_documento;
-                        me.selectEX=data.id_complemento === null ? 0:data.id_complemento;
+                        me.complemento_=data.complemento;
                         me.razon_social="";
                         me.nom_local="",  
                         me.id_per_emp=data.id_persona_empresa;    
@@ -556,7 +546,7 @@
                 let me = this;
                 me.tipoAccion=1;
                         me.selectTipoDoc=0;              
-                        me.selectEX=0;
+                        me.complemento_='';
                         me.nombres="";
                         me.apellidos="";
                         me.num_documento="";
@@ -606,17 +596,16 @@
                     .post("/directorio/registrar", {
                         tipo_per_emp: me.selectTipo,
                         id_tipo_doc: me.selectTipoDoc,
-                        nombre: me.nombres,
-                        apellido: me.apellidos,
-                        num_documento: me.num_documento,
-                        ex: me.selectEX,                       
+                        nombre: me.nombres.toUpperCase(),
+                        apellido: me.apellidos.toUpperCase(),
+                        num_documento: me.num_documento.toUpperCase(),
+                        ex: me.complemento_.toUpperCase(),                       
                         correo: me.correo,
-                        nom_a_facturar: me.nombre_a_facturar,
+                        nom_a_facturar: me.nombre_a_facturar.toUpperCase(),
                         telefono: me.telefono,                      
-                        direccion: me.direccion,
-                        pais: me.pais,
-                        ciudad: me.ciudad
-                
+                        direccion: me.direccion.toUpperCase(),
+                        pais: me.pais.toUpperCase(),
+                        ciudad: me.ciudad.toUpperCase()                
                     })
                     .then(function (response) {
                         me.cerrarModal("registrar");
@@ -689,16 +678,16 @@
                         id_per_emp:me.id_per_emp,
                         tipo_per_emp: me.selectTipo,
                         id_tipo_doc: me.selectTipoDoc,
-                        nombre: me.nombres,
-                        apellido: me.apellidos,
-                        num_documento: me.num_documento,
-                        ex: me.selectEX,                       
+                        nombre: me.nombres.toUpperCase(),
+                        apellido: me.apellidos.toUpperCase(),
+                        num_documento: me.num_documento.toUpperCase(),
+                        ex: me.complemento_.toUpperCase(),                       
                         correo: me.correo,
-                        nom_a_facturar: me.nombre_a_facturar,
+                        nom_a_facturar: me.nombre_a_facturar.toUpperCase(),
                         telefono: me.telefono,                      
-                        direccion: me.direccion,
-                        pais: me.pais,
-                        ciudad: me.ciudad 
+                        direccion: me.direccion.toUpperCase(),
+                        pais: me.pais.toUpperCase(),
+                        ciudad: me.ciudad.toUpperCase() 
                 })
                 .then(function (response) {
                     me.listarCliente();

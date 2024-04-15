@@ -138,7 +138,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/permisos_editar_activar', [GetController::class, 'permisos_editar_activar']);
     Route::get('/listarSucursal', [GetController::class, 'listarSucursal']);
     Route::get('/listarSucursalGet', [GetController::class, 'listarSucursalGet']);
-    
+    Route::get('/listarTipoDoc', [GetController::class, 'listarTipoDoc']);  
+    Route::get('/listarEx', [GetController::class, 'listarEx']);   
    
     //adm///////////////////////////////////////////////////////////////////////////////////
 
@@ -507,9 +508,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::put('/traslado/activar', [LogTrasladoController::class, 'activar']);
     Route::put('/traslado/actualizar', [LogTrasladoController::class, 'update']);
 
-    //////////////////////////////////////////////DIRECTORIO///////////////////////////////////////////////////
-    Route::get('/directorio/listarTipoDoc', [DirClienteController::class, 'listarTipoDoc']);
-    Route::get('/directorio/listarEx', [DirClienteController::class, 'listarEx']); 
+    //////////////////////////////////////////////DIRECTORIO///////////////////////////////////////////////////   
+   
     Route::post('/directorio/registrar', [DirClienteController::class, 'store']);
     Route::get('/directorio', [DirClienteController::class, 'index']);  
     Route::put('/directorio/desactivar', [DirClienteController::class, 'desactivar']);
@@ -518,4 +518,6 @@ Route::group(['middleware' => 'auth'], function () {
 
     /////////////////////////////////////////////////VENTAS_PRODCUTOS///////////////////////////////////////////////////////    
     Route::get('/gestor_ventas/listarUsuario', [VenGestorVentaController::class, 'listarUsuario']);
+    Route::get('/gestor_ventas/listarUsuarioRetorno', [VenGestorVentaController::class, 'listarUsuarioRetorno']);
+    
 });

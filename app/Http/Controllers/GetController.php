@@ -154,4 +154,18 @@ return $result;
             return $sucursalesActivas;
         }
     }
+
+    //***************************PARA MOSTRARAR EL TIPO DE DOCUMENTO************************ */
+    public function listarTipoDoc(Request $request)
+    {
+        $tiposDocumento = DB::table('dir__tipo_doc')->get();
+        return $tiposDocumento;
+    }
+    
+    //****************************PARA MOSTRAR EL EXPEDICION CON LA CIEUDAD*********************** */
+    public function listarEx()
+    {
+        $ex = DB::table('adm__departamentos')->get();
+        return $ex;
+    }
 }
