@@ -21,32 +21,25 @@ class DirClienteController extends Controller
             $valor=sizeof($buscararray);
             if($valor > 0){
                 $sqls='';
-                foreach($buscararray as $valor)
-                {
+               foreach($buscararray as $valor)
+                {  
+                                 
                     if(empty($sqls)){
                         $sqls="(
-                            dc.correo like '%".$valor."%' 
-                            or dc.nom_a_facturar  like '%".$valor."%' 
-                            or dc.telefono   like '%".$valor."%' 
-                            or u.name   like '%".$valor."%' 
-                            or dc.num_documento  like '%".$valor."%' 
-                            or dt.nombre_doc like '%".$valor."%' 
-                            or dt.datos  like '%".$valor."%'                          
-                                                           
+                            dc.num_documento  like '%".$valor."%' 
+                            or dc.nom_a_facturar  like '%".$valor."%'
+                            or dc.correo like '%".$valor."%' 
                         )" ;
+                       
+                       
                     }
                     else
                     {
                         $sqls.="and (
-                            dc.correo like '%".$valor."%' 
-                            or dc.nom_a_facturar  like '%".$valor."%' 
-                            or dc.telefono   like '%".$valor."%' 
-                            or u.name   like '%".$valor."%' 
-                            or dc.num_documento  like '%".$valor."%' 
-                            or dt.nombre_doc like '%".$valor."%' 
-                            or dt.datos  like '%".$valor."%'  
-                            
-                          )" ;
+                           dc.num_documento  like '%".$valor."%' 
+                           or dc.nom_a_facturar  like '%".$valor."%'
+                           or dc.correo like '%".$valor."%'                      
+                          )" ;                      
                     }
     
                 }
@@ -83,6 +76,7 @@ $clientesPersonas = DB::table('dir__clientes as dc')
 ->join('dir__personas as dp', 'dp.id', '=', 'dc.id_per_emp')
 
 ->whereRaw($sqls)
+
 ->where('dc.tipo_per_emp', '=', $bus);
 
 // Consulta para obtener los clientes empresas
@@ -114,8 +108,10 @@ $clientesEmpresas = DB::table('dir__clientes as dc')
 )
 ->join('dir__tipo_doc as dt', 'dc.id_tipo_doc', '=', 'dt.id')
 ->join('users as u', 'dc.id_user', '=', 'u.id')
+->join('dir__empresas as de','dc.id_per_emp', '=', 'de.id')
 
 ->whereRaw($sqls)
+
 ->where('dc.tipo_per_emp', '=', $bus);
 
 // Unir los resultados de ambas consultas

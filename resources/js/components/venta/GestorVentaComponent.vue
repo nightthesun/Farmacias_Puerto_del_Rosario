@@ -242,7 +242,7 @@
                                   id="texto"
                                   name="texto"
                                   class="form-control"
-                                  placeholder="Numero de cliente/nombre/nombre a facturar"
+                                  placeholder="Id cli/Nro doc/Nom a facturar"
                                   v-model="buscar"
                                   @input="listarUsuarioRetorno()" />                             
                           </div>
@@ -596,7 +596,13 @@ export default {
 
     methods: {
         cargardatosCliente(){
-
+            let me=this;
+            me.id_tipo_doc=me.selectTipoDoc;
+            me.nom_a_facturar=me.nombre_a_facturar;
+            me.num_documento=me.num_documento2;
+            me.cliente_id=cliente.id;
+            me.datos_cliete=me.nom_a_facturar+"/"+me.num_documento+"/"+response.data.tipo_doc_nombre;  
+                   
         },
         validateInput() {
         this.num_documento2 = this.num_documento2.replace(/[^a-zA-Z0-9]/g, '');
@@ -885,10 +891,12 @@ export default {
                         telefono: me.telefono,                      
                         direccion: me.direccion,
                         pais: me.pais,
-                        ciudad: me.ciudad
+                        ciudad: me.ciudad,
                 
                     })
                     .then(function (response) {
+                        const clienteId = response.data.id;
+                        
                         me.cerrarModal("registrar");
                         Swal.fire(
                             "Registro exitosamente",
