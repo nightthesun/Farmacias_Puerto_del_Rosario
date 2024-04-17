@@ -617,7 +617,7 @@
                         me.listarCliente();                   
                     })
                   .catch(function (error) {           
-                
+            
                 if (error.response.status === 500) {
                     me.errorMsg = error.response.data.error; // Asigna el mensaje de error a la variable errorMsg
                 Swal.fire(
@@ -628,7 +628,7 @@
                 }else{
                     Swal.fire(
                     "Error",
-                    ""+error, // Muestra el mensaje de error en el alert
+                    ""+error.response.data.error, // Muestra el mensaje de error en el alert
                     "error"
                 );  
                 }

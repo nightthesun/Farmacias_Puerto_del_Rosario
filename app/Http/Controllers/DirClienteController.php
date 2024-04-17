@@ -231,48 +231,63 @@ $clientes = $clientes->orderByDesc('id')->paginate(10);
     {
         //tipo_per_emp=1 es empleado  si es 2 es empresa
         $primerGuardadoExitoso = false;
+        
         try {
+
                // Iniciar una transacción
                DB::beginTransaction();
+            // Buscar el usuario con el correo electrónico dado
+            $clienteB = Dir_Cliente::where('num_documento', $request->num_documento)->first();  
+            if ($clienteB) {
+            // El numero de docuemnto ya está registrado
+            
+            return response()->json(['error' => 'El numero de documento ya está registrado en la base de datos.'], 400);   
+            } else {
+            // El numero de docuemnto no está registrado
             if ($request->tipo_per_emp==1) {
-            $persona_empresa=new dir_Persona();
-            $persona_empresa->nombres=$request->nombre;
-            $persona_empresa->apellidos=$request->apellido;
-            $persona_empresa->documento_identidad=$request->num_documento;
-            $persona_empresa->complemento=$request->ex;
-            $persona_empresa->save();
-            }
-            else {
-                if ($request->tipo_per_emp==2) {
-            $persona_empresa=new dir_Empresa();
-            $persona_empresa->razon_social=$request->nom_a_facturar;      
-            $persona_empresa->nit=$request->num_documento;   
-            $persona_empresa->save();
+                $persona_empresa=new dir_Persona();
+                $persona_empresa->nombres=$request->nombre;
+                $persona_empresa->apellidos=$request->apellido;
+                $persona_empresa->documento_identidad=$request->num_documento;
+                $persona_empresa->complemento=$request->ex;
+                $persona_empresa->save();
                 }
-                else{
-                    dd("error");
+                else {
+                    if ($request->tipo_per_emp==2) {
+                $persona_empresa=new dir_Empresa();
+                $persona_empresa->razon_social=$request->nom_a_facturar;      
+                $persona_empresa->nit=$request->num_documento;   
+                $persona_empresa->save();
+                    }
+                    else{
+                        dd("error");
+                    }
                 }
+                $primerGuardadoExitoso = true;  
+                // Si llegamos aquí sin errores, confirmamos la transacción
+                DB::commit();
+                $cliente=new Dir_Cliente();
+                $cliente->correo=$request->correo;
+                $cliente->telefono=$request->telefono;
+                $cliente->direccion=$request->direccion;
+                $cliente->id_tipo_doc=$request->id_tipo_doc;
+                $cliente->nom_a_facturar=$request->nom_a_facturar;
+                $cliente->pais=$request->pais;
+                $cliente->ciudad=$request->ciudad;
+                $cliente->id_user=auth()->user()->id;
+                $cliente->id_usuario_registra=auth()->user()->id;
+                $cliente->id_per_emp=$persona_empresa->id;
+                $cliente->num_documento=$request->num_documento;
+                $cliente->tipo_per_emp=$request->tipo_per_emp;
+                $cliente->save();
             }
-            $primerGuardadoExitoso = true;  
-            // Si llegamos aquí sin errores, confirmamos la transacción
-            DB::commit();
-            $cliente=new Dir_Cliente();
-            $cliente->correo=$request->correo;
-            $cliente->telefono=$request->telefono;
-            $cliente->direccion=$request->direccion;
-            $cliente->id_tipo_doc=$request->id_tipo_doc;
-            $cliente->nom_a_facturar=$request->nom_a_facturar;
-            $cliente->pais=$request->pais;
-            $cliente->ciudad=$request->ciudad;
-            $cliente->id_user=auth()->user()->id;
-            $cliente->id_usuario_registra=auth()->user()->id;
-            $cliente->id_per_emp=$persona_empresa->id;
-            $cliente->num_documento=$request->num_documento;
-            $cliente->tipo_per_emp=$request->tipo_per_emp;
-            $cliente->save();
+
+           
 
         } catch (\Throwable $th) {
-                // Si el primer guardado fue exitoso y ocurre un error, revertimos la transacción
+          
+            // Si el primer guardado fue exitoso y ocurre un error, revertimos la transacción
+                
                 if ($primerGuardadoExitoso) {
                     DB::rollback();
                     // Eliminar el producto guardado
