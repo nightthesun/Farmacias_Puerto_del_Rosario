@@ -79,10 +79,9 @@ createApp ({
     .component('traslado-component', require('./components/logistica/TrasladosComponent.vue').default)
     //Directorio
     .component('cliente-component', require('./components/directorio/ClienteComponent.vue').default)
+    //Ventas
+    .component('gestor-venta-component', require('./components/venta/GestorVentaComponent.vue').default)
     
-
-
-
 
 
   

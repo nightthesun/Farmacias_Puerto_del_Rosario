@@ -190,13 +190,12 @@
                                 </label>
                                 <div class="col-md-9">   
             
-                                    <select name="" id=""  class="form-control" v-model="selectTipoDoc" >
+                                    <select name="" id=""  class="form-control" v-model="selectTipoDoc" @change="estadoEX();" >
                                         <option value="0" selected disabled>-Seleccione un dato </option>
                                         <option v-for="t in arrayTipoDocumento" :key="t.id"
                                             :value="t.id"
                                             v-text="t.datos+'-'+t.nombre_doc">
-                                        </option>
-                                      
+                                        </option>                                      
                                     </select>
                                 </div>
                             </div>
@@ -238,30 +237,21 @@
                                         </div> 
                                             <div class="row">
                                                 <div class="form-group col-sm-4" >
-                                                    <strong>EX: </strong>
-                                                 
-                                    <select name="" id=""  class="form-control" v-model="selectEX" :disabled="selectTipoDoc != 1">
-                                        <option value="0" selected disabled>-Seleccione un EX.</option>
-                                        <option v-for="e in arrayEX" :key="e.id"
-                                            :value="e.id"
-                                            v-text="e.abrev">
-                                        </option>
-                                      
-                                    </select>
+                                                    <strong>complemento de C.I.: </strong>
+                                                    <input type="text" class="form-control" placeholder="Solo si tiene C.I." :maxlength="4"  v-model="complemento_"  :disabled="selectTipoDoc != 1">
+                                  
                                                 </div>
                                                 <div class="form-group col-sm-4">
-                                                    <strong>Correo: <span  v-if="correo==''" class="error">(*)</span></strong>
-                                                    <input type="email" class="form-control" placeholder="Correo@correo.es"  v-model="correo" v-on:focus="selectAll">
-                                                    <span  v-if="correo==''" class="error">Debe Ingresar un correo</span>
+                                                    <strong>Correo: </strong>
+                                                    <input type="email" class="form-control" placeholder="Correo@correo.es"  v-model="correo" v-on:focus="selectAll" required>
+                                         
                                                 </div>
                                                 <div class="form-group col-sm-4">
                                                     <strong>Nombre a Facturar: <span  v-if="nombre_a_facturar==''" class="error">(*)</span></strong>
                                                     <input type="text" @input="validateInput" class="form-control" placeholder="Razon social"  v-model="nombre_a_facturar" v-on:focus="selectAll">
                                                     <span  v-if="nombre_a_facturar==''" class="error">Debe ingresar un nombre a quien va la factura</span>
                                                 </div>                                             
-                                            </div>
-
-                                        
+                                            </div>                                       
                                     </div>
                                   </div>
                                 <!------else del if-------->
@@ -274,9 +264,9 @@
                                                 <span  v-if="nombre_a_facturar==''" class="error">Debe ingresar un nombre del establecimiento</span>
                                             </div>  
                                             <div class="form-group col-sm-4">
-                                                <strong>Correo: <span  v-if="correo==''" class="error">(*)</span></strong>
-                                                <input type="email" class="form-control" placeholder="Correo@correo.es"  v-model="correo" v-on:focus="selectAll">
-                                                <span  v-if="correo==''" class="error">Debe Ingresar un correo</span>
+                                                
+                                                <input type="email" class="form-control" placeholder="Correo@correo.es"  v-model="correo" v-on:focus="selectAll" pattern="[a-zA-Z0-9_]+([.][a-zA-Z0-9_]+)*@[a-zA-Z0-9_]+([.][a-zA-Z0-9_]+)*[.][a-zA-Z]{1,5}" required>
+                                                
                                             </div>
                                             <div class="form-group col-sm-4">
                                                 <strong>Número Documento: <span  v-if="num_documento==''" class="error">(*)</span></strong>
@@ -378,7 +368,7 @@
                 arrayTipoDocumento:[],    
                 selectTipoDoc:0,
                 arrayEX:[],
-                selectEX:0,    
+                complemento_:'',    
 
                 //datos de persona
                 nombres:'',
@@ -406,10 +396,12 @@
         computed: {
         sicompleto() {
             let me = this;
+            const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (
                 me.selectTipoDoc != 0 &&
                 me.nombre_a_facturar != "" &&
-                me.correo != "" &&
+                
+                
                 me.num_documento != ""
             )
                 return true;
@@ -460,12 +452,12 @@
         },
         estadoEX(){
             if (this.selectTipoDoc!=1) {
-                this.selectEX=0;  
+                this.complemento_='';  
             }
         },
         listarEX(){
             let me=this;
-            var url='/directorio/listarEx';           
+            var url='/listarEx';           
             axios.get(url).then(function(response){
                 var respuesta=response.data;
                     me.arrayEX=respuesta;
@@ -474,10 +466,10 @@
                     console.log(error);
                 })
         },
-
+        
         listarTipoDoc(){
             let me=this;
-            var url='/directorio/listarTipoDoc';
+            var url='/listarTipoDoc';
             
             axios.get(url).then(function(response){
                 var respuesta=response.data;
@@ -503,7 +495,7 @@
                         me.tituloModal='Registro de cliente'
                         me.tipoAccion=1;
                         me.selectTipoDoc=0;              
-                        me.selectEX=0;
+                        me.complemento_='';
                         me.nombres="";
                         me.apellidos="";
                         me.num_documento="";
@@ -531,7 +523,7 @@
                         me.nombres=data.nombre;
                         me.apellidos=data.apellido;
                         me.num_documento=data.num_documento;
-                        me.selectEX=data.id_complemento === null ? 0:data.id_complemento;
+                        me.complemento_=data.complemento;
                         me.razon_social="";
                         me.nom_local="",  
                         me.id_per_emp=data.id_persona_empresa;    
@@ -554,7 +546,7 @@
                 let me = this;
                 me.tipoAccion=1;
                         me.selectTipoDoc=0;              
-                        me.selectEX=0;
+                        me.complemento_='';
                         me.nombres="";
                         me.apellidos="";
                         me.num_documento="";
@@ -574,8 +566,23 @@
             },
 
             registrar() {
-            let me = this;  
-            if (
+            let me = this;
+
+            if(me.correo==''){
+                me.correo="farmacia_pueto_del_rosario@gmail.com"
+            }
+            // Expresión regular para verificar el formato del correo electrónico
+            const correoRegex = /^[a-zA-Z0-9_]+([.][a-zA-Z0-9_]+)*@[a-zA-Z0-9_]+([.][a-zA-Z0-9_]+)*[.][a-zA-Z]{1,5}$/;
+            // Verificar si el correo cumple con el formato válido
+            if (!correoRegex.test(me.correo)) {
+                this.correoInvalido = true;
+                Swal.fire(
+                    "Formato de correo invalido.",
+                    "asegúrese si esta bien escrito el correo, no olvide la @ y la extencion ejemplo correo@correo.es",
+                    "warning",
+                );
+            } else {
+                if (
                 me.selectTipoDoc === 0 ||              
                 me.num_documento === "" ||
                 me.nombre_a_facturar === "" ||
@@ -587,21 +594,22 @@
                     "warning",
                 );
             } else {
+                
+                if (me.num_documento!=99001&&me.num_documento!=99002&&me.num_documento!=99003) {
                     axios
                     .post("/directorio/registrar", {
                         tipo_per_emp: me.selectTipo,
                         id_tipo_doc: me.selectTipoDoc,
-                        nombre: me.nombres,
-                        apellido: me.apellidos,
-                        num_documento: me.num_documento,
-                        ex: me.selectEX,                       
+                        nombre: me.nombres.toUpperCase(),
+                        apellido: me.apellidos.toUpperCase(),
+                        num_documento: me.num_documento.toUpperCase(),
+                        ex: me.complemento_.toUpperCase(),                       
                         correo: me.correo,
-                        nom_a_facturar: me.nombre_a_facturar,
+                        nom_a_facturar: me.nombre_a_facturar.toUpperCase(),
                         telefono: me.telefono,                      
-                        direccion: me.direccion,
-                        pais: me.pais,
-                        ciudad: me.ciudad
-                
+                        direccion: me.direccion.toUpperCase(),
+                        pais: me.pais.toUpperCase(),
+                        ciudad: me.ciudad.toUpperCase()                
                     })
                     .then(function (response) {
                         me.cerrarModal("registrar");
@@ -613,7 +621,7 @@
                         me.listarCliente();                   
                     })
                   .catch(function (error) {           
-                
+            
                 if (error.response.status === 500) {
                     me.errorMsg = error.response.data.error; // Asigna el mensaje de error a la variable errorMsg
                 Swal.fire(
@@ -624,18 +632,37 @@
                 }else{
                     Swal.fire(
                     "Error",
-                    ""+error, // Muestra el mensaje de error en el alert
+                    ""+error.response.data.error, // Muestra el mensaje de error en el alert
                     "error"
                 );  
                 }
 
                
             });
+                }   else {
+                    Swal.fire(
+                    "Los numeros 99001, 99002, 99003. Esta ocupado para actividades especiales",
+                    "Haga click en Ok",
+                    "warning",
+                ); 
+                }
             }
+            }  
+           
         },
         actualizar() {
             let me = this;
-            if (
+                    // Expresión regular para verificar el formato del correo electrónico
+                    const correoRegex = /^[a-zA-Z0-9_]+([.][a-zA-Z0-9_]+)*@[a-zA-Z0-9_]+([.][a-zA-Z0-9_]+)*[.][a-zA-Z]{1,5}$/;
+                    if (!correoRegex.test(me.correo)) {
+                this.correoInvalido = true;
+                Swal.fire(
+                    "Formato de correo invalido.",
+                    "asegúrese si esta bien escrito el correo, no olvide la @ y la extencion ejemplo correo@correo.es",
+                    "warning",
+                );
+            } else {
+                if (
                 me.selectTipoDoc === 0 ||              
                 me.num_documento === "" ||
                 me.nombre_a_facturar === "" ||
@@ -648,22 +675,23 @@
                 );
             }
             else{
-                axios 
+                if (me.num_documento!=99001&&me.num_documento!=99002&&me.num_documento!=99003) {
+                    axios 
             .put("/directorio/actualizar", {
                         id:me.id,
                         id_per_emp:me.id_per_emp,
                         tipo_per_emp: me.selectTipo,
                         id_tipo_doc: me.selectTipoDoc,
-                        nombre: me.nombres,
-                        apellido: me.apellidos,
-                        num_documento: me.num_documento,
-                        ex: me.selectEX,                       
+                        nombre: me.nombres.toUpperCase(),
+                        apellido: me.apellidos.toUpperCase(),
+                        num_documento: me.num_documento.toUpperCase(),
+                        ex: me.complemento_.toUpperCase(),                       
                         correo: me.correo,
-                        nom_a_facturar: me.nombre_a_facturar,
+                        nom_a_facturar: me.nombre_a_facturar.toUpperCase(),
                         telefono: me.telefono,                      
-                        direccion: me.direccion,
-                        pais: me.pais,
-                        ciudad: me.ciudad 
+                        direccion: me.direccion.toUpperCase(),
+                        pais: me.pais.toUpperCase(),
+                        ciudad: me.ciudad.toUpperCase() 
                 })
                 .then(function (response) {
                     me.listarCliente();
@@ -697,8 +725,17 @@
                
             });
             me.cerrarModal("registrar"); 
-            }
-            
+                }else{
+                    Swal.fire(
+                    "Los numeros 99001, 99002, 99003. Esta ocupado para actividades especiales",
+                    "Haga click en Ok",
+                    "warning",
+                ); 
+                }
+
+                
+            }    
+            }                          
         },
         eliminar(id){
                 let me=this;

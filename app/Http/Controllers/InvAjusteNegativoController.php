@@ -391,7 +391,9 @@ class InvAjusteNegativoController extends Controller
         // ->select('id','cod','razon_social')
         // ->orderby('id')
         // ->get();
-
+        $idsucursal=session('idsuc');
+        $nomsucursal=session('nomsucursal');
+      
         $tiendas = DB::table('tda__tiendas')
             ->select('tda__tiendas.id as id_tienda', DB::raw('null as id_almacen'), 'tda__tiendas.codigo', 'adm__sucursals.razon_social', 'adm__sucursals.razon_social as sucursal','adm__sucursals.cod as codigoS', DB::raw('"Tienda" as tipoCodigo'))
             ->join('adm__sucursals', 'tda__tiendas.idsucursal', '=', 'adm__sucursals.id');

@@ -262,23 +262,31 @@ class AdmSucursalController extends Controller
         //                         ->where('activo',1)
         //                         ->orderBy('cod', 'asc')
         //                         ->get();
-        $sucursales=Adm_Sucursal::join('adm__rubros','adm__rubros.id','adm__sucursals.idrubro')
-                                ->select(DB::raw('
-                                    adm__sucursals.id,
-                                    adm__sucursals.cod,
-                                    adm__sucursals.tipo,
-                                    adm__sucursals.razon_social as nombre,
-                                    adm__sucursals.activo as activosucursal,
-                                    adm__rubros.id,
-                                    adm__rubros.nombre as nomrubro,
-                                    adm__rubros.areamedica,
-                                    adm__rubros.activo as activorubro
-                                    '))
-                                ->where('adm__sucursals.activo',1)
-                                ->orderBy('adm__sucursals.cod', 'asc')
-                                ->get();
-               
-        return $sucursales;
+
+        $sucursales2 = DB::table('adm__sucursals')
+    ->join('adm__rubros', 'adm__rubros.id', '=', 'adm__sucursals.idrubro')
+    ->select('adm__sucursals.id', 'adm__sucursals.cod', 'adm__sucursals.tipo', 'adm__sucursals.razon_social as nombre', 'adm__sucursals.activo as activosucursal', 'adm__rubros.id as rubro_id', 'adm__rubros.nombre as nomrubro', 'adm__rubros.areamedica', 'adm__rubros.activo as activorubro')
+    ->where('adm__sucursals.activo', 1)
+    ->orderBy('adm__sucursals.cod', 'asc')
+    ->get();
+        // corregido por el ing.remberto datos uso del modelo incorrecto 
+       // $sucursales=Adm_Sucursal::join('adm__rubros','adm__rubros.id','adm__sucursals.idrubro')
+        //                        ->select(DB::raw('
+        //                            adm__sucursals.id,
+        //                            adm__sucursals.cod,
+         //                           adm__sucursals.tipo,
+          //                          adm__sucursals.razon_social as nombre,
+          //                          adm__sucursals.activo as activosucursal,
+           //                         adm__rubros.id,
+           //                         adm__rubros.nombre as nomrubro,
+           //                         adm__rubros.areamedica,
+            //                        adm__rubros.activo as activorubro
+            //                        '))
+            //                    ->where('adm__sucursals.activo',1)
+             //                   ->orderBy('adm__sucursals.cod', 'asc')
+             //                   ->get();
+          
+        return $sucursales2;
     }
 
 }

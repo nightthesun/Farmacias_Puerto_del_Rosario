@@ -186,7 +186,7 @@ import {error401} from '../../errores';
                 axios.get(url).then(function(response){
                     var respuesta=response.data;
                     me.arrayEmpleado=respuesta[0];
-                    console.log(me.arrayEmpleado);
+                 
                     
                 })
                 .catch(function(error){

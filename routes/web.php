@@ -50,8 +50,10 @@ use App\Http\Controllers\InvTraspasoController;
 use App\Http\Controllers\LogTrasladoController;
 use App\Http\Controllers\LogVehiculoController;
 use App\Http\Controllers\GesPreVenta2Controller;
+use App\Http\Controllers\GetController;
 use App\Http\Controllers\ProdListaController;
 use App\Http\Controllers\ProdRegistroPreXListController;
+use App\Http\Controllers\VenGestorVentaController;
 use App\Models\Alm_IngresoProducto;
 use App\Models\Tda_Tienda;
 
@@ -132,6 +134,13 @@ Route::post('/registro', [AdmRegistroController::class, 'store'])
 
 Route::group(['middleware' => 'auth'], function () {
 
+    //////////////////////////////////////controlador  generales/////////////////////////////////////////////////////////////
+    Route::get('/permisos_editar_activar', [GetController::class, 'permisos_editar_activar']);
+    Route::get('/listarSucursal', [GetController::class, 'listarSucursal']);
+    Route::get('/listarSucursalGet', [GetController::class, 'listarSucursalGet']);
+    Route::get('/listarTipoDoc', [GetController::class, 'listarTipoDoc']);  
+    Route::get('/listarEx', [GetController::class, 'listarEx']);   
+   
     //adm///////////////////////////////////////////////////////////////////////////////////
 
     Route::get('/rubro', [AdmRubroController::class, 'index']);
@@ -177,7 +186,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::put('/usuario/activar', [AdmUserController::class, 'activar']);
     Route::get('/usuario/listar-usuarios', [AdmUserController::class, 'listaUsuarios']);
     Route::get('/usuario/selectusuario', [AdmUserController::class, 'selectUsuario']);
-
+  
+    
 
     Route::get('/role', [AdmRoleController::class, 'index']);
     Route::post('/role/registrar', [AdmRoleController::class, 'store']);
@@ -190,6 +200,16 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/userrolesuc/registrar', [AdmUserRoleSucursalController::class, 'store']);
     Route::put('/userrolesuc/desactivar', [AdmUserRoleSucursalController::class, 'desactivar']);
     Route::put('/userrolesuc/activar', [AdmUserRoleSucursalController::class, 'activar']);
+    Route::post('/userrolesuc/registrarEditar_Activar', [AdmUserRoleSucursalController::class, 'registrarEditar_Activar']);
+    Route::post('/userrolesuc/asignar', [AdmUserRoleSucursalController::class, 'asignar']);
+
+    //*******para listar si tiene permisos de edicion y activacion usar en todos los reporte o modulos*/
+    Route::get('/userrolesuc/listarPermiso_Activacion', [AdmUserRoleSucursalController::class, 'listarPermiso_Activacion']);
+    //*******para listar si tiene permisos de ver esa sucursal, tienda , almacen....*/
+    Route::get('/userrolesuc/listarMas_sucursales', [AdmUserRoleSucursalController::class, 'listarMas_sucursales']);
+    //*****************************************funcino de sucursales y almacenes ********************************************************** */
+    Route::get('/userrolesuc/listarSucursal', [AdmUserRoleSucursalController::class, 'listarSucursal']);
+
 
     Route::get('/depto/selectdepto', [AdmDepartamentoController::class, 'selectDepartamento']);
 
@@ -419,7 +439,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/gestionprecioventa2/listarLista', [GesPreVenta2Controller::class, 'listarLista']);    
    
     /////////////////////////////////////////////Inventario///////////////////////////////////////////////////
-
+    
     Route::get('/ajustes-negativo', [InvAjusteNegativoController::class, 'index']);
     Route::get('/ajustes-negativo/listarTipo', [InvAjusteNegativoController::class, 'listarTipo']);
     Route::get('/ajustes-negativo/listarProductoLineaIngreso', [InvAjusteNegativoController::class, 'listarProductoLineaIngreso']);
@@ -488,12 +508,16 @@ Route::group(['middleware' => 'auth'], function () {
     Route::put('/traslado/activar', [LogTrasladoController::class, 'activar']);
     Route::put('/traslado/actualizar', [LogTrasladoController::class, 'update']);
 
-    //////////////////////////////////////////////DIRECTORIO///////////////////////////////////////////////////
-    Route::get('/directorio/listarTipoDoc', [DirClienteController::class, 'listarTipoDoc']);
-    Route::get('/directorio/listarEx', [DirClienteController::class, 'listarEx']); 
+    //////////////////////////////////////////////DIRECTORIO///////////////////////////////////////////////////   
+   
     Route::post('/directorio/registrar', [DirClienteController::class, 'store']);
     Route::get('/directorio', [DirClienteController::class, 'index']);  
     Route::put('/directorio/desactivar', [DirClienteController::class, 'desactivar']);
     Route::put('/directorio/activar', [DirClienteController::class, 'activar']);
     Route::put('/directorio/actualizar', [DirClienteController::class, 'update']);
+
+    /////////////////////////////////////////////////VENTAS_PRODCUTOS///////////////////////////////////////////////////////    
+    Route::get('/gestor_ventas/listarUsuario', [VenGestorVentaController::class, 'listarUsuario']);
+    Route::get('/gestor_ventas/listarUsuarioRetorno', [VenGestorVentaController::class, 'listarUsuarioRetorno']);
+    
 });

@@ -22,6 +22,7 @@ class AdmUserController extends Controller
      */
     public function index(Request $request)
     {
+        
         $raw=DB::raw('concat(nombre," ",ifnull(papellido," ")," ",ifnull(sapellido," ")) as nombre');
         $buscararray=array();
         if(!empty($request->buscar)){
@@ -32,15 +33,16 @@ class AdmUserController extends Controller
                 $sqls='';
                 foreach($buscararray as $valor){
                     if(empty($sqls)){
-                        $sqls="(rrh__nombre like '%".$valor."%' or papellido like '%".$valor."%' or amaaterno like '%".$valor."%' or email like '%".$valor."%')" ;
+                        $sqls="(rrh__empleados.nombre like '%".$valor."%' or rrh__empleados.papellido like '%".$valor."%' or rrh__empleados.sapellido like '%".$valor."%' or email like '%".$valor."%')" ;
                     }
                     else
                     {
-                        $sqls.=" and (rrh__nombre like '%".$valor."%' or papellido like '%".$valor."%' or amaaterno like '%".$valor."%' or email like '%".$valor."%')" ;
+                        $sqls.=" and (rrh__empleados.nombre  like '%".$valor."%' or rrh__empleados.papellido like '%".$valor."%' or rrh__empleados.sapellido like '%".$valor."%' or email like '%".$valor."%')" ;
                     }
     
                 }
                 $users= User::join('rrh__empleados','rrh__empleados.id','users.idempleado')
+            
                                 ->select($raw,
                                         'users.id as id',
                                         'email',
@@ -56,6 +58,7 @@ class AdmUserController extends Controller
         else
         {
             $users= User::join('rrh__empleados','rrh__empleados.id','users.idempleado')
+            
                             ->select($raw,
                                     'users.id as id',
                                     'email',
