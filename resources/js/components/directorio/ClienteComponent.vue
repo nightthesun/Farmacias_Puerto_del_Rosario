@@ -242,9 +242,9 @@
                                   
                                                 </div>
                                                 <div class="form-group col-sm-4">
-                                                    <strong>Correo: <span  v-if="correo==''" class="error">(*)</span></strong>
+                                                    <strong>Correo: </strong>
                                                     <input type="email" class="form-control" placeholder="Correo@correo.es"  v-model="correo" v-on:focus="selectAll" required>
-                                                    <span  v-if="correo==''" class="error">Debe Ingresar un correo</span>
+                                         
                                                 </div>
                                                 <div class="form-group col-sm-4">
                                                     <strong>Nombre a Facturar: <span  v-if="nombre_a_facturar==''" class="error">(*)</span></strong>
@@ -264,9 +264,9 @@
                                                 <span  v-if="nombre_a_facturar==''" class="error">Debe ingresar un nombre del establecimiento</span>
                                             </div>  
                                             <div class="form-group col-sm-4">
-                                                <strong>Correo: <span  v-if="correo==''" class="error">(*)</span></strong>
+                                                
                                                 <input type="email" class="form-control" placeholder="Correo@correo.es"  v-model="correo" v-on:focus="selectAll" pattern="[a-zA-Z0-9_]+([.][a-zA-Z0-9_]+)*@[a-zA-Z0-9_]+([.][a-zA-Z0-9_]+)*[.][a-zA-Z]{1,5}" required>
-                                                <span  v-if="correo==''" class="error">Debe Ingresar un correo</span>
+                                                
                                             </div>
                                             <div class="form-group col-sm-4">
                                                 <strong>Número Documento: <span  v-if="num_documento==''" class="error">(*)</span></strong>
@@ -362,8 +362,7 @@
                 tituloModal:'',    
                 tipoAccion:1, 
                 arrayTipo:[{id:1,tipo:'Persona'},
-                            {id:2,tipo:'Empresa'},
-                            {id:3,tipo:'Cliente casual'}],
+                            {id:2,tipo:'Empresa'}],
                 selectTipo:0,  
                 buscar:'',
                 arrayTipoDocumento:[],    
@@ -401,7 +400,7 @@
             if (
                 me.selectTipoDoc != 0 &&
                 me.nombre_a_facturar != "" &&
-                regex.test(me.correo) &&
+                
                 
                 me.num_documento != ""
             )
@@ -568,6 +567,10 @@
 
             registrar() {
             let me = this;
+
+            if(me.correo==''){
+                me.correo="farmacia_pueto_del_rosario@gmail.com"
+            }
             // Expresión regular para verificar el formato del correo electrónico
             const correoRegex = /^[a-zA-Z0-9_]+([.][a-zA-Z0-9_]+)*@[a-zA-Z0-9_]+([.][a-zA-Z0-9_]+)*[.][a-zA-Z]{1,5}$/;
             // Verificar si el correo cumple con el formato válido

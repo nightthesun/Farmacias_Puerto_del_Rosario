@@ -241,7 +241,7 @@ $clientes = $clientes->orderByDesc('id')->paginate(10);
             if ($clienteB) {
             // El numero de docuemnto ya está registrado
             
-            return response()->json(['error' => 'El numero de documento ya está registrado en la base de datos.'], 400);   
+            return response()->json(['error' => 'El numero de documento ya existe.'], 400);   
             } else {
             // El numero de docuemnto no está registrado
             if ($request->tipo_per_emp==1) {
