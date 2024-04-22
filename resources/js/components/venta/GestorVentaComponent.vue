@@ -11,7 +11,7 @@
             <div class="card">
                 <div class="card-header d-flex">
                     <span>Venta de productos </span>  
-                 
+               
                     &nbsp;
       <select class="form-control form-control-sm" v-model="selectSucursalGet" style="width: 200px;">
         <option value="0" selected disabled>Seleccionar sucursal...</option>
@@ -59,8 +59,7 @@
                             <button class="btn btn-info" type="button" style="color: white;"  @click="abrirModal('registrar_cliente');listarEX();listarTipoDoc();">
                                 <i class="fa fa-user-plus" aria-hidden="true"></i>
                             </button>
-                        </div>
-                   
+                        </div>           
                        
                       
                         
@@ -242,7 +241,7 @@
                                   id="texto"
                                   name="texto"
                                   class="form-control"
-                                  placeholder="Id cli/Nro doc/Nom a facturar"
+                                  placeholder="Id cliente/Nro doccumento/Nombre a facturar"
                                   v-model="buscar"
                                   @input="listarUsuarioRetorno()" />                             
                           </div>
@@ -339,141 +338,132 @@
                                         :value="t.id"
                                         v-text="t.datos+'-'+t.nombre_doc">
                                     </option>                                  
-                                </select>
+                                </select> 
                             </div>
                         </div>  
-                        <!---- acoordion ----> 
-                        <div class="accordion" id="accordionExample" v-if="selectTipoDoc!=0&&selectTipo!=0">
-                            <div class="card">
-                              <div class="card-header" id="headingOne">
-                                <h2 class="mb-0" v-if="selectTipo==1">
-                                  <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                                    Datos de persona
-                                  </button>
-                                </h2>
-                                <h2 class="mb-0" v-else>
-                                  <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                                    Empresa
-                                  </button>
-                                </h2>
-                                
-                              </div>
-                          
-                              <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordionExample" v-if="selectTipo==1">
-                                <div class="card-body">
-                                    <div class="row">
-                                        <div class="form-group col-sm-4">
-                                            <strong>Nombre: </strong>
-                                            <input type="text" class="form-control" v-model="nombres"  placeholder="Nombres."  >
-                                          
-                                        </div>
-                                        <div class="form-group col-sm-4">
-                                            <strong>Apellidos:</strong>
-                                            <input type="text" class="form-control" placeholder="Apellido Paterno / Apellido Materno."  v-model="apellidos" >
-                                          
-                                        </div>
-                                        <div class="form-group col-sm-4">
-                                            <strong>Número Documento: <span  v-if="num_documento2==''" class="error">(*)</span></strong>
-                                            <input type="text" @input="validateInput()" class="form-control" :placeholder="selectTipoDoc == 1 ? 'C.I.' : (selectTipoDoc == 2 ? 'C.I. Extranjero' : (selectTipoDoc == 3 ? 'Número pasaporte' : (selectTipoDoc == 4 ? 'Otro documento' : 'Nit')))" v-model="num_documento" v-on:focus="selectAll" >
-                                            <span  v-if="num_documento2==''" class="error">Debe ingresar el documento de identidad</span>
-                                        </div>
-                                    </div> 
+                         <!---- acoordion ----> 
+                         <div class="accordion" id="accordionExample" v-if="selectTipoDoc!=0&&selectTipo!=0">
+                                <div class="card">
+                                  <div class="card-header" id="headingOne">
+                                    <h2 class="mb-0" v-if="selectTipo==1">
+                                      <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                        Datos de persona
+                                      </button>
+                                    </h2>
+                                    <h2 class="mb-0" v-else>
+                                      <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                        Empresa
+                                      </button>
+                                    </h2>
+                                    
+                                  </div>
+                              
+                                  <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordionExample" v-if="selectTipo==1">
+                                    <div class="card-body">
                                         <div class="row">
-                                            <div class="form-group col-sm-4" >
-                                                <strong>EX: </strong>
-                                             
-                                <select name="" id=""  class="form-control" v-model="selectEX" :disabled="selectTipoDoc != 1">
-                                    <option value="0" selected disabled>-Seleccione un EX.</option>
-                                    <option v-for="e in arrayEX" :key="e.id"
-                                        :value="e.id"
-                                        v-text="e.abrev">
-                                    </option>
+                                            <div class="form-group col-sm-4">
+                                                <strong>Nombre: </strong>
+                                                <input type="text" class="form-control" v-model="nombres"  placeholder="Nombres."  >
+                                              
+                                            </div>
+                                            <div class="form-group col-sm-4">
+                                                <strong>Apellidos:</strong>
+                                                <input type="text" class="form-control" placeholder="Apellido Paterno / Apellido Materno."  v-model="apellidos" >
+                                              
+                                            </div>
+                                            <div class="form-group col-sm-4">
+                                                <strong>Número Documento: <span  v-if="num_documento==''" class="error">(*)</span></strong>
+                                                <input type="text" @input="validateInput()" class="form-control" :placeholder="selectTipoDoc == 1 ? 'C.I.' : (selectTipoDoc == 2 ? 'C.I. Extranjero' : (selectTipoDoc == 3 ? 'Número pasaporte' : (selectTipoDoc == 4 ? 'Otro documento' : 'Nit')))" v-model="num_documento" v-on:focus="selectAll" >
+                                                <span  v-if="num_documento==''" class="error">Debe ingresar el documento de identidad</span>
+                                            </div>
+                                        </div> 
+                                            <div class="row">
+                                                <div class="form-group col-sm-4" >
+                                                    <strong>complemento de C.I.: </strong>
+                                                    <input type="text" class="form-control" placeholder="Solo si tiene C.I." :maxlength="4"  v-model="complemento_"  :disabled="selectTipoDoc != 1">
                                   
-                                </select>
+                                                </div>
+                                                <div class="form-group col-sm-4">
+                                                    <strong>Correo: </strong>
+                                                    <input type="email" class="form-control" placeholder="Correo@correo.es"  v-model="correo" v-on:focus="selectAll" required>
+                                         
+                                                </div>
+                                                <div class="form-group col-sm-4">
+                                                    <strong>Nombre a Facturar: <span  v-if="nombre_a_facturar==''" class="error">(*)</span></strong>
+                                                    <input type="text" @input="validateInput" class="form-control" placeholder="Razon social"  v-model="nombre_a_facturar" v-on:focus="selectAll">
+                                                    <span  v-if="nombre_a_facturar==''" class="error">Debe ingresar un nombre a quien va la factura</span>
+                                                </div>                                             
+                                            </div>                                       
+                                    </div>
+                                  </div>
+                                <!------else del if-------->
+                                <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordionExample" v-else>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="form-group col-sm-4">
+                                                <strong>Razon_social: <span  v-if="nombre_a_facturar==''" class="error">(*)</span></strong>
+                                                <input type="text" class="form-control" placeholder="Nombre a Facturar"  v-model="nombre_a_facturar" v-on:focus="selectAll">
+                                                <span  v-if="nombre_a_facturar==''" class="error">Debe ingresar un nombre del establecimiento</span>
+                                            </div>  
+                                            <div class="form-group col-sm-4">
+                                                <strong>Correo:</strong>
+                                                <input type="email" class="form-control" placeholder="Correo@correo.es"  v-model="correo" v-on:focus="selectAll" pattern="[a-zA-Z0-9_]+([.][a-zA-Z0-9_]+)*@[a-zA-Z0-9_]+([.][a-zA-Z0-9_]+)*[.][a-zA-Z]{1,5}" required>
+                                                
                                             </div>
                                             <div class="form-group col-sm-4">
-                                                <strong>Correo: <span  v-if="correo==''" class="error">(*)</span></strong>
-                                                <input type="email" class="form-control" placeholder="Correo@correo.es"  v-model="correo" v-on:focus="selectAll" required>
-                                                <span  v-if="correo==''" class="error">Debe Ingresar un correo</span>
+                                                <strong>Número Documento: <span  v-if="num_documento==''" class="error">(*)</span></strong>
+                                                <input type="text" @input="validateInput()" class="form-control" :placeholder="selectTipoDoc == 1 ? 'C.I.' : (selectTipoDoc == 2 ? 'C.I. Extranjero' : (selectTipoDoc == 3 ? 'Número pasaporte' : (selectTipoDoc == 4 ? 'Otro documento' : 'Nit')))" v-model="num_documento" v-on:focus="selectAll">
+                                                <span  v-if="num_documento==''" class="error">Debe ingresar el documento de identidad</span>
                                             </div>
-                                            <div class="form-group col-sm-4">
-                                                <strong>Nombre a Facturar: <span  v-if="nombre_a_facturar==''" class="error">(*)</span></strong>
-                                                <input type="text" @input="validateInput" class="form-control" placeholder="Razon social"  v-model="nombre_a_facturar" v-on:focus="selectAll">
-                                                <span  v-if="nombre_a_facturar==''" class="error">Debe ingresar un nombre a quien va la factura</span>
-                                            </div>                                             
-                                        </div>
+                                        </div> 
+                                           
 
-                                    
-                                </div>
-                              </div>
-                            <!------else del if-------->
-                            <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordionExample" v-else>
-                                <div class="card-body">
-                                    <div class="row">
-                                        <div class="form-group col-sm-4">
-                                            <strong>Razon_social: <span  v-if="nombre_a_facturar==''" class="error">(*)</span></strong>
-                                            <input type="text" class="form-control" placeholder="Nombre a Facturar"  v-model="nombre_a_facturar" v-on:focus="selectAll">
-                                            <span  v-if="nombre_a_facturar==''" class="error">Debe ingresar un nombre del establecimiento</span>
-                                        </div>  
-                                        <div class="form-group col-sm-4">
-                                            <strong>Correo: <span  v-if="correo==''" class="error">(*)</span></strong>
-                                            <input type="email" class="form-control" placeholder="Correo@correo.es"  v-model="correo" v-on:focus="selectAll" pattern="[a-zA-Z0-9_]+([.][a-zA-Z0-9_]+)*@[a-zA-Z0-9_]+([.][a-zA-Z0-9_]+)*[.][a-zA-Z]{1,5}" required>
-                                            <span  v-if="correo==''" class="error">Debe Ingresar un correo</span>
-                                        </div>
-                                        <div class="form-group col-sm-4">
-                                            <strong>Número Documento: <span  v-if="num_documento2==''" class="error">(*)</span></strong>
-                                            <input type="text" @input="validateInput()" class="form-control" :placeholder="selectTipoDoc == 1 ? 'C.I.' : (selectTipoDoc == 2 ? 'C.I. Extranjero' : (selectTipoDoc == 3 ? 'Número pasaporte' : (selectTipoDoc == 4 ? 'Otro documento' : 'Nit')))" v-model="num_documento" v-on:focus="selectAll">
-                                            <span  v-if="num_documento2==''" class="error">Debe ingresar el documento de identidad</span>
-                                        </div>
-                                    </div> 
-                                       
-
-                                    
-                                </div>
-                              </div>
-
-                            </div>
-                            <div class="card">
-                              <div class="card-header" id="headingTwo">
-                                <h2 class="mb-0">
-                                  <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                                    Datos Adicionales
-                                  </button>
-                                </h2>
-                              </div>
-                              <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionExample">
-                                <div class="card-body">
-                                    <div class="row">
-                                        <div class="form-group col-sm-6">
-                                            <strong>Dispositivo de comunicación fijo o móvil:</strong>
-                                            <input type="text" class="form-control" v-model="telefono"  placeholder="Celular/telefono."  >
-                                          
-                                        </div>
-                                        <div class="form-group col-sm-6">
-                                            <strong>Dirección:</strong>
-                                            <input type="text" class="form-control" placeholder="Zona/Calle/Barrio/Numero de puerta."  v-model="direccion" >
                                         
-                                        </div>
-                                    
-                                    </div> 
-                                    <div class="row">
-                                        <div class="form-group col-sm-6">
-                                            <strong>País:</strong>
-                                            <input type="text" class="form-control" v-model="pais"  placeholder="Lugar donde radica."  >
-                                          
-                                        </div>
-                                        <div class="form-group col-sm-6">
-                                            <strong>Ciudad:</strong>
-                                            <input type="text" class="form-control" placeholder="ciudad donde vive."  v-model="ciudad">
-                                        
-                                        </div>
-                                    
-                                    </div> 
+                                    </div>
+                                  </div>
+
                                 </div>
+                                <div class="card">
+                                  <div class="card-header" id="headingTwo">
+                                    <h2 class="mb-0">
+                                      <button class="btn btn-link btn-block text-left collapsed" type="button" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                        Datos Adicionales
+                                      </button>
+                                    </h2>
+                                  </div>
+                                  <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionExample">
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="form-group col-sm-6">
+                                                <strong>Dispositivo de comunicación fijo o móvil:</strong>
+                                                <input type="text" class="form-control" v-model="telefono"  placeholder="Celular/telefono."  >
+                                              
+                                            </div>
+                                            <div class="form-group col-sm-6">
+                                                <strong>Dirección:</strong>
+                                                <input type="text" class="form-control" placeholder="Zona/Calle/Barrio/Numero de puerta."  v-model="direccion" >
+                                            
+                                            </div>
+                                        
+                                        </div> 
+                                        <div class="row">
+                                            <div class="form-group col-sm-6">
+                                                <strong>País:</strong>
+                                                <input type="text" class="form-control" v-model="pais"  placeholder="Lugar donde radica."  >
+                                              
+                                            </div>
+                                            <div class="form-group col-sm-6">
+                                                <strong>Ciudad:</strong>
+                                                <input type="text" class="form-control" placeholder="ciudad donde vive."  v-model="ciudad">
+                                            
+                                            </div>
+                                        
+                                        </div> 
+                                    </div>
+                                  </div>
+                                </div>
+                          
                               </div>
-                            </div>
-                      
-                          </div>
                       </div>
                    
                 </form>
@@ -481,7 +471,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" @click="cerrarModal('registrar_cliente')">Cerrar</button>
-                <button type="button"  class="btn btn-primary"  @click="registrar_cliente()">Guardar</button>              
+                <button type="button"  class="btn btn-primary"  @click="registrar_cliente_modal()">Guardar</button>              
                
             </div>
             </div>
@@ -552,11 +542,31 @@ export default {
             correo:'',
             nombre_a_facturar:'',
             nombres:'',
+            complemento_:'',
+            //tipo de codigo 
+            correo_cliente:'',
+            extencion_tipodocumento:'',
+            nombre_docuemnto:'',
+            
         };
     },
 
    
+watch: {
+    selectTipoDoc: function (newValue) {
+             let newTipo = this.arrayTipoDocumento.find(
+                    (element) => element.id === newValue,
+                );
 
+                if (newTipo) {
+                    this.extencion_tipodocumento =
+                    newTipo.datos;
+                    this.nombre_docuemnto =
+                    newTipo.nombre_doc;
+                }         
+            
+        }
+    },
     computed: {
         sicompleto() {
            let me = this;
@@ -633,11 +643,7 @@ export default {
                     console.log(error);
                 })
         },
-        estadoEX(){
-            if (this.selectTipoDoc!=1) {
-                this.selectEX=0;  
-            }
-        },
+        
         
         listarTipoDoc(){
             let me=this;
@@ -652,7 +658,7 @@ export default {
         },  
 
         caso_loteCliente(cliente){
-           console.log(cliente);
+     
            this.id_tipo_doc=cliente.id_tipo_doc;
         this.cliente_id=cliente.id;
         this.nom_a_facturar=cliente.nom_a_facturar;
@@ -676,11 +682,24 @@ export default {
       caso_99001(){
         this.id_tipo_doc=4;
         this.cliente_id=0;
+        this.num_documento=99001;
+        this.correo_cliente="";
         this.nom_a_facturar=this.razon_social_99001;
-        this.datos_cliete=this.razon_social_99001+"/99001/OD-OTRO DOCUMENTO DE IDENTIDAD";
+        
+        this.datos_cliete=this.nom_a_facturar+"/"+this.num_documento+"/OD-OTRO DOCUMENTO DE IDENTIDAD";
         this.cerrarModal('cliente_modal')       
       },
-
+      caso_creacion_cliente(data1,data2,data3,data4,data5){
+        this.id_tipo_doc=data1;
+        this.cliente_id=data2;
+        this.num_documento=data3;
+        this.correo_cliente=data4;
+        this.nom_a_facturar=data5;
+        //var documento
+      
+        this.datos_cliete=this.nom_a_facturar+"/"+this.num_documento+"/"+this.extencion_tipodocumento+"-"+this.nombre_docuemnto;
+        this.cerrarModal('registrar_cliente')       
+      },
       
         listarUsuario() {
             let me = this;
@@ -694,14 +713,26 @@ export default {
     case '99002':
             me.id_tipo_doc=4;
             me.cliente_id=0;
+            me.num_documento=99002;
             me.nom_a_facturar="CONTROL TRIBUTARIO";
-            me.datos_cliete=me.nom_a_facturar+"/99002/OD-OTRO DOCUMENTO DE IDENTIDAD";
+            me.correo_cliente="";
+            me.datos_cliete=me.nom_a_facturar+"/"+ me.num_documento+"/OD-OTRO DOCUMENTO DE IDENTIDAD";
         break;
     case '99003':
         me.id_tipo_doc=4;
         me.cliente_id=0;
+        me.num_documento=99003;
+        me.correo_cliente="";
         me.nom_a_facturar="VENTAS MENORES DEL DIA";
-        me.datos_cliete=me.nom_a_facturar+"/99003/OD-OTRO DOCUMENTO DE IDENTIDAD";
+        me.datos_cliete=me.nom_a_facturar+"/"+me.num_documento+"/OD-OTRO DOCUMENTO DE IDENTIDAD";
+    break;
+    case '0':
+        me.id_tipo_doc=4;
+        me.cliente_id=0;
+        me.num_documento=0;
+        me.nom_a_facturar="S/N";
+        me.correo_cliente="farmacia_pueto_del_rosario@gmail.com";
+        me.datos_cliete=me.nom_a_facturar+"/"+me.num_documento+"/OD-OTRO DOCUMENTO DE IDENTIDAD";
     break;
     default:
     axios
@@ -717,6 +748,7 @@ export default {
                         me.nom_a_facturar=response.data.nom_a_facturar;
                         me.num_documento=response.data.num_documento;
                         me.cliente_id=cliente.id;
+                        me.correo_cliente=response.data.correo;
                         me.datos_cliete=response.data.nom_a_facturar+"/"+response.data.num_documento+"/"+response.data.tipo_doc_nombre;  
                     }
                   
@@ -730,7 +762,11 @@ export default {
           
           
         },
-
+        estadoEX(){
+            if (this.selectTipoDoc!=1) {
+                this.complemento_='';  
+            }
+        },
         listarSucursalGet() {
             let me = this;
             var url = "/listarSucursalGet";
@@ -830,6 +866,10 @@ export default {
                     me.apellidos='';
                     me.selectTipoDoc=0;
                     me.selectTipo=0;
+                    me.complemento_="";
+                    me.extencion_tipodocumento="";
+                    me.nombre_docuemnto="";
+            
                     me.classModal.openModal("registrar_cliente");
                     break;
                 }            
@@ -839,11 +879,116 @@ export default {
             let me = this;          
             me.classModal.closeModal(accion);
             me.tituloModal = "";
+            me.pais='';
+                    me.ciudad='';
+                    me.direccion='';
+                    me.telefono='';
+                    me.num_documento2='';
+                    me.correo='';
+                    me.nombre_a_facturar='';
+                    me.nombres='';
+                    me.selectEX=0; 
+                    me.apellidos='';
+                    me.selectTipoDoc=0;
+                    me.selectTipo=0;
+                    me.complemento_='';
+                    me.extencion_tipodocumento="";
+                    me.nombre_docuemnto="";    
             me.v99001="";               
             
         },
 
-     
+        registrar_cliente_modal() {
+        console.log("-------------------");
+        let me = this;
+        if(me.correo==''){
+        me.correo="farmacia_pueto_del_rosario@gmail.com"
+        }
+// Expresión regular para verificar el formato del correo electrónico
+const correoRegex = /^[a-zA-Z0-9_]+([.][a-zA-Z0-9_]+)*@[a-zA-Z0-9_]+([.][a-zA-Z0-9_]+)*[.][a-zA-Z]{1,5}$/;
+// Verificar si el correo cumple con el formato válido
+if (!correoRegex.test(me.correo)) {
+    this.correoInvalido = true;
+    Swal.fire(
+        "Formato de correo invalido.",
+        "asegúrese si esta bien escrito el correo, no olvide la @ y la extencion ejemplo correo@correo.es",
+        "warning",
+    );
+} else {
+    if (
+    me.selectTipoDoc === 0 ||              
+    me.num_documento === "" ||
+    me.nombre_a_facturar === "" ||
+    me.correo === ""                
+) {
+    Swal.fire(
+        "No puede ingresar valor nulos  o vacios",
+        "Haga click en Ok",
+        "warning",
+    );
+} else {
+    
+    if (me.num_documento!=99001&&me.num_documento!=99002&&me.num_documento!=99003&&me.num_documento!=0&&me.num_documento!="000") {
+       console.log("tipo:"+me.selectTipo+" tipo: "+me.selectTipoDoc+" nombres: "+me.nombres
+        +" apellidos: "+me.apellidos+" numero_d "+me.num_documento+" complemento: "+me.complemento_+" name: "+
+        me.nombre_a_facturar+" telefono: "+me.telefono+" dir: "+me.direccion+" pais: "+me.pais+" ciudad: "+me.ciudad);
+        axios
+        .post("/directorio/registrar", {
+            tipo_per_emp: me.selectTipo,
+            id_tipo_doc: me.selectTipoDoc,
+            nombre: me.nombres.toUpperCase(),
+            apellido: me.apellidos.toUpperCase(),
+            num_documento: me.num_documento.toUpperCase(),
+            ex: me.complemento_.toUpperCase(),                       
+            correo: me.correo,
+            nom_a_facturar: me.nombre_a_facturar.toUpperCase(),
+            telefono: me.telefono,                      
+            direccion: me.direccion.toUpperCase(),
+            pais: me.pais.toUpperCase(),
+            ciudad: me.ciudad.toUpperCase()                
+        })
+        .then(function (response) {
+            
+            me.cerrarModal("registrar");
+            Swal.fire(
+                "Registro exitosamente",
+                "Haga click en Ok",
+                "success",
+            );
+            console.log("Respuesta del servidor:", response.data); // Mostrar toda la respuesta en la consola
+        
+          //---                  
+        })
+      .catch(function (error) {           
+
+    if (error.response.status === 500) {
+        me.errorMsg = error.response.data.error; // Asigna el mensaje de error a la variable errorMsg
+    Swal.fire(
+        "Error",
+        "500 (Internal Server Error)"+me.errorMsg, // Muestra el mensaje de error en el alert
+        "error"
+    );
+    }else{
+        Swal.fire(
+        "Error",
+        ""+error.response.data.error, // Muestra el mensaje de error en el alert
+        "error"
+    );  
+    }
+
+   
+});
+    }   else {
+        Swal.fire(
+        "Los numeros 99001, 99002, 99003, 0, 000 . Esta ocupado para actividades especiales",
+        "Haga click en Ok",
+        "warning",
+    ); 
+    }
+}
+}
+           
+        },
 
         selectAll: function (event) {
             setTimeout(function () {
@@ -851,90 +996,8 @@ export default {
             }, 0);
         },
     },
-    registrar_cliente() {
-            let me = this;
-            // Expresión regular para verificar el formato del correo electrónico
-            const correoRegex = /^[a-zA-Z0-9_]+([.][a-zA-Z0-9_]+)*@[a-zA-Z0-9_]+([.][a-zA-Z0-9_]+)*[.][a-zA-Z]{1,5}$/;
-            // Verificar si el correo cumple con el formato válido
-            if (!correoRegex.test(me.correo)) {
-                this.correoInvalido = true;
-                Swal.fire(
-                    "Formato de correo invalido.",
-                    "asegúrese si esta bien escrito el correo, no olvide la @ y la extencion ejemplo correo@correo.es",
-                    "warning",
-                );
-            } else {
-                if (
-                me.selectTipoDoc === 0 ||              
-                me.num_documento2 === "" ||
-                me.nombre_a_facturar === "" ||
-                me.correo === ""                
-            ) {
-                Swal.fire(
-                    "No puede ingresar valor nulos  o vacios",
-                    "Haga click en Ok",
-                    "warning",
-                );
-            } else {
-                
-                if (me.num_documento!=99001&&me.num_documento!=99002&&me.num_documento2!=99003) {
-                    axios
-                    .post("/directorio/registrar", {
-                        tipo_per_emp: me.selectTipo,
-                        id_tipo_doc: me.selectTipoDoc,
-                        nombre: me.nombres,
-                        apellido: me.apellidos,
-                        num_documento: me.num_documento2,
-                        ex: me.selectEX,                       
-                        correo: me.correo,
-                        nom_a_facturar: me.nombre_a_facturar,
-                        telefono: me.telefono,                      
-                        direccion: me.direccion,
-                        pais: me.pais,
-                        ciudad: me.ciudad,
-                
-                    })
-                    .then(function (response) {
-                        const clienteId = response.data.id;
-                        
-                        me.cerrarModal("registrar");
-                        Swal.fire(
-                            "Registro exitosamente",
-                            "Haga click en Ok",
-                            "success",
-                        );
-                        me.cargardatosCliente();                   
-                    })
-                  .catch(function (error) {           
-                
-                if (error.response.status === 500) {
-                    me.errorMsg = error.response.data.error; // Asigna el mensaje de error a la variable errorMsg
-                Swal.fire(
-                    "Error",
-                    "500 (Internal Server Error)"+me.errorMsg, // Muestra el mensaje de error en el alert
-                    "error"
-                );
-                }else{
-                    Swal.fire(
-                    "Error",
-                    ""+error, // Muestra el mensaje de error en el alert
-                    "error"
-                );  
-                }
 
-               
-            });
-                }   else {
-                    Swal.fire(
-                    "Los numeros 99001, 99002, 99003. Esta ocupado para actividades especiales",
-                    "Haga click en Ok",
-                    "warning",
-                ); 
-                }
-            }
-            }  
-           
-        },
+    
     mounted() {
         this.classModal = new _pl.Modals();
         this.listarAlmTienda();

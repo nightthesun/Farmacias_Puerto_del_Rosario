@@ -264,7 +264,7 @@
                                                 <span  v-if="nombre_a_facturar==''" class="error">Debe ingresar un nombre del establecimiento</span>
                                             </div>  
                                             <div class="form-group col-sm-4">
-                                                
+                                                <strong>Correo:</strong>
                                                 <input type="email" class="form-control" placeholder="Correo@correo.es"  v-model="correo" v-on:focus="selectAll" pattern="[a-zA-Z0-9_]+([.][a-zA-Z0-9_]+)*@[a-zA-Z0-9_]+([.][a-zA-Z0-9_]+)*[.][a-zA-Z]{1,5}" required>
                                                 
                                             </div>

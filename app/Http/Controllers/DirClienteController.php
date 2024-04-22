@@ -243,9 +243,9 @@ $clientes = $clientes->orderByDesc('id')->paginate(10);
             
             return response()->json(['error' => 'El numero de documento ya existe.'], 400);   
             } else {
-            // El numero de docuemnto no está registrado
+            // El numero de docuemnto no está registrado tipo_per_emp=1 es persona  y tipo_per_emp=2 es empresa 
             if ($request->tipo_per_emp==1) {
-                $persona_empresa=new dir_Persona();
+                $persona_empresa=new dir_Persona();               
                 $persona_empresa->nombres=$request->nombre;
                 $persona_empresa->apellidos=$request->apellido;
                 $persona_empresa->documento_identidad=$request->num_documento;
@@ -253,6 +253,7 @@ $clientes = $clientes->orderByDesc('id')->paginate(10);
                 $persona_empresa->save();
                 }
                 else {
+                    //empresa
                     if ($request->tipo_per_emp==2) {
                 $persona_empresa=new dir_Empresa();
                 $persona_empresa->razon_social=$request->nom_a_facturar;      
@@ -280,6 +281,8 @@ $clientes = $clientes->orderByDesc('id')->paginate(10);
                 $cliente->num_documento=$request->num_documento;
                 $cliente->tipo_per_emp=$request->tipo_per_emp;
                 $cliente->save();
+                // Devolver el ID del nuevo cliente como respuesta
+        return response()->json(['id' => $cliente->id], 201);
             }
 
            

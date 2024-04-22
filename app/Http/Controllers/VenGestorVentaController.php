@@ -100,18 +100,16 @@ class VenGestorVentaController extends Controller
 
                 foreach ($buscararray as $valor) {
                     if (empty($sqls)) {
-                        $sqls = "(
-                            dc.id like '%" . $valor . "%' 
-                            or dc.nom_a_facturar like '%" . $valor . "%' 
-                            or dc.num_documento like '%" . $valor . "%' 
-                         
+                        $sqls = "(                       
+                            dc.num_documento like '%" . $valor . "%' 
+                            or dc.id like '%" . $valor . "%'
+                            or dc.nom_a_facturar like '%" . $valor . "%'
                                )";
                     } else {
-                        $sqls .= "and (dc.id like '%" . $valor . "%' 
-                        or dc.nom_a_facturar like '%" . $valor . "%' 
-                        or dc.num_documento like '%" . $valor . "%' 
-                       
-                       
+                        $sqls .= "and (
+                        dc.num_documento like '%" . $valor . "%' 
+                        or dc.id like '%" . $valor . "%'
+                        or dc.nom_a_facturar like '%" . $valor . "%'                       
                        )";
                     }
                 }
@@ -129,8 +127,9 @@ class VenGestorVentaController extends Controller
                 ->join('dir__tipo_doc as dtd', 'dc.id_tipo_doc', '=', 'dtd.id')
                 ->join('dir__personas as dp', 'dc.id_per_emp', '=', 'dp.id')
                 ->where('dc.tipo_per_emp', 1)
+                ->whereRaw($sqls)
                 ->where('dc.activo', 1);
-            
+                
             $subconsultaEmpresas = DB::table('dir__clientes as dc')
                 ->select('dc.id', 
                          'dc.nom_a_facturar', 
@@ -144,9 +143,11 @@ class VenGestorVentaController extends Controller
                 ->join('dir__empresas as de', 'dc.id_per_emp', '=', 'de.id')
                 ->join('dir__tipo_doc as dtd', 'dc.id_tipo_doc', '=', 'dtd.id')
                 ->where('dc.tipo_per_emp', 2)
+                ->whereRaw($sqls)
                 ->where('dc.activo', 1);
             
             $resultado = $subconsulta->unionAll($subconsultaEmpresas)
+            
                 ->orderBy('id', 'desc') // Ordenar por id de forma descendente
                 ->take(30) // Limitar a 100 registros
                 ->get();       
