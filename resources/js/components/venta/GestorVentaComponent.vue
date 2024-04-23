@@ -30,34 +30,43 @@
                     
                     
                 </div>
-        <div class="card-body" style="padding-top: 1px;">
-            <div class="form-group row">
+        <div class="card-body" style="padding-top: 5px; padding-bottom: 1px;" >
+            <div class="form-group row" >
+               
 
-                <div class="card w-100">
-                  
-                    <div class="card-body">
-                      <strong >Detalle de cliente</strong> 
+                <div class="card w-100" style=" border-left: 3px solid #04660c;">
 
-
-                      <hr> <!-- Línea horizontal -->
-                      
-                      <div class="row">
+                    <div class="card-body" style="margin-top: -1rem; margin-bottom: -1rem;">
+                      <strong >Detalle de producto</strong> 
+                      <hr> <!-- Línea horizontal -->                      
+                      <div class="row" >
                     
                         <div class="form-group col-sm-4" style="display: flex; align-items: center;">
-                            <input type="text" class="form-control"  placeholder="Número de Documento" v-model="buscarCliente">
-                            <button class="btn btn-primary" type="button" 
-                                    @click="listarUsuario()" :disabled="buscarCliente==''">
-                                Buscar
-                            </button>
+                        
+                              
+                            <div class="input-group">
+                              
+                                <select class="selectpicker" data-live-search="true">
+                                    <option>Mustard</option>
+                                    <option>Ketchup</option>
+                                    <option>Relish</option>
+                                  </select>
+                             
+                            </div>
+                            
+                          
                           
                         </div>
-                        <div class="form-group col-sm-5" style="display: flex; align-items: center;">
+                        <div class="form-group col-sm-6" style="display: flex; align-items: center;">
                             <input type="text" class="form-control"  v-model="datos_cliete" disabled placeholder="Número Documento/Número de Cliente">
                             <button class="btn btn-primary" type="button" @click="abrirModal('lote_cliete');listarUsuarioRetorno();">
                                 <i class="fa fa-search-plus" aria-hidden="true"></i>
                             </button>                            
                             <button class="btn btn-info" type="button" style="color: white;"  @click="abrirModal('registrar_cliente');listarEX();listarTipoDoc();">
                                 <i class="fa fa-user-plus" aria-hidden="true"></i>
+                            </button>
+                            <button class="btn btn-secondary" type="button" style="color: white;"  @click="limpiar();">
+                                Limpiar
                             </button>
                         </div>           
                        
@@ -107,7 +116,39 @@
   </tbody>
 </table>
                        
+<div class="card w-100" style="border-left: 3px solid #f0ad4e;">
 
+    <div class="card-body" >
+      <strong >Detalle de cliente</strong> 
+      <hr> <!-- Línea horizontal -->                      
+      <div class="row">
+    
+        <div class="form-group col-sm-4" style="display: flex; align-items: center;">
+            <input type="text" class="form-control"  placeholder="Número de Documento" v-model="buscarCliente">
+            <button class="btn btn-primary" type="button" 
+                    @click="listarUsuario()" :disabled="buscarCliente==''">
+                Buscar
+            </button>
+          
+        </div>
+        <div class="form-group col-sm-6" style="display: flex; align-items: center;">
+            <input type="text" class="form-control"  v-model="datos_cliete" disabled placeholder="Número Documento/Número de Cliente">
+            <button class="btn btn-primary" type="button" @click="abrirModal('lote_cliete');listarUsuarioRetorno();">
+                <i class="fa fa-search-plus" aria-hidden="true"></i>
+            </button>                            
+            <button class="btn btn-info" type="button" style="color: white;"  @click="abrirModal('registrar_cliente');listarEX();listarTipoDoc();">
+                <i class="fa fa-user-plus" aria-hidden="true"></i>
+            </button>
+            <button class="btn btn-secondary" type="button" style="color: white;"  @click="limpiar();">
+                Limpiar
+            </button>
+        </div>           
+       
+      
+        
+    </div> 
+    </div>
+  </div>
             </div>
         </div>
             </div>   
@@ -546,7 +587,12 @@ export default {
             //tipo de codigo 
             correo_cliente:'',
             extencion_tipodocumento:'',
-            nombre_docuemnto:'',
+            nombre_documento:'',
+            //////////////////producto////////////////
+            frutas: ['Manzana', 'Plátano', 'Naranja', 'Pera', 'Uva'],
+      frutaSeleccionada: '',
+      mostrarDatalist: false
+    
             
         };
     },
@@ -559,15 +605,17 @@ watch: {
                 );
 
                 if (newTipo) {
-                    this.extencion_tipodocumento =
-                    newTipo.datos;
-                    this.nombre_docuemnto =
-                    newTipo.nombre_doc;
+                    this.extencion_tipodocumento = newTipo.datos;
+                    this.nombre_documento =newTipo.nombre_doc;
                 }         
-            
-        }
+            console.log(this.extencion_tipodocumento+"  "+this.nombre_documento);
+        },
+      
     },
     computed: {
+        paisesFiltrados() {
+          return this.paises.filter(pais => pais.toLowerCase().includes(this.busqueda.toLowerCase()));
+        },
         sicompleto() {
            let me = this;
      //       if (
@@ -605,15 +653,7 @@ watch: {
     },
 
     methods: {
-        cargardatosCliente(){
-            let me=this;
-            me.id_tipo_doc=me.selectTipoDoc;
-            me.nom_a_facturar=me.nombre_a_facturar;
-            me.num_documento=me.num_documento2;
-            me.cliente_id=cliente.id;
-            me.datos_cliete=me.nom_a_facturar+"/"+me.num_documento+"/"+response.data.tipo_doc_nombre;  
-                   
-        },
+        
         validateInput() {
         this.num_documento2 = this.num_documento2.replace(/[^a-zA-Z0-9]/g, '');
         },
@@ -666,6 +706,7 @@ watch: {
         this.datos_cliete=cliente.nom_a_facturar+"/"+cliente.num_documento+"/"+cliente.tipo_doc_datos+"-"+cliente.tipo_doc_nombre;
         this.cerrarModal('lote_cliete')
         },
+
         listarUsuarioRetorno() {
             let me = this;       
             var url ="/gestor_ventas/listarUsuarioRetorno?buscar="+this.buscar;            
@@ -679,6 +720,7 @@ watch: {
                     console.log(error);
                 });
         },
+
       caso_99001(){
         this.id_tipo_doc=4;
         this.cliente_id=0;
@@ -689,18 +731,20 @@ watch: {
         this.datos_cliete=this.nom_a_facturar+"/"+this.num_documento+"/OD-OTRO DOCUMENTO DE IDENTIDAD";
         this.cerrarModal('cliente_modal')       
       },
-      caso_creacion_cliente(data1,data2,data3,data4,data5){
-        this.id_tipo_doc=data1;
-        this.cliente_id=data2;
-        this.num_documento=data3;
-        this.correo_cliente=data4;
-        this.nom_a_facturar=data5;
-        //var documento
+
       
-        this.datos_cliete=this.nom_a_facturar+"/"+this.num_documento+"/"+this.extencion_tipodocumento+"-"+this.nombre_docuemnto;
-        this.cerrarModal('registrar_cliente')       
+
+      limpiar(){
+        this.id_tipo_doc="";
+        this.cliente_id="";
+        this.num_documento="";
+        this.correo_cliente="";
+        this.nom_a_facturar="";
+        //var documento      
+        this.datos_cliete="";
+        this.buscarCliente="";
       },
-      
+
         listarUsuario() {
             let me = this;
             var url = "/gestor_ventas/listarUsuario?num_doc="+me.buscarCliente;
@@ -730,7 +774,7 @@ watch: {
         me.id_tipo_doc=4;
         me.cliente_id=0;
         me.num_documento=0;
-        me.nom_a_facturar="S/N";
+        me.nom_a_facturar="SIN NOMBRE";
         me.correo_cliente="farmacia_pueto_del_rosario@gmail.com";
         me.datos_cliete=me.nom_a_facturar+"/"+me.num_documento+"/OD-OTRO DOCUMENTO DE IDENTIDAD";
     break;
@@ -747,7 +791,7 @@ watch: {
                         me.id_tipo_doc=response.data.id_tipo_doc;
                         me.nom_a_facturar=response.data.nom_a_facturar;
                         me.num_documento=response.data.num_documento;
-                        me.cliente_id=cliente.id;
+                        me.cliente_id=response.data.id;
                         me.correo_cliente=response.data.correo;
                         me.datos_cliete=response.data.nom_a_facturar+"/"+response.data.num_documento+"/"+response.data.tipo_doc_nombre;  
                     }
@@ -866,9 +910,10 @@ watch: {
                     me.apellidos='';
                     me.selectTipoDoc=0;
                     me.selectTipo=0;
-                    me.complemento_="";
-                    me.extencion_tipodocumento="";
-                    me.nombre_docuemnto="";
+                    me.complemento_='';
+                    me.extencion_tipodocumento='';
+                    me.nombre_documento='';
+                    me.num_documento2='';
             
                     me.classModal.openModal("registrar_cliente");
                     break;
@@ -879,21 +924,22 @@ watch: {
             let me = this;          
             me.classModal.closeModal(accion);
             me.tituloModal = "";
-            me.pais='';
-                    me.ciudad='';
-                    me.direccion='';
-                    me.telefono='';
-                    me.num_documento2='';
-                    me.correo='';
-                    me.nombre_a_facturar='';
-                    me.nombres='';
-                    me.selectEX=0; 
-                    me.apellidos='';
-                    me.selectTipoDoc=0;
-                    me.selectTipo=0;
-                    me.complemento_='';
-                    me.extencion_tipodocumento="";
-                    me.nombre_docuemnto="";    
+            me.buscarCliente ="";
+                    //me.pais='';
+                    //me.ciudad='';
+                    //me.direccion='';
+                    //me.telefono='';
+                    //me.num_documento2='';
+                    //me.correo='';
+                    //me.nombre_a_facturar='';
+                    //me.nombres='';
+                    //me.selectEX=0; 
+                    //me.apellidos='';
+                    //me.selectTipoDoc=0;
+                    //me.selectTipo=0;
+                    //me.complemento_='';
+                   // me.extencion_tipodocumento="";
+                   // me.nombre_documento="";    
             me.v99001="";               
             
         },
@@ -947,17 +993,25 @@ if (!correoRegex.test(me.correo)) {
             pais: me.pais.toUpperCase(),
             ciudad: me.ciudad.toUpperCase()                
         })
-        .then(function (response) {
-            
-            me.cerrarModal("registrar");
+        .then(function (response) {   
+            console.log("Respuesta del servidor:", response.data); // Mostrar toda la respuesta en la consola
+            me.id_tipo_doc=response.data.id_tipo_doc;
+            me.cliente_id=response.data.id;
+            me.num_documento=response.data.num_documento;
+            me.correo_cliente=response.data.correo;
+            me.nom_a_facturar=response.data.nom_a_facturar;
+        //var documento
+      
+        me.datos_cliete=me.nom_a_facturar+"/"+me.num_documento+"/"+me.extencion_tipodocumento+"-"+me.nombre_documento;
+           
+            me.cerrarModal("registrar_cliente");
             Swal.fire(
                 "Registro exitosamente",
                 "Haga click en Ok",
                 "success",
-            );
-            console.log("Respuesta del servidor:", response.data); // Mostrar toda la respuesta en la consola
-        
-          //---                  
+            );            
+         
+            //---                  
         })
       .catch(function (error) {           
 

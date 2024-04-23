@@ -236,6 +236,7 @@ $clientes = $clientes->orderByDesc('id')->paginate(10);
 
                // Iniciar una transacción
                DB::beginTransaction();
+
             // Buscar el usuario con el correo electrónico dado
             $clienteB = Dir_Cliente::where('num_documento', $request->num_documento)->first();  
             if ($clienteB) {
@@ -282,10 +283,15 @@ $clientes = $clientes->orderByDesc('id')->paginate(10);
                 $cliente->tipo_per_emp=$request->tipo_per_emp;
                 $cliente->save();
                 // Devolver el ID del nuevo cliente como respuesta
-        return response()->json(['id' => $cliente->id], 201);
+      
             }
-
-           
+            return response()->json([
+                'id' => $cliente->id,
+                'nom_a_facturar' => $cliente->nom_a_facturar,
+                'correo' => $cliente->correo,
+                'id_tipo_doc' => $cliente->id_tipo_doc,
+                'num_documento' => $cliente->num_documento,
+            ], 201);
 
         } catch (\Throwable $th) {
           
