@@ -288,46 +288,40 @@
                         </button>
                     </div>
                     <div class="modal-body">
-                        <table class="table table-bordered table-striped table-sm table-responsive">
-                        <thead>
-                            <tr>
-                              
-                                <th style="width: 20px;">Editar</th>
-                                <th style="width: 20px;">Activar</th>
-                            </tr>
-                        </thead>
-                        <tbody>                            
-                            <tr>
-                                <td>
-                                    <div class="form-check-inline">
-                                        <label class="form-check-label">
-                                            <input type="radio" class="form-check-input" name="optradio" v-model="permiso_Editar" :value="1"> Si
-                                        </label>
-                                    </div>
-                                    <div class="form-check-inline">
-                                        <label class="form-check-label">
-                                            <input type="radio" class="form-check-input" name="optradio" v-model="permiso_Editar" :value="2"> No 
-                                        </label>
-                                    </div>
-                                </td>
-            
-                                <td>
-                                <div class="form-check-inline">
-                                        <label class="form-check-label">
-                                            <input type="radio" class="form-check-input" name="optradio2" v-model="permiso_Activar" :value="1"> Si
-                                        </label>
-                                    </div>
-                                    <div class="form-check-inline">
-                                        <label class="form-check-label">
-                                            <input type="radio" class="form-check-input" name="optradio2" v-model="permiso_Activar" :value="2"> No
-                                        </label>
-                                    </div>
-                                </td>
-                            </tr>  
-                                                     
-                        </tbody>
-                    </table>
-                        
+                        <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+                            <li class="nav-item" v-for="a in arrayPermisoEditar_Activar" :key="a.id_modelo">
+                                <a class="nav-link" :class="{ 'active': a.id_modelo === arrayPermisoEditar_Activar[0].id_modelo }" :id="'pills-'+a.id_modelo+'-tab'" data-toggle="pill" :href="'#pills-'+a.id_modelo" role="tab" :aria-controls="'pills-'+a.id_modelo" :aria-selected="a.id_modelo === arrayPermisoEditar_Activar[0].id_modelo">{{a.nom_modelo}}</a>
+                            </li>
+                        </ul>
+                        <div class="tab-content" id="pills-tabContent">
+                            <div v-for="a in arrayPermisoEditar_Activar" :key="a.id_modelo" :class="['tab-pane', { 'show': a.id_modelo === arrayPermisoEditar_Activar[0].id_modelo, 'fade': a.id_modelo === arrayPermisoEditar_Activar[0].id_modelo }]" :id="'pills-'+a.id_modelo" role="tabpanel" :aria-labelledby="'pills-'+a.id_modelo+'-tab'">
+                                <table class="table">
+                                    <thead>
+                                      <tr>
+                                        <th scope="col">#</th>
+                                        <th scope="col">Nombre</th>
+                                        <th scope="col">Editar</th>
+                                        <th scope="col">Eliminar</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      <tr v-for="aa in a.ventanas" :key="aa.id_ventana">
+                                        
+                                        <td v-text="aa.id_ventana"></td>
+                                        <td v-text="aa.nombre_ventana"></td>
+                                        <td> 
+                                          <input type="checkbox" :value="{ id: aa.id_ventana, editar: aa.editar}" v-model="permisosEditar[aa.id_ventana]">
+                                        </td>
+                                        <td>
+                                          <input type="checkbox" :value="{ id: aa.id_ventana, eliminar: aa.eliminar}" v-model="permisosActivar[aa.id_ventana]">
+                                        </td>
+                                      </tr>
+                                      
+                                    
+                                    </tbody>
+                                  </table>
+                            </div>
+                        </div>
                     </div>
 
 
@@ -453,8 +447,8 @@ import { error401 } from '../../errores';
                 id_sucursal:0,
                 //añadir permisos de editar y activar
                 arrayPermisoEditar_Activar:[],
-                permiso_Editar:0,
-                permiso_Activar:0,
+                permisosEditar: {},
+        permisosActivar: {},
                 id_user_permiso:'',  
                 //añadir mas sucursales                   
                 arraySucursalAlmTda:[],
@@ -595,15 +589,15 @@ import { error401 } from '../../errores';
                 });
             },
 
-        listarPermiso_activar() {
+        listarPermiso_activar(id) {
             let me = this;
-            var url = "/userrolesuc/listarPermiso_Activacion";
+            var url = "/userrolesuc/listarVentanas?id="+id;
             axios
                 .get(url)
                 .then(function (response) {
                     var respuesta = response.data;
                     me.arrayPermisoEditar_Activar = respuesta;
-              
+              console.log(me.arrayPermisoEditar_Activar);
                 })
                 .catch(function (error) {
                     error401(error);
@@ -612,18 +606,15 @@ import { error401 } from '../../errores';
         },
 
         registrarEditar_Activar(){   
-              if (this.permiso_Activar==0 ) {
-                this.permiso_Activa=2;
-              } 
-              if (this.permiso_Editar==0 ) {
-                this.permiso_Editar=2;
-              } 
-                           let me = this;                         
+              
+                           let me = this;     
+                     
+                        
                 axios.post('/userrolesuc/registrarEditar_Activar',{
                  
                     'id':me.id_user_permiso,
-                    'activar':me.permiso_Activar,
-                    'editar':me.permiso_Editar,
+                    'activar':me.me.permisosActivar,
+                    'editar':me.permisosEditar,
                    
                 }).then(function(response){
                     me.cerrarModal('registrar_E_A');
@@ -1008,18 +999,19 @@ import { error401 } from '../../errores';
                         {
                             me.tituloModal='Añadir permisos de edicion o activar';
                             me.id_user_permiso=data.id;                            
-                          // Se busca un elemento en el array arrayPermisoEditar_Activar donde id_user_role_sucu coincida con data.id
-                            let user1 = this.arrayPermisoEditar_Activar.find((element) => element.id_user_role_sucu === data.id);
+                            me.listarPermiso_activar(data.id);
+                            // Se busca un elemento en el array arrayPermisoEditar_Activar donde id_user_role_sucu coincida con data.id
+                         //   let user1 = this.arrayPermisoEditar_Activar.find((element) => element.id_user_role_sucu === data.id);
 
                         // Si se encuentra un elemento que coincida, se establecen las variables permiso_Editar y permiso_Activar en los valores edit y activar del elemento encontrado, respectivamente
-                        if (user1) {
-                          this.permiso_Editar = user1.edit;
-                          this.permiso_Activar = user1.activar;
-                        } else { // Si no se encuentra ningún elemento que coincida, se establecen las variables permiso_Editar y permiso_Activar en 0
-                          this.permiso_Editar = 0;
-                          this.permiso_Activar = 0;
-                        }
-                            me.classModal.openModal('registrar_E_A');    
+                      //  if (user1) {
+                      //    this.permiso_Editar = user1.edit;
+                      //    this.permiso_Activar = user1.activar;
+                      //  } else { // Si no se encuentra ningún elemento que coincida, se establecen las variables permiso_Editar y permiso_Activar en 0
+                      //    this.permiso_Editar = 0;
+                      //    this.permiso_Activar = 0;
+                      //  }
+                           me.classModal.openModal('registrar_E_A');    
                             break;
                         } 
                         case 'registrar_mas_sucursales':
@@ -1103,7 +1095,7 @@ import { error401 } from '../../errores';
         mounted() {
             this.listarUsuarios(1);
             this.selectRoles();
-            this.listarPermiso_activar();
+           // this.listarPermiso_activar();
             this.selectSucursales();
             this.selectEmpleados();
             this.listarMasSucursales();

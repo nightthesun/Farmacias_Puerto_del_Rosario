@@ -201,4 +201,65 @@ class AdmUserRoleSucursalController extends Controller
         $userrolesuc->id_usuario_modifica=auth()->user()->id;
         $userrolesuc->save();
     }
+
+    public function listarVentanas(Request $request){
+        //$ventanas = DB::table('adm__ventana_modulos as avm')
+        //    ->join('adm__modulos as am', 'avm.idmodulo', '=', 'am.id')
+        //    ->select('am.id as id_modulo', 'am.nombre as nombre_modulo', 'avm.id as id_ventana', 'avm.nombre as ventana_nombre')
+        //    ->where('am.activo', 1)
+        //    ->where('avm.activo', 1)
+        //    ->orderBy('am.id', 'asc')
+        //    ->get();
+    
+        //1 verdad 2 falso
+        $usuario_x_permisos = DB::table('adm__asig_permiso_e_a_s')
+            ->where('id_user_role_sucu', $request->id)
+            ->get();
+// Consulta para adm__modulos
+$modulos = DB::table('adm__modulos')
+    ->select('id', 'nombre')
+    ->where('activo', 1)
+    ->get();
+
+// Consulta para adm__ventana_modulos
+$ventanasModulos = DB::table('adm__ventana_modulos')
+    ->select('id', 'idmodulo', 'nombre')
+    ->where('activo', 1)
+    ->get();
+    $arrayModelos = [];
+
+    foreach ($modulos as $modulo) {
+        $arrayVentanas = [];
+        foreach ($ventanasModulos as $ventana) {
+            $editar = 0;
+            $eliminar = 0;
+    
+            foreach ($usuario_x_permisos as $permiso) {
+                if ($ventana->id == $permiso->id_ventana) {
+                    $editar = $permiso->edit;
+                    $eliminar = $permiso->activar;
+                    break;
+                }              
+            }
+            if ($modulo->id == $ventana->idmodulo) {
+
+                $arrayVentanas[] = [
+                    'id_ventana' => $ventana->id,
+                    'nombre_ventana' => $ventana->nombre,
+                    'editar' => $editar,
+                    'eliminar' => $eliminar
+                ];
+            }
+        }
+        
+        $arrayModelo = [
+            'id_modelo' => $modulo->id,
+            'nom_modelo' =>ucfirst(strtolower($modulo->nombre)),
+            'ventanas' => $arrayVentanas
+        ];
+        $arrayModelos[] = $arrayModelo;
+    }
+return($arrayModelos);
+       
+    }
 }

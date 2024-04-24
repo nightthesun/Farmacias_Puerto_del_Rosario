@@ -202,7 +202,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::put('/userrolesuc/activar', [AdmUserRoleSucursalController::class, 'activar']);
     Route::post('/userrolesuc/registrarEditar_Activar', [AdmUserRoleSucursalController::class, 'registrarEditar_Activar']);
     Route::post('/userrolesuc/asignar', [AdmUserRoleSucursalController::class, 'asignar']);
-
+    Route::get('/userrolesuc/listarVentanas', [AdmUserRoleSucursalController::class, 'listarVentanas']);
+    
     //*******para listar si tiene permisos de edicion y activacion usar en todos los reporte o modulos*/
     Route::get('/userrolesuc/listarPermiso_Activacion', [AdmUserRoleSucursalController::class, 'listarPermiso_Activacion']);
     //*******para listar si tiene permisos de ver esa sucursal, tienda , almacen....*/

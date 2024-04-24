@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('adm__asig_permiso_e_a_s', function (Blueprint $table) {
             $table->smallInteger('id_user_role_sucu');
-            $table->tinyInteger('edit');
-            $table->tinyInteger('activar');
-
+            $table->tinyInteger('edit')->comment('1 si el valor es verdadero y 2 si es falso');
+            $table->tinyInteger('activar')->comment('1 si el valor es verdadero y 2 si es falso');
+            $table->smallInteger('id_ventana')->nullable();
         });
     }
 
