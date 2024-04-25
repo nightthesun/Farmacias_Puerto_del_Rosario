@@ -60,19 +60,33 @@ class AdmUserRoleSucursalController extends Controller
         $userrolesuc->save();
     }
     public function registrarEditar_Activar(Request $request){
-        // Buscar asignaciones existentes 
+        try {
+           // Buscar asignaciones existentes 
        $asignarExistente = Adm_AsigPermisoEA::where('id_user_role_sucu', $request->id)->get();
 
        // Si existen asignaciones, eliminarlas
        if ($asignarExistente->count() > 0) {
         Adm_AsigPermisoEA::where('id_user_role_sucu', $request->id)->delete();
        }
-       $datos = [
-        'id_user_role_sucu' => $request->id,
-        'edit' => $request->editar,
-        'activar' => $request->activar      
-        ];
-    DB::table('adm__asig_permiso_e_a_s')->insert($datos); 
+     
+       $datos = $request->input('datos');
+      
+
+    // Iterar sobre cada elemento del objeto JSON
+    foreach ($datos as $clave => $valor) {
+        // Aquí puedes realizar las acciones que necesites con cada elemento
+        // Por ejemplo, guardarlos en la base de datos
+        DB::table('adm__asig_permiso_e_a_s')->insert([
+            'id_user_role_sucu' => $request->id,
+            'edit' => $valor['a'],
+            'activar' => $valor['b'],
+            'id_ventana' => $clave
+        ]);
+    }
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()],500);
+        }
+      
     }
 
     public function listarPermiso_Activacion(Request $request){
@@ -261,5 +275,13 @@ $ventanasModulos = DB::table('adm__ventana_modulos')
     }
 return($arrayModelos);
        
+    }
+
+    public function listar_asig_permiso_e_a_s(Request $request){
+        $usuario_x_permisos = DB::table('adm__asig_permiso_e_a_s')
+       // ->where('id_user_role_sucu', $request->id)
+        ->get();
+    
+        return $usuario_x_permisos;
     }
 }

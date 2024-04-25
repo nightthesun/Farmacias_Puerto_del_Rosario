@@ -423,7 +423,7 @@ import {error401} from '../../errores';
                     
                     case 'actualizar':
                     {
-                        console.log(data);
+                   
                         me.idrole=data.id;
                         me.tipoAccion=2;
                         me.tituloModal='Actualizar Role'

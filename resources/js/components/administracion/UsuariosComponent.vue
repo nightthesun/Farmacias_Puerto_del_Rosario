@@ -51,7 +51,7 @@
                                             <!-- <i class="icon-pencil"></i> -->Editar Rol-Sucursal
                                         </button>&nbsp;
                                         <button type="button" style="color: aliceblue;" class="btn btn-primary btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Añadir editar o activar"
-                                        @click="abrirModal('registrar_E_A',usuario);">
+                                        @click="abrirModal('registrar_E_A',usuario);listarPermiso_activar(usuario.id);">
                                             <i class="fa fa-address-card" aria-hidden="true"></i>
                                         </button>&nbsp;
                                         <button type="button" style="color: aliceblue;" class="btn btn-dark btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Añadir Añadir sucursales"
@@ -321,10 +321,10 @@
                                     </tbody>
                                   </table>
                             </div>
+                       
                         </div>
+                        
                     </div>
-
-
 
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary"  @click="cerrarModal('registrar_E_A')">Cerrar</button>
@@ -449,12 +449,14 @@ import { error401 } from '../../errores';
                 arrayPermisoEditar_Activar:[],
                 permisosEditar: {},
         permisosActivar: {},
+                arrayE_A_S:[],
                 id_user_permiso:'',  
                 //añadir mas sucursales                   
                 arraySucursalAlmTda:[],
                 selectAlmTda2:[],
                 arrayFalso:[],
                 arrayMasSucursales:[],
+
                 
             }
 
@@ -510,7 +512,26 @@ import { error401 } from '../../errores';
 
 
         },
-        methods :{
+        methods :{         
+
+            listar_asig_permiso_e_a_s()
+            {
+                   let me = this;               
+               
+                    var url = "/userrolesuc/listar_asig_permiso_e_a_s";             
+                    axios
+                .get(url)
+                .then(function (response) {
+                    var respuesta = response.data;
+                    me.arrayE_A_S = respuesta;
+             
+                })
+                .catch(function (error) {
+                    error401(error);
+                    console.log(error);
+                });            
+            },            
+      
 
             listarMasSucursales(id)
             {
@@ -523,7 +544,7 @@ import { error401 } from '../../errores';
                     var respuesta = response.data;
                    //  me.arrayVehucloX = respuesta.datos.data;
                    me.arrayMasSucursales = respuesta;      
-                   console.log(me.arrayMasSucursales);   
+                 
                    me.arraySucursalAlmTda.forEach(function(elemento1) {
                    me.arrayMasSucursales.forEach(function(elementoInterno) {
                     if (elemento1.codigo === elementoInterno.codigo) {
@@ -597,7 +618,7 @@ import { error401 } from '../../errores';
                 .then(function (response) {
                     var respuesta = response.data;
                     me.arrayPermisoEditar_Activar = respuesta;
-              console.log(me.arrayPermisoEditar_Activar);
+          
                 })
                 .catch(function (error) {
                     error401(error);
@@ -607,24 +628,65 @@ import { error401 } from '../../errores';
 
         registrarEditar_Activar(){   
               
-                           let me = this;     
-                     
-                        
+                           let me = this;    
+                            
+const a = me.permisosEditar;
+const b = me.permisosActivar;
+
+// Obtener todas las claves únicas de a y b
+const allKeys = new Set([...Object.keys(a), ...Object.keys(b)]);
+
+// Crear el objeto c con las uniones lógicas
+const c = {};
+allKeys.forEach(key => {
+  const aValue = a.hasOwnProperty(key) ? a[key] : false;
+  const bValue = b.hasOwnProperty(key) ? b[key] : false;
+  c[key] = { a: aValue, b: bValue };
+
+  // Cambiar los valores true/false por 1/2
+  if (c[key].a === true) {
+    c[key].a = 1;
+  } else {
+    c[key].a = 2;
+  }
+
+  if (c[key].b === true) {
+    c[key].b = 1;
+  } else {
+    c[key].b = 2;
+  }
+});
+
+
                 axios.post('/userrolesuc/registrarEditar_Activar',{
                  
                     'id':me.id_user_permiso,
-                    'activar':me.me.permisosActivar,
-                    'editar':me.permisosEditar,
+                    'datos':c,
+                  
                    
                 }).then(function(response){
                     me.cerrarModal('registrar_E_A');
-                    me.listarUsuarios();
-                    me.listarPermiso_activar();
-                }).catch(function(error){
-                    error401(error);
-                    console.log(error);
-                });
+                    me.listarUsuarios();                  
+                    me.listar_asig_permiso_e_a_s();
+                })  .catch(function (error) {           
+                
+                if (error.response.status === 500) {
+                    me.errorMsg = error.response.data.error; // Asigna el mensaje de error a la variable errorMsg
+                Swal.fire(
+                    "Error",
+                    "500 (Internal Server Error)"+me.errorMsg, // Muestra el mensaje de error en el alert
+                    "error"
+                );
+                }else{
+                    Swal.fire(
+                    "Error",
+                    ""+error, // Muestra el mensaje de error en el alert
+                    "error"
+                );  
+                }
 
+               
+            });
             },
 
             AgregarRolSuc(){
@@ -691,8 +753,7 @@ import { error401 } from '../../errores';
                 me.listarUsuarios(page);
             },
             registrarUsuario(){
-                let me = this;
-                
+                let me = this;                
                 let resp=me.arrayEmpleado.find(element=>element.id==me.idempleado);
 
                 axios.post('/registro',{
@@ -714,7 +775,7 @@ import { error401 } from '../../errores';
 
             eliminarRolSuc(idrolsuc){
                 let me=this;
-                //console.log("prueba");
+
                 const swalWithBootstrapButtons = Swal.mixin({
                 customClass: {
                     confirmButton: 'btn btn-success',
@@ -766,7 +827,7 @@ import { error401 } from '../../errores';
             },
             activarRolSuc(idrolsuc){
                 let me=this;
-                //console.log("prueba");
+       
                 const swalWithBootstrapButtons = Swal.mixin({
                 customClass: {
                     confirmButton: 'btn btn-success',
@@ -817,7 +878,7 @@ import { error401 } from '../../errores';
             },
             eliminarUsuario(idusuario){
                 let me=this;
-                //console.log("prueba");
+            
                 const swalWithBootstrapButtons = Swal.mixin({
                 customClass: {
                     confirmButton: 'btn btn-success',
@@ -867,7 +928,7 @@ import { error401 } from '../../errores';
             },
             activarUsuario(idusuario){
                 let me=this;
-                //console.log("prueba");
+          
                 const swalWithBootstrapButtons = Swal.mixin({
                 customClass: {
                     confirmButton: 'btn btn-success',
@@ -928,7 +989,7 @@ import { error401 } from '../../errores';
                 }).then(function (response) {
                     if(response.data.length){
                     }
-                    // console.log(response)
+      
                     else{
                             Swal.fire('Actualizado Correctamente')
 
@@ -997,20 +1058,34 @@ import { error401 } from '../../errores';
                         }
                         case 'registrar_E_A':
                         {
-                            me.tituloModal='Añadir permisos de edicion o activar';
+                          
+                            me.tituloModal='Permiso de editar y eliminar para '+data.nombre;
+                       
                             me.id_user_permiso=data.id;                            
-                            me.listarPermiso_activar(data.id);
+                            // me.listarPermiso_activar(data.id);
                             // Se busca un elemento en el array arrayPermisoEditar_Activar donde id_user_role_sucu coincida con data.id
-                         //   let user1 = this.arrayPermisoEditar_Activar.find((element) => element.id_user_role_sucu === data.id);
+                           // let user1 = this.arrayE_A_S.find((element) => element.id_user_role_sucu === data.id);
+                           let user1 = this.arrayE_A_S.filter(item => item.id_user_role_sucu === data.id);
+                           let vectorE = {};
+                           let vectorA = {};
+                           user1.forEach(user => {
+                                // Cambiar el valor de edit a true si es 1, o false si es 2
+                            let editar = user.edit === 1 ? true : false;
+                                // Cambiar el valor de activar a true si es 1, o false si es 2
+                            let activar = user.activar === 1 ? true : false;
+                            vectorE[user.id_ventana] = editar;
+                            vectorA[user.id_ventana] = activar;
+                            });
 
-                        // Si se encuentra un elemento que coincida, se establecen las variables permiso_Editar y permiso_Activar en los valores edit y activar del elemento encontrado, respectivamente
-                      //  if (user1) {
-                      //    this.permiso_Editar = user1.edit;
-                      //    this.permiso_Activar = user1.activar;
-                      //  } else { // Si no se encuentra ningún elemento que coincida, se establecen las variables permiso_Editar y permiso_Activar en 0
-                      //    this.permiso_Editar = 0;
-                      //    this.permiso_Activar = 0;
-                      //  }
+                           // Si se encuentra un elemento que coincida, se establecen las variables permiso_Editar y permiso_Activar en los valores edit y activar del elemento encontrado, respectivamente
+                           if (user1.length > 0) {
+                            this.permisosEditar = vectorE;
+                            this.permisosActivar = vectorA;
+                           
+                            } else {
+                            this.permisosEditar = {};                   
+                            this.permisosActivar = {};
+                            }
                            me.classModal.openModal('registrar_E_A');    
                             break;
                         } 
@@ -1019,8 +1094,7 @@ import { error401 } from '../../errores';
                         me.tituloModal='Asignar mas sucursales';
                         me.selectAlmTda2=me.arrayFalso;
                         me.id_user_permiso=data.id;
-                       // me.id_user_role_sucu=data.id;
-                        //me.id_vehiculo=data.id;
+                    
                         me.classModal.openModal('registrar_mas_sucursales');                   
                         break;
                         }                      
@@ -1040,8 +1114,9 @@ import { error401 } from '../../errores';
                 me.sucursal=0;
                 me.permiso_Editar=0;                
                 me.permiso_Activar=0;
-               
-
+               me.id_user_permiso='';
+               me.permisosEditar = {};                   
+               me.permisosActivar = {};
                 me.arrayFalso=[];
                 me.selectAlmTda2=[];
                 me.arrayMasSucursales=[];
@@ -1095,9 +1170,10 @@ import { error401 } from '../../errores';
         mounted() {
             this.listarUsuarios(1);
             this.selectRoles();
-           // this.listarPermiso_activar();
+         
             this.selectSucursales();
             this.selectEmpleados();
+            this.listar_asig_permiso_e_a_s();
             this.listarMasSucursales();
             this.classModal = new _pl.Modals();
             this.classModal.addModal('registrar');
@@ -1105,6 +1181,7 @@ import { error401 } from '../../errores';
             this.classModal.addModal('registrar_E_A');
             this.classModal.addModal('registrar_mas_sucursales');
             this.classModal.addModal('registrar_sucursal');
+            
             
             //console.log('Component mounted.')
         }
