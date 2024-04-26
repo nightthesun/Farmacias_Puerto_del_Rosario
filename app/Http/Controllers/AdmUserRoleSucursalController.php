@@ -284,4 +284,31 @@ return($arrayModelos);
     
         return $usuario_x_permisos;
     }
+
+    public function getUsersWithRolesAndSucursals(Request $request)
+    {
+        $users = DB::table('adm__user_role_sucursals as aurs')
+            ->select('aurs.id', 'aurs.iduser as user_id', 'u.name as user_name', 'aurs.idsucursal as sucursal_id', 'ass.razon_social as razon_social',
+                'aurs.idrole as role_id', 'ar.nombre as rol_name', 'ar.idmodulos', 'ar.idventanas')
+            ->join('users as u', 'u.id', '=', 'aurs.iduser')         
+            ->join('adm__roles as ar', 'ar.id', '=', 'aurs.idrole')          
+            ->join('adm__sucursals as ass', 'aurs.idsucursal', '=', 'ass.id')                  
+            ->where('aurs.iduser', '=', $request->user_id)
+            ->where('aurs.activo', '=', 1)
+            ->get();
+      
+        dd($users);
+            
+            $moulo_ventana = DB::table('adm__ventana_modulos as avm')
+            ->select('avm.id', 'avm.nombre as ventana_name', 'idmodulo', 'am.nombre as modulo_name')
+            ->join('adm__modulos as am', 'avm.idmodulo', '=', 'am.id')
+            ->whereIn('avm.id', [1, 4, 10, 11])
+            ->where('am.activo', 1)
+            ->orderBy('avm.id', 'asc')
+            ->get(); 
+
+   
+            
+    }
+
 }

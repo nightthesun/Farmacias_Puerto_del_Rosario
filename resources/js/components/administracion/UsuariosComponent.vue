@@ -50,14 +50,19 @@
                                         <button  type="button" class="btn btn-success btn-sm" @click="abrirModal('addrolsuc',usuario)">
                                             <!-- <i class="icon-pencil"></i> -->Editar Rol-Sucursal
                                         </button>&nbsp;
-                                        <button type="button" style="color: aliceblue;" class="btn btn-primary btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Añadir editar o activar"
+                                        <button type="button" style="color: aliceblue;" class="btn btn-primary btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Dar permisos de editar y eliminar"
                                         @click="abrirModal('registrar_E_A',usuario);listarPermiso_activar(usuario.id);">
                                             <i class="fa fa-address-card" aria-hidden="true"></i>
                                         </button>&nbsp;
-                                        <button type="button" style="color: aliceblue;" class="btn btn-dark btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Añadir Añadir sucursales"
+                                        <button type="button" style="color: aliceblue;" class="btn btn-dark btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Usuario x tiendas y almacenes"
                                         @click="abrirModal('registrar_mas_sucursales',usuario);sucursalAlmTda();listarMasSucursales(usuario.id);" >
                                             <i class="fa fa-address-card" aria-hidden="true"></i>
+                                        </button>&nbsp;
+                                        <button type="button" style="color: aliceblue;" class="btn btn-secondary btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Ver usuario x roles"
+                                        @click="abrirModal('registrar_mas_sucursales',usuario);listarGetUsersWithRolesAndSucursals(usuario.id);" >
+                                            <i class="fa fa-address-card" aria-hidden="true"></i>
                                         </button>
+
                                     </div>
                                       
                                 </td>
@@ -406,6 +411,34 @@
             <!-- /.modal-dialog -->
         </div>
         <!--Fin del modal-->
+
+<!-----------------------------------------------MODAL AÑADIR PERMISOS------------------------------------------------>
+<div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" id="GetUsersWithRolesAndSucursals" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-primary modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">{{ tituloModal }}</h4>
+                <button type="button" class="close"  aria-label="Close" @click="cerrarModal('GetUsersWithRolesAndSucursals')">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+
+            <!-- modal-body -->
+
+            <!---end modal --->
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary"  @click="cerrarModal('GetUsersWithRolesAndSucursals')">Cerrar</button>
+              
+                <button type="button"  class="btn btn-primary" @click="registrarEditar_Activar()" >Actualizar</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+<!--Fin del modal activar editar-->
+
     </main>
 </template>
 
@@ -456,7 +489,8 @@ import { error401 } from '../../errores';
                 selectAlmTda2:[],
                 arrayFalso:[],
                 arrayMasSucursales:[],
-
+                //boton roles y sucursales
+                arrayRoles_Perimos:[],
                 
             }
 
@@ -513,11 +547,24 @@ import { error401 } from '../../errores';
 
         },
         methods :{         
+            listarGetUsersWithRolesAndSucursals(user_id){
+                let me = this;
+                var url ="/userrolesuc/getUsersWithRolesAndSucursals?="+user_id;
+                axios
+                .get(url)
+                then(function (response){
+                    var respuesta=response.data;
+                    me.arrayRoles_Perimos = respuesta;
+                })
+                .catch(function (error) {
+                    error401(error);
+                    console.log(error);
+                });   
+            },
 
             listar_asig_permiso_e_a_s()
             {
-                   let me = this;               
-               
+                   let me = this;                              
                     var url = "/userrolesuc/listar_asig_permiso_e_a_s";             
                     axios
                 .get(url)
@@ -1043,8 +1090,7 @@ allKeys.forEach(key => {
                         break;
                     }
                     case 'addrolsuc':
-                        {
-                                
+                        {                                
                             me.arrayRolSucursal=data.rolsucursal;
                             me.tituloModal='Editar - Agregar Rol Sucursal';
                             me.idusuario=data.id;
@@ -1096,6 +1142,12 @@ allKeys.forEach(key => {
                         me.id_user_permiso=data.id;
                     
                         me.classModal.openModal('registrar_mas_sucursales');                   
+                        break;
+                        } 
+                        case 'GetUsersWithRolesAndSucursals':
+                        {        
+                        me.tituloModal='Usuario:'+data.nombre;                   
+                        me.classModal.openModal('GetUsersWithRolesAndSucursals');                   
                         break;
                         }                      
                 }
@@ -1179,9 +1231,10 @@ allKeys.forEach(key => {
             this.classModal.addModal('registrar');
             this.classModal.addModal('addrolsuc');
             this.classModal.addModal('registrar_E_A');
+            this.classModal.addModal('GetUsersWithRolesAndSucursals');
             this.classModal.addModal('registrar_mas_sucursales');
             this.classModal.addModal('registrar_sucursal');
-            
+         
             
             //console.log('Component mounted.')
         }

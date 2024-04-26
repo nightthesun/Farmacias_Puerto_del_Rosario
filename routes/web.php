@@ -186,9 +186,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::put('/usuario/activar', [AdmUserController::class, 'activar']);
     Route::get('/usuario/listar-usuarios', [AdmUserController::class, 'listaUsuarios']);
     Route::get('/usuario/selectusuario', [AdmUserController::class, 'selectUsuario']);
-  
-    
-
+     
     Route::get('/role', [AdmRoleController::class, 'index']);
     Route::post('/role/registrar', [AdmRoleController::class, 'store']);
     Route::put('/role/actualizar', [AdmRoleController::class, 'update']);
@@ -204,6 +202,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/userrolesuc/asignar', [AdmUserRoleSucursalController::class, 'asignar']);
     Route::get('/userrolesuc/listarVentanas', [AdmUserRoleSucursalController::class, 'listarVentanas']);
     Route::get('/userrolesuc/listar_asig_permiso_e_a_s', [AdmUserRoleSucursalController::class, 'listar_asig_permiso_e_a_s']);
+    Route::get('/userrolesuc/getUsersWithRolesAndSucursals', [AdmUserRoleSucursalController::class, 'getUsersWithRolesAndSucursals']);
     
     //*******para listar si tiene permisos de edicion y activacion usar en todos los reporte o modulos*/
     Route::get('/userrolesuc/listarPermiso_Activacion', [AdmUserRoleSucursalController::class, 'listarPermiso_Activacion']);
@@ -438,7 +437,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/gestionprecioventa2', [GesPreVenta2Controller::class, 'index']);
     Route::post('/gestionprecioventa2/registrar', [GesPreVenta2Controller::class, 'store']);
     Route::post('/gestionprecioventa2/actualizar', [GesPreVenta2Controller::class, 'update']);
-    Route::get('/gestionprecioventa2/listarLista', [GesPreVenta2Controller::class, 'listarLista']);    
+    Route::get('/gestionprecioventa2/listarLista', [GesPreVenta2Controller::class, 'listarLista']);  
+      
    
     /////////////////////////////////////////////Inventario///////////////////////////////////////////////////
     
