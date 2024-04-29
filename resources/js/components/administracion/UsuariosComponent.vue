@@ -59,7 +59,7 @@
                                             <i class="fa fa-address-card" aria-hidden="true"></i>
                                         </button>&nbsp;
                                         <button type="button" style="color: aliceblue;" class="btn btn-secondary btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Ver usuario x roles"
-                                        @click="abrirModal('registrar_mas_sucursales',usuario);listarGetUsersWithRolesAndSucursals(usuario.id);" >
+                                        @click="abrirModal('GetUsersWithRolesAndSucursals',usuario);listarGetUsersWithRolesAndSucursals(usuario.id);" >
                                             <i class="fa fa-address-card" aria-hidden="true"></i>
                                         </button>
 
@@ -412,7 +412,7 @@
         </div>
         <!--Fin del modal-->
 
-<!-----------------------------------------------MODAL AÑADIR PERMISOS------------------------------------------------>
+<!-----------------------------------------------MODAL VER PERMISOS PERMISOS------------------------------------------------>
 <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" id="GetUsersWithRolesAndSucursals" aria-hidden="true" data-backdrop="static" data-keyboard="false">
     <div class="modal-dialog modal-primary modal-lg" role="document">
         <div class="modal-content">
@@ -430,8 +430,7 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary"  @click="cerrarModal('GetUsersWithRolesAndSucursals')">Cerrar</button>
               
-                <button type="button"  class="btn btn-primary" @click="registrarEditar_Activar()" >Actualizar</button>
-            </div>
+             </div>
         </div>
         <!-- /.modal-content -->
     </div>
@@ -549,7 +548,7 @@ import { error401 } from '../../errores';
         methods :{         
             listarGetUsersWithRolesAndSucursals(user_id){
                 let me = this;
-                var url ="/userrolesuc/getUsersWithRolesAndSucursals?="+user_id;
+                var url ="/userrolesuc/getUsersWithRolesAndSucursals?user_id="+user_id;
                 axios
                 .get(url)
                 then(function (response){

@@ -296,19 +296,46 @@ return($arrayModelos);
             ->where('aurs.iduser', '=', $request->user_id)
             ->where('aurs.activo', '=', 1)
             ->get();
-      
-        dd($users);
+       
+            $array_1 = [];
+          
+    
+            foreach ($users as $user) {    
+               
+                $resultado = DB::table('adm__ventana_modulos as avm')
+                ->select('avm.nombre as ventana', 'am.nombre as modulo')
+                ->join('adm__modulos as am', 'am.id', '=', 'avm.idmodulo')
+                ->whereIn('avm.idmodulo', explode(',', $user->idmodulos))
+                ->whereIn('avm.id', explode(',', $user->idventanas))
+                ->get();
+                $array_1[] = [
+                    "sucursal_rol" => $user->razon_social."-".$user->rol_name,
+              
+                    
+                    "modulo_nombre" => "",
+                    "ventana_nombre" => "",
+                  
+                ]; 
+                foreach ($resultado as $win) {
+                     
+                    $array_1[] = [
+                        "sucursal_rol" => "",                 
+                        
+                        "modulo_nombre" => $win->modulo,
+                        "ventana_nombre" => $win->ventana,
+                      
+                    ]; 
+                }               
+            }
             
-            $moulo_ventana = DB::table('adm__ventana_modulos as avm')
-            ->select('avm.id', 'avm.nombre as ventana_name', 'idmodulo', 'am.nombre as modulo_name')
-            ->join('adm__modulos as am', 'avm.idmodulo', '=', 'am.id')
-            ->whereIn('avm.id', [1, 4, 10, 11])
-            ->where('am.activo', 1)
-            ->orderBy('avm.id', 'asc')
-            ->get(); 
-
+            dd($array_1);
+         
+        }     
+           
+            
+            
    
             
     }
 
-}
+
