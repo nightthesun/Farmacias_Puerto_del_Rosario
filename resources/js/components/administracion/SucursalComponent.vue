@@ -49,10 +49,14 @@
                                     </button> &nbsp;
                                     <button v-if="sucursal.activo==1" type="button" class="btn btn-danger btn-sm" @click="eliminarSucursal(sucursal.id)" >
                                         <i class="icon-trash"></i>
-                                    </button>
+                                    </button> &nbsp;
                                     <button v-else type="button" class="btn btn-info btn-sm" @click="activarSucursal(sucursal.id)" >
                                         <i class="icon-check"></i>
-                                    </button>
+                                    </button> &nbsp;
+
+                                    <button v-if="sucursal.activo==1" type="button" class="btn btn-secondary btn-sm" style="color: white;" data-toggle="tooltip" data-placement="right" title="Activar lista"  @click="abrirModal('modal_listas',sucursal);listarListas(sucursal.id);" >
+                                        <i class="fa fa-plus" aria-hidden="true"></i>
+                                    </button> 
                                 </td>
                                 <td v-text="sucursal.cod"></td>
                                 <td v-text="sucursal.tipo == 'Casa_Matriz'? (sucursal.tipo + (sucursal.codalamcen==null?'':' -> '+sucursal.codalamcen)):(sucursal.tipo + ' - ' +sucursal.correlativo)+(sucursal.codalamcen==null?'':' -> '+sucursal.codalamcen)"></td>
@@ -212,6 +216,130 @@
         </div>
         <!--Fin del modal-->
         
+         <!---------------------------------------Inicio del modal de listas--------------->
+         <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" id="modal_listas" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+            <div class="modal-dialog modal-primary modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">{{ tituloModal }}</h4>
+                        
+                        <button type="button" class="close"  aria-label="Close" @click="cerrarModal('modal_listas')">
+                            <span aria-hidden="true">×</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="alert alert-success" role="alert">
+                            Esta opcion solo es para el modulo de ventas caso gestor de ventas  y venta avanzada 
+                        </div>
+                        <form action=""  class="form-horizontal">
+                            <div class="card">
+                                <div class="card-header">
+                                  Venta rapida
+                                </div>
+                                <div class="card-body">
+                                    <table class="table table-bordered">
+                                        <thead>
+                                          <tr>
+                                            <th scope="col">Por defecto</th>
+                                            <th scope="col">Si <input type="radio" name="opcion_1" value="1" v-model="opcionSeleccionada"></th>
+                                            <th scope="col">No  <input type="radio" name="opcion_1" value="0" v-model="opcionSeleccionada"></th>
+                                        
+                                          </tr>
+                                        </thead>
+                                       
+                                    </table>
+
+                                  <blockquote class="blockquote mb-0" v-if="opcionSeleccionada==0">
+                                    <div class="col-md-9">
+                                        <table class="table table-bordered table-striped table-sm table-responsive">
+                                            <thead>
+                                                <tr>
+                                                    <th>#</th>
+                                                    <th>Nombre</th>
+                                                    <th>Sucursal</th>
+                                                    <th>Código</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr v-for="l in arrayLitas" :key="l.id">
+                                                    <td>
+                                                        <div class="form-check">
+                                                            <input type="radio" :id="'flexRadioDefault1_' + l.id" name="flexRadioDefault" v-model="radioButtoRapido" :value="l.id">
+                                                        </div>
+                                                     </td>                                                    
+                                                    <td v-text="l.nombre_lista"></td>
+                                                    <td v-text="l.razon_social"></td>
+                                                    <td v-text="l.codigo_tda_alm"></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </blockquote>
+                                </div>
+                              </div>
+
+                              <div class="card">
+                                <div class="card-header">
+                                  Venta avanzada
+                                </div>
+                                <div class="card-body">
+                                    <table class="table table-bordered">
+                                        <thead>
+                                          <tr>
+                                            <th scope="col">Por defecto</th>
+                                            <th scope="col">Si <input type="radio" name="opcion" value="1" v-model="opcionSeleccionadaAvanzada"></th>
+                                            <th scope="col">No  <input type="radio" name="opcion" value="0" v-model="opcionSeleccionadaAvanzada"></th>
+                                        
+                                          </tr>
+                                        </thead>
+                                       
+                                    </table>
+
+                                  <blockquote class="blockquote mb-0" v-if="opcionSeleccionadaAvanzada==0">
+                                    <div class="col-md-9">
+                                        <table class="table table-bordered table-striped table-sm table-responsive">
+                                            <thead>
+                                                <tr>
+                                                    <th>#</th>
+                                                    <th>Nombre</th>
+                                                    <th>Sucursal</th>
+                                                    <th>Código</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr v-for="la in arrayLitasAv" :key="la.id">
+                                                    <td>
+                                                        <div class="form-check">
+                                                            <input type="checkbox"  :value="{ id: la.id}" v-model="checkbox">
+                                                        
+                                                        </div>
+                                                    </td>                                                    
+                                                    <td v-text="la.nombre_lista"></td>
+                                                    <td v-text="la.razon_social"></td>
+                                                    <td v-text="la.codigo_tda_alm"></td>
+                                                </tr>
+                                                
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </blockquote>
+                                </div>
+                              </div>
+                          
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary"  @click="cerrarModal('modal_listas')">Cerrar</button>
+                        <button type="button"  class="btn btn-primary" @click="regsitrarlista()">Guardar</button>
+                     
+                    </div>
+                </div>
+                <!-- /.modal-content -->
+            </div>
+            <!-- /.modal-dialog -->
+        </div>
+        <!--Fin del modal-->
+        
         
     </main>
 </template>
@@ -263,7 +391,17 @@ import { error401 } from '../../errores';
                 matriz:0,
                 arrayRubros:[],
                 idrubro:0,
-                controlEnvio:1,                
+                controlEnvio:1,
+                ///listas
+                arrayLitas:[], 
+                arrayLitasAv:[],
+                opcionSeleccionada:1, 
+                radioButtoRapido:0,  
+                
+                opcionSeleccionadaAvanzada:1,
+                checkbox:[],
+                id_sucursal_z:'',
+                
             }
 
         },
@@ -324,6 +462,71 @@ import { error401 } from '../../errores';
             //     //     }
             //     // });
             // },
+          
+
+            regsitrarlista(){
+                let me = this;
+               console.log("por_defecto_rapido:"+me.opcionSeleccionada+" radio:"+me.radioButtoRapido); 
+               console.log("por_defecto_avanzado:"+me.opcionSeleccionadaAvanzada);
+               let cadena=[];
+            for (const selectedOption of me.checkbox) {
+                let elemento = {
+                'id': selectedOption.id
+            };
+            cadena.push(elemento);
+            }
+            console.log(cadena);    
+                axios.post('/sucursal/registrarlista',{
+                    'id_sucursal':me.id_sucursal_z,
+                    'id_rapido':me.opcionSeleccionada,
+                    'valor_rapido':me.radioButtoRapido,
+                    'id_avanzado':me.opcionSeleccionadaAvanzada,
+                    'valor_avanzado':cadena,
+                    
+                }).then(function(response){
+                    me.cerrarModal('modal_listas');
+              
+                }) .catch(function (error) {           
+                
+                if (error.response.status === 500) {
+                    me.errorMsg = error.response.data.error; // Asigna el mensaje de error a la variable errorMsg
+                Swal.fire(
+                    "Error",
+                    "500 (Internal Server Error)"+me.errorMsg, // Muestra el mensaje de error en el alert
+                    "error"
+                );
+                }else{
+                    Swal.fire(
+                    "Error",
+                    ""+error, // Muestra el mensaje de error en el alert
+                    "error"
+                );  
+                }
+
+               
+            });
+            },    
+
+            
+            listarListas(id)
+            {
+                let me = this;                
+                var url = "/sucursal/listarListas?id="+id;             
+            axios
+                .get(url)
+                .then(function (response) {
+                    var respuesta = response.data;
+                   //  me.arrayVehucloX = respuesta.datos.data;
+                   me.arrayLitas = respuesta;                   
+                   me.arrayLitasAv =respuesta;                    
+                })
+                .catch(function (error) {
+                    error401(error);
+                    console.log(error);
+                });  
+                   
+            
+            },
 
             listarSucursales(page){
                 let me=this;
@@ -545,6 +748,19 @@ import { error401 } from '../../errores';
                         me.classModal.openModal('registrar');
                         break;
                     }
+                    case 'modal_listas':
+                    {
+                        console.log(data);
+                        me.tituloModal='Añadir lista a '+data.razon_social
+                        me.id_sucursal_z=data.id;
+               
+                me.opcionSeleccionada=1, 
+                me.radioButtoRapido=0,               
+                me.opcionSeleccionadaAvanzada=1,
+         
+                        me.classModal.openModal('modal_listas');
+                        break;
+                    }    
 
                 }
                 
@@ -561,7 +777,14 @@ import { error401 } from '../../errores';
                 me.ciudad='';
                 me.tipoAccion=1;
                 me.idrubro=0;
+                me.arrayLitas=[]; 
+                me.arrayLitasAv=[];
+                me.opcionSeleccionada=1; 
+                me.radioButtoRapido=0;
                 
+                me.opcionSeleccionadaAvanzada=1;
+                me.checkbox=[];
+                me.id_sucursal_z='';
                 
             },
 
@@ -620,6 +843,7 @@ import { error401 } from '../../errores';
             this.selectCiudades();
             this.classModal = new _pl.Modals();
             this.classModal.addModal('registrar');
+            this.classModal.addModal('modal_listas');
             //console.log('Component mounted.')
         }
     }

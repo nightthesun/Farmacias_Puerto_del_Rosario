@@ -424,7 +424,31 @@
             </div>
 
             <!-- modal-body -->
-
+            
+            
+            <div class="col-md-12 d-flex justify-content-center" style="padding-top: 20px;">
+                <div style="height: 250px; overflow-y: auto;">
+                    <table class="table table-bordered table-striped table-sm table-responsive">
+                        <thead style="position: sticky; top: 0; background-color: aliceblue;">
+                            <tr>
+                                <th>Local</th>
+                                <th>Modulo</th>
+                                <th>Ventana</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="role in arrayRoles_Perimos" :key="role.key">                
+                                <td v-text="role.sucursal_rol"></td>
+                                <td v-text="role.modulo_nombre"></td>
+                                <td v-text="role.ventana_nombre"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            
+            
             <!---end modal --->
 
             <div class="modal-footer">
@@ -549,11 +573,11 @@ import { error401 } from '../../errores';
             listarGetUsersWithRolesAndSucursals(user_id){
                 let me = this;
                 var url ="/userrolesuc/getUsersWithRolesAndSucursals?user_id="+user_id;
-                axios
-                .get(url)
-                then(function (response){
+                axios.get(url)
+                .then(function (response){
                     var respuesta=response.data;
                     me.arrayRoles_Perimos = respuesta;
+                    console.log(me.arrayRoles_Perimos);
                 })
                 .catch(function (error) {
                     error401(error);
@@ -561,7 +585,7 @@ import { error401 } from '../../errores';
                 });   
             },
 
-            listar_asig_permiso_e_a_s()
+              listar_asig_permiso_e_a_s()
             {
                    let me = this;                              
                     var url = "/userrolesuc/listar_asig_permiso_e_a_s";             

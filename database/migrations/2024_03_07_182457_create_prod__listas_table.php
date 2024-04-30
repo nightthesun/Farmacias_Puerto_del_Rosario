@@ -26,6 +26,7 @@ return new class extends Migration
             $table->smallInteger('id_usuario_modifica')->unsigned()->nullable()->comment('identificador del usuario que esta modificando el almacen');
             $table->smallInteger('id_usuario_registra')->unsigned()->nullable()->comment('identificador del usuario que esta registrando el almacen');
             $table->timestamps();
+            $table->smallInteger('id_sucursal')->nullable();
         });
     }
 

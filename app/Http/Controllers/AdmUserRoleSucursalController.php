@@ -309,7 +309,7 @@ return($arrayModelos);
                 ->whereIn('avm.id', explode(',', $user->idventanas))
                 ->get();
                 $array_1[] = [
-                    "sucursal_rol" => $user->razon_social."-".$user->rol_name,
+                    "sucursal_rol" => $user->razon_social." - ".$user->rol_name,
               
                     
                     "modulo_nombre" => "",
@@ -319,8 +319,7 @@ return($arrayModelos);
                 foreach ($resultado as $win) {
                      
                     $array_1[] = [
-                        "sucursal_rol" => "",                 
-                        
+                        "sucursal_rol" => "",                      
                         "modulo_nombre" => $win->modulo,
                         "ventana_nombre" => $win->ventana,
                       
@@ -328,7 +327,8 @@ return($arrayModelos);
                 }               
             }
             
-            dd($array_1);
+            //dd($array_1);
+            return response()->json($array_1);
          
         }     
            
