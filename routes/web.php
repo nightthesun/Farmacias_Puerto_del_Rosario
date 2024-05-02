@@ -158,7 +158,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/sucursal/selectsucursal', [AdmSucursalController::class, 'selectSucursal']);
     Route::get('/sucursal/listarListas', [AdmSucursalController::class, 'listarListas']);
     Route::post('/sucursal/registrarlista', [AdmSucursalController::class, 'registrarlista']);
-   
+    Route::get('/sucursal/listarArray', [AdmSucursalController::class, 'listarArray']);
+      
     Route::get('/modulo', [AdmModuloController::class, 'index']);
     Route::post('/modulo/registrar', [AdmModuloController::class, 'store']);
     Route::put('/modulo/actualizar', [AdmModuloController::class, 'update']);

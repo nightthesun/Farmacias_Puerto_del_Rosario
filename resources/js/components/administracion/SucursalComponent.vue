@@ -275,6 +275,7 @@
                                         </table>
                                     </div>
                                 </blockquote>
+                                <blockquote class="blockquote mb-0" v-else> <div><span>Sin datos..</span></div></blockquote>
                                 </div>
                               </div>
 
@@ -401,12 +402,17 @@ import { error401 } from '../../errores';
                 opcionSeleccionadaAvanzada:1,
                 checkbox:[],
                 id_sucursal_z:'',
+
+                arraylistaTotal:[],
+                rapido:'',
+                id_lista:'',
+                id_sucu:'',
                 
             }
 
         },
-        computed:{
-            
+        computed:{     
+
             sicompleto(){
                 let me=this;
                 if (me.tipo!=0 && me.razonsocial!='' && me.telefono!='' && me.nit!='' && me.direccion!='' && me.ciudad!='' && me.controlEnvio == 1)
@@ -414,6 +420,7 @@ import { error401 } from '../../errores';
                 else
                     return false;
             },
+
             isActived:function(){
                 return this.pagination.current_page;
             },
@@ -507,6 +514,44 @@ import { error401 } from '../../errores';
             });
             },    
 
+            listarArrayRapido(id)
+            {
+                console.log("modal_entro");
+                let me = this;                
+                var url = "/sucursal/listarArray?id="+id;             
+            axios
+                .get(url)
+                .then(function (response) {
+                    var respuesta = response.data;
+                    console.log(respuesta);
+                    console.log("modal_2");  
+                    if (respuesta.resultado1.length > 0) {
+                        respuesta.resultado1.forEach(function (element) {
+                            console.log("datos entro");
+                    me.opcionSeleccionada=element.rapido;
+                    me.radioButtoRapido=element.id_lista;
+                console.log( me.opcionSeleccionada);
+                console.log( me.radioButtoRapido);            
+                });
+        } else {
+            // No hay datos en la respuesta
+            me.opcionSeleccionada=1;
+            me.radioButtoRapido=0;
+            console.log("No hay datos recibidos");
+                
+                }
+          
+
+            // Iterar sobre los resultados de resultado2 y mostrar los IDs
+            respuesta.resultado2.forEach(function (element) {
+              //  console.log(element.id);
+            });                       
+                })
+                .catch(function (error) {
+                    error401(error);
+                    console.log(error);
+                });           
+            },
             
             listarListas(id)
             {
@@ -753,12 +798,16 @@ import { error401 } from '../../errores';
                         console.log(data);
                         me.tituloModal='Añadir lista a '+data.razon_social
                         me.id_sucursal_z=data.id;
-               
-                me.opcionSeleccionada=1, 
-                me.radioButtoRapido=0,               
+                        console.log("modal_1-----");
+                        me.listarArrayRapido(data.id);
+                        console.log("modal_1");
+                      
+
+                               
                 me.opcionSeleccionadaAvanzada=1,
          
                         me.classModal.openModal('modal_listas');
+                        console.log("modal_fin");
                         break;
                     }    
 

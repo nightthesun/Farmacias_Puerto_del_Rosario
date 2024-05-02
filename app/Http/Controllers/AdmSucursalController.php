@@ -359,8 +359,20 @@ class AdmSucursalController extends Controller
           
             return response()->json(['error' => $th->getMessage()],500);
         }
-        
-      
     }
 
+    public function listarArray(Request $request) {
+        $resultado1 = DB::table('adm__sucursal_listas as aa')
+        ->where('aa.id_sucursal', $request->id)
+        ->get();
+    
+    $resultado2 = DB::table('adm__sucursal_lista_avanzadas as bb')
+        ->where('bb.id_sucursal', $request->id)
+        ->get();
+      
+        return ['resultado1' => $resultado1,
+            'resultado2' => $resultado2
+        ];
+    }
+    
 }
