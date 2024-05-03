@@ -3,62 +3,33 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class GestionPerimsoController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
-    }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+    
+    //********para listar si tiene permiso editar y activar
+    public function permisos_editar_activar(Request $request){
+        $iduserrolesuc=session('iduserrolesuc');
+        $user_1 = Auth()->user()->id;
+        $user_2 = Auth()->user()->name;
+        if($user_1==1&&$user_2=='admin'){
+            $resultadoConsulta = [
+                ['id' => 0, 'edit' => 0, 'activar' => 0]
+            ];
+            return $resultadoConsulta;           
+        }else{
+        // $idsucursal=session('idsuc');
+       // $nomsucursal=session('nomsucursal');
+       dd(session()->all());
+       $resultadoConsulta = DB::table('adm__user_role_sucursals as aur')
+       ->leftJoin('adm__asig_permiso_e_a_s as aap', 'aap.id_user_role_sucu', '=', 'aur.iduser')
+       ->where('aur.activo', '=', 1)
+       ->where('aur.id', '=', $iduserrolesuc)
+       ->select('aur.id as id', 'aap.edit as edit', 'aap.activar as activar')
+       ->get();
+       return $resultadoConsulta;
+        }      
     }
 }

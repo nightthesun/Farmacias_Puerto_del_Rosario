@@ -5,6 +5,7 @@ use App\Models\Adm_AsigMasSucursales;
 use App\Models\Adm_AsigPermisoEA;
 use App\Models\Adm_UserRoleSucursal;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class AdmUserRoleSucursalController extends Controller
@@ -206,6 +207,7 @@ class AdmUserRoleSucursalController extends Controller
         $userrolesuc->activo=0;
         $userrolesuc->id_usuario_modifica=auth()->user()->id;
         $userrolesuc->save();
+        
     }
 
     public function activar(Request $request)
