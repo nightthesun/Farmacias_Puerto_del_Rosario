@@ -249,33 +249,43 @@
                                        
                                     </table>
 
-                                  <blockquote class="blockquote mb-0" v-if="opcionSeleccionada==0">
-                                    <div class="col-md-9">
-                                        <table class="table table-bordered table-striped table-sm table-responsive">
-                                            <thead>
-                                                <tr>
-                                                    <th>#</th>
-                                                    <th>Nombre</th>
-                                                    <th>Sucursal</th>
-                                                    <th>Código</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <tr v-for="l in arrayLitas" :key="l.id">
-                                                    <td>
-                                                        <div class="form-check">
-                                                            <input type="radio" :id="'flexRadioDefault1_' + l.id" name="flexRadioDefault" v-model="radioButtoRapido" :value="l.id">
-                                                        </div>
-                                                     </td>                                                    
-                                                    <td v-text="l.nombre_lista"></td>
-                                                    <td v-text="l.razon_social"></td>
-                                                    <td v-text="l.codigo_tda_alm"></td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
+                                  <blockquote class="blockquote mb-0" >
+                                    <div class="col-md-9" v-if="opcionSeleccionada==0">
+                                        <div v-if=" arrayLitas.length > 0">
+                                            <table class="table table-bordered table-striped table-sm table-responsive">
+                                                <thead>
+                                                    <tr>
+                                                        <th>#</th>
+                                                        <th>Nombre</th>
+                                                        <th>Sucursal</th>
+                                                        <th>Código</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr v-for="l in arrayLitas" :key="l.id">
+                                                        <td>
+                                                            <div class="form-check">
+                                                                <input type="radio" :id="'flexRadioDefault1_' + l.id" name="flexRadioDefault" v-model="radioButtoRapido" :value="l.id">
+                                                            </div>
+                                                         </td>                                                    
+                                                        <td v-text="l.nombre_lista"></td>
+                                                        <td v-text="l.razon_social"></td>
+                                                        <td v-text="l.codigo_tda_alm"></td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div v-else class="alert alert-warning" role="alert">
+                                            Para añadir una lista debe crear en el modulo de Producto y buscar la pestaña de <strong>nueva lista</strong> depues añadir el producto a esa lista en <strong>registro precios x lista </strong>
+                                        </div> 
+                                        
                                     </div>
+                                    
+                                    <div v-else class="alert alert-primary" role="alert">
+                                       Lista por defecto solo mantendra el valor de su tienda o almacen
+                                      </div> 
                                 </blockquote>
-                                <blockquote class="blockquote mb-0" v-else> <div><span>Sin datos..</span></div></blockquote>
+                               
                                 </div>
                               </div>
 
@@ -296,9 +306,10 @@
                                        
                                     </table>
 
-                                  <blockquote class="blockquote mb-0" v-if="opcionSeleccionadaAvanzada==0">
-                                    <div class="col-md-9">
-                                        <table class="table table-bordered table-striped table-sm table-responsive">
+                                  <blockquote class="blockquote mb-0" >
+                                    <div class="col-md-9" v-if="opcionSeleccionadaAvanzada==0">
+                                        <div v-if=" arrayLitas.length > 0">
+                                         <table class="table table-bordered table-striped table-sm table-responsive">
                                             <thead>
                                                 <tr>
                                                     <th>#</th>
@@ -321,8 +332,17 @@
                                                 </tr>
                                                 
                                             </tbody>
+                              
                                         </table>
-                                    </div>
+                                       </div> 
+                                       <div v-else class="alert alert-warning" role="alert">
+                                        Para añadir una lista debe crear en el modulo de Producto y buscar la pestaña de <strong>nueva lista</strong> depues añadir el producto a esa lista en <strong>registro precios x lista </strong>
+                                       </div>   
+                                   </div>     
+                                    
+                                   <div v-else class="alert alert-primary" role="alert">
+                                            Lista por defecto solo mantendra el valor de su tienda o almacen, pero para esta opcion puede dar mas de una lista. 
+                                </div> 
                                 </blockquote>
                                 </div>
                               </div>
@@ -452,8 +472,8 @@ import { error401 } from '../../errores';
             //     let me = this;
             //     me.arraySucursalesCopia = me.arraySucursales;
             //     let arrayBuscar = [];
-            //     console.log("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$");
-            //     console.log(me.arraySucursales);
+
+     
 
             //     if (me.buscar != '') {
             //         arrayBuscar = me.buscar.split(' ');
@@ -473,8 +493,7 @@ import { error401 } from '../../errores';
 
             regsitrarlista(){
                 let me = this;
-               console.log("por_defecto_rapido:"+me.opcionSeleccionada+" radio:"+me.radioButtoRapido); 
-               console.log("por_defecto_avanzado:"+me.opcionSeleccionadaAvanzada);
+          
                let cadena=[];
             for (const selectedOption of me.checkbox) {
                 let elemento = {
@@ -482,7 +501,7 @@ import { error401 } from '../../errores';
             };
             cadena.push(elemento);
             }
-            console.log(cadena);    
+           
                 axios.post('/sucursal/registrarlista',{
                     'id_sucursal':me.id_sucursal_z,
                     'id_rapido':me.opcionSeleccionada,
@@ -516,36 +535,39 @@ import { error401 } from '../../errores';
 
             listarArrayRapido(id)
             {
-                console.log("modal_entro");
+        
                 let me = this;                
                 var url = "/sucursal/listarArray?id="+id;             
             axios
                 .get(url)
                 .then(function (response) {
-                    var respuesta = response.data;
-                    console.log(respuesta);
-                    console.log("modal_2");  
+                    var respuesta = response.data;                   
                     if (respuesta.resultado1.length > 0) {
-                        respuesta.resultado1.forEach(function (element) {
-                            console.log("datos entro");
-                    me.opcionSeleccionada=element.rapido;
-                    me.radioButtoRapido=element.id_lista;
-                console.log( me.opcionSeleccionada);
-                console.log( me.radioButtoRapido);            
-                });
-        } else {
-            // No hay datos en la respuesta
-            me.opcionSeleccionada=1;
-            me.radioButtoRapido=0;
-            console.log("No hay datos recibidos");
+                    me.opcionSeleccionada=respuesta.resultado1[0].rapido;
+                    me.radioButtoRapido=respuesta.resultado1[0].id_lista;
+                    } else {
+                    // No hay datos en la respuesta
+                    me.opcionSeleccionada=1;
+                    me.radioButtoRapido=0;
+                           
+                    }
+                        if (respuesta.resultado2.length > 0) {
+                             // Iterar sobre los resultados de resultado2 y mostrar los IDs
+                            respuesta.resultado2.forEach(function (element) {
+      
+                             me.opcionSeleccionadaAvanzada=respuesta.resultado2[1].avanzado;
+                           
+                            me.checkbox.push({"id":element.id_lista});
+                            });  
+                        } else {
+                            me.opcionSeleccionadaAvanzada=1;
+                            me.checkbox=[];
                 
-                }
-          
+                        }
 
-            // Iterar sobre los resultados de resultado2 y mostrar los IDs
-            respuesta.resultado2.forEach(function (element) {
-              //  console.log(element.id);
-            });                       
+               
+
+                                
                 })
                 .catch(function (error) {
                     error401(error);
@@ -743,7 +765,7 @@ import { error401 } from '../../errores';
                     me.listarSucursales();
                     if(response.data.length){
                     }
-                    // console.log(response)
+        
                     else{
                         Swal.fire('Actualizado Correctamente')   
                     } 
@@ -795,19 +817,12 @@ import { error401 } from '../../errores';
                     }
                     case 'modal_listas':
                     {
-                        console.log(data);
+                
                         me.tituloModal='Añadir lista a '+data.razon_social
                         me.id_sucursal_z=data.id;
-                        console.log("modal_1-----");
                         me.listarArrayRapido(data.id);
-                        console.log("modal_1");
+                       me.classModal.openModal('modal_listas');
                       
-
-                               
-                me.opcionSeleccionadaAvanzada=1,
-         
-                        me.classModal.openModal('modal_listas');
-                        console.log("modal_fin");
                         break;
                     }    
 
@@ -893,7 +908,7 @@ import { error401 } from '../../errores';
             this.classModal = new _pl.Modals();
             this.classModal.addModal('registrar');
             this.classModal.addModal('modal_listas');
-            //console.log('Component mounted.')
+    
         }
     }
 </script>

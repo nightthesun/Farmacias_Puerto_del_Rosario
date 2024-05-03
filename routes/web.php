@@ -50,6 +50,7 @@ use App\Http\Controllers\InvTraspasoController;
 use App\Http\Controllers\LogTrasladoController;
 use App\Http\Controllers\LogVehiculoController;
 use App\Http\Controllers\GesPreVenta2Controller;
+use App\Http\Controllers\GestionPerimsoController;
 use App\Http\Controllers\GetController;
 use App\Http\Controllers\ProdListaController;
 use App\Http\Controllers\ProdRegistroPreXListController;
@@ -135,7 +136,9 @@ Route::post('/registro', [AdmRegistroController::class, 'store'])
 Route::group(['middleware' => 'auth'], function () {
 
     //////////////////////////////////////controlador  generales/////////////////////////////////////////////////////////////
-    Route::get('/permisos_editar_activar', [GetController::class, 'permisos_editar_activar']);
+    /*****************permiso**************** */        
+    Route::get('/gestion_permiso_editar_eliminar', [GestionPerimsoController::class, 'permisos_editar_activar']);
+    /*****************tipo vista**************** */
     Route::get('/listarSucursal', [GetController::class, 'listarSucursal']);
     Route::get('/listarSucursalGet', [GetController::class, 'listarSucursalGet']);
     Route::get('/listarTipoDoc', [GetController::class, 'listarTipoDoc']);  

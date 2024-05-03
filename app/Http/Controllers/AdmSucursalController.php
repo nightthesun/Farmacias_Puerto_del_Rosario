@@ -312,7 +312,7 @@ class AdmSucursalController extends Controller
     public function registrarlista(Request $request){
         try {
            // casos uno
-        if ($request->id_rapido==1&&$request->valor_rapido==0) {
+        if ($request->id_rapido==1) {
 
             Adm_SucursalLista::where('id_sucursal', $request->id_sucursal)->delete();
          }else{  
@@ -331,7 +331,7 @@ class AdmSucursalController extends Controller
          }
          // caso dos
          if ($request->id_avanzado==1) {          
-             Adm_SucursalListaAvanzada::where('id_sucursal', $request->id)->delete();
+             Adm_SucursalListaAvanzada::where('id_sucursal', $request->id_sucursal)->delete();
          } else {
               // Buscar asignaciones existentes 
         $asignarExistente = Adm_SucursalListaAvanzada::where('id_sucursal', $request->id_sucursal)->get();
@@ -370,6 +370,7 @@ class AdmSucursalController extends Controller
         ->where('bb.id_sucursal', $request->id)
         ->get();
       
+     
         return ['resultado1' => $resultado1,
             'resultado2' => $resultado2
         ];
