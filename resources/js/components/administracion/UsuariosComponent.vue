@@ -307,6 +307,8 @@
                                         <th scope="col">Nombre</th>
                                         <th scope="col">Editar</th>
                                         <th scope="col">Eliminar</th>
+                                        <th scope="col">Especial</th>
+                                        <th scope="col">Crear</th>
                                       </tr>
                                     </thead>
                                     <tbody>
@@ -319,6 +321,12 @@
                                         </td>
                                         <td>
                                           <input type="checkbox" :value="{ id: aa.id_ventana, eliminar: aa.eliminar}" v-model="permisosActivar[aa.id_ventana]">
+                                        </td>
+                                        <td>
+                                          <input type="checkbox" :value="{ id: aa.id_ventana, especial: aa.especial}" v-model="permisoEspecial[aa.id_ventana]">
+                                        </td>
+                                        <td>
+                                          <input type="checkbox" :value="{ id: aa.id_ventana, crear: aa.crear}" v-model="permisoCrear[aa.id_ventana]">
                                         </td>
                                       </tr>
                                       
@@ -505,6 +513,8 @@ import { error401 } from '../../errores';
                 arrayPermisoEditar_Activar:[],
                 permisosEditar: {},
         permisosActivar: {},
+        permisoEspecial:{},
+        permisoCrear:{},
                 arrayE_A_S:[],
                 id_user_permiso:'',  
                 //añadir mas sucursales                   
@@ -702,16 +712,19 @@ import { error401 } from '../../errores';
                             
 const a = me.permisosEditar;
 const b = me.permisosActivar;
-
+const cc = me.permisoEspecial;
+const d = me.permisoCrear;
 // Obtener todas las claves únicas de a y b
-const allKeys = new Set([...Object.keys(a), ...Object.keys(b)]);
+const allKeys = new Set([...Object.keys(a), ...Object.keys(b), ...Object.keys(cc), ...Object.keys(d)]);
 
 // Crear el objeto c con las uniones lógicas
 const c = {};
 allKeys.forEach(key => {
   const aValue = a.hasOwnProperty(key) ? a[key] : false;
   const bValue = b.hasOwnProperty(key) ? b[key] : false;
-  c[key] = { a: aValue, b: bValue };
+  const cValue = cc.hasOwnProperty(key) ? cc[key] : false;
+  const dValue = d.hasOwnProperty(key) ? d[key] : false;
+  c[key] = { a: aValue, b: bValue, cc: cValue, d: dValue};
 
   // Cambiar los valores true/false por 1/2
   if (c[key].a === true) {
@@ -724,6 +737,16 @@ allKeys.forEach(key => {
     c[key].b = 1;
   } else {
     c[key].b = 2;
+  }
+  if (c[key].cc === true) {
+    c[key].cc = 1;
+  } else {
+    c[key].cc = 2;
+  }
+  if (c[key].d === true) {
+    c[key].d = 1;
+  } else {
+    c[key].d = 2;
   }
 });
 
@@ -1137,23 +1160,34 @@ allKeys.forEach(key => {
                            let user1 = this.arrayE_A_S.filter(item => item.id_user_role_sucu === data.id);
                            let vectorE = {};
                            let vectorA = {};
+                           let vectorP = {};
+                           let vectorC = {};
                            user1.forEach(user => {
                                 // Cambiar el valor de edit a true si es 1, o false si es 2
                             let editar = user.edit === 1 ? true : false;
                                 // Cambiar el valor de activar a true si es 1, o false si es 2
                             let activar = user.activar === 1 ? true : false;
+
+                            let especial = user.especial === 1 ? true : false;
+                            let crear = user.crear === 1 ? true : false;
                             vectorE[user.id_ventana] = editar;
                             vectorA[user.id_ventana] = activar;
+                            vectorP[user.id_ventana] = especial;
+                            vectorC[user.id_ventana] = crear;
                             });
 
                            // Si se encuentra un elemento que coincida, se establecen las variables permiso_Editar y permiso_Activar en los valores edit y activar del elemento encontrado, respectivamente
                            if (user1.length > 0) {
                             this.permisosEditar = vectorE;
                             this.permisosActivar = vectorA;
+                            this.permisoEspecial = vectorP;
+                            this.permisoCrear = vectorC;
                            
                             } else {
                             this.permisosEditar = {};                   
                             this.permisosActivar = {};
+                            this.permisoEspecial = {};
+                            this.permisoCrear = {};
                             }
                            me.classModal.openModal('registrar_E_A');    
                             break;
@@ -1192,6 +1226,7 @@ allKeys.forEach(key => {
                me.id_user_permiso='';
                me.permisosEditar = {};                   
                me.permisosActivar = {};
+               me.permisoEspecial ={};
                 me.arrayFalso=[];
                 me.selectAlmTda2=[];
                 me.arrayMasSucursales=[];

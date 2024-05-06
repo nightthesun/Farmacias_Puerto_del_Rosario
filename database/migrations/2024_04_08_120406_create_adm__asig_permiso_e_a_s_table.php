@@ -16,6 +16,8 @@ return new class extends Migration
             $table->tinyInteger('edit')->comment('1 si el valor es verdadero y 2 si es falso');
             $table->tinyInteger('activar')->comment('1 si el valor es verdadero y 2 si es falso');
             $table->smallInteger('id_ventana')->nullable();
+            $table->tinyInteger('especial')->nullable()->comment('1 si el valor es verdadero y 2 si es falso');
+           
         });
     }
 

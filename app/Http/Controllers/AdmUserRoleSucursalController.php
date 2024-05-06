@@ -81,7 +81,9 @@ class AdmUserRoleSucursalController extends Controller
             'id_user_role_sucu' => $request->id,
             'edit' => $valor['a'],
             'activar' => $valor['b'],
-            'id_ventana' => $clave
+            'id_ventana' => $clave,
+            'especial' => $valor['cc'],
+            'crear' => $valor['d'],
         ]);
     }
         } catch (\Exception $e) {
@@ -249,21 +251,27 @@ $ventanasModulos = DB::table('adm__ventana_modulos')
         foreach ($ventanasModulos as $ventana) {
             $editar = 0;
             $eliminar = 0;
+            $especial = 0;
+            $crear = 0; 
     
             foreach ($usuario_x_permisos as $permiso) {
                 if ($ventana->id == $permiso->id_ventana) {
                     $editar = $permiso->edit;
                     $eliminar = $permiso->activar;
+                    $especial = $permiso->especial ;
                     break;
                 }              
             }
+            
             if ($modulo->id == $ventana->idmodulo) {
 
                 $arrayVentanas[] = [
                     'id_ventana' => $ventana->id,
                     'nombre_ventana' => $ventana->nombre,
                     'editar' => $editar,
-                    'eliminar' => $eliminar
+                    'eliminar' => $eliminar,
+                    'especial' => $especial,
+                    'crear' => $crear,
                 ];
             }
         }

@@ -180,7 +180,10 @@ import {error401} from '../../errores.js';
                 metodovue:'',
                 descripcion:'',
                 idventana:'',
-                idaccion:''
+                idaccion:'',
+
+                //---permisos
+                arrayXYZ:[],
             }
 
         },
@@ -213,6 +216,28 @@ import {error401} from '../../errores.js';
 
         },
         methods :{
+            listarPerimsoxyz() {
+    let me = this;
+    var url = '/gestion_permiso_editar_eliminar';
+    // Acceder al nombre del componente actual
+    console.log("Advertencia durante la resolución del componente:", {
+    functionName: "resolveAsset",
+    fileName: "app.js",
+    lineNumber: 7040
+});
+    axios.get(url)
+        .then(function(response) {
+            var respuesta = response.data;
+            //console.log(respuesta);
+            me.arrayXYZ = respuesta.modulos;
+        })
+        .catch(function(error) {
+            error401(error);
+            console.log(error);
+        });
+},
+
+
             expandirModulo(id){
                 let me=this;
                 me.arrayModulos.forEach(element => {
@@ -229,6 +254,7 @@ import {error401} from '../../errores.js';
                 
 
             },
+
 
             reducirModulo(id){
                 let me=this;
@@ -646,6 +672,7 @@ import {error401} from '../../errores.js';
             this.listarModulos(1);
             this.classModal = new _pl.Modals();
             this.classModal.addModal('registrar');
+            this.listarPerimsoxyz();
             //console.log('Component mounted.')
         }
     }
