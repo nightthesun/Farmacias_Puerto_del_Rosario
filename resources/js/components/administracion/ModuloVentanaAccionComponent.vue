@@ -1,5 +1,7 @@
 <template>
+ 
     <main class="main">
+
         <!-- Breadcrumb -->
         <ol class="breadcrumb">
             <li class="breadcrumb-item">Home</li>
@@ -162,8 +164,10 @@
 <script>
 import Swal from 'sweetalert2';
 import {error401} from '../../errores.js';
+
 //Vue.use(VeeValidate);
     export default {
+        props: ['codventana'],
         data(){
             return{
                 modulo:'',
@@ -184,6 +188,7 @@ import {error401} from '../../errores.js';
 
                 //---permisos
                 arrayXYZ:[],
+                ventanaActual: null,
             }
 
         },
@@ -216,15 +221,13 @@ import {error401} from '../../errores.js';
 
         },
         methods :{
-            listarPerimsoxyz() {
+    listarPerimsoxyz() {
+        console.log(this.codventana);
     let me = this;
+   
+        
     var url = '/gestion_permiso_editar_eliminar';
-    // Acceder al nombre del componente actual
-    console.log("Advertencia durante la resolución del componente:", {
-    functionName: "resolveAsset",
-    fileName: "app.js",
-    lineNumber: 7040
-});
+  
     axios.get(url)
         .then(function(response) {
             var respuesta = response.data;
@@ -673,7 +676,7 @@ import {error401} from '../../errores.js';
             this.classModal = new _pl.Modals();
             this.classModal.addModal('registrar');
             this.listarPerimsoxyz();
-            //console.log('Component mounted.')
+        
         }
     }
 </script>

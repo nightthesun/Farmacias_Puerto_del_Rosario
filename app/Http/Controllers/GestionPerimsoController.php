@@ -16,7 +16,7 @@ class GestionPerimsoController extends Controller
     // Determinar la ruta actual
     $currentRoute = $request->route()->getName();
     //dd($currentRoute);
-        dd(session()->all());
+     //   dd(session()->all());
         $iduserrolesuc=session('iduserrolesuc');
         $user_1 = Auth()->user()->id;
         $user_2 = Auth()->user()->name;
@@ -35,7 +35,7 @@ class GestionPerimsoController extends Controller
        ->where('aur.id', '=', $iduserrolesuc)
        ->select('aur.id as id', 'aap.edit as edit', 'aap.activar as activar')
        ->get();
-       return $resultadoConsulta;
+      // return $resultadoConsulta;
         }      
     }
 }

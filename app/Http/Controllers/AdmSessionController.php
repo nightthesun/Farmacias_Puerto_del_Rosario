@@ -318,7 +318,7 @@ return view('auth.sucursal')->with('sucursales',$sucursales);
     public static function listarVentanas()
     {
         $ventanas =Adm_VentanaModulo::where('activo',1)->get();
-     
+    
         return $ventanas;
     }
 
