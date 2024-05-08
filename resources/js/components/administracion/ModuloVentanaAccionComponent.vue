@@ -14,7 +14,7 @@
                 <div class="card-header">
                     <i class="fa fa-align-justify"></i> Modulos - Ventanas - Acciones
                     
-                    <button type="button" class="btn btn-secondary" @click="abrirModal('registrar')">
+                    <button v-if="puedeCrear==1 " type="button" class="btn btn-secondary" @click="abrirModal('registrar')">
                         <i class="icon-plus"></i>&nbsp;Nuevo Modulo
                     </button>
                 
@@ -23,7 +23,8 @@
                     <div v-for="modulo in arrayModulos" :key="modulo.id">
                         
                         <label for="" class="col-md-6">- &nbsp;{{ modulo.nombre }}</label>
-                        <button v-if="!modulo.mostrarventana" type="button" class="btn btn-success btn-sm" @click="expandirModulo(modulo.id)">
+                        <div v-if="puedeHacerOpciones_especiales==1">
+                            <button v-if="!modulo.mostrarventana" type="button" class="btn btn-success btn-sm" @click="expandirModulo(modulo.id)">
                             Mostrar Modulo
                         </button> &nbsp;
                         <button v-else type="button" class="btn btn-warning btn-sm" @click="reducirModulo(modulo.id)">
@@ -32,21 +33,26 @@
                         <button v-if="modulo.mostrarventana" type="button" class="btn btn-success btn-sm" @click="abrirModal('registrarventana',[],modulo.id)">
                             Agregar Ventana
                         </button>&nbsp;
-                        <button type="button" class="btn btn-warning btn-sm" @click="abrirModal('actualizar',modulo)">
+                        </div>
+                      
+                        
+                        <button type="button" v-if="puedeEditar==1 || puedeEditar==0" class="btn btn-warning btn-sm" @click="abrirModal('actualizar',modulo)">
                             <i class="icon-pencil"></i>
                         </button>&nbsp;
-                        <button v-if="modulo.activo==1" type="button" class="btn btn-danger btn-sm" @click="eliminarModulo('modulo',modulo.id)" >
+                        
+                        <div v-if="puedeActivar==1">
+                            <button v-if="modulo.activo==1"  type="button" class="btn btn-danger btn-sm" @click="eliminarModulo('modulo',modulo.id)" >
                             <i class="icon-trash"></i>
-                        </button>&nbsp;
+                        </button>&nbsp;                      
                         <button v-else type="button" class="btn btn-info btn-sm" @click="activarModulo('modulo',modulo.id)" >
                             <i class="icon-check"></i>
-                        </button>&nbsp;
-                        
-                        
-                         
+                        </button>&nbsp; 
                         <span v-if="modulo.activo" class="badge badge-success">Activo</span>
                         <span v-else class="badge badge-warning">Desactivado</span>
+                        </div>
+                      
                         <hr>
+
                         <div  v-show="modulo.mostrarventana" v-for="ventana in modulo.ventana" :key="ventana.id" >    
                             
                             <label for="" class="col-md-1" style="text-align:right">-</label>
@@ -93,6 +99,7 @@
                                 <hr>
                             </div>
                         </div>
+                        
                     </div>
                 </div>
             </div>
@@ -188,7 +195,12 @@ import {error401} from '../../errores.js';
 
                 //---permisos
                 arrayXYZ:[],
-                ventanaActual: null,
+                puedeEditar:2,
+                puedeActivar:2,
+                puedeHacerOpciones_especiales:2,
+                puedeCrear:2,
+             
+           
             }
 
         },
@@ -222,23 +234,35 @@ import {error401} from '../../errores.js';
         },
         methods :{
     listarPerimsoxyz() {
-        console.log(this.codventana);
+                //console.log(this.codventana);
     let me = this;
    
         
-    var url = '/gestion_permiso_editar_eliminar';
+    var url = '/gestion_permiso_editar_eliminar?win='+me.codventana;
   
     axios.get(url)
         .then(function(response) {
             var respuesta = response.data;
-            //console.log(respuesta);
-            me.arrayXYZ = respuesta.modulos;
+            console.log(respuesta);
+            if(respuesta=="root"){
+            me.puedeEditar=1;
+            me.puedeActivar=1;
+            me.puedeHacerOpciones_especiales=1;
+            me.puedeCrear=1; 
+            }else{
+            me.puedeEditar=respuesta.edit;
+            me.puedeActivar=respuesta.activar;
+            me.puedeHacerOpciones_especiales=respuesta.especial;
+            me.puedeCrear=respuesta.crear;        
+            }
+           
         })
         .catch(function(error) {
             error401(error);
             console.log(error);
         });
 },
+
 
 
             expandirModulo(id){
@@ -672,6 +696,7 @@ import {error401} from '../../errores.js';
 
         },
         mounted() {
+           
             this.listarModulos(1);
             this.classModal = new _pl.Modals();
             this.classModal.addModal('registrar');

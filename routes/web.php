@@ -120,6 +120,7 @@ Route::get('/logout', [AdmSessionController::class, 'destroy'])
     //->middleware('auth')
     ->name('login.destroy');
 
+    
 Route::get('/registro', [AdmRegistroController::class, 'create'])
     ->middleware('auth')
     ->name('registro.index');
@@ -138,6 +139,7 @@ Route::group(['middleware' => 'auth'], function () {
     //////////////////////////////////////controlador  generales/////////////////////////////////////////////////////////////
     /*****************permiso**************** */        
     Route::get('/gestion_permiso_editar_eliminar', [GestionPerimsoController::class, 'permisos_editar_activar']);
+    Route::get('/bloqueado', [GestionPerimsoController::class, 'bloqueado']);
     /*****************tipo vista**************** */
     Route::get('/listarSucursal', [GetController::class, 'listarSucursal']);
     Route::get('/listarSucursalGet', [GetController::class, 'listarSucursalGet']);
