@@ -11,7 +11,7 @@
             <div class="card">
                 <div class="card-header">
                     <i class="fa fa-align-justify"></i> Empleados
-                    <button type="button" class="btn btn-secondary rounded" @click="abrirModal('registrar')">
+                    <button  v-if="puedeCrear==1" type="button" class="btn btn-secondary rounded" @click="abrirModal('registrar')">
                         <i class="icon-plus"></i>&nbsp;Nuevo
                     </button>
                 </div>
@@ -27,48 +27,65 @@
                     <table class="table table-bordered table-striped table-sm table-responsive">
                         <thead>
                             <tr>
-                                <th style="width:150px">Opciones</th>
-                                <th>Nombre</th>
-                                <th>Cargo</th>
-                                <th>sexo</th>
-                                <th>CI</th>
-                                <th>Telefonos</th>
-                                <th>Fecha Nacimiento</th>
-                                <th>Estado Civil</th>
-                                <th>Domicilio</th>
-                                <th>Nº Cuenta</th>
-                                <th>Estado</th>
+                                <th class="col-md-1">Opciones</th>
+                                <th class="col-md-2">Nombre</th>
+                                <th class="col-md-1">Cargo</th>
+                                <th class="col-md-1">sexo</th>
+                                <th class="col-md-1">CI</th>
+                                <th class="col-md-1">Telefonos</th>
+                                <th class="col-md-1">Fecha Nacimiento</th>
+                                <th class="col-md-1">Estado Civil</th>
+                                <th class="col-md-1">Domicilio</th>
+                                <th class="col-md-2">Nº Cuenta</th>
+                                <th >Estado</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr v-for="empleado in arrayEmpleados" :key="empleado.id">
-                                <td>
-                                    <div v-if="empleado.nombre!='ADMIN'">
-                                        <button type="button" class="btn btn-warning btn-sm rounded" @click="abrirModal('actualizar',empleado)">
-                                        <i class="icon-pencil"></i>
-                                        </button> &nbsp;
-                                        <button v-if="empleado.activo==1" type="button" class="btn btn-danger btn-sm rounded" @click="eliminarempleado(empleado.id)" >
+                                <td class="col-md-1">
+                                   
+                                    <div v-if="empleado.nombre!='ADMIN'" class="d-flex justify-content-start">
+                                        <div  v-if="puedeEditar==1">
+                                            <button type="button" class="btn btn-warning btn-sm rounded" @click="abrirModal('actualizar',empleado)" style="margin-right: 5px;">
+                                            <i class="icon-pencil"></i>
+                                            </button>
+                                        </div>
+                                        <div  v-else>
+                                            <button type="button" class="btn btn-light btn-sm rounded" style="margin-right: 5px;">
+                                            <i class="icon-pencil"></i>
+                                            </button>
+                                        </div>
+                                        <div v-if="puedeActivar==1">
+                                            <button v-if="empleado.activo==1" type="button" class="btn btn-danger btn-sm rounded" @click="eliminarempleado(empleado.id)" style="margin-right: 5px;">
                                             <i class="icon-trash"></i>
-                                        </button> &nbsp;
-                                        <button v-else type="button" class="btn btn-info btn-sm rounded" @click="activarempleado(empleado.id)" >
+                                        </button> 
+                                        <button v-else type="button" class="btn btn-info btn-sm rounded" @click="activarempleado(empleado.id)" style="margin-right: 5px;">
                                             <i class="icon-check"></i>
-                                        </button> &nbsp;
-                                        <img v-if="empleado.foto" :src="'storage/'+ empleado.foto.substring(10)" class="rounded-circle fotosociomini">
+                                        </button>                                        
+                                        </div>
+                                        <div  v-else>
+                                            <button v-if="empleado.activo==1" type="button" class="btn btn-light btn-sm rounded"  style="margin-right: 5px;">
+                                            <i class="icon-trash"></i>
+                                        </button> 
+                                        <button v-else type="button" class="btn btn-light btn-sm rounded"  style="margin-right: 5px;">
+                                            <i class="icon-check"></i>
+                                        </button>
+                                        </div>
+                                        <img v-if="empleado.foto" :src="'storage/'+ empleado.foto.substring(10)" class="rounded-circle fotosociomini" >
                                         <img v-else src="img/avatars/persona.png"  class="rounded-circle fotosociomini" >
-
                                     </div>
                                     
                                 </td>
-                                    <td v-text="empleado.nomempleado"></td>
-                                    <td v-text="empleado.nomcargo"></td>
-                                    <td v-text="empleado.sexo"></td>
-                                    <td v-text="empleado.ci"></td>
-                                    <td v-text="empleado.telefonos"></td>
-                                    <td v-text="empleado.fechanacimiento"></td>
-                                    <td v-text="empleado.estadocivil"></td>
-                                    <td v-text="empleado.direccion"></td>
-                                    <td v-text="empleado.nrcuenta + ' '+empleado.nombanco"></td>
-                                <td>
+                                    <td v-text="empleado.nomempleado" class="col-md-2"></td>
+                                    <td v-text="empleado.nomcargo" class="col-md-1"></td>
+                                    <td v-text="empleado.sexo" class="col-md-1"></td>
+                                    <td v-text="empleado.ci" class="col-md-1"></td>
+                                    <td v-text="empleado.telefonos" class="col-md-1"></td>
+                                    <td v-text="empleado.fechanacimiento" class="col-md-1"></td>
+                                    <td v-text="empleado.estadocivil" class="col-md-1"></td>
+                                    <td v-text="empleado.direccion" class="col-md-1"></td>
+                                    <td v-text="empleado.nrcuenta + ' '+empleado.nombanco" class="col-md-2"></td>
+                                <td >
                                     <div v-if="empleado.activo==1">
                                         <span class="badge badge-success">Activo</span>
                                     </div>
@@ -427,6 +444,9 @@ import { error401 } from '../../errores';
 
 //Vue.use(VeeValidate);
     export default {
+        //---permisos_R_W_S
+        props: ['codventana'],
+        //-------------------
         data(){
             return{
                 pagination:{
@@ -491,6 +511,12 @@ import { error401 } from '../../errores';
                 imagenminiatura:'',
                 clearInputFile:1,
                 mensajeError:'',
+                 //---permisos_R_W_S
+                 puedeEditar:2,
+                puedeActivar:2,
+                puedeHacerOpciones_especiales:2,
+                puedeCrear:2,
+                //-----------
             }
 
         },
@@ -530,6 +556,37 @@ import { error401 } from '../../errores';
         },
         methods :{
 
+              //-----------------------------------permisos_R_W_S        
+    listarPerimsoxyz() {
+                //console.log(this.codventana);
+    let me = this;
+   
+        
+    var url = '/gestion_permiso_editar_eliminar?win='+me.codventana;
+  
+    axios.get(url)
+        .then(function(response) {
+            var respuesta = response.data;
+            console.log(respuesta);
+            if(respuesta=="root"){
+            me.puedeEditar=1;
+            me.puedeActivar=1;
+            me.puedeHacerOpciones_especiales=1;
+            me.puedeCrear=1; 
+            }else{
+            me.puedeEditar=respuesta.edit;
+            me.puedeActivar=respuesta.activar;
+            me.puedeHacerOpciones_especiales=respuesta.especial;
+            me.puedeCrear=respuesta.crear;        
+            }
+           
+        })
+        .catch(function(error) {
+            error401(error);
+            console.log(error);
+        });
+},
+//--------------------------------------------------------------
             caracteresPermitidosTelefono(ex){
                 let me=this;
                 console.log(ex.keyCode +'-->'+ex.key);
@@ -1117,6 +1174,9 @@ import { error401 } from '../../errores';
 
         },
         mounted() {
+            //-------permiso E_W_S-----
+            this.listarPerimsoxyz();
+            //-----------------------
             this.selectBancos();
             this.selectProfesions();
             this.selectFormacions();

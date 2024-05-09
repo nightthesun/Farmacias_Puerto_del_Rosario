@@ -11,7 +11,7 @@
             <div class="card">
                 <div class="card-header">
                     <i class="fa fa-align-justify"></i> Usuarios
-                    <button type="button" class="btn btn-secondary" @click="abrirModal('registrar')">
+                    <button v-if="puedeCrear==1" type="button" class="btn btn-secondary" @click="abrirModal('registrar')">
                         <i class="icon-plus"></i>&nbsp;Nuevo
                     </button>
                 </div>
@@ -37,17 +37,37 @@
                         <tbody>
                             <tr v-for="usuario in arrayUsuarios" :key="usuario.id">
                                 <td>
-                                    <div v-if="usuario.name!='admin'">
-                                        <button type="button" class="btn btn-warning btn-sm" @click="abrirModal('actualizar',usuario)">
+                                    <div v-if="usuario.name!='admin'" class="d-flex justify-content-start">
+                                        <div  v-if="puedeEditar==1">
+                                            <button type="button" class="btn btn-warning btn-sm" @click="abrirModal('actualizar',usuario)" style="margin-right: 5px;">
                                             <i class="icon-pencil"></i>
-                                        </button> &nbsp;
-                                        <button v-if="usuario.activo==1" type="button" class="btn btn-danger btn-sm" @click="eliminarUsuario(usuario.id)" >
+                                            </button> 
+                                        </div>
+                                        <div  v-else>
+                                            <button type="button" class="btn btn-light btn-sm"  style="margin-right: 5px;">
+                                            <i class="icon-pencil"></i>
+                                            </button> 
+                                        </div>
+
+                                        <div v-if="puedeActivar==1">
+                                        <button v-if="usuario.activo==1" type="button" class="btn btn-danger btn-sm" @click="eliminarUsuario(usuario.id)" style="margin-right: 5px;">
                                             <i class="icon-trash"></i>
-                                        </button>&nbsp;
-                                        <button v-else type="button" class="btn btn-info btn-sm" @click="activarUsuario(usuario.id)" >
+                                        </button>
+                                        <button v-else type="button" class="btn btn-info btn-sm" @click="activarUsuario(usuario.id)" style="margin-right: 5px;">
                                             <i class="icon-check"></i>
-                                        </button>&nbsp;
-                                        <button  type="button" class="btn btn-success btn-sm" @click="abrirModal('addrolsuc',usuario)">
+                                        </button>
+                                        </div>
+                                        <div v-else>
+                                            <button v-if="usuario.activo==1" type="button" class="btn btn-light btn-sm"  style="margin-right: 5px;">
+                                            <i class="icon-trash"></i>
+                                        </button>
+                                        <button v-else type="button" class="btn btn-light btn-sm"  style="margin-right: 5px;">
+                                            <i class="icon-check"></i>
+                                        </button>
+                                        </div>
+                                        
+                                        <div v-if="puedeHacerOpciones_especiales==1">
+                                            <button  type="button" class="btn btn-success btn-sm" @click="abrirModal('addrolsuc',usuario)">
                                             <!-- <i class="icon-pencil"></i> -->Editar Rol-Sucursal
                                         </button>&nbsp;
                                         <button type="button" style="color: aliceblue;" class="btn btn-primary btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Dar permisos de editar y eliminar"
@@ -62,6 +82,25 @@
                                         @click="abrirModal('GetUsersWithRolesAndSucursals',usuario);listarGetUsersWithRolesAndSucursals(usuario.id);" >
                                             <i class="fa fa-address-card" aria-hidden="true"></i>
                                         </button>
+                                        </div>
+                                        <div v-else>
+                                            <button  type="button" class="btn btn-light btn-sm">
+                                            <!-- <i class="icon-pencil"></i> -->Editar Rol-Sucursal
+                                        </button>&nbsp;
+                                        <button type="button" style="color: aliceblue;" class="btn btn-light btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Dar permisos de editar y eliminar"
+                                       >
+                                            <i class="fa fa-address-card" aria-hidden="true"></i>
+                                        </button>&nbsp;
+                                        <button type="button" style="color: aliceblue;" class="btn btn-light btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Usuario x tiendas y almacenes"
+                                       >
+                                            <i class="fa fa-address-card" aria-hidden="true"></i>
+                                        </button>&nbsp;
+                                        <button type="button" style="color: aliceblue;" class="btn btn-light btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" title="Ver usuario x roles"
+                                        >
+                                            <i class="fa fa-address-card" aria-hidden="true"></i>
+                                        </button>
+                                        </div>
+                                       
 
                                     </div>
                                       
@@ -478,6 +517,9 @@ import Swal from 'sweetalert2';
 import { error401 } from '../../errores';
 //Vue.use(VeeValidate);
     export default {
+        //---permisos_R_W_S
+        props: ['codventana'],
+        //-------------------
         data(){
             return{
                 pagination:{
@@ -524,6 +566,14 @@ import { error401 } from '../../errores';
                 arrayMasSucursales:[],
                 //boton roles y sucursales
                 arrayRoles_Perimos:[],
+
+
+                //---permisos_R_W_S
+                puedeEditar:2,
+                puedeActivar:2,
+                puedeHacerOpciones_especiales:2,
+                puedeCrear:2,
+                //-----------
                 
             }
 
@@ -579,7 +629,38 @@ import { error401 } from '../../errores';
 
 
         },
-        methods :{         
+        methods :{      
+               //-----------------------------------permisos_R_W_S        
+    listarPerimsoxyz() {
+                //console.log(this.codventana);
+    let me = this;
+   
+        
+    var url = '/gestion_permiso_editar_eliminar?win='+me.codventana;
+  
+    axios.get(url)
+        .then(function(response) {
+            var respuesta = response.data;
+            console.log(respuesta);
+            if(respuesta=="root"){
+            me.puedeEditar=1;
+            me.puedeActivar=1;
+            me.puedeHacerOpciones_especiales=1;
+            me.puedeCrear=1; 
+            }else{
+            me.puedeEditar=respuesta.edit;
+            me.puedeActivar=respuesta.activar;
+            me.puedeHacerOpciones_especiales=respuesta.especial;
+            me.puedeCrear=respuesta.crear;        
+            }
+           
+        })
+        .catch(function(error) {
+            error401(error);
+            console.log(error);
+        });
+},
+//--------------------------------------------------------------   
             listarGetUsersWithRolesAndSucursals(user_id){
                 let me = this;
                 var url ="/userrolesuc/getUsersWithRolesAndSucursals?user_id="+user_id;
@@ -1278,6 +1359,9 @@ allKeys.forEach(key => {
 
         },
         mounted() {
+               //-------permiso E_W_S-----
+               this.listarPerimsoxyz();
+            //-----------------------
             this.listarUsuarios(1);
             this.selectRoles();
          

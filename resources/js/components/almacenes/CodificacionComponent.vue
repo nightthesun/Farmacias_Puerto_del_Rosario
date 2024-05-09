@@ -11,7 +11,7 @@
             <div class="card">
                 <div class="card-header">
                     <i class="fa fa-align-justify"></i>Clasificacion Estantes
-                    <button type="button" class="btn btn-secondary" @click="abrirModal('registrar')" :disabled="almacenSelected==0">
+                    <button  v-if="puedeCrear==1" type="button" class="btn btn-secondary" @click="abrirModal('registrar')" :disabled="almacenSelected==0">
                         <i class="icon-plus"></i>&nbsp;Nuevo
                     </button>
                     <span  v-if="almacenSelected==0" class="error"> &nbsp; &nbsp;Debe Seleccionar una Sucursal</span>
@@ -37,38 +37,67 @@
                     <table class="table table-bordered table-striped table-sm table-responsive">
                         <thead>
                             <tr>
-                                <th>Opciones</th>
-                                <th>Codigo Estante</th>
-                                <th>Letra Asignada</th>
-                                <th>Num. Posiciones</th>
-                                <th>Altura</th>
-                                <th>Estado</th>
+                                <th class="col-md-1">Opciones</th>
+                                <th class="col-md-2">Codigo Estante</th>
+                                <th class="col-md-3">Letra Asignada</th>
+                                <th class="col-md-2">Num. Posiciones</th>
+                                <th class="col-md-3">Altura</th>
+                                <th class="col-md-1">Estado</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr v-for="estante in arrayEstantes" :key="estante.id">
-                                <td>
-                                    <button type="button" class="btn btn-warning btn-sm" @click="abrirModal('actualizar',estante)">
-                                        <i class="icon-pencil"></i>
-                                    </button> &nbsp;
-                                    <button v-if="estante.activo==1" type="button" class="btn btn-danger btn-sm" @click="eliminarEstante(estante.id)" >
-                                        <i class="icon-trash"></i>
-                                    </button>
-                                    <button v-else type="button" class="btn btn-info btn-sm" @click="activarEstante(estante.id)" >
-                                        <i class="icon-check"></i>
-                                    </button>
-                                    <button type="button" class="btn btn-success btn-sm" @click="imprimirCodificacion(estante.id)" style="margin-left: 8px;">
-                                        <i class="fa fa-print" aria-hidden="true"></i>
-                                    </button>
-                                    <button type="button" class="btn btn-sm"  @click="abrirModal('ubicacionproductos',estante)" style="margin-left: 8px; background: #8e44ad;">
-                                        <i class="fa fa-delicious" aria-hidden="true" style="color: white;"></i>
-                                    </button>
+                                <td class="col-md-1">
+                                    <div  class="d-flex justify-content-start">
+                                        <div  v-if="puedeEditar==1">
+                                            <button type="button" class="btn btn-warning btn-sm" @click="abrirModal('actualizar',estante)"  style="margin-right: 5px;">
+                                            <i class="icon-pencil"></i>
+                                            </button> 
+                                        </div>
+                                        <div  v-else>
+                                            <button type="button" class="btn btn-light btn-sm" style="margin-right: 5px;">
+                                            <i class="icon-pencil"></i>
+                                            </button> 
+                                        </div>
+                                        <div v-if="puedeActivar==1">
+                                            <button v-if="estante.activo==1" type="button" class="btn btn-danger btn-sm" @click="eliminarEstante(estante.id)" style="margin-right: 5px;">
+                                            <i class="icon-trash"></i>
+                                            </button>
+                                            <button v-else type="button" class="btn btn-info btn-sm" @click="activarEstante(estante.id)" style="margin-right: 5px;">
+                                            <i class="icon-check"></i>
+                                            </button>
+                                        </div>
+                                        <div  v-else>
+                                            <button v-if="estante.activo==1" type="button" class="btn btn-light btn-sm" style="margin-right: 5px;">
+                                            <i class="icon-trash"></i>
+                                            </button>
+                                            <button v-else type="button" class="btn btn-light btn-sm" style="margin-right: 5px;">
+                                            <i class="icon-check"></i>
+                                            </button>
+                                        </div>
+                                        <div v-if="puedeHacerOpciones_especiales==1">
+                                            <button type="button" class="btn btn-success btn-sm" @click="imprimirCodificacion(estante.id)" style="margin-right: 5px;">
+                                            <i class="fa fa-print" aria-hidden="true"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-success btn-sm"  @click="abrirModal('ubicacionproductos',estante)" style="margin-right: 5px; background: #8e44ad;">
+                                            <i class="fa fa-delicious" aria-hidden="true" style="color: white;"></i>
+                                            </button>
+                                        </div>
+                                        <div  v-else>
+                                            <button type="button" class="btn btn-light btn-sm"  style="margin-right: 5px;">
+                                            <i class="fa fa-print" aria-hidden="true"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-light btn-sm"   style="margin-right: 5px; background: #8e44ad;">
+                                            <i class="fa fa-delicious" aria-hidden="true" style="color: white;"></i>
+                                            </button>
+                                        </div>
+                                    </div>   
                                 </td>
-                                <td v-text="estante.codestante"></td>
-                                <td v-text="estante.letraestante"></td>
-                                <td v-text="estante.numposicion"></td>
-                                <td v-text="estante.numaltura"></td>
-                                <td>
+                                <td v-text="estante.codestante" class="col-md-2"></td>
+                                <td v-text="estante.letraestante" class="col-md-3"></td>
+                                <td v-text="estante.numposicion" class="col-md-2"></td>
+                                <td v-text="estante.numaltura" class="col-md-3"></td>
+                                <td class="col-md-1">
                                     <div v-if="estante.activo==1">
                                         <span class="badge badge-success">Activo</span>
                                     </div>
@@ -176,6 +205,9 @@ import { error401 } from '../../errores';
 
 //Vue.use(VeeValidate);
     export default {
+       //---permisos_R_W_S
+       props: ['codventana'],
+        //-------------------
         data(){
             return{
                 pagination:{
@@ -208,6 +240,12 @@ import { error401 } from '../../errores';
                 codestante:'',
                 almacenes:[],
                 almacenSelected:0,
+                 //---permisos_R_W_S
+                 puedeEditar:2,
+                puedeActivar:2,
+                puedeHacerOpciones_especiales:2,
+                puedeCrear:2,
+                //-----------
             }
         },
 
@@ -245,6 +283,37 @@ import { error401 } from '../../errores';
 
         },
         methods :{
+              //-----------------------------------permisos_R_W_S        
+    listarPerimsoxyz() {
+                //console.log(this.codventana);
+    let me = this;
+   
+        
+    var url = '/gestion_permiso_editar_eliminar?win='+me.codventana;
+  
+    axios.get(url)
+        .then(function(response) {
+            var respuesta = response.data;
+            console.log(respuesta);
+            if(respuesta=="root"){
+            me.puedeEditar=1;
+            me.puedeActivar=1;
+            me.puedeHacerOpciones_especiales=1;
+            me.puedeCrear=1; 
+            }else{
+            me.puedeEditar=respuesta.edit;
+            me.puedeActivar=respuesta.activar;
+            me.puedeHacerOpciones_especiales=respuesta.especial;
+            me.puedeCrear=respuesta.crear;        
+            }
+           
+        })
+        .catch(function(error) {
+            error401(error);
+            console.log(error);
+        });
+},
+//--------------------------------------------------------------  
             imprimirCodificacion(idestante){
                 console.log(idestante);
                 let me=this;
@@ -517,6 +586,9 @@ import { error401 } from '../../errores';
 
         },
         mounted() {
+             //-------permiso E_W_S-----
+             this.listarPerimsoxyz();
+            //-----------------------
             this.selectSucursal(1);
             this.listarAlmacenes();
             this.classModal = new _pl.Modals();

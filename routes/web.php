@@ -140,6 +140,8 @@ Route::group(['middleware' => 'auth'], function () {
     /*****************permiso**************** */        
     Route::get('/gestion_permiso_editar_eliminar', [GestionPerimsoController::class, 'permisos_editar_activar']);
     Route::get('/bloqueado', [GestionPerimsoController::class, 'bloqueado']);
+    Route::get('/listar_alamcen_tienda_permisos', [GestionPerimsoController::class, 'listar_alamcen_tienda_permisos']);
+    
     /*****************tipo vista**************** */
     Route::get('/listarSucursal', [GetController::class, 'listarSucursal']);
     Route::get('/listarSucursalGet', [GetController::class, 'listarSucursalGet']);

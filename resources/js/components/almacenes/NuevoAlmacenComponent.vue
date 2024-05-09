@@ -11,7 +11,7 @@
             <div class="card">
                 <div class="card-header">
                     <i class="fa fa-align-justify"></i> Almacen
-                    <button type="button" class="btn btn-secondary" @click="abrirModal('registrar')">
+                    <button v-if="puedeCrear==1" type="button" class="btn btn-secondary" @click="abrirModal('registrar')">
                         <i class="icon-plus"></i>&nbsp;Nuevo
                     </button>
                 </div>
@@ -27,39 +27,59 @@
                     <table class="table table-bordered table-striped table-sm table-responsive">
                         <thead>
                             <tr>
-                                <th>Opciones</th>
-                                <th>Codigo</th>
-                                <th>Sucursal</th>
-                                <th>Nombre Almacen</th>
-                                <th>Telefonos</th>
-                                <th>Direccion</th>
-                                <th>Departamento</th>
-                                <th>Ciudad</th>
-                                <th>Estado</th>
+                                <th class="col-md-1">Opciones</th>
+                                <th class="col-md-1">Codigo</th>
+                                <th class="col-md-2">Sucursal</th>
+                                <th class="col-md-1">Nombre Almacen</th>
+                                <th class="col-md-1">Telefonos</th>
+                                <th class="col-md-2">Direccion</th>
+                                <th class="col-md-1">Departamento</th>
+                                <th class="col-md-1">Ciudad</th>
+                                <th class="col-md-1">Estado</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr v-for="almacen in arrayAlmacenes" :key="almacen.id">
-                                <td>
-                                    <button type="button" class="btn btn-warning btn-sm" @click="abrirModal('actualizar',almacen)">
+                                <td class="col-md-1">
+                                    <div  class="d-flex justify-content-start">
+                                        <div  v-if="puedeEditar==1">
+                                        <button type="button" class="btn btn-warning btn-sm" @click="abrirModal('actualizar',almacen)" style="margin-right: 5px;">
                                         <i class="icon-pencil"></i>
-                                    </button> &nbsp;
-                                    <button v-if="almacen.activo==1" type="button" class="btn btn-danger btn-sm" @click="eliminarAlmacen(almacen.id)" >
-                                        <i class="icon-trash"></i>
-                                    </button>
-                                    <button v-else type="button" class="btn btn-info btn-sm" @click="activarAlamcen(almacen.id)" >
-                                        <i class="icon-check"></i>
-                                    </button>
+                                        </button> 
+                                        </div>
+                                        <div  v-else>
+                                            <button type="button" class="btn btn-light btn-sm" style="margin-right: 5px;">
+                                            <i class="icon-pencil"></i>
+                                            </button>
+                                        </div>
+                                        <div v-if="puedeActivar==1">
+                                            <button v-if="almacen.activo==1" type="button" class="btn btn-danger btn-sm" @click="eliminarAlmacen(almacen.id)" style="margin-right: 5px;">
+                                            <i class="icon-trash"></i>
+                                            </button>
+                                            <button v-else type="button" class="btn btn-info btn-sm" @click="activarAlamcen(almacen.id)" style="margin-right: 5px;">
+                                            <i class="icon-check"></i>
+                                            </button>
+                                        </div>
+                                        <div  v-else>
+                                            <button v-if="almacen.activo==1" type="button" class="btn btn-light btn-sm" style="margin-right: 5px;">
+                                            <i class="icon-trash"></i>
+                                            </button>
+                                            <button v-else type="button" class="btn btn-light btn-sm" style="margin-right: 5px;">
+                                            <i class="icon-check"></i>
+                                            </button>
+                                        </div>
+                                    </div>                                    
+                                   
                                 </td>
                                 <!-- <td v-text="(almacen.codsuc === null ? '': almacen.codsuc+' - ') + almacen.codigo"></td> -->
-                                <td v-text="almacen.codigo"></td>
-                                <td>{{ almacen.razon_social }} <br> {{ almacen.tipo }} {{ almacen.tipo == 'Sucursal'? almacen.correlativo:'' }}</td>
-                                <td v-text="almacen.nombre_almacen"></td>
-                                <td v-text="almacen.telefono"></td>
-                                <td v-text="almacen.direccion"></td>
-                                <td v-text="almacen.departamento"></td>
-                                <td>{{ almacen.ciudad }}</td>
-                                <td>
+                                <td v-text="almacen.codigo" class="col-md-1"></td>
+                                <td class="col-md-2">{{ almacen.razon_social }} <br> {{ almacen.tipo }} {{ almacen.tipo == 'Sucursal'? almacen.correlativo:'' }}</td>
+                                <td class="col-md-1" v-text="almacen.nombre_almacen"></td>
+                                <td class="col-md-1" v-text="almacen.telefono"></td>
+                                <td class="col-md-2" v-text="almacen.direccion"></td>
+                                <td  class="col-md-1" v-text="almacen.departamento"></td>
+                                <td class="col-md-1">{{ almacen.ciudad }}</td>
+                                <td class="col-md-1">
                                     <div v-if="almacen.activo==1">
                                         <span class="badge badge-success">Activo</span>
                                     </div>
@@ -196,6 +216,9 @@ import Swal from 'sweetalert2';
 import { error401 } from '../../errores';
 //Vue.use(VeeValidate);
     export default {
+        //---permisos_R_W_S
+        props: ['codventana'],
+        //-------------------
         data(){
             return{
                 pagination:{
@@ -240,8 +263,13 @@ import { error401 } from '../../errores';
                 idalmacen:0,
                 arrayCiudad:[],
                 arrayDepto:[],
-                arrayAlmacenes:[]
-                
+                arrayAlmacenes:[],
+                //---permisos_R_W_S
+                puedeEditar:2,
+                puedeActivar:2,
+                puedeHacerOpciones_especiales:2,
+                puedeCrear:2,
+                //-----------
             }
 
         },
@@ -280,7 +308,37 @@ import { error401 } from '../../errores';
 
         },
         methods :{
-
+ //-----------------------------------permisos_R_W_S        
+ listarPerimsoxyz() {
+                //console.log(this.codventana);
+    let me = this;
+   
+        
+    var url = '/gestion_permiso_editar_eliminar?win='+me.codventana;
+  
+    axios.get(url)
+        .then(function(response) {
+            var respuesta = response.data;
+            console.log(respuesta);
+            if(respuesta=="root"){
+            me.puedeEditar=1;
+            me.puedeActivar=1;
+            me.puedeHacerOpciones_especiales=1;
+            me.puedeCrear=1; 
+            }else{
+            me.puedeEditar=respuesta.edit;
+            me.puedeActivar=respuesta.activar;
+            me.puedeHacerOpciones_especiales=respuesta.especial;
+            me.puedeCrear=respuesta.crear;        
+            }
+           
+        })
+        .catch(function(error) {
+            error401(error);
+            console.log(error);
+        });
+},
+//--------------------------------------------------------------  
             caracteresPermitidosTelefono(ex){
                 let me=this;
                 if(ex.keyCode==32 || ex.keyCode==43 || ex.keyCode==8 || ex.keyCode == 45 || (ex.keyCode >= 48 && ex.keyCode <= 57) )
@@ -564,6 +622,9 @@ import { error401 } from '../../errores';
         },
 
         mounted() {
+            //-------permiso E_W_S-----
+            this.listarPerimsoxyz();
+            //-----------------------
             this.selectRubros();
             this.listarAlmacenes(1);
             this.listarSucursales(1);

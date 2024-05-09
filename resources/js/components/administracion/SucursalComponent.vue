@@ -11,7 +11,7 @@
             <div class="card">
                 <div class="card-header">
                     <i class="fa fa-align-justify"></i> Sucursales
-                    <button type="button" class="btn btn-secondary" @click="abrirModal('registrar')">
+                    <button v-if="puedeCrear==1" type="button" class="btn btn-secondary" @click="abrirModal('registrar')">
                         <i class="icon-plus"></i>&nbsp;Nuevo
                     </button>
                 </div>
@@ -44,19 +44,49 @@
                         <tbody>
                             <tr v-for="sucursal in arraySucursales" :key="sucursal.id">
                                 <td>
-                                    <button type="button" class="btn btn-warning btn-sm" @click="abrirModal('actualizar',sucursal)">
-                                        <i class="icon-pencil"></i>
-                                    </button> &nbsp;
-                                    <button v-if="sucursal.activo==1" type="button" class="btn btn-danger btn-sm" @click="eliminarSucursal(sucursal.id)" >
+                                    <div class="d-flex justify-content-start">
+                                        <div  v-if="puedeEditar==1">
+                                            <button type="button" class="btn btn-warning btn-sm" @click="abrirModal('actualizar',sucursal)" style="margin-right: 5px;">
+                                            <i class="icon-pencil"></i>
+                                            </button>
+                                        </div>
+                                        <div  v-else>
+                                            <button type="button" class="btn btn-light btn-sm" style="margin-right: 5px;">
+                                            <i class="icon-pencil"></i>
+                                            </button>
+                                        </div>
+                                        <div v-if="puedeActivar==1">
+                                        <button v-if="sucursal.activo==1" type="button" class="btn btn-danger btn-sm" @click="eliminarSucursal(sucursal.id)"  style="margin-right: 5px;">
                                         <i class="icon-trash"></i>
-                                    </button> &nbsp;
-                                    <button v-else type="button" class="btn btn-info btn-sm" @click="activarSucursal(sucursal.id)" >
+                                        </button>
+                                        <button v-else type="button" class="btn btn-info btn-sm" @click="activarSucursal(sucursal.id)" style="margin-right: 5px;">
                                         <i class="icon-check"></i>
-                                    </button> &nbsp;
+                                        </button>
+                                        </div>
+                                        <div  v-else>
+                                        <button v-if="sucursal.activo==1" type="button" class="btn btn-light btn-sm" style="margin-right: 5px;">
+                                        <i class="icon-trash"></i>
+                                        </button>
+                                        <button v-else type="button" class="btn btn-light btn-sm" style="margin-right: 5px;">
+                                        <i class="icon-check"></i>
+                                        </button>
+                                        </div>
+                                        <div v-if="puedeHacerOpciones_especiales==1">
+                                            <button v-if="sucursal.activo==1" type="button" class="btn btn-secondary btn-sm" style="margin-right: 5px; color: white;" data-toggle="tooltip" data-placement="right" title="Activar lista"  @click="abrirModal('modal_listas',sucursal);listarListas(sucursal.id);">
+                                            <i class="fa fa-plus" aria-hidden="true"></i>
+                                            </button> 
+                                        </div>
+                                        <div v-else>
+                                            <button v-if="sucursal.activo==1" type="button" class="btn btn-light btn-sm" style="margin-right: 5px;" data-toggle="tooltip" data-placement="right" title="Activar lista">
+                                            <i class="fa fa-plus" aria-hidden="true"></i>
+                                            </button> 
+                                        </div>
+                                    </div>
 
-                                    <button v-if="sucursal.activo==1" type="button" class="btn btn-secondary btn-sm" style="color: white;" data-toggle="tooltip" data-placement="right" title="Activar lista"  @click="abrirModal('modal_listas',sucursal);listarListas(sucursal.id);" >
-                                        <i class="fa fa-plus" aria-hidden="true"></i>
-                                    </button> 
+                                   
+                                   
+
+                                    
                                 </td>
                                 <td v-text="sucursal.cod"></td>
                                 <td v-text="sucursal.tipo == 'Casa_Matriz'? (sucursal.tipo + (sucursal.codalamcen==null?'':' -> '+sucursal.codalamcen)):(sucursal.tipo + ' - ' +sucursal.correlativo)+(sucursal.codalamcen==null?'':' -> '+sucursal.codalamcen)"></td>
@@ -370,6 +400,9 @@ import Swal from 'sweetalert2';
 import { error401 } from '../../errores';
 //Vue.use(VeeValidate);
     export default {
+          //---permisos_R_W_S
+          props: ['codventana'],
+        //-------------------
         data(){
             return{
                 pagination:{
@@ -427,6 +460,13 @@ import { error401 } from '../../errores';
                 rapido:'',
                 id_lista:'',
                 id_sucu:'',
+
+                //---permisos_R_W_S
+                puedeEditar:2,
+                puedeActivar:2,
+                puedeHacerOpciones_especiales:2,
+                puedeCrear:2,
+                //-----------
                 
             }
 
@@ -489,7 +529,37 @@ import { error401 } from '../../errores';
             //     //     }
             //     // });
             // },
-          
+            //-----------------------------------permisos_R_W_S        
+    listarPerimsoxyz() {
+                //console.log(this.codventana);
+    let me = this;
+   
+        
+    var url = '/gestion_permiso_editar_eliminar?win='+me.codventana;
+  
+    axios.get(url)
+        .then(function(response) {
+            var respuesta = response.data;
+            console.log(respuesta);
+            if(respuesta=="root"){
+            me.puedeEditar=1;
+            me.puedeActivar=1;
+            me.puedeHacerOpciones_especiales=1;
+            me.puedeCrear=1; 
+            }else{
+            me.puedeEditar=respuesta.edit;
+            me.puedeActivar=respuesta.activar;
+            me.puedeHacerOpciones_especiales=respuesta.especial;
+            me.puedeCrear=respuesta.crear;        
+            }
+           
+        })
+        .catch(function(error) {
+            error401(error);
+            console.log(error);
+        });
+},
+//-------------------------------------------------------------- 
 
             regsitrarlista(){
                 let me = this;
@@ -901,6 +971,9 @@ import { error401 } from '../../errores';
 
         },
         mounted() {
+            //-------permiso E_W_S-----
+            this.listarPerimsoxyz();
+            //-----------------------
             this.selectRubros();
             this.listarSucursales(1);
             this.selectDepartamentos();

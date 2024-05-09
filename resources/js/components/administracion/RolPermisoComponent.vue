@@ -11,7 +11,7 @@
             <div class="card">
                 <div class="card-header">
                     <i class="fa fa-align-justify"></i> Roles
-                    <button type="button" class="btn btn-secondary" @click="abrirModal('registrar')">
+                    <button v-if="puedeCrear==1" type="button" class="btn btn-secondary" @click="abrirModal('registrar')">
                         <i class="icon-plus"></i>&nbsp;Nuevo
                     </button>
                 </div>
@@ -36,16 +36,34 @@
                         <tbody>
                             <tr v-for="role in arrayRoles" :key="role.id">
                                 <td>
-                                    <div v-if="role.nombre!='AdmSys'">
-                                        <button type="button" class="btn btn-warning btn-sm" @click="abrirModal('actualizar',role)">
-                                            <i class="icon-pencil"></i>
-                                        </button> &nbsp;
-                                        <button v-if="role.activo==1" type="button" class="btn btn-danger btn-sm" @click="eliminarRole(role.id)" >
-                                            <i class="icon-trash"></i>
-                                        </button>
-                                        <button v-else type="button" class="btn btn-info btn-sm" @click="activarRole(role.id)" >
-                                            <i class="icon-check"></i>
-                                        </button>
+                                    <div v-if="role.nombre!='AdmSys'" class="d-flex justify-content-start">
+                                        <div  v-if="puedeEditar==1">
+                                            <button type="button" class="btn btn-warning btn-sm" style="margin-right: 5px;" @click="abrirModal('actualizar',role)">
+                                                <i class="icon-pencil"></i>
+                                            </button> 
+                                        </div> 
+                                        <div  v-else>
+                                            <button type="button" class="btn btn-light btn-sm" style="margin-right: 5px;" >
+                                                <i class="icon-pencil"></i>
+                                            </button>
+                                        </div>
+                                        <div v-if="puedeActivar==1">
+                                            <button v-if="role.activo==1" type="button" class="btn btn-danger btn-sm" @click="eliminarRole(role.id)" style="margin-right: 5px;">
+                                                <i class="icon-trash"></i>
+                                            </button>
+                                            <button v-else type="button" class="btn btn-info btn-sm" @click="activarRole(role.id)" style="margin-right: 5px;">
+                                                <i class="icon-check"></i>
+                                            </button>
+                                        </div>
+                                        <div  v-else>
+                                            <button v-if="role.activo==1" type="button" class="btn btn-light btn-sm" style="margin-right: 5px;">
+                                                <i class="icon-trash"></i>
+                                            </button>
+                                            <button v-else type="button" class="btn btn-light btn-sm" style="margin-right: 5px;">
+                                                <i class="icon-check"></i>
+                                            </button>
+                                        </div>
+                                        
                                     </div>
                                     
                                 </td>
@@ -144,6 +162,9 @@ import {error401} from '../../errores';
 
 //Vue.use(VeeValidate);
     export default {
+        //---permisos_R_W_S
+          props: ['codventana'],
+        //-------------------
         data(){
             return{
                 pagination:{
@@ -167,6 +188,13 @@ import {error401} from '../../errores';
                 seleccionados:[],
                 ventanaseleccionados:[],
                 accionesseleccionados:[],
+
+                //---permisos_R_W_S
+                puedeEditar:2,
+                puedeActivar:2,
+                puedeHacerOpciones_especiales:2,
+                puedeCrear:2,
+                //-----------
             }
 
         },
@@ -212,6 +240,37 @@ import {error401} from '../../errores';
 
         },
         methods :{
+            //-----------------------------------permisos_R_W_S        
+    listarPerimsoxyz() {
+                //console.log(this.codventana);
+    let me = this;
+   
+        
+    var url = '/gestion_permiso_editar_eliminar?win='+me.codventana;
+  
+    axios.get(url)
+        .then(function(response) {
+            var respuesta = response.data;
+            console.log(respuesta);
+            if(respuesta=="root"){
+            me.puedeEditar=1;
+            me.puedeActivar=1;
+            me.puedeHacerOpciones_especiales=1;
+            me.puedeCrear=1; 
+            }else{
+            me.puedeEditar=respuesta.edit;
+            me.puedeActivar=respuesta.activar;
+            me.puedeHacerOpciones_especiales=respuesta.especial;
+            me.puedeCrear=respuesta.crear;        
+            }
+           
+        })
+        .catch(function(error) {
+            error401(error);
+            console.log(error);
+        });
+},
+//--------------------------------------------------------------
             seleccionarTodo(idmod){
                 let me=this;
                 let res=me.seleccionados.find(el=>el==idmod)
@@ -459,6 +518,9 @@ import {error401} from '../../errores';
 
         },
         mounted() {
+            //-------permiso E_W_S-----
+            this.listarPerimsoxyz();
+            //-----------------------
             this.listarModulos();
             this.listarRoles(1);
             this.classModal = new _pl.Modals();
