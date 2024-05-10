@@ -53,38 +53,44 @@ class GestionPerimsoController extends Controller
             $resultadoConsulta = "root";
             return $resultadoConsulta;           
         }else{   
-
-        }
-        $resultadoConsulta = DB::table('adm__asig_mas_sucursales as aam')
-    ->select('aam.id_alm_tda as id', 'aam.cod as codigo', 'aam.id_sucursal as idsucursal')
-    ->join('adm__user_role_sucursals as aur', 'aur.iduser', '=', 'aam.id_user_role_sucu')
-    ->where('aam.id_user_role_sucu', '=', $id_user2)
+            $resultadoConsulta = DB::table('adm__asig_mas_sucursales as aam')
+            ->select('aam.id_alm_tda as id', 'aam.cod as codigo', 'aam.id_sucursal as idsucursal')
+            ->join('adm__user_role_sucursals as aur', 'aur.iduser', '=', 'aam.id_user_role_sucu')
+            ->where('aam.id_user_role_sucu', '=', $id_user2)
+            ->where('aur.id', '=', $iduserrolesuc)   
+            ->where('aur.idsucursal', '=', $idsuc)   
+            ->addSelect(DB::raw('2 as defaul'))
+            ->get();
+            if (count($resultadoConsulta) > 0) {
+                // Se encontraron resultados
+          
+                return $resultadoConsulta;
+            } else {
+                // No se encontraron resultados
+                $resultadoConsulta = DB::table('adm__user_role_sucursals as aur')
+    ->join('adm__sucursals as ass', 'ass.id', '=', 'aur.idsucursal')
+    ->leftJoin('tda__tiendas as tt', 'tt.idsucursal', '=', 'aur.idsucursal')
+    ->leftJoin('alm__almacens as aa', 'aa.idsucursal', '=', 'aur.idsucursal')
+    ->select('ass.id as id_sucursal', 'ass.cod as cod_sucursal', 'aa.id as id_alm', 'aa.codigo as cod_alm', 'tt.id as id_tda', 'tt.codigo as cod_tda')
     ->where('aur.id', '=', $iduserrolesuc)
-    ->where('aam.id_sucursal', '=', $idsuc)
-    ->addSelect(DB::raw('0 as defaul'))
+    ->addSelect(DB::raw('1 as defaul'))
     ->get();
- 
-    if (count($resultadoConsulta) > 0) {
-        // Se encontraron resultados
-        dd("si hay datos");
-    } else {
-        // No se encontraron resultados
-   
-        $resultadoConsulta = DB::table('adm__user_role_sucursals as aur')
-        ->join('alm__almacens as aa', 'aur.idsucursal', '=', 'aa.idsucursal')
-        ->select('aa.id', 'aa.codigo', 'aa.idsucursal')
-        ->where('aur.id', '=', $iduserrolesuc )
-        ->where('aur.iduser', '=', $id_user2)
-        ->where('aur.idsucursal', '=', $idsuc)
-        ->addSelect(DB::raw('1 as defaul'))
-        ->get();
-      
-        if (count($resultadoConsulta) > 0) {
-            return $resultadoConsulta;     
-        }else{
-            $resultadoConsulta = "error"; 
-        }
-    }
+                  return $resultadoConsulta; 
+                  
+               
+
+              //  $resultadoConsulta = DB::table('adm__user_role_sucursals as aur')
+              //  ->join('alm__almacens as aa', 'aur.idsucursal', '=', 'aa.idsucursal')
+              //  ->select('aa.id', 'aa.codigo', 'aa.idsucursal')
+              //  ->where('aur.id', '=', $iduserrolesuc )
+              //  ->where('aur.iduser', '=', $id_user2)
+              //  ->where('aur.idsucursal', '=', $idsuc)
+              //  ->addSelect(DB::raw('1 as defaul'))                
+              //  ->get();
+
+           
+            }
+        }   
         
     }
 }

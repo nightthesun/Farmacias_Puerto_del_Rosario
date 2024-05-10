@@ -24,10 +24,10 @@
                         <div class="col-md-6">
                             <div class="input-group">
                                 <select class="form-control" @change="listarAlmacenes(1,buscar,$event)" v-model="almacenselected">
-                                    <option value="0" disabled>Seleccionar...</option>
-                                   
-                                    <option v-for="almacen in arrayAlmacen" :key="almacen.id" :value="almacen.id"  :v-if="almacen.codigo === 'ALM001'"  v-text="(almacen.codsuc === null?'':almacen.codsuc+' -> ') +almacen.codigo + ' ' +almacen.nombre_almacen" ></option>
-                                </select>                              
+                                    <option value="0" disabled>Seleccionar...</option>                       
+                                    <option v-for="almacen in arrayAlmacen" :key="almacen.id" :value="almacen.id"   v-text="(almacen.codsuc === null?'':almacen.codsuc+' -> ') +almacen.codigo + ' ' +almacen.nombre_almacen" ></option>                               
+                             
+                                 </select>                              
                             </div>
                         </div>
                         <div class="col-md-4">
@@ -360,6 +360,9 @@ import { error401 } from '../../errores';
                 //-----------
                 arrayPemisoSuscursal:[],
                 defaulSucural:'',
+                codigoDefault:'',
+                codigoDeRoles:'',//0=root,//1=defaul,2=tiene_permisos_Especificios
+                codigoArray_p:[],
             }
 
         },
@@ -436,20 +439,35 @@ import { error401 } from '../../errores';
         },
         methods :{
   //---------------------------------permiso de ver lista de sucursales tiendas almacenes
+
   listarAlmacenes_tiendas_con_permisos() {
-                //console.log(this.codventana);
-    let me = this;           
+   let me = this;           
     var url = '/listar_alamcen_tienda_permisos';  
     axios.get(url)
         .then(function(response) {
             var respuesta = response.data;
-            if (response.data[0].defaul==1) {
-                me.defaulSucural=response.data[0].codigo;
-                console.log(response.data[0].codigo);   
-            } else {
-                console.log(response.data[0].codigo);    
-            }
-                    
+          
+            if (respuesta=="root") {
+                me.defaulSucural=0;
+            }else{
+                if (response.data[0].defaul==1) {
+                    me.defaulSucural=1;
+                    me.codigoArray_p=respuesta;
+                }else{
+                    var tamanoRespuesta = Object.keys(respuesta).length;
+                    if (tamanoRespuesta > 0 && response.data[0].defaul==2) {
+                        
+                        me.defaulSucural=2;
+                        me.codigoArray_p=respuesta;
+                      
+                    } else {
+                        console.log(tamanoRespuesta); 
+                    }
+                  
+                   
+                }
+
+            }             
            
         })
         .catch(function(error) {
@@ -468,7 +486,7 @@ import { error401 } from '../../errores';
     axios.get(url)
         .then(function(response) {
             var respuesta = response.data;
-            console.log(respuesta);
+     
             if(respuesta=="root"){
             me.puedeEditar=1;
             me.puedeActivar=1;
@@ -800,6 +818,7 @@ import { error401 } from '../../errores';
             
             listarAlmacenes(page){
                 let me=this;
+                
                 me.listarRubro();
                 let objAlmacen = {};
                 let copiaArrayAlmacenes = [];
@@ -809,17 +828,49 @@ import { error401 } from '../../errores';
                     var respuesta=response.data;
                     me.pagination=respuesta.pagination;
                     me.arrayAlmacen=respuesta.almacenes.data;
-                    console.log(me.arrayAlmacen);
-                    me.arrayAlmacen.forEach(element => {
+             
+                    if (me.defaulSucural==0) {
+                        me.arrayAlmacen.forEach(element => {
                         if(element.activo == 1){
                             copiaArrayAlmacenes.push(element);
                         }
                     });
-                    me.arrayAlmacen = copiaArrayAlmacenes;
+                    }
+   
+                    if (me.defaulSucural==1) {
+                        me.arrayAlmacen.forEach(element => {
+                            me.codigoArray_p.forEach(element1 => {
+                                if(element.activo == 1 && element.codigo == element1.cod_alm){
+                            copiaArrayAlmacenes.push(element);
+                        }
+                            });
+                       
+                    }); 
+                    }
+
+                    if (me.defaulSucural==2) {
+                        me.arrayAlmacen.forEach(element => {
+                            me.codigoArray_p.forEach(element1 => {
+                                if(element.activo == 1 && element.codigo == element1.codigo){
+                            copiaArrayAlmacenes.push(element);
+                        }
+                            });                        
+                    }); 
+                    }
+
+                    if(me.defaulSucural==0||me.defaulSucural==1||me.defaulSucural==2){
+                        me.arrayAlmacen = copiaArrayAlmacenes;
+                    
                     objAlmacen = me.arrayAlmacen.find((almacen)=> almacen.id == me.almacenselected);
-                    me.almacenRubroareamedica = me.arrayRubro.find((rubro)=>rubro.id == objAlmacen.idrubro).areamedica;
+               
+                    if (objAlmacen!=undefined) {
+                        me.almacenRubroareamedica = me.arrayRubro.find((rubro)=>rubro.id == objAlmacen.idrubro).areamedica;
                     me.listarProductosAlmacen();
-                    me.listarProductos();
+                    me.listarProductos(); 
+                    } 
+                    }                   
+                  
+                   
                 })
                 .catch(function(error){
                     error401(error);
