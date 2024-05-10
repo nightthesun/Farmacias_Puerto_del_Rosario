@@ -152,53 +152,73 @@ class AdmSessionController extends Controller
 
     public function sucursal(Request $request)
     {
-        //$rawroles=DB::raw('concat(adm__roles.nombre," - ",adm__sucursals.razon_social) as rolsucursal');
+        try {
+            $user = User::select('id', 'name', 'activo')
+            ->where('id', auth()->user()->id)
+            ->first();
+           
+            if ($user->activo==1) {
+                //$rawroles=DB::raw('concat(adm__roles.nombre," - ",adm__sucursals.razon_social) as rolsucursal');
         $sucursales=Adm_UserRoleSucursal::join('adm__roles','adm__roles.id','adm__user_role_sucursals.idrole')
-                                            ->join('adm__sucursals','adm__sucursals.id','adm__user_role_sucursals.idsucursal')
-                                            ->select('adm__user_role_sucursals.id as id',
-                                            'adm__roles.nombre as nomrole',
-                                            'adm__sucursals.razon_social as nomsuc',
-                                            'idsucursal',
-                                            'idrole'
-                                            
-                                        )
-                                        ->where('iduser',auth()->user()->id)
-                                        ->where('adm__user_role_sucursals.activo',1)
-                                        ->get();
-        $lleno=count($sucursales);
-        if($lleno==0)                                
-            return redirect()->to('/');
-        else
-            return view('auth.sucursal')->with('sucursales',$sucursales);
+        ->join('adm__sucursals','adm__sucursals.id','adm__user_role_sucursals.idsucursal')
+        ->select('adm__user_role_sucursals.id as id',
+        'adm__roles.nombre as nomrole',
+        'adm__sucursals.razon_social as nomsuc',
+        'idsucursal',
+        'idrole'
+    )
+    ->where('iduser',auth()->user()->id)
+    ->where('adm__user_role_sucursals.activo',1)
+    ->get();
+$lleno=count($sucursales);
+//  dd($sucursales);
+if($lleno==0)                                
+return redirect()->to('/');
+else
+return view('auth.sucursal')->with('sucursales',$sucursales);
+            }else{
+                return view('banned.ban')->with('baneo',auth()->user()->name); 
+            }
+        
+        } catch (\Throwable $th) {
+            dd("error de autorizacion");
+        }
+        
+      
     }
     
     public function entrar(Request $request)
     {
-        //dd($request->sucur);
-
+      
+       if (auth()->user()->activo==1) {
         $sucurs=Adm_UserRoleSucursal::join('adm__roles','adm__roles.id','adm__user_role_sucursals.idrole')
                                         ->join('adm__sucursals','adm__sucursals.id','adm__user_role_sucursals.idsucursal')
                                         ->select('adm__user_role_sucursals.id as id',
                                         'adm__roles.nombre as nomrole',
                                         'adm__sucursals.razon_social as nomsuc',
                                         'idsucursal',
-                                        'idrole'
+                                        'idrole','idventanas'
                                         )
                                         ->where('adm__user_role_sucursals.id',$request->sucur)
                                         ->get();
 
         
-        
-        //dd($sucurs[0]->nomrole);
+  
 
         session(['idsuc'=>$sucurs[0]->idsucursal,
                 'nomsucursal'=>$sucurs[0]->nomsuc,
                 'nomrol'=>$sucurs[0]->nomrole,
                 'idrole'=>$sucurs[0]->idrole,
                 'iduserrolesuc'=>$request->sucur,
+                'id_user2'=>auth()->id(),
+                'idventanas'=>$sucurs[0]->idventanas,
             ]);
-            //dd(session('nomrol'));
+        
         return redirect()->to('/');
+       }else {
+        return view('banned.ban')->with('baneo',auth()->user()->name); 
+       }
+        
     }
 
 
@@ -263,32 +283,42 @@ class AdmSessionController extends Controller
 
                 $value->ventanas=$ventanas;
             }
+            return ['modulos'=>$modulos];
         }
         else
         {
-            $idrole=session('idrole');
-            //dd($idrole);
-            $roles=Adm_Role::where('id',$idrole)
-                            ->get();
-            //dd($roles)       ;
-            $idmodulos=explode(",",$roles[0]->idmodulos);
-            $idventanas=explode(",",$roles[0]->idventanas);
- 
-            $modulos=Adm_Modulo::wherein('id',$idmodulos)->get();
-
-            foreach ($modulos as $value) {
-                $ventanas=Adm_VentanaModulo::wherein('id',$idventanas)->get();    
-                $value->ventanas=$ventanas;
+            if (auth()->user()->activo==1) {
+                $idrole=session('idrole');
+                // dd($idrole);
+                 $roles=Adm_Role::where('id',$idrole)
+                                 ->get();
+                 //dd($roles)       ;
+                 $idmodulos=explode(",",$roles[0]->idmodulos);
+                 $idventanas=explode(",",$roles[0]->idventanas);
+      
+                 $modulos=Adm_Modulo::wherein('id',$idmodulos)->get();
+     
+                 foreach ($modulos as $value) {
+                     $ventanas=Adm_VentanaModulo::wherein('id',$idventanas)->get();    
+                     $value->ventanas=$ventanas;
+                 }
+            
+                 return ['modulos'=>$modulos];
+            } else {
+                return ['modulos'=>'baneado'];
+               
             }
+            
+            
         }
-
-        return ['modulos'=>$modulos];
+       
+        
     }
 
     public static function listarVentanas()
     {
         $ventanas =Adm_VentanaModulo::where('activo',1)->get();
-
+    
         return $ventanas;
     }
 

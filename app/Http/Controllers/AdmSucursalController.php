@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Adm_Sucursal;
+use App\Models\Adm_SucursalLista;
+use App\Models\Adm_SucursalListaAvanzada;
 use App\Models\Tda_Tienda;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -262,23 +264,116 @@ class AdmSucursalController extends Controller
         //                         ->where('activo',1)
         //                         ->orderBy('cod', 'asc')
         //                         ->get();
-        $sucursales=Adm_Sucursal::join('adm__rubros','adm__rubros.id','adm__sucursals.idrubro')
-                                ->select(DB::raw('
-                                    adm__sucursals.id,
-                                    adm__sucursals.cod,
-                                    adm__sucursals.tipo,
-                                    adm__sucursals.razon_social as nombre,
-                                    adm__sucursals.activo as activosucursal,
-                                    adm__rubros.id,
-                                    adm__rubros.nombre as nomrubro,
-                                    adm__rubros.areamedica,
-                                    adm__rubros.activo as activorubro
-                                    '))
-                                ->where('adm__sucursals.activo',1)
-                                ->orderBy('adm__sucursals.cod', 'asc')
-                                ->get();
-               
-        return $sucursales;
+
+        $sucursales2 = DB::table('adm__sucursals')
+    ->join('adm__rubros', 'adm__rubros.id', '=', 'adm__sucursals.idrubro')
+    ->select('adm__sucursals.id', 'adm__sucursals.cod', 'adm__sucursals.tipo', 'adm__sucursals.razon_social as nombre', 'adm__sucursals.activo as activosucursal', 'adm__rubros.id as rubro_id', 'adm__rubros.nombre as nomrubro', 'adm__rubros.areamedica', 'adm__rubros.activo as activorubro')
+    ->where('adm__sucursals.activo', 1)
+    ->orderBy('adm__sucursals.cod', 'asc')
+    ->get();
+        // corregido por el ing.remberto datos uso del modelo incorrecto 
+       // $sucursales=Adm_Sucursal::join('adm__rubros','adm__rubros.id','adm__sucursals.idrubro')
+        //                        ->select(DB::raw('
+        //                            adm__sucursals.id,
+        //                            adm__sucursals.cod,
+         //                           adm__sucursals.tipo,
+          //                          adm__sucursals.razon_social as nombre,
+          //                          adm__sucursals.activo as activosucursal,
+           //                         adm__rubros.id,
+           //                         adm__rubros.nombre as nomrubro,
+           //                         adm__rubros.areamedica,
+            //                        adm__rubros.activo as activorubro
+            //                        '))
+            //                    ->where('adm__sucursals.activo',1)
+             //                   ->orderBy('adm__sucursals.cod', 'asc')
+             //                   ->get();
+          
+        return $sucursales2;
     }
 
+    public function listarListas(Request $request){
+        $data = DB::table('prod__listas as pl')
+    ->select('pl.id', 'pl.nombre_lista', 'pl.codigo_tda_alm', 'pl.id_tda_alm', 'ass.id as id_sucursal', 'ass.razon_social')
+    ->join('tda__tiendas as tt', 'tt.codigo', '=', 'pl.codigo_tda_alm')
+    ->join('adm__sucursals as ass', 'ass.id', '=', 'tt.idsucursal')
+    ->where('pl.activo', 1)
+    ->where('pl.id_sucursal', $request->id)
+    ->unionAll(DB::table('prod__listas as pl')
+    ->select('pl.id', 'pl.nombre_lista', 'pl.codigo_tda_alm', 'pl.id_tda_alm', 'ass.id as id_sucursal', 'aa.nombre_almacen as razon_social')
+    ->join('alm__almacens as aa', 'aa.codigo', '=', 'pl.codigo_tda_alm')
+    ->join('adm__sucursals as ass', 'ass.id', '=', 'aa.idsucursal')
+    ->where('pl.activo', 1)
+    ->where('pl.id_sucursal', $request->id))
+    ->get();
+    return  $data;
+
+    }
+
+    public function registrarlista(Request $request){
+        try {
+           // casos uno
+        if ($request->id_rapido==1) {
+
+            Adm_SucursalLista::where('id_sucursal', $request->id_sucursal)->delete();
+         }else{  
+             // Buscar asignaciones existentes 
+        $asignarExistente = Adm_SucursalLista::where('id_sucursal', $request->id_sucursal)->get();
+
+        // Si existen asignaciones, eliminarlas
+        if ($asignarExistente->count() > 0) {
+            Adm_SucursalLista::where('id_sucursal', $request->id_sucursal)->delete();
+        }
+            DB::table('adm__sucursal_listas')->insert([
+                'id_sucursal' => $request->id_sucursal,
+                'rapido' => $request->id_rapido,
+                'id_lista' => $request->valor_rapido,
+            ]);
+         }
+         // caso dos
+         if ($request->id_avanzado==1) {          
+             Adm_SucursalListaAvanzada::where('id_sucursal', $request->id_sucursal)->delete();
+         } else {
+              // Buscar asignaciones existentes 
+        $asignarExistente = Adm_SucursalListaAvanzada::where('id_sucursal', $request->id_sucursal)->get();
+
+        // Si existen asignaciones, eliminarlas
+        if ($asignarExistente->count() > 0) {
+            Adm_SucursalListaAvanzada::where('id_sucursal', $request->id_sucursal)->delete();
+        }
+        $bloque = $request->valor_avanzado;
+            foreach ($bloque as $item) {
+             $avanzado = $item['id'];
+          
+             $datos = [
+                 'id_sucursal' => $request->id_sucursal,
+                 'avanzado' => $request->id_avanzado,
+                 'id_lista' => $avanzado,             
+             ];
+
+             DB::table('adm__sucursal_lista_avanzadas')->insert($datos);          
+          }
+                  
+ 
+         }
+        }catch (\Throwable $th) {
+          
+            return response()->json(['error' => $th->getMessage()],500);
+        }
+    }
+
+    public function listarArray(Request $request) {
+        $resultado1 = DB::table('adm__sucursal_listas as aa')
+        ->where('aa.id_sucursal', $request->id)
+        ->get();
+    
+    $resultado2 = DB::table('adm__sucursal_lista_avanzadas as bb')
+        ->where('bb.id_sucursal', $request->id)
+        ->get();
+      
+     
+        return ['resultado1' => $resultado1,
+            'resultado2' => $resultado2
+        ];
+    }
+    
 }

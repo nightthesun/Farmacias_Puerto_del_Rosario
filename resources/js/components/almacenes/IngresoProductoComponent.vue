@@ -11,7 +11,7 @@
             <div class="card">
                 <div class="card-header">
                     <i class="fa fa-align-justify"></i> Entrada de Productos a Almacenes
-                    <button type="button" class="btn btn-secondary" @click="abrirModal('registrar')" :disabled="almacenselected==0">
+                    <button v-if="puedeCrear==1" type="button" class="btn btn-secondary" @click="abrirModal('registrar')" :disabled="almacenselected==0">
                         <i class="icon-plus"></i>&nbsp;Nuevo 
                     </button>
                     <span  v-if="almacenselected==0" class="error"> &nbsp; &nbsp;Debe Seleccionar un Almacen</span>
@@ -24,9 +24,10 @@
                         <div class="col-md-6">
                             <div class="input-group">
                                 <select class="form-control" @change="listarAlmacenes(1,buscar,$event)" v-model="almacenselected">
-                                    <option value="0" disabled>Seleccionar...</option>
-                                    <option v-for="almacen in arrayAlmacen" :key="almacen.id" :value="almacen.id" v-text="(almacen.codsuc === null?'':almacen.codsuc+' -> ') +almacen.codigo + ' ' +almacen.nombre_almacen"></option>
-                                </select>                              
+                                    <option value="0" disabled>Seleccionar...</option>                       
+                                    <option v-for="almacen in arrayAlmacen" :key="almacen.id" :value="almacen.id"   v-text="(almacen.codsuc === null?'':almacen.codsuc+' -> ') +almacen.codigo + ' ' +almacen.nombre_almacen" ></option>                               
+                             
+                                 </select>                              
                             </div>
                         </div>
                         <div class="col-md-4">
@@ -39,42 +40,62 @@
                     <table class="table table-bordered table-striped table-sm table-responsive">
                         <thead>
                             <tr>
-                                <th>Opciones</th>
-                                <th>Codigo</th>
-                                <th>Linea o Marca</th>
-                                <th>Producto</th>
-                                <th>Cantidad</th>
-                                <th>Lote</th>
-                                <th v-if="almacenRubroareamedica == 1">Vencimiento</th>
-                                <th v-if="almacenRubroareamedica == 1">R.S. SENASAG</th>
-                                <th>Fecha y Hora</th>
-                                <th>Usuario</th>
-                                <th>Estado</th>
+                                <th class="col-md-1">Opciones</th>
+                                <th class="col-md-1">Codigo</th>
+                                <th class="col-md-1">Linea o Marca</th>
+                                <th class="col-md-2">Producto</th>
+                                <th class="col-md-1">Cantidad</th>
+                                <th class="col-md-1">Lote</th>
+                                <th v-if="almacenRubroareamedica == 1" class="col-md-1">Vencimiento</th>
+                                <th v-if="almacenRubroareamedica == 1" class="col-md-1">R.S. SENASAG</th>
+                                <th class="col-md-2">Fecha y Hora</th>
+                                <th class="col-md-1">Usuario</th>
+                                <th class="col-md-1">Estado</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr v-for="ingresoProducto in arrayIngresoProducto" :key="ingresoProducto.id">
-                                <td>
-                                    <button type="button" class="btn btn-warning btn-sm" @click="abrirModal('actualizar',ingresoProducto)" :disabled="ingresoProducto.listo_venta == 1">
+                                <td class="col-md-1">
+                                    <div  class="d-flex justify-content-start">
+                                        <div  v-if="puedeEditar==1">
+                                        <button type="button" class="btn btn-warning btn-sm" @click="abrirModal('actualizar',ingresoProducto)" :disabled="ingresoProducto.listo_venta == 1" style="margin-right: 5px;">
                                         <i class="icon-pencil"></i>
-                                    </button> &nbsp;
-                                    <button v-if="ingresoProducto.activo==1" type="button" class="btn btn-danger btn-sm" @click="eliminarProductoAlmacen(ingresoProducto.id)" >
+                                        </button> 
+                                    </div>
+                                    <div v-else>
+                                        <button type="button" class="btn btn-light btn-sm" :disabled="ingresoProducto.listo_venta == 1" style="margin-right: 5px;">
+                                        <i class="icon-pencil"></i>
+                                        </button> 
+                                    </div>
+                                    <div v-if="puedeActivar==1">
+                                        <button v-if="ingresoProducto.activo==1" type="button" class="btn btn-danger btn-sm" @click="eliminarProductoAlmacen(ingresoProducto.id)" style="margin-right: 5px;">
                                         <i class="icon-trash"></i>
                                     </button>
-                                    <button v-else type="button" class="btn btn-info btn-sm" @click="activarProductoAlmacen(ingresoProducto.id)">
+                                    <button v-else type="button" class="btn btn-info btn-sm" @click="activarProductoAlmacen(ingresoProducto.id)" style="margin-right: 5px;">
                                         <i class="icon-check"></i>
                                     </button>
+                                    </div>
+                                    <div v-else>
+                                        <button v-if="ingresoProducto.activo==1" type="button" class="btn btn-light btn-sm" style="margin-right: 5px;">
+                                        <i class="icon-trash"></i>
+                                        </button>
+                                        <button v-else type="button" class="btn btn-light btn-sm" style="margin-right: 5px;">
+                                        <i class="icon-check"></i>
+                                        </button>
+                                    </div>
+                                    </div>
+                                   
                                 </td>
-                                <td>{{ ingresoProducto.codproducto  }}</td>
-                                <td> {{ ingresoProducto.nombreLinea }} </td>
-                                <td> {{ ingresoProducto.nomproducto }} - {{ ingresoProducto.envaseEmbalajeProductoNombre }} X {{ ingresoProducto.cantidadEnvaseProducto }} {{ ingresoProducto.formaUnidadMedidaProducto }} </td>
-                                <td v-text="ingresoProducto.cantidad" style="text-align:right"></td>
-                                <td v-text="ingresoProducto.lote"></td>
-                                <td v-if="almacenRubroareamedica == 1" v-text="ingresoProducto.fecha_vencimiento"></td>
-                                <td v-if="almacenRubroareamedica == 1" v-text="ingresoProducto.registro_sanitario"></td>
-                                <td> {{  ingresoProducto.fecingreso }}</td>
-                                <td v-text="ingresoProducto.nombreUsuarioRegistroIngreso"></td>
-                                <td>
+                                <td class="col-md-1">{{ ingresoProducto.codproducto  }}</td>
+                                <td class="col-md-1"> {{ ingresoProducto.nombreLinea }} </td>
+                                <td class="col-md-2"> {{ ingresoProducto.nomproducto }} - {{ ingresoProducto.envaseEmbalajeProductoNombre }} X {{ ingresoProducto.cantidadEnvaseProducto }} {{ ingresoProducto.formaUnidadMedidaProducto }} </td>
+                                <td class="col-md-1" v-text="ingresoProducto.cantidad" style="text-align:right"></td>
+                                <td v-text="ingresoProducto.lote" class="col-md-1"></td>
+                                <td v-if="almacenRubroareamedica == 1" v-text="ingresoProducto.fecha_vencimiento" class="col-md-1"></td>
+                                <td v-if="almacenRubroareamedica == 1" v-text="ingresoProducto.registro_sanitario" class="col-md-1"></td>
+                                <td class="col-md-1"> {{  ingresoProducto.fecingreso }}</td>
+                                <td  v-text="ingresoProducto.nombreUsuarioRegistroIngreso" class="col-md-1"></td>
+                                <td class="col-md-1">
                                     <div v-if="ingresoProducto.activo==1">
                                         <span class="badge badge-success">Activo</span>
                                     </div>
@@ -264,6 +285,9 @@ import { error401 } from '../../errores';
 
 //Vue.use(VeeValidate);
     export default {
+        //---permisos_R_W_S
+        props: ['codventana'],
+        //-------------------
         data(){
             return{
                 pagination:{
@@ -328,6 +352,17 @@ import { error401 } from '../../errores';
                 idproductoRealSeleccionado:0,
                 idalmingresoproducto:0,
                 almacenRubroareamedica:0,
+                //---permisos_R_W_S
+                puedeEditar:2,
+                puedeActivar:2,
+                puedeHacerOpciones_especiales:2,
+                puedeCrear:2,
+                //-----------
+                arrayPemisoSuscursal:[],
+                defaulSucural:'',
+                codigoDefault:'',
+                codigoDeRoles:'',//0=root,//1=defaul,2=tiene_permisos_Especificios
+                codigoArray_p:[],
             }
 
         },
@@ -403,7 +438,74 @@ import { error401 } from '../../errores';
 
         },
         methods :{
+  //---------------------------------permiso de ver lista de sucursales tiendas almacenes
 
+  listarAlmacenes_tiendas_con_permisos() {
+   let me = this;           
+    var url = '/listar_alamcen_tienda_permisos';  
+    axios.get(url)
+        .then(function(response) {
+            var respuesta = response.data;
+          
+            if (respuesta=="root") {
+                me.defaulSucural=0;
+            }else{
+                if (response.data[0].defaul==1) {
+                    me.defaulSucural=1;
+                    me.codigoArray_p=respuesta;
+                }else{
+                    var tamanoRespuesta = Object.keys(respuesta).length;
+                    if (tamanoRespuesta > 0 && response.data[0].defaul==2) {
+                        
+                        me.defaulSucural=2;
+                        me.codigoArray_p=respuesta;
+                      
+                    } else {
+                        console.log(tamanoRespuesta); 
+                    }
+                  
+                   
+                }
+
+            }             
+           
+        })
+        .catch(function(error) {
+            error401(error);
+            console.log(error);
+        });
+},          
+ //-----------------------------------permisos_R_W_S        
+ listarPerimsoxyz() {
+                //console.log(this.codventana);
+    let me = this;
+   
+        
+    var url = '/gestion_permiso_editar_eliminar?win='+me.codventana;
+  
+    axios.get(url)
+        .then(function(response) {
+            var respuesta = response.data;
+     
+            if(respuesta=="root"){
+            me.puedeEditar=1;
+            me.puedeActivar=1;
+            me.puedeHacerOpciones_especiales=1;
+            me.puedeCrear=1; 
+            }else{
+            me.puedeEditar=respuesta.edit;
+            me.puedeActivar=respuesta.activar;
+            me.puedeHacerOpciones_especiales=respuesta.especial;
+            me.puedeCrear=respuesta.crear;        
+            }
+           
+        })
+        .catch(function(error) {
+            error401(error);
+            console.log(error);
+        });
+},
+//--------------------------------------------------------------  
             caracteresPermitidos(ex){
                 let me=this;
                 if( ex.keyCode==8  || (ex.keyCode >= 48 && ex.keyCode <= 57) )
@@ -716,6 +818,7 @@ import { error401 } from '../../errores';
             
             listarAlmacenes(page){
                 let me=this;
+                
                 me.listarRubro();
                 let objAlmacen = {};
                 let copiaArrayAlmacenes = [];
@@ -725,16 +828,49 @@ import { error401 } from '../../errores';
                     var respuesta=response.data;
                     me.pagination=respuesta.pagination;
                     me.arrayAlmacen=respuesta.almacenes.data;
-                    me.arrayAlmacen.forEach(element => {
+             
+                    if (me.defaulSucural==0) {
+                        me.arrayAlmacen.forEach(element => {
                         if(element.activo == 1){
                             copiaArrayAlmacenes.push(element);
                         }
                     });
-                    me.arrayAlmacen = copiaArrayAlmacenes;
+                    }
+   
+                    if (me.defaulSucural==1) {
+                        me.arrayAlmacen.forEach(element => {
+                            me.codigoArray_p.forEach(element1 => {
+                                if(element.activo == 1 && element.codigo == element1.cod_alm){
+                            copiaArrayAlmacenes.push(element);
+                        }
+                            });
+                       
+                    }); 
+                    }
+
+                    if (me.defaulSucural==2) {
+                        me.arrayAlmacen.forEach(element => {
+                            me.codigoArray_p.forEach(element1 => {
+                                if(element.activo == 1 && element.codigo == element1.codigo){
+                            copiaArrayAlmacenes.push(element);
+                        }
+                            });                        
+                    }); 
+                    }
+
+                    if(me.defaulSucural==0||me.defaulSucural==1||me.defaulSucural==2){
+                        me.arrayAlmacen = copiaArrayAlmacenes;
+                    
                     objAlmacen = me.arrayAlmacen.find((almacen)=> almacen.id == me.almacenselected);
-                    me.almacenRubroareamedica = me.arrayRubro.find((rubro)=>rubro.id == objAlmacen.idrubro).areamedica;
+               
+                    if (objAlmacen!=undefined) {
+                        me.almacenRubroareamedica = me.arrayRubro.find((rubro)=>rubro.id == objAlmacen.idrubro).areamedica;
                     me.listarProductosAlmacen();
-                    me.listarProductos();
+                    me.listarProductos(); 
+                    } 
+                    }                   
+                  
+                   
                 })
                 .catch(function(error){
                     error401(error);
@@ -1077,6 +1213,10 @@ import { error401 } from '../../errores';
         },
 
         mounted() {
+              //-------permiso E_W_S-----
+              this.listarPerimsoxyz();
+              this.listarAlmacenes_tiendas_con_permisos();
+            //-----------------------
             this.obtenerfecha(1);
             this.listarLineaMarca();
             this.listarEnvaseEmbalaje();

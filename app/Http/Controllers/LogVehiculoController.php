@@ -338,10 +338,6 @@ class LogVehiculoController extends Controller
             DB::table('log__asignacion_sucursal_vehiculos')->insert($datos);
          
          }
-       
-       
-       
-    
     }
     public function listarAsignar(Request $request){
        if ($request->id != "undefined" || !empty($request->id)) {

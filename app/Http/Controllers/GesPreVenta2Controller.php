@@ -1171,11 +1171,7 @@ class GesPreVenta2Controller extends Controller
         ->where('plist.activo', '=', 1)
         ->groupBy('plist.id', 'cod_tda_alm', 'prp.tipo_tda_alm','plist.codigo')
         ->get();
-    
-
-
         return $resultado;
-
     }
 
 }

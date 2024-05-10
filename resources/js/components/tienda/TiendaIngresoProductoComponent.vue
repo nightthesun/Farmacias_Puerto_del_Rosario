@@ -11,7 +11,7 @@
             <div class="card">
                 <div class="card-header">
                     <i class="fa fa-align-justify"></i> Entrada de Productos a la Tienda
-                    <button type="button" class="btn btn-secondary" @click="abrirModal('registrar')" :disabled="tiendaselected==0">
+                    <button v-if="puedeCrear==1" type="button" class="btn btn-secondary" @click="abrirModal('registrar')" :disabled="tiendaselected==0">
                         <i class="icon-plus"></i>&nbsp;Nuevo 
                     </button>
                     <span  v-if="tiendaselected==0" class="error"> &nbsp; &nbsp;Debe Seleccionar un Almacen</span>
@@ -41,42 +41,63 @@
                     <table class="table table-bordered table-striped table-sm table-responsive">
                         <thead>
                             <tr>
-                                <th>Opciones</th>
-                                <th>Codigo</th>
-                                <th>Linea o Marca</th>
-                                <th>Producto</th>
-                                <th>Cantidad</th>
-                                <th>Lote</th>
-                                <th v-if="tiendaRubroareamedica == 1">Vencimiento</th>
-                                <th v-if="tiendaRubroareamedica == 1">R.S. SENASAG</th>
-                                <th>Fecha y Hora</th>
-                                <th>Usuario</th>
-                                <th>Estado</th>
+                                <th class="col-md-1">Opciones</th>
+                                <th class="col-md-1">Codigo</th>
+                                <th class="col-md-1">Linea o Marca</th>
+                                <th class="col-md-3">Producto</th>
+                                <th class="col-md-1">Cantidad</th>
+                                <th class="col-md-1">Lote</th>
+                                <th class="col-md-1" v-if="tiendaRubroareamedica == 1">Vencimiento</th>
+                                <th  class="col-md-1" v-if="tiendaRubroareamedica == 1">R.S. SENASAG</th>
+                                <th class="col-md-1">Fecha y Hora</th>
+                                <th class="col-md-1">Usuario</th>
+                                <th class="col-md-1">Estado</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr v-for="ingresoProducto in arrayIngresoProducto" :key="ingresoProducto.id">
-                                <td>
-                                    <button type="button" class="btn btn-warning btn-sm" @click="abrirModal('actualizar',ingresoProducto)" :disabled="ingresoProducto.listo_venta == 1">
-                                        <i class="icon-pencil"></i>
-                                    </button> &nbsp;
-                                    <button v-if="ingresoProducto.activo_tda_ingreso_producto==1" type="button" class="btn btn-danger btn-sm" @click="eliminarProductoTienda(ingresoProducto.id)" >
+                                <td class="col-md-1">
+                                    <div  class="d-flex justify-content-start">
+                                        <div  v-if="puedeEditar==1">
+                                            <button type="button" class="btn btn-warning btn-sm" @click="abrirModal('actualizar',ingresoProducto)" :disabled="ingresoProducto.listo_venta == 1" style="margin-right: 5px;">
+                                            <i class="icon-pencil"></i>
+                                            </button>
+                                        </div>
+                                        <div v-else>
+                                            <button type="button" class="btn btn-light btn-sm"  :disabled="ingresoProducto.listo_venta == 1" style="margin-right: 5px;">
+                                            <i class="icon-pencil"></i>
+                                            </button>
+                                        </div>
+                                        <div v-if="puedeActivar==1">
+                                        <button v-if="ingresoProducto.activo_tda_ingreso_producto==1" type="button" class="btn btn-danger btn-sm" @click="eliminarProductoTienda(ingresoProducto.id)" style="margin-right: 5px;">
                                         <i class="icon-trash"></i>
                                     </button>
-                                    <button v-else type="button" class="btn btn-info btn-sm" @click="activarProductoTienda(ingresoProducto.id)">
+                                    <button v-else type="button" class="btn btn-info btn-sm" @click="activarProductoTienda(ingresoProducto.id)" style="margin-right: 5px;">
                                         <i class="icon-check"></i>
                                     </button>
+                                    </div>
+                                    <div v-else>
+                                        <button v-if="ingresoProducto.activo_tda_ingreso_producto==1" type="button" class="btn btn-light btn-sm" style="margin-right: 5px;">
+                                        <i class="icon-trash"></i>
+                                    </button>
+                                    <button v-else type="button" class="btn btn-light btn-sm" style="margin-right: 5px;">
+                                        <i class="icon-check"></i>
+                                    </button>
+                                    </div>
+                                    </div>
+                                    
+                                    
                                 </td>
-                                <td> {{ ingresoProducto.codigo_producto }} </td>
-                                <td> {{ ingresoProducto.nombreLinea }} </td>
-                                <td> {{ ingresoProducto.nombre_producto }} - {{ ingresoProducto.envaseEmbalajeProductoNombre }} X {{ ingresoProducto.cantidadEnvaseProducto }} {{ ingresoProducto.formaUnidadMedidaProducto }} </td>
-                                <td v-text="ingresoProducto.cantidad" style="text-align:right"></td>
-                                <td v-text="ingresoProducto.lote"></td>
-                                <td v-if="ingresoProducto.perecederoProducto == 1" v-text="ingresoProducto.fecha_vencimiento"></td>
-                                <td v-if="ingresoProducto.perecederoProducto == 1" v-text="ingresoProducto.registro_sanitario"></td>
-                                <td>{{ ingresoProducto.fecingreso }}</td>
-                                <td v-text="ingresoProducto.nombreUsuarioRegistroIngreso"></td>
-                                <td>
+                                <td class="col-md-1"> {{ ingresoProducto.codigo_producto }} </td>
+                                <td class="col-md-1"> {{ ingresoProducto.nombreLinea }} </td>
+                                <td class="col-md-3"> {{ ingresoProducto.nombre_producto }} - {{ ingresoProducto.envaseEmbalajeProductoNombre }} X {{ ingresoProducto.cantidadEnvaseProducto }} {{ ingresoProducto.formaUnidadMedidaProducto }} </td>
+                                <td class="col-md-1" v-text="ingresoProducto.cantidad" style="text-align:right"></td>
+                                <td class="col-md-1" v-text="ingresoProducto.lote"></td>
+                                <td class="col-md-1" v-if="ingresoProducto.perecederoProducto == 1" v-text="ingresoProducto.fecha_vencimiento"></td>
+                                <td class="col-md-1" v-if="ingresoProducto.perecederoProducto == 1" v-text="ingresoProducto.registro_sanitario"></td>
+                                <td class="col-md-1">{{ ingresoProducto.fecingreso }}</td>
+                                <td class="col-md-1" v-text="ingresoProducto.nombreUsuarioRegistroIngreso"></td>
+                                <td class="col-md-1">
                                     <div v-if="ingresoProducto.activo_tda_ingreso_producto==1">
                                         <span class="badge badge-success">Activo</span>
                                     </div>
@@ -244,6 +265,9 @@ import { error401 } from '../../errores';
 
 //Vue.use(VeeValidate);
     export default {
+          //---permisos_R_W_S
+          props: ['codventana'],
+        //-------------------
         data(){
             return{
                 pagination:{
@@ -311,6 +335,18 @@ import { error401 } from '../../errores';
                 idproductoRealSeleccionado:0,
                 idtdaingresoproducto:0,
                 tiendaRubroareamedica:0,
+                 //---permisos_R_W_S
+                 puedeEditar:2,
+                puedeActivar:2,
+                puedeHacerOpciones_especiales:2,
+                puedeCrear:2,
+                //-----------
+                arrayPemisoSuscursal:[],
+                defaulSucural:'',
+                codigoDefault:'',
+                codigoDeRoles:'',//0=root,//1=defaul,2=tiene_permisos_Especificios
+                codigoArray_p:[],
+                //----------------
             }
 
         },
@@ -383,19 +419,123 @@ import { error401 } from '../../errores';
 
         },
         methods :{
-
+ //---------------------------------permiso de ver lista de sucursales tiendas almacenes
+ listarAlmacenes_tiendas_con_permisos() {
+   let me = this;           
+    var url = '/listar_alamcen_tienda_permisos';  
+    axios.get(url)
+        .then(function(response) {
+            var respuesta = response.data;
+          
+            if (respuesta=="root") {
+                me.defaulSucural=0;
+            }else{
+                if (response.data[0].defaul==1) {
+                    me.defaulSucural=1;
+                    me.codigoArray_p=respuesta;
+                }else{
+                    var tamanoRespuesta = Object.keys(respuesta).length;
+                    if (tamanoRespuesta > 0 && response.data[0].defaul==2) {
+                        
+                        me.defaulSucural=2;
+                        me.codigoArray_p=respuesta;
+                      
+                    } else {
+                        console.log(tamanoRespuesta); 
+                    }             
+                   
+                }
+            }             
+           
+        })
+        .catch(function(error) {
+            error401(error);
+            console.log(error);
+        });
+},  
+  //-----------------------------------permisos_R_W_S        
+  listarPerimsoxyz() {
+                //console.log(this.codventana);
+    let me = this;
+        
+    var url = '/gestion_permiso_editar_eliminar?win='+me.codventana;
+  
+    axios.get(url)
+        .then(function(response) {
+            var respuesta = response.data;
+          
+            if(respuesta=="root"){
+            me.puedeEditar=1;
+            me.puedeActivar=1;
+            me.puedeHacerOpciones_especiales=1;
+            me.puedeCrear=1; 
+            }else{
+            me.puedeEditar=respuesta.edit;
+            me.puedeActivar=respuesta.activar;
+            me.puedeHacerOpciones_especiales=respuesta.especial;
+            me.puedeCrear=respuesta.crear;        
+            }
+           
+        })
+        .catch(function(error) {
+            error401(error);
+            console.log(error);
+        });
+},
+//--------------------------------------------------------------   
             listarTiendas(page){
                 let me = this;
                 let arrayAuxiliar = [];
                 var url='/tienda?page='+page+'&buscar='+me.buscar;
                 axios.get(url).then(function (response) {
                     me.pagination=response.data.pagination;
-                    me.arrayTiendas = response.data.tiendas.data;
-                    me.arrayTiendas.forEach(tienda => {
+                    me.arrayTiendas = response.data.tiendas.data;      
+                    console.log(me.defaulSucural);
+                    
+                    if (me.defaulSucural==0) {
+                        me.arrayTiendas.forEach(tienda => {
                         if (tienda.activo_tienda == 1) {
                             arrayAuxiliar.push(tienda);
                         }
                     });
+                    }
+                    if (me.defaulSucural==1) {
+
+                        console.log(me.codigoArray_p);
+                         // Crear un conjunto para mantener un registro de los nombres únicos
+                       let arrayAuxiliar2 = [];
+                        // Filtrar los datos originales manteniendo solo los elementos con nombres únicos
+                        let datosFiltrados = me.codigoArray_p.filter(dato => {
+                        // Si el nombre no está en el conjunto, agregarlo y mantener este elemento
+                        if (!nombresUnicos.has(dato.cod_tda)) {
+                            arrayAuxiliar2.push(dato.cod_tda);
+                        return true;
+                         }
+                        // Si el nombre ya está en el conjunto, omitir este elemento
+                        return false;
+                        });   
+                        console.log(arrayAuxiliar2);
+                       
+                        me.arrayTiendas.forEach(tienda => {
+                            for (let i = 0; i < nombresUnicos.length; i++) {
+                                if (tienda.activo_tienda == 1 && tienda.codigo_tienda == nombresUnicos[i]) {
+                                arrayAuxiliar.push(tienda);
+                                }
+                            }                        
+                    });
+                    }
+                    if (me.defaulSucural==2) {
+                        me.arrayTiendas.forEach(tienda => {
+                            me.codigoArray_p.forEach(element1 => {
+                                if (tienda.activo_tienda == 1 && tienda.codigo_tienda == element1.codigo) {
+                            arrayAuxiliar.push(tienda);
+                                }
+                            });                     
+                    });
+                    }
+
+               
+                    
                     me.arrayTiendas = arrayAuxiliar;
                 })
                 .catch(function (error) {
@@ -1015,6 +1155,10 @@ import { error401 } from '../../errores';
         },
 
         mounted() {
+             //-------permiso E_W_S-----
+             this.listarPerimsoxyz();
+             this.listarAlmacenes_tiendas_con_permisos();
+            //-----------------------
             this.listarTiendas(1);
             this.listarLineaMarca();
             this.listarEnvaseEmbalaje();

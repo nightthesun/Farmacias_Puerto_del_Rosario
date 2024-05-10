@@ -173,6 +173,7 @@ import { error401 } from '../../errores';
                 lista_id_almacen_id_tienda:'',
                 arrayLista:[],
                 id_o:'',
+                id_sucursal:'',
                 
             }
 
@@ -219,6 +220,7 @@ import { error401 } from '../../errores';
                        this.codigo=sucursalAbuscar.codigo;
                        this.lista_id_almacen_id_tienda=sucursalAbuscar.lista_id_almacen_id_tienda;
                        this.id=sucursalAbuscar.sucursalAbuscar;
+                       this.id_sucursal=sucursalAbuscar.id_sucursal;
                        
                     }
         }
@@ -250,7 +252,7 @@ import { error401 } from '../../errores';
                 .then(function (response) {
                     var respuesta = response.data;
                     me.arrayAlmTienda = respuesta;
-                 
+                   console.log(me.arrayAlmTienda); 
                 })
                 .catch(function (error) {
                     error401(error);
@@ -263,7 +265,8 @@ import { error401 } from '../../errores';
                 axios.post('/lista/registrar',{
                     'codigo':me.codigo,
                     'lista_id_almacen_id_tienda':me.lista_id_almacen_id_tienda,
-                    'nombreLista':me.nombreLista                    
+                    'nombreLista':me.nombreLista,
+                    'id_sucursal':me.id_sucursal                    
                 }).then(function(response){
                     me.cerrarModal('registrar');
                     Swal.fire(
@@ -435,7 +438,8 @@ import { error401 } from '../../errores';
                     id:me.id_o,
                     codigo:me.selectAlmTienda,
                     lista_id_almacen_id_tienda:me.lista_id_almacen_id_tienda,
-                    nombreLista:me.nombreLista    
+                    nombreLista:me.nombreLista,
+                    id_sucursal:me.id_sucursal    
                     
                 }).then(function (response) {
                     me.listarLista(1);

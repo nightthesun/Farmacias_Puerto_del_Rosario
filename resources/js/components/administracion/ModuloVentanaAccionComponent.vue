@@ -1,5 +1,7 @@
 <template>
+ 
     <main class="main">
+
         <!-- Breadcrumb -->
         <ol class="breadcrumb">
             <li class="breadcrumb-item">Home</li>
@@ -12,86 +14,137 @@
                 <div class="card-header">
                     <i class="fa fa-align-justify"></i> Modulos - Ventanas - Acciones
                     
-                    <button type="button" class="btn btn-secondary" @click="abrirModal('registrar')">
+                    <button v-if="puedeCrear==1" type="button" class="btn btn-secondary" @click="abrirModal('registrar')">
                         <i class="icon-plus"></i>&nbsp;Nuevo Modulo
                     </button>
                 
                 </div>
                 <div class="card-body">
-                    <div v-for="modulo in arrayModulos" :key="modulo.id">
-                        
-                        <label for="" class="col-md-6">- &nbsp;{{ modulo.nombre }}</label>
-                        <button v-if="!modulo.mostrarventana" type="button" class="btn btn-success btn-sm" @click="expandirModulo(modulo.id)">
-                            Mostrar Modulo
-                        </button> &nbsp;
-                        <button v-else type="button" class="btn btn-warning btn-sm" @click="reducirModulo(modulo.id)">
-                            Cerrar Modulo
-                        </button> &nbsp;
-                        <button v-if="modulo.mostrarventana" type="button" class="btn btn-success btn-sm" @click="abrirModal('registrarventana',[],modulo.id)">
-                            Agregar Ventana
-                        </button>&nbsp;
-                        <button type="button" class="btn btn-warning btn-sm" @click="abrirModal('actualizar',modulo)">
-                            <i class="icon-pencil"></i>
-                        </button>&nbsp;
-                        <button v-if="modulo.activo==1" type="button" class="btn btn-danger btn-sm" @click="eliminarModulo('modulo',modulo.id)" >
-                            <i class="icon-trash"></i>
-                        </button>&nbsp;
-                        <button v-else type="button" class="btn btn-info btn-sm" @click="activarModulo('modulo',modulo.id)" >
-                            <i class="icon-check"></i>
-                        </button>&nbsp;
-                        
-                        
-                         
-                        <span v-if="modulo.activo" class="badge badge-success">Activo</span>
-                        <span v-else class="badge badge-warning">Desactivado</span>
-                        <hr>
-                        <div  v-show="modulo.mostrarventana" v-for="ventana in modulo.ventana" :key="ventana.id" >    
+                    <div class="table-responsive"> <!-- Agregamos esta clase para que la tabla sea responsive -->
+                    <table class="table">
+                      
+                        <thead>
+                          <tr>
                             
-                            <label for="" class="col-md-1" style="text-align:right">-</label>
-                            <label for="" v-text="ventana.nombre" class="col-md-6"></label>
-                            <button v-if="!ventana.mostraraccion" type="button" class="btn btn-success btn-sm" @click="expandirVentana(modulo.id,ventana.id)">
-                                Mostrar Ventana
-                            </button> &nbsp;
-                            <button v-else type="button" class="btn btn-warning btn-sm" @click="reducirVentana(modulo.id,ventana.id)">
-                                Cerrar Ventana
-                            </button>&nbsp;
-                            <button v-if="ventana.mostraraccion" type="button" class="btn btn-success btn-sm" @click="abrirModal('registraraccion',[],ventana.id)">
-                                Agregar Accion
-                            </button>&nbsp;
+                            <th scope="col"  class="col-md-1">Modulo</th>
+                            <th scope="col"  class="col-md-7">Ventan</th>
+                            <th scope="col"  class="col-md-1">Opciones</th>
+                            <th scope="col"  class="col-md-1">Estado</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr v-for="modulo in arrayModulos" :key="modulo.id">
+                           
+                            <td v-text="modulo.nombre"  class="col-md-1"></td>
+                            <td  class="col-md-7">
+                                <div v-if="puedeHacerOpciones_especiales==1">
+                                    <button v-if="!modulo.mostrarventana" type="button" class="btn btn-success btn-sm" @click="expandirModulo(modulo.id)">
+                                    Mostrar Modulo
+                                </button> &nbsp;
+                                <button v-else type="button" class="btn btn-warning btn-sm" @click="reducirModulo(modulo.id)">
+                                    Cerrar Modulo
+                                </button> &nbsp;
+                                <button v-if="modulo.mostrarventana" type="button" class="btn btn-success btn-sm" @click="abrirModal('registrarventana',[],modulo.id)">
+                                    Agregar Ventana
+                                </button>&nbsp;
+                                </div>
+                                <div v-else>
+                                    <button v-if="!modulo.mostrarventana" type="button" class="btn btn-light btn-sm" >
+                                        Mostrar Modulo
+                                    </button> &nbsp;
+                                </div>
+                                <div  v-show="modulo.mostrarventana" v-for="ventana in modulo.ventana" :key="ventana.id" >    
                             
-                            <button type="button" class="btn btn-warning btn-sm" @click="abrirModal('actualizarventana',ventana)">
-                                <i class="icon-pencil"></i>
-                            </button>&nbsp;
-                            <button v-if="ventana.activo==1" type="button" class="btn btn-danger btn-sm" @click="eliminarModulo('ventana',ventana.id)" >
-                                <i class="icon-trash"></i>
-                            </button>&nbsp;
-                            <button v-else type="button" class="btn btn-info btn-sm" @click="activarModulo('ventana',ventana.id)" >
-                                <i class="icon-check"></i>
-                            </button>&nbsp;
+                                    <label for="" class="col-md-1" style="text-align:right">-</label>
+                                    <label for="" v-text="ventana.nombre" class="col-md-6"></label>
+                                    <button v-if="!ventana.mostraraccion" type="button" class="btn btn-success btn-sm" @click="expandirVentana(modulo.id,ventana.id)">
+                                        Mostrar Ventana
+                                    </button> &nbsp;
+                                    <button v-else type="button" class="btn btn-warning btn-sm" @click="reducirVentana(modulo.id,ventana.id)">
+                                        Cerrar Ventana
+                                    </button>&nbsp;
+                                    <button v-if="ventana.mostraraccion" type="button" class="btn btn-success btn-sm" @click="abrirModal('registraraccion',[],ventana.id)">
+                                        Agregar Accion
+                                    </button>&nbsp;
+                                    
+                                    <button type="button" class="btn btn-warning btn-sm" @click="abrirModal('actualizarventana',ventana)">
+                                        <i class="icon-pencil"></i>
+                                    </button>&nbsp;
+                                    <button v-if="ventana.activo==1" type="button" class="btn btn-danger btn-sm" @click="eliminarModulo('ventana',ventana.id)" >
+                                        <i class="icon-trash"></i>
+                                    </button>&nbsp;
+                                    <button v-else type="button" class="btn btn-info btn-sm" @click="activarModulo('ventana',ventana.id)" >
+                                        <i class="icon-check"></i>
+                                    </button>&nbsp;
+                                    
+                                    <span v-if="ventana.activo" class="badge badge-success">Activo</span>
+                                    <span v-else class="badge badge-warning">Desactivado</span>
+                                        
+                                   
+                                    <div  v-show="ventana.mostraraccion" v-for="accion in ventana.accion" :key="accion.id" >    
+                                        <label for="" class="col-md-2" style="text-align:right">-</label>
+                                        <label for="" v-text="accion.nombre" class="col-md-6"></label>
+                                        
+                                        &nbsp;<button type="button" class="btn btn-warning btn-sm" @click="abrirModal('actualizaraccion',accion)">
+                                            <i class="icon-pencil"></i>
+                                        </button>&nbsp;
+                                        <button v-if="accion.activo==1" type="button" class="btn btn-danger btn-sm" @click="eliminarModulo('accion',accion.id)" >
+                                            <i class="icon-trash"></i>
+                                        </button>&nbsp;
+                                        <button v-else type="button" class="btn btn-info btn-sm" @click="activarModulo('accion',accion.id)" >
+                                            <i class="icon-check"></i>
+                                        </button>&nbsp;
+                                        <span v-if="accion.activo" class="badge badge-success">Activo</span>
+                                        <span v-else class="badge badge-warning">Desactivado</span>
+                                   
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="col-md-1">
+                                <div class="d-flex justify-content-start">
+                                    <div  v-if="puedeEditar==1">
+                                        <button type="button" class="btn btn-warning btn-sm" style="margin-right: 5px;" @click="abrirModal('actualizar',modulo)">
+                                            <i class="icon-pencil"></i>
+                                        </button>
+                                    </div>
+                                    <div  v-else>
+                                        <button type="button" class="btn btn-light btn-sm" style="margin-right: 5px;" >
+                                            <i class="icon-pencil"></i>
+                                        </button>
+                                    </div>
+                                   
+                                    
+                                    <div v-if="puedeActivar==1">
+                                        <button v-if="modulo.activo==1" type="button" class="btn btn-danger btn-sm" style="margin-right: 5px;" @click="eliminarModulo('modulo',modulo.id)">
+                                            <i class="icon-trash"></i>
+                                        </button>
+                                        <button v-else type="button" class="btn btn-info btn-sm" style="margin-right: 5px;" @click="activarModulo('modulo',modulo.id)">
+                                            <i class="icon-check"></i>
+                                        </button>
+                                    </div>
+                                    <div  v-else>
+                                        <button v-if="modulo.activo==1" type="button" class="btn btn-light btn-sm" style="margin-right: 5px;">
+                                            <i class="icon-trash"></i>
+                                        </button>
+                                        <button v-else type="button" class="btn btn-light btn-sm" style="margin-right: 5px;" >
+                                            <i class="icon-check"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </td>
                             
-                            <span v-if="ventana.activo" class="badge badge-success">Activo</span>
-                            <span v-else class="badge badge-warning">Desactivado</span>
-                                
-                            <hr>
-                            <div  v-show="ventana.mostraraccion" v-for="accion in ventana.accion" :key="accion.id" >    
-                                <label for="" class="col-md-2" style="text-align:right">-</label>
-                                <label for="" v-text="accion.nombre" class="col-md-6"></label>
-                                
-                                &nbsp;<button type="button" class="btn btn-warning btn-sm" @click="abrirModal('actualizaraccion',accion)">
-                                    <i class="icon-pencil"></i>
-                                </button>&nbsp;
-                                <button v-if="accion.activo==1" type="button" class="btn btn-danger btn-sm" @click="eliminarModulo('accion',accion.id)" >
-                                    <i class="icon-trash"></i>
-                                </button>&nbsp;
-                                <button v-else type="button" class="btn btn-info btn-sm" @click="activarModulo('accion',accion.id)" >
-                                    <i class="icon-check"></i>
-                                </button>&nbsp;
-                                <span v-if="accion.activo" class="badge badge-success">Activo</span>
+                            
+                            <td  class="col-md-1">
+                                <span v-if="modulo.activo" class="badge badge-success">Activo</span>
                                 <span v-else class="badge badge-warning">Desactivado</span>
-                                <hr>
-                            </div>
-                        </div>
+                            </td>
+                          </tr>
+                         
+                        </tbody>
+                      </table>
                     </div>
+
+                 
                 </div>
             </div>
             <!-- Fin ejemplo de tabla Listado -->
@@ -162,8 +215,12 @@
 <script>
 import Swal from 'sweetalert2';
 import {error401} from '../../errores.js';
+
 //Vue.use(VeeValidate);
     export default {
+        //---permisos_R_W_S
+        props: ['codventana'],
+        //-------------------
         data(){
             return{
                 modulo:'',
@@ -180,7 +237,15 @@ import {error401} from '../../errores.js';
                 metodovue:'',
                 descripcion:'',
                 idventana:'',
-                idaccion:''
+                idaccion:'',
+
+                //---permisos_R_W_S
+                puedeEditar:2,
+                puedeActivar:2,
+                puedeHacerOpciones_especiales:2,
+                puedeCrear:2,
+                //-----------
+           
             }
 
         },
@@ -213,6 +278,39 @@ import {error401} from '../../errores.js';
 
         },
         methods :{
+//-----------------------------------permisos_R_W_S        
+    listarPerimsoxyz() {
+                //console.log(this.codventana);
+    let me = this;
+   
+        
+    var url = '/gestion_permiso_editar_eliminar?win='+me.codventana;
+  
+    axios.get(url)
+        .then(function(response) {
+            var respuesta = response.data;
+            console.log(respuesta);
+            if(respuesta=="root"){
+            me.puedeEditar=1;
+            me.puedeActivar=1;
+            me.puedeHacerOpciones_especiales=1;
+            me.puedeCrear=1; 
+            }else{
+            me.puedeEditar=respuesta.edit;
+            me.puedeActivar=respuesta.activar;
+            me.puedeHacerOpciones_especiales=respuesta.especial;
+            me.puedeCrear=respuesta.crear;        
+            }
+           
+        })
+        .catch(function(error) {
+            error401(error);
+            console.log(error);
+        });
+},
+//--------------------------------------------------------------
+
+
             expandirModulo(id){
                 let me=this;
                 me.arrayModulos.forEach(element => {
@@ -229,6 +327,7 @@ import {error401} from '../../errores.js';
                 
 
             },
+
 
             reducirModulo(id){
                 let me=this;
@@ -643,10 +742,14 @@ import {error401} from '../../errores.js';
 
         },
         mounted() {
+           
             this.listarModulos(1);
             this.classModal = new _pl.Modals();
             this.classModal.addModal('registrar');
-            //console.log('Component mounted.')
+            //-------permiso E_W_S-----
+            this.listarPerimsoxyz();
+            //-----------------------
+        
         }
     }
 </script>

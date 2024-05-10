@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\Alm_IngresoProducto;
 use App\Models\Tda_IngresoProducto;
+use Illuminate\Contracts\Session\Session;
 use Psy\Command\WhereamiCommand;
 
 class InvAjustePositivoController extends Controller
@@ -16,6 +17,8 @@ class InvAjustePositivoController extends Controller
      */
     public function index(Request $request)
     {
+        
+
         $buscararray = array();
         $bus = $request->query('buscarAlmTdn');
         if (!empty($request->buscar)) {
@@ -444,7 +447,9 @@ class InvAjustePositivoController extends Controller
     }
 
     public function listarSucursal(){
-       
+        $idsucursal=session('idsuc');
+        $nomsucursal=session('nomsucursal');
+        
         $tiendas = DB::table('tda__tiendas')
         ->select('tda__tiendas.id as id_tienda', DB::raw('null as id_almacen'), 'tda__tiendas.codigo', 'adm__sucursals.razon_social', 'adm__sucursals.razon_social as sucursal','adm__sucursals.cod as codigoS', DB::raw('"Tienda" as tipoCodigo'))
         ->join('adm__sucursals', 'tda__tiendas.idsucursal', '=', 'adm__sucursals.id')

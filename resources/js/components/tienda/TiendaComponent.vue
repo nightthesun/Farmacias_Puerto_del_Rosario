@@ -39,7 +39,8 @@
                                         @click="abrirModal('actualizar', tienda)">
                                         <i class="icon-pencil"></i>
                                     </button> &nbsp; -->
-                                    <button v-if="tienda.activo_tienda == 1" type="button"
+                                    <div v-if="puedeActivar==1">
+                                        <button v-if="tienda.activo_tienda == 1" type="button"
                                         class="btn btn-danger btn-sm" @click="eliminarTienda(tienda.id_tienda)">
                                         <i class="icon-trash"></i>
                                     </button>
@@ -47,6 +48,18 @@
                                         @click="activarTienda(tienda.id_tienda)">
                                         <i class="icon-check"></i>
                                     </button>
+                                    </div>
+                                    <div v-else>
+                                        <button v-if="tienda.activo_tienda == 1" type="button"
+                                        class="btn btn-light btn-sm" >
+                                        <i class="icon-trash"></i>
+                                    </button>
+                                    <button v-else type="button" class="btn btn-light btn-sm"
+                                       >
+                                        <i class="icon-check"></i>
+                                    </button>
+                                    </div>
+                                   
                                 </td>
                                 <td>{{ tienda.codigo_tienda }}</td>
                                 <td>{{ tienda.direccion }} </td>
@@ -120,6 +133,9 @@ import { error401 } from '../../errores';
 
 //Vue.use(VeeValidate);
 export default {
+     //---permisos_R_W_S
+     props: ['codventana'],
+        //-------------------
     data() {
         return {
             pagination: {
@@ -134,6 +150,12 @@ export default {
             arrayTiendas: [],
             arrayTiendaCopy:[],
             buscar:'',
+              //---permisos_R_W_S
+              puedeEditar:2,
+                puedeActivar:2,
+                puedeHacerOpciones_especiales:2,
+                puedeCrear:2,
+                //-----------
         }
 
     },
@@ -168,6 +190,38 @@ export default {
 
     },
     methods: {
+
+                //-----------------------------------permisos_R_W_S        
+    listarPerimsoxyz() {
+                //console.log(this.codventana);
+    let me = this;
+   
+        
+    var url = '/gestion_permiso_editar_eliminar?win='+me.codventana;
+  
+    axios.get(url)
+        .then(function(response) {
+            var respuesta = response.data;
+          
+            if(respuesta=="root"){
+            me.puedeEditar=1;
+            me.puedeActivar=1;
+            me.puedeHacerOpciones_especiales=1;
+            me.puedeCrear=1; 
+            }else{
+            me.puedeEditar=respuesta.edit;
+            me.puedeActivar=respuesta.activar;
+            me.puedeHacerOpciones_especiales=respuesta.especial;
+            me.puedeCrear=respuesta.crear;        
+            }
+           
+        })
+        .catch(function(error) {
+            error401(error);
+            console.log(error);
+        });
+},
+//--------------------------------------------------------------   
 
         listarTiendas(page) {
             let me = this;
@@ -421,6 +475,9 @@ export default {
     },
 
     mounted() {
+        //-------permiso E_W_S-----
+        this.listarPerimsoxyz();
+            //-----------------------
         this.listarTiendas(1);
         this.classModal = new _pl.Modals();
         this.classModal.addModal('registrar');

@@ -11,7 +11,7 @@
             <div class="card">
                 <div class="card-header">
                     <i class="fa fa-align-justify"></i> Cargo
-                    <button type="button" class="btn btn-secondary" @click="abrirModal('registrar')">
+                    <button v-if="puedeCrear==1" type="button" class="btn btn-secondary" @click="abrirModal('registrar')">
                         <i class="icon-plus"></i>&nbsp;Nuevo
                     </button>
                 </div>
@@ -27,41 +27,62 @@
                     <table class="table table-bordered table-striped table-sm table-responsive">
                         <thead>
                             <tr>
-                                <th>Opciones</th>
-                                <th>Unidad Org.</th>                               
-                                <th>Nombre</th>
-                                <th>Descripcion</th>
-                                <th>Actividades Especificas</th>
-                                <th>Estado</th>
+                                <th class="col-md-1">Opciones</th>
+                                <th class="col-md-3">Unidad Org.</th>                               
+                                <th class="col-md-3">Nombre</th>
+                                <th class="col-md-2">Descripcion</th>
+                                <th class="col-md-2">Actividades Especificas</th>
+                                <th class="col-md-1">Estado</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr v-for="cargo in arrayCargo" :key="cargo.id">
-                                <td>
-                                    <button type="button" class="btn btn-warning btn-sm" @click="abrirModal('actualizar',cargo)">
-                                        <i class="icon-pencil"></i>
-                                    </button> &nbsp;
-                                    <button v-if="cargo.activo==1" type="button" class="btn btn-danger btn-sm" @click="eliminarCargo(cargo.id)" >
-                                        <i class="icon-trash"></i>
-                                    </button>
-                                    <button v-else type="button" class="btn btn-info btn-sm" @click="activarCargo(cargo.id)" >
-                                        <i class="icon-check"></i>
-                                    </button>
+                                <td class="col-md-1">
+                                    <div  class="d-flex justify-content-start">
+                                        <div  v-if="puedeEditar==1">
+                                            <button type="button" class="btn btn-warning btn-sm" @click="abrirModal('actualizar',cargo)" style="margin-right: 5px;">
+                                            <i class="icon-pencil"></i>
+                                            </button> 
+                                        </div>
+                                        <div  v-else>
+                                            <button type="button" class="btn btn-light btn-sm" style="margin-right: 5px;">
+                                            <i class="icon-pencil"></i>
+                                            </button>  
+                                        </div> 
+                                        <div v-if="puedeActivar==1">
+                                            <button v-if="cargo.activo==1" type="button" class="btn btn-danger btn-sm" @click="eliminarCargo(cargo.id)" style="margin-right: 5px;">
+                                            <i class="icon-trash"></i>
+                                            </button>
+                                            <button v-else type="button" class="btn btn-info btn-sm" @click="activarCargo(cargo.id)" style="margin-right: 5px;">
+                                            <i class="icon-check"></i>
+                                            </button>
+                                        </div>
+                                        <div  v-else>
+                                            <button v-if="cargo.activo==1" type="button" class="btn btn-light btn-sm" style="margin-right: 5px;">
+                                            <i class="icon-trash"></i>
+                                            </button>
+                                            <button v-else type="button" class="btn btn-light btn-sm" style="margin-right: 5px;">
+                                            <i class="icon-check"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                   
+                                    
                                 </td>
-                                <td v-text="cargo.nomunidadorg"></td>
-                                <td v-text="cargo.nombre"></td>
-                                <td v-text="cargo.descripcion"></td>
-                                <td v-text="cargo.act_especificas"></td>
+                                <td v-text="cargo.nomunidadorg" class="col-md-3"></td>
+                                <td v-text="cargo.nombre" class="col-md-3"></td>
+                                <td v-text="cargo.descripcion" class="col-md-2"></td>
+                                <td v-text="cargo.act_especificas" class="col-md-2"></td>
 
-                                <td>
+                                <td class="col-md-1">
                                     <div v-if="cargo.activo==1">
                                         <span class="badge badge-success">Activo</span>
                                     </div>
                                     <div v-else>
                                         <span class="badge badge-warning">Desactivado</span>
-                                    </div>
-                                    
+                                    </div>                                    
                                 </td>
+
                             </tr>
                            
                         </tbody>
@@ -149,6 +170,9 @@ import { error401 } from '../../errores';
 
 //Vue.use(VeeValidate);
     export default {
+        //---permisos_R_W_S
+        props: ['codventana'],
+        //-------------------
         data(){
             return{
                 pagination:{
@@ -171,7 +195,12 @@ import { error401 } from '../../errores';
                 arrayUorg:[],
                 descripcion:'',
                 especificas:'',
-                
+                //---permisos_R_W_S
+                puedeEditar:2,
+                puedeActivar:2,
+                puedeHacerOpciones_especiales:2,
+                puedeCrear:2,
+                //-----------
                 
             }
 
@@ -218,6 +247,37 @@ import { error401 } from '../../errores';
 
         },
         methods :{
+             //-----------------------------------permisos_R_W_S        
+    listarPerimsoxyz() {
+                //console.log(this.codventana);
+    let me = this;
+   
+        
+    var url = '/gestion_permiso_editar_eliminar?win='+me.codventana;
+  
+    axios.get(url)
+        .then(function(response) {
+            var respuesta = response.data;
+            console.log(respuesta);
+            if(respuesta=="root"){
+            me.puedeEditar=1;
+            me.puedeActivar=1;
+            me.puedeHacerOpciones_especiales=1;
+            me.puedeCrear=1; 
+            }else{
+            me.puedeEditar=respuesta.edit;
+            me.puedeActivar=respuesta.activar;
+            me.puedeHacerOpciones_especiales=respuesta.especial;
+            me.puedeCrear=respuesta.crear;        
+            }
+           
+        })
+        .catch(function(error) {
+            error401(error);
+            console.log(error);
+        });
+},
+//--------------------------------------------------------------  
             selectUnidadOrg(){
                 let me=this;
                 var url='/unidadorg/selectuo';
@@ -439,6 +499,9 @@ import { error401 } from '../../errores';
             },  
         },
         mounted() {
+             //-------permiso E_W_S-----
+             this.listarPerimsoxyz();
+            //-----------------------
             this.selectUnidadOrg();
             this.listarCargo(1);
             this.classModal = new _pl.Modals();

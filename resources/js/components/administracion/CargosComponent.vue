@@ -11,7 +11,7 @@
             <div class="card">
                 <div class="card-header">
                     <i class="fa fa-align-justify"></i> Cargos
-                    <button type="button" class="btn btn-secondary" @click="abrirModal('registrar')">
+                    <button v-if="puedeCrear==1" type="button" class="btn btn-secondary" @click="abrirModal('registrar')">
                         <i class="icon-plus"></i>&nbsp;Nuevo
                     </button>
                 </div>
@@ -132,6 +132,9 @@ import Swal from 'sweetalert2';
 import { error401 } from '../../errores';
 //Vue.use(VeeValidate);
     export default {
+        //---permisos_R_W_S
+        props: ['codventana'],
+        //-------------------
         data(){
             return{
                 pagination:{
@@ -151,7 +154,13 @@ import { error401 } from '../../errores';
                 buscar:'',
                 arrayNivel:[1,2,3,4,5],
                 nivelselected:1,
-                descripcion:''
+                descripcion:'',
+                 //---permisos_R_W_S
+                 puedeEditar:2,
+                puedeActivar:2,
+                puedeHacerOpciones_especiales:2,
+                puedeCrear:2,
+                //-----------
 
             }
 
@@ -190,6 +199,37 @@ import { error401 } from '../../errores';
 
         },
         methods :{
+             //-----------------------------------permisos_R_W_S        
+    listarPerimsoxyz() {
+                //console.log(this.codventana);
+    let me = this;
+   
+        
+    var url = '/gestion_permiso_editar_eliminar?win='+me.codventana;
+  
+    axios.get(url)
+        .then(function(response) {
+            var respuesta = response.data;
+            console.log(respuesta);
+            if(respuesta=="root"){
+            me.puedeEditar=1;
+            me.puedeActivar=1;
+            me.puedeHacerOpciones_especiales=1;
+            me.puedeCrear=1; 
+            }else{
+            me.puedeEditar=respuesta.edit;
+            me.puedeActivar=respuesta.activar;
+            me.puedeHacerOpciones_especiales=respuesta.especial;
+            me.puedeCrear=respuesta.crear;        
+            }
+           
+        })
+        .catch(function(error) {
+            error401(error);
+            console.log(error);
+        });
+},
+//-------------------------------------------------------------- 
             listarCargo(page){
                 let me=this;
                 var url='/cargo?page='+page+'&buscar='+me.buscar;
@@ -398,6 +438,9 @@ import { error401 } from '../../errores';
 
         },
         mounted() {
+              //-------permiso E_W_S-----
+              this.listarPerimsoxyz();
+            //-----------------------
             this.listarCargo(1);
             this.classModal = new _pl.Modals();
             this.classModal.addModal('registrar');
