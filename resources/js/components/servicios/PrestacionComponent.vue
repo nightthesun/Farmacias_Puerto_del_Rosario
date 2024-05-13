@@ -11,7 +11,7 @@
             <div class="card">
                 <div class="card-header">
                     <i class="fa fa-align-justify"></i> Prestaciones
-                    <button type="button" class="btn btn-secondary" @click="abrirModal('registrar')" >
+                    <button v-if="puedeCrear==1" type="button" class="btn btn-secondary" @click="abrirModal('registrar')" >
                         <i class="icon-plus"></i>&nbsp;Nuevo 
                     </button>
                 </div>
@@ -28,34 +28,55 @@
                     <table class="table table-bordered table-striped table-sm table-responsive">
                         <thead>
                             <tr>
-                                <th>Opciones</th>
-                                <th>Codigo</th>
-                                <th>Linea</th>
-                                <th>Nombre</th>
-                                <th>Precio</th>
-                                <th>Descripción</th>
-                                <th>Estado</th>
+                                <th class="col-md-1">Opciones</th>
+                                <th class="col-md-1">Codigo</th>
+                                <th class="col-md-2">Linea</th>
+                                <th class="col-md-3">Nombre</th>
+                                <th class="col-md-1">Precio</th>
+                                <th class="col-md-3">Descripción</th>
+                                <th class="col-md-1">Estado</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr v-for="prestacion in arrayPrestacion" :key="prestacion.id">
-                                <td>
-                                    <button type="button" class="btn btn-warning btn-sm" @click="abrirModal('actualizar',prestacion)">
-                                        <i class="icon-pencil"></i>
-                                    </button> &nbsp;
-                                    <button v-if="prestacion.activo==1" type="button" class="btn btn-danger btn-sm" @click="eliminarPrestacion(prestacion.id)" >
+                                <td class="col-md-1">
+                                    <div  class="d-flex justify-content-start">
+                                        <div  v-if="puedeEditar==1">
+                                            <button type="button" class="btn btn-warning btn-sm" @click="abrirModal('actualizar',prestacion)" style="margin-right: 5px;">
+                                            <i class="icon-pencil"></i>
+                                             </button> 
+                                        </div>
+                                        <div v-else>
+                                            <button type="button" class="btn btn-light btn-sm"  style="margin-right: 5px;">
+                                            <i class="icon-pencil"></i>
+                                             </button> 
+                                        </div>
+                                        <div v-if="puedeActivar==1"> 
+                                        <button v-if="prestacion.activo==1" type="button" class="btn btn-danger btn-sm" @click="eliminarPrestacion(prestacion.id)"  style="margin-right: 5px;">
                                         <i class="icon-trash"></i>
                                     </button>
-                                    <button v-else type="button" class="btn btn-info btn-sm" @click="activarPrestacion(prestacion.id)" >
+                                    <button v-else type="button" class="btn btn-info btn-sm" @click="activarPrestacion(prestacion.id)"  style="margin-right: 5px;">
                                         <i class="icon-check"></i>
                                     </button>
+                                    </div>
+                                    <div v-else>
+                                        <button v-if="prestacion.activo==1" type="button" class="btn btn-light btn-sm"   style="margin-right: 5px;">
+                                        <i class="icon-trash"></i>
+                                    </button>
+                                    <button v-else type="button" class="btn btn-light btn-sm"  style="margin-right: 5px;">
+                                        <i class="icon-check"></i>
+                                    </button>
+                                    </div>  
+                                    </div>        
+                                      
+                                   
                                 </td>
-                                <td v-text="prestacion.codarea + prestacion.codigo"></td>
-                                <td v-text="prestacion.nomarea"></td>
-                                <td v-text="prestacion.nombre"></td>
-                                <td v-text="prestacion.precio + ' Bs.'" style="text-align:right"></td>
-                                <td v-text="prestacion.descripcion"></td>
-                                <td>
+                                <td class="col-md-1" v-text="prestacion.codarea + prestacion.codigo"></td>
+                                <td class="col-md-2" v-text="prestacion.nomarea"></td>
+                                <td class="col-md-3" v-text="prestacion.nombre"></td>
+                                <td class="col-md-1" v-text="prestacion.precio + ' Bs.'" style="text-align:right"></td>
+                                <td  class="col-md-3" v-text="prestacion.descripcion"></td>
+                                <td class="col-md-1">
                                     <div v-if="prestacion.activo==1">
                                         <span class="badge badge-success">Activo</span>
                                     </div>
@@ -154,6 +175,9 @@ import { error401 } from '../../errores';
 
 //Vue.use(VeeValidate);
     export default {
+                //---permisos_R_W_S
+                props: ['codventana'],
+        //-------------------
         data(){
             return{
                 pagination:{
@@ -229,11 +253,41 @@ import { error401 } from '../../errores';
 
         },
         methods :{
+             //-----------------------------------permisos_R_W_S        
+ listarPerimsoxyz() {
+                //console.log(this.codventana);
+    let me = this;
+        
+    var url = '/gestion_permiso_editar_eliminar?win='+me.codventana;
+  
+    axios.get(url)
+        .then(function(response) {
+            var respuesta = response.data;
+     
+            if(respuesta=="root"){
+            me.puedeEditar=1;
+            me.puedeActivar=1;
+            me.puedeHacerOpciones_especiales=1;
+            me.puedeCrear=1; 
+            }else{
+            me.puedeEditar=respuesta.edit;
+            me.puedeActivar=respuesta.activar;
+            me.puedeHacerOpciones_especiales=respuesta.especial;
+            me.puedeCrear=respuesta.crear;        
+            }
+           
+        })
+        .catch(function(error) {
+            error401(error);
+            console.log(error);
+        });
+},
+//--------------------------------------------------------------  
             listarPrestaciones(page){
                 let me=this;
                 var url='/prestacion?page='+page+'&buscar='+me.buscar;
                 axios.get(url).then(function(response){
-                    console.log(response);
+                
                     var respuesta=response.data;
                     me.arrayPrestacion=respuesta.prestaciones.data;
                     me.pagination=respuesta.pagination;
@@ -454,6 +508,10 @@ import { error401 } from '../../errores';
 
         },
         mounted() {
+            //-------permiso E_W_S-----
+            this.listarPerimsoxyz();
+             // this.listarAlmacenes_tiendas_con_permisos();
+            //-----------------------
             this.listarPrestaciones(1);
             //
             this.classModal = new _pl.Modals();

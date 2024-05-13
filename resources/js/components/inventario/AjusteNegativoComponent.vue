@@ -11,7 +11,7 @@
             <div class="card">
                 <div class="card-header">
                     <i class="fa fa-align-justify"></i> Ajustes Negativos
-                    <button
+                    <button v-if="puedeCrear==1" 
                         type="button"
                         class="btn btn-secondary"
                         @click="abrirModal('registrar'); ProductoLineaIngreso(); "
@@ -86,16 +86,15 @@
                     >
                         <thead>
                             <tr>
-                                <th>Opciones</th>
-
-                                <th>Codigó</th>
+                                <th class="col-md-1">Opciones</th>
+                                <th class="col-md-1">Codigó</th>
                                 <th>Linea</th>
-                                <th>Producto</th>
+                                <th class="col-md-5">Producto</th>
                                 <th>Cantidad</th>
                                 <th>Tipo</th>
-                                <th>Descripción</th>
+                                <th class="col-md-2">Descripción</th>
                                 <th>Fecha/Hora</th>
-                                <th>Usuario</th>
+                                <th >Usuario</th>
                                 <th>Estado</th>
                             </tr>
                         </thead>
@@ -103,77 +102,66 @@
                         <tbody v-if="sucursalSeleccionada == 0"></tbody>
                         <tbody v-if="sucursalSeleccionada != 0">
                             <!--botones de opciones-->
-                            <tr
-                                v-for="AjusteNegativos in arrayAjusteNegativos"
-                                :key="AjusteNegativos.id"
-                            >
-                            <td>
+                            <tr v-for="AjusteNegativos in arrayAjusteNegativos" :key="AjusteNegativos.id">
+    <td class="col-md-1">
     <div class="button-container">
-        <div class="d-flex" v-if="e_1==1">
-            <button
-                type="button"
-                class="btn btn-warning btn-sm mr-2"
-                @click="
-                    abrirModal(
-                        'actualizar',
-                        AjusteNegativos,
-                    );
-                    ProductoLineaIngreso();
-                "
-                v-if="AjusteNegativos.id_tipo!=13"
-            >
-                <i class="icon-pencil"></i>
-            </button>
 
-            <button
-                type="button"
-                class="btn btn-light btn-sm"
-                v-if="AjusteNegativos.id_tipo==13"
-            >
+        <div  class="d-flex justify-content-start">
+            <div  v-if="puedeEditar==1">
+                <button type="button" class="btn btn-warning " @click="abrirModal('actualizar',AjusteNegativos);
+                ProductoLineaIngreso();" v-if="AjusteNegativos.id_tipo!=13" style="margin-right: 5px;">
                 <i class="icon-pencil"></i>
-            </button>
-        </div>
-        
-        <div class="d-flex" v-if="a_1==1">
-            <button
-                v-if="AjusteNegativos.activo == 1"
-                type="button"
-                class="btn btn-danger btn-sm mr-2"
-                @click="
-                    eliminarAjusteNegativos(
-                        AjusteNegativos.id,
-                    )
-                "
-            >
+                </button>
+                <button type="button" class="btn btn-warning" v-if="AjusteNegativos.id_tipo==13" style="margin-right: 5px;">
+                    <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+                </button>
+            </div>
+            <div v-else>
+                <button type="button" class="btn btn-light" v-if="AjusteNegativos.id_tipo!=13" style="margin-right: 5px;">
+                <i class="icon-pencil"></i>
+                </button>
+                <button type="button" class="btn btn-light" v-if="AjusteNegativos.id_tipo==13" style="margin-right: 5px;" >
+                    <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+                </button>
+            </div>
+            <div v-if="puedeActivar==1">
+                <button v-if="AjusteNegativos.activo == 1" type="button" class="btn btn-danger "
+                @click="eliminarAjusteNegativos(AjusteNegativos.id)" style="margin-right: 5px;">
                 <i class="icon-trash"></i>
             </button>
-            
-            <button
-                v-else
-                type="button"
-                class="btn btn-info btn-sm"
-                @click="
-                    activarAjusteNegativos(
-                        AjusteNegativos.id,
-                    )
-                "
-            >
+            <button v-else type="button" class="btn btn-info" @click="activarAjusteNegativos(AjusteNegativos.id)" style="margin-right: 5px;">
                 <i class="icon-check"></i>
             </button>
+            </div>
+            <div v-else>
+                <button v-if="AjusteNegativos.activo == 1" type="button" class="btn btn-light "
+                 style="margin-right: 5px;">
+                <i class="icon-trash"></i>
+            </button>
+            <button v-else type="button" class="btn btn-light"  style="margin-right: 5px;">
+                <i class="icon-check"></i>
+            </button>
+            </div>
+            
+          
+    
+                     
+
+           
         </div>
+       
     </div>
 </td>
 
 
-                                <td v-text="AjusteNegativos.codigo"></td>
-                                <td v-text="AjusteNegativos.linea"></td>
-                                <td v-text="AjusteNegativos.leyenda"></td>
+                                <td class="col-md-1" v-text="AjusteNegativos.codigo"></td>
+                                <td  v-text="AjusteNegativos.linea"></td>
+                                <td class="col-md-5" v-text="AjusteNegativos.leyenda"></td>
                                 <td v-text="AjusteNegativos.cantidad"></td>
                                 <td v-text="AjusteNegativos.nombreTipo + ' ' + AjusteNegativos.numero_traspaso" v-if="AjusteNegativos.nombreTipo === 'Traspaso'"></td>
                                 <td v-else v-text="AjusteNegativos.nombreTipo"></td>
-                                <td v-text="AjusteNegativos.descripcion"></td>
-                                <td
-                                    v-text="AjusteNegativos.fecha"
+                                <td class="col-md-2" v-text="AjusteNegativos.descripcion"></td>
+                                <td v-text="AjusteNegativos.fecha"
                                 ></td>
                                 <td
                                     v-text="AjusteNegativos.nombre_usuario"
@@ -699,6 +687,9 @@ import Swal from "sweetalert2";
 import { error401 } from "../../errores";
 //Vue.use(VeeValidate);
 export default {
+        //---permisos_R_W_S
+        props: ['codventana'],
+        //-------------------
     data() {
         return {
             pagination: {
@@ -750,6 +741,12 @@ export default {
             //cargarpermisos
             e_1:"",
             a_1:"",
+            //---permisos_R_W_S
+            puedeEditar:2,
+                puedeActivar:2,
+                puedeHacerOpciones_especiales:2,
+                puedeCrear:2,
+                //-----------
            
         };
     },
@@ -857,22 +854,38 @@ export default {
     },
 
     methods: {
-        permisoEditar_Activar(){
-            let me = this;
-            var url = "/permisos_editar_activar";
-            axios
-                .get(url)
-                .then(function (response) {
-                    var respuesta = response.data;                    
-                    me.e_1=respuesta[0].edit;
-                    me.a_1=respuesta[0].activar;
-                                  
-                })
-                .catch(function (error) {
-                    error401(error);
-                
-                });
-        },
+
+//-----------------------------------permisos_R_W_S        
+listarPerimsoxyz() {
+                //console.log(this.codventana);
+    let me = this;
+        
+    var url = '/gestion_permiso_editar_eliminar?win='+me.codventana;
+  
+    axios.get(url)
+        .then(function(response) {
+            var respuesta = response.data;
+     
+            if(respuesta=="root"){
+            me.puedeEditar=1;
+            me.puedeActivar=1;
+            me.puedeHacerOpciones_especiales=1;
+            me.puedeCrear=1; 
+            }else{
+            me.puedeEditar=respuesta.edit;
+            me.puedeActivar=respuesta.activar;
+            me.puedeHacerOpciones_especiales=respuesta.especial;
+            me.puedeCrear=respuesta.crear;        
+            }
+           
+        })
+        .catch(function(error) {
+            error401(error);
+            console.log(error);
+        });
+},
+
+        
 
         cambiarPestana(idPestana) {
             this.pestañaActiva = idPestana;
@@ -1455,13 +1468,17 @@ export default {
     },
 
     mounted() {
+           //-------permiso E_W_S-----
+           this.listarPerimsoxyz();
+             // this.listarAlmacenes_tiendas_con_permisos();
+            //-----------------------
         this.classModal = new _pl.Modals();
         this.classModal.addModal("registrar");
         this.listarAjusteNegativos(1);
         this.ajustesNegativos();
         this.cambiodeEstado();
         this.sucursalFiltro();
-        this.permisoEditar_Activar();
+       
         this.classModal.addModal("staticBackdrop");
     },
 };

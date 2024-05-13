@@ -11,7 +11,7 @@
             <div class="card">
                 <div class="card-header">
                     <i class="fa fa-align-justify"></i> Ajustes Positivos
-                    <button
+                    <button v-if="puedeCrear==1"
                         type="button"
                         class="btn btn-secondary"
                         @click="abrirModal('registrar'); ProductoLineaIngreso(); "
@@ -86,16 +86,16 @@
                     >
                         <thead>
                             <tr>
-                                <th>Opciones</th>
-                                <th>Codigó</th>
-                                <th>Linea</th>
-                                <th>Producto</th>
-                                <th>Cantidad de ingreso</th>
+                                <th class="col-md-1">Opciones</th>
+                                <th class="col-md-1">Codigó</th>
+                                <th class="col-md-1">Linea</th>
+                                <th class="col-md-4">Producto</th>
+                                <th >Can. Ingreso</th>
                                 <th>Stock</th>
-                                <th>Fecha de Ingreso / Hora</th>
+                                <th class="col-md-2">Fecha de Ingreso / Hora</th>
                                 <th>Fecha de vencimiento</th>
-                                <th>Tipo</th>
-                                <th>Usuario</th>
+                                <th class="col-md-2">Tipo</th>
+                                <th class="col-md-1">Usuario</th>
                                 <th>Estado</th>
 
                             </tr>
@@ -108,60 +108,52 @@
                                 v-for="AjusteNegativos in arrayAjusteNegativos"
                                 :key="AjusteNegativos.id"
                             >
-                                <td>
-                                    <button
-                                        type="button"
-                                        class="btn btn-warning btn-sm"
-                                        @click="
-                                            abrirModal(
-                                                'actualizar',
-                                                AjusteNegativos,
-                                            );
-                                            ProductoLineaIngreso();
-                                        "
-                                    >
-                                        <i class="icon-pencil"></i>
-                                    </button>
-                                    &nbsp;
-                                    <button
-                                        v-if="AjusteNegativos.activo == 1"
-                                        type="button"
-                                        class="btn btn-danger btn-sm"
-                                        @click="
-                                            eliminarAjusteNegativos(
-                                                AjusteNegativos.id,
-                                            )
-                                        "
-                                    >
-                                        <i class="icon-trash"></i>
-                                    </button>
-                                    <button
-                                        v-else
-                                        type="button"
-                                        class="btn btn-info btn-sm"
-                                        @click="
-                                            activarAjusteNegativos(
-                                                AjusteNegativos.id,
-                                            )
-                                        "
-                                    >
-                                        <i class="icon-check"></i>
-                                    </button>
+                                <td class="col-md-1">
+                                    <div  class="d-flex justify-content-start">
+                                        <div  v-if="puedeEditar==1">
+                                            <button type="button" class="btn btn-warning btn-sm" @click="abrirModal('actualizar',AjusteNegativos);
+                                            ProductoLineaIngreso();" style="margin-right: 5px;">
+                                            <i class="icon-pencil"></i>
+                                            </button>
+                                        </div>
+                                        <div v-else>
+                                            <button type="button" class="btn btn-light btn-sm"  style="margin-right: 5px;">
+                                            <i class="icon-pencil"></i>
+                                            </button>
+                                        </div>
+                                        <div v-if="puedeActivar==1">
+                                            <button v-if="AjusteNegativos.activo == 1" type="button" class="btn btn-danger btn-sm"
+                                            @click="eliminarAjusteNegativos(AjusteNegativos.id)" tyle="margin-right: 5px;">
+                                            <i class="icon-trash"></i>
+                                            </button>
+                                            <button v-else type="button" class="btn btn-info btn-sm" @click="activarAjusteNegativos(AjusteNegativos.id)" tyle="margin-right: 5px;">
+                                            <i class="icon-check"></i>
+                                            </button>
+                                        </div>
+                                        <div v-else>
+                                            <button v-if="AjusteNegativos.activo == 1" type="button" class="btn btn-light btn-sm"
+                                             tyle="margin-right: 5px;">
+                                            <i class="icon-trash"></i>
+                                            </button>
+                                            <button v-else type="button" class="btn btn-light btn-sm"  tyle="margin-right: 5px;">
+                                            <i class="icon-check"></i>
+                                            </button>
+                                        </div>
+                                    </div>       
                                 </td>
 
-                                <td v-text="AjusteNegativos.codigo"></td>
-                                <td v-text="AjusteNegativos.linea"></td>
-                                <td v-text="AjusteNegativos.leyenda"></td>
-                                <td v-text="AjusteNegativos.cantidad"></td>
+                                <td class="col-md-1" v-text="AjusteNegativos.codigo"></td>
+                                <td class="col-md-1" v-text="AjusteNegativos.linea"></td>
+                                <td class="col-md-4" v-text="AjusteNegativos.leyenda"></td>
+                                <td  v-text="AjusteNegativos.cantidad"></td>
                                 <td v-text="AjusteNegativos.stock"></td>
-                                <td v-text="AjusteNegativos.fecha"></td>
+                                <td class="col-md-2" v-text="AjusteNegativos.fecha"></td>
                                 <td v-text="AjusteNegativos.fecha_vencimiento"></td>
 
-                                <td v-text="AjusteNegativos.nombreTipo + ' ' + AjusteNegativos.tras" v-if="AjusteNegativos.nombreTipo === 'Traspaso'"></td>
+                                <td  class="col-md-2" v-text="AjusteNegativos.nombreTipo + ' ' + AjusteNegativos.tras" v-if="AjusteNegativos.nombreTipo === 'Traspaso'"></td>
 <td v-else v-text="AjusteNegativos.nombreTipo"></td>
                                
-                                        <td
-                                    v-text="AjusteNegativos.nombre_usuario"
+                                        <td class="col-md-1" v-text="AjusteNegativos.nombre_usuario"
                                 ></td>
                                 <td>
                                     <div v-if="AjusteNegativos.activo == 1">
@@ -813,6 +805,9 @@ import Swal from "sweetalert2";
 import { error401 } from "../../errores";
 //Vue.use(VeeValidate);
 export default {
+    //---permisos_R_W_S
+    props: ['codventana'],
+        //-------------------
     data() {
         return {
             pagination: {
@@ -880,6 +875,11 @@ export default {
             id_productoX:"",
             envaseX:"",
             id_alm_tda:"",
+            arrayPemisoSuscursal:[],
+                defaulSucural:'',
+                codigoDefault:'',
+                codigoDeRoles:'',//0=root,//1=defaul,2=tiene_permisos_Especificios
+                codigoArray_p:[],
 
         };
     },
@@ -988,6 +988,36 @@ export default {
     },
 
     methods: {
+
+        //-----------------------------------permisos_R_W_S        
+ listarPerimsoxyz() {
+                //console.log(this.codventana);
+    let me = this;        
+    var url = '/gestion_permiso_editar_eliminar?win='+me.codventana;  
+    axios.get(url)
+        .then(function(response) {
+            var respuesta = response.data;
+     
+            if(respuesta=="root"){
+            me.puedeEditar=1;
+            me.puedeActivar=1;
+            me.puedeHacerOpciones_especiales=1;
+            me.puedeCrear=1; 
+            }else{
+            me.puedeEditar=respuesta.edit;
+            me.puedeActivar=respuesta.activar;
+            me.puedeHacerOpciones_especiales=respuesta.especial;
+            me.puedeCrear=respuesta.crear;        
+            }
+           
+        })
+        .catch(function(error) {
+            error401(error);
+            console.log(error);
+        });
+},
+//--------------------------------------------------------------  
+
         cambiarPestana(idPestana) {
             this.pestañaActiva = idPestana;
 
@@ -1712,6 +1742,10 @@ export default {
     },
 
     mounted() {
+        //-------permiso E_W_S-----
+        this.listarPerimsoxyz();
+         //     this.listarAlmacenes_tiendas_con_permisos();
+            //-----------------------
         this.classModal = new _pl.Modals();
         this.classModal.addModal("registrar");
         this.listarAjusteNegativos(1);

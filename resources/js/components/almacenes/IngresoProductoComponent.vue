@@ -441,12 +441,14 @@ import { error401 } from '../../errores';
   //---------------------------------permiso de ver lista de sucursales tiendas almacenes
 
   listarAlmacenes_tiendas_con_permisos() {
-   let me = this;           
-    var url = '/listar_alamcen_tienda_permisos';  
+   let me = this; 
+   var a=1; // a=1 es igual almacen //a=2=tienda         
+    var url = '/listar_alamcen_tienda_permisos?a='+a;  
+   
     axios.get(url)
         .then(function(response) {
             var respuesta = response.data;
-          
+       
             if (respuesta=="root") {
                 me.defaulSucural=0;
             }else{
@@ -462,11 +464,9 @@ import { error401 } from '../../errores';
                       
                     } else {
                         console.log(tamanoRespuesta); 
-                    }
-                  
+                    }             
                    
                 }
-
             }             
            
         })
@@ -479,7 +479,6 @@ import { error401 } from '../../errores';
  listarPerimsoxyz() {
                 //console.log(this.codventana);
     let me = this;
-   
         
     var url = '/gestion_permiso_editar_eliminar?win='+me.codventana;
   

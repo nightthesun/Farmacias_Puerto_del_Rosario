@@ -13,7 +13,7 @@
                     <div class="row">
                         <div class="col-md-6">
                             <i class="fa fa-align-justify"></i> Registro de Productos
-                            <button type="button" class="btn btn-secondary" @click="abrirModal('registrar')" :disabled="idrubrofiltro == 0">
+                            <button type="button" v-if="puedeCrear==1" class="btn btn-secondary" @click="abrirModal('registrar')" :disabled="idrubrofiltro == 0">
                                 <i class="icon-plus"></i>&nbsp;Nuevo
                             </button>
                         </div>
@@ -55,37 +55,58 @@
                             <table class="table table-bordered table-striped table-sm table-responsive">
                             <thead>
                                 <tr>
-                                    <th>Opciones</th>
-                                    <th>Linea</th>
-                                    <th>Codigo</th>
-                                    <th>Nombre</th>
+                                    <th class="col-md-1">Opciones</th>
+                                    <th class="col-md-1">Linea</th>
+                                    <th class="col-md-2">Codigo</th>
+                                    <th class="col-md-2">Nombre</th>
                                     <!--th>Presentacion</th-->
-                                    <th>Tiempo Pedido</th>
-                                    <th>Precio Lista</th>
-                                    <th>Precio Venta</th>
-                                    <th>Metodo</th>
-                                    <th>Codigo Internacional</th>
-                                    <th>Estado</th>
+                                    <th class="col-md-1">Tiempo Pedido</th>
+                                    <th class="col-md-1">Precio Lista</th>
+                                    <th class="col-md-1">Precio Venta</th>
+                                    <th class="col-md-1">Metodo</th>
+                                    <th class="col-md-1">Codigo Internacional</th>
+                                    <th class="col-md-1">Estado</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr v-for="producto in arrayProducto" :key="producto.id">
-                                    <td>
-                                        <button type="button" class="btn btn-warning btn-sm" @click="abrirModal('actualizar',producto)">
+                                    <td class="col-md-1">
+                                        <div  class="d-flex justify-content-start">
+                                            <div  v-if="puedeEditar==1">
+                                            <button type="button" class="btn btn-warning btn-sm" @click="abrirModal('actualizar',producto)" style="margin-right: 5px;">
                                             <i class="icon-pencil"></i>
-                                        </button> &nbsp;
-                                        <button v-if="producto.activo==1" type="button" class="btn btn-danger btn-sm" @click="eliminarProducto(producto.id)" >
+                                            </button> 
+                                            </div>
+                                            <div v-else>
+                                                <button type="button" class="btn btn-light btn-sm"  style="margin-right: 5px;">
+                                                <i class="icon-pencil"></i>
+                                            </button> 
+                                            </div>
+                                            <div v-if="puedeActivar==1">
+                                                <button v-if="producto.activo==1" type="button" class="btn btn-danger btn-sm" @click="eliminarProducto(producto.id)" style="margin-right: 5px;">
                                             <i class="icon-trash"></i>
                                         </button>
-                                        <button v-else type="button" class="btn btn-info btn-sm" @click="activarProducto(producto.id)" >
+                                        <button v-else type="button" class="btn btn-info btn-sm" @click="activarProducto(producto.id)" style="margin-right: 5px;">
+                                            <i class="icon-check"></i>
+                                        </button>                                        
+                                            </div>
+                                            <div v-else>
+                                                <button v-if="producto.activo==1" type="button" class="btn btn-light btn-sm"  style="margin-right: 5px;">
+                                            <i class="icon-trash"></i>
+                                        </button>
+                                        <button v-else type="button" class="btn btn-light btn-sm"  style="margin-right: 5px;">
                                             <i class="icon-check"></i>
                                         </button>
-                                        <img v-if="producto.foto" :src="'imgproductos/'+ producto.foto.substring(9)" class="rounded fotosociomini">
-                                        <img v-else src="img/avatars/noimagen.png"  class="rounded fotosociomini" >
+                                            </div>
+                                            <img v-if="producto.foto" :src="'imgproductos/'+ producto.foto.substring(9)" class="rounded fotosociomini" style="margin-right: 5px;">
+                                        <img v-else src="img/avatars/noimagen.png"  class="rounded fotosociomini" style="margin-right: 5px;">
+                                        </div>        
+                                        
+                                        
                                     </td>
-                                    <td >{{ producto.nomlinea }}</td>
-                                    <td v-text="producto.codprod"></td>
-                                    <td id="nombre-prducto">
+                                    <td class="col-md-1">{{ producto.nomlinea }}</td>
+                                    <td v-text="producto.codprod" class="col-md-2"></td>
+                                    <td id="nombre-prducto" class="col-md-2">
                                         <div>
                                             {{ producto.nomprod }} 
                                             <div v-for="dispenser in dispensers"> <div v-if="dispenser.id == producto.idenvaseprimario"> {{ dispenser.nombre }} X {{ producto.cantidadprimario }} </div></div>
@@ -93,13 +114,13 @@
                                         </div> <br><br>
                                     </td>
                                     <!--td>{{ producto.codlinea}} - {{producto.cantidadprimario}} <br /> {{producto.idformafarmaceuticaprimario }}</td-->
-                                    <td >{{ producto.tiempopedidoprimario }} meses</td>
-                                    <td v-text="producto.preciolistaprimario"></td>
-                                    <td v-text="producto.precioventaprimario"></td>
+                                    <td class="col-md-1">{{ producto.tiempopedidoprimario }} meses</td>
+                                    <td class="col-md-1" v-text="producto.preciolistaprimario"></td>
+                                    <td class="col-md-1" v-text="producto.precioventaprimario"></td>
                                     
-                                    <td v-text="producto.metodoabcprimario"></td>
-                                    <td v-text="producto.codigointernacional"></td>
-                                    <td>
+                                    <td class="col-md-1" v-text="producto.metodoabcprimario"></td>
+                                    <td class="col-md-1" v-text="producto.codigointernacional"></td>
+                                    <td class="col-md-1">
                                         <div v-if="producto.activo==1">
                                             <span class="badge badge-success">Activo</span>
                                         </div>
@@ -115,37 +136,56 @@
                             <table class="table table-bordered table-striped table-sm table-responsive">
                                 <thead>
                                     <tr>
-                                        <th>Opciones</th>
-                                        <th>Linea</th>
-                                        <th>Codigo</th>
-                                        <th>Nombre</th>
+                                        <th class="col-md-1">Opciones</th>
+                                        <th class="col-md-1">Linea</th>
+                                        <th class="col-md-1">Codigo</th>
+                                        <th class="col-md-2">Nombre</th>
                                         <!--th>Presentacion</th-->
-                                        <th>Tiempo Pedido</th>
-                                        <th>Precio Lista</th>
-                                        <th>Precio Venta</th>
-                                        <th>Metodo</th>
-                                        <th>Codigo Internacional</th>
-                                        <th>Estado</th>
+                                        <th class="col-md-2">Tiempo Pedido</th>
+                                        <th class="col-md-1">Precio Lista</th>
+                                        <th class="col-md-1">Precio Venta</th>
+                                        <th class="col-md-1">Metodo</th>
+                                        <th class="col-md-1">Codigo Internacional</th>
+                                        <th class="col-md-1">Estado</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr v-for="producto in arrayProducto" :key="producto.id">
-                                        <td>
-                                            <button type="button" class="btn btn-warning btn-sm" @click="abrirModal('actualizar',producto)">
+                                        <td class="col-md-1">
+                                            <div  class="d-flex justify-content-start">
+                                                <div  v-if="puedeEditar==1">
+                                                    <button type="button" class="btn btn-warning btn-sm" @click="abrirModal('actualizar',producto)" style="margin-right: 5px;">
                                                 <i class="icon-pencil"></i>
-                                            </button> &nbsp;
-                                            <button v-if="producto.activo==1" type="button" class="btn btn-danger btn-sm" @click="eliminarProducto(producto.id)" >
+                                                 </button> 
+                                                </div>
+                                                <div v-else>
+                                                    <button type="button" class="btn btn-light btn-sm"  style="margin-right: 5px;">
+                                                <i class="icon-pencil"></i>
+                                                </button> 
+                                                </div>
+                                                <div v-if="puedeActivar==1">
+                                                    <button v-if="producto.activo==1" type="button" class="btn btn-danger btn-sm" @click="eliminarProducto(producto.id)" style="margin-right: 5px;">
                                                 <i class="icon-trash"></i>
                                             </button>
-                                            <button v-else type="button" class="btn btn-info btn-sm" @click="activarProducto(producto.id)" >
+                                            <button v-else type="button" class="btn btn-info btn-sm" @click="activarProducto(producto.id)" style="margin-right: 5px;">
                                                 <i class="icon-check"></i>
                                             </button>
-                                            <img v-if="producto.foto" :src="'imgproductos/'+ producto.foto.substring(9)" class="rounded fotosociomini">
+                                                </div>
+                                                 <div v-else="">
+                                                    <button v-if="producto.activo==1" type="button" class="btn btn-light btn-sm"  style="margin-right: 5px;">
+                                                <i class="icon-trash"></i>
+                                            </button>
+                                            <button v-else type="button" class="btn btn-light btn-sm"  style="margin-right: 5px;">
+                                                <i class="icon-check"></i>
+                                            </button>
+                                                 </div>   
+                                                 <img v-if="producto.foto" :src="'imgproductos/'+ producto.foto.substring(9)" class="rounded fotosociomini">
                                             <img v-else src="img/avatars/noimagen.png"  class="rounded fotosociomini" >
+                                            </div>  
                                         </td>
-                                        <td >{{ producto.nomlinea }}</td>
-                                        <td v-text="producto.codprod"></td>
-                                        <td id="nombre-prducto">
+                                        <td class="col-md-1">{{ producto.nomlinea }}</td>
+                                        <td class="col-md-1" v-text="producto.codprod"></td>
+                                        <td class="col-md-2" id="nombre-prducto">
                                             <div>
                                                 {{ producto.nomprod }} 
                                                 <div v-for="dispenser in dispensers"> <div v-if="dispenser.id == producto.idenvasesecundario"> {{ dispenser.nombre }} X {{ producto.cantidadsecundario }} </div></div>
@@ -153,12 +193,12 @@
                                             </div> <br><br>
                                         </td>
                                         <!--td>{{ producto.codlinea}} - {{producto.cantidadprimario}} <br /> {{producto.idformafarmaceuticaprimario }}</td-->
-                                        <td >{{ producto.tiempopedidosecundario }} meses</td>
-                                        <td v-text="producto.preciolistasecundario"></td>
-                                        <td v-text="producto.precioventasecundario"></td>
+                                        <td class="col-md-2">{{ producto.tiempopedidosecundario }} meses</td>
+                                        <td class="col-md-1" v-text="producto.preciolistasecundario"></td>
+                                        <td class="col-md-1" v-text="producto.precioventasecundario"></td>
                                         
-                                        <td v-text="producto.metodoabcsecundario"></td>
-                                        <td v-text="producto.codigointernacional"></td>
+                                        <td class="col-md-1" v-text="producto.metodoabcsecundario"></td>
+                                        <td class="col-md-1" v-text="producto.codigointernacional"></td>
                                         <td>
                                             <div v-if="producto.activo==1">
                                                 <span class="badge badge-success">Activo</span>
@@ -175,37 +215,59 @@
                             <table class="table table-bordered table-striped table-sm table-responsive">
                                 <thead>
                                     <tr>
-                                        <th>Opciones</th>
-                                        <th>Linea</th>
-                                        <th>Codigo</th>
-                                        <th>Nombre</th>
+                                        <th class="col-md-1">Opciones</th>
+                                        <th class="col-md-1">Linea</th>
+                                        <th class="col-md-1">Codigo</th>
+                                        <th class="col-md-2">Nombre</th>
                                         <!--th>Presentacion</th-->
-                                        <th>Tiempo Pedido</th>
-                                        <th>Precio Lista</th>
-                                        <th>Precio Venta</th>
-                                        <th>Metodo</th>
-                                        <th>Codigo Internacional</th>
-                                        <th>Estado</th>
+                                        <th class="col-md-2">Tiempo Pedido</th>
+                                        <th class="col-md-1">Precio Lista</th>
+                                        <th class="col-md-1">Precio Venta</th>
+                                        <th class="col-md-1">Metodo</th>
+                                        <th class="col-md-1">Codigo Internacional</th>
+                                        <th class="col-md-1">Estado</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr v-for="producto in arrayProducto" :key="producto.id">
-                                        <td>
-                                            <button type="button" class="btn btn-warning btn-sm" @click="abrirModal('actualizar',producto)">
-                                                <i class="icon-pencil"></i>
-                                            </button> &nbsp;
-                                            <button v-if="producto.activo==1" type="button" class="btn btn-danger btn-sm" @click="eliminarProducto(producto.id)" >
+                                        <td class="col-md-1">
+                                            <div  class="d-flex justify-content-start">
+                                                <div  v-if="puedeEditar==1">
+                                                    <button type="button" class="btn btn-warning btn-sm" @click="abrirModal('actualizar',producto)" style="margin-right: 5px;">
+                                                    <i class="icon-pencil"></i>
+                                                    </button> 
+                                                </div>
+                                                <div v-else>
+                                                    <button type="button" class="btn btn-light btn-sm"  style="margin-right: 5px;">
+                                                    <i class="icon-pencil"></i>
+                                                    </button>
+                                                </div>
+                                                <div v-if="puedeActivar==1">
+                                                    <button v-if="producto.activo==1" type="button" class="btn btn-danger btn-sm" @click="eliminarProducto(producto.id)" style="margin-right: 5px;">
                                                 <i class="icon-trash"></i>
                                             </button>
-                                            <button v-else type="button" class="btn btn-info btn-sm" @click="activarProducto(producto.id)" >
+                                            <button v-else type="button" class="btn btn-info btn-sm" @click="activarProducto(producto.id)" style="margin-right: 5px;">
                                                 <i class="icon-check"></i>
                                             </button>
-                                            <img v-if="producto.foto" :src="'imgproductos/'+ producto.foto.substring(9)" class="rounded fotosociomini">
-                                            <img v-else src="img/avatars/noimagen.png"  class="rounded fotosociomini" >
+                                                </div>
+                                                <div v-else>
+                                                    <button v-if="producto.activo==1" type="button" class="btn btn-light btn-sm" style="margin-right: 5px;">
+                                                <i class="icon-trash"></i>
+                                            </button>
+                                            <button v-else type="button" class="btn btn-light btn-sm"  style="margin-right: 5px;">
+                                                <i class="icon-check"></i>
+                                            </button>
+                                                </div>  
+                                                <img v-if="producto.foto" :src="'imgproductos/'+ producto.foto.substring(9)" class="rounded fotosociomini">
+                                            <img v-else src="img/avatars/noimagen.png"  class="rounded fotosociomini" > 
+                                            </div>       
+                                            
+                                           
+                                            
                                         </td>
-                                        <td >{{ producto.nomlinea }}</td>
-                                        <td v-text="producto.codprod"></td>
-                                        <td id="nombre-prducto">
+                                        <td class="col-md-2">{{ producto.nomlinea }}</td>
+                                        <td class="col-md-2" v-text="producto.codprod"></td>
+                                        <td class="col-md-1" id="nombre-prducto">
                                             <div>
                                                 {{ producto.nomprod }}
                                                 <div v-for="dispenser in dispensers"> <div v-if="dispenser.id == producto.idenvaseterciario"> {{ dispenser.nombre }} X {{ producto.cantidadterciario }} </div></div>
@@ -213,13 +275,13 @@
                                             </div> <br><br>
                                         </td>
                                         <!--td>{{ producto.codlinea}} - {{producto.cantidadprimario}} <br /> {{producto.idformafarmaceuticaprimario }}</td-->
-                                        <td >{{ producto.tiempopedidoterciario }} meses</td>
-                                        <td v-text="producto.preciolistaterciario"></td>
-                                        <td v-text="producto.precioventaterciario"></td>
+                                        <td class="col-md-1">{{ producto.tiempopedidoterciario }} meses</td>
+                                        <td class="col-md-1" v-text="producto.preciolistaterciario"></td>
+                                        <td class="col-md-1" v-text="producto.precioventaterciario"></td>
                                         
-                                        <td v-text="producto.metodoabcterciario"></td>
-                                        <td v-text="producto.codigointernacional"></td>
-                                        <td>
+                                        <td class="col-md-1" v-text="producto.metodoabcterciario"></td>
+                                        <td class="col-md-1" v-text="producto.codigointernacional"></td>
+                                        <td class="col-md-1">
                                             <div v-if="producto.activo==1">
                                                 <span class="badge badge-success">Activo</span>
                                             </div>
@@ -607,7 +669,9 @@ import QrcodeVue from 'qrcode.vue';
 //Vue.use(VueNumeric)
 //Vue.use(VeeValidate);
     export default {
-
+        //---permisos_R_W_S
+        props: ['codventana'],
+        //-------------------
         data(){
             return{
                 pagination:{
@@ -713,8 +777,13 @@ import QrcodeVue from 'qrcode.vue';
                 rubros:[],
                 dispensers:[],
                 formafarms:[],
-                categorias:[]
-
+                categorias:[],
+                //---permisos_R_W_S
+                puedeEditar:2,
+                puedeActivar:2,
+                puedeHacerOpciones_especiales:2,
+                puedeCrear:2,
+                //-----------
             }
 
         },
@@ -838,6 +907,36 @@ import QrcodeVue from 'qrcode.vue';
         },
         methods :{
 
+             //-----------------------------------permisos_R_W_S        
+ listarPerimsoxyz() {
+                //console.log(this.codventana);
+    let me = this;
+        
+    var url = '/gestion_permiso_editar_eliminar?win='+me.codventana;
+  
+    axios.get(url)
+        .then(function(response) {
+            var respuesta = response.data;
+     
+            if(respuesta=="root"){
+            me.puedeEditar=1;
+            me.puedeActivar=1;
+            me.puedeHacerOpciones_especiales=1;
+            me.puedeCrear=1; 
+            }else{
+            me.puedeEditar=respuesta.edit;
+            me.puedeActivar=respuesta.activar;
+            me.puedeHacerOpciones_especiales=respuesta.especial;
+            me.puedeCrear=respuesta.crear;        
+            }
+           
+        })
+        .catch(function(error) {
+            error401(error);
+            console.log(error);
+        });
+},
+//--------------------------------------------------------------  
               teresPermitidosCantidad(ex){
                 let me=this;
                 console.log(ex.keyCode +'--->'+ex.key);
@@ -1463,6 +1562,10 @@ import QrcodeVue from 'qrcode.vue';
 
         },
         mounted() {
+             //-------permiso E_W_S-----
+             this.listarPerimsoxyz();
+              //this.listarAlmacenes_tiendas_con_permisos();
+            //-----------------------
             //this.listarProducto(1);
             //this.listarLinea();
             this.listarrubro();

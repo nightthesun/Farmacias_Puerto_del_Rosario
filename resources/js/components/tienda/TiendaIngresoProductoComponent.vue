@@ -422,7 +422,9 @@ import { error401 } from '../../errores';
  //---------------------------------permiso de ver lista de sucursales tiendas almacenes
  listarAlmacenes_tiendas_con_permisos() {
    let me = this;           
-    var url = '/listar_alamcen_tienda_permisos';  
+   var a=2; // a=1 es igual almacen //a=2=tienda         
+    var url = '/listar_alamcen_tienda_permisos?a='+a; 
+    console.log(url); 
     axios.get(url)
         .then(function(response) {
             var respuesta = response.data;
@@ -441,6 +443,7 @@ import { error401 } from '../../errores';
                         me.codigoArray_p=respuesta;
                       
                     } else {
+                        me.codigoArray_p=[];
                         console.log(tamanoRespuesta); 
                     }             
                    
@@ -483,14 +486,16 @@ import { error401 } from '../../errores';
         });
 },
 //--------------------------------------------------------------   
-            listarTiendas(page){
-                let me = this;
+            listarTiendas(page){                let me = this;
                 let arrayAuxiliar = [];
                 var url='/tienda?page='+page+'&buscar='+me.buscar;
                 axios.get(url).then(function (response) {
                     me.pagination=response.data.pagination;
                     me.arrayTiendas = response.data.tiendas.data;      
-                    console.log(me.defaulSucural);
+                    console.log("--------------------");
+                        console.log( me.arrayTiendas);
+                        console.log("*********************");
+                        console.log( me.codigoArray_p);
                     
                     if (me.defaulSucural==0) {
                         me.arrayTiendas.forEach(tienda => {
@@ -500,43 +505,29 @@ import { error401 } from '../../errores';
                     });
                     }
                     if (me.defaulSucural==1) {
-
-                        console.log(me.codigoArray_p);
-                         // Crear un conjunto para mantener un registro de los nombres únicos
-                       let arrayAuxiliar2 = [];
-                        // Filtrar los datos originales manteniendo solo los elementos con nombres únicos
-                        let datosFiltrados = me.codigoArray_p.filter(dato => {
-                        // Si el nombre no está en el conjunto, agregarlo y mantener este elemento
-                        if (!nombresUnicos.has(dato.cod_tda)) {
-                            arrayAuxiliar2.push(dato.cod_tda);
-                        return true;
-                         }
-                        // Si el nombre ya está en el conjunto, omitir este elemento
-                        return false;
-                        });   
-                        console.log(arrayAuxiliar2);
-                       
-                        me.arrayTiendas.forEach(tienda => {
-                            for (let i = 0; i < nombresUnicos.length; i++) {
-                                if (tienda.activo_tienda == 1 && tienda.codigo_tienda == nombresUnicos[i]) {
-                                arrayAuxiliar.push(tienda);
-                                }
-                            }                        
-                    });
-                    }
-                    if (me.defaulSucural==2) {
                         me.arrayTiendas.forEach(tienda => {
                             me.codigoArray_p.forEach(element1 => {
+                                if (tienda.activo_tienda == 1 &&tienda.codigo_tienda==element1.cod_tda) {
+                            arrayAuxiliar.push(tienda);
+                        }
+                            }); 
+                       
+                    });
+                    
+                    }
+                    if (me.defaulSucural==2) {
+                     
+                        me.arrayTiendas.forEach(tienda => {                          
+                            me.codigoArray_p.forEach(element1 => {                              
                                 if (tienda.activo_tienda == 1 && tienda.codigo_tienda == element1.codigo) {
                             arrayAuxiliar.push(tienda);
                                 }
                             });                     
                     });
                     }
-
-               
-                    
+                
                     me.arrayTiendas = arrayAuxiliar;
+                   
                 })
                 .catch(function (error) {
                     error401(error);
@@ -549,6 +540,7 @@ import { error401 } from '../../errores';
                 var url='/rubro/selectrubro';
                 axios.get(url).then(function (response) {
                     var respuesta= response.data; 
+                    console.log(respuesta);
                     me.arrayRubro=respuesta.rubros;
                 })
                 .catch(function (error) {
@@ -625,7 +617,9 @@ import { error401 } from '../../errores';
                     let url='/tienda/ingreso-producto?page='+page+'&idtienda='+me.tiendaselected;
                     axios.get(url).then(function(response){
                         var respuesta = response.data;
-                        me.pagination = respuesta.pagination;
+                     
+                        if (respuesta.pagination.total>0) {
+                            me.pagination = respuesta.pagination;
                         me.arrayIngresoProducto = respuesta.productosTienda.data;
                         objTienda = me.arrayIngresoProducto.find((producto) => producto.idtienda == me.tiendaselected);
                         me.tiendaRubroareamedica = me.arrayRubro.find((rubro)=>rubro.id == objTienda.id_rubro_producto).areamedica
@@ -673,7 +667,9 @@ import { error401 } from '../../errores';
                         });
 
                         me.arrayProductosAlteradoCopy = me.arrayIngresoProducto;
-
+   
+                        } 
+                      
                     }).catch(function(error){
                         error401(error);
                         console.log(error);
