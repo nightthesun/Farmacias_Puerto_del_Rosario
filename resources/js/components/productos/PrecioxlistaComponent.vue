@@ -739,7 +739,8 @@
         },
         listarAlmTienda() {
             let me = this;
-            var url = "/producto/listarSucursal";
+            //var url = "/producto/listarSucursal";
+            var url = "/listar_tienda_alamce_generico_lista_x_rol_usuario"; 
             axios
                 .get(url)
                 .then(function (response) {

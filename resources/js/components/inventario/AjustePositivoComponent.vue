@@ -1026,7 +1026,8 @@ export default {
 
         sucursalFiltro() {
             let me = this;
-            var url = "/ajustes-positivo/listarSucursal";
+           // var url = "/ajustes-positivo/listarSucursal";
+           var url = "/listar_tienda_alamce_generico_lista_x_rol_usuario"; 
             axios
                 .get(url)
                 .then(function (response) {

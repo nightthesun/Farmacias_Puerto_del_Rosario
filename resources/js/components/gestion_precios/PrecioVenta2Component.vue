@@ -666,7 +666,8 @@ methods: {
         },
     listarAlmTienda() {
             let me = this;
-            var url = "/gestionprecioventa2/listarSucursal";
+            //var url = "/gestionprecioventa2/listarSucursal";
+            var url = "/listar_tienda_alamce_generico_lista_x_rol_usuario"; 
             axios
                 .get(url)
                 .then(function (response) {

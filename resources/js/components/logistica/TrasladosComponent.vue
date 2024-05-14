@@ -11,7 +11,7 @@
             <div class="card">
                 <div class="card-header">
                     <i class="fa fa-align-justify"></i> Traslados         
-                    <button type="button" class="btn btn-secondary" 
+                    <button v-if="puedeCrear==1" type="button" class="btn btn-secondary" 
                         @click="abrirModal('registrar');listarVehiculo(cod_alm_tienda);listarTraspaso();"
                         :disabled="selectAlmTienda == 0">
                         <i class="icon-plus"></i>&nbsp;Nuevo
@@ -71,15 +71,15 @@
                 <thead>
                     <tr>
                         <th>Opciones</th>
-                        <th>Nro. Traspaso</th>
-                        <th>Producto</th>
+                        <th class="col-md-1">Nro. Traspaso</th>
+                        <th class="col-md-5">Producto</th>
                         <th>Cantidad</th>
                         <th>Fecha</th>
-                        <th>Origen</th>
-                        <th>Destino</th>
+                        <th class="col-md-1">Origen</th>
+                        <th class="col-md-1">Destino</th>
                         <th>Vehiculo</th>
-                        <th>Observación</th>
-                        <th>Per. Enviada</th>
+                        <th class="col-md-3">Observación</th>
+                        <th class="col-md-2">Per. Enviada</th>
                         <th>Usuario</th>
                         <th>Estado</th>       
                     </tr>
@@ -88,42 +88,48 @@
                     <tbody v-if="selectAlmTienda != 0">
                         <tr v-for="tras in arrayTraslado" :key="tras.id"> 
                             <td>
-                                <button type="button" class="btn btn-warning btn-sm"
-                                        @click="abrirModal('actualizar',tras,
-                                            );
-                                            listarVehiculo(cod_alm_tienda);listarTraspaso();
-                                        "
-                                    >
-                                        <i class="icon-pencil"></i>
-                                    </button>
-                                    &nbsp;
-                                    <button
-                                        v-if="tras.activo==1"
-                                        type="button"
-                                        class="btn btn-danger btn-sm"
-                                        @click="eliminar(tras.id)"
-                                        
-                                    >
-                                        <i class="icon-trash"></i>
-                                    </button>
-                                    <button
-                                        v-else
-                                        type="button"
-                                        class="btn btn-info btn-sm"
-                                        @click="activar(tras.id)"
-                                    >
-                                        <i class="icon-check"></i>
-                                    </button>
+                                <div  class="d-flex justify-content-start">
+                                        <div v-if="puedeEditar==1">
+                                            <button type="button" class="btn btn-warning btn-sm" @click="abrirModal('actualizar',tras);
+                                            listarVehiculo(cod_alm_tienda);listarTraspaso();" style="margin-right: 5px;">
+                                            <i class="icon-pencil"></i>
+                                            </button>
+                                        </div>
+                                        <div v-else>
+                                            <button type="button" class="btn btn-light btn-sm" style="margin-right: 5px;">
+                                            <i class="icon-pencil"></i>
+                                            </button>
+                                        </div>
+                                        <div v-if="puedeActivar==1">
+                                            <button v-if="tras.activo==1" type="button" class="btn btn-danger btn-sm" @click="eliminar(tras.id)" style="margin-right: 5px;">
+                                            <i class="icon-trash"></i>
+                                            </button>
+                                            <button v-else type="button" class="btn btn-info btn-sm" @click="activar(tras.id)" style="margin-right: 5px;">
+                                            <i class="icon-check"></i>
+                                            </button>
+                                        </div>
+                                        <div v-else>
+                                            <button v-if="tras.activo==1" type="button" class="btn btn-light btn-sm"  style="margin-right: 5px;">
+                                            <i class="icon-trash"></i>
+                                            </button>
+                                            <button v-else type="button" class="btn btn-light btn-sm"  style="margin-right: 5px;">
+                                            <i class="icon-check"></i>
+                                            </button>
+                                        </div>
+                                </div>            
+                                
+                                  
+                                    
                             </td>
-                            <td v-text="tras.numero_traspaso"></td>
-                            <td v-text="tras.leyenda"></td>
+                            <td class="col-md-1" v-text="tras.numero_traspaso"></td>
+                            <td class="col-md-5" v-text="tras.leyenda"></td>
                             <td v-text="tras.cantidad"></td>
                             <td v-text="tras.fecha"></td>
-                            <td v-text="tras.origen"></td>
-                            <td v-text="tras.destino"></td>
+                            <td class="col-md-1" v-text="tras.origen"></td>
+                            <td class="col-md-1" v-text="tras.destino"></td>
                             <td v-text="tras.vehiculo"></td>
-                            <td v-text="tras.observacion"></td>
-                            <td v-text="tras.nom_completo"></td>
+                            <td class="col-md-3" v-text="tras.observacion"></td>
+                            <td  class="col-md-2" v-text="tras.nom_completo"></td>
                             <td v-text="tras.user_name"></td>
                             <td>
                                  <div v-if="tras.activo==1">
@@ -432,6 +438,9 @@ import { error401 } from "../../errores";
 
 //Vue.use(VeeValidate);
 export default {
+ //---permisos_R_W_S
+ props: ['codventana'],
+        //-------------------
     data() {
         return {
             pagination: {
@@ -470,7 +479,12 @@ export default {
             leyenda:"",
             procesado:"",
            
-           
+            //---permisos_R_W_S
+            puedeEditar:2,
+                puedeActivar:2,
+                puedeHacerOpciones_especiales:2,
+                puedeCrear:2,
+            //-----------
            
           
                        
@@ -537,7 +551,35 @@ export default {
     },
 
     methods: {
-       
+   
+      //-----------------------------------permisos_R_W_S        
+ listarPerimsoxyz() {
+                //console.log(this.codventana);
+    let me = this;        
+    var url = '/gestion_permiso_editar_eliminar?win='+me.codventana;  
+    axios.get(url)
+        .then(function(response) {
+            var respuesta = response.data;
+     
+            if(respuesta=="root"){
+            me.puedeEditar=1;
+            me.puedeActivar=1;
+            me.puedeHacerOpciones_especiales=1;
+            me.puedeCrear=1; 
+            }else{
+            me.puedeEditar=respuesta.edit;
+            me.puedeActivar=respuesta.activar;
+            me.puedeHacerOpciones_especiales=respuesta.especial;
+            me.puedeCrear=respuesta.crear;        
+            }           
+        })
+        .catch(function(error) {
+            error401(error);
+            console.log(error);
+        });
+},
+//--------------------------------------------------------------     
+
         listarTraslado(page){
             let me=this;
                 var url='/traslado?page='+page+'&buscar='+me.buscar+'&buscarAlmTdn='+me.selectAlmTienda;
@@ -932,6 +974,10 @@ export default {
     },
 
     mounted() {
+        //-------permiso E_W_S-----
+            this.listarPerimsoxyz();
+            //this.listarAlmacenes_tiendas_con_permisos();
+        //-----------------------
         this.classModal = new _pl.Modals();
         this.listarAlmTienda();
         this.classModal.addModal("registrar");

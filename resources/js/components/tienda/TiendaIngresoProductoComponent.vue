@@ -341,12 +341,7 @@ import { error401 } from '../../errores';
                 puedeHacerOpciones_especiales:2,
                 puedeCrear:2,
                 //-----------
-                arrayPemisoSuscursal:[],
-                defaulSucural:'',
-                codigoDefault:'',
-                codigoDeRoles:'',//0=root,//1=defaul,2=tiene_permisos_Especificios
-                codigoArray_p:[],
-                //----------------
+                
             }
 
         },
@@ -419,43 +414,7 @@ import { error401 } from '../../errores';
 
         },
         methods :{
- //---------------------------------permiso de ver lista de sucursales tiendas almacenes
- listarAlmacenes_tiendas_con_permisos() {
-   let me = this;           
-   var a=2; // a=1 es igual almacen //a=2=tienda         
-    var url = '/listar_alamcen_tienda_permisos?a='+a; 
-    console.log(url); 
-    axios.get(url)
-        .then(function(response) {
-            var respuesta = response.data;
-          
-            if (respuesta=="root") {
-                me.defaulSucural=0;
-            }else{
-                if (response.data[0].defaul==1) {
-                    me.defaulSucural=1;
-                    me.codigoArray_p=respuesta;
-                }else{
-                    var tamanoRespuesta = Object.keys(respuesta).length;
-                    if (tamanoRespuesta > 0 && response.data[0].defaul==2) {
-                        
-                        me.defaulSucural=2;
-                        me.codigoArray_p=respuesta;
-                      
-                    } else {
-                        me.codigoArray_p=[];
-                        console.log(tamanoRespuesta); 
-                    }             
-                   
-                }
-            }             
-           
-        })
-        .catch(function(error) {
-            error401(error);
-            console.log(error);
-        });
-},  
+
   //-----------------------------------permisos_R_W_S        
   listarPerimsoxyz() {
                 //console.log(this.codventana);
@@ -492,41 +451,13 @@ import { error401 } from '../../errores';
                 axios.get(url).then(function (response) {
                     me.pagination=response.data.pagination;
                     me.arrayTiendas = response.data.tiendas.data;      
-                    console.log("--------------------");
-                        console.log( me.arrayTiendas);
-                        console.log("*********************");
-                        console.log( me.codigoArray_p);
-                    
-                    if (me.defaulSucural==0) {
+               
                         me.arrayTiendas.forEach(tienda => {
                         if (tienda.activo_tienda == 1) {
                             arrayAuxiliar.push(tienda);
                         }
-                    });
-                    }
-                    if (me.defaulSucural==1) {
-                        me.arrayTiendas.forEach(tienda => {
-                            me.codigoArray_p.forEach(element1 => {
-                                if (tienda.activo_tienda == 1 &&tienda.codigo_tienda==element1.cod_tda) {
-                            arrayAuxiliar.push(tienda);
-                        }
-                            }); 
-                       
-                    });
-                    
-                    }
-                    if (me.defaulSucural==2) {
-                     
-                        me.arrayTiendas.forEach(tienda => {                          
-                            me.codigoArray_p.forEach(element1 => {                              
-                                if (tienda.activo_tienda == 1 && tienda.codigo_tienda == element1.codigo) {
-                            arrayAuxiliar.push(tienda);
-                                }
-                            });                     
-                    });
-                    }
-                
-                    me.arrayTiendas = arrayAuxiliar;
+                    });               
+                   me.arrayTiendas = arrayAuxiliar;
                    
                 })
                 .catch(function (error) {
@@ -1153,7 +1084,7 @@ import { error401 } from '../../errores';
         mounted() {
              //-------permiso E_W_S-----
              this.listarPerimsoxyz();
-             this.listarAlmacenes_tiendas_con_permisos();
+            
             //-----------------------
             this.listarTiendas(1);
             this.listarLineaMarca();
