@@ -497,6 +497,9 @@
     import { error401 } from '../../errores';
 // import router from "@/router";
 export default {
+    //---permisos_R_W_S
+    props: ['codventana'],
+        //-------------------
     data() {
         return {
             pagination: {
@@ -553,7 +556,12 @@ export default {
             selectLista:0,
             arrayLista:[],
             clear:0,
-
+//---permisos_R_W_S
+puedeEditar:2,
+                puedeActivar:2,
+                puedeHacerOpciones_especiales:2,
+                puedeCrear:2,
+                //-----------
 
 
             
@@ -603,6 +611,37 @@ pagesNumber: function () {
 
 },
 methods: {
+
+    //-----------------------------------permisos_R_W_S        
+listarPerimsoxyz() {
+                //console.log(this.codventana);
+    let me = this;
+        
+    var url = '/gestion_permiso_editar_eliminar?win='+me.codventana;
+  
+    axios.get(url)
+        .then(function(response) {
+            var respuesta = response.data;
+     
+            if(respuesta=="root"){
+            me.puedeEditar=1;
+            me.puedeActivar=1;
+            me.puedeHacerOpciones_especiales=1;
+            me.puedeCrear=1; 
+            }else{
+            me.puedeEditar=respuesta.edit;
+            me.puedeActivar=respuesta.activar;
+            me.puedeHacerOpciones_especiales=respuesta.especial;
+            me.puedeCrear=respuesta.crear;        
+            }
+           
+        })
+        .catch(function(error) {
+            error401(error);
+            console.log(error);
+        });
+},
+
     cambiarPestana(idPestana) {
             this.pestañaActiva = idPestana;
 
@@ -950,6 +989,10 @@ calculadoraPrecioVenta() {
 
 },
 mounted() {
+    //-------permiso E_W_S-----
+    this.listarPerimsoxyz();
+             // this.listarAlmacenes_tiendas_con_permisos();
+            //-----------------------
         this.classModal = new _pl.Modals();
         this.listarProductosTiendaAlmacen();
         this.listarAlmTienda();

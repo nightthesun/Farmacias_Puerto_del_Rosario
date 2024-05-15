@@ -53,7 +53,20 @@ class AdmCredecialCorreoController extends Controller
      */
     public function update(Request $request, adm_CredecialCorreo $adm_CredecialCorreo)
     {
-        //
+        try {
+            $update = adm_CredecialCorreo::find($request->id);
+            $update->host=$request->host;
+            $update->correo=$request->correo;
+            $update->puerto=$request->puerto;
+            $update->usuario=$request->usuario;
+            $update->contraseña=$request->contraseña;
+            $update->ssl=$request->ssl;
+            $update->save();
+        } catch (\Throwable $th) {
+            return response()->json(['error' => $th->getMessage()],500);
+        }
+        
+     
     }
 
     public function credencia_correo(Request $request){

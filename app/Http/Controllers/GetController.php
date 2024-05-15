@@ -43,7 +43,7 @@ class GetController extends Controller
             $asignaciones = Adm_AsigMasSucursales::where('id_user_role_sucu', $user_1)->get();
             $where1 = ''; // Definir $where1 con un valor predeterminado
             $where2 = ''; // Definir $where2 con un valor predeterminado
-
+        
             if ($asignaciones->count() > 0) {
     
             $codigos = [];

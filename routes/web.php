@@ -218,6 +218,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/userrolesuc/getUsersWithRolesAndSucursals', [AdmUserRoleSucursalController::class, 'getUsersWithRolesAndSucursals']);
 
     Route::get('/credenciales_correo', [AdmCredecialCorreoController::class, 'credencia_correo']);
+    Route::put('/credenciales_correo/update', [AdmCredecialCorreoController::class, 'update']);   
     
     //*******para listar si tiene permisos de edicion y activacion usar en todos los reporte o modulos*/
     Route::get('/userrolesuc/listarPermiso_Activacion', [AdmUserRoleSucursalController::class, 'listarPermiso_Activacion']);
@@ -536,5 +537,7 @@ Route::group(['middleware' => 'auth'], function () {
     /////////////////////////////////////////////////VENTAS_PRODCUTOS///////////////////////////////////////////////////////    
     Route::get('/gestor_ventas/listarUsuario', [VenGestorVentaController::class, 'listarUsuario']);
     Route::get('/gestor_ventas/listarUsuarioRetorno', [VenGestorVentaController::class, 'listarUsuarioRetorno']);
+    Route::get('/gestor_ventas/get_sucusal', [VenGestorVentaController::class, 'get_sucusal']);
+    
     
 });

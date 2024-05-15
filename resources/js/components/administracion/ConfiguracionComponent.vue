@@ -48,7 +48,7 @@
                                     <label class="col-md-1 form-control-label" for="text-input"><strong>Puerto:</strong> 
                                     <span v-if="puerto == ''" class="error">(*)</span></label>
                                     <div class="col-md-3">
-                                        <input type="number" min="0" v-model="puerto" class="form-control" placeholder="000" v-on:focus="selectAll"/>
+                                        <input type="number" min="0" v-model="puerto" class="form-control" placeholder="" v-on:focus="selectAll"/>
                                         <span v-if="host == ''" class="error">Debe escribir un puerto</span>
                                     </div>
                                 </div>
@@ -69,17 +69,21 @@
 </div>
 
 <label class="col-md-1 form-control-label" for="text-input"><strong>SSL:</strong> 
-<span v-if="ssl == ''" class="error">(*)</span></label>
+</label>
 <div class="col-md-3">
     <div class="form-check">
-        <input class="form-check-input" type="checkbox" id="autoSizingCheck2" v-model="ssl">      
+        <input class="form-check-input" type="checkbox" id="autoSizingCheck2"  :true-value="1" 
+    :false-value="0" v-model="ssl">      
       </div>
 </div>
 </div>
                             </div>
                             <div class="form-group row justify-content-center">
     <div class="col-md-3 d-flex justify-content-center">
-        <button type="button" class="btn btn-warning" style="color: white;">Actualizar</button>
+       
+        <button v-if="puedeEditar==1" type="button" class="btn btn-warning" style="color: white;"  @click="update_credecial_correo();">Actualizar</button>
+        <button v-else type="button" class="btn btn-light"  >Actualizar</button>
+   
     </div>
 </div>
 
@@ -119,18 +123,27 @@ import Swal from "sweetalert2";
 import { error401 } from "../../errores";
 //Vue.use(VeeValidate);
 export default {
+     //---permisos_R_W_S
+     props: ['codventana'],
+        //-------------------
     data() {
         return {
-            //---correo        
+            //---correo  
+            id_credencial:'',      
             host:'',
             correo:'',
             puerto:'',
             usuario:'',
             contraseña:'',
-            ssl:'', 
+            ssl:0, 
             credenciales_correo:[],
 
-
+//---permisos_R_W_S
+puedeEditar:2,
+                puedeActivar:2,
+                puedeHacerOpciones_especiales:2,
+                puedeCrear:2,
+                //-----------
             
         };
     },
@@ -138,17 +151,7 @@ export default {
    
 
     computed: {
-      //  sicompleto() {
-      //      let me = this;
-       //     if (
-          
-     //           me.glosa != "" &&
-     //           me.cantidadS != "" &&
-     //           me.ProductoLineaIngresoSeleccionado
-     //       )
-       //         return true;
-      //      else return false;
-      //  },
+      
         isActived: function () {
             return this.pagination.current_page;
         },
@@ -175,6 +178,97 @@ export default {
     },
 
     methods: {
+          //-----------------------------------permisos_R_W_S        
+    listarPerimsoxyz() {
+                //console.log(this.codventana);
+    let me = this;
+   
+        
+    var url = '/gestion_permiso_editar_eliminar?win='+me.codventana;
+  
+    axios.get(url)
+        .then(function(response) {
+            var respuesta = response.data;
+            console.log(respuesta);
+            if(respuesta=="root"){
+            me.puedeEditar=1;
+            me.puedeActivar=1;
+            me.puedeHacerOpciones_especiales=1;
+            me.puedeCrear=1; 
+            }else{
+            me.puedeEditar=respuesta.edit;
+            me.puedeActivar=respuesta.activar;
+            me.puedeHacerOpciones_especiales=respuesta.especial;
+            me.puedeCrear=respuesta.crear;        
+            }
+           
+        })
+        .catch(function(error) {
+            error401(error);
+            console.log(error);
+        });
+},
+//-------------------------------------------------------------- 
+        update_credecial_correo() {
+            let me = this;
+            
+            if (me.host==""||me.correo==""||me.puerto==""||me.usuario==""||me.contraseña=="") {
+                
+                    Swal.fire({
+  icon: "error",
+  title: "Oops...",
+  text: "datos nulos",
+
+});
+            }else{
+               
+            axios
+                .put("/credenciales_correo/update", {
+                    id: me.id_credencial,                   
+                    host:me.host,
+                    correo:me.correo,
+                    puerto:me.puerto,
+                    usuario:me.usuario,
+                    contraseña:me.contraseña,
+                    ssl:me.ssl
+                })
+                .then(function (response) {
+                    me.listarCredencial();
+                
+                    Swal.fire(
+                        "Actualizado Correctamente!",
+                        "El registro a sido actualizado Correctamente",
+                        "success",
+                    );
+                })
+                //.catch(function (error) {
+                //    error401(error);
+                //});
+                .catch(function (error) {           
+                
+                if (error.response.status === 500) {
+                    me.errorMsg = error.response.data.error; // Asigna el mensaje de error a la variable errorMsg
+                Swal.fire(
+                    "Error",
+                    "500 (Internal Server Error)"+me.errorMsg, // Muestra el mensaje de error en el alert
+                    "error"
+                );
+                }else{
+                    Swal.fire(
+                    "Error",
+                    ""+error, // Muestra el mensaje de error en el alert
+                    "error"
+                );  
+                }
+
+               
+            });
+            }
+            
+
+            
+        
+        },
         listarCredencial() {
             let me = this;
             var url = "/credenciales_correo";
@@ -182,9 +276,8 @@ export default {
                 .get(url)
                 .then(function (response) {
                     var respuesta = response.data;
-                   
-                    me.host=response.data[0].host;
-                   
+                   me.id_credencial=response.data[0].id;
+                    me.host=response.data[0].host;                   
                    me.correo=response.data[0].correo;
                     me.puerto=response.data[0].puerto;
                     me.usuario=response.data[0].usuario;
@@ -204,7 +297,33 @@ export default {
             // Agrega aquí la lógica adicional que necesites al cambiar la pestaña
         },
 
+ listarCredencial() {
+            let me = this;
+            var url = "/credenciales_correo";
+            axios
+                .get(url)
+                .then(function (response) {
+                    var respuesta = response.data;
+                   me.id_credencial=response.data[0].id;
+                    me.host=response.data[0].host;                   
+                   me.correo=response.data[0].correo;
+                    me.puerto=response.data[0].puerto;
+                    me.usuario=response.data[0].usuario;
+                    me.contraseña=response.data[0].contraseña;
+                    me.ssl=response.data[0].ssl;
+               
+                 
+                })
+                .catch(function (error) {
+                    error401(error);
+                    console.log(error);
+                });
+        },
+        cambiarPestana(idPestana) {
+            this.pestañaActiva = idPestana;
 
+            // Agrega aquí la lógica adicional que necesites al cambiar la pestaña
+        },
 
         cambiarPagina(page) {
             let me = this;
@@ -267,7 +386,9 @@ export default {
     },
 
     mounted() {
-        
+        //-------permiso E_W_S-----
+        this.listarPerimsoxyz();
+            //-----------------------
         this.listarCredencial();
         
     
