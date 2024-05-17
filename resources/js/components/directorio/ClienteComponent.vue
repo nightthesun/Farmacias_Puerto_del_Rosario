@@ -612,8 +612,9 @@
             let me = this;
 
             if(me.correo==''){
-                me.correo="farmacia_pueto_del_rosario@gmail.com"
+                me.correo="farmacia_pueto_del_rosarioxwass1234887458888@gmail.com";
             }
+         
             // Expresión regular para verificar el formato del correo electrónico
             const correoRegex = /^[a-zA-Z0-9_]+([.][a-zA-Z0-9_]+)*@[a-zA-Z0-9_]+([.][a-zA-Z0-9_]+)*[.][a-zA-Z]{1,5}$/;
             // Verificar si el correo cumple con el formato válido
@@ -643,16 +644,16 @@
                     .post("/directorio/registrar", {
                         tipo_per_emp: me.selectTipo,
                         id_tipo_doc: me.selectTipoDoc,
-                        nombre: me.nombres.toUpperCase(),
-                        apellido: me.apellidos.toUpperCase(),
-                        num_documento: me.num_documento.toUpperCase(),
-                        ex: me.complemento_.toUpperCase(),                       
+                        nombre: me.nombres,
+                        apellido: me.apellidos,
+                        num_documento: me.num_documento,
+                        ex: me.complemento_,                       
                         correo: me.correo,
-                        nom_a_facturar: me.nombre_a_facturar.toUpperCase(),
+                        nom_a_facturar: me.nombre_a_facturar,
                         telefono: me.telefono,                      
-                        direccion: me.direccion.toUpperCase(),
-                        pais: me.pais.toUpperCase(),
-                        ciudad: me.ciudad.toUpperCase()                
+                        direccion: me.direccion,
+                        pais: me.pais,
+                        ciudad: me.ciudad               
                     })
                     .then(function (response) {
                         me.cerrarModal("registrar");
@@ -693,8 +694,12 @@
             }  
            
         },
+        
         actualizar() {
             let me = this;
+            if(me.correo==''){
+                me.correo="farmacia_pueto_del_rosarioxwass1234887458888@gmail.com";
+            }
                     // Expresión regular para verificar el formato del correo electrónico
                     const correoRegex = /^[a-zA-Z0-9_]+([.][a-zA-Z0-9_]+)*@[a-zA-Z0-9_]+([.][a-zA-Z0-9_]+)*[.][a-zA-Z]{1,5}$/;
                     if (!correoRegex.test(me.correo)) {
@@ -725,16 +730,16 @@
                         id_per_emp:me.id_per_emp,
                         tipo_per_emp: me.selectTipo,
                         id_tipo_doc: me.selectTipoDoc,
-                        nombre: me.nombres.toUpperCase(),
-                        apellido: me.apellidos.toUpperCase(),
-                        num_documento: me.num_documento.toUpperCase(),
-                        ex: me.complemento_.toUpperCase(),                       
+                        nombre: me.nombres,
+                        apellido:me.apellidos,
+                        num_documento:me.num_documento,
+                        ex:me.complemento_,                       
                         correo: me.correo,
-                        nom_a_facturar: me.nombre_a_facturar.toUpperCase(),
+                        nom_a_facturar:me.nombre_a_facturar,
                         telefono: me.telefono,                      
-                        direccion: me.direccion.toUpperCase(),
-                        pais: me.pais.toUpperCase(),
-                        ciudad: me.ciudad.toUpperCase() 
+                        direccion: me.direccion,
+                        pais: me.pais,
+                        ciudad: me.ciudad 
                 })
                 .then(function (response) {
                     me.listarCliente();

@@ -236,7 +236,18 @@ $clientes = $clientes->orderByDesc('id')->paginate(10);
 
                // Iniciar una transacción
                DB::beginTransaction();
-
+             
+               if ($request->correo=="farmacia_pueto_del_rosarioxwass1234887458888@gmail.com") {
+                $correo_query = DB::table('adm__credecial_correos')
+                ->select('correo')
+                ->where('id','=',1)
+                ->first();
+                    if ($correo_query) {
+                        $dato_correo = $correo_query->correo;    
+                    }else{dd('error');}                          
+               }else{
+                $dato_correo = $request->correro;
+               }
             // Buscar el usuario con el correo electrónico dado
             $clienteB = Dir_Cliente::where('num_documento', $request->num_documento)->first();  
             if ($clienteB) {
@@ -269,7 +280,7 @@ $clientes = $clientes->orderByDesc('id')->paginate(10);
                 // Si llegamos aquí sin errores, confirmamos la transacción
                 DB::commit();
                 $cliente=new Dir_Cliente();
-                $cliente->correo=$request->correo;
+                $cliente->correo=$dato_correo;
                 $cliente->telefono=$request->telefono;
                 $cliente->direccion=$request->direccion;
                 $cliente->id_tipo_doc=$request->id_tipo_doc;
@@ -334,20 +345,31 @@ $clientes = $clientes->orderByDesc('id')->paginate(10);
       
          $primerGuardadoExitoso = false;
          try {
+            if ($request->correo=="farmacia_pueto_del_rosarioxwass1234887458888@gmail.com") {
+                $correo_query = DB::table('adm__credecial_correos')
+                ->select('correo')
+                ->where('id','=',1)
+                ->first();
+                    if ($correo_query) {
+                        $dato_correo = $correo_query->correo;    
+                    }else{dd('error');}                          
+               }else{
+                $dato_correo = $request->correo;
+               }
                 // Iniciar una transacción
                 DB::beginTransaction();
              if ($request->tipo_per_emp==1) {
              $persona_empresa=dir_Persona::find($request->id_per_emp);
-             $persona_empresa->nombres=$request->nombre;
-             $persona_empresa->apellidos=$request->apellido;
+             $persona_empresa->nombres=strtoupper($request->nombre);
+             $persona_empresa->apellidos=strtoupper($request->apellido);
              $persona_empresa->documento_identidad=$request->num_documento;
-             $persona_empresa->complemento=$request->ex;
+             $persona_empresa->complemento=strtoupper($request->ex);
              $persona_empresa->save();
              }
              else {
                  if ($request->tipo_per_emp==2) {
             $persona_empresa=dir_Empresa::find($request->id_per_emp);
-             $persona_empresa->razon_social=$request->nom_a_facturar;      
+             $persona_empresa->razon_social=strtoupper($request->nom_a_facturar);      
              $persona_empresa->nit=$request->num_documento;   
              $persona_empresa->save();
                  }
@@ -359,13 +381,13 @@ $clientes = $clientes->orderByDesc('id')->paginate(10);
              // Si llegamos aquí sin errores, confirmamos la transacción
              DB::commit();
              $cliente=Dir_Cliente::find($request->id);
-             $cliente->correo=$request->correo;
+             $cliente->correo=$dato_correo;
              $cliente->telefono=$request->telefono;
-             $cliente->direccion=$request->direccion;
+             $cliente->direccion=strtoupper($request->direccion);
              $cliente->id_tipo_doc=$request->id_tipo_doc;
-             $cliente->nom_a_facturar=$request->nom_a_facturar;
-             $cliente->pais=$request->pais;
-             $cliente->ciudad=$request->ciudad;
+             $cliente->nom_a_facturar=strtoupper($request->nom_a_facturar);
+             $cliente->pais=strtoupper($request->pais);
+             $cliente->ciudad=strtoupper($request->ciudad);
              $cliente->id_user=auth()->user()->id;
              $cliente->id_usuario_modifica=auth()->user()->id;
              $cliente->id_per_emp=$persona_empresa->id;

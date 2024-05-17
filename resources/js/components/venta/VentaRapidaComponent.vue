@@ -15,24 +15,9 @@
         <div class="card-body" style="padding-top: 5px; padding-bottom: 1px;" >
             <div class="form-group row" >
                
-                <div>
-    <multiselect
-      v-model="selectedOptions"
-      :options="options"
-      :multiple="true"
-      track-by="value"
-      label="label"
-      placeholder="Selecciona opciones"
-      :close-on-select="false"
-      :clear-on-select="false"
-      :hide-selected="true"
-      :custom-label="customLabel"
-      :show-labels="false"
-      @search-change="filterOptions"
-    ></multiselect>
-  </div>
+          
 
-                <div class="card w-100" style=" border-left: 3px solid #04660c;">
+                <div class="card w-100" style=" border-left: 3px solid #04660c; padding-bottom: 2px;">
 
                     <div class="card-body" style="margin-top: -1rem; margin-bottom: -1rem;">
                       <strong >Detalle de producto</strong> 
@@ -56,57 +41,126 @@
   <tbody>
     <tr>
       
-      <td class="col-md-6">
-        
-        <div class="input-group">
-           
-            <select  class="form-control" v-model="selectProducto"  data-live-search="true" data-size="10" >
-               
-                                                
-                <input type="text" id="texto" name="texto" class="form-control" placeholder="Texto a buscar" v-model="inputTextBuscarProductoIngreso"/>
-                <option value="0" disabled selected></option>
-                                    <option  v-for="p in arrayProducto" :key="p.id" :value="p.id"
-                                        v-text="p.leyenda +' '+p.nombre_linea+' '+p.fecha_vencimiento"
-                                    ></option>
-                                </select>                                 
-           
-                                                <span class="input-group-btn">
-                                                    <a data-toggle="modal" href="#modal"><button class="btn btn-warning" type="button"><i class="fa fa-eye"></i></button></a>
-                                                </span>
-                                            </div> 
-      </td>
-      <td class="col-md-1">2</td>
-      <td class="col-md-1">3</td>
-      <td class="col-md-1">1</td>
-      <td class="col-md-1">2</td>
-      <td class="col-md-1">3</td>
-      <td class="col-md-1">3</td>
-    </tr>
-   
-    
-  </tbody>
-</table>
-                            
-                          
-                          
+        <td class="col-md-6">
+            <div class="input-group">
+                <div class="w-100">
+                    <VueMultiselect
+                        v-model="selected"
+                        :options="arrayProducto"
+                        :max-height="150"
+                   
+                        :block-keys="['Tab', 'Enter']"
+                       
+                        placeholder="Seleccione una opción"
+                        label="leyenda"
+                        :custom-label="nameWithLang"
+                        track-by="id"
+                        class="w-100"
+                        selectLabel="Añadir a seleccion"
+                        deselectLabel="Quitar seleccion"
+                        selectedLabel="Seleccionado"
+
+                        @select="lipiar_cantida_cantida();" 
+                       >
+                       <template #noResult>
+                        No se encontraron elementos. Considere cambiar la consulta de búsqueda.
+                      </template>
+                    </VueMultiselect>
+                </div>
                 
+                <span class="input-group-btn">
+                    <a data-toggle="modal" href="#modal">
+                        <button class="btn btn-warning" type="button"><i class="fa fa-eye"></i></button>
+                    </a>
+                </span>
+            </div>
+        </td>
+        
+      <td class="col-md-1" >
+        <span  v-if="selected" v-text=" selected.precio_lista_gespreventa">
+        </span>
+      </td>
+      <td class="col-md-1" >
+        <span  v-if="selected" v-text=" selected.stock_ingreso">
+        </span>
+      </td>
+      <td class="col-md-1" >
+        <span  v-if="selected" v-text=" selected.fecha_vencimiento">
+        </span>
+      </td>
+      <td class="col-md-1" >
+        <input type="text" class="form-control" id="inlineFormInputName" v-model="descuento" >
+      </td>
+      <td class="col-md-1">
+        <input type="text" class="form-control" id="inlineFormInputName" v-model="numero" @keydown="filtrarNumeros">
+      </td>
+      <td class="col-md-1">
+        <button v-if="selected!==null && numero!=='' && descuento!=='' " type="button" class="btn btn-success btn-sm" style="margin-right: 5px;" @click="agregarVenta()">
+            <i class="fa fa-plus" aria-hidden="true"></i>
+            </button> 
+        <button v-else  type="button" class="btn btn-secondary  btn-sm" style="margin-right: 5px;">
+            <i class="fa fa-plus" aria-hidden="true"></i>
+        </button>                     
+      </td>
+    </tr>   
+  </tbody>
+</table>               
                      </div> 
                     </div>
                   </div>
+<!----------------------------------------inicio de tabla------------------------------------------------->
 
+                  <div class="card w-100" style="margin-top: -20px;">
+  <div class="card-body" >
+    <h5 class="card-title" >Lista de productos</h5>
+    <div class="row" >
+        <table class="table table-bordered table-sm table-responsive table-primary ">
+            <thead>
+                <tr>
+                    <th >Opciones</th>
+                    <th class="col-6">Producto</th>
+                    <th class="col-1">cantidad</th>
+                    <th class="col-1">Precio de venta</th>
+                    <th class="col-1">Descuento</th>
+                    <th class="col-2" >Sub Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="venta in arrayVentas" :key="venta.id">
+                    <td style="text-align:center">
+                        <button type="button" class="btn btn-danger btn-sm" @click="quitarVEnta(venta.id)">
+                            <i class="fa fa-minus" aria-hidden="true"></i>
+                        </button>
+                    </td>
+                    <td class="col-6" v-text="venta.leyenda"></td>
+                    <td class="col-1" v-text="venta.cantidad" style="text-align:right"></td>
+                    <td class="col-1" v-text="venta.precio" style="text-align:right"></td>
+                    <td class="col-1" v-text="venta.descuento" style="text-align:right"></td>
+                    <td class="col-2" v-text="venta.subtotal" style="text-align:right"></td>
+                </tr>
+                <tr>
+                    <th colspan="5" style="text-align:right">Suma Total:</th>
+                    <th v-text="sumatotal + ' Bs.'" style="text-align:right"></th>
+                </tr>
+                <tr>
+                    <th colspan="5" style="text-align:right">Efectivo:</th>
+                    <th><input type="number" v-model="efectivo" v-on:focus="selectAll"  style="text-align:right"></th>
+                </tr>
+                <tr>
+                    <th colspan="5" style="text-align:right">Cambio:</th>
+                    <th v-text="cambio + ' Bs.'" style="text-align:right"></th>
+                </tr>
+           
+            </tbody>
+        
+        </table>
+    </div>
+    
+  </div>
+</div>
+<!-------------------------------------------------------fin de tabla ------------------------------------------->
 
-
-
-
-
-
-
-
-
-
-
-
-       
+   
                        
 <div class="card w-100" style="border-left: 3px solid #f0ad4e;">
 
@@ -518,13 +572,12 @@
 <script>
 import Swal from "sweetalert2";
 import { error401 } from "../../errores";
-import Multiselect from 'vue-multiselect';
+import VueMultiselect from 'vue-multiselect'
+
 
 //Vue.use(VeeValidate);
 export default {
-    components: {
-    Multiselect,
-  },
+    components: { VueMultiselect },
     data() {
         return {
             pagination: {
@@ -536,23 +589,15 @@ export default {
                 to: 0,
             },
           
-            selectedOptions: [],
-      options: [
-        { value: 'opcion1', label: 'Opción 1' },
-        { value: 'opcion2', label: 'Opción 2' },
-        // Agrega más opciones aquí
-      ],
-      filteredOptions: [],
-
-
-
+            selected: null,
+      options: ['list', 'of', 'options'],
             tituloModal: "",
             //selecto get sucursal
          
             arraySucursalGet:[],    
             //producto
             arrayProducto:[], 
-            selectProducto:0,           
+            selectProducto:null,           
             inputTextBuscarProductoIngreso:'',
             //clientes
             buscarCliente:'',
@@ -592,12 +637,14 @@ export default {
             correo_cliente:'',
             extencion_tipodocumento:'',
             nombre_documento:'',
-            //////////////////producto////////////////
-            frutas: ['Manzana', 'Plátano', 'Naranja', 'Pera', 'Uva'],
-      frutaSeleccionada: '',
-      mostrarDatalist: false
+        
+    //----venta----
+    arrayVentas:[],
     
-            
+    numero :'',
+    descuento:10,
+  
+    
         };
     },
 
@@ -617,9 +664,7 @@ watch: {
       
     },
     computed: {
-        paisesFiltrados() {
-          return this.paises.filter(pais => pais.toLowerCase().includes(this.busqueda.toLowerCase()));
-        },
+    
         sicompleto() {
            let me = this;
      //       if (
@@ -657,18 +702,80 @@ watch: {
     },
 
     methods: {
-         customLabel(option) {
-      return `${option.label}`;
-    },
-    filterOptions(query) {
-      if (query) {
-        this.filteredOptions = this.options.filter(option =>
-          option.label.toLowerCase().includes(query.toLowerCase())
-        );
+
+        lipiar_cantida_cantida(){
+            let me = this;          
+            me.numero='';
+            me.descuento='';
+        },
+
+        quitarVEnta(id){            
+            let me = this;            
+            me.arrayVentas = me.arrayVentas.filter(venta => venta.id !== id);
+        },
+
+        agregarVenta(){
+            try {
+            let me = this; 
+            var descuento=0;
+            var precioXcantida=0;
+            var subtotal=0;
+            precioXcantida=me.selected.precio_lista_gespreventa*me.numero;
+            descuento=1-(me.descuento/100);
+            subtotal=precioXcantida*descuento;
+
+            // Convertir a un número con dos decimales
+            subtotal = parseFloat(subtotal.toFixed(2));
+            
+            me.arrayVentas.push({id: me.selected.id,leyenda: me.selected.leyenda,cantidad:me.numero,precio:me.selected.precio_lista_gespreventa,
+            descuento:me.descuento,subtotal:subtotal,id_ingreso:me.selected.id_ingreso,id_pro:me.selected.id_prod
+            });
+
+            } catch (error) {
+                console.log(error);
+            }          
+        },
+
+        filtrarNumeros(event) {
+      // Obtener el código de la tecla presionada
+      let charCode = event.keyCode;
+
+      // Permitir las teclas de control (por ejemplo, borrar, retroceso, tabulación, flechas)
+      if ((charCode >= 48 && charCode <= 57) ||  // Números del 0 al 9
+          charCode === 8 ||  // Tecla de retroceso
+          charCode === 46 || // Tecla de eliminar
+          charCode === 37 || // Tecla de flecha izquierda
+          charCode === 39 || // Tecla de flecha derecha
+          (charCode >= 96 && charCode <= 105)) { // Teclado numérico
+        // Permitir la entrada
       } else {
-        this.filteredOptions = this.options;
+        // Si la tecla presionada no es permitida, prevenir su acción por defecto
+        event.preventDefault();
       }
     },
+  
+  
+  
+
+        nameWithLang ({leyenda, nombre_linea,fecha_vencimiento}) {
+            
+      return `${leyenda} ${nombre_linea} ${fecha_vencimiento}`
+    },
+
+        toggle () {
+      this.$refs.multiselect.$el.focus()
+
+      setTimeout(() => {
+        this.$refs.multiselect.$refs.search.blur()
+      }, 1000)
+    },
+    open () {
+      this.$refs.multiselect.activate()
+    },
+    close () {
+      this.$refs.multiselect.deactivate()
+    },
+  
   
         validateInput() {
         this.num_documento2 = this.num_documento2.replace(/[^a-zA-Z0-9]/g, '');
@@ -791,7 +898,7 @@ watch: {
         me.cliente_id=0;
         me.num_documento=0;
         me.nom_a_facturar="SIN NOMBRE";
-        me.correo_cliente="farmacia_pueto_del_rosario@gmail.com";
+        me.correo_cliente="farmacia_pueto_del_rosarioxwass1234887458888@gmail.com";
         me.datos_cliete=me.nom_a_facturar+"/"+me.num_documento+"/OD-OTRO DOCUMENTO DE IDENTIDAD";
     break;
     default:
@@ -948,10 +1055,10 @@ watch: {
         },
 
         registrar_cliente_modal() {
-        console.log("-------------------");
+      
         let me = this;
         if(me.correo==''){
-        me.correo="farmacia_pueto_del_rosario@gmail.com"
+        me.correo="farmacia_pueto_del_rosarioxwass1234887458888@gmail.com"
         }
 // Expresión regular para verificar el formato del correo electrónico
 const correoRegex = /^[a-zA-Z0-9_]+([.][a-zA-Z0-9_]+)*@[a-zA-Z0-9_]+([.][a-zA-Z0-9_]+)*[.][a-zA-Z]{1,5}$/;
@@ -985,16 +1092,16 @@ if (!correoRegex.test(me.correo)) {
         .post("/directorio/registrar", {
             tipo_per_emp: me.selectTipo,
             id_tipo_doc: me.selectTipoDoc,
-            nombre: me.nombres.toUpperCase(),
-            apellido: me.apellidos.toUpperCase(),
-            num_documento: me.num_documento.toUpperCase(),
-            ex: me.complemento_.toUpperCase(),                       
+            nombre: me.nombres,
+            apellido: me.apellidos,
+            num_documento: me.num_documento,
+            ex: me.complemento_,                       
             correo: me.correo,
-            nom_a_facturar: me.nombre_a_facturar.toUpperCase(),
+            nom_a_facturar: me.nombre_a_facturar,
             telefono: me.telefono,                      
-            direccion: me.direccion.toUpperCase(),
-            pais: me.pais.toUpperCase(),
-            ciudad: me.ciudad.toUpperCase()                
+            direccion: me.direccion,
+            pais: me.pais,
+            ciudad: me.ciudad                
         })
         .then(function (response) {   
             console.log("Respuesta del servidor:", response.data); // Mostrar toda la respuesta en la consola
@@ -1066,9 +1173,15 @@ if (!correoRegex.test(me.correo)) {
     },
 };
 </script>
+
 <style scoped>
-.error {
+
+.error{
+    
     color: red;
     font-size: 10px;
 }
+
 </style>
+
+<style src="vue-multiselect/dist/vue-multiselect.css"></style>

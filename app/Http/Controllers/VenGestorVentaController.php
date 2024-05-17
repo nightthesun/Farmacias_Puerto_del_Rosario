@@ -78,7 +78,7 @@ class VenGestorVentaController extends Controller
                         ELSE NULL
                     END AS leyenda
                 "),
-                'gpv.id_lista','pppl.nombre as nombre_linea'
+                'gpv.id_lista','pppl.nombre as nombre_linea','pp.id as id_prod'
             )
             ->where('ass.id', $id_suc)
             ->where('gpv.listo_venta', 1)
@@ -127,7 +127,7 @@ class VenGestorVentaController extends Controller
                         ELSE NULL
                     END AS leyenda
                 "),
-                'gpv.id_lista','pppl.nombre as nombre_linea'
+                'gpv.id_lista','pppl.nombre as nombre_linea','pp.id as id_prod'
             )
             ->where('ass.id', 1)
             ->where('gpv.listo_venta', $idsuc)
