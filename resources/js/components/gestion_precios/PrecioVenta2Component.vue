@@ -96,34 +96,43 @@
                    <thead>
                        <tr>
                            <th>Opciones</th>
-                           <th>Codigo</th>
-                           <th>Linea o Marca</th>
-                           <th>Entrada</th>
-                           <th>Cantidad</th>
-                           <th>Stock</th>
-                           <th>Precio Lista</th>
-                           <th>Costo Compra</th>
-                           <th>Precio Venta</th>
-                           <th>% Utilidad Bruta</th>
-                           <th>Tipo Entrada</th>
-                           <th>Fecha y Hora</th>
+                           <th class="col-md-1">Codigo</th>
+                           <th class="col-md-1">Linea o Marca</th>
+                           <th  class="col-md-3">Entrada</th>
+                           <th  >Cantidad</th>
+                           <th  >Stock</th>
+                           <th  class="col-md-1">Precio Lista</th>
+                           <th  class="col-md-1">Costo Compra</th>
+                           <th  class="col-md-1">Precio Venta</th>
+                           <th  class="col-md-1">% Utilidad Bruta</th>
+                           <th  class="col-md-1">Tipo Entrada</th>
+                           <th  class="col-md-1">Fecha y Hora</th>
                            <th>Usuario</th>
                        </tr>
                    </thead>
                   
                    <tr v-for="producto in arrayProductosAlterado" :key="producto.id" :style="[ producto.listo_venta == 1 ? '':'background-color: #FAD537' ]">
                        <td>
-                           <button type="button" class="btn btn-warning btn-sm"
+                        <div  v-if="puedeEditar==1">
+                            <button type="button" class="btn btn-warning btn-sm"
                                    @click="abrirModal('editarPrecioUtilidadProducto', producto)" :disabled="producto.stock_ingreso == 0">
                                    <i class="icon-pencil"></i>
                            </button> &nbsp; 
+                        </div>
+                        <div v-else>
+                            <button type="button" class="btn btn-light btn-sm"
+                                   :disabled="producto.stock_ingreso == 0">
+                                   <i class="icon-pencil"></i>
+                           </button> 
+                        </div>    
+                           
                        </td>
-                       <td v-text="producto.codigo_producto"></td>
-                       <td v-text="producto.nombre_linea"></td>
-                       <td v-text="producto.leyenda+' FI:'+producto.fecha_ingreso+' Lote:'+producto.lote+' FV:'+producto.fecha_vencimiento"></td>
-                       <td v-text="producto.cantidad_ingreso"></td>
-                       <td v-text="producto.stock_ingreso"></td>
-                       <td><!-- Precio lista -->
+                       <td  class="col-md-1" v-text="producto.codigo_producto"></td>
+                       <td  class="col-md-1" v-text="producto.nombre_linea"></td>
+                       <td   class="col-md-3" v-text="producto.leyenda+' FI:'+producto.fecha_ingreso+' Lote:'+producto.lote+' FV:'+producto.fecha_vencimiento"></td>
+                       <td  class="col-md-1" v-text="producto.cantidad_ingreso"></td>
+                       <td  class="col-md-1" v-text="producto.stock_ingreso"></td>
+                       <td  class="col-md-1"><!-- Precio lista -->
                                <div v-if="producto.listo_venta == 1">
                                    <span class="">
                                      {{ producto.precio_lista_gespreventa === null ? "0.00": producto.precio_lista_gespreventa }}
@@ -135,7 +144,7 @@
                                    </span>
                                </div>
                        </td>
-                       <td><!-- Costo Compra -->
+                       <td  class="col-md-1"><!-- Costo Compra -->
                                <div v-if="producto.listo_venta == 1">
                                    <span>{{ producto.costo_compra_gespreventa === null ? "0.00":producto.costo_compra_gespreventa }}</span>
                                </div>
@@ -143,7 +152,7 @@
                                    <span>{{ producto.costo_compra_gespreventa === null ? "0.00":producto.costo_compra_gespreventa }}</span>
                                </div>
                        </td>
-                       <td><!-- Precio de Venta -->
+                       <td  class="col-md-1"><!-- Precio de Venta -->
                                <div v-if="producto.listo_venta == 1">
                                    <span  >
                                        {{ producto.precio_venta_gespreventa === null ? "0.00": producto.precio_venta_gespreventa }} 
@@ -155,7 +164,7 @@
                                    </span>
                                </div>
                        </td>
-                       <td><!-- % Utilidad Bruta -->
+                       <td  class="col-md-1"><!-- % Utilidad Bruta -->
                                <div v-if="producto.listo_venta == 1">
                                    <span  >{{ producto.utilidad_neto_gespreventa === null ? "0.00":producto.utilidad_neto_gespreventa }}</span>
                                </div>
@@ -163,8 +172,8 @@
                                    <span class="">{{ producto.utilidad_neto_gespreventa === null ? "0.00":producto.utilidad_neto_gespreventa }}  </span>
                                </div>
                        </td>
-                       <td v-text="producto.tipoentrada"></td><!-- Tipo Entrada -->
-                       <td> <!-- Fecha de Utilidad -->
+                       <td  class="col-md-1" v-text="producto.tipoentrada"></td><!-- Tipo Entrada -->
+                       <td  class="col-md-1"> <!-- Fecha de Utilidad -->
                                <div v-if="producto.listo_venta == 1">
                                    <span  >{{ producto.fecha}}</span>
                                </div>
@@ -172,7 +181,7 @@
                                    <span class="">DD/MM/AAAA</span>
                                </div>
                        </td> 
-                       <td>
+                       <td  class="col-md-1">
                            <div v-if="producto.listo_venta == 1">
                                    <span  >{{ producto.user_name}}</span>
                                </div>
@@ -488,6 +497,9 @@
     import { error401 } from '../../errores';
 // import router from "@/router";
 export default {
+    //---permisos_R_W_S
+    props: ['codventana'],
+        //-------------------
     data() {
         return {
             pagination: {
@@ -544,7 +556,12 @@ export default {
             selectLista:0,
             arrayLista:[],
             clear:0,
-
+//---permisos_R_W_S
+puedeEditar:2,
+                puedeActivar:2,
+                puedeHacerOpciones_especiales:2,
+                puedeCrear:2,
+                //-----------
 
 
             
@@ -594,6 +611,37 @@ pagesNumber: function () {
 
 },
 methods: {
+
+    //-----------------------------------permisos_R_W_S        
+listarPerimsoxyz() {
+                //console.log(this.codventana);
+    let me = this;
+        
+    var url = '/gestion_permiso_editar_eliminar?win='+me.codventana;
+  
+    axios.get(url)
+        .then(function(response) {
+            var respuesta = response.data;
+     
+            if(respuesta=="root"){
+            me.puedeEditar=1;
+            me.puedeActivar=1;
+            me.puedeHacerOpciones_especiales=1;
+            me.puedeCrear=1; 
+            }else{
+            me.puedeEditar=respuesta.edit;
+            me.puedeActivar=respuesta.activar;
+            me.puedeHacerOpciones_especiales=respuesta.especial;
+            me.puedeCrear=respuesta.crear;        
+            }
+           
+        })
+        .catch(function(error) {
+            error401(error);
+            console.log(error);
+        });
+},
+
     cambiarPestana(idPestana) {
             this.pestañaActiva = idPestana;
 
@@ -657,7 +705,8 @@ methods: {
         },
     listarAlmTienda() {
             let me = this;
-            var url = "/gestionprecioventa2/listarSucursal";
+            //var url = "/gestionprecioventa2/listarSucursal";
+            var url = "/listar_tienda_alamce_generico_lista_x_rol_usuario"; 
             axios
                 .get(url)
                 .then(function (response) {
@@ -940,6 +989,10 @@ calculadoraPrecioVenta() {
 
 },
 mounted() {
+    //-------permiso E_W_S-----
+    this.listarPerimsoxyz();
+             // this.listarAlmacenes_tiendas_con_permisos();
+            //-----------------------
         this.classModal = new _pl.Modals();
         this.listarProductosTiendaAlmacen();
         this.listarAlmTienda();

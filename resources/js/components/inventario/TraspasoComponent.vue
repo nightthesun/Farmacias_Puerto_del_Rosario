@@ -11,7 +11,7 @@
             <div class="card">
                 <div class="card-header">
                     <i class="fa fa-align-justify"></i> Traspaso entre almacenes y tiendas               
-                    <button
+                    <button v-if="puedeCrear==1"
                         type="button"
                         class="btn btn-secondary"
                         @click="abrirModal('registrar'); ProductoLineaIngreso();"
@@ -80,19 +80,19 @@
                   <table class="table table-bordered table-striped table-sm table-responsive" >
                     <thead>
                         <tr>
-                            <th>Opciones</th>
-                            <th>Nro.Traspaso</th>                         
-                            <th>Producto</th>
-                            <th>Envase</th>
+                            <th class="col-md-1">Opciones</th>
+                            <th class="col-md-1">Nro.Traspaso</th>                         
+                            <th class="col-md-4">Producto</th>
+                            <th class="col-md-1">Envase</th>
                             <th>Cantidad</th>
                             <th>Fecha</th>
-                            <th>Glosa</th>
-                            <th>Origen</th>                            
-                            <th>Destino</th>
-                            <th>Tipo</th>                
+                            <th class="col-md-2">Glosa</th>
+                            <th class="col-md-1">Origen</th>                            
+                            <th class="col-md-1">Destino</th>
+                            <th class="col-md-2">Tipo</th>                
                             <th>Responsable</th>
                             <th>Estado</th>
-                            <th>Estado de traspaso</th>
+                            <th>Est.Traspaso</th>
                             
 
                         </tr>
@@ -100,98 +100,133 @@
                         <tbody v-if="sucursalSeleccionada == 0"></tbody>
                         <tbody v-if="sucursalSeleccionada != 0">
                             <tr v-for="AjusteNegativos in arrayAjusteNegativos" :key="AjusteNegativos.id" >
-                                <td>
-                                    <div v-if="AjusteNegativos.estado_procesado == 3 || AjusteNegativos.estado_procesado == 1 || AjusteNegativos.estado_procesado == 2" >
-                                       <button type="button" class="btn btn-light  btn-sm" >
+                                <td class="col-md-1">
+                                    <div  class="d-flex justify-content-start">
+   
+                                        <div  v-if="puedeEditar==1">                                          
+                                            <div v-if="AjusteNegativos.estado_procesado == 3 || AjusteNegativos.estado_procesado == 1 || AjusteNegativos.estado_procesado == 2" >
+                                                <button v-if="AjusteNegativos.cantidad_old == null"
+                                                type="button"  style="margin-right: 5px;" 
+                                                class="btn btn-outline-light btn-sm">
+                                                <i class="icon-pencil"></i>
+                                                </button>
+                                            </div>
+                                            <div v-else>
+                                                <button v-if="AjusteNegativos.cantidad_old == null"
+                                                    type="button"  style="margin-right: 5px;"
+                                                    class="btn btn-warning btn-sm"
+                                                    @click="ProductoLineaIngreso(); abrirModal('actualizar', AjusteNegativos)">
+                                                    <i class="icon-pencil"></i>
+                                                </button>
+                                                <button v-else type="button" class="btn btn-outline-light"  style="margin-right: 5px;">
+                                                    <i class="icon-pencil"></i>
+                                                </button>
+                                            </div>                            
+                                        </div>
+                                        <div v-else>
+                                            <button v-if="AjusteNegativos.cantidad_old == null"
+                                            type="button" class="btn btn-light btn-sm"  style="margin-right: 5px;">
+                                            <i class="icon-pencil"></i>
+                                            </button>
+                                        <button v-else type="button" class="btn btn-light btn-sm"  style="margin-right: 5px;"> 
                                         <i class="icon-pencil"></i>
+                                         </button> 
+                                        </div>
+
+
+                                        <div v-if="puedeActivar==1">
+                                            <div v-if="AjusteNegativos.estado_procesado == 3 || AjusteNegativos.estado_procesado == 1 || AjusteNegativos.estado_procesado == 2" >
+                                                <button v-if="AjusteNegativos.activo == 1" type="button" class="btn btn-outline-light btn-sm" style="margin-right: 5px;">
+                                                    <i class="fa fa-hand-paper-o"></i>
+                                                </button>
+                                        <button v-else type="button" class="btn btn-outline-light btn-sm" style="margin-right: 5px;" >
+                                            <i class="icon-check"></i>
                                         </button>
-                            
-                                    <button v-if="AjusteNegativos.activo == 1"
-                                        type="button" class="btn btn-light  btn-sm" >
-                                        <i class="fa fa-hand-paper-o"></i>
-                                    </button>                                    
-                                    <button v-else
-                                        type="button" class="btn btn-light  btn-sm" >
-                                        <i class="icon-check"></i>
-                                    </button>
-                           
-                                    <!----------------->
-                                    
-                                    <button v-if="AjusteNegativos.estado_procesado == 4"
-                                        type="button" class="btn btn-light  btn-sm" >
-                                        <i class="fa fa-square-o" aria-hidden="true"></i>
-                                    </button>
-                                    
-                                    <button v-else
-                                        type="button" class="btn btn-light  btn-sm" >
-                                        <i class="fa fa-check-square-o" aria-hidden="true"></i>
-                                    </button>
+                                            </div>
+                                            <div v-else>
+                                                <button v-if="AjusteNegativos.activo == 1" type="button" class="btn btn-danger btn-sm"                                    
+                                                @click="eliminarAjusteNegativos(AjusteNegativos.id)" style="margin-right: 5px;">
+                                                <i class="fa fa-hand-paper-o"></i>
+                                                </button>
+    
+                                            <button v-else type="button" class="btn btn-info btn-sm" @click="activarAjusteNegativos(AjusteNegativos.id)" style="margin-right: 5px;">
+                                            <i class="icon-check"></i>
+                                            </button>
+                                            </div>                             
+                                        </div>
+    
+                                        <div v-else>
+                                            <button v-if="AjusteNegativos.activo == 1" type="button" class="btn btn-light btn-sm" style="margin-right: 5px;">
+                                                <i class="fa fa-hand-paper-o"></i>
+                                                </button>
+    
+                                            <button v-else type="button" class="btn btn-light btn-sm" style="margin-right: 5px;">
+                                            <i class="icon-check"></i>
+                                            </button>   
+                                        </div>
 
-                                    </div>
-                                    <div v-else>
 
-                                        <button v-if="AjusteNegativos.cantidad_old != null"
-                                        type="button" class="btn btn-light btn-sm">
-                                        <i class="icon-pencil"></i>
-                                    </button>
-                            
-                                    <button v-if="AjusteNegativos.cantidad_old == null"
-                                        type="button"
-                                        class="btn btn-warning btn-sm"
-                                        @click="ProductoLineaIngreso(); abrirModal('actualizar', AjusteNegativos)"                                 
-                                    >
-                                        <i class="icon-pencil"></i>
-                                    </button>
-                                 
-                                    <button
-                                        v-if="AjusteNegativos.activo == 1"
-                                        type="button"
-                                        class="btn btn-danger btn-sm"
-                                    
-                                        @click="eliminarAjusteNegativos(AjusteNegativos.id)">
-                                        <i class="fa fa-hand-paper-o"></i>
-                                    </button>
-                                    <button
-                                        v-else
-                                        type="button"
-                                        class="btn btn-info btn-sm"
-                                      
-                                        @click="
-                                            activarAjusteNegativos(
-                                                AjusteNegativos.id,
-                                            )
-                                        "
-                                    >
-                                        <i class="icon-check"></i>
-                                    </button>
-                                    <!----------------->
-                                    <br>
-                                    <button v-if="AjusteNegativos.estado_procesado == 4"
-                                        type="button" class="btn btn-secondary btn-sm" 
-                                        @click="desactivarListo(AjusteNegativos.id)"
-                                        style=" font-size: 15px;color: aliceblue;">
-                                        <i class="fa fa-check-square-o" aria-hidden="true"></i>
-                                    </button>
-                                    
-                                    <button v-else
-                                        type="button" class="btn btn-secondary btn-sm" 
-                                        @click="activarListo(AjusteNegativos.id)"
-                                        style=" font-size: 15px; color: aliceblue; width:32px;" >                                        
-                                        <i class="fa fa-square-o" aria-hidden="true"></i>
-                                    </button>
-                                    </div>     
-                                    
-                                </td>
 
-                                <td v-text="AjusteNegativos.numero_traspaso"></td>
-                                <td v-text="AjusteNegativos.leyenda"></td>
-                                <td v-text="AjusteNegativos.envase"></td>
+
+                                        <div v-if="puedeHacerOpciones_especiales==1">
+                                            <div v-if="AjusteNegativos.estado_procesado == 3 || AjusteNegativos.estado_procesado == 1 || AjusteNegativos.estado_procesado == 2" >
+                                                <button v-if="AjusteNegativos.estado_procesado == 4"
+                                                type="button" class="btn btn-outline-light btn-sm" 
+                                                
+                                                style="margin-right: 5px;color: aliceblue;">
+                                                <i class="fa fa-check-square-o" aria-hidden="true"></i>
+                                            </button>
+                                            
+                                            <button v-else
+                                                type="button" class="btn btn-outline-light btn-sm"                                             
+                                                style="margin-right: 5px; color: aliceblue;" >                                       
+                                                <i class="fa fa-square-o" aria-hidden="true"></i>
+                                            </button>
+                                             </div>
+                                             <div v-else>
+                                                <button v-if="AjusteNegativos.estado_procesado == 4"
+                                                type="button" class="btn btn-secondary btn-sm" 
+                                                @click="desactivarListo(AjusteNegativos.id)"
+                                                style="margin-right: 5px; color: aliceblue;">
+                                                <i class="fa fa-check-square-o" aria-hidden="true"></i>
+                                                </button>
+                                            
+                                                <button v-else
+                                                type="button" class="btn btn-secondary btn-sm" 
+                                                @click="activarListo(AjusteNegativos.id)"
+                                                style="  color: aliceblue; margin-right: 5px;" >                                        
+                                                <i class="fa fa-square-o" aria-hidden="true"></i>
+                                                </button>
+                                             </div>   
+                                        </div> 
+    
+                                        <div v-else>
+                                            <button v-if="AjusteNegativos.estado_procesado == 4"
+                                                type="button" class="btn btn-light btn-sm" 
+                                                
+                                                style="margin-right: 5px; ">
+                                                <i class="fa fa-check-square-o" aria-hidden="true"></i>
+                                                </button>
+                                            
+                                                <button v-else
+                                                type="button" class="btn btn-light btn-sm" 
+                                               
+                                                style="   margin-right: 5px;" >                                        
+                                                <i class="fa fa-square-o" aria-hidden="true"></i>
+                                                </button>
+                                        </div>
+                                    </div>                  
+                                 </td>
+
+                                <td class="col-md-1" v-text="AjusteNegativos.numero_traspaso"></td>
+                                <td class="col-md-4" v-text="AjusteNegativos.leyenda"></td>
+                                <td class="col-md-1" v-text="AjusteNegativos.envase"></td>
                                 <td v-text="AjusteNegativos.cantidad"></td>
                                 <td v-text="AjusteNegativos.fecha"></td>
-                                <td v-text="AjusteNegativos.glosa"></td>
-                                <td v-text="AjusteNegativos.origen"></td>
-                                <td v-text="AjusteNegativos.destino"></td>
-                                <td v-text="AjusteNegativos.tipo_traspaso"></td>
+                                <td class="col-md-2" v-text="AjusteNegativos.glosa"></td>
+                                <td class="col-md-1" v-text="AjusteNegativos.origen"></td>
+                                <td class="col-md-1" v-text="AjusteNegativos.destino"></td>
+                                <td class="col-md-2" v-text="AjusteNegativos.tipo_traspaso"></td>
                                 <td v-text="AjusteNegativos.user_name"></td>
                                 <td>
                                     <div v-if="AjusteNegativos.activo == 1">
@@ -724,6 +759,9 @@ import Swal from "sweetalert2";
 import { error401 } from "../../errores";
 //Vue.use(VeeValidate);
 export default {
+     //---permisos_R_W_S
+     props: ['codventana'],
+        //-------------------
     data() {
         return {
             pagination: {
@@ -792,7 +830,13 @@ export default {
             cantidadS2:"",
             codigo_prod:"",
             error: null,
-            errorMsg: ''
+            errorMsg: '',
+             //---permisos_R_W_S
+             puedeEditar:2,
+                puedeActivar:2,
+                puedeHacerOpciones_especiales:2,
+                puedeCrear:2,
+                //-----------
         };
     },
 
@@ -982,6 +1026,38 @@ sucursalSeleccionadaDestino: function (newValue) {
     },
 
     methods: {
+
+         //-----------------------------------permisos_R_W_S        
+ listarPerimsoxyz() {
+                //console.log(this.codventana);
+    let me = this;
+        
+    var url = '/gestion_permiso_editar_eliminar?win='+me.codventana;
+  
+    axios.get(url)
+        .then(function(response) {
+            var respuesta = response.data;
+     
+            if(respuesta=="root"){
+            me.puedeEditar=1;
+            me.puedeActivar=1;
+            me.puedeHacerOpciones_especiales=1;
+            me.puedeCrear=1; 
+            }else{
+            me.puedeEditar=respuesta.edit;
+            me.puedeActivar=respuesta.activar;
+            me.puedeHacerOpciones_especiales=respuesta.especial;
+            me.puedeCrear=respuesta.crear;        
+            }
+           
+        })
+        .catch(function(error) {
+            error401(error);
+            console.log(error);
+        });
+},
+//--------------------------------------------------------------  
+
         cambiarPestana(idPestana) {
             this.pestañaActiva = idPestana;
 
@@ -989,7 +1065,8 @@ sucursalSeleccionadaDestino: function (newValue) {
         },
         sucursalFiltro() {
             let me = this;
-            var url = "/traspaso/listarSucursal";
+           // var url = "/traspaso/listarSucursal";
+           var url = "/listar_tienda_alamce_generico_lista_x_rol_usuario";
             axios
                 .get(url)
                 .then(function (response) {
@@ -1696,6 +1773,10 @@ sucursalSeleccionadaDestino: function (newValue) {
     },
 
     mounted() {
+        //-------permiso E_W_S-----
+        this.listarPerimsoxyz();
+             // this.listarAlmacenes_tiendas_con_permisos();
+            //-----------------------
         this.classModal = new _pl.Modals();
         this.listarAjusteNegativos(1);
         this.ajustesNegativos();

@@ -11,7 +11,7 @@
             <div class="card">
                 <div class="card-header">
                     <i class="fa fa-align-justify"></i> Configuracion de Descuentos en Productos
-                    <button type="button" class="btn btn-secondary" @click="abrirModal('registrar')">
+                    <button type="button" v-if="puedeCrear==1" class="btn btn-secondary" @click="abrirModal('registrar')">
                         <i class="icon-plus"></i>&nbsp;Nuevo
                     </button>
                 </div>
@@ -27,34 +27,54 @@
                     <table class="table table-bordered table-striped table-sm table-responsive">
                         <thead>
                             <tr>
-                                <th>Opciones</th>
-                                <th>Nombre</th>
-                                <th>Monto Descuento</th>
-                                <th>Tipo Descuento</th>
-                                <th>Regla</th>
-                                <th>Aplica A</th>
-                                <th>Estado</th>
+                                <th class="col-md-1">Opciones</th>
+                                <th class="col-md-2">Nombre</th>
+                                <th class="col-md-2">Monto Descuento</th>
+                                <th class="col-md-2">Tipo Descuento</th>
+                                <th class="col-md-2">Regla</th>
+                                <th class="col-md-2">Aplica A</th>
+                                <th class="col-md-1">Estado</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr v-for="descuento in arrayDescuentos" :key="descuento.id">
-                                <td>
-                                    <button type="button" class="btn btn-warning btn-sm" @click="abrirModal('actualizar',descuento)">
-                                        <i class="icon-pencil"></i>
-                                    </button> &nbsp;
-                                    <button v-if="descuento.activo==1" type="button" class="btn btn-danger btn-sm" @click="eliminarDescuento(descuento.id)" >
+                                <td class="col-md-1">
+                                    <div  class="d-flex justify-content-start">
+                                        <div  v-if="puedeEditar==1">
+                                            <button type="button" class="btn btn-warning btn-sm" @click="abrirModal('actualizar',descuento)" style="margin-right: 5px;">
+                                             <i class="icon-pencil"></i>
+                                             </button>
+                                        </div>
+                                        <div v-else>
+                                            <button type="button" class="btn btn-light btn-sm"  style="margin-right: 5px;">
+                                             <i class="icon-pencil"></i>
+                                             </button>
+                                        </div>
+                                        <div v-if="puedeActivar==1">
+                                            <button v-if="descuento.activo==1" type="button" class="btn btn-danger btn-sm" @click="eliminarDescuento(descuento.id)" style="margin-right: 5px;">
                                         <i class="icon-trash"></i>
                                     </button>
-                                    <button v-else type="button" class="btn btn-info btn-sm" @click="activarDescuento(descuento.id)" >
+                                    <button v-else type="button" class="btn btn-info btn-sm" @click="activarDescuento(descuento.id)" style="margin-right: 5px;">
                                         <i class="icon-check"></i>
                                     </button>
+                                        </div>
+                                        <div v-else>
+                                            <button v-if="descuento.activo==1" type="button" class="btn btn-light btn-sm"  style="margin-right: 5px;">
+                                        <i class="icon-trash"></i>
+                                    </button>
+                                    <button v-else type="button" class="btn btn-light btn-sm"  style="margin-right: 5px;">
+                                        <i class="icon-check"></i>
+                                    </button>
+                                        </div>
+                                    </div>                                 
+                                    
                                 </td>
-                                <td v-text="descuento.nombre"></td>
-                                <td v-text="descuento.monto_descuento"></td>
-                                <td v-text="descuento.idtipodescuento"></td>
-                                <td v-text="descuento.regla"></td>
-                                <td v-text="descuento.aplica_a"></td>
-                                <td>
+                                <td v-text="descuento.nombre" class="col-md-2"></td>
+                                <td v-text="descuento.monto_descuento" class="col-md-2"></td>
+                                <td v-text="descuento.idtipodescuento" class="col-md-2"></td>
+                                <td v-text="descuento.regla" class="col-md-2"></td>
+                                <td v-text="descuento.aplica_a" class="col-md-2"></td>
+                                <td class="col-md-1">
                                     <div v-if="descuento.activo==1">
                                         <span class="badge badge-success">Activo</span>
                                     </div>
@@ -246,6 +266,9 @@ import Swal from 'sweetalert2';
 import { error401 } from '../../errores';
 //Vue.use(VeeValidate);
     export default {
+        //---permisos_R_W_S
+        props: ['codventana'],
+        //-------------------
         data(){
             return{
                 pagination:{
@@ -315,8 +338,13 @@ import { error401 } from '../../errores';
                 fechax:'',
                 descuento:0,
                 aplicaselected:0,
-                limite:0
-
+                limite:0,
+                //---permisos_R_W_S
+                puedeEditar:2,
+                puedeActivar:2,
+                puedeHacerOpciones_especiales:2,
+                puedeCrear:2,
+                //-----------
 
                 
             }
@@ -369,6 +397,35 @@ import { error401 } from '../../errores';
 
         },
         methods :{
+            //-----------------------------------permisos_R_W_S        
+ listarPerimsoxyz() {
+                //console.log(this.codventana);
+    let me = this;
+        
+    var url = '/gestion_permiso_editar_eliminar?win='+me.codventana;
+  
+    axios.get(url)
+        .then(function(response) {
+            var respuesta = response.data;
+     
+            if(respuesta=="root"){
+            me.puedeEditar=1;
+            me.puedeActivar=1;
+            me.puedeHacerOpciones_especiales=1;
+            me.puedeCrear=1; 
+            }else{
+            me.puedeEditar=respuesta.edit;
+            me.puedeActivar=respuesta.activar;
+            me.puedeHacerOpciones_especiales=respuesta.especial;
+            me.puedeCrear=respuesta.crear;        
+            }           
+        })
+        .catch(function(error) {
+            error401(error);
+            console.log(error);
+        });
+},
+//--------------------------------------------------------------  
             obtenerfecha(valor){
                 let me = this;
                 var url= '/obtenerfecha';
@@ -462,7 +519,7 @@ import { error401 } from '../../errores';
             },
             registrarDescuento(){
                 let me = this;
-                console.log(me.subcategoriaselected);
+                //console.log(me.subcategoriaselected);
                 //me.regla=me.subcategoriaselected+"|"+me.detalleselected+"|"+me.limite+"|"+me.idcategoriaselected+"|"+me.fechainicio+"|"+me.fechafin+"|"+me.diaselected+"|"+me.repetir+"|"+me.fechax;
                 if (me.idtipodescuentoselected == 1) {
                     switch (me.subcategoriaselected) {
@@ -828,6 +885,10 @@ import { error401 } from '../../errores';
 
         },
         mounted() {
+            //-------permiso E_W_S-----
+            this.listarPerimsoxyz();
+          //    this.listarAlmacenes_tiendas_con_permisos();
+            //-----------------------
             this.obtenerfecha();
             this.selectTipoDescuentos();
             this.listarCategorias();

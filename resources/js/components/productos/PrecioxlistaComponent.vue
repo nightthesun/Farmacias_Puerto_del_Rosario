@@ -12,7 +12,7 @@
             <div class="card">
                 <div class="card-header">
                     <i class="fa fa-align-justify"></i> Listas
-                    <button type="button" class="btn btn-secondary"
+                    <button v-if="puedeCrear==1" type="button" class="btn btn-secondary"
                             @click="abrirModal('registrar')
                                    "
                                     :disabled="selectAlmTienda == 0">
@@ -70,58 +70,82 @@
                     <table class="table table-bordered table-striped table-sm table-responsive">
                         <thead>
                             <tr>
-                                <th>Opciones</th>
-                                <th>Codigó</th>
-                                <th>Linea</th>
-                                <th>Producto</th>
-                                <th>Envase</th>
-                                <th>Lista</th>
-                                <th>Tiempo Pedido</th>
-                                <th>Precio Lista</th>
-                                <th>Precio Venta</th>
-                                <th>Metodo</th>                              
-                                <th>Estado</th>
+                                <th class="col-md-1">Opciones</th>
+                                <th class="col-md-1">Codigó</th>
+                                <th class="col-md-1">Linea</th>
+                                <th class="col-md-2">Producto</th>
+                                <th class="col-md-1">Envase</th>
+                                <th class="col-md-1">Lista</th>
+                                <th class="col-md-1">Tiempo Pedido</th>
+                                <th class="col-md-1">Precio Lista</th>
+                                <th class="col-md-1">Precio Venta</th>
+                                <th class="col-md-1">Metodo</th>                              
+                                <th class="col-md-1">Estado</th>
                             </tr>
                         </thead>
                         <tbody v-if="selectAlmTienda == 0"></tbody>
                         <tbody v-if="selectAlmTienda != 0">
                             <tr v-for="p_xlist in arrayPrecioxlista" :key="p_xlist.id">
-                              <td>                            
-                               <button type="button" class="btn btn-warning btn-sm"
-                               @click="cambioAccion();abrirModal('actualizar',p_xlist);listarLista();">
-                                <i class="icon-pencil"></i>
-                               </button>                            
-                          
-                                &nbsp;
-                               <button  v-if="p_xlist.activo == 1" type="button"
+                              <td class="col-md-1">  
+                                <div  class="d-flex justify-content-start">
+                                        <div  v-if="puedeEditar==1">
+                                            <button type="button" class="btn btn-warning btn-sm"
+                                            @click="cambioAccion();abrirModal('actualizar',p_xlist);listarLista();" style="margin-right: 5px;">
+                                            <i class="icon-pencil"></i>
+                                            </button>    
+                                        </div>
+                                        <div v-else>
+                                            <button type="button" class="btn btn-light btn-sm"
+                                                     style="margin-right: 5px;">
+                                            <i class="icon-pencil"></i>
+                                            </button> 
+                                        </div>
+                                        <div v-if="puedeActivar==1">
+                                    <button  v-if="p_xlist.activo == 1" type="button"
                                    class="btn btn-danger btn-sm"
-                                   @click="eliminar(p_xlist.id)">
+                                   @click="eliminar(p_xlist.id)" style="margin-right: 5px;">
                                    <i class="icon-trash"></i>
                                </button>
                                <button v-else
                                    type="button" class="btn btn-info btn-sm"
-                                   @click="activar(p_xlist.id)">
+                                   @click="activar(p_xlist.id)" style="margin-right: 5px;">
                                    <i class="icon-check"></i>
-                               </button>                               
+                               </button> 
+                                </div>                 
+                                <div v-else>
+                                    <button  v-if="p_xlist.activo == 1" type="button"
+                                   class="btn btn-light btn-sm"
+                                   style="margin-right: 5px;">
+                                   <i class="icon-trash"></i>
+                               </button>
+                               <button v-else
+                                   type="button" class="btn btn-light btn-sm"
+                                  style="margin-right: 5px;">
+                                   <i class="icon-check"></i>
+                               </button> 
+                                </div>
+                                </div>                                      
+                                
+                                                             
                               </td>
-                              <td v-text="p_xlist.codigo_prod"></td>
-                              <td v-text="p_xlist.linea_name"></td>  
-                              <td v-text="p_xlist.leyenda+' Cantidad:'+p_xlist.cantidad+''+p_xlist.cantidadEnvase+' Lote:'+p_xlist.lote"></td>
-                              <td v-text="p_xlist.envase"></td> 
-                              <td v-text="p_xlist.nombre_lista"></td>    
-                              <td>
+                              <td class="col-md-1" v-text="p_xlist.codigo_prod"></td>
+                              <td class="col-md-1" v-text="p_xlist.linea_name"></td>  
+                              <td class="col-md-2" v-text="p_xlist.leyenda+' Cantidad:'+p_xlist.cantidad+''+p_xlist.cantidadEnvase+' Lote:'+p_xlist.lote"></td>
+                              <td class="col-md-1" v-text="p_xlist.envase"></td> 
+                              <td class="col-md-1" v-text="p_xlist.nombre_lista"></td>    
+                              <td class="col-md-1">
                                 <div v-for="t in tiempopedido">
                                     <span v-if="t.dato==p_xlist.tiempopedido1" v-text="t.tiempo"></span>
                                   </div>
                               </td>
-                              <td v-text="p_xlist.preciolista"></td>
-                              <td v-text="p_xlist.precioventa"></td> 
-                              <td>
+                              <td class="col-md-1" v-text="p_xlist.preciolista"></td>
+                              <td class="col-md-1" v-text="p_xlist.precioventa"></td> 
+                              <td class="col-md-1">
                                 <div v-for="m in arrayMetodo">
                                     <span v-if="m.letra==p_xlist.metodoabc" v-text="m.letra"></span>
                                   </div>
                               </td> 
-                              <td>
+                              <td class="col-md-1">
                                     <div v-if="p_xlist.activo==1">
                                         <span class="badge badge-success">Activo</span>
                                     </div>
@@ -444,6 +468,9 @@
     import { error401 } from '../../errores';
      //Vue.use(VeeValidate);
      export default{
+        //---permisos_R_W_S
+        props: ['codventana'],
+        //-------------------
         data(){
             return{
                 pagination: {
@@ -499,6 +526,12 @@
                 id_pre_x:'',
                 tipo_tienda_almacen:'',
                 id_ingreso:'',
+                //---permisos_R_W_S
+                puedeEditar:2,
+                puedeActivar:2,
+                puedeHacerOpciones_especiales:2,
+                puedeCrear:2,
+                //-----------
             }
         },
         
@@ -571,6 +604,38 @@
     },
 
        methods :{
+
+        //-----------------------------------permisos_R_W_S        
+ listarPerimsoxyz() {
+                //console.log(this.codventana);
+    let me = this;
+        
+    var url = '/gestion_permiso_editar_eliminar?win='+me.codventana;
+  
+    axios.get(url)
+        .then(function(response) {
+            var respuesta = response.data;
+     
+            if(respuesta=="root"){
+            me.puedeEditar=1;
+            me.puedeActivar=1;
+            me.puedeHacerOpciones_especiales=1;
+            me.puedeCrear=1; 
+            }else{
+            me.puedeEditar=respuesta.edit;
+            me.puedeActivar=respuesta.activar;
+            me.puedeHacerOpciones_especiales=respuesta.especial;
+            me.puedeCrear=respuesta.crear;        
+            }
+           
+        })
+        .catch(function(error) {
+            error401(error);
+            console.log(error);
+        });
+},
+//--------------------------------------------------------------  
+
         cambioAccion(){
         let me = this;
         
@@ -674,7 +739,8 @@
         },
         listarAlmTienda() {
             let me = this;
-            var url = "/producto/listarSucursal";
+            //var url = "/producto/listarSucursal";
+            var url = "/listar_tienda_alamce_generico_lista_x_rol_usuario"; 
             axios
                 .get(url)
                 .then(function (response) {
@@ -1045,6 +1111,10 @@
        },
        
        mounted() {
+        //-------permiso E_W_S-----
+        this.listarPerimsoxyz();
+        //      this.listarAlmacenes_tiendas_con_permisos();
+            //-----------------------
         this.classModal = new _pl.Modals();
         this.classModal.addModal("staticBackdrop");
         this.listarAlmTienda();

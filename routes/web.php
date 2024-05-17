@@ -3,6 +3,7 @@
 use App\Http\Controllers\AdmAccionVentanaController;
 use App\Http\Controllers\AdmBancoController;
 use App\Http\Controllers\AdmCiudadController;
+use App\Http\Controllers\AdmCredecialCorreoController;
 use App\Http\Controllers\AdmDepartamentoController;
 use App\Http\Controllers\AdmModuloController;
 use App\Http\Controllers\AdmNacionalidadController;
@@ -141,6 +142,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/gestion_permiso_editar_eliminar', [GestionPerimsoController::class, 'permisos_editar_activar']);
     Route::get('/bloqueado', [GestionPerimsoController::class, 'bloqueado']);
     Route::get('/listar_alamcen_tienda_permisos', [GestionPerimsoController::class, 'listar_alamcen_tienda_permisos']);
+    Route::get('/listar_tienda_alamce_generico_lista_x_rol_usuario', [GestionPerimsoController::class, 'listar_tienda_alamce_generico_lista_x_rol_usuario']);
+    
     
     /*****************tipo vista**************** */
     Route::get('/listarSucursal', [GetController::class, 'listarSucursal']);
@@ -213,6 +216,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/userrolesuc/listarVentanas', [AdmUserRoleSucursalController::class, 'listarVentanas']);
     Route::get('/userrolesuc/listar_asig_permiso_e_a_s', [AdmUserRoleSucursalController::class, 'listar_asig_permiso_e_a_s']);
     Route::get('/userrolesuc/getUsersWithRolesAndSucursals', [AdmUserRoleSucursalController::class, 'getUsersWithRolesAndSucursals']);
+
+    Route::get('/credenciales_correo', [AdmCredecialCorreoController::class, 'credencia_correo']);
+    Route::put('/credenciales_correo/update', [AdmCredecialCorreoController::class, 'update']);   
     
     //*******para listar si tiene permisos de edicion y activacion usar en todos los reporte o modulos*/
     Route::get('/userrolesuc/listarPermiso_Activacion', [AdmUserRoleSucursalController::class, 'listarPermiso_Activacion']);
@@ -531,5 +537,7 @@ Route::group(['middleware' => 'auth'], function () {
     /////////////////////////////////////////////////VENTAS_PRODCUTOS///////////////////////////////////////////////////////    
     Route::get('/gestor_ventas/listarUsuario', [VenGestorVentaController::class, 'listarUsuario']);
     Route::get('/gestor_ventas/listarUsuarioRetorno', [VenGestorVentaController::class, 'listarUsuarioRetorno']);
+    Route::get('/gestor_ventas/get_sucusal', [VenGestorVentaController::class, 'get_sucusal']);
+    
     
 });

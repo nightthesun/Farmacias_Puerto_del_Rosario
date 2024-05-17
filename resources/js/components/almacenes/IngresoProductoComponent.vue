@@ -358,11 +358,11 @@ import { error401 } from '../../errores';
                 puedeHacerOpciones_especiales:2,
                 puedeCrear:2,
                 //-----------
-                arrayPemisoSuscursal:[],
-                defaulSucural:'',
-                codigoDefault:'',
-                codigoDeRoles:'',//0=root,//1=defaul,2=tiene_permisos_Especificios
-                codigoArray_p:[],
+               // arrayPemisoSuscursal:[],
+               // defaulSucural:'',
+               // codigoDefault:'',
+               // codigoDeRoles:'',//0=root,//1=defaul,2=tiene_permisos_Especificios
+              //  codigoArray_p:[],
             }
 
         },
@@ -440,53 +440,14 @@ import { error401 } from '../../errores';
         methods :{
   //---------------------------------permiso de ver lista de sucursales tiendas almacenes
 
-  listarAlmacenes_tiendas_con_permisos() {
-   let me = this;           
-    var url = '/listar_alamcen_tienda_permisos';  
-    axios.get(url)
-        .then(function(response) {
-            var respuesta = response.data;
-          
-            if (respuesta=="root") {
-                me.defaulSucural=0;
-            }else{
-                if (response.data[0].defaul==1) {
-                    me.defaulSucural=1;
-                    me.codigoArray_p=respuesta;
-                }else{
-                    var tamanoRespuesta = Object.keys(respuesta).length;
-                    if (tamanoRespuesta > 0 && response.data[0].defaul==2) {
-                        
-                        me.defaulSucural=2;
-                        me.codigoArray_p=respuesta;
-                      
-                    } else {
-                        console.log(tamanoRespuesta); 
-                    }
-                  
-                   
-                }
-
-            }             
-           
-        })
-        .catch(function(error) {
-            error401(error);
-            console.log(error);
-        });
-},          
- //-----------------------------------permisos_R_W_S        
+    
  listarPerimsoxyz() {
                 //console.log(this.codventana);
-    let me = this;
-   
-        
-    var url = '/gestion_permiso_editar_eliminar?win='+me.codventana;
-  
+    let me = this;        
+    var url = '/gestion_permiso_editar_eliminar?win='+me.codventana;  
     axios.get(url)
         .then(function(response) {
-            var respuesta = response.data;
-     
+            var respuesta = response.data;     
             if(respuesta=="root"){
             me.puedeEditar=1;
             me.puedeActivar=1;
@@ -497,8 +458,7 @@ import { error401 } from '../../errores';
             me.puedeActivar=respuesta.activar;
             me.puedeHacerOpciones_especiales=respuesta.especial;
             me.puedeCrear=respuesta.crear;        
-            }
-           
+            }           
         })
         .catch(function(error) {
             error401(error);
@@ -829,46 +789,24 @@ import { error401 } from '../../errores';
                     me.pagination=respuesta.pagination;
                     me.arrayAlmacen=respuesta.almacenes.data;
              
-                    if (me.defaulSucural==0) {
+                   
                         me.arrayAlmacen.forEach(element => {
                         if(element.activo == 1){
                             copiaArrayAlmacenes.push(element);
                         }
                     });
-                    }
+                    
    
-                    if (me.defaulSucural==1) {
-                        me.arrayAlmacen.forEach(element => {
-                            me.codigoArray_p.forEach(element1 => {
-                                if(element.activo == 1 && element.codigo == element1.cod_alm){
-                            copiaArrayAlmacenes.push(element);
-                        }
-                            });
-                       
-                    }); 
-                    }
-
-                    if (me.defaulSucural==2) {
-                        me.arrayAlmacen.forEach(element => {
-                            me.codigoArray_p.forEach(element1 => {
-                                if(element.activo == 1 && element.codigo == element1.codigo){
-                            copiaArrayAlmacenes.push(element);
-                        }
-                            });                        
-                    }); 
-                    }
-
-                    if(me.defaulSucural==0||me.defaulSucural==1||me.defaulSucural==2){
                         me.arrayAlmacen = copiaArrayAlmacenes;
                     
                     objAlmacen = me.arrayAlmacen.find((almacen)=> almacen.id == me.almacenselected);
                
-                    if (objAlmacen!=undefined) {
+                
                         me.almacenRubroareamedica = me.arrayRubro.find((rubro)=>rubro.id == objAlmacen.idrubro).areamedica;
                     me.listarProductosAlmacen();
                     me.listarProductos(); 
-                    } 
-                    }                   
+                    
+                                      
                   
                    
                 })
@@ -1215,7 +1153,7 @@ import { error401 } from '../../errores';
         mounted() {
               //-------permiso E_W_S-----
               this.listarPerimsoxyz();
-              this.listarAlmacenes_tiendas_con_permisos();
+              //this.listarAlmacenes_tiendas_con_permisos();
             //-----------------------
             this.obtenerfecha(1);
             this.listarLineaMarca();

@@ -341,12 +341,7 @@ import { error401 } from '../../errores';
                 puedeHacerOpciones_especiales:2,
                 puedeCrear:2,
                 //-----------
-                arrayPemisoSuscursal:[],
-                defaulSucural:'',
-                codigoDefault:'',
-                codigoDeRoles:'',//0=root,//1=defaul,2=tiene_permisos_Especificios
-                codigoArray_p:[],
-                //----------------
+                
             }
 
         },
@@ -419,40 +414,7 @@ import { error401 } from '../../errores';
 
         },
         methods :{
- //---------------------------------permiso de ver lista de sucursales tiendas almacenes
- listarAlmacenes_tiendas_con_permisos() {
-   let me = this;           
-    var url = '/listar_alamcen_tienda_permisos';  
-    axios.get(url)
-        .then(function(response) {
-            var respuesta = response.data;
-          
-            if (respuesta=="root") {
-                me.defaulSucural=0;
-            }else{
-                if (response.data[0].defaul==1) {
-                    me.defaulSucural=1;
-                    me.codigoArray_p=respuesta;
-                }else{
-                    var tamanoRespuesta = Object.keys(respuesta).length;
-                    if (tamanoRespuesta > 0 && response.data[0].defaul==2) {
-                        
-                        me.defaulSucural=2;
-                        me.codigoArray_p=respuesta;
-                      
-                    } else {
-                        console.log(tamanoRespuesta); 
-                    }             
-                   
-                }
-            }             
-           
-        })
-        .catch(function(error) {
-            error401(error);
-            console.log(error);
-        });
-},  
+
   //-----------------------------------permisos_R_W_S        
   listarPerimsoxyz() {
                 //console.log(this.codventana);
@@ -483,60 +445,20 @@ import { error401 } from '../../errores';
         });
 },
 //--------------------------------------------------------------   
-            listarTiendas(page){
-                let me = this;
+            listarTiendas(page){                let me = this;
                 let arrayAuxiliar = [];
                 var url='/tienda?page='+page+'&buscar='+me.buscar;
                 axios.get(url).then(function (response) {
                     me.pagination=response.data.pagination;
                     me.arrayTiendas = response.data.tiendas.data;      
-                    console.log(me.defaulSucural);
-                    
-                    if (me.defaulSucural==0) {
+               
                         me.arrayTiendas.forEach(tienda => {
                         if (tienda.activo_tienda == 1) {
                             arrayAuxiliar.push(tienda);
                         }
-                    });
-                    }
-                    if (me.defaulSucural==1) {
-
-                        console.log(me.codigoArray_p);
-                         // Crear un conjunto para mantener un registro de los nombres únicos
-                       let arrayAuxiliar2 = [];
-                        // Filtrar los datos originales manteniendo solo los elementos con nombres únicos
-                        let datosFiltrados = me.codigoArray_p.filter(dato => {
-                        // Si el nombre no está en el conjunto, agregarlo y mantener este elemento
-                        if (!nombresUnicos.has(dato.cod_tda)) {
-                            arrayAuxiliar2.push(dato.cod_tda);
-                        return true;
-                         }
-                        // Si el nombre ya está en el conjunto, omitir este elemento
-                        return false;
-                        });   
-                        console.log(arrayAuxiliar2);
-                       
-                        me.arrayTiendas.forEach(tienda => {
-                            for (let i = 0; i < nombresUnicos.length; i++) {
-                                if (tienda.activo_tienda == 1 && tienda.codigo_tienda == nombresUnicos[i]) {
-                                arrayAuxiliar.push(tienda);
-                                }
-                            }                        
-                    });
-                    }
-                    if (me.defaulSucural==2) {
-                        me.arrayTiendas.forEach(tienda => {
-                            me.codigoArray_p.forEach(element1 => {
-                                if (tienda.activo_tienda == 1 && tienda.codigo_tienda == element1.codigo) {
-                            arrayAuxiliar.push(tienda);
-                                }
-                            });                     
-                    });
-                    }
-
-               
-                    
-                    me.arrayTiendas = arrayAuxiliar;
+                    });               
+                   me.arrayTiendas = arrayAuxiliar;
+                   
                 })
                 .catch(function (error) {
                     error401(error);
@@ -549,6 +471,7 @@ import { error401 } from '../../errores';
                 var url='/rubro/selectrubro';
                 axios.get(url).then(function (response) {
                     var respuesta= response.data; 
+                    console.log(respuesta);
                     me.arrayRubro=respuesta.rubros;
                 })
                 .catch(function (error) {
@@ -625,7 +548,9 @@ import { error401 } from '../../errores';
                     let url='/tienda/ingreso-producto?page='+page+'&idtienda='+me.tiendaselected;
                     axios.get(url).then(function(response){
                         var respuesta = response.data;
-                        me.pagination = respuesta.pagination;
+                     
+                        if (respuesta.pagination.total>0) {
+                            me.pagination = respuesta.pagination;
                         me.arrayIngresoProducto = respuesta.productosTienda.data;
                         objTienda = me.arrayIngresoProducto.find((producto) => producto.idtienda == me.tiendaselected);
                         me.tiendaRubroareamedica = me.arrayRubro.find((rubro)=>rubro.id == objTienda.id_rubro_producto).areamedica
@@ -673,7 +598,9 @@ import { error401 } from '../../errores';
                         });
 
                         me.arrayProductosAlteradoCopy = me.arrayIngresoProducto;
-
+   
+                        } 
+                      
                     }).catch(function(error){
                         error401(error);
                         console.log(error);
@@ -1157,7 +1084,7 @@ import { error401 } from '../../errores';
         mounted() {
              //-------permiso E_W_S-----
              this.listarPerimsoxyz();
-             this.listarAlmacenes_tiendas_con_permisos();
+            
             //-----------------------
             this.listarTiendas(1);
             this.listarLineaMarca();

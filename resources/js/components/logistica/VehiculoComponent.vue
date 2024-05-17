@@ -11,7 +11,7 @@
             <div class="card">
                 <div class="card-header">
                     <i class="fa fa-align-justify"></i> Vehiculo
-                    <button type="button" class="btn btn-secondary" @click="abrirModal('registrar')">
+                    <button v-if="puedeCrear==1" type="button" class="btn btn-secondary" @click="abrirModal('registrar')">
                         <i class="icon-plus"></i>&nbsp;Nuevo
                     </button>
                 </div>
@@ -29,54 +29,79 @@
                     <table class="table table-bordered table-striped table-sm table-responsive">
                         <thead>
                             <tr>
-                                <th>Opciones</th>
-                                <th>Matricula</th>
-                                <th>Numero de chasis</th>
-                                <th>Color</th>
-                                <th>Telefonos</th>
-                                <th>Tipo</th>
-                                <th>Chofer</th>  
-                                <th>Usuario</th>
-                                <th>Estado</th>
+                                <th class="col-md-1">Opciones</th>
+                                <th class="col-md-1">Matricula</th>
+                                <th class="col-md-1">Numero de chasis</th>
+                                <th class="col-md-1">Color</th>
+                                <th class="col-md-1">Telefonos</th>
+                                <th class="col-md-1">Tipo</th>
+                                <th class="col-md-2">Chofer</th>  
+                                <th class="col-md-1">Usuario</th>
+                                <th class="col-md-1">Estado</th>
                                   
                             </tr>
                         </thead>
                         <tbody>
                             <tr v-for="vehiculo in arrayVehiculos" :key="vehiculo.id">
-                                <td>
-                                    <button type="button" class="btn btn-warning btn-sm" @click="abrirModal('actualizar',vehiculo)">
-                                        <i class="icon-pencil"></i>
-                                    </button> &nbsp;
-                                    <button v-if="vehiculo.activo==1" type="button" class="btn btn-danger btn-sm" @click="eliminar(vehiculo.id)" >
-                                        <i class="icon-trash"></i>
-                                    </button>&nbsp;
-                                    <button v-else type="button" class="btn btn-info btn-sm" @click="activar(vehiculo.id)" >
-                                        <i class="icon-check"></i>
-                                    </button>&nbsp;
-                                    <button type="button" style="color: aliceblue;" class="btn btn-secondary btn-sm" @click="listarVehiculoXtdaAlm(vehiculo.id); abrirModal('asignar',vehiculo); ">
-                                        <i class="fa fa-plus"></i>
-                                    </button>
+                                <td class="col-md-1">
+                                    <div  class="d-flex justify-content-start">
+                                        <div  v-if="puedeEditar==1">
+                                            <button type="button" class="btn btn-warning btn-sm" @click="abrirModal('actualizar',vehiculo)" style="margin-right: 5px;">
+                                            <i class="icon-pencil"></i>
+                                            </button>
+                                        </div>
+                                        <div v-else>
+                                            <button type="button" class="btn btn-light btn-sm" style="margin-right: 5px;">
+                                            <i class="icon-pencil"></i>
+                                            </button>
+                                        </div>
+                                        <div v-if="puedeActivar==1">
+                                            <button v-if="vehiculo.activo==1" type="button" class="btn btn-danger btn-sm" @click="eliminar(vehiculo.id)" style="margin-right: 5px;">
+                                            <i class="icon-trash"></i>
+                                            </button>
+                                            <button v-else type="button" class="btn btn-info btn-sm" @click="activar(vehiculo.id)" style="margin-right: 5px;">
+                                            <i class="icon-check"></i>
+                                            </button>
+                                        </div>
+                                        <div v-else>
+                                            <button v-if="vehiculo.activo==1" type="button" class="btn btn-light btn-sm"  style="margin-right: 5px;">
+                                            <i class="icon-trash"></i>
+                                            </button>
+                                            <button v-else type="button" class="btn btn-light btn-sm"  style="margin-right: 5px;">
+                                            <i class="icon-check"></i>
+                                            </button>
+                                        </div>
+                                        <div v-if="puedeHacerOpciones_especiales==1">
+                                            <button type="button" style="color: aliceblue; margin-right: 5px;" class="btn btn-secondary btn-sm" @click="listarVehiculoXtdaAlm(vehiculo.id); abrirModal('asignar',vehiculo);" >
+                                            <i class="fa fa-plus"></i>
+                                            </button>
+                                        </div> 
+                                         <div v-else>
+                                            <button type="button" style="margin-right: 5px;" class="btn btn-secondary btn-sm" >
+                                            <i class="fa fa-plus"></i>
+                                            </button>
+                                         </div>  
+                                    </div>       
+                                    
+                                    
+                                    
                                 </td>
                                 <!-- <td v-text="(almacen.codsuc === null ? '': almacen.codsuc+' - ') + almacen.codigo"></td> -->
-                                <td v-text="vehiculo.matricula"></td>
-                                <td v-text="vehiculo.nro_chasis"></td>
-                                <td v-text="vehiculo.color"></td>
-                                <td v-text="vehiculo.telefono"></td>
-                                <td v-text="vehiculo.tipo"></td>
-                            
-                                <td v-text="vehiculo.nom_completo"></td>
-                                <td v-text="vehiculo.user_name"></td>
-
-                                <td>
+                                <td class="col-md-1" v-text="vehiculo.matricula"></td>
+                                <td class="col-md-1" v-text="vehiculo.nro_chasis"></td>
+                                <td class="col-md-1" v-text="vehiculo.color"></td>
+                                <td class="col-md-1" v-text="vehiculo.telefono"></td>
+                                <td class="col-md-1" v-text="vehiculo.tipo"></td>                            
+                                <td class="col-md-2" v-text="vehiculo.nom_completo"></td>
+                                <td class="col-md-1" v-text="vehiculo.user_name"></td>
+                                <td class="col-md-1">
                                     <div v-if="vehiculo.activo==1">
                                         <span class="badge badge-success">Activo</span>
                                     </div>
                                     <div v-else>
                                         <span class="badge badge-warning">Desactivado</span>
-                                    </div>
-                                    
-                                </td>
-                               
+                                    </div>                                    
+                                </td>                               
                             </tr>
                            
                         </tbody>
@@ -294,6 +319,9 @@ import { datapicker } from '../../func_10251';
 import { resolveTransitionHooks } from 'vue';
 //Vue.use(VeeValidate);
     export default {
+        //---permisos_R_W_S
+        props: ['codventana'],
+        //-------------------
         data(){
             return{
                 pagination:{
@@ -343,11 +371,12 @@ import { resolveTransitionHooks } from 'vue';
                 arrayFalso:[],
                 color:'',
                 nro_chasis:'',
-                
-                
-             
-        
-   
+                  //---permisos_R_W_S
+                  puedeEditar:2,
+                puedeActivar:2,
+                puedeHacerOpciones_especiales:2,
+                puedeCrear:2,
+                //-----------             
             }
 
         },
@@ -402,6 +431,33 @@ import { resolveTransitionHooks } from 'vue';
         },
         methods :{
           
+             //-----------------------------------permisos_R_W_S        
+ listarPerimsoxyz() {
+                //console.log(this.codventana);
+    let me = this;        
+    var url = '/gestion_permiso_editar_eliminar?win='+me.codventana;  
+    axios.get(url)
+        .then(function(response) {
+            var respuesta = response.data;     
+            if(respuesta=="root"){
+            me.puedeEditar=1;
+            me.puedeActivar=1;
+            me.puedeHacerOpciones_especiales=1;
+            me.puedeCrear=1; 
+            }else{
+            me.puedeEditar=respuesta.edit;
+            me.puedeActivar=respuesta.activar;
+            me.puedeHacerOpciones_especiales=respuesta.especial;
+            me.puedeCrear=respuesta.crear;        
+            }           
+        })
+        .catch(function(error) {
+            error401(error);
+            console.log(error);
+        });
+},
+//--------------------------------------------------------------  
+
             sucursalAlmTda() {
             let me = this;
             var url = "/vehiculo/listarSucursal";
@@ -794,7 +850,10 @@ import { resolveTransitionHooks } from 'vue';
         },
 
         mounted() {
-        
+          //-------permiso E_W_S-----
+            this.listarPerimsoxyz();
+            //  this.listarAlmacenes_tiendas_con_permisos();
+            //-----------------------
        
             this.classModal = new _pl.Modals();
             this.classModal.addModal('registrar');

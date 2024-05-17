@@ -12,7 +12,7 @@
             <div class="card">
                 <div class="card-header">
                     <i class="fa fa-align-justify"></i> Gestion de clientes
-                    <button type="button" class="btn btn-secondary" @click="abrirModal('registrar');listarTipoDoc();listarEX();" :disabled="selectTipo == 0">
+                    <button v-if="puedeCrear==1" type="button" class="btn btn-secondary" @click="abrirModal('registrar');listarTipoDoc();listarEX();" :disabled="selectTipo == 0">
                         <i class="icon-plus"></i>&nbsp;Nuevo
                     </button>
                 </div>
@@ -63,14 +63,14 @@
                         <thead>
                             <tr>
                                 <th>Opciones</th>                             
-                                <th>Numero de doc</th>
-                                <th>Razon social</th>
-                                <th>Tipo de documentos</th>
-                                <th>Correo</th>
-                                <th>Nombre cliente</th>
-                                <th>Numero de identidad</th>                              
-                                <th>Fecha/Hora</th>
-                                <th>Usuario</th>
+                                <th class="col-md-1">Numero de doc</th>
+                                <th class="col-md-2">Razon social</th>
+                                <th class="col-md-1">Tipo de documentos</th>
+                                <th class="col-md-2">Correo</th>
+                                <th class="col-md-2">Nombre cliente</th>
+                                <th class="col-md-2">Numero de identidad</th>                              
+                                <th class="col-md-1">Fecha/Hora</th>
+                                <th class="col-md-1">Usuario</th>
                                 <th>Estado</th>
                             </tr>
                         </thead>
@@ -79,38 +79,44 @@
                         <tbody v-else>                            
                            <tr v-for="c in arrayCliente" :key="c.id">
                             <td>
-                                <button type="button" class="btn btn-warning btn-sm"
-                                        @click="abrirModal('actualizar',c);
-                                        listarTipoDoc();listarEX();"
-                                    >
-                                        <i class="icon-pencil"></i>
-                                </button>
-                                &nbsp;
-                                <button v-if="c.activo==1"
-                                        type="button"
-                                        class="btn btn-danger btn-sm"
-                                        @click="eliminar(c.id)"
+                                <div  class="d-flex justify-content-start">
                                         
-                                    >
-                                        <i class="icon-trash"></i>
-                                    </button>
-                                    <button
-                                        v-else
-                                        type="button"
-                                        class="btn btn-info btn-sm"
-                                        @click="activar(c.id)"
-                                    >
-                                        <i class="icon-check"></i>
-                                    </button>    
+                                        <div  v-if="puedeEditar==1">
+                                            <button type="button" class="btn btn-warning btn-sm" @click="abrirModal('actualizar',c);listarTipoDoc();listarEX();" style="margin-right: 5px;">
+                                            <i class="icon-pencil"></i>
+                                            </button>
+                                        </div>
+                                        <div v-else>
+                                            <button type="button" class="btn btn-light btn-sm" style="margin-right: 5px;">
+                                            <i class="icon-pencil"></i>
+                                            </button>  
+                                        </div>
+                                        <div v-if="puedeActivar==1">
+                                            <button v-if="c.activo==1" type="button" class="btn btn-danger btn-sm" @click="eliminar(c.id)" style="margin-right: 5px;">
+                                            <i class="icon-trash"></i>
+                                            </button>
+                                            <button v-else type="button" class="btn btn-info btn-sm" @click="activar(c.id)" style="margin-right: 5px;">
+                                            <i class="icon-check"></i>
+                                            </button> 
+                                        </div>
+                                        <div v-else>
+                                            <button v-if="c.activo==1" type="button" class="btn btn-light btn-sm"  style="margin-right: 5px;">
+                                            <i class="icon-trash"></i>
+                                            </button>
+                                            <button v-else type="button" class="btn btn-light btn-sm" style="margin-right: 5px;">
+                                            <i class="icon-check"></i>
+                                            </button> 
+                                        </div>    
+                                </div>        
                             </td>
-                            <td v-text="c.num_documento"></td>
-                            <td v-text="c.nom_a_facturar"></td>
-                            <td v-text="c.datos_tipo_documento+'-'+c.nom_documento"></td>
-                           <td v-text="c.correo"></td>
-                            <td v-text="c.nombre_completo"></td>
-                            <td v-text="c.documento_identidad"></td>
-                            <td v-text="c.fecha_mas_reciente"></td>
-                            <td v-text="c.name"></td>
+                            <td class="col-md-1" v-text="c.num_documento"></td>
+                            <td class="col-md-2" v-text="c.nom_a_facturar"></td>
+                            <td class="col-md-1" v-text="c.datos_tipo_documento+'-'+c.nom_documento"></td>
+                           <td class="col-md-2" v-text="c.correo"></td>
+                            <td class="col-md-2" v-text="c.nombre_completo"></td>
+                            <td class="col-md-2" v-text="c.documento_identidad"></td>
+                            <td class="col-md-1" v-text="c.fecha_mas_reciente"></td>
+                            <td class="col-md-1" v-text="c.name"></td>
                             <td>
                                 <div v-if="c.activo==1">
                                      <span class="badge badge-success">Activo</span>
@@ -347,6 +353,9 @@
     
      //Vue.use(VeeValidate);
      export default{
+        //---permisos_R_W_S
+        props: ['codventana'],
+        //-------------------
         data(){
             return{
                 pagination:{
@@ -390,6 +399,12 @@
                 id:'',
                 id_per_emp:'',    
                 codigo_cliente:'',
+                //---permisos_R_W_S
+                puedeEditar:2,
+                puedeActivar:2,
+                puedeHacerOpciones_especiales:2,
+                puedeCrear:2,
+                //-----------
                 
             }
         },
@@ -432,6 +447,34 @@
         },
     },
        methods :{
+
+        //-----------------------------------permisos_R_W_S        
+ listarPerimsoxyz() {
+                //console.log(this.codventana);
+    let me = this;        
+    var url = '/gestion_permiso_editar_eliminar?win='+me.codventana;  
+    axios.get(url)
+        .then(function(response) {
+            var respuesta = response.data;     
+            if(respuesta=="root"){
+            me.puedeEditar=1;
+            me.puedeActivar=1;
+            me.puedeHacerOpciones_especiales=1;
+            me.puedeCrear=1; 
+            }else{
+            me.puedeEditar=respuesta.edit;
+            me.puedeActivar=respuesta.activar;
+            me.puedeHacerOpciones_especiales=respuesta.especial;
+            me.puedeCrear=respuesta.crear;        
+            }           
+        })
+        .catch(function(error) {
+            error401(error);
+            console.log(error);
+        });
+},
+//--------------------------------------------------------------  
+
         listarCliente(page){
                 let me=this;
                 if (me.selectTipo!=0) {
@@ -569,8 +612,9 @@
             let me = this;
 
             if(me.correo==''){
-                me.correo="farmacia_pueto_del_rosario@gmail.com"
+                me.correo="farmacia_pueto_del_rosarioxwass1234887458888@gmail.com";
             }
+         
             // Expresión regular para verificar el formato del correo electrónico
             const correoRegex = /^[a-zA-Z0-9_]+([.][a-zA-Z0-9_]+)*@[a-zA-Z0-9_]+([.][a-zA-Z0-9_]+)*[.][a-zA-Z]{1,5}$/;
             // Verificar si el correo cumple con el formato válido
@@ -600,16 +644,16 @@
                     .post("/directorio/registrar", {
                         tipo_per_emp: me.selectTipo,
                         id_tipo_doc: me.selectTipoDoc,
-                        nombre: me.nombres.toUpperCase(),
-                        apellido: me.apellidos.toUpperCase(),
-                        num_documento: me.num_documento.toUpperCase(),
-                        ex: me.complemento_.toUpperCase(),                       
+                        nombre: me.nombres,
+                        apellido: me.apellidos,
+                        num_documento: me.num_documento,
+                        ex: me.complemento_,                       
                         correo: me.correo,
-                        nom_a_facturar: me.nombre_a_facturar.toUpperCase(),
+                        nom_a_facturar: me.nombre_a_facturar,
                         telefono: me.telefono,                      
-                        direccion: me.direccion.toUpperCase(),
-                        pais: me.pais.toUpperCase(),
-                        ciudad: me.ciudad.toUpperCase()                
+                        direccion: me.direccion,
+                        pais: me.pais,
+                        ciudad: me.ciudad               
                     })
                     .then(function (response) {
                         me.cerrarModal("registrar");
@@ -650,8 +694,12 @@
             }  
            
         },
+        
         actualizar() {
             let me = this;
+            if(me.correo==''){
+                me.correo="farmacia_pueto_del_rosarioxwass1234887458888@gmail.com";
+            }
                     // Expresión regular para verificar el formato del correo electrónico
                     const correoRegex = /^[a-zA-Z0-9_]+([.][a-zA-Z0-9_]+)*@[a-zA-Z0-9_]+([.][a-zA-Z0-9_]+)*[.][a-zA-Z]{1,5}$/;
                     if (!correoRegex.test(me.correo)) {
@@ -682,16 +730,16 @@
                         id_per_emp:me.id_per_emp,
                         tipo_per_emp: me.selectTipo,
                         id_tipo_doc: me.selectTipoDoc,
-                        nombre: me.nombres.toUpperCase(),
-                        apellido: me.apellidos.toUpperCase(),
-                        num_documento: me.num_documento.toUpperCase(),
-                        ex: me.complemento_.toUpperCase(),                       
+                        nombre: me.nombres,
+                        apellido:me.apellidos,
+                        num_documento:me.num_documento,
+                        ex:me.complemento_,                       
                         correo: me.correo,
-                        nom_a_facturar: me.nombre_a_facturar.toUpperCase(),
+                        nom_a_facturar:me.nombre_a_facturar,
                         telefono: me.telefono,                      
-                        direccion: me.direccion.toUpperCase(),
-                        pais: me.pais.toUpperCase(),
-                        ciudad: me.ciudad.toUpperCase() 
+                        direccion: me.direccion,
+                        pais: me.pais,
+                        ciudad: me.ciudad 
                 })
                 .then(function (response) {
                     me.listarCliente();
@@ -833,6 +881,10 @@
        },
        
        mounted() {
+        //-------permiso E_W_S-----
+        this.listarPerimsoxyz();
+        //      this.listarAlmacenes_tiendas_con_permisos();
+        //-----------------------
         this.classModal = new _pl.Modals();
         this.classModal.addModal('registrar');
         this.listarCliente();
