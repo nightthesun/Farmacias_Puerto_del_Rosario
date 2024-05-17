@@ -21,7 +21,7 @@ createApp ({
     .component('modulo-component',require('./components/administracion/ModuloVentanaAccionComponent.vue').default)
     .component('rolpermiso-component',require('./components/administracion/RolPermisoComponent.vue').default)
     .component('usuario-component',require('./components/administracion/UsuariosComponent.vue').default)
-
+    .component('configuracion-component',require('./components/administracion/ConfiguracionComponent.vue').default)
 
     //rrhh
     .component('rrhempleados-component',require('./components/recursos_humanos/EmpleadosComponent.vue').default)
@@ -81,9 +81,9 @@ createApp ({
     .component('cliente-component', require('./components/directorio/ClienteComponent.vue').default)
     //Ventas
     .component('gestor-venta-component', require('./components/venta/GestorVentaComponent.vue').default)
+    .component('venta-rapida-component', require('./components/venta/VentaRapidaComponent.vue').default)
+
     
-
-
   
     .mount('#app');
  
