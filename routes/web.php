@@ -18,6 +18,7 @@ use App\Http\Controllers\AdmUserRoleSucursalController;
 use App\Http\Controllers\AdmVentanaModuloController;
 use App\Http\Controllers\AlmAlmacenController;
 use App\Http\Controllers\AlmCodificacionController;
+use App\Http\Controllers\AlmIngresoProducto2Controller;
 use App\Http\Controllers\AlmIngresoProductoController;
 use App\Http\Controllers\DirClienteController;
 use App\Http\Controllers\TdaTiendaController;
@@ -413,12 +414,15 @@ Route::group(['middleware' => 'auth'], function () {
     
 
     //Ingreso de productos al almacen
+    Route::get('/almacen/listaAlmacen2', [AlmIngresoProducto2Controller::class, 'listaAlmacen']);
+
+
     Route::get('/almacen/ingreso-producto', [AlmIngresoProductoController::class, 'index']);
     Route::post('/almacen/ingreso-producto/registrar', [AlmIngresoProductoController::class, 'store']);
     Route::put('/almacen/ingreso-producto/actualizar', [AlmIngresoProductoController::class, 'update']);
     Route::put('/almacen/ingreso-producto/desactivar', [AlmIngresoProductoController::class, 'desactivar']);
     Route::put('/almacen/ingreso-producto/activar', [AlmIngresoProductoController::class, 'activar']);
-    Route::get('/almacen/ingreso-producto/retornarProductosIngreoAlmacen', [AlmIngresoProductoController::class, 'retornarProductosIngreoAlmacen']);
+    Route::get('/almacen/ingreso-producto/retornarProductosIngreoAlmacen', [AlmIngresoProductoController::class, 'retornarProductosIngreoAlmacen']);   
 
     Route::get('/tipodescuento/selecttipodescuento', [ProdTipoDescuentoController::class, 'selectTipoDescuento']);
 
@@ -433,6 +437,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/ventasmaestro', [SerVentaMaestroController::class, 'index']);
     Route::put('/ventasmaestro/desactivar', [SerVentaMaestroController::class, 'desactivar']);
     Route::put('/ventasmaestro/registrarventa', [SerVentaMaestroController::class, 'activar']);
+   
+
 
     //Tienda
     Route::get('/tienda', [TdaTiendaController::class, 'index']);

@@ -56,7 +56,8 @@ createApp ({
     .component('almacen-component', require('./components/almacenes/AlmacenComponent.vue').default)
     .component('ingreso-producto-component', require('./components/almacenes/IngresoProductoComponent.vue').default)
     .component('nuevo-almacen-component', require('./components/almacenes/NuevoAlmacenComponent.vue').default)
-
+    .component('nuevo-almacen2-component', require('./components/almacenes/IngresoProducto2Component.vue').default)
+   
     
     //Tienda
     .component('tienda-component', require('./components/tienda/TiendaComponent.vue').default)

@@ -121,7 +121,6 @@ $result = $tiendas->unionAll($almacenes)->get();
         'ass.id AS id_sucursal'
         )
         ->whereRaw($where2);
-
         $result = $tiendas->unionAll($almacenes)->get();
 }
 

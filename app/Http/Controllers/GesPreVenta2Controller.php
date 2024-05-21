@@ -133,6 +133,12 @@ class GesPreVenta2Controller extends Controller
                 WHEN ai.envase = 'terciario' THEN CONCAT(COALESCE(FORMAT(pp.preciolistaterciario / pp.cantidadterciario, 2), ''), '')
                 ELSE NULL
                 END AS costocompraEnvase"),
+                DB::raw("CASE
+                WHEN ai.envase = 'primario' THEN CONCAT(IFNULL(pp.cantidadprimario,''))
+                WHEN ai.envase = 'secundario' THEN CONCAT(IFNULL(pp.cantidadsecundario,''))
+                WHEN ai.envase = 'terciario' THEN CONCAT(IFNULL(pp.cantidadterciario,''))
+                ELSE NULL
+            END AS catidadEnvase"),  
                     'gpv.precio_lista_gespreventa as precio_lista_gespreventa',
                     'gpv.precio_venta_gespreventa as precio_venta_gespreventa',
                     'gpv.cantidad_envase_gespreventa as cantidad_envase_gespreventa',
@@ -253,6 +259,12 @@ class GesPreVenta2Controller extends Controller
                 WHEN ti.envase = 'terciario' THEN CONCAT(COALESCE(FORMAT(pp.preciolistaterciario / pp.cantidadterciario, 2), ''), '')
                 ELSE NULL
                 END AS costocompraEnvase"),
+                DB::raw("CASE
+                WHEN ti.envase = 'primario' THEN CONCAT(IFNULL(pp.cantidadprimario,''))
+                WHEN ti.envase = 'secundario' THEN CONCAT(IFNULL(pp.cantidadsecundario,''))
+                WHEN ti.envase = 'terciario' THEN CONCAT(IFNULL(pp.cantidadterciario,''))
+                ELSE NULL
+            END AS catidadEnvase"),  
                     'gpv.precio_lista_gespreventa as precio_lista_gespreventa',
                     'gpv.precio_venta_gespreventa as precio_venta_gespreventa',
                     'gpv.cantidad_envase_gespreventa as cantidad_envase_gespreventa',
@@ -391,6 +403,12 @@ class GesPreVenta2Controller extends Controller
                 WHEN ai.envase = 'terciario' THEN CONCAT(COALESCE(FORMAT(pp.preciolistaterciario / pp.cantidadterciario, 2), ''), '')
                 ELSE NULL
                 END AS costocompraEnvase"),
+            DB::raw("CASE
+                WHEN ai.envase = 'primario' THEN CONCAT(IFNULL(pp.cantidadprimario,''))
+                WHEN ai.envase = 'secundario' THEN CONCAT(IFNULL(pp.cantidadsecundario,''))
+                WHEN ai.envase = 'terciario' THEN CONCAT(IFNULL(pp.cantidadterciario,''))
+                ELSE NULL
+            END AS catidadEnvase"),  
                  'gpv.precio_lista_gespreventa as precio_lista_gespreventa',
                  'gpv.precio_venta_gespreventa as precio_venta_gespreventa',
                  'gpv.cantidad_envase_gespreventa as cantidad_envase_gespreventa',
@@ -508,6 +526,13 @@ class GesPreVenta2Controller extends Controller
                 WHEN ti.envase = 'terciario' THEN CONCAT(COALESCE(FORMAT(pp.preciolistaterciario / pp.cantidadterciario, 2), ''), '')
                 ELSE NULL
                 END AS costocompraEnvase"),
+            DB::raw("CASE
+                WHEN ti.envase = 'primario' THEN CONCAT(IFNULL(pp.cantidadprimario,''))
+                WHEN ti.envase = 'secundario' THEN CONCAT(IFNULL(pp.cantidadsecundario,''))
+                WHEN ti.envase = 'terciario' THEN CONCAT(IFNULL(pp.cantidadterciario,''))
+                ELSE NULL
+            END AS catidadEnvase"),    
+                 
                  'gpv.precio_lista_gespreventa as precio_lista_gespreventa',
                  'gpv.precio_venta_gespreventa as precio_venta_gespreventa',
                  'gpv.cantidad_envase_gespreventa as cantidad_envase_gespreventa',
@@ -541,9 +566,13 @@ class GesPreVenta2Controller extends Controller
              ->leftJoin('ges_pre__venta2s as gpv', 'gpv.id_table_ingreso_tienda_almacen', '=', 'pivot.id')
              ->leftJoin('users as u', 'u.id', '=', 'gpv.idusuario')
             ;
+        
             $queryCombinacion = $almacen->where('pivot.tipo', '=', 'ALM')->where('aa.codigo', '=', $bus)
             ->unionAll($tienda->where('pivot.tipo', '=', 'TDA')->where('tt.codigo','=',$bus)); 
+
+           
             $queryCombinacion = $queryCombinacion -> orderByRaw('id DESC')->paginate(15); 
+           
             return [
                 'pagination' => [
                     'total'         =>    $queryCombinacion->total(),
@@ -657,6 +686,12 @@ class GesPreVenta2Controller extends Controller
                     WHEN ai.envase = 'terciario' THEN COALESCE(FORMAT(prp.preciolista / pp.cantidadterciario, 2), '')
                     ELSE NULL
                 END AS costocompraEnvase"),
+                DB::raw("CASE
+                WHEN ai.envase = 'primario' THEN CONCAT(IFNULL(pp.cantidadprimario,''))
+                WHEN ai.envase = 'secundario' THEN CONCAT(IFNULL(pp.cantidadsecundario,''))
+                WHEN ai.envase = 'terciario' THEN CONCAT(IFNULL(pp.cantidadterciario,''))
+                ELSE NULL
+            END AS catidadEnvase"),  
                 'gpv.precio_lista_gespreventa AS precio_lista_gespreventa',
                 'gpv.precio_venta_gespreventa AS precio_venta_gespreventa',
                 'gpv.cantidad_envase_gespreventa AS cantidad_envase_gespreventa',
@@ -711,16 +746,14 @@ class GesPreVenta2Controller extends Controller
                 'plist.id as plist_id',
                 'plist.nombre_lista as nombre_lista',
                 'plist.codigo as cod_lista',
-                DB::raw("
-                    CASE 
+                DB::raw("CASE 
                         WHEN ti.envase = 'primario' THEN CONCAT(COALESCE(pp.nombre, ''), ' ', COALESCE(pd_1.nombre, ''), ' x ', COALESCE(pp.cantidadprimario, ''), ' ', COALESCE(ff_1.nombre, '')) 
                         WHEN ti.envase = 'secundario' THEN CONCAT(COALESCE(pp.nombre, ''), ' ', COALESCE(pd_2.nombre, ''), ' x ', COALESCE(pp.cantidadsecundario, ''), ' ', COALESCE(ff_2.nombre, '')) 
                         WHEN ti.envase = 'terciario' THEN CONCAT(COALESCE(pp.nombre, ''), ' ', COALESCE(pd_3.nombre, ''), ' x ', COALESCE(pp.cantidadterciario, ''), ' ', COALESCE(ff_3.nombre, '')) 
                         ELSE NULL 
                     END AS leyenda"
                 ),
-                DB::raw("
-                    CASE 
+                DB::raw("CASE 
                         WHEN ti.envase = 'primario' THEN CONCAT(COALESCE(pp.iddispenserprimario, '')) 
                         WHEN ti.envase = 'secundario' THEN CONCAT(COALESCE(pp.iddispensersecundario, '')) 
                         WHEN ti.envase = 'terciario' THEN CONCAT(COALESCE(pp.iddispenserterciario, '')) 
@@ -735,8 +768,7 @@ class GesPreVenta2Controller extends Controller
                         ELSE NULL 
                     END AS cantidadEnvase"
                 ),
-                DB::raw("
-                    CASE 
+                DB::raw("CASE 
                         WHEN ti.envase = 'primario' THEN CONCAT(COALESCE(pp.idformafarmaceuticaprimario, '')) 
                         WHEN ti.envase = 'secundario' THEN CONCAT(COALESCE(pp.idformafarmaceuticasecundario, '')) 
                         WHEN ti.envase = 'terciario' THEN CONCAT(COALESCE(pp.idformafarmaceuticaterciario, '')) 
@@ -747,8 +779,7 @@ class GesPreVenta2Controller extends Controller
                 'prp.precioventa as precioventaEnvase',
                 'prp.tiempopedido as tiempopedidoEnvase',
                 'prp.metodoabc as metodoabcEnvase',
-                DB::raw("
-                    CASE 
+                DB::raw("CASE 
                         WHEN ti.envase = 'primario' THEN CONCAT(COALESCE(pp.tiendaprimario, '')) 
                         WHEN ti.envase = 'secundario' THEN CONCAT(COALESCE(pp.tiendasecundario, '')) 
                         WHEN ti.envase = 'terciario' THEN CONCAT(COALESCE(pp.tiendaterciario, '')) 
@@ -763,14 +794,19 @@ class GesPreVenta2Controller extends Controller
                         ELSE NULL 
                     END AS almacenEnvase"
                 ),
-                DB::raw("
-                    CASE
+                DB::raw("CASE
                         WHEN ti.envase = 'primario' THEN CONCAT(COALESCE(FORMAT(prp.preciolista / pp.cantidadprimario, 2), ''), '')
                         WHEN ti.envase = 'secundario' THEN CONCAT(COALESCE(FORMAT(prp.preciolista / pp.cantidadsecundario, 2), ''), '')
                         WHEN ti.envase = 'terciario' THEN CONCAT(COALESCE(FORMAT(prp.preciolista / pp.cantidadterciario, 2), ''), '')
                         ELSE NULL
                     END AS costocompraEnvase"
                 ),
+                DB::raw("CASE
+                WHEN ai.envase = 'primario' THEN CONCAT(IFNULL(pp.cantidadprimario,''))
+                WHEN ai.envase = 'secundario' THEN CONCAT(IFNULL(pp.cantidadsecundario,''))
+                WHEN ai.envase = 'terciario' THEN CONCAT(IFNULL(pp.cantidadterciario,''))
+                ELSE NULL
+            END AS catidadEnvase"),  
                 'gpv.precio_lista_gespreventa AS precio_lista_gespreventa',
                 'gpv.precio_venta_gespreventa AS precio_venta_gespreventa',
                 'gpv.cantidad_envase_gespreventa AS cantidad_envase_gespreventa',
@@ -891,6 +927,12 @@ class GesPreVenta2Controller extends Controller
                  WHEN ai.envase = 'terciario' THEN COALESCE(FORMAT(prp.preciolista / pp.cantidadterciario, 2), '')
                  ELSE NULL
              END AS costocompraEnvase"),
+             DB::raw("CASE
+                WHEN ai.envase = 'primario' THEN CONCAT(IFNULL(pp.cantidadprimario,''))
+                WHEN ai.envase = 'secundario' THEN CONCAT(IFNULL(pp.cantidadsecundario,''))
+                WHEN ai.envase = 'terciario' THEN CONCAT(IFNULL(pp.cantidadterciario,''))
+                ELSE NULL
+            END AS catidadEnvase"),  
              'gpv.precio_lista_gespreventa AS precio_lista_gespreventa',
              'gpv.precio_venta_gespreventa AS precio_venta_gespreventa',
              'gpv.cantidad_envase_gespreventa AS cantidad_envase_gespreventa',
@@ -1005,6 +1047,12 @@ class GesPreVenta2Controller extends Controller
                      ELSE NULL
                  END AS costocompraEnvase"
              ),
+             DB::raw(" CASE
+                WHEN ti.envase = 'primario' THEN CONCAT(IFNULL(pp.cantidadprimario,''))
+                WHEN ti.envase = 'secundario' THEN CONCAT(IFNULL(pp.cantidadsecundario,''))
+                WHEN ti.envase = 'terciario' THEN CONCAT(IFNULL(pp.cantidadterciario,''))
+                ELSE NULL
+            END AS catidadEnvase"),  
              'gpv.precio_lista_gespreventa AS precio_lista_gespreventa',
              'gpv.precio_venta_gespreventa AS precio_venta_gespreventa',
              'gpv.cantidad_envase_gespreventa AS cantidad_envase_gespreventa',
