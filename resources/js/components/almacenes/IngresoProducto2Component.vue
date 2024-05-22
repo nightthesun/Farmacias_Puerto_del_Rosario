@@ -14,7 +14,7 @@
                     <button
                         type="button"
                         class="btn btn-secondary"
-                        @click="abrirModal('registrar');"
+                        @click="abrirModal('registrar');listarProductos_almacen();listar_entradasXe();"
                         :disabled="selectAlmTienda == 0"
                     >
                         <i class="icon-plus"></i>&nbsp;Nuevo
@@ -113,18 +113,82 @@
                             <!-- insertar datos -->
                             <div class="container">
                                 
-                                <div class="form-group row">
-                                <strong class="col-md-3 form-control-label" for="text-input">Producto: <span  class="error">(*)</span></strong>
+                                <div class="form-group row"  >
+                                <strong  class="col-md-3 form-control-label" for="text-input">Producto: <span v-if="selected == null" class="error" >(*)</span></strong>
                                 <div class="col-md-7 input-group mb-3">
+                                    
+                    <VueMultiselect
+                        v-model="selected"
+                        :options="arrayProductos"
+                        :max-height="190"                   
+                        :block-keys="['Tab', 'Enter']"                       
+                        placeholder="Seleccione una opción"
+                        label="leyenda" 
+                        :custom-label="nameWithLang"                     
+                        track-by="id"
+                        class="w-250"
+                        selectLabel="Añadir a seleccion"
+                        deselectLabel="Quitar seleccion"
+                        selectedLabel="Seleccionado"
+                       >
+                       <template #noResult>
+                        No se encontraron elementos. Considere cambiar la consulta de búsqueda.
+                      </template>
+                    </VueMultiselect>
+           
+
                                     <!-- <option value="0" disabled>Seleccionar...</option>
                                     <option v-if="producto.almacenprimario == 1" :key="producto.idproduc" :value="producto.idproduc" v-text="producto.cod"></option> -->
                                 </div>
                            
-                                <span v-if="idproductoselected==0" class="error">Debe Ingresar el Nombre del producto</span>
+                                <span v-if="selected==null" class="error">Debe Ingresar el Nombre del producto</span>
                             </div>
                               
                             
                                
+                            </div>
+
+                            <div class="row">
+                                <div class="form-group col-sm-4" v-if="selected != null">
+                                    <strong>Cantidad: <span  v-if="cantidad==0" class="error">(*)</span></strong>
+                                    <input type="number" min="0" class="form-control" v-model="cantidad" style="text-align:right" placeholder="0" v-on:focus="selectAll" onkeypress="return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 48 && event.charCode <= 57))">
+                                    <span  v-if="cantidad==0" class="error">Debe Ingresar la Cantidad </span>
+                                </div>
+                                <div class="form-group col-sm-4" v-if="selected != null">
+                                    <strong>Tipo Entrada:</strong>
+                                    <select v-model="selectEntrada" class="form-control">
+                                        <option value="0" disabled>Seleccionar...</option>
+                                        <option v-for="tipo in arrayTipoEntrada" :key="tipo.id" :value="tipo.id" v-text="tipo.nombre"></option>
+                                    </select>
+                                    <span  v-if="selectEntrada==0" class="error">Debe seleccionar un tipo de entrada</span>
+                                </div>
+                                <div class="form-group col-sm-4" v-if="selected != null">
+                                    <strong>Lote: <span  v-if="lote==''" class="error">(*)</span></strong>
+                                    <input type="text" class="form-control" placeholder="Lote"  v-model="lote" v-on:focus="selectAll">
+                                    <span  v-if="lote==''" class="error">Debe Ingresar el lote</span>
+                                </div>
+                            </div>
+                            <div class="row">
+                               
+                                <div class="form-group col-sm-4" v-if="selected != null">
+                                    <strong>Fecha de Vencimiento: <span  v-if="fecha_vencimiento==''" class="error">(*)</span></strong>
+                                    <input type="date" :min="fechamin" class="form-control" v-model="fecha_vencimiento">
+                                    <span  v-if="fecha_vencimiento==''" class="error">Debe Ingresar la fecha de Vencimiento</span>
+                                </div>
+                                
+                                <div class="form-group col-sm-4" v-if="selected != null">
+                                    <strong>Registro Sanitario:<span  v-if="registrosanitario==''" class="error">(*)</span></strong>
+                                    <input type="text" class="form-control" placeholder="Registro Sanitario" v-model="registrosanitario" v-on:focus="selectAll" onkeypress="return (event.charCode !=8 && event.charCode == 0 || (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 45 || event.charCode == 13 || event.charCode == 32 )">
+                                    <span  v-if="registrosanitario==''" class="error">Debe Ingresar el Registro Sanitario</span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group col-sm-6 " v-if="selected != null">
+                                    <strong>Codigo QR: </strong><br><br>
+                                    <qrcode-vue :value="codigoQr" :size="size" level="H" />
+                             
+                                </div>
+                              
                             </div>
                         </form>
                     </div>
@@ -164,10 +228,14 @@
 
 <script>
 import Swal from "sweetalert2";
+import QrcodeVue from 'qrcode.vue';
 import { error401 } from "../../errores";
 import VueMultiselect from 'vue-multiselect';
+import { watch } from 'vue';
 //Vue.use(VeeValidate);
 export default {
+    components: { VueMultiselect ,QrcodeVue},
+   
     data() {
         return {
             pagination: {
@@ -177,8 +245,7 @@ export default {
                 last_page: 0,
                 from: 0,
                 to: 0,
-            },
-          
+            },          
 
             tituloModal: "",
             selectAlmTienda:0,
@@ -186,23 +253,51 @@ export default {
             buscar:"",
             tipoAccion:1,
             
+            arrayProductos:[],
+            cantidad:0,
+            arrayTipoEntrada:[],
+            selectEntrada:0,
+            lote:'',
+            fecha_vencimiento:'',
+            registrosanitario:'',
+            //-------multiselector
+            selected: null,
+        options: ['list', 'of', 'options'],
+        codigoQr:'',
+        value: 'https://example.com',
+        size: 120,
+
+        idalmacen_v:'',
+        id_prod_producto_v:'',
+        id_tipoentrada_v:'',    
+        envase_v:'',
+        cantidad_v:'',
+        stock_ingreso_v:'',    
+
+        fechamin:'',
+        fechaactual:'',
+
+
         };
     },
 
-   
+    
 
-    computed: {
-      //  sicompleto() {
-      //      let me = this;
-       //     if (
-          
-     //           me.glosa != "" &&
-     //           me.cantidadS != "" &&
-     //           me.ProductoLineaIngresoSeleccionado
-     //       )
-       //         return true;
-      //      else return false;
-      //  },
+    computed: {      
+        codigoQr() {
+      if (this.selected.codigo_prod) {
+        // Verifica si el campo de entrada está lleno
+        return this.selected.codigo_prod + ' ' + this.selected.leyenda + ' tipo de envase: ' + this.selected.envase + ' lote: ' + this.lote + ' ' + this.fecha_vencimiento + ' tipo de entrada: ' + this.selectEntrada;
+      } else {
+        return 'codigo error';
+      }
+    },
+       sicompleto() {
+            let me = this;
+            if (me.selected != null && me.cantidad != 0 && me.selectEntrada!=0 && me.lote!="" && me.fecha_vencimiento!=""&&me.registrosanitario!="")
+       return true;
+        else return false;
+      },
         isActived: function () {
             return this.pagination.current_page;
         },
@@ -229,6 +324,64 @@ export default {
     },
 
     methods: {
+
+        nameWithLang ({codigo_prod,leyenda, envase,}) {
+            
+            return `${codigo_prod} ${leyenda} (${envase}) `
+          },
+
+        toggle () {
+      this.$refs.multiselect.$el.focus()
+
+      setTimeout(() => {
+        this.$refs.multiselect.$refs.search.blur()
+      }, 1000)
+    },
+    open () {
+      this.$refs.multiselect.activate()
+    },
+    close () {
+      this.$refs.multiselect.deactivate()
+    },
+
+        listar_entradasXe() {
+            let me = this;
+            var url = "/listar_entradasXe";
+            axios
+                .get(url)
+                .then(function (response) {
+                    var respuesta = response.data;
+                    me.arrayTipoEntrada = respuesta;
+                 
+                })
+                .catch(function (error) {
+                    error401(error);
+                    console.log(error);
+                });
+        },
+
+        listarProductos_almacen() {
+            let me = this;
+            var url = "/almacen/listarProductos_almacen";
+            axios
+                .get(url)
+                .then(function (response) {
+                    var respuesta = response.data;
+                    me.arrayProductos = respuesta;
+                 
+                })
+                .catch(function (error) {
+                    error401(error);
+                    console.log(error);
+                });
+        },
+        cambiarPestana(idPestana) {
+            this.pestañaActiva = idPestana;
+
+            // Agrega aquí la lógica adicional que necesites al cambiar la pestaña
+        },
+
+
         listarAlmTienda() {
             let me = this;
             var url = "/almacen/listaAlmacen2";
@@ -267,8 +420,19 @@ export default {
          switch (accion) {
                 case "registrar": {
                     me.tipoAccion = 1;
-                    me.tituloModal = "Registro de traspaso origen ";
-            
+                    me.tituloModal = "Ingreso de productos al alamcen";
+                    me.selectEntrada=0;
+                    me.lote='';
+                    me.fecha_vencimiento='';
+                    me.registrosanitario='';
+                    me.selected=null;
+                    me.cantidad=0;
+                    me.id_almacen=me.selectAlmTienda;
+                    me.idalmacen_v='';
+                    me.id_prod_producto_v='';
+                    me.id_tipoentrada_v='';    
+                    me.envase_v='';                    
+                    me.stock_ingreso_v='';    
                     me.classModal.openModal("registrar");
                     break;
                 }
@@ -290,7 +454,18 @@ export default {
                 me.classModal.closeModal(accion);
                
                     me.tituloModal = " ";
-             
+                    me.selectEntrada=0;
+                    me.lote='';
+                    me.fecha_vencimiento='';
+                    me.registrosanitario='';
+                    me.selected=null;
+                    me.cantidad=0;
+                    me.id_almacen=me.selectAlmTienda;
+                    me.idalmacen_v='';
+                    me.id_prod_producto_v='';
+                    me.id_tipoentrada_v='';    
+                    me.envase_v='';                    
+                    me.stock_ingreso_v='';  
                     setTimeout(me.tiempo, 200); 
                     //me.ProductoLineaIngresoSeleccionado = 0;
                     me.inputTextBuscarProductoIngreso = "";
@@ -303,7 +478,62 @@ export default {
             }
         },
 
-     
+        registrarProductoEnAlmacen(){
+                let me = this;
+                axios.post('/almacen/ingreso-producto/registrar',{
+                    'id_prod_producto':me.idproductoRealSeleccionado,
+                    'envase':me.envaseProductoSelecionadoIngresoAlmacen,
+                    'idalmacen':me.almacenselected,
+                    'cantidad':me.cantidad,
+                    'id_tipo_entrada':me.tipo_entrada,
+                    'fecha_vencimiento':me.fecha_vencimiento,
+                    'lote':me.lote,
+                    'registro_sanitario':me.registrosanitario,
+                    //'codigo_internacional':me.codigointernacional, 
+                }).then(function(response){
+                    Swal.fire('Registrado Correctamente')
+                    me.cerrarModal('registrar');
+                    me.listarProductosAlmacen(1);
+                })
+                //.catch(function(error){
+                //    error401(error);
+                //    console.log(error);
+                //});
+                .catch(function (error) {                  
+                if (error.response.status === 500) {
+                    me.errorMsg = error.response.data.error; // Asigna el mensaje de error a la variable errorMsg
+                Swal.fire(
+                    "Error",
+                    "500 (Internal Server Error)"+me.errorMsg, // Muestra el mensaje de error en el alert
+                    "error"
+                );
+                }else{
+                    Swal.fire(
+                    "Error",
+                    ""+error, // Muestra el mensaje de error en el alert
+                    "error"
+                );  
+                }              
+            });
+            },
+
+      obtenerfecha(){
+                let me = this;
+                var url= '/obtenerfecha';
+                axios.get(url).then(function (response) {
+                    var respuesta= response.data; 
+                    me.fechaactual=respuesta[0].fecha;
+                    me.fechamin=me.fechaactual
+                    me.fecha_vencimiento=me.fechaactual;
+                })
+                .catch(function (error) {
+                    error401(error);
+                    console.log(error);
+                });
+                
+                
+                //me.fechafactura=me.fechaactual;
+            },
 
         selectAll: function (event) {
             setTimeout(function () {
@@ -315,6 +545,7 @@ export default {
     mounted() {
         this.classModal = new _pl.Modals();
         this.listarAlmTienda();
+        this.obtenerfecha(1);
         this.classModal.addModal("registrar");
     
     
@@ -327,3 +558,4 @@ export default {
     font-size: 10px;
 }
 </style>
+<style src="vue-multiselect/dist/vue-multiselect.css"></style>

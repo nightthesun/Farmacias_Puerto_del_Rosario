@@ -944,7 +944,7 @@ watch: {
                 .then(function (response) {
                     var respuesta = response.data;
                     me.arrayProducto = respuesta;
-                    console.log(me.arrayProducto);
+                
                 })
                 .catch(function (error) {
                     error401(error);

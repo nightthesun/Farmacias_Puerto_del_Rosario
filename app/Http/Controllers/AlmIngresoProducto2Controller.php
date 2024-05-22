@@ -57,6 +57,105 @@ class AlmIngresoProducto2Controller extends Controller
         //
     }
 
+    public function listarProductos_almacen(Request $request){
+
+        $primario = DB::table('prod__productos as pp')
+    ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
+    ->join('adm__rubros as ar', 'pp.idrubro', '=', 'ar.id')
+    ->join('prod__dispensers AS pd_1', 'pd_1.id', '=', 'pp.iddispenserprimario')
+    ->join('prod__forma_farmaceuticas AS ff_1', 'ff_1.id', '=', 'pp.idformafarmaceuticaprimario')
+    ->where('pp.almacenprimario', 1)
+    ->where('pp.tiendaprimario', 0)
+    ->where('pp.idrubro', 1)
+    ->where('pp.activo', 1)
+    ->select(
+        'pp.id',
+        'pp.codigo as codigo_prod',
+        'pp.nombre as nombre_prod',
+        'pp.idlinea as id_liena',
+        'pl.nombre as nombre_linea',
+        'pp.idrubro as id_rubro',
+        'ar.nombre as nombre_rubro',
+        'pp.iddispenserprimario as id_dispenser',
+        'pd_1.nombre as nombre_dispenser',
+        'pp.cantidadprimario as cantidad_D',
+        'pp.idformafarmaceuticaprimario as id_forma',
+        'ff_1.nombre as nombre_forma',
+        'pp.preciolistaprimario as precio_prod_lista',
+        'pp.precioventaprimario as precio_venta',
+        'pp.tiempopedidoprimario as tiempo_D',
+        'pp.metodoabcprimario as metodo',
+        DB::raw("'primario' as envase"),
+        DB::raw("CONCAT(IFNULL(pp.nombre, ''), ' ', IFNULL(pd_1.nombre, ''), ' x ', IFNULL(pp.cantidadprimario, ''), ' ', IFNULL(ff_1.nombre, '')) AS leyenda")
+    )
+    ->orderBy('pp.id', 'desc');
+
+    $secundario = DB::table('prod__productos as pp')
+    ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
+    ->join('adm__rubros as ar', 'pp.idrubro', '=', 'ar.id')
+    ->join('prod__dispensers AS pd_1', 'pd_1.id', '=', 'pp.iddispensersecundario')
+    ->join('prod__forma_farmaceuticas AS ff_1', 'ff_1.id', '=', 'pp.idformafarmaceuticasecundario')
+    ->where('pp.almacensecundario', 1)
+    ->where('pp.tiendasecundario', 0)
+    ->where('pp.idrubro', 1)
+    ->where('pp.activo', 1)
+    ->select(
+        'pp.id',
+        'pp.codigo as codigo_prod',
+        'pp.nombre as nombre_prod',
+        'pp.idlinea as id_liena',
+        'pl.nombre as nombre_linea',
+        'pp.idrubro as id_rubro',
+        'ar.nombre as nombre_rubro',
+        'pp.iddispensersecundario as id_dispenser',
+        'pd_1.nombre as nombre_dispenser',
+        'pp.cantidadsecundario as cantidad_D',
+        'pp.idformafarmaceuticasecundario as id_forma',
+        'ff_1.nombre as nombre_forma',
+        'pp.preciolistasecundario as precio_prod_lista',
+        'pp.precioventasecundario as precio_venta',
+        'pp.tiempopedidosecundario as tiempo_D',
+        'pp.metodoabcsecundario as metodo',
+        DB::raw("'secundario' as envase"),
+        DB::raw("CONCAT(IFNULL(pp.nombre, ''), ' ', IFNULL(pd_1.nombre, ''), ' x ', IFNULL(pp.cantidadsecundario, ''), ' ', IFNULL(ff_1.nombre, '')) AS leyenda")
+    )->orderBy('pp.id', 'desc');
+
+$terciario = DB::table('prod__productos as pp')
+    ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
+    ->join('adm__rubros as ar', 'pp.idrubro', '=', 'ar.id')
+    ->join('prod__dispensers AS pd_1', 'pd_1.id', '=', 'pp.iddispenserterciario')
+    ->join('prod__forma_farmaceuticas AS ff_1', 'ff_1.id', '=', 'pp.idformafarmaceuticaterciario')
+    ->where('pp.almacenterciario', 1)
+    ->where('pp.tiendaterciario', 0)
+    ->where('pp.idrubro', 1)
+    ->where('pp.activo', 1)
+    ->select(
+        'pp.id',
+        'pp.codigo as codigo_prod',
+        'pp.nombre as nombre_prod',
+        'pp.idlinea as id_liena',
+        'pl.nombre as nombre_linea',
+        'pp.idrubro as id_rubro',
+        'ar.nombre as nombre_rubro',
+        'pp.iddispenserterciario as id_dispenser',
+        'pd_1.nombre as nombre_dispenser',
+        'pp.cantidadterciario as cantidad_D',
+        'pp.idformafarmaceuticaterciario as id_forma',
+        'ff_1.nombre as nombre_forma',
+        'pp.preciolistaterciario as precio_prod_lista',
+        'pp.precioventaterciario as precio_venta',
+        'pp.tiempopedidoterciario as tiempo_D',
+        'pp.metodoabcterciario as metodo',
+        DB::raw("'terciario' as envase"),
+        DB::raw("CONCAT(IFNULL(pp.nombre, ''), ' ', IFNULL(pd_1.nombre, ''), ' x ', IFNULL(pp.cantidadterciario, ''), ' ', IFNULL(ff_1.nombre, '')) AS leyenda")
+    )->orderBy('pp.id', 'desc');
+    $productos = $primario->union($secundario)->union($terciario)->get();
+    return $productos;
+
+    }
+
+   
+
    public function listaAlmacen(Request $request){
     $iduserrolesuc = session('iduserrolesuc');
     $idsuc = session('idsuc');

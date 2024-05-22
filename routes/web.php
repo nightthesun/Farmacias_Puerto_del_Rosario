@@ -151,6 +151,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/listarSucursalGet', [GetController::class, 'listarSucursalGet']);
     Route::get('/listarTipoDoc', [GetController::class, 'listarTipoDoc']);  
     Route::get('/listarEx', [GetController::class, 'listarEx']);   
+    Route::get('/listar_entradasXe', [GetController::class, 'listar_entradasXe']);   
+    
+    
    
     //adm///////////////////////////////////////////////////////////////////////////////////
 
@@ -415,7 +418,8 @@ Route::group(['middleware' => 'auth'], function () {
 
     //Ingreso de productos al almacen
     Route::get('/almacen/listaAlmacen2', [AlmIngresoProducto2Controller::class, 'listaAlmacen']);
-
+    Route::get('/almacen/listarProductos_almacen', [AlmIngresoProducto2Controller::class, 'listarProductos_almacen']);
+    
 
     Route::get('/almacen/ingreso-producto', [AlmIngresoProductoController::class, 'index']);
     Route::post('/almacen/ingreso-producto/registrar', [AlmIngresoProductoController::class, 'store']);
