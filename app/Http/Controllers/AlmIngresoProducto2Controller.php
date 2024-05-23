@@ -12,9 +12,158 @@ class AlmIngresoProducto2Controller extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $buscararray=array();        
+        if(!empty($request->buscar))
+        {
+            $buscararray = explode(" ",$request->buscar);
+            $valor=sizeof($buscararray);
+            if($valor > 0){
+                $sqls='';              
+                foreach($buscararray as $valor)
+                {
+                    if(empty($sqls)){
+                        $sqls="(
+                            pl.nombre like '%".$valor."%' 
+                                or pp.codigo like '%".$valor."%' 
+                                or pl.nombre like '%".$valor."%' 
+                                or aip.lote like '%".$valor."%'
+                                                             
+                              )" ;
+                    }
+                    else
+                    {
+                        $sqls.="and (
+                            pl.nombre like '%".$valor."%' 
+                            or pp.codigo like '%".$valor."%' 
+                            or pl.nombre like '%".$valor."%' 
+                            or aip.lote like '%".$valor."%'  
+                          )" ;
+                    }    
+                }
+            
+$almacen = DB::table('alm__ingreso_producto as aip')
+    ->select([
+        'aip.id',
+        'aip.id_prod_producto',
+        'aip.id_tipoentrada',
+        'aip.envase',
+        'aip.cantidad',
+        'aip.stock_ingreso',
+        'aip.registro_sanitario',
+        'aip.fecha_vencimiento',
+        'aip.lote',
+        'aip.activo',
+        'pp.codigo as codigo_prod',
+        'pl.nombre as nombre_linea',
+        'pl.id as id_linea',
+        DB::raw("CASE
+            WHEN aip.envase = 'primario' THEN CONCAT(IFNULL(pp.nombre, ''), ' ', IFNULL(pd_1.nombre, ''), ' x ', IFNULL(pp.cantidadprimario, ''), ' ', IFNULL(ff_1.nombre, ''))
+            WHEN aip.envase = 'secundario' THEN CONCAT(IFNULL(pp.nombre, ''), ' ', IFNULL(pd_2.nombre, ''), ' x ', IFNULL(pp.cantidadsecundario, ''), ' ', IFNULL(ff_2.nombre, ''))
+            WHEN aip.envase = 'terciario' THEN CONCAT(IFNULL(pp.nombre, ''), ' ', IFNULL(pd_3.nombre, ''), ' x ', IFNULL(pp.cantidadterciario, ''), ' ', IFNULL(ff_3.nombre, ''))
+            ELSE NULL
+        END as leyenda"),
+        'u.name as user_name',
+        'u.id as user_id',
+        'u_modi.name as user_name_M',
+        'u_modi.id as user_id_M','aip.num_traspaso',
+        DB::raw('GREATEST(aip.created_at, aip.updated_at) as fecha'),'aip.idalmacen','aa.codigo as codigo_alm'
+    ])
+    ->join('prod__productos as pp', 'pp.id', '=', 'aip.id_prod_producto')
+    ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
+    ->join('adm__rubros as ar', 'pp.idrubro', '=', 'ar.id')
+    ->join('prod__tipo_entradas as pte', 'pte.id', '=', 'aip.id_tipoentrada')
+    ->leftJoin('prod__dispensers as pd_1', 'pd_1.id', '=', 'pp.iddispenserprimario')
+    ->leftJoin('prod__dispensers as pd_2', 'pd_2.id', '=', 'pp.iddispensersecundario')
+    ->leftJoin('prod__dispensers as pd_3', 'pd_3.id', '=', 'pp.iddispenserterciario')
+    ->leftJoin('prod__forma_farmaceuticas as ff_1', 'ff_1.id', '=', 'pp.idformafarmaceuticaprimario')
+    ->leftJoin('prod__forma_farmaceuticas as ff_2', 'ff_2.id', '=', 'pp.idformafarmaceuticasecundario')
+    ->leftJoin('prod__forma_farmaceuticas as ff_3', 'ff_3.id', '=', 'pp.idformafarmaceuticaterciario')
+    ->join('users as u', 'u.id', '=', 'aip.id_usuario_registra')
+    ->leftJoin('users as u_modi', 'u_modi.id', '=', 'aip.id_usuario_modifica')
+    ->join('alm__almacens as aa', 'aa.id', '=', 'aip.idalmacen')
+    
+    ->where('aip.idalmacen', $request->id_almacen)
+    ->where('pp.activo', 1)
+    ->whereRaw($sqls)
+    ->orderBy('id', 'desc')
+    ->paginate(15);
+            }   
+            return 
+            [
+                    'pagination'=>
+                        [
+                            'total'         =>    $almacen->total(),
+                            'current_page'  =>    $almacen->currentPage(),
+                            'per_page'      =>    $almacen->perPage(),
+                            'last_page'     =>    $almacen->lastPage(),
+                            'from'          =>    $almacen->firstItem(),
+                            'to'            =>    $almacen->lastItem(),
+                        ] ,
+                    'almacen'=>$almacen,
+            ]; 
+        } else {
+            $almacen = DB::table('alm__ingreso_producto as aip')
+            ->select([
+                'aip.id',
+                'aip.id_prod_producto',
+                'aip.id_tipoentrada',
+                'aip.envase',
+                'aip.cantidad',
+                'aip.stock_ingreso',
+                'aip.registro_sanitario',
+                'aip.fecha_vencimiento',
+                'aip.lote',
+                'aip.activo',
+                'pp.codigo as codigo_prod',
+                'pl.nombre as nombre_linea',
+                'pl.id as id_linea',
+                DB::raw("CASE
+                    WHEN aip.envase = 'primario' THEN CONCAT(IFNULL(pp.nombre, ''), ' ', IFNULL(pd_1.nombre, ''), ' x ', IFNULL(pp.cantidadprimario, ''), ' ', IFNULL(ff_1.nombre, ''))
+                    WHEN aip.envase = 'secundario' THEN CONCAT(IFNULL(pp.nombre, ''), ' ', IFNULL(pd_2.nombre, ''), ' x ', IFNULL(pp.cantidadsecundario, ''), ' ', IFNULL(ff_2.nombre, ''))
+                    WHEN aip.envase = 'terciario' THEN CONCAT(IFNULL(pp.nombre, ''), ' ', IFNULL(pd_3.nombre, ''), ' x ', IFNULL(pp.cantidadterciario, ''), ' ', IFNULL(ff_3.nombre, ''))
+                    ELSE NULL
+                END as leyenda"),
+                'u.name as user_name',
+                'u.id as user_id',
+                'u_modi.name as user_name_M',
+                'u_modi.id as user_id_M','aip.num_traspaso',
+                DB::raw('GREATEST(aip.created_at, aip.updated_at) as fecha'),'aip.idalmacen','aa.codigo as codigo_alm'
+            ])
+            ->join('prod__productos as pp', 'pp.id', '=', 'aip.id_prod_producto')
+            ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
+            ->join('adm__rubros as ar', 'pp.idrubro', '=', 'ar.id')
+            ->join('prod__tipo_entradas as pte', 'pte.id', '=', 'aip.id_tipoentrada')
+            ->leftJoin('prod__dispensers as pd_1', 'pd_1.id', '=', 'pp.iddispenserprimario')
+            ->leftJoin('prod__dispensers as pd_2', 'pd_2.id', '=', 'pp.iddispensersecundario')
+            ->leftJoin('prod__dispensers as pd_3', 'pd_3.id', '=', 'pp.iddispenserterciario')
+            ->leftJoin('prod__forma_farmaceuticas as ff_1', 'ff_1.id', '=', 'pp.idformafarmaceuticaprimario')
+            ->leftJoin('prod__forma_farmaceuticas as ff_2', 'ff_2.id', '=', 'pp.idformafarmaceuticasecundario')
+            ->leftJoin('prod__forma_farmaceuticas as ff_3', 'ff_3.id', '=', 'pp.idformafarmaceuticaterciario')
+            ->join('users as u', 'u.id', '=', 'aip.id_usuario_registra')
+            ->leftJoin('users as u_modi', 'u_modi.id', '=', 'aip.id_usuario_modifica')
+            ->join('alm__almacens as aa', 'aa.id', '=', 'aip.idalmacen')
+            ->where('aip.idalmacen', $request->id_almacen)
+            ->where('pp.activo', 1)
+    
+            ->orderBy('id', 'desc')
+            ->paginate(15); 
+         
+            return 
+            [
+                    'pagination'=>
+                        [
+                            'total'         =>    $almacen->total(),
+                            'current_page'  =>    $almacen->currentPage(),
+                            'per_page'      =>    $almacen->perPage(),
+                            'last_page'     =>    $almacen->lastPage(),
+                            'from'          =>    $almacen->firstItem(),
+                            'to'            =>    $almacen->lastItem(),
+                        ] ,
+                    'almacen'=>$almacen,
+            ]; 
+        }
     }
 
     /**
@@ -30,7 +179,52 @@ class AlmIngresoProducto2Controller extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $primerGuardadoExitoso = false;
+
+try {
+    // Iniciar una transacción
+    DB::beginTransaction();
+
+    $nuevoProducto = new Alm_IngresoProducto2();
+    $nuevoProducto->id_prod_producto = $request->id_prod_producto;
+    $nuevoProducto->envase = $request->envase;
+    $nuevoProducto->idalmacen = $request->idalmacen;
+    $nuevoProducto->cantidad = $request->cantidad;
+    $nuevoProducto->stock_ingreso = $request->cantidad;
+    $nuevoProducto->id_tipoentrada = $request->id_tipo_entrada;
+    $nuevoProducto->fecha_vencimiento = $request->fecha_vencimiento;
+    $nuevoProducto->lote = $request->lote;
+    $nuevoProducto->registro_sanitario = $request->registro_sanitario;
+    $nuevoProducto->id_usuario_registra = auth()->user()->id;
+    $nuevoProducto->save();
+    // Obtener el ID asignado al nuevo producto
+    $nuevoProductoID = $nuevoProducto->id;
+    // Indicar que el primer guardado fue exitoso
+    $primerGuardadoExitoso = true;         
+            $datos = [
+                'id_tienda_almacen' => $request->idalmacen,              
+                'id_ingreso' => $nuevoProductoID,
+                'tipo' => "ALM",               
+            ];
+        
+    DB::table('pivot__modulo_tienda_almacens')->insert($datos);
+   // $pivote = new Pivot_Modulo_tienda_almacen();
+   // $pivote->id_tienda_almacen = $request->idalmacen;
+   // $pivote->id_ingreso = $nuevoProductoID;
+   // $pivote->save();
+
+    // Si llegamos aquí sin errores, confirmamos la transacción
+    DB::commit();
+} catch (\Throwable $th) {
+    // Si el primer guardado fue exitoso y ocurre un error, revertimos la transacción
+    if ($primerGuardadoExitoso) {
+        DB::rollback();
+        // Eliminar el producto guardado
+        $nuevoProducto->delete();
+    }
+    return response()->json(['error' => $th->getMessage()],500);
+}
+        
     }
 
     /**
@@ -54,7 +248,18 @@ class AlmIngresoProducto2Controller extends Controller
      */
     public function update(Request $request, Alm_IngresoProducto2 $alm_IngresoProducto2)
     {
-        //
+        $actualizarProducto = Alm_IngresoProducto2::findOrFail($request->id);
+        $actualizarProducto->id_prod_producto = $request->id_prod_producto;
+        $actualizarProducto->envase = $request->envase;
+        $actualizarProducto->idalmacen = $request->idalmacen;
+        $actualizarProducto->cantidad = $request->cantidad;
+        $actualizarProducto->stock_ingreso = $request->cantidad;
+        $actualizarProducto->id_tipoentrada = $request->id_tipo_entrada;
+        $actualizarProducto->fecha_vencimiento = $request->fecha_vencimiento;
+        $actualizarProducto->lote = $request->lote;
+        $actualizarProducto->registro_sanitario = $request->registro_sanitario;
+        $actualizarProducto->id_usuario_registra=auth()->user()->id;
+        $actualizarProducto->save();
     }
 
     public function listarProductos_almacen(Request $request){
@@ -226,4 +431,22 @@ $terciario = DB::table('prod__productos as pp')
         return $resultadoConsulta;
     }
    }
+
+   public function desactivar(Request $request)
+    {
+        $actualizarProducto = Alm_IngresoProducto2::findOrFail($request->id);
+        $actualizarProducto->activo = 0;
+        $actualizarProducto->id_usuario_modifica=auth()->user()->id;
+        $actualizarProducto->save();
+    }
+
+    public function activar(Request $request)
+    {
+        $actualizarProducto = Alm_IngresoProducto2::findOrFail($request->id);
+        $actualizarProducto->activo = 1;
+        $actualizarProducto->id_usuario_modifica=auth()->user()->id;
+        $actualizarProducto->save();
+    }
+
+
 }

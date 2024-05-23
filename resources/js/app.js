@@ -63,8 +63,8 @@ createApp ({
     .component('tienda-component', require('./components/tienda/TiendaComponent.vue').default)
     .component('tienda-ingreso-producto-component', require('./components/tienda/TiendaIngresoProductoComponent.vue').default)
     .component('tienda-codificacion-component', require('./components/tienda/TiendaCodificacionComponent.vue').default)
-
-
+    .component('tienda-ingreso-producto2-component', require('./components/tienda/TiendaIngresoProducto2Component.vue').default)
+    
     //Gestion de precios
     .component('precio-venta-component', require('./components/gestion_precios/PrecioVentaComponent.vue').default)
     .component('precio-venta-component2', require('./components/gestion_precios/PrecioVenta2Component.vue').default)

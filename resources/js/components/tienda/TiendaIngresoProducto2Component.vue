@@ -10,7 +10,7 @@
         <div class="container-fluid">
             <div class="card">
                 <div class="card-header">
-                    <i class="fa fa-align-justify"></i>  Entrada de Productos a Almacenes               
+                    <i class="fa fa-align-justify"></i>  Entrada de Productos a la Tienda            
                     <button v-if="puedeCrear==1"
                         type="button"
                         class="btn btn-secondary"
@@ -513,7 +513,7 @@ tiene_movimiento(id_almacen,id_index,ingresoProducto){
 
         listarAlmTienda() {
             let me = this;
-            var url = "/almacen/listaAlmacen2";
+            var url = "/tienda/listaTienda2";
             axios
                 .get(url)
                 .then(function (response) {
