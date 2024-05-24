@@ -184,8 +184,17 @@ return $result;
 
         $idTiendaAlmacen = $request->id_T_A;
         $idIngreso = $request->id_ingreso;
-        $tipo = 'ALM';
-     
+        $almXtda = $request->almXtda;
+         // para tienda es 1 y para almacen es 2   
+        if($almXtda==1){
+            //es tienda
+            $tipo = 'TDA';
+        }else {
+            //es almacen
+            $tipo = 'ALM';
+        }
+        
+        
     $query1 = DB::table('ges_pre__venta2s as gpv')
     ->join('pivot__modulo_tienda_almacens as piv', 'piv.id', '=', 'gpv.id_table_ingreso_tienda_almacen')
     ->select('gpv.listo_venta')

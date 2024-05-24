@@ -452,6 +452,12 @@ Route::group(['middleware' => 'auth'], function () {
 
     //nuevo
     Route::get('/tienda/listaTienda2', [TdaIngresoProducto2Controller::class, 'listaTienda']);
+    Route::get('/tienda/index', [TdaIngresoProducto2Controller::class, 'index']);
+    Route::get('/tienda/listarProductos_tienda', [TdaIngresoProducto2Controller::class, 'listarProductos_tienda']);
+    Route::post('/tienda/ingreso-producto2/registrar', [TdaIngresoProducto2Controller::class, 'store']);
+    Route::put('/tienda/ingreso-producto2/update', [TdaIngresoProducto2Controller::class, 'update']);
+    Route::put('/tienda/ingreso-producto2/desactivar', [TdaIngresoProducto2Controller::class, 'desactivar']);
+    Route::put('/tienda/ingreso-producto2/activar', [TdaIngresoProducto2Controller::class, 'activar']);
     //antiguo
     Route::get('/tienda', [TdaTiendaController::class, 'index']);
     Route::put('/tienda/desactivar', [TdaTiendaController::class, 'desactivar']);

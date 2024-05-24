@@ -325,6 +325,9 @@
                         </button>
                     </div>
                     <div class="modal-body">
+                        <div class="alert alert-warning" role="alert">
+  Todo prodcuto siempre debe tener un envase primario los envases segundario y terciario son opcionales. ya que se debe registrar si o si un envase primario, no se puede registrar un producto sin tener envase primario.
+</div>
                         <div class="row">
                             <div class="form-group col-sm-6" v-if="tipoAccion == 2">
                                 <strong>Rubro:</strong>
@@ -381,7 +384,10 @@
                                             </div>
                                             <div class="form-group col-sm-4">
                                                 <strong>Forma o Unid. de Medida:</strong>
+                                       
                                                 <div class="row">
+                                                    <span class="error" v-if="checkformafarmaceuticaprimario==0">Debe Seleccionar Forma o Unid. de Medid</span>
+                                                   
                                                     <div class="col-sm-2"><input type="checkbox" v-model="checkformafarmaceuticaprimario"></div>
                                                     <div class="col-sm-10" v-if="checkformafarmaceuticaprimario">
                                                         <select v-model="idformafarmselectedprimario" class="form-control">
@@ -452,7 +458,10 @@
                                             </div>
                                             <div class="form-group col-sm-4">
                                                 <strong>Forma o Unid. de Medida</strong>
+                                             
                                                 <div class="row">
+                                                    <span class="error" v-if="checkformafarmaceuticasecundario==0">Debe Seleccionar Forma o Unid. de Medid</span>
+                                                   
                                                     <div class="col-sm-2"><input type="checkbox" v-model="checkformafarmaceuticasecundario"></div>
                                                     <div class="col-sm-10" v-if="checkformafarmaceuticasecundario">
                                                         <select v-model="idformafarmselectedsecundario" class="form-control">
@@ -523,7 +532,9 @@
                                             </div>
                                             <div class="form-group col-sm-4">
                                                 <strong>Forma o Unid. de Medida</strong>
+                                               
                                                 <div class="row">
+                                                    <span class="error" v-if="checkformafarmaceuticaterciario==0">Debe Seleccionar Forma o Unid. de Medid</span>
                                                     <div class="col-sm-2"><input type="checkbox" v-model="checkformafarmaceuticaterciario"></div>
                                                     <div class="col-sm-10" v-if="checkformafarmaceuticaterciario">
                                                         <select v-model="idformafarmselectedterciario" class="form-control">
@@ -849,6 +860,7 @@ import QrcodeVue from 'qrcode.vue';
                             
                             me.idcategoriaselected == 0 ||
                             me.codigointernacional == '' ||
+                            
                             !me.seleccinoTiendaAlmacenPrimario // || !me.seleccinoTiendaAlmacenSecundario
                         )
                         return false;
@@ -1176,6 +1188,37 @@ import QrcodeVue from 'qrcode.vue';
             registrarProducto(){
                 let me = this;
                 let formData = new FormData();
+
+                var formaUno=0;                
+                var formaDos=0;                
+                var formaTres=0;
+                if (me.iddispenserselectedprimario==0||me.cantidadprimario>0||me.checkformafarmaceuticaprimario==0||me.idformafarmselectedprimario==0
+                || me.preciolistaprimario<=0 || me.precioventaprimario<=0 || me.tiempopedidoselectedprimario==0) {
+                    formaUno=1;
+                }
+                if (me.iddispenserselectedsecundario==0||me.cantidadsecundario>0||me.checkformafarmaceuticasecundario==0||me.idformafarmselectedsecundario==0
+                || me.preciolistasecundario<=0 || me.precioventasecundario<=0 || me.tiempopedidoselectedsecundario==0) {
+                    formaDos=1;
+                }
+                if (me.iddispenserselectedterciario==0||me.cantidadterciario>0||me.checkformafarmaceuticaterciario==0||me.idformafarmselectedterciario==0
+                || me.preciolistaterciario<=0 || me.precioventaterciario<=0 || me.tiempopedidoselectedterciario==0) {
+                    formaTres=1;
+                }
+                //caso uno 
+                if (formaUno==1&&formaDos==1&&formaTres==1) {
+                    Swal.fire({
+                        icon: "Error",
+                        title: "Envase primario, secundario, terciario.",
+                        text: "Estan llenados mal o estan nullos."  
+                    });
+                }else{
+                    if (formaUno==0&&formaDos==1&&formaTres==1) {
+                        console.log("a");
+                    } else {
+                        console.log("a");
+                    }
+                }
+
                 formData.append('foto', me.foto);
                 formData.append('idlineaselected', me.idlineaselected);
                 formData.append('codigolinea',me.codigolinea);

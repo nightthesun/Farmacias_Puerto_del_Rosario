@@ -437,8 +437,10 @@ puedeEditar:2,
 
 
 tiene_movimiento(id_almacen,id_index,ingresoProducto){
-    let me = this;        
-    var url = '/tiene_movimiento?id_T_A='+id_almacen+'&id_ingreso='+id_index;  
+    let me = this; 
+    // para tienda es 1 y para almacen es 2   
+    var alm_o_tda=2;    
+    var url = '/tiene_movimiento?id_T_A='+id_almacen+'&id_ingreso='+id_index+'&almXtda='+alm_o_tda;  
     axios.get(url)
         .then(function(response) {
             var respuesta = response.data;     

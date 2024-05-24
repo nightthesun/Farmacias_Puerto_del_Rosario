@@ -33,7 +33,7 @@
                                 <select class="form-control" v-model="selectAlmTienda"   @change="listarIndex(1)">
                                     <option value="0" disabled selected>Seleccionar...</option>
                                     <option  v-for="sucursal in arrayAlmTienda"
-                                        :key="sucursal.id_almacen" :value="sucursal.id_almacen" v-text="sucursal.codigoS+' -> '+sucursal.codigo+' ' +sucursal.razon_social"></option>
+                                        :key="sucursal.id_tienda" :value="sucursal.id_tienda" v-text="sucursal.codigoS+' -> '+sucursal.codigo+' ' +sucursal.razon_social"></option>
                                 </select>
                             </div>
                         </div>
@@ -88,7 +88,7 @@
                         <td class="col-md-1">
                             <div  class="d-flex justify-content-start">
                                 <div  v-if="puedeEditar==1">
-                                <button type="button" class="btn btn-warning btn-sm" @click="tiene_movimiento(ingresoProducto.idalmacen,ingresoProducto.id,ingresoProducto)"  style="margin-right: 5px;">
+                                <button type="button" class="btn btn-warning btn-sm" @click="tiene_movimiento(ingresoProducto.idtienda,ingresoProducto.id,ingresoProducto)"  style="margin-right: 5px;">
                                 <i class="icon-pencil"></i>
                                 </button> 
                             </div>
@@ -437,8 +437,11 @@ puedeEditar:2,
 
 
 tiene_movimiento(id_almacen,id_index,ingresoProducto){
-    let me = this;        
-    var url = '/tiene_movimiento?id_T_A='+id_almacen+'&id_ingreso='+id_index;  
+    let me = this;    
+     // para tienda es 1 y para almacen es 2   
+     var alm_o_tda=1;    
+    var url = '/tiene_movimiento?id_T_A='+id_almacen+'&id_ingreso='+id_index+'&almXtda='+alm_o_tda;      
+  
     axios.get(url)
         .then(function(response) {
             var respuesta = response.data;     
@@ -496,7 +499,7 @@ tiene_movimiento(id_almacen,id_index,ingresoProducto){
 
         listarProductos_almacen() {
             let me = this;
-            var url = "/almacen/listarProductos_almacen";
+            var url = "/tienda/listarProductos_tienda";
             axios
                 .get(url)
                 .then(function (response) {
@@ -535,13 +538,17 @@ tiene_movimiento(id_almacen,id_index,ingresoProducto){
         listarIndex(page)
             {
                 let me=this;
+                
                 if (me.selectAlmTienda!=0) {
-                    var url='/almacen/index?page='+page+'&buscar='+me.buscar+'&id_almacen='+me.selectAlmTienda;               
+                    var url='/tienda/index?page='+page+'&buscar='+me.buscar+'&id_tienda='+me.selectAlmTienda;        
+                    console.log(url);       
                 axios.get(url)
                 .then(function(response){
                     var respuesta = response.data;
                     me.pagination = respuesta.pagination;
-                    me.arrayIndex = respuesta.almacen.data;
+                    me.arrayIndex = respuesta.tienda.data;
+                    console.log("------------------");
+                    console.log(arrayIndex);
                    
                 })
                 .catch(function(error){
@@ -645,12 +652,11 @@ tiene_movimiento(id_almacen,id_index,ingresoProducto){
         },
 
         registrarProductoEnAlmacen(){
-                let me = this;
-          
-                axios.post('/almacen/ingreso-producto2/registrar',{
+                let me = this;          
+                axios.post('/tienda/ingreso-producto2/registrar',{
                     'id_prod_producto':me.selected.id,
                     'envase':me.selected.envase,
-                    'idalmacen':me.selectAlmTienda,
+                    'idtienda':me.selectAlmTienda,
                     'cantidad':me.cantidad,
                     'id_tipo_entrada':me.selectEntrada,
                     'fecha_vencimiento':me.fecha_vencimiento,
@@ -683,7 +689,7 @@ tiene_movimiento(id_almacen,id_index,ingresoProducto){
 
             actualizarProductoEnAlmacen(){
                 let me =this;
-                axios.put('/almacen/ingreso-producto2/update',{
+                axios.put('/tienda/ingreso-producto2/update',{
                     'id':me.id_index,
                     'id_prod_producto':me.selected.id,
                     'envase':me.selected.envase,
@@ -723,7 +729,7 @@ tiene_movimiento(id_almacen,id_index,ingresoProducto){
                 }).then((result) => {
                 
                 if (result.isConfirmed) {
-                     axios.put('/almacen/ingreso-producto2/desactivar',{
+                     axios.put('/tienda/ingreso-producto2/desactivar',{
                         'id': idproductoalmacen
                     }).then(function (response) {
                         swalWithBootstrapButtons.fire(
@@ -769,7 +775,7 @@ tiene_movimiento(id_almacen,id_index,ingresoProducto){
                 reverseButtons: true
                 }).then((result) => {
                 if (result.isConfirmed) {
-                     axios.put('/almacen/ingreso-producto2/activar',{
+                     axios.put('/tienda/ingreso-producto2/activar',{
                         'id': idproductoalmacen
                     }).then(function (response) {
                         
