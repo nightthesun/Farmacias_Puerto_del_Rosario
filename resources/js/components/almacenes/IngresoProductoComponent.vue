@@ -439,7 +439,6 @@ import { error401 } from '../../errores';
         },
         methods :{
   //---------------------------------permiso de ver lista de sucursales tiendas almacenes
-
     
  listarPerimsoxyz() {
                 //console.log(this.codventana);

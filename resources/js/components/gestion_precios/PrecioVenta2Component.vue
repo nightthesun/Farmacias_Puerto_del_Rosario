@@ -346,7 +346,12 @@
                                     </div>
 
                                     <div class="col-md-4" id="area-botones-guarcancelar">
-                                        <button type="button" class="btn btn-success" :disabled="!sicompleto" @click="actualizarRegistrarPrecioVenta">Guardar</button>
+                                        <div v-if="activarEvento==2" class="alert alert-danger" role="alert">
+  No puede ingresar valores nulos, negativo o iguales a cero
+</div>
+                                        <button v-if="activarEvento==1" type="button" class="btn btn-success" :disabled="!sicompleto" @click="actualizarRegistrarPrecioVenta">Guardar</button>
+                                        <button v-else type="button" class="btn btn-light">Guardar</button>
+                                        
                                         <button type="button" class="btn btn-danger" style="margin-left: 10px;" data-dismiss="modal" @click="cerrarModal('calculadoraModal')">Cancelar</button>
                                     </div>                                    
                                 </div>
@@ -510,6 +515,7 @@ export default {
                 from: 0,
                 to: 0
             },
+            activarEvento:0,
             offset: 3,           
             tipo: 0,
             tipoAccion: 1, 
@@ -721,13 +727,14 @@ listarPerimsoxyz() {
      
     abrirModal(accion, data = []) {
             let me = this;
-            console.log("---");
-            console.log(data);
+       
             switch (accion) {
                
                 case 'editarPrecioUtilidadProducto':
                     {
-                        let me = this;
+             
+                        console.log("*************************************");
+                        console.log(data);
                         me.codigo=data.cod;                       
                         me.id_gespreventa=data.gpv_id;              
                         me.tituloModal = 'Modificar Utilidad del Producto2';
@@ -735,7 +742,14 @@ listarPerimsoxyz() {
                         me.cantidadIngresoAlmacen=data.cantidad_ingreso;
                         me.p_lista=data.preciolistaEnvase;
                         me.c_disp=data.cantidadEnvase;
-                        me.p_compra=data.costocompraEnvase;
+                        me.activarEvento=0;
+                        //me.p_compra=data.costocompraEnvase;
+                       // me.p_compra=999999;
+                          if (data.costo_compra_gespreventa==null) {
+                          me.p_compra=data.costocompraEnvase;
+                       } else {
+                           me.p_compra=data.costo_compra_gespreventa;
+                       }
                         me.p_venta=data.precioventaEnvase;
                         if(data.listo_venta===null){
                             me.margen_20=0;
@@ -749,7 +763,6 @@ listarPerimsoxyz() {
                         me.utilidad_neta=data.utilidad_neto_gespreventa;
                        
                         }
-                        
                         me.pcc=data.preciolistaEnvase;
                         me.dpc1=0;
                         me.dpc2=0;
@@ -816,6 +829,7 @@ listarPerimsoxyz() {
                         me.l30pc=0;
                         me.upc=0;
                         me.pvc=0;  
+                        me.activarEvento=0;
             me.classModal.closeModal(accion);        
         },
         selectAll: function (event) {
@@ -937,6 +951,11 @@ me.margen_30 = ((parseFloat(me.p_compra) * 100) / 70).toFixed(2);
 me.utilidad_bruta = (parseFloat(me.p_venta) - parseFloat(me.p_compra)).toFixed(2);
 me.utilidad_neta = ((parseFloat(me.p_venta) - parseFloat(me.p_compra)) / me.p_venta) * 100;
 me.utilidad_neta = Math.round(me.utilidad_neta);
+if (me.p_compra>0) {
+    me.activarEvento=1;
+} else {
+    me.activarEvento=2;
+}
 },
 calculadoraCostoCompra(){
 
@@ -966,10 +985,7 @@ me.pcdc = me.pcdc.toFixed(2);
 },
 calculadoraPrecioVenta() {
             let me = this;
-         
-            
-
-            me.pcdc = parseFloat(me.pcdc);
+             me.pcdc = parseFloat(me.pcdc);
             me.pvc = parseFloat(me.pvc == 0 ? me.p_venta:me.pvc); // pvc = Precio de Venta
             me.pucc = parseFloat(me.pucc == 0 ? me.puc:me.pucc); // pucc = P/U de Compra
             me.l20pc = ((me.pucc * 100) / 80); // l20pc = Liq. 20 %

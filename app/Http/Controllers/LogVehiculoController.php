@@ -14,8 +14,7 @@ class LogVehiculoController extends Controller
      */
     public function index(Request $request)
     {
-        $buscararray=array();
-        
+        $buscararray=array();        
 
         if(!empty($request->buscar))
         {

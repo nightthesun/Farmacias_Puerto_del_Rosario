@@ -121,7 +121,6 @@ $result = $tiendas->unionAll($almacenes)->get();
         'ass.id AS id_sucursal'
         )
         ->whereRaw($where2);
-
         $result = $tiendas->unionAll($almacenes)->get();
 }
 
@@ -162,10 +161,58 @@ return $result;
         return $tiposDocumento;
     }
     
-    //****************************PARA MOSTRAR EL EXPEDICION CON LA CIEUDAD*********************** */
+    //****************************PARA MOSTRAR EL EXPEDICION CON LA ciudad*********************** */
     public function listarEx()
     {
         $ex = DB::table('adm__departamentos')->get();
         return $ex;
     }
+
+    //***********************para mostrara las entradas********************** */
+    public function listar_entradasXe(Request $request){
+        $resultado = DB::table('prod__tipo_entradas')
+        ->select('id', 'nombre')
+        ->where('activo', 1)
+        ->get();
+
+        return $resultado;
+    }
+
+    //*******************verificica si tiene movimiento******************** */
+
+    public function tiene_movimiento(Request $request){
+
+        $idTiendaAlmacen = $request->id_T_A;
+        $idIngreso = $request->id_ingreso;
+        $almXtda = $request->almXtda;
+         // para tienda es 1 y para almacen es 2   
+        if($almXtda==1){
+            //es tienda
+            $tipo = 'TDA';
+        }else {
+            //es almacen
+            $tipo = 'ALM';
+        }
+        
+        
+    $query1 = DB::table('ges_pre__venta2s as gpv')
+    ->join('pivot__modulo_tienda_almacens as piv', 'piv.id', '=', 'gpv.id_table_ingreso_tienda_almacen')
+    ->select('gpv.listo_venta')
+    ->where('piv.id_tienda_almacen', $idTiendaAlmacen)
+    ->where('piv.id_ingreso', $idIngreso)
+    ->where('piv.tipo', $tipo);
+
+// Second query
+$query2 = DB::table('ges_pre__venta_listas as gpv')
+    ->join('pivot__modulo_tienda_almacens as piv', 'piv.id', '=', 'gpv.id_table_ingreso_tienda_almacen')
+    ->select('gpv.listo_venta')
+    ->where('piv.id_tienda_almacen', $idTiendaAlmacen)
+    ->where('piv.id_ingreso', $idIngreso)
+    ->where('piv.tipo', $tipo)
+    ->unionAll($query1) // Combine with first query
+    ->get();
+
+      return $query2;    
+
+    } 
 }
