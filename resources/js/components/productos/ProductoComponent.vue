@@ -1190,36 +1190,16 @@ import QrcodeVue from 'qrcode.vue';
                 let formData = new FormData();
 
                 var formaUno=0;                
-                var formaDos=0;                
-                var formaTres=0;
+                
                 if (me.iddispenserselectedprimario==0||me.cantidadprimario>0||me.checkformafarmaceuticaprimario==0||me.idformafarmselectedprimario==0
                 || me.preciolistaprimario<=0 || me.precioventaprimario<=0 || me.tiempopedidoselectedprimario==0) {
-                    formaUno=1;
-                }
-                if (me.iddispenserselectedsecundario==0||me.cantidadsecundario>0||me.checkformafarmaceuticasecundario==0||me.idformafarmselectedsecundario==0
-                || me.preciolistasecundario<=0 || me.precioventasecundario<=0 || me.tiempopedidoselectedsecundario==0) {
-                    formaDos=1;
-                }
-                if (me.iddispenserselectedterciario==0||me.cantidadterciario>0||me.checkformafarmaceuticaterciario==0||me.idformafarmselectedterciario==0
-                || me.preciolistaterciario<=0 || me.precioventaterciario<=0 || me.tiempopedidoselectedterciario==0) {
-                    formaTres=1;
-                }
-                //caso uno 
-                if (formaUno==1&&formaDos==1&&formaTres==1) {
                     Swal.fire({
-                        icon: "Error",
-                        title: "Envase primario, secundario, terciario.",
-                        text: "Estan llenados mal o estan nullos."  
+                        icon: "error",
+                        title: "Envase primario.",
+                        text: "Datos nulos."  
                     });
                 }else{
-                    if (formaUno==0&&formaDos==1&&formaTres==1) {
-                        console.log("a");
-                    } else {
-                        console.log("a");
-                    }
-                }
-
-                formData.append('foto', me.foto);
+                    formData.append('foto', me.foto);
                 formData.append('idlineaselected', me.idlineaselected);
                 formData.append('codigolinea',me.codigolinea);
                 formData.append('nombre',me.nombre);
@@ -1283,6 +1263,7 @@ import QrcodeVue from 'qrcode.vue';
                     error401(error);
                     console.log(error);
                 });
+                }
 
             },
             eliminarProducto(idproducto){
