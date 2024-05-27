@@ -54,6 +54,7 @@ use App\Http\Controllers\LogVehiculoController;
 use App\Http\Controllers\GesPreVenta2Controller;
 use App\Http\Controllers\GestionPerimsoController;
 use App\Http\Controllers\GetController;
+use App\Http\Controllers\ParDescuentoController;
 use App\Http\Controllers\ProdListaController;
 use App\Http\Controllers\ProdRegistroPreXListController;
 use App\Http\Controllers\TdaIngresoProducto2Controller;
@@ -325,6 +326,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/clientes/selectclientes', [ParClienteController::class, 'selectClientes']);
     Route::get('/clientes/selectcli', [ParClienteController::class, 'selectCli']);
     Route::post('/clientes/registrar', [ParClienteController::class, 'store']);
+    //////---descuentos
+    Route::get('/descuento2/listarTipoDescuentos', [ParDescuentoController::class, 'listarTipoDescuentos']);
+    
 
 
     ////////////////////////productos//////////////////////////////

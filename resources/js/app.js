@@ -40,7 +40,8 @@ createApp ({
     //Parametros
     .component('descuentos-component',require('./components/parametros/ServiciosDescuentoscomponent.vue').default)
     .component('descproductos-component', require('./components/parametros/DescProductosComponent.vue').default)
-
+    .component('descuentosx-component', require('./components/parametros/DescuentosxComponent.vue').default)
+    
     //Productos
     .component('linea-component', require('./components/productos/LineaComponent.vue').default)
     .component('producto-component', require('./components/productos/ProductoComponent.vue').default)
