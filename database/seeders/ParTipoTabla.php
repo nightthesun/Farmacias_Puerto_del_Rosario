@@ -14,8 +14,8 @@ class ParTipoTabla extends Seeder
     public function run(): void
     {
         DB::table('par_tipo_tabla')->insert(['nombre'=>'Normal','descripcion'=>'solo para tabla normal']);
-        DB::table('par_tipo_tabla')->insert(['nombre'=>'Cantidad_compra','descripcion'=>'valores por cantidad o compra']);
-        DB::table('par_tipo_tabla')->insert(['nombre'=>'Cliente_producto','descripcion'=>'valore por cliente o producto']);
-       
+        DB::table('par_tipo_tabla')->insert(['nombre'=>'Cantidad o Compra','descripcion'=>'valores por cantidad o compra']);
+        DB::table('par_tipo_tabla')->insert(['nombre'=>'Cliente','descripcion'=>'valore por cliente']);
+        DB::table('par_tipo_tabla')->insert(['nombre'=>'Producto','descripcion'=>'valor por producto']);
     }
 }
