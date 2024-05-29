@@ -326,13 +326,17 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/clientes/selectclientes', [ParClienteController::class, 'selectClientes']);
     Route::get('/clientes/selectcli', [ParClienteController::class, 'selectCli']);
     Route::post('/clientes/registrar', [ParClienteController::class, 'store']);
+    
     //////---descuentos
     Route::get('/descuento2/listarTipoDescuentos', [ParDescuentoController::class, 'listarTipoDescuentos']);
     Route::get('/descuento2/listarTipoTabla', [ParDescuentoController::class, 'listarTipoTabla']);
     Route::get('/descuento2/listarClienteX', [ParDescuentoController::class, 'listarClienteX']);
     Route::get('/descuento2/listarProductoX', [ParDescuentoController::class, 'listarProductoX']);
     Route::post('/descuento2/registrarDescuento', [ParDescuentoController::class, 'store']);
-
+    Route::get('/descuento2/index', [ParDescuentoController::class, 'index']);
+    Route::put('/descuento2/desactivar', [ParDescuentoController::class, 'desactivar']);
+    Route::put('/descuento2/activar', [ParDescuentoController::class, 'activar']);
+    Route::put('/descuento2/actualizar', [ParDescuentoController::class, 'update']);
     ////////////////////////productos//////////////////////////////
     Route::get('/linea', [ProdLineaController::class, 'index']);
     Route::post('/linea/registrar', [ProdLineaController::class, 'store']);

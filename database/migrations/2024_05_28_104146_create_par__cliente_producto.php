@@ -15,7 +15,9 @@ return new class extends Migration
             $table->id();
             $table->smallInteger('id_cliente_p')->nullable();           
             $table->string('num_documento')->nullable();   
-               
+            $table->smallInteger('id_descuento');   
+            $table->string('nom_facturar'); 
+            
         });
     }
 

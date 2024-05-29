@@ -34,7 +34,7 @@
                 </div>
                         <div class="col-md-6">
                             
-                                        <select v-model="selectTabla" class="form-control">
+                                        <select v-model="selectTabla" class="form-control" @change="listarIndex(0)">
                                             <option v-bind:value="0" disabled>
                                                 Seleccionar...
                                             </option>
@@ -52,11 +52,13 @@
                                     name="texto"
                                     class="form-control"
                                     placeholder="Texto a buscar"
-                                    v-model="buscar"/>
+                                    v-model="buscar"
+                                    @keyup.enter="listarIndex(1)"
+                                    />
                                 <button
                                     type="submit"
                                     class="btn btn-primary"
-                              
+                                    @click="listarIndex(1)"
                                 >
                                     <i class="fa fa-search"></i> Buscar
                                 </button>
@@ -64,7 +66,129 @@
                         </div>
 
             </div>
+            <!---table ini-->
+            <table class="table table-bordered table-striped table-sm table-responsive">
+                <thead>
+                    <tr>
+                        <th class="col-md-1">Opciones</th>
+                        <th class="col-md-2">Nombre del descuento</th>
+                        <th class="col-md-2">Descripcion</th>
+                        <th class="col-md-1">Tipo</th>
+                        <th class="col-md-1">Descuento</th>
+                        <th v-if="selectTabla == 2 " class="col-md-1">Tipo C/V</th>
+                        <th v-if="selectTabla == 2" class="col-md-1">Regla</th>
+            <th v-if="selectTabla == 2" class="col-md-1">Valor C/V</th>
+           
+            <th v-if="selectTabla == 3" class="col-md-1">Número de documento</th>
+            <th v-if="selectTabla == 3" class="col-md-2">Nombre a facturar</th>
+
+            <th v-if="selectTabla == 4" class="col-md-1">Lugar</th>
+            <th v-if="selectTabla == 4" class="col-md-2">Producto</th>
+
+            <th class="col-md-1">Usuario</th>
+            <th class="col-md-1">Estado</th>
+
+                    </tr>
+                </thead>
+                <tbody v-if="selectTabla == 0"></tbody>
+                        <tbody v-else>
+                          
+                        <tr v-for="i in arrayIndex" :key="i.id">
+                            <td class="col-md-1">
+                                <button type="button" class="btn btn-warning btn-sm"  style="margin-right: 5px;"  @click="abrirModal('actualizar', i)">
+                                <i class="icon-pencil"></i></button>
+                            
+                                
+                                
+                                    <button v-if="i.activo == 1" type="button" class="btn btn-danger btn-sm" @click="eliminar(i.id)"
+                                     tyle="margin-right: 5px;">
+                                    <i class="icon-trash"></i>
+                                    </button>
+                                    <button v-else type="button" class="btn btn-info btn-sm" @click="activar(i.id)" tyle="margin-right: 5px;">
+                                    <i class="icon-check"></i>
+                                    </button>  
+                            </td>
+                            <td class="col-md-2" v-text="i.nombre_descuento"></td>
+                            <td class="col-md-2" v-text="i.descripcion"></td>                      
+                            <td class="col-md-1">
+                                <div v-if="i.desc_num == 1">
+                                    <span>Monto monetario</span>
+                                </div>
+                                <div v-if="i.desc_num == 2">
+                                    <span>Porcentual</span>
+                                </div>
+                            </td> 
+
+                             <td class="col-md-1" >
+                                <div v-if="i.desc_num == 1">
+                                    <span>{{ i.monto_descuento + ' Bs.' }}</span>
+                                </div>
+                                <div v-if="i.desc_num == 2">
+                                    <span>{{ i.monto_descuento + ' %.' }}</span>
+                                </div>
+                            </td>
+                            <td class="col-md-1" v-if="selectTabla == 2">
+                                <div v-if="i.es_cantidad_es_monto == 1">
+                                    <span>Cantidad</span>
+                                </div>
+                                <div v-if="i.es_cantidad_es_monto == 2">
+                                    <span>Valor monetario</span>
+                                </div>                              
+                               </td>
+                            <td class="col-md-1" v-if="selectTabla == 2">
+                                <div v-if="i.regla == 1">
+                                    <span>Menor que</span>
+                                </div>
+                                <div v-if="i.regla == 2">
+                                    <span>Mayor que</span>
+                                </div>
+                                <div v-if="i.regla == 3">
+                                    <span>Igual que</span>
+                                </div>
+                            </td>
+                          
+                            <td class="col-md-1" v-if="selectTabla == 2">
+                                <div v-if="i.es_cantidad_es_monto == 1">
+                                    <span>{{ i.cantidad_valor + ' Uni.' }}</span>
+                                </div>
+                                <div v-if="i.es_cantidad_es_monto == 2">
+                                    <span>{{ i.cantidad_valor + ' Bs.' }}</span>
+                                </div>
+                            </td>
+
+                            <td class="col-md-1" v-text="i.num_documento" v-if="selectTabla == 3"></td>
+                            <td class="col-md-1" v-text="i.nom_facturar" v-if="selectTabla == 3"></td>
+
+                            <td class="col-md-1" v-text="i.lugar" v-if="selectTabla == 4"></td>
+                            <td class="col-md-1" v-if="selectTabla == 4">{{i.cod_prod+' '+i.leyenda+' envase: '+i.envase}}</td>
+                            <td class="col-md-1" v-text="i.user_name"></td>
+                            <td class="col-md-1">
+                                <div v-if="i.activo == 1">
+                                        <span class="badge badge-success">Activo</span>
+                                    </div>
+                                    <div v-else>
+                                        <span class="badge badge-warning">Desactivado</span>
+                                    </div>
+                            </td>
+                        </tr>
+
+                    </tbody>
+            </table>    
+            <nav> <ul class="pagination">
+                            <li class="page-item" v-if="pagination.current_page > 1">
+                                <a class="page-link" href="#" @click.prevent="cambiarPagina(pagination.current_page - 1,)">Ant</a>
+                            </li>
+                            <li class="page-item" v-for="page in pagesNumber" :key="page" :class="[page == isActived ? 'active' : '']">                              <a
+                                    class="page-link" href="#" @click.prevent="cambiarPagina(page)" v-text="page"></a>
+                            </li>
+                            <li class="page-item" v-if="pagination.current_page < pagination.last_page">
+                                <a class="page-link" href="#" @click.prevent="cambiarPagina(pagination.current_page + 1,)">Sig</a
+                                >
+                            </li>
+                        </ul>
+                    </nav>
         </div>
+
             </div>   
   
         <!-- fin de index -->
@@ -157,9 +281,9 @@
                                                
                                             <select class="custom-select mr-sm-2" id="inlineFormCustomSelect" v-model="selectRegla">
                                                 <option selected :value="0">Seleccionar...</option>
-                                                <option value="<">Menor a</option>
-                                                <option value=">">Mayor a</option>
-                                                <option value="=">Igual a</option>
+                                                <option value="1">Menor a</option>
+                                                <option value="2">Mayor a</option>
+                                                <option value="3">Igual a</option>
                                               </select>
                                             </div> <span  v-if="selectRegla==0" class="error">Debe Ingresar la regla.</span>
                                         </div>  
@@ -245,7 +369,7 @@
                             type="button"
                             v-if="tipoAccion == 2"
                             class="btn btn-primary"
-                          
+                          @click="actualizar()"
                         >
                             Actualizar
                         </button>
@@ -302,6 +426,10 @@ export default {
             num_cliente:'',
             arrayProductoX:[],
             selected:null,
+            arrayIndex:[],
+
+            id_index:'',
+            id_descuento_x:'',
         };
     },
 
@@ -395,7 +523,7 @@ export default {
 if (valor == 1) {
     data = {
         'id_tipo_tabla': valor,
-        'tipo_tabla': 0,
+       
         'nombre_descuento': me.nombre_Des,
         'descripcion': me.descripcion_Des,
         'desc_num': me.selectTipoNumPor,
@@ -405,7 +533,7 @@ if (valor == 1) {
 if (valor == 2) {
     data = {
         'id_tipo_tabla': valor,
-        'tipo_tabla': 0,
+       
         'nombre_descuento': me.nombre_Des,
         'descripcion': me.descripcion_Des,
         'desc_num': me.selectTipoNumPor,
@@ -418,53 +546,52 @@ if (valor == 2) {
 if (valor == 3) {
     data = {
         'id_tipo_tabla': valor,
-        'tipo_tabla': 0,
+      
         'nombre_descuento': me.nombre_Des,
         'descripcion': me.descripcion_Des,
         'desc_num': me.selectTipoNumPor,
         'monto_descuento': me.monto,
         'id_cliente_p': me.id_cliente,
         'num_documento': me.num_cliente,
-     
+        'nom_facturar': me.nombre_cliente,
+        
       
     };
 }
 if (valor == 4) {
+    console.log(me.selected.id+' '+me.selected.codigo_prod+' '+me.selected.envase+' '+me.selected.tipo_lugar);
     data = {
         'id_tipo_tabla': valor,
-        'tipo_tabla': 0,
+      
         'nombre_descuento': me.nombre_Des,
         'descripcion': me.descripcion_Des,
         'desc_num': me.selectTipoNumPor,
+        'monto_descuento': me.monto,
         'id_prod': me.selected.id,
-        'cod_prod': me.selected.cod_prod,
+        'cod_prod': me.selected.codigo_prod,
         'envase': me.selected.envase,
         'tipo_tda_alm': me.selected.tipo_lugar,
-        'id_linea': me.selected.id_liena
+        'id_linea': me.selected.id_liena,
+        'leyenda': me.selected.leyenda,
 
     };
 }
 axios.post('/descuento2/registrarDescuento', data)
     .then(function(response) {
-        Swal.fire('Registrado Correctamente');
+        Swal.fire(
+                            "Registrado exitosamente",
+                            "Haga click en Ok",
+                            "success",
+                        );
         me.cerrarModal('registrar');
-        //me.listarIndex(1);  
-
-              
-                }).then(function(response){
-                    Swal.fire('Registrado Correctamente');
-                    me.cerrarModal('registrar');
-                    me.listarIndex(1);
-                })
-              
-                .catch(function (error) {                  
+        me.listarIndex(1);  
+    })       .catch(function (error) {                
                 if (error.response.status === 500) {
                     me.errorMsg = error.response.data.error; // Asigna el mensaje de error a la variable errorMsg
                 Swal.fire(
                     "Error",
                     "500 (Internal Server Error)"+me.errorMsg, // Muestra el mensaje de error en el alert
-                    "error"
-                );
+                    "error"       );
                 }else{
                     Swal.fire(
                     "Error",
@@ -474,9 +601,8 @@ axios.post('/descuento2/registrarDescuento', data)
                 }              
             });
 
-                }
-                
-            },
+            }
+        },
 
 
         listarProductoX() {
@@ -520,6 +646,24 @@ axios.post('/descuento2/registrarDescuento', data)
                 });
         },
         
+        listarIndex(page)
+            {
+                let me=this;
+                if (me.selectTabla!=0) {
+                    var url='/descuento2/index?page='+page+'&buscar='+me.buscar+'&tabla='+me.selectTabla;               
+                axios.get(url)
+                .then(function(response){
+                    var respuesta = response.data;
+                    me.pagination = respuesta.pagination;
+                    me.arrayIndex = respuesta.descuento.data;
+                   console.log(me.arrayIndex);
+                })
+                .catch(function(error){
+                    error401(error);
+                }); 
+                } 
+               
+            },
 
         listarTipoTabla() {
             let me = this;
@@ -562,12 +706,242 @@ axios.post('/descuento2/registrarDescuento', data)
             // Agrega aquí la lógica adicional que necesites al cambiar la pestaña
         },
 
-
-
         cambiarPagina(page) {
             let me = this;
             me.pagination.current_page = page;
-        //    me.listarAjusteNegativos(page);
+            me.listarIndex(page);
+        },
+
+        eliminar(id) {
+            let me = this;
+            const swalWithBootstrapButtons = Swal.mixin({
+                customClass: {
+                    confirmButton: "btn btn-success",
+                    cancelButton: "btn btn-danger",
+                },
+                buttonsStyling: false,
+            });
+
+            swalWithBootstrapButtons
+                .fire({
+                    title: "Esta Seguro de Desactivar?",
+                    text: "Es una eliminacion logica",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Si, Desactivar",
+                    cancelButtonText: "No, Cancelar",
+                    reverseButtons: true,
+                })
+                .then((result) => {
+                    if (result.isConfirmed) {
+                        axios
+                            .put("/descuento2/desactivar", {
+                                id: id,
+                                
+                            })
+                            .then(function (response) {
+                                me.listarIndex();
+                                swalWithBootstrapButtons.fire(
+                                    "Desactivado!",
+                                    "El registro a sido desactivado Correctamente",
+                                    "success",
+                                );
+                      
+                            })
+                            .catch(function (error) {
+                                error401(error);
+                                console.log(error);
+                            });
+                    } else if (
+                        /* Read more about handling dismissals below */
+                        result.dismiss === Swal.DismissReason.cancel
+                    ) {
+                        /* swalWithBootstrapButtons.fire(
+                    'Cancelado!',
+                    'El Registro no fue desactivado',
+                    'error'
+                    ) */
+                    }
+                });
+        },
+
+        activar(id) {
+            let me = this;
+            const swalWithBootstrapButtons = Swal.mixin({
+                customClass: {
+                    confirmButton: "btn btn-success",
+                    cancelButton: "btn btn-danger",
+                },
+                buttonsStyling: false,
+            });
+            swalWithBootstrapButtons
+                .fire({
+                    title: "Esta Seguro de Activar?",
+                    text: "Es una Activacion logica",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Si, Activar",
+                    cancelButtonText: "No, Cancelar",
+                    reverseButtons: true,
+                })
+                .then((result) => {
+                    if (result.isConfirmed) {
+                        axios
+                            .put("/descuento2/activar", {
+                                id: id,
+                            })
+                            .then(function (response) {
+                                me.listarIndex();
+                                swalWithBootstrapButtons.fire(
+                                    "Activado!",
+                                    "El registro a sido Activado Correctamente",
+                                    "success",
+                                );
+                            })
+                            .catch(function (error) {
+                                error401(error);
+                                console.log(error);
+                            });
+                    } else if (
+                        /* Read more about handling dismissals below */
+                        result.dismiss === Swal.DismissReason.cancel
+                    ) {
+                        /* swalWithBootstrapButtons.fire(
+                    'Cancelado!',
+                    'El Registro no fue Activado',
+                    'error'
+                    ) */
+                    }
+                });
+        },
+
+        actualizar() {            
+            let me = this;
+            let codificador=0;
+            let valor = me.selectTabla;            
+    switch (valor) {
+    case 1:
+    if (me.nombre_Des==""|| me.descripcion_Des==""||me.selectTipoNumPor==0||me.monto=="") {
+                        codificador=1;
+                    }
+        break;
+    case 2:
+        if (me.selectCantidad_precio==0|| me.selectRegla==0||me.cantidad_monto_x=="") {
+                        codificador=1;
+                    }
+        break;
+    case 3:
+        if (me.id_cliente==0||me.id_cliente=="") {
+            codificador=1;
+        }
+        break;
+    case 4:
+        if (me.selected==null||me.selected==""||me.selected==0) {
+            codificador=1;
+        }
+        break;    
+    default:
+        console.log('noexiste datos');
+        break;
+}
+                if(codificador==1){
+                    Swal.fire(
+                    "Error",
+                    "Existen campos nulos debe revisar que campos estan vacios", 
+                    "error"
+                );
+                }
+                else{
+
+                    let data = {};
+
+if (valor == 1) {
+    data = {
+        'id':me.id_index,
+        'id_tipo_tabla': valor,
+       
+        'nombre_descuento': me.nombre_Des,
+        'descripcion': me.descripcion_Des,
+        'desc_num': me.selectTipoNumPor,
+        'monto_descuento': me.monto
+    };
+}
+if (valor == 2) {
+    data = {
+        'id':me.id_index,
+        'id_tipo_tabla': valor,
+       
+        'nombre_descuento': me.nombre_Des,
+        'descripcion': me.descripcion_Des,
+        'desc_num': me.selectTipoNumPor,
+        'monto_descuento': me.monto,
+        'es_cantidad_es_monto': me.selectCantidad_precio,
+        'regla': me.selectRegla,
+        'cantidad_valor': me.cantidad_monto_x,
+        'id_descuento_x':me.id_descuento_x,
+    };
+}
+if (valor == 3) {
+    data = {
+        'id':me.id_index,
+        'id_tipo_tabla': valor,
+      
+        'nombre_descuento': me.nombre_Des,
+        'descripcion': me.descripcion_Des,
+        'desc_num': me.selectTipoNumPor,
+        'monto_descuento': me.monto,
+        'id_cliente_p': me.id_cliente,
+        'num_documento': me.num_cliente,
+        'nom_facturar': me.nombre_cliente,
+        'id_descuento_x':me.id_descuento_x,
+      
+    };
+}
+if (valor == 4) {
+    console.log(me.selected.id+' '+me.selected.codigo_prod+' '+me.selected.envase+' '+me.selected.tipo_lugar);
+    data = {
+        'id':me.id_index,
+        'id_tipo_tabla': valor,
+      
+        'nombre_descuento': me.nombre_Des,
+        'descripcion': me.descripcion_Des,
+        'desc_num': me.selectTipoNumPor,
+        'monto_descuento': me.monto,
+        'id_prod': me.selected.id,
+        'cod_prod': me.selected.codigo_prod,
+        'envase': me.selected.envase,
+        'tipo_tda_alm': me.selected.tipo_lugar,
+        'id_linea': me.selected.id_liena,
+        'leyenda': me.selected.leyenda,
+        'id_descuento_x':me.id_descuento_x,
+    };
+}
+axios.put('/descuento2/actualizar', data)
+    .then(function(response) {
+        Swal.fire(
+                            "Registrado exitosamente",
+                            "Haga click en Ok",
+                            "success",
+                        );
+        me.cerrarModal('registrar');
+        me.listarIndex(1);  
+    })       .catch(function (error) {                
+                if (error.response.status === 500) {
+                    me.errorMsg = error.response.data.error; // Asigna el mensaje de error a la variable errorMsg
+                Swal.fire(
+                    "Error",
+                    "500 (Internal Server Error)"+me.errorMsg, // Muestra el mensaje de error en el alert
+                    "error"       );
+                }else{
+                    Swal.fire(
+                    "Error",
+                    ""+error, // Muestra el mensaje de error en el alert
+                    "error"
+                );  
+                }              
+            });
+
+            }
         },
 
         abrirModal(accion, data = []) {
@@ -601,10 +975,53 @@ axios.post('/descuento2/registrarDescuento', data)
                     break;
                 }
                 case "actualizar": {
+                    console.log(data);
                     me.tipoAccion = 2;
-                   
-          
-            
+                    me.id_index=data.id;
+                    if(data.id_tipo_tabla==1){
+                        me.nombre_Des=data.nombre_descuento;
+                        me.descripcion_Des=data.descripcion;
+                        me.selectTipoNumPor=data.desc_num === null ? 0 : data.desc_num;
+                        me.monto=data.monto_descuento;
+                   }
+                   if(data.id_tipo_tabla==2){
+                        me.nombre_Des=data.nombre_descuento;
+                        me.descripcion_Des=data.descripcion;
+                        me.selectTipoNumPor=data.desc_num === null ? 0 : data.desc_num;
+                        me.monto=data.monto_descuento;
+                        
+                        me.selectCantidad_precio=data.es_cantidad_es_monto == null ? 0: data.es_cantidad_es_monto; 
+                        me.selectRegla=data.regla === null ? 0: data.regla;                        
+                        me.cantidad_monto_x=data.cantidad_valor;
+                        me.id_descuento_x=data.id_descuento_pcp;
+                   }
+                   if(data.id_tipo_tabla==3){
+                        me.nombre_Des=data.nombre_descuento;
+                        me.descripcion_Des=data.descripcion;
+                        me.selectTipoNumPor=data.desc_num === null ? 0 : data.desc_num;
+                        me.monto=data.monto_descuento;
+                        
+                        me.id_cliente=data.id_cliente_p;
+                        me.nombre_cliente=data.nom_facturar;
+                        me.num_cliente=data.num_documento;
+                        me.id_descuento_x=data.id_descuento_cli;
+                   }
+                    
+                   if(data.id_tipo_tabla==4){
+                        me.nombre_Des=data.nombre_descuento;
+                        me.descripcion_Des=data.descripcion;
+                        me.selectTipoNumPor=data.desc_num === null ? 0 : data.desc_num;
+                        me.monto=data.monto_descuento;
+                           // Find the product with the matching id_prod_producto in arrayProductos
+            let producto = me.arrayProductoX.find(producto => producto.id === data.id_prod);
+            if (producto) {
+                me.selected = producto;
+            } else {
+                me.selected = null;
+            }
+                   me.id_descuento_x=data.id_descuento_prod;
+                   }
+
                     me.classModal.openModal("registrar");
 
                     break;
@@ -640,6 +1057,7 @@ axios.post('/descuento2/registrarDescuento', data)
                     //me.ProductoLineaIngresoSeleccionado = 0;
                     me.inputTextBuscarProductoIngreso = "";
                         me.arrayRetornarProductosIngreso = "";
+                        me.id_descuento_x="";
               
             } else {
                 me.classModal.closeModal(accion);
@@ -661,6 +1079,8 @@ axios.post('/descuento2/registrarDescuento', data)
         this.classModal = new _pl.Modals();
         this.listarAlmTienda();
         this.listarTipoTabla();
+       this.listarIndex(1);
+        this.listarProductoX();
         this.classModal.addModal("registrar");
     
     

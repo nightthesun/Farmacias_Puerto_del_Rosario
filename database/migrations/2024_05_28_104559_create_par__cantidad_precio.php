@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('par__cantidad_precio', function (Blueprint $table) {
             $table->id();
             $table->tinyInteger('es_cantidad_es_monto')->nullable()->comment('1 = cantidad 2 = monto');
-            $table->string('regla')->nullable()->comment('=,>,<');
+            $table->string('regla')->nullable()->comment('1 es menor ,2 es mayor,3 igual');
             $table->integer('cantidad_valor')->nullable();
             $table->smallInteger('id_descuento');
           

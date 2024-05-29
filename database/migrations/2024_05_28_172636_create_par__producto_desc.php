@@ -17,7 +17,10 @@ return new class extends Migration
             $table->string("cod_prod");
             $table->string("envase");
             $table->string("tipo_tda_alm");
-            $table->smallInteger("id_linea");           
+            $table->smallInteger("id_linea");  
+            $table->smallInteger('id_descuento');   
+            $table->string("leyenda");
+                  
         });
     }
 
