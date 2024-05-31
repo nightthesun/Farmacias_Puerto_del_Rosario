@@ -215,4 +215,38 @@ $query2 = DB::table('ges_pre__venta_listas as gpv')
       return $query2;    
 
     } 
+
+    //*************************LISTA NORMAL SIN PERMISO DE TIENDAS ALMACENES O SUCURSAL****************** */
+    public function listarSucusal_TDA_ALM_sin_permiso(){
+        $tiendas = DB::table('tda__tiendas')
+        ->join('adm__sucursals as ass', 'tda__tiendas.idsucursal', '=', 'ass.id')
+        ->select(
+        'tda__tiendas.id as id_tienda',
+        DB::raw('NULL as id_almacen'),
+        'tda__tiendas.codigo',
+        'ass.razon_social',
+        'ass.razon_social as sucursal',
+        'ass.cod as codigoS',
+        DB::raw('"Tienda" as tipoCodigo'),
+        'tda__tiendas.id AS id_tienda_almacen',
+        'ass.id AS id_sucursal'
+)->where('ass.activo','=',1);
+
+$almacenes = DB::table('alm__almacens as aa')
+->join('adm__sucursals as ass', 'ass.id', '=', 'aa.idsucursal')
+->select(
+DB::raw('NULL as id_tienda'),
+'aa.id as id_almacen',
+'aa.codigo',
+'aa.nombre_almacen as razon_social',
+'ass.razon_social as sucursal',
+'ass.cod as codigoS',
+DB::raw('"Almacen" as tipoCodigo'),
+'aa.id AS id_tienda_almacen',
+'ass.id AS id_sucursal'
+)->where('ass.activo','=',1);
+
+$result = $tiendas->unionAll($almacenes)->get();
+return $result;    
+    }
 }

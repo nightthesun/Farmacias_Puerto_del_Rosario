@@ -9,10 +9,10 @@
         <!-- inicio de index -->
         <div class="container-fluid">
             <div class="card">
-                <div class="card-header">
+                <div class="card-header" v-if="puedeCrear==1">
                     <i class="fa fa-align-justify"></i> Descuentos    
-
-                    <button v-if="selectTabla==4" :disabled="selectTabla==0"
+                    
+                        <button v-if="selectTabla==4" :disabled="selectTabla==0"
                         type="button"
                         class="btn btn-secondary"
                         
@@ -21,11 +21,11 @@
                     </button>   
                     <button v-else :disabled="selectTabla==0"
                     type="button"
-                    class="btn btn-secondary"
-                    
+                    class="btn btn-secondary"                    
                     @click="abrirModal('registrar');">
                     <i class="icon-plus"></i>&nbsp;Nuevo
-                </button>                 
+                </button>   
+                                                   
                 </div>
         <div class="card-body">
             <div class="form-group row">
@@ -95,18 +95,52 @@
                           
                         <tr v-for="i in arrayIndex" :key="i.id">
                             <td class="col-md-1">
-                                <button type="button" class="btn btn-warning btn-sm"  style="margin-right: 5px;"  @click="abrirModal('actualizar', i)">
-                                <i class="icon-pencil"></i></button>
-                            
-                                
-                                
-                                    <button v-if="i.activo == 1" type="button" class="btn btn-danger btn-sm" @click="eliminar(i.id)"
-                                     tyle="margin-right: 5px;">
-                                    <i class="icon-trash"></i>
-                                    </button>
-                                    <button v-else type="button" class="btn btn-info btn-sm" @click="activar(i.id)" tyle="margin-right: 5px;">
-                                    <i class="icon-check"></i>
-                                    </button>  
+                                <div  class="d-flex justify-content-start">
+                                    <div  v-if="puedeEditar==1">
+                                        <button type="button" class="btn btn-warning btn-sm"  style="margin-right: 5px;"  @click="abrirModal('actualizar', i)">
+                                            <i class="icon-pencil"></i></button>    
+                                    </div>
+                                    <div v-else>
+                                        <button type="button" class="btn btn-light btn-sm"  style="margin-right: 5px;">
+                                            <i class="icon-pencil"></i></button>
+                                    </div>
+                                    <div v-if="puedeActivar==1">
+                                        <button v-if="i.activo == 1" type="button" class="btn btn-danger btn-sm" @click="eliminar(i.id)"  
+                                        style="margin-right: 5px;">
+                                        <i class="icon-trash"></i>
+                                        </button>
+                                        <button v-else type="button" class="btn btn-info btn-sm" @click="activar(i.id)" style="margin-right: 5px;">
+                                        <i class="icon-check"></i>
+                                        </button>  
+                                    </div>
+                                    <div v-else>
+                                        <button v-if="i.activo == 1" type="button" class="btn btn-light btn-sm" 
+                                        style="margin-right: 5px;">
+                                        <i class="icon-trash"></i>
+                                        </button>
+                                        <button v-else type="button" class="btn btn-light btn-sm"  style="margin-right: 5px;">
+                                        <i class="icon-check"></i>
+                                        </button> 
+                                    </div>    
+                                        
+                                    <div v-if="puedeHacerOpciones_especiales==1">
+                                        <button type="button" @click="listarDescuentoXtdaAlm(i.id); abrirModal('asignar',i);" 
+                                        class="btn btn-secondary btn-sm" style="margin-right: 5px; color: white;" data-toggle="tooltip" data-placement="right" >
+                                                <i class="fa fa-plus" aria-hidden="true"></i>
+                                        </button> 
+                                    </div>
+                                   <div v-else>
+                                    <button type="button" 
+                                    class="btn btn-light btn-sm" style="margin-right: 5px; color: white;" data-toggle="tooltip" data-placement="right" >
+                                            <i class="fa fa-plus" aria-hidden="true"></i>
+                                    </button> 
+                                   </div>
+                              
+                                    
+                                    
+                                    
+                                </div> 
+                                   
                             </td>
                             <td class="col-md-2" v-text="i.nombre_descuento"></td>
                             <td class="col-md-2" v-text="i.descripcion"></td>                      
@@ -378,6 +412,76 @@
             </div>
         </div>
         <!--fin del modal-->
+
+         <!--Inicio del modal asignacion -->
+         <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" id="registrar1" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+            <div class="modal-dialog modal-primary modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">{{ tituloModal }}</h4>
+                        <button type="button" class="close"  aria-label="Close" @click="cerrarModal1('registrar1')">
+                            <span aria-hidden="true">×</span>
+                        </button>
+                    </div>
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-12" >
+                                <div class="modal-body">
+                     
+
+
+                     <form action=""  class="form-horizontal">
+
+                       
+                             <label class="col-md-6 form-control-label" for="text-input"><strong>Lista de sucursales:</strong> </label>
+                             <div class="col-md-9">
+                                <table class="table table-bordered table-striped table-sm table-responsive">
+                                    <thead>
+                                        <tr>
+                                            <th></th>
+                                            <th>Nombre</th>
+                                            <th>Cod Sucursal</th>
+                                            <th>Codigo</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="option in arrayAlmTienda" :key="option.id" >
+                                            <td>
+                                                <input type="checkbox" :value="{ codigo: option.codigo, id_sucursal: option.id_sucursal, id_tienda_almacen: option.id_tienda_almacen }" v-model="selectAlmTda2">
+                                            </td>
+                                            
+                                            <td v-text="option.razon_social"></td>
+                                            <td v-text="option.codigoS"></td>
+                                            <td v-text="option.codigo"></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                            
+                        
+                             </div>
+                       
+
+                     </form>
+                 </div>
+                            </div>
+                         
+                            </div>
+                        </div>
+                   
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary"  @click="cerrarModal1('registrar1')">Cerrar</button>
+ 
+                        <button type="button" class="btn btn-primary" @click="asignarSucursal()">Asignar</button>
+                    </div>
+                </div>
+                <!-- /.modal-content -->
+            </div>
+            <!-- /.modal-dialog -->
+        </div>
+        <!--Fin del modal-->
+
+
     </main>
 </template>
 
@@ -388,6 +492,9 @@ import VueMultiselect from 'vue-multiselect';
 //Vue.use(VeeValidate);
 export default {
     components: { VueMultiselect},
+    //---permisos_R_W_S
+    props: ['codventana'],
+        //-------------------
     data() {
         return {
             pagination: {
@@ -430,6 +537,16 @@ export default {
 
             id_index:'',
             id_descuento_x:'',
+
+            selectAlmTda2:[],
+            arrayFalso:[],
+            arrayDescuentoxSucursal:[],
+             //---permisos_R_W_S
+             puedeEditar:2,
+                puedeActivar:2,
+                puedeHacerOpciones_especiales:2,
+                puedeCrear:2,
+                //-----------   
         };
     },
 
@@ -474,6 +591,33 @@ export default {
 
     methods: {
     
+                    //-----------------------------------permisos_R_W_S        
+ listarPerimsoxyz() {
+                //console.log(this.codventana);
+    let me = this;        
+    var url = '/gestion_permiso_editar_eliminar?win='+me.codventana;  
+    axios.get(url)
+        .then(function(response) {
+            var respuesta = response.data;     
+            if(respuesta=="root"){
+            me.puedeEditar=1;
+            me.puedeActivar=1;
+            me.puedeHacerOpciones_especiales=1;
+            me.puedeCrear=1; 
+            }else{
+            me.puedeEditar=respuesta.edit;
+            me.puedeActivar=respuesta.activar;
+            me.puedeHacerOpciones_especiales=respuesta.especial;
+            me.puedeCrear=respuesta.crear;        
+            }           
+        })
+        .catch(function(error) {
+            error401(error);
+            console.log(error);
+        });
+},
+//--------------------------------------------------------------  
+
         nameWithLang ({codigo_prod,leyenda, envase,tipo_lugar}) {
             
             return `${codigo_prod} ${leyenda} ${envase} ${tipo_lugar}`
@@ -559,7 +703,7 @@ if (valor == 3) {
     };
 }
 if (valor == 4) {
-    console.log(me.selected.id+' '+me.selected.codigo_prod+' '+me.selected.envase+' '+me.selected.tipo_lugar);
+  
     data = {
         'id_tipo_tabla': valor,
       
@@ -656,7 +800,7 @@ axios.post('/descuento2/registrarDescuento', data)
                     var respuesta = response.data;
                     me.pagination = respuesta.pagination;
                     me.arrayIndex = respuesta.descuento.data;
-                   console.log(me.arrayIndex);
+                 
                 })
                 .catch(function(error){
                     error401(error);
@@ -671,11 +815,8 @@ axios.post('/descuento2/registrarDescuento', data)
             axios
                 .get(url)
                 .then(function (response) {
-                    var respuesta1 = response.data;
-                                
-                    me.arrayTabla = respuesta1;
-                    console.log(me.arrayTabla);
-            
+                    var respuesta1 = response.data;                                
+                    me.arrayTabla = respuesta1;               
                 })
                 .catch(function (error) {
                     error401(error);
@@ -687,7 +828,7 @@ axios.post('/descuento2/registrarDescuento', data)
 
         listarAlmTienda() {
             let me = this;
-            var url = "/traslado/listarSucursal";
+            var url = "/listar_tienda_alamce_generico_lista_x_rol_usuario";
             axios
                 .get(url)
                 .then(function (response) {
@@ -818,7 +959,8 @@ axios.post('/descuento2/registrarDescuento', data)
         actualizar() {            
             let me = this;
             let codificador=0;
-            let valor = me.selectTabla;            
+            let valor = me.selectTabla;
+            console.log(me.id_cliente);            
     switch (valor) {
     case 1:
     if (me.nombre_Des==""|| me.descripcion_Des==""||me.selectTipoNumPor==0||me.monto=="") {
@@ -898,7 +1040,7 @@ if (valor == 3) {
     };
 }
 if (valor == 4) {
-    console.log(me.selected.id+' '+me.selected.codigo_prod+' '+me.selected.envase+' '+me.selected.tipo_lugar);
+   
     data = {
         'id':me.id_index,
         'id_tipo_tabla': valor,
@@ -944,6 +1086,38 @@ axios.put('/descuento2/actualizar', data)
             }
         },
 
+        asignarSucursal(){
+                let me =this;               
+               let cadena=[];
+               for (const selectedOption of this.selectAlmTda2) {
+                let elemento = {
+      'codigo': selectedOption.codigo,
+      'id_sucursal': selectedOption.id_sucursal,
+      'id_tienda_almacen': selectedOption.id_tienda_almacen
+    };
+    cadena.push(elemento);
+
+      }
+  
+      
+                axios.post('/descuento2/asignar',{
+                    id:me.id_index,
+                    bloque:cadena,
+                    
+                }).then(function (response) {
+                    me.listarIndex();
+                    Swal.fire(
+                        'Asigno Correctamente!',
+                        'El Accion realizada Correctamente',
+                        'success'
+                    )
+                }).catch(function (error) {
+                    error401(error);
+                });
+                me.arrayFalso=[];
+                me.cerrarModal('registrar1');
+               
+            },
         abrirModal(accion, data = []) {
             let me = this;
         //    let respuesta = me.arraySucursal.find(
@@ -1026,12 +1200,25 @@ axios.put('/descuento2/actualizar', data)
 
                     break;
                 }
-            
+
+            case 'asignar':
+                    {  
+                                          
+                         me.tituloModal='Asignar sucursal';
+  
+
+                       me.selectAlmTda2=me.arrayFalso;
+                        me.id_index=data.id;
+                        me.classModal.openModal('registrar1');
+                   
+                        break;
+
+                    }
             }
         },
         cerrarModal(accion) {
             let me = this;
-            if (accion == "registrar") {
+          
                 me.classModal.closeModal(accion);
                
                     me.tituloModal = " ";
@@ -1058,15 +1245,61 @@ axios.put('/descuento2/actualizar', data)
                     me.inputTextBuscarProductoIngreso = "";
                         me.arrayRetornarProductosIngreso = "";
                         me.id_descuento_x="";
+                        me.arrayDescuentoxSucursal=[];
               
-            } else {
-                me.classModal.closeModal(accion);
-              
-                me.classModal.openModal("registrar");
-            }
+            
+            
         },
-
+        cerrarModal1(accion){
+                let me = this;
+                me.classModal.closeModal(accion);
+                me.tipoAccion=1;
+               me.id_index="";
+                me.arrayFalso=[];
+                me.selectAlmTda2=[];
+              me.arrayDescuentoxSucursal=[];
+          
+               
+            },
      
+            listarDescuentoXtdaAlm(id)
+            {
+                   let me = this;
+               
+                   if (typeof id!=="undefined") {
+                    var url = "/descuento2/listarAsignar?id="+id;
+             
+            axios
+                .get(url)
+                .then(function (response) {
+                    var respuesta = response.data;
+                   //  me.arrayDescuentoxSucursal = respuesta.datos.data;
+                   me.arrayDescuentoxSucursal = respuesta;
+                 
+             
+                   me.arrayAlmTienda.forEach(function(elemento1) {
+  me.arrayDescuentoxSucursal.forEach(function(elementoInterno) {
+    if (elemento1.codigo === elementoInterno.codigo) {
+      me.arrayFalso.push({
+        codigo: elemento1.codigo,
+        id_sucursal: elemento1.id_sucursal,
+        id_tienda_almacen: elemento1.id_tienda_almacen,
+       
+      });
+    } 
+  });
+  
+});
+
+                })
+                .catch(function (error) {
+                    error401(error);
+                    console.log(error);
+                });  
+                   }
+            
+            },
+
 
         selectAll: function (event) {
             setTimeout(function () {
@@ -1076,14 +1309,17 @@ axios.put('/descuento2/actualizar', data)
     },
 
     mounted() {
+        //-------permiso E_W_S-----
+        this.listarPerimsoxyz();        
+        //-----------------------
         this.classModal = new _pl.Modals();
         this.listarAlmTienda();
         this.listarTipoTabla();
        this.listarIndex(1);
         this.listarProductoX();
         this.classModal.addModal("registrar");
-    
-    
+        this.classModal.addModal('registrar1');
+        this.listarDescuentoXtdaAlm();
     },
 };
 </script>

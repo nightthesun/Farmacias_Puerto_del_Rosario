@@ -539,4 +539,55 @@ class ParDescuentoController extends Controller
         $descuento->id_usuario_modifica=auth()->user()->id;
         $descuento->save();
     }
+   
+
+
+    public function asignar(Request $request){
+        // Buscar asignaciones existentes para el vehículo
+        $asignarExistente = DB::table('par__asignacion_descuento')
+        ->where('id_descuento', $request->id)
+        ->get();
+        // Si existen asignaciones, eliminarlas
+        if ($asignarExistente->count() > 0) {
+            DB::table('par__asignacion_descuento')
+            ->where('id_descuento', $request->id)
+            ->delete();
+          }
+      
+        $bloque = $request->bloque;
+            foreach ($bloque as $item) {
+             $codigo = $item['codigo'];
+             $idSucursal = $item['id_sucursal'];
+             $idTiendaAlmacen = $item['id_tienda_almacen'];
+             $datos = [
+                 'id_descuento' => $request->id,
+                 'id_sucursal' => $idSucursal,
+                 'id_alm_tda' => $idTiendaAlmacen,
+                 'cod' => $codigo,
+             ];
+         
+             DB::table('par__asignacion_descuento')->insert($datos);
+          
+          }
+     }
+     public function listarAsignar(Request $request){
+        if ($request->id != "undefined" || !empty($request->id)) {
+         $alm = DB::table('par__asignacion_descuento as tip')
+         ->join('adm__sucursals as ass', 'ass.id', '=', 'tip.id_sucursal')
+         ->join('alm__almacens as aa', 'aa.codigo', '=', 'tip.cod')
+         ->where('tip.id_descuento', '=', $request->id)
+         ->select('tip.id_descuento as id','tip.id_sucursal as id_sucursal','tip.id_alm_tda as id_alm_tda','aa.nombre_almacen as nombre', 'tip.cod as codigo');
+     
+     $tda = DB::table('par__asignacion_descuento as tip')
+         ->join('adm__sucursals as ass', 'ass.id', '=', 'tip.id_sucursal')
+         ->join('tda__tiendas as tt', 'tt.codigo', '=', 'tip.cod')
+         ->where('tip.id_descuento', '=', $request->id)
+         ->select('tip.id_descuento as id', 'tip.id_sucursal as id_sucursal','tip.id_alm_tda as id_alm_tda','ass.razon_social as nombre', 'tip.cod as codigo');
+     
+     $resultado = $alm->unionAll($tda)->get();
+     
+     return $resultado;
+        }       
+         
+     }
 }

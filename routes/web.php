@@ -154,7 +154,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/listarTipoDoc', [GetController::class, 'listarTipoDoc']);  
     Route::get('/listarEx', [GetController::class, 'listarEx']);   
     Route::get('/listar_entradasXe', [GetController::class, 'listar_entradasXe']);   
-    Route::get('/tiene_movimiento', [GetController::class, 'tiene_movimiento']);   
+    Route::get('/tiene_movimiento', [GetController::class, 'tiene_movimiento']);
+    Route::get('/listarSucusal_TDA_ALM_sin_permiso', [GetController::class, 'listarSucusal_TDA_ALM_sin_permiso']);      
     
    
     //adm///////////////////////////////////////////////////////////////////////////////////
@@ -337,6 +338,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::put('/descuento2/desactivar', [ParDescuentoController::class, 'desactivar']);
     Route::put('/descuento2/activar', [ParDescuentoController::class, 'activar']);
     Route::put('/descuento2/actualizar', [ParDescuentoController::class, 'update']);
+    Route::post('/descuento2/asignar', [ParDescuentoController::class, 'asignar']);
+    Route::get('/descuento2/listarAsignar', [ParDescuentoController::class, 'listarAsignar']);
+
     ////////////////////////productos//////////////////////////////
     Route::get('/linea', [ProdLineaController::class, 'index']);
     Route::post('/linea/registrar', [ProdLineaController::class, 'store']);
