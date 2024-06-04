@@ -154,8 +154,10 @@ class ParDescuentoController extends Controller
         try {
           // Iniciar una transacción
         DB::beginTransaction();
+       
         $id=$request->id_tipo_tabla;
         $descuento = new Par_Descuento();
+
         if ($id==1) {
             $descuento->id_tipo_tabla=$id;
             $descuento->tipo_tabla=0;
@@ -190,27 +192,35 @@ class ParDescuentoController extends Controller
         }  
         
         if ($id==3) {
-            $descuento->id_tipo_tabla=$id;
-            $descuento->tipo_tabla=2;
-            $descuento->nombre_descuento=$request->nombre_descuento;
-            $descuento->descripcion=$request->descripcion;
-            $descuento->desc_num=$request->desc_num;
-            $descuento->monto_descuento=$request->monto_descuento;
-            $descuento->id_usuario_registra=auth()->user()->id;
-            $descuento->save();
-            $primerGuardadoExitoso = true;
-            DB::commit();
-            $nuevoProductoID = $descuento->id;
-            $datos = [
-                'id_cliente_p' => $request->id_cliente_p,
-         
-                'num_documento' => $request->num_documento, 
-                'id_descuento' => $nuevoProductoID,  
-                'nom_facturar' => $request->nom_facturar,  
-                                          
-            ];
-        
-    DB::table('par__cliente_producto')->insert($datos);
+            $existe = DB::table('par__cliente_producto')->where('id_cliente_p', $request->id_cliente_p)->exists();
+
+            // Preparar el mensaje
+            if ($existe) {
+                return response()->json(['message' => 'La persona ya existe']);
+            } else {
+                $descuento->id_tipo_tabla=$id;
+                $descuento->tipo_tabla=2;
+                $descuento->nombre_descuento=$request->nombre_descuento;
+                $descuento->descripcion=$request->descripcion;
+                $descuento->desc_num=$request->desc_num;
+                $descuento->monto_descuento=$request->monto_descuento;
+                $descuento->id_usuario_registra=auth()->user()->id;
+                $descuento->save();
+                $primerGuardadoExitoso = true;
+                DB::commit();
+                $nuevoProductoID = $descuento->id;
+                $datos = [
+                    'id_cliente_p' => $request->id_cliente_p,
+             
+                    'num_documento' => $request->num_documento, 
+                    'id_descuento' => $nuevoProductoID,  
+                    'nom_facturar' => $request->nom_facturar,  
+                                              
+                ];
+            
+        DB::table('par__cliente_producto')->insert($datos);
+            }
+           
         }  
 
         if ($id==4) {
@@ -292,6 +302,7 @@ class ParDescuentoController extends Controller
         }  
         
         if ($id==3) {
+       
             $descuento->id_tipo_tabla=$id;
             $descuento->tipo_tabla=2;
             $descuento->nombre_descuento=$request->nombre_descuento;
@@ -305,8 +316,12 @@ class ParDescuentoController extends Controller
  
             $datos = [
           
-                'num_documento' => $request->num_documento,         
-                'nom_facturar' => $request->nom_facturar,  
+                'id_cliente_p' => $request->id_cliente_p,
+             
+                    'num_documento' => $request->num_documento, 
+     
+                    'nom_facturar' => $request->nom_facturar,  
+                                              
                                           
             ];
     DB::table('par__cliente_producto')->where('id_descuento', $request->id_descuento_x)->update($datos);    
@@ -590,4 +605,93 @@ class ParDescuentoController extends Controller
         }       
          
      }
+
+    public function listarSucursalesX_descuentos(){
+
+        // Consulta adicional para sucursales
+$sucursales = DB::table('adm__sucursals')
+->select('id', 'razon_social', 'cod')
+->orderBy('id', 'asc')
+->get();
+
+        // Consulta principal
+$resultados = DB::table('par__asignacion_descuento as pad1')
+->join('adm__sucursals as ass', 'ass.id', '=', 'pad1.id_sucursal')
+->leftJoin('tda__tiendas as tt', 'tt.codigo', '=', 'pad1.cod')
+->leftJoin('alm__almacens as aa', 'aa.codigo', '=', 'pad1.cod')
+->join('par__descuentos as ad', 'ad.id', '=', 'pad1.id_descuento')
+->join('par_tipo_tabla as att', 'ad.id_tipo_tabla', '=', 'att.id')
+->select(
+    'ass.id',
+    'ass.razon_social as nom_suc',
+    'ass.cod as cod_suc',
+    DB::raw("CASE 
+        WHEN tt.codigo IS NOT NULL THEN 'Tienda'
+        WHEN aa.codigo IS NOT NULL THEN 'Almacen'
+        ELSE NULL
+    END as tipo_tienda_almacen"),
+    DB::raw("CASE 
+        WHEN tt.codigo IS NOT NULL THEN tt.codigo
+        WHEN aa.codigo IS NOT NULL THEN aa.codigo
+        ELSE NULL
+    END as codigo_alm_tda"),
+    DB::raw("CASE 
+        WHEN tt.codigo IS NOT NULL THEN ass.razon_social
+        WHEN aa.codigo IS NOT NULL THEN aa.nombre_almacen
+        ELSE NULL
+    END as nom_alm_td"),
+    'ad.nombre_descuento',
+    DB::raw("CASE 
+        WHEN ad.desc_num = 1 THEN 'Descuento en bolivianos'
+        WHEN ad.desc_num = 2 THEN 'Descuento en porcentaje'
+        ELSE NULL
+    END as tipo_descuento"),
+    'att.nombre as nombre_de_tabla',
+    'ad.monto_descuento'
+)
+->orderBy('ass.id', 'asc')
+->get();
+
+$arrayTotal=[];
+$controlador=0;
+foreach ($sucursales as $key => $s) {
+    
+    foreach ($resultados as $key => $r) {
+     
+        if ($s->cod==$r->cod_suc) {
+            $arrayTotal[]=[
+                 'id' => $r->id,
+                 'nom_suc' => $r->nom_suc,
+                 'cod_suc' => $r->cod_suc,
+                 'tipo_tienda_almacen' => $r->tipo_tienda_almacen,
+                 'codigo_alm_tda' => $r->codigo_alm_tda,
+                 'nom_alm_td' => $r->nom_alm_td,
+                 'nombre_descuento' => $r->nombre_descuento,
+                 'tipo_descuento' => $r->tipo_descuento,
+                 'nombre_de_tabla' => $r->nombre_de_tabla,
+                 'monto_descuento' => $r->monto_descuento,
+            ]; 
+            $controlador=1;
+        }
+    }
+    if ($controlador==0) {
+        $arrayTotal[]=[
+            'id' => $s->id,
+            'nom_suc' => $s->razon_social,
+            'cod_suc' => $s->cod,
+            'tipo_tienda_almacen' =>'',
+            'codigo_alm_tda' =>'',
+            'nom_alm_td' =>'',
+            'nombre_descuento' =>'',
+            'tipo_descuento' =>'',
+            'nombre_de_tabla' =>'',
+            'monto_descuento' =>'',
+       ];
+     
+    }
+    $controlador=0;
+}
+
+return  $arrayTotal;
+    }
 }

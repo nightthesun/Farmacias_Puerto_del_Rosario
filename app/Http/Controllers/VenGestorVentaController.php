@@ -78,11 +78,15 @@ class VenGestorVentaController extends Controller
                         ELSE NULL
                     END AS leyenda
                 "),
-                'gpv.id_lista','pppl.nombre as nombre_linea','pp.id as id_prod'
+                'gpv.id_lista','pppl.nombre as nombre_linea','pp.id as id_prod',
+                DB::raw('DATEDIFF(fecha_vencimiento, NOW()) AS dias')
             )
             ->where('ass.id', $id_suc)
             ->where('gpv.listo_venta', 1)
             ->where('pl.id', $id_lista)
+            ->where('pp.activo', 1)
+            ->where('tip.activo', 1)
+            ->where('tip.fecha_vencimiento', '>=', DB::raw('CURDATE()'))
             ->get(); 
             return $resultados;
        
@@ -127,23 +131,21 @@ class VenGestorVentaController extends Controller
                         ELSE NULL
                     END AS leyenda
                 "),
-                'gpv.id_lista','pppl.nombre as nombre_linea','pp.id as id_prod'
+                'gpv.id_lista','pppl.nombre as nombre_linea','pp.id as id_prod',
+                DB::raw('DATEDIFF(fecha_vencimiento, NOW()) AS dias')
             )
-            ->where('ass.id', 1)
-            ->where('gpv.listo_venta', $idsuc)
+            ->where('ass.id', $idsuc)
+            ->where('gpv.listo_venta', 1)
+            ->where('pp.activo', 1)
+            ->where('tip.activo', 1)
+            ->where('tip.fecha_vencimiento', '>=', DB::raw('CURDATE()'))
             ->get();
             return $resultados;    
         }
 
        
     }
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
+   
 
     /**
      * Store a newly created resource in storage.
@@ -153,21 +155,7 @@ class VenGestorVentaController extends Controller
         //
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Ven_GestorVenta $ven_GestorVenta)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Ven_GestorVenta $ven_GestorVenta)
-    {
-        //
-    }
+   
 
     /**
      * Update the specified resource in storage.
@@ -311,5 +299,51 @@ $resultado = $subconsulta->unionAll($subconsultaEmpresas)
 
 return $resultado;
         }   
-    }    
+    } 
+    
+
+    public function listarDescuentos_listas(Request $request){
+
+        $user_1 = auth()->user()->id;   
+
+        if ($user_1==1) {
+            $idsuc=1;
+        }else{
+            $iduserrolesuc = session('iduserrolesuc');
+            $idsuc = session('idsuc');
+            $id_user2 = session('id_user2'); 
+        }
+
+        $descuento = DB::table('par__asignacion_descuento as pad1')
+        ->join('par__descuentos as pd', 'pd.id', '=', 'pad1.id_descuento')
+        ->join('par_tipo_tabla as ptt', 'ptt.id', '=', 'pd.id_tipo_tabla')
+        ->select(
+            'pad1.id_descuento as id',
+            'pad1.cod',
+            'pd.nombre_descuento',
+            DB::raw("
+                CASE
+                    WHEN pd.desc_num = 1 THEN '#'
+                    WHEN pd.desc_num = 2 THEN '%'
+                    ELSE NULL
+                END AS tipo_num_des
+            "),
+            'pd.monto_descuento',
+            'ptt.nombre as nombre_tabla'
+        )
+        ->where('pd.activo', 1)
+        ->where(DB::raw('LEFT(pad1.cod, 3)'), 'TDA')
+        ->where('pad1.id_sucursal', $idsuc)
+        ->get();  
+        
+        $lista = DB::table('adm__sucursal_listas as asl')
+    ->join('prod__listas as pl', 'asl.id_lista', '=', 'pl.id')
+    ->select('pl.id', 'pl.nombre_lista')
+    ->where('pl.activo', '=',1)
+    ->where('asl.id_sucursal','=',$idsuc)
+    ->first();
+
+    return response()->json(['descuento' => $descuento, 'lista' => $lista]);
+    }
+    
 }

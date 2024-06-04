@@ -9,30 +9,41 @@
         <!-- inicio de index -->
         <div class="container-fluid">
             <div class="card">
-                <div class="card-header" v-if="puedeCrear==1">
-                    <i class="fa fa-align-justify"></i> Descuentos    
-                    
-                        <button v-if="selectTabla==4" :disabled="selectTabla==0"
-                        type="button"
-                        class="btn btn-secondary"
-                        
-                        @click="abrirModal('registrar');listarProductoX();">
-                        <i class="icon-plus"></i>&nbsp;Nuevo
-                    </button>   
-                    <button v-else :disabled="selectTabla==0"
-                    type="button"
-                    class="btn btn-secondary"                    
-                    @click="abrirModal('registrar');">
-                    <i class="icon-plus"></i>&nbsp;Nuevo
-                </button>   
-                                                   
+                <div class="card-header">
+                    <div class="d-flex align-items-center">
+                        <div v-if="puedeCrear==1">
+                            <i class="fa fa-align-justify"></i> Descuentos    
+                            <button v-if="selectTabla==4" :disabled="selectTabla==0"
+                                    type="button"
+                                    class="btn btn-secondary"
+                                    style="margin-right: 10px;" 
+                                    @click="abrirModal('registrar');listarProductoX();">
+                                <i class="icon-plus"></i>&nbsp;Nuevo
+                            </button>
+                            <button v-else :disabled="selectTabla==0"
+                                    type="button"
+                                    class="btn btn-secondary"
+                                    style="margin-right: 10px;" 
+                                    @click="abrirModal('registrar');">
+                                <i class="icon-plus"></i>&nbsp;Nuevo
+                            </button>                      
+                        </div>
+                        <button type="button"
+                        class="btn btn-outline-secondary"
+                        @click="listarSucursalesX_descuentos();abrirModal('vista_descuento');"
+                        style="margin-left: 10px;"> 
+                            <i class="fa fa-eye" aria-hidden="true"></i> Ver descuento x sucursal
+                        </button>
+                    </div>                                    
                 </div>
+                
         <div class="card-body">
             <div class="form-group row">
-                <div class="col-md-2" style="text-align: center">
+             
+                <div class="col-md-1">
                      <label for="">Tipo de tabla:</label>
                 </div>
-                        <div class="col-md-6">
+                        <div class="col-md-5">
                             
                                         <select v-model="selectTabla" class="form-control" @change="listarIndex(0)">
                                             <option v-bind:value="0" disabled>
@@ -345,8 +356,8 @@
                                             </div>
                                         </div>
                                         <div class="col-md-8">
-                                            <input type="text" id="texto" disabled name="texto" class="form-control" placeholder="Sin datos"
-                                                 :value="'cliente: ' + nombre_cliente + ' Numero de documento ' + num_cliente"/>
+                                            <input type="text" id="texto" disabled name="texto" class="form-control" placeholder="Debe buscar un cliente"
+                                                 :value="datos_cliente"/>
                                         </div>
                                     </div>
                                    
@@ -445,7 +456,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr v-for="option in arrayAlmTienda" :key="option.id" >
+                                        <tr v-for="option in arrayAlmTienda" :key="option.id">
                                             <td>
                                                 <input type="checkbox" :value="{ codigo: option.codigo, id_sucursal: option.id_sucursal, id_tienda_almacen: option.id_tienda_almacen }" v-model="selectAlmTda2">
                                             </td>
@@ -481,6 +492,76 @@
         </div>
         <!--Fin del modal-->
 
+
+         <!--Inicio del modal vista de descuentos -->
+         <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" id="vista_descuento" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+            <div class="modal-dialog modal-primary modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">{{ tituloModal }}</h4>
+                        <button type="button" class="close"  aria-label="Close" @click="cerrarModal1('vista_descuento')">
+                            <span aria-hidden="true">×</span>
+                        </button>
+                    </div>
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-12" >
+                                <div class="modal-body">
+                     
+
+
+                     <form action=""  class="form-horizontal">
+  <div class="col-md-12" style="overflow-x: auto; overflow-y: auto; max-height: 400px;">
+    <table class="table table-bordered table-striped table-sm table-responsive">
+                                    <thead>
+                                        <tr>
+                                            <th class="col-md-2">Nombre sucursal</th>
+                                            <th class="col-md-2">Nombre Tienda o Almacen</th>
+                                            <th class="col-md-5">Codigo</th>
+                                            <th class="col-md-2">Tipo</th>
+                                            <th>Nombre del descuento</th>
+                                            <th class="col-md-1">Tipo de descuento</th>
+                                            <th>Monto</th>
+                                            <th>Tipo de tabla</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="s in arraySucursalY" :key="s.id"  >
+                                            <td class="col-md-2" v-text="s.nom_suc"></td>
+                                            <td class="col-md-2" v-text="s.nom_alm_td"></td>                                           
+                                            <td class="col-md-5" v-if="s.codigo_alm_tda!=''">{{s.cod_suc+" -> "+s.codigo_alm_tda}}</td>
+                                            <td class="col-md-5" v-else></td>
+                                            <td class="col-md-2" v-text="s.tipo_tienda_almacen"></td>
+                                            <td v-text="s.nombre_descuento"></td>
+                                            <td class="col-md-1" v-text="s.tipo_descuento"></td>
+                                            <td v-text="s.monto_descuento"></td>
+                                            <td v-text="s.nombre_de_tabla"></td>   
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                            
+                        
+                             </div>
+                       
+
+                     </form>
+                 </div>
+                            </div>
+                         
+                            </div>
+                        </div>
+                   
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary"  @click="cerrarModal1('vista_descuento')">Cerrar</button>
+ 
+                    </div>
+                </div>
+                <!-- /.modal-content -->
+            </div>
+            <!-- /.modal-dialog -->
+        </div>
+        <!--Fin del modal-->
 
     </main>
 </template>
@@ -534,7 +615,7 @@ export default {
             arrayProductoX:[],
             selected:null,
             arrayIndex:[],
-
+            datos_cliente:'',
             id_index:'',
             id_descuento_x:'',
 
@@ -547,6 +628,9 @@ export default {
                 puedeHacerOpciones_especiales:2,
                 puedeCrear:2,
                 //-----------   
+
+                arrayDescuentoY:[],
+                arraySucursalY:[],
         };
     },
 
@@ -701,6 +785,7 @@ if (valor == 3) {
         
       
     };
+   
 }
 if (valor == 4) {
   
@@ -722,14 +807,25 @@ if (valor == 4) {
 }
 axios.post('/descuento2/registrarDescuento', data)
     .then(function(response) {
-        Swal.fire(
+        if (response.data.message=="La persona ya existe") {
+                    Swal.fire(
+                            "Error de ingreso de cliente",
+                            "El cliente ya tiene descuento",
+                            "error",
+                        );
+                  }else{
+                    Swal.fire(
                             "Registrado exitosamente",
                             "Haga click en Ok",
                             "success",
                         );
         me.cerrarModal('registrar');
         me.listarIndex(1);  
-    })       .catch(function (error) {                
+                  }
+     
+    })       .catch(function (error) {    
+                   
+
                 if (error.response.status === 500) {
                     me.errorMsg = error.response.data.error; // Asigna el mensaje de error a la variable errorMsg
                 Swal.fire(
@@ -773,11 +869,13 @@ axios.post('/descuento2/registrarDescuento', data)
                 .then(function (response) {
                     var respuesta1 = response.data;
                     if(respuesta1.nom_a_facturar==undefined&&respuesta1.num_cliente==undefined){
+                        me.datos_cliente="No se encontro cliente."
                         me.nombre_cliente="Sin datos";
                         me.num_cliente="No se encontro datos";
                         me.id_cliente=0;
                     }else{
                         me.id_cliente=respuesta1.id;
+                        me.datos_cliente="Nombre a facturar:"+respuesta1.nom_a_facturar+" Numero de docuemnto:"+respuesta1.num_documento;
                     me.nombre_cliente=respuesta1.nom_a_facturar;
                     me.num_cliente=respuesta1.num_documento;
                     }
@@ -824,7 +922,26 @@ axios.post('/descuento2/registrarDescuento', data)
                 });
         },
 
-        
+        listarSucursalesX_descuentos(){
+
+            let me = this;
+            var url = "/descuento2/listarSucursalesX_descuentos";
+            axios
+                .get(url)
+                .then(function (response) {
+                    var respuesta = response.data;
+                  
+                    //    arrayDescuentoY:[],
+                    me.arraySucursalY=respuesta;
+               //     me.arrayAlmTienda = respuesta;
+                 
+                })
+                .catch(function (error) {
+                    error401(error);
+                    console.log(error);
+                });
+
+        },
 
         listarAlmTienda() {
             let me = this;
@@ -1060,6 +1177,7 @@ if (valor == 4) {
 }
 axios.put('/descuento2/actualizar', data)
     .then(function(response) {
+        
         Swal.fire(
                             "Registrado exitosamente",
                             "Haga click en Ok",
@@ -1067,6 +1185,7 @@ axios.put('/descuento2/actualizar', data)
                         );
         me.cerrarModal('registrar');
         me.listarIndex(1);  
+        
     })       .catch(function (error) {                
                 if (error.response.status === 500) {
                     me.errorMsg = error.response.data.error; // Asigna el mensaje de error a la variable errorMsg
@@ -1144,7 +1263,7 @@ axios.put('/descuento2/actualizar', data)
                     me.nombre_cliente="";
                     me.num_cliente="";
                     me.selected=null;
-
+                    me.datos_cliente="";
                     me.classModal.openModal("registrar");
                     break;
                 }
@@ -1172,6 +1291,7 @@ axios.put('/descuento2/actualizar', data)
                    if(data.id_tipo_tabla==3){
                         me.nombre_Des=data.nombre_descuento;
                         me.descripcion_Des=data.descripcion;
+                        me.datos_cliente="Nombre a facturar:"+data.nom_facturar+" Numero de docuemnto:"+data.num_documento;
                         me.selectTipoNumPor=data.desc_num === null ? 0 : data.desc_num;
                         me.monto=data.monto_descuento;
                         
@@ -1202,34 +1322,31 @@ axios.put('/descuento2/actualizar', data)
                 }
 
             case 'asignar':
-                    {  
-                                          
+                    {                                            
                          me.tituloModal='Asignar sucursal';
-  
-
-                       me.selectAlmTda2=me.arrayFalso;
+                         me.selectAlmTda2=me.arrayFalso;
                         me.id_index=data.id;
                         me.classModal.openModal('registrar1');
                    
                         break;
 
                     }
+            case 'vista_descuento':{
+                me.tituloModal='Asignar sucursal';
+                me.classModal.openModal('vista_descuento');
+            }   
+
             }
         },
         cerrarModal(accion) {
             let me = this;
           
-                me.classModal.closeModal(accion);
-               
-                    me.tituloModal = " ";
-                
-              
-                         
+                me.classModal.closeModal(accion);               
+                    me.tituloModal = " ";                        
                     me.nombre_Des="";
                     me.descripcion_Des="";
                     me.selectTipoNumPor=0;
-                    me.monto="",
-            
+                    me.monto="",            
                     me.selectCantidad_precio=0;
                     me.selectRegla=0;
                     me.cantidad_monto_x=0;
@@ -1238,6 +1355,7 @@ axios.put('/descuento2/actualizar', data)
                     me.buscarResultado="";        
                     me.id_cliente="";
                     me.nombre_cliente="";
+                    me.datos_cliente="";
                     me.num_cliente="";
                     me.selected=null;
                     setTimeout(me.tiempo, 200); 
@@ -1250,6 +1368,8 @@ axios.put('/descuento2/actualizar', data)
             
             
         },
+
+        
         cerrarModal1(accion){
                 let me = this;
                 me.classModal.closeModal(accion);
@@ -1257,9 +1377,7 @@ axios.put('/descuento2/actualizar', data)
                me.id_index="";
                 me.arrayFalso=[];
                 me.selectAlmTda2=[];
-              me.arrayDescuentoxSucursal=[];
-          
-               
+              me.arrayDescuentoxSucursal=[];              
             },
      
             listarDescuentoXtdaAlm(id)
@@ -1320,6 +1438,8 @@ axios.put('/descuento2/actualizar', data)
         this.classModal.addModal("registrar");
         this.classModal.addModal('registrar1');
         this.listarDescuentoXtdaAlm();
+        
+        this.classModal.addModal("vista_descuento");
     },
 };
 </script>

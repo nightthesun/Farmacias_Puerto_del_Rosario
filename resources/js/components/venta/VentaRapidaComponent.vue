@@ -9,9 +9,20 @@
         <!-- inicio de index -->
         <div class="container-fluid">
             <div class="card">
-                <div class="card-header d-flex">
-                    <span>Venta de rapida </span>  
-                  </div>
+                <div class="card-header">
+                    <span>Venta de rápida</span>
+                    <div class="d-flex justify-content-end flex-wrap">
+                        <div >
+                            <span class="badge badge-pill badge-primary">{{nom_lista}}</span>
+                        </div>
+                       
+                        <div v-for="d in arrayDescuento" :key="d.id" >
+                            <span class="badge badge-pill badge-warning">{{d.nombre_descuento}}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                
         <div class="card-body" style="padding-top: 5px; padding-bottom: 1px;" >
             <div class="form-group row" >
                
@@ -65,6 +76,12 @@
                        <template #noResult>
                         No se encontraron elementos. Considere cambiar la consulta de búsqueda.
                       </template>
+                      <template #option="{ option }">
+                        <div :class="{'red-day': option.dias <= 10}">
+                       
+                       {{option.leyenda}} {{option.nombre_linea}} {{ "FV: "+option.fecha_vencimiento}} {{ "Dias: "+option.dias}}
+                        </div>
+                </template>
                     </VueMultiselect>
                 </div>
                 
@@ -95,7 +112,7 @@
         <input type="text" class="form-control" id="inlineFormInputName" v-model="numero" @keydown="filtrarNumeros">
       </td>
       <td class="col-md-1">
-        <button v-if="selected!==null && numero!=='' && descuento!=='' " type="button" class="btn btn-success btn-sm" style="margin-right: 5px;" @click="agregarVenta()">
+        <button v-if="selected!==null && numero!=='' && descuento!=='' " type="button" class="btn btn-success btn-sm" style="margin-right: 5px;" @click="agregarVenta();listarDescuentos_listas()">
             <i class="fa fa-plus" aria-hidden="true"></i>
             </button> 
         <button v-else  type="button" class="btn btn-secondary  btn-sm" style="margin-right: 5px;">
@@ -644,7 +661,14 @@ export default {
     numero :'',
     descuento:10,
   
-    
+    //descuentos
+    arrayDescuento:[],
+    descuentoNombre:'',
+    //----- numeral
+    arrayNumDescunto:[],
+    arryPorDescuento:[],
+    //lista
+    nom_lista:'',
         };
     },
 
@@ -703,6 +727,69 @@ watch: {
 
     methods: {
 
+        
+        listarDescuentos_listas() {
+            let me = this;       
+            var url ="/gestor_ventas/listarDescuentos_listas";            
+            axios
+                .get(url)
+                .then(function (response) {
+                    var respuesta = response.data;
+                    
+                  // Verificar y mostrar la longitud del array 'lista' en la respuesta
+            if (respuesta.lista && Array.isArray(respuesta.lista)) {
+                me.nom_lista=respuesta.lista.nombre_lista;
+            } else {
+                me.nom_lista="Lista Normal";   
+            }
+// Verificar y mostrar la longitud del array 'descuento' en la respuesta (si es necesario)
+if (respuesta.descuento && Array.isArray(respuesta.descuento)) {
+                me.arrayDescuento=respuesta.descuento;
+                //arrayNumDescunto:[],
+    //arryPorDescuento:[],
+    me.arrayDescuento.forEach(function(descuento) {
+        console.log(descuento);
+    if (descuento.tipo_num_des === '#') {
+        let var1=0;
+        let porcentaje=0;
+     
+        me.arrayNumDescunto.push (me.selected.precio_lista_gespreventa)
+        console.log("numeral"); // Aquí puedes hacer lo que necesites con cada elemento del array
+    } 
+    if (descuento.tipo_num_des === '%') {
+        let valorNumeral=0;
+        let porcentaje=0;             
+        porcentaje=descuento.monto_descuento/100;    
+        valorNumeral=porcentaje*me.selected.precio_lista_gespreventa;
+        if (descuento.id==="Normal") {
+           // Crear un objeto literal con los valores
+           let descuentoObjeto = {
+                    id: descuento.id,
+                    nombre: descuento.nombre_descuento,
+                    monto: valorNumeral
+                };
+                // Agregar el objeto al array
+                me.arryPorDescuento.push(descuentoObjeto);
+            }
+        if (descuento.nombre_tabla==="") {
+            
+        }    
+        console.log(valorNumeral);
+        console.log("porcentaje"); // Aquí puedes hacer lo que necesites con cada elemento del array         
+    }
+});
+    
+}
+
+         
+
+            }).catch(function (error) {
+                    error401(error);
+                    console.log(error);
+                });
+        },
+
+
         lipiar_cantida_cantida(){
             let me = this;          
             me.numero='';
@@ -759,7 +846,7 @@ watch: {
 
         nameWithLang ({leyenda, nombre_linea,fecha_vencimiento}) {
             
-      return `${leyenda} ${nombre_linea} ${fecha_vencimiento}`
+      return `${leyenda} ${nombre_linea} FV:${fecha_vencimiento}`
     },
 
         toggle () {
@@ -1164,7 +1251,7 @@ if (!correoRegex.test(me.correo)) {
     
     mounted() {
         this.classModal = new _pl.Modals();
-        
+        //this.listarDescuentos_listas();
         this.listarSucursalGet();
         this.classModal.addModal("registrar");
         this.classModal.addModal("cliente_modal");
@@ -1181,7 +1268,10 @@ if (!correoRegex.test(me.correo)) {
     color: red;
     font-size: 10px;
 }
-
+.red-day {
+  color: deeppink;
+  /* Puedes ajustar otros estilos según tus preferencias */
+}
 </style>
 
 <style src="vue-multiselect/dist/vue-multiselect.css"></style>

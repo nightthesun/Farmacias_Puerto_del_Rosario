@@ -340,6 +340,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::put('/descuento2/actualizar', [ParDescuentoController::class, 'update']);
     Route::post('/descuento2/asignar', [ParDescuentoController::class, 'asignar']);
     Route::get('/descuento2/listarAsignar', [ParDescuentoController::class, 'listarAsignar']);
+    Route::get('/descuento2/listarSucursalesX_descuentos', [ParDescuentoController::class, 'listarSucursalesX_descuentos']);
+    
 
     ////////////////////////productos//////////////////////////////
     Route::get('/linea', [ProdLineaController::class, 'index']);
@@ -576,6 +578,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/gestor_ventas/listarUsuario', [VenGestorVentaController::class, 'listarUsuario']);
     Route::get('/gestor_ventas/listarUsuarioRetorno', [VenGestorVentaController::class, 'listarUsuarioRetorno']);
     Route::get('/gestor_ventas/get_sucusal', [VenGestorVentaController::class, 'get_sucusal']);
+    Route::get('/gestor_ventas/listarDescuentos_listas', [VenGestorVentaController::class, 'listarDescuentos_listas']);
+    
     
     
 });
