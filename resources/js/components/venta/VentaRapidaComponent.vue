@@ -9,18 +9,29 @@
         <!-- inicio de index -->
         <div class="container-fluid">
             <div class="card">
-                <div class="card-header">
-                    <span>Venta de rápida</span>
-                    <div class="d-flex justify-content-end flex-wrap">
-                        <div >
-                            <span class="badge badge-pill badge-primary">{{nom_lista}}</span>
-                        </div>
-                       
-                        <div v-for="d in arrayDescuento" :key="d.id" >
-                            <span class="badge badge-pill badge-warning">{{d.nombre_descuento}}</span>
-                        </div>
+                <div class="card-header d-flex flex-wrap align-items-center">
+                    <div style="margin-right: 50px;">
+                        <span class="flex-grow-1">Venta de rápida</span>
                     </div>
-                </div>
+                   
+                    <div class="d-flex flex-wrap align-items-center justify-content-end">
+                      <div class="mr-2 mb-2">
+                        <span class="badge badge-pill badge-primary">{{"Lista:"+ nom_lista }}</span>
+                      </div>
+                      <div v-if="arrayDescuento.length > 0" class="d-flex flex-wrap align-items-center">
+                        <div v-for="d in arrayDescuento" :key="d.id" class="mr-2 mb-2">
+                          <span v-if="d.id_tabla == 1" class="badge badge-pill badge-warning">{{ "Descuento: "+d.nombre_descuento }}</span>
+                          <span v-if="d.id_tabla == 2" class="badge badge-pill badge-secondary">{{ "Descuento: "+d.nombre_descuento }}</span>
+                          <span v-if="d.id_tabla == 3" class="badge badge-pill badge-success">{{ "Descuento: "+d.nombre_descuento }}</span>
+                          <span v-if="d.id_tabla == 4" class="badge badge-pill badge-danger">{{ "Descuento: "+d.nombre_descuento }}</span>
+                        </div>
+                      </div>
+                      <div v-else class="ml-2 mb-2">
+                        <span class="badge badge-pill badge-dark">{{ descuentoNombre }}</span>
+                      </div>
+                    </div>
+                  </div>
+                  
                 
                 
         <div class="card-body" style="padding-top: 5px; padding-bottom: 1px;" >
@@ -112,7 +123,7 @@
         <input type="text" class="form-control" id="inlineFormInputName" v-model="numero" @keydown="filtrarNumeros">
       </td>
       <td class="col-md-1">
-        <button v-if="selected!==null && numero!=='' && descuento!=='' " type="button" class="btn btn-success btn-sm" style="margin-right: 5px;" @click="agregarVenta();listarDescuentos_listas()">
+        <button v-if="selected!==null && numero!=='' && descuento!=='' " type="button" class="btn btn-success btn-sm" style="margin-right: 5px;" @click="agregarVenta();">
             <i class="fa fa-plus" aria-hidden="true"></i>
             </button> 
         <button v-else  type="button" class="btn btn-secondary  btn-sm" style="margin-right: 5px;">
@@ -664,9 +675,11 @@ export default {
     //descuentos
     arrayDescuento:[],
     descuentoNombre:'',
+    arrayDescuentoOperacion:[],
     //----- numeral
     arrayNumDescunto:[],
     arryPorDescuento:[],
+    
     //lista
     nom_lista:'',
         };
@@ -727,62 +740,129 @@ watch: {
 
     methods: {
 
+        operacionDescuentos_tipo_tabla(tabla_id){
+            let me = this; 
+         
+            console.log(me.arrayDescuentoOperacion);
+            me.arrayDescuentoOperacion.forEach(function(descuento) {  
+                let var1=0;
+            let porcentaje=0;
+   
+    if (descuento.tipo_num_des === '#') {
+        porcentaje=descuento.monto_descuento;
+      let  valorNumeral=me.selected.precio_lista_gespreventa-porcentaje;
+        if(valorNumeral<0){
+            valorNumeral=me.selected.precio_lista_gespreventa;
+        }
+        let descuentoObjeto = {
+                    id: descuento.id,
+                    id_nombre_tabla: descuento.id_nom_tabla,
+                    nombre: descuento.nombre_descuento,
+                    monto: valorNumeral,
+                    id_tabla_x:descuento.id_tablas_x
+                };
+    
+
+    } 
+    if (descuento.tipo_num_des === '%') {
+                  
+        porcentaje=descuento.monto_descuento/100;    
+        valorNumeral=porcentaje*me.selected.precio_lista_gespreventa;
+        if (descuento.id==="Normal") {
+           // Crear un objeto literal con los valores
+           let descuentoObjeto = {
+            id: descuento.id,
+                    id_nombre_tabla: descuento.id_nom_tabla,
+                    nombre: descuento.nombre_descuento,
+                    monto: valorNumeral,
+                    id_tabla_x:descuento.id_tablas_x
+                };    
+            }   
+    }
+    if (descuento.id_nom_tabla===1) {
+          // Agregar el objeto al array
+          me.arryPorDescuento.push(descuentoObjeto);
+    }
+    if (descuento.id_nom_tabla===2) {
+        if (descuento.tipo_can_valor==='#') {
+            if (descuento.regla==='>') {
+                if (me.numero>descuento.cantidad_valor) {
+                    me.arryPorDescuento.push(descuentoObjeto);
+                }
+            }
+            if (descuento.regla==='=') {
+                if (me.numero=descuento.cantidad_valor) {
+                    me.arryPorDescuento.push(descuentoObjeto);
+                }
+            }
+            if (descuento.regla==='=') {
+                if (me.numero>descuento.cantidad_valor) {
+                    me.arryPorDescuento.push(descuentoObjeto);
+                }
+            }
+        }
+        if (descuento.tipo_can_valor==='BS') {
+            let condicion1=me.selected.precio_lista_gespreventa*me.numero;
+            if (descuento.regla==='>') {
+                if (condicion1>descuento.cantidad_valor) {
+                    me.arryPorDescuento.push(descuentoObjeto);
+                }
+            }
+            if (descuento.regla==='=') {
+                if (condicion1=descuento.cantidad_valor) {
+                    me.arryPorDescuento.push(descuentoObjeto);
+                }
+            }
+            if (descuento.regla==='<') {
+                if (condicion1<descuento.cantidad_valor) {
+                    me.arryPorDescuento.push(descuentoObjeto);
+                }
+            }
+
+        } 
+    }
+              
+}); 
+
+        },
         
+        listarDescuento_Tipo_tabla(){
+            let me = this;       
+            var url ="/gestor_ventas/listarDescuento_Tipo_tabla";            
+            axios
+                .get(url)
+                .then(function (response) {
+                    var respuesta = response.data; 
+                    me.arrayDescuentoOperacion=respuesta;                             
+             
+            }).catch(function (error) {
+                    error401(error);
+                    console.log(error);
+                });
+        },
+        
+
         listarDescuentos_listas() {
             let me = this;       
             var url ="/gestor_ventas/listarDescuentos_listas";            
             axios
                 .get(url)
                 .then(function (response) {
-                    var respuesta = response.data;
-                    
+                    var respuesta = response.data;                    
                   // Verificar y mostrar la longitud del array 'lista' en la respuesta
             if (respuesta.lista && Array.isArray(respuesta.lista)) {
                 me.nom_lista=respuesta.lista.nombre_lista;
             } else {
-                me.nom_lista="Lista Normal";   
+                me.nom_lista="Sin lista";   
             }
 // Verificar y mostrar la longitud del array 'descuento' en la respuesta (si es necesario)
 if (respuesta.descuento && Array.isArray(respuesta.descuento)) {
                 me.arrayDescuento=respuesta.descuento;
-                //arrayNumDescunto:[],
-    //arryPorDescuento:[],
-    me.arrayDescuento.forEach(function(descuento) {
-        console.log(descuento);
-    if (descuento.tipo_num_des === '#') {
-        let var1=0;
-        let porcentaje=0;
-     
-        me.arrayNumDescunto.push (me.selected.precio_lista_gespreventa)
-        console.log("numeral"); // Aquí puedes hacer lo que necesites con cada elemento del array
-    } 
-    if (descuento.tipo_num_des === '%') {
-        let valorNumeral=0;
-        let porcentaje=0;             
-        porcentaje=descuento.monto_descuento/100;    
-        valorNumeral=porcentaje*me.selected.precio_lista_gespreventa;
-        if (descuento.id==="Normal") {
-           // Crear un objeto literal con los valores
-           let descuentoObjeto = {
-                    id: descuento.id,
-                    nombre: descuento.nombre_descuento,
-                    monto: valorNumeral
-                };
-                // Agregar el objeto al array
-                me.arryPorDescuento.push(descuentoObjeto);
-            }
-        if (descuento.nombre_tabla==="") {
             
-        }    
-        console.log(valorNumeral);
-        console.log("porcentaje"); // Aquí puedes hacer lo que necesites con cada elemento del array         
-    }
-});
-    
-}
-
-         
-
+   }
+   else{
+    me.descuentoNombre="Sin descuentos";
+   }
             }).catch(function (error) {
                     error401(error);
                     console.log(error);
@@ -803,7 +883,8 @@ if (respuesta.descuento && Array.isArray(respuesta.descuento)) {
 
         agregarVenta(){
             try {
-            let me = this; 
+            let me = this;
+            me.operacionDescuentos_tipo_tabla();
             var descuento=0;
             var precioXcantida=0;
             var subtotal=0;
@@ -1251,8 +1332,9 @@ if (!correoRegex.test(me.correo)) {
     
     mounted() {
         this.classModal = new _pl.Modals();
-        //this.listarDescuentos_listas();
+        this.listarDescuentos_listas();
         this.listarSucursalGet();
+        this.listarDescuento_Tipo_tabla();
         this.classModal.addModal("registrar");
         this.classModal.addModal("cliente_modal");
         this.classModal.addModal("lote_cliete"); 

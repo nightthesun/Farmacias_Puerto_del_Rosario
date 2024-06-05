@@ -569,7 +569,7 @@ Route::group(['middleware' => 'auth'], function () {
     //////////////////////////////////////////////DIRECTORIO///////////////////////////////////////////////////   
    
     Route::post('/directorio/registrar', [DirClienteController::class, 'store']);
-    Route::get('/directorio', [DirClienteController::class, 'index']);  
+    Route::get('/directorio', [DirClienteController::class, 'index']); 
     Route::put('/directorio/desactivar', [DirClienteController::class, 'desactivar']);
     Route::put('/directorio/activar', [DirClienteController::class, 'activar']);
     Route::put('/directorio/actualizar', [DirClienteController::class, 'update']);
@@ -579,7 +579,6 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/gestor_ventas/listarUsuarioRetorno', [VenGestorVentaController::class, 'listarUsuarioRetorno']);
     Route::get('/gestor_ventas/get_sucusal', [VenGestorVentaController::class, 'get_sucusal']);
     Route::get('/gestor_ventas/listarDescuentos_listas', [VenGestorVentaController::class, 'listarDescuentos_listas']);
-    
-    
+    Route::get('/gestor_ventas/listarDescuento_Tipo_tabla', [VenGestorVentaController::class, 'listarDescuento_Tipo_tabla']); 
     
 });

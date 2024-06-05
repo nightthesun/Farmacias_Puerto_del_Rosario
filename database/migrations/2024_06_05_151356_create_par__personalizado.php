@@ -11,13 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('par__asignacion_descuento', function (Blueprint $table) {
+        Schema::create('par__personalizado', function (Blueprint $table) {
+            $table->id();
+            $table->integer('max')->nullable()->comment('valor maximo');
+            $table->integer('min')->default(0);        
             $table->smallInteger('id_descuento');
-            $table->smallInteger('id_sucursal');
-            $table->smallInteger('id_alm_tda');
-            $table->string('cod')->nullable();
-            $table->tinyInteger('personalizado')->nullable()->default(0);
-            
+
         });
     }
 
@@ -26,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('par__asignacion_descuento');
+        Schema::dropIfExists('par__personalizado');
     }
 };

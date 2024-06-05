@@ -95,7 +95,7 @@
 
             <th v-if="selectTabla == 4" class="col-md-1">Lugar</th>
             <th v-if="selectTabla == 4" class="col-md-2">Producto</th>
-
+            <th v-if="selectTabla == 5" class="col-md-2">Maximo</th>
             <th class="col-md-1">Usuario</th>
             <th class="col-md-1">Estado</th>
 
@@ -206,6 +206,7 @@
 
                             <td class="col-md-1" v-text="i.lugar" v-if="selectTabla == 4"></td>
                             <td class="col-md-1" v-if="selectTabla == 4">{{i.cod_prod+' '+i.leyenda+' envase: '+i.envase}}</td>
+                            <td class="col-md-1" v-if="selectTabla == 5">{{i.max}}</td>
                             <td class="col-md-1" v-text="i.user_name"></td>
                             <td class="col-md-1">
                                 <div v-if="i.activo == 1">
@@ -388,7 +389,13 @@
                                         </div>
                                     
                              </div>
-                             
+                                <div v-if="selectTabla==5">
+                                    <div class="from-group row">                       
+                                            <strong> <span>Valor maximo:</span></strong>                                    
+                                                <input type="number"  style="text-align: right;" class="form-control" placeholder="Debe ingresar un monto mayor a cero " v-model="personalizado" v-on:focus="selectAll" >
+                                            <span  v-if="personalizado==0||personalizado==''" class="error">Debe ingresar un valor.</span> 
+                                    </div> 
+                                </div>  
                             </div>
                         </form>
                     </div>
@@ -453,6 +460,7 @@
                                             <th>Nombre</th>
                                             <th>Cod Sucursal</th>
                                             <th>Codigo</th>
+                                        
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -464,6 +472,7 @@
                                             <td v-text="option.razon_social"></td>
                                             <td v-text="option.codigoS"></td>
                                             <td v-text="option.codigo"></td>
+                                        
                                         </tr>
                                     </tbody>
                                 </table>
@@ -620,6 +629,7 @@ export default {
             id_descuento_x:'',
 
             selectAlmTda2:[],
+            selectAlmTda3:[],
             arrayFalso:[],
             arrayDescuentoxSucursal:[],
              //---permisos_R_W_S
@@ -628,9 +638,12 @@ export default {
                 puedeHacerOpciones_especiales:2,
                 puedeCrear:2,
                 //-----------   
-
+              
                 arrayDescuentoY:[],
                 arraySucursalY:[],
+
+                personalizado:0,
+                id_personalizado:'',
         };
     },
 
@@ -732,9 +745,19 @@ export default {
         if (me.selected==null||me.selected==""||me.selected==0) {
             codificador=1;
         }
+    case 5:{
+        if (me.personalizado==''||me.personalizado==0) {
+            codificador=1; 
+        }        
+    }    
+    case 6:
+    if (me.nombre_Des==""|| me.descripcion_Des==""||me.selectTipoNumPor==0||me.monto=="") {
+                        codificador=1;
+                    }
+    
         break;    
     default:
-        console.log('noexiste datos');
+        console.log('no existe datos');
         break;
 }
                 if(codificador==1){
@@ -748,7 +771,7 @@ export default {
 
                     let data = {};
 
-if (valor == 1) {
+if (valor == 1||valor == 6) {
     data = {
         'id_tipo_tabla': valor,
        
@@ -805,6 +828,21 @@ if (valor == 4) {
 
     };
 }
+if (valor == 5) {
+  
+  data = {
+      'id_tipo_tabla': valor,
+    
+      'nombre_descuento': me.nombre_Des,
+      'descripcion': me.descripcion_Des,
+      'desc_num': me.selectTipoNumPor,
+      'monto_descuento': me.monto,
+      'personalizado':me.personalizado
+     
+
+  };
+}
+
 axios.post('/descuento2/registrarDescuento', data)
     .then(function(response) {
         if (response.data.message=="La persona ya existe") {
@@ -930,10 +968,9 @@ axios.post('/descuento2/registrarDescuento', data)
                 .get(url)
                 .then(function (response) {
                     var respuesta = response.data;
-                  
-                    //    arrayDescuentoY:[],
+                
                     me.arraySucursalY=respuesta;
-               //     me.arrayAlmTienda = respuesta;
+
                  
                 })
                 .catch(function (error) {
@@ -951,6 +988,7 @@ axios.post('/descuento2/registrarDescuento', data)
                 .then(function (response) {
                     var respuesta = response.data;
                     me.arrayAlmTienda = respuesta;
+
                  
                 })
                 .catch(function (error) {
@@ -1077,7 +1115,7 @@ axios.post('/descuento2/registrarDescuento', data)
             let me = this;
             let codificador=0;
             let valor = me.selectTabla;
-            console.log(me.id_cliente);            
+                  
     switch (valor) {
     case 1:
     if (me.nombre_Des==""|| me.descripcion_Des==""||me.selectTipoNumPor==0||me.monto=="") {
@@ -1098,7 +1136,18 @@ axios.post('/descuento2/registrarDescuento', data)
         if (me.selected==null||me.selected==""||me.selected==0) {
             codificador=1;
         }
-        break;    
+        break;  
+    case 5:
+        if (me.personalizado==null||me.personalizado==0) {
+            codificador=1;
+        }
+        break; 
+          
+        case 6:
+    if (me.nombre_Des==""|| me.descripcion_Des==""||me.selectTipoNumPor==0||me.monto=="") {
+                        codificador=1;
+                    }
+        break;  
     default:
         console.log('noexiste datos');
         break;
@@ -1114,7 +1163,7 @@ axios.post('/descuento2/registrarDescuento', data)
 
                     let data = {};
 
-if (valor == 1) {
+if (valor == 1 || valor == 6) {
     data = {
         'id':me.id_index,
         'id_tipo_tabla': valor,
@@ -1175,6 +1224,22 @@ if (valor == 4) {
         'id_descuento_x':me.id_descuento_x,
     };
 }
+if (valor == 5) {
+   
+   data = {
+       'id':me.id_index,
+       'id_tipo_tabla': valor,
+     
+       'nombre_descuento': me.nombre_Des,
+       'descripcion': me.descripcion_Des,
+       'desc_num': me.selectTipoNumPor,
+       'monto_descuento': me.monto,
+       'id_personalizado':me.id_personalizado,
+       'personalizado': me.personalizado,
+       'id_descuento_x':me.id_descuento_x,
+   };
+}
+
 axios.put('/descuento2/actualizar', data)
     .then(function(response) {
         
@@ -1208,6 +1273,7 @@ axios.put('/descuento2/actualizar', data)
         asignarSucursal(){
                 let me =this;               
                let cadena=[];
+      
                for (const selectedOption of this.selectAlmTda2) {
                 let elemento = {
       'codigo': selectedOption.codigo,
@@ -1222,6 +1288,7 @@ axios.put('/descuento2/actualizar', data)
                 axios.post('/descuento2/asignar',{
                     id:me.id_index,
                     bloque:cadena,
+                    p:me.selectTabla,
                     
                 }).then(function (response) {
                     me.listarIndex();
@@ -1264,14 +1331,16 @@ axios.put('/descuento2/actualizar', data)
                     me.num_cliente="";
                     me.selected=null;
                     me.datos_cliente="";
+                    me.personalizado=0;
+                    me.id_personalizado="";
                     me.classModal.openModal("registrar");
                     break;
                 }
                 case "actualizar": {
-                    console.log(data);
+                    
                     me.tipoAccion = 2;
                     me.id_index=data.id;
-                    if(data.id_tipo_tabla==1){
+                    if(data.id_tipo_tabla==1||data.id_tipo_tabla==6){
                         me.nombre_Des=data.nombre_descuento;
                         me.descripcion_Des=data.descripcion;
                         me.selectTipoNumPor=data.desc_num === null ? 0 : data.desc_num;
@@ -1316,6 +1385,16 @@ axios.put('/descuento2/actualizar', data)
                    me.id_descuento_x=data.id_descuento_prod;
                    }
 
+                   if(data.id_tipo_tabla==5){
+                
+                    me.nombre_Des=data.nombre_descuento;
+                        me.descripcion_Des=data.descripcion;
+                        me.selectTipoNumPor=data.desc_num === null ? 0 : data.desc_num;
+                        me.monto=data.monto_descuento;
+                        me.personalizado=data.max;
+                        me.id_personalizado=data.id_personalizado;
+                        me.id_descuento_x=data.id_personalizado;
+                   }
                     me.classModal.openModal("registrar");
 
                     break;
@@ -1358,14 +1437,14 @@ axios.put('/descuento2/actualizar', data)
                     me.datos_cliente="";
                     me.num_cliente="";
                     me.selected=null;
+                    me.personalizado=0;
+                    me.id_personalizado="";
                     setTimeout(me.tiempo, 200); 
                     //me.ProductoLineaIngresoSeleccionado = 0;
                     me.inputTextBuscarProductoIngreso = "";
                         me.arrayRetornarProductosIngreso = "";
                         me.id_descuento_x="";
                         me.arrayDescuentoxSucursal=[];
-              
-            
             
         },
 

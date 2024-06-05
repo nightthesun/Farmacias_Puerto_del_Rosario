@@ -67,11 +67,15 @@ class ParDescuentoController extends Controller
                     'ppd.envase',
                     'ppd.tipo_tda_alm as lugar',
                     'ppd.leyenda','pcp.id_descuento as id_descuento_pcp','p_cli.id_descuento as id_descuento_cli','ppd.id_descuento as id_descuento_prod',
-                    DB::raw('GREATEST(pd.created_at, pd.updated_at) as fecha')
+                    DB::raw('GREATEST(pd.created_at, pd.updated_at) as fecha'),
+                    'pp2.id as id_personalizado',
+                    'pp2.max as max',
+                    'pp2.min as min' 
                 )
                 ->leftJoin('par__cantidad_precio as pcp', 'pcp.id_descuento', '=', 'pd.id')
                 ->leftJoin('par__cliente_producto as p_cli', 'p_cli.id_descuento', '=', 'pd.id')
                 ->leftJoin('par__producto_desc as ppd', 'ppd.id_descuento', '=', 'pd.id')
+                ->leftJoin('par__personalizado as pp2', 'pp2.id_descuento', '=', 'pd.id')
                 ->join('users as u', 'u.id', '=', 'pd.id_usuario_registra')
                 ->where('pd.id_tipo_tabla',  $bus)
                 ->whereRaw($sqls)
@@ -117,11 +121,15 @@ class ParDescuentoController extends Controller
                     'ppd.envase',
                     'ppd.tipo_tda_alm as lugar',
                     'ppd.leyenda','pcp.id_descuento as id_descuento_pcp','p_cli.id_descuento as id_descuento_cli','ppd.id_descuento as id_descuento_prod',
-                    DB::raw('GREATEST(pd.created_at, pd.updated_at) as fecha')
+                    DB::raw('GREATEST(pd.created_at, pd.updated_at) as fecha'),
+                    'pp2.id as id_personalizado',
+                    'pp2.max as max',
+                    'pp2.min as min' 
                 )
                 ->leftJoin('par__cantidad_precio as pcp', 'pcp.id_descuento', '=', 'pd.id')
                 ->leftJoin('par__cliente_producto as p_cli', 'p_cli.id_descuento', '=', 'pd.id')
                 ->leftJoin('par__producto_desc as ppd', 'ppd.id_descuento', '=', 'pd.id')
+                ->leftJoin('par__personalizado as pp2', 'pp2.id_descuento', '=', 'pd.id')
                 ->join('users as u', 'u.id', '=', 'pd.id_usuario_registra')
                 ->where('pd.id_tipo_tabla',  $bus)                
                 ->orderBy('id', 'desc')
@@ -158,9 +166,15 @@ class ParDescuentoController extends Controller
         $id=$request->id_tipo_tabla;
         $descuento = new Par_Descuento();
 
-        if ($id==1) {
+        if ($id==1||$id==6) {
+            
             $descuento->id_tipo_tabla=$id;
-            $descuento->tipo_tabla=0;
+            if ($id==1) {
+                $descuento->tipo_tabla=0;
+            }
+            if ($id==6) {
+                $descuento->tipo_tabla=5;
+            }
             $descuento->nombre_descuento=$request->nombre_descuento;
             $descuento->descripcion=$request->descripcion;
             $descuento->desc_num=$request->desc_num;
@@ -248,6 +262,28 @@ class ParDescuentoController extends Controller
     DB::table('par__producto_desc')->insert($datos);
         }  
 
+        if ($id==5) {
+            $descuento->id_tipo_tabla=$id;
+            $descuento->tipo_tabla=4;
+            $descuento->nombre_descuento=$request->nombre_descuento;
+            $descuento->descripcion=$request->descripcion;
+            $descuento->desc_num=$request->desc_num;
+            $descuento->monto_descuento=$request->monto_descuento;
+            $descuento->id_usuario_registra=auth()->user()->id;
+            $descuento->save();
+            $primerGuardadoExitoso = true;
+            DB::commit();
+            $nuevoProductoID = $descuento->id;
+            $datos = [
+                'max' => $request->personalizado,         
+                'min' => 0,                               
+                'id_descuento' => $nuevoProductoID,  
+                                                       
+            ];
+        
+    DB::table('par__personalizado')->insert($datos);
+        }  
+
         } catch (\Throwable $th) {
             if ($primerGuardadoExitoso) {       
                 // Eliminar el producto guardado
@@ -270,7 +306,7 @@ class ParDescuentoController extends Controller
         DB::beginTransaction();
         $id=$request->id_tipo_tabla;
         $descuento = Par_Descuento::findOrFail($request->id);
-        if ($id==1) {
+        if ($id==1 || $id==6) {
         
             $descuento->nombre_descuento=$request->nombre_descuento;
             $descuento->descripcion=$request->descripcion;
@@ -309,7 +345,7 @@ class ParDescuentoController extends Controller
             $descuento->descripcion=$request->descripcion;
             $descuento->desc_num=$request->desc_num;
             $descuento->monto_descuento=$request->monto_descuento;
-            $descuento->id_usuario_registra=auth()->user()->id;
+            $descuento->id_usuario_modifica=auth()->user()->id;
             $descuento->save();
             $primerGuardadoExitoso = true;
             DB::commit();
@@ -335,7 +371,7 @@ class ParDescuentoController extends Controller
             $descuento->descripcion=$request->descripcion;
             $descuento->desc_num=$request->desc_num;
             $descuento->monto_descuento=$request->monto_descuento;
-            $descuento->id_usuario_registra=auth()->user()->id;
+            $descuento->id_usuario_modifica=auth()->user()->id;
             $descuento->save();
             $primerGuardadoExitoso = true;
             DB::commit();
@@ -351,6 +387,24 @@ class ParDescuentoController extends Controller
             ];
     DB::table('par__producto_desc')->where('id_descuento', $request->id_descuento_x)->update($datos);    
          
+    
+        }  
+        if ($id==5) {
+            $descuento->id_tipo_tabla=$id;
+            $descuento->tipo_tabla=4;
+            $descuento->nombre_descuento=$request->nombre_descuento;
+            $descuento->descripcion=$request->descripcion;
+            $descuento->desc_num=$request->desc_num;
+            $descuento->monto_descuento=$request->monto_descuento;
+            $descuento->id_usuario_modifica=auth()->user()->id;
+            $descuento->save();
+            $primerGuardadoExitoso = true;
+            DB::commit();
+          
+            $datos = [
+                'max' => $request->personalizado,                                                          
+            ];
+            DB::table('par__personalizado')->where('id_descuento', $request->id_descuento_x)->update($datos);       
     
         }  
 
@@ -574,11 +628,19 @@ class ParDescuentoController extends Controller
              $codigo = $item['codigo'];
              $idSucursal = $item['id_sucursal'];
              $idTiendaAlmacen = $item['id_tienda_almacen'];
+             $codiogACtivacion=0;
+             if ($request->p==5) {
+                $codiogACtivacion=1;
+             }
+             else{
+                $codiogACtivacion=0;
+             }
              $datos = [
                  'id_descuento' => $request->id,
                  'id_sucursal' => $idSucursal,
                  'id_alm_tda' => $idTiendaAlmacen,
                  'cod' => $codigo,
+                 'personalizado' => $codiogACtivacion,               
              ];
          
              DB::table('par__asignacion_descuento')->insert($datos);
