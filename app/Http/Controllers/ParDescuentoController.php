@@ -27,7 +27,7 @@ class ParDescuentoController extends Controller
                     if(empty($sqls)){
                         $sqls="(
                             pd.nombre_descuento like '%".$valor."%' 
-                                or ppd.leyenda like '%".$valor."%' 
+                                or pd.descripcion like '%".$valor."%' 
                                
                                                              
                               )" ;
@@ -36,7 +36,7 @@ class ParDescuentoController extends Controller
                     {
                         $sqls.="and (
                             pd.nombre_descuento like '%".$valor."%' 
-                            or ppd.leyenda like '%".$valor."%' 
+                            or pd.descripcion like '%".$valor."%' 
                            
                           )" ;
                     }    
@@ -66,7 +66,7 @@ class ParDescuentoController extends Controller
                     'ppd.cod_prod',
                     'ppd.envase',
                     'ppd.tipo_tda_alm as lugar',
-                    'ppd.leyenda','pcp.id_descuento as id_descuento_pcp','p_cli.id_descuento as id_descuento_cli','ppd.id_descuento as id_descuento_prod',
+                    'ppd.leyenda','pcp.id_descuento as id_descuento_pcp','p_cli.id_descuento as id_descuento_cli','ppd.id_descuento as id_descuento_prod','pp2.id_descuento as id_descuento_personal',
                     DB::raw('GREATEST(pd.created_at, pd.updated_at) as fecha'),
                     'pp2.id as id_personalizado',
                     'pp2.max as max',
@@ -120,11 +120,12 @@ class ParDescuentoController extends Controller
                     'ppd.cod_prod',
                     'ppd.envase',
                     'ppd.tipo_tda_alm as lugar',
-                    'ppd.leyenda','pcp.id_descuento as id_descuento_pcp','p_cli.id_descuento as id_descuento_cli','ppd.id_descuento as id_descuento_prod',
+                    'ppd.leyenda','pcp.id_descuento as id_descuento_pcp','p_cli.id_descuento as id_descuento_cli','ppd.id_descuento as id_descuento_prod','pp2.id_descuento as id_descuento_personal',
                     DB::raw('GREATEST(pd.created_at, pd.updated_at) as fecha'),
                     'pp2.id as id_personalizado',
                     'pp2.max as max',
-                    'pp2.min as min' 
+                    'pp2.min as min',
+                     
                 )
                 ->leftJoin('par__cantidad_precio as pcp', 'pcp.id_descuento', '=', 'pd.id')
                 ->leftJoin('par__cliente_producto as p_cli', 'p_cli.id_descuento', '=', 'pd.id')
@@ -402,7 +403,7 @@ class ParDescuentoController extends Controller
             DB::commit();
           
             $datos = [
-                'max' => $request->personalizado,                                                          
+                'max' => $request->monto_descuento                                                         
             ];
             DB::table('par__personalizado')->where('id_descuento', $request->id_descuento_x)->update($datos);       
     
@@ -612,7 +613,10 @@ class ParDescuentoController extends Controller
 
 
     public function asignar(Request $request){
-        // Buscar asignaciones existentes para el vehículo
+
+        try {
+            
+             // Buscar asignaciones existentes para el vehículo
         $asignarExistente = DB::table('par__asignacion_descuento')
         ->where('id_descuento', $request->id)
         ->get();
@@ -631,21 +635,49 @@ class ParDescuentoController extends Controller
              $codiogACtivacion=0;
              if ($request->p==5) {
                 $codiogACtivacion=1;
+                $results = DB::table('par__personalizado as pp2')
+                ->leftJoin('par__asignacion_descuento as pad2', 'pad2.id_descuento', '=', 'pp2.id_descuento')
+                ->select('pp2.*', 'pad2.*')
+                ->where('pad2.id_sucursal', '=', $idSucursal)
+                ->where('pad2.id_alm_tda', '=', $idTiendaAlmacen)
+                ->where('pad2.cod', '=', $codigo)
+                ->exists();
+
+                 if ($results) {
+                    return response()->json(['status' => 200, 'message' => 'Ya esta asignado el dato ' . $codigo], 200);
+                } else{
+                    $datos = [
+                        'id_descuento' => $request->id,
+                        'id_sucursal' => $idSucursal,
+                        'id_alm_tda' => $idTiendaAlmacen,
+                        'cod' => $codigo,
+                        'personalizado' => $codiogACtivacion,               
+                    ];
+                
+                    DB::table('par__asignacion_descuento')->insert($datos);
+                }
              }
              else{
                 $codiogACtivacion=0;
+                $datos = [
+                    'id_descuento' => $request->id,
+                    'id_sucursal' => $idSucursal,
+                    'id_alm_tda' => $idTiendaAlmacen,
+                    'cod' => $codigo,
+                    'personalizado' => $codiogACtivacion,               
+                ];
+            
+                DB::table('par__asignacion_descuento')->insert($datos);
              }
-             $datos = [
-                 'id_descuento' => $request->id,
-                 'id_sucursal' => $idSucursal,
-                 'id_alm_tda' => $idTiendaAlmacen,
-                 'cod' => $codigo,
-                 'personalizado' => $codiogACtivacion,               
-             ];
-         
-             DB::table('par__asignacion_descuento')->insert($datos);
+             
+             
           
           }
+
+        } catch (\Throwable $th) {
+            return response()->json(['error' => $th->getMessage()],500);
+        }
+       
      }
      public function listarAsignar(Request $request){
         if ($request->id != "undefined" || !empty($request->id)) {
@@ -756,4 +788,6 @@ foreach ($sucursales as $key => $s) {
 
 return  $arrayTotal;
     }
+
+   
 }

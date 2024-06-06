@@ -13,10 +13,11 @@ return new class extends Migration
     {
         Schema::create('par__personalizado', function (Blueprint $table) {
             $table->id();
-            $table->integer('max')->nullable()->comment('valor maximo');
+            $table->decimal('max', 8, 2)->unsigned()->nullable()->comment('valor maximo');
             $table->integer('min')->default(0);        
             $table->smallInteger('id_descuento');
-
+            $table->string('cod')->nullable();
+            $table->smallInteger('id_sucursal')->nullable();
         });
     }
 

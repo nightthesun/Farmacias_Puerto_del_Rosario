@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('nombre_descuento');
             $table->string('descripcion')->nullable()->comment('debe describir como sera el descuento');          
             $table->tinyInteger('desc_num')->comment('0 es igual porcentaje, y 1 es igual valor numerico');
-            $table->decimal('monto_descuento')->unsigned();                       
+            $table->decimal('monto_descuento',8, 2)->unsigned();                       
             $table->tinyInteger('activo')->default(1);
             $table->tinyInteger('estado')->default(1);
             $table->smallInteger('id_usuario_registra')->unsigned()->nullable()->comment('null->viene del seeder');

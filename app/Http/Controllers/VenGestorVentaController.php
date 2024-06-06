@@ -313,8 +313,16 @@ return $resultado;
             $idsuc = session('idsuc');
             $id_user2 = session('id_user2'); 
         }
+       // Consulta optimizada
+        $validador = DB::table('par__asignacion_descuento')
+        ->where('id_sucursal', $idsuc)
+        ->where(DB::raw('LEFT(cod, 3)'), 'TDA')
+        ->where('personalizado', 1)
+        ->exists();
 
-        $descuento =  DB::table('par__asignacion_descuento as pad1')
+        // Verificar el resultado
+        if ($validador) {
+            $descuento =  DB::table('par__asignacion_descuento as pad1')
         ->join('par__descuentos as pd', 'pd.id', '=', 'pad1.id_descuento')
         ->join('par_tipo_tabla as ptt', 'ptt.id', '=', 'pd.id_tipo_tabla')
         ->select(
@@ -322,19 +330,40 @@ return $resultado;
             'pad1.cod',
             'pd.nombre_descuento',
             'ptt.id as id_tabla',
-            'ptt.nombre as nombre_tabla'
+            'ptt.nombre as nombre_tabla',
+            'pad1.personalizado as per'
         )
         ->where('pd.activo', 1)
         ->where(DB::raw('LEFT(pad1.cod, 3)'), 'TDA')
         ->where('pad1.id_sucursal', $idsuc)
+        ->where('pad1.personalizado','=',1)
         ->get();  
         
-        $lista = DB::table('adm__sucursal_listas as asl')
-    ->join('prod__listas as pl', 'asl.id_lista', '=', 'pl.id')
-    ->select('pl.id', 'pl.nombre_lista')
-    ->where('pl.activo', '=',1)
-    ->where('asl.id_sucursal','=',$idsuc)
-    ->first();
+            } else {
+                $descuento =  DB::table('par__asignacion_descuento as pad1')
+                ->join('par__descuentos as pd', 'pd.id', '=', 'pad1.id_descuento')
+                ->join('par_tipo_tabla as ptt', 'ptt.id', '=', 'pd.id_tipo_tabla')
+                ->select(
+                    'pad1.id_descuento as id',
+                    'pad1.cod',
+                    'pd.nombre_descuento',
+                    'ptt.id as id_tabla',
+                    'ptt.nombre as nombre_tabla',
+                    'pad1.personalizado as per'
+                )
+                ->where('pd.activo', 1)
+                ->where(DB::raw('LEFT(pad1.cod, 3)'), 'TDA')
+                ->where('pad1.id_sucursal', $idsuc)
+                ->get();  
+       
+            }
+
+            $lista = DB::table('adm__sucursal_listas as asl')
+            ->join('prod__listas as pl', 'asl.id_lista', '=', 'pl.id')
+            ->select('pl.id', 'pl.nombre_lista')
+            ->where('pl.activo', '=',1)
+            ->where('asl.id_sucursal','=',$idsuc)
+            ->first();
 
     return response()->json(['descuento' => $descuento, 'lista' => $lista]);
     }
@@ -350,63 +379,143 @@ return $resultado;
             $idsuc = session('idsuc');
             $id_user2 = session('id_user2'); 
         }
-        $descuento = DB::table('par__asignacion_descuento as pad1')
-    ->join('par__descuentos as pd', 'pd.id', '=', 'pad1.id_descuento')
-    ->join('par_tipo_tabla as ptt', 'ptt.id', '=', 'pd.id_tipo_tabla')
-    ->leftJoin('par__cantidad_precio as pcp', 'pcp.id_descuento', '=', 'pd.id')
-    ->leftJoin('par__cliente_producto as pcli', 'pcli.id_descuento', '=', 'pd.id')
-    ->leftJoin('par__producto_desc as ppd', 'ppd.id_descuento', '=', 'pd.id')
-    ->select(
-        'pad1.id_descuento as id',
-        'pad1.cod',
-        'pd.nombre_descuento',
-        DB::raw("
-            CASE
-                WHEN pd.desc_num = 1 THEN '#'
-                WHEN pd.desc_num = 2 THEN '%'
-                ELSE NULL
-            END AS tipo_num_des
-        "),
-        'pd.monto_descuento',
-        'ptt.id as id_nom_tabla',
-        'ptt.nombre as nombre_tabla',
-        DB::raw("
-            CASE
-                WHEN pcp.es_cantidad_es_monto = 1 THEN '#'
-                WHEN pcp.es_cantidad_es_monto = 2 THEN 'BS'
-                ELSE NULL
-            END AS tipo_can_valor
-        "),
-        DB::raw("
-            CASE
-                WHEN pcp.regla = 1 THEN '<'
-                WHEN pcp.regla = 2 THEN '>'
-                WHEN pcp.regla = 3 THEN '='
-                ELSE NULL
-            END AS regla
-        "),
-        'pcp.cantidad_valor',
-        'pcli.id_cliente_p',
-        'ppd.id_prod',
-        'pcp.id as id_tabla_cant_valor',
-        'pcli.id as id_tabla_cliente',
-        'ppd.id as id_tabla_cliente',
-        DB::raw("
-        CASE
-  	WHEN ptt.id=1 THEN '0'
-  	WHEN ptt.id=2 THEN 	pcp.id
-  	WHEN ptt.id=3 THEN 	pcli.id
-  	WHEN ptt.id=4 THEN ppd.id
-	ELSE NULL
-  	END as id_tablas_x
-        ")
-    )
-    ->where('pd.activo', 1)
-    ->where(DB::raw('LEFT(pad1.cod, 3)'), 'TDA')
-    ->where('pad1.id_sucursal', $idsuc)
-    ->get();
-
-    return $descuento;
+         // Consulta optimizada
+         $validador = DB::table('par__asignacion_descuento')
+         ->where('id_sucursal', $idsuc)
+         ->where(DB::raw('LEFT(cod, 3)'), 'TDA')
+         ->where('personalizado', 1)
+         ->exists();
+          // Verificar el resultado
+        if ($validador) {
+            $descuento = DB::table('par__asignacion_descuento as pad1')
+            ->join('par__descuentos as pd', 'pd.id', '=', 'pad1.id_descuento')
+            ->join('par_tipo_tabla as ptt', 'ptt.id', '=', 'pd.id_tipo_tabla')
+            ->leftJoin('par__cantidad_precio as pcp', 'pcp.id_descuento', '=', 'pd.id')
+            ->leftJoin('par__cliente_producto as pcli', 'pcli.id_descuento', '=', 'pd.id')
+            ->leftJoin('par__producto_desc as ppd', 'ppd.id_descuento', '=', 'pd.id')
+            ->leftJoin('par__personalizado as pp2','pp2.id_descuento','=','pd.id') 
+            ->select(
+                'pad1.id_descuento as id',
+                'pad1.cod',
+                'pd.nombre_descuento',
+                DB::raw("
+                    CASE
+                        WHEN pd.desc_num = 1 THEN '#'
+                        WHEN pd.desc_num = 2 THEN '%'
+                        ELSE NULL
+                    END AS tipo_num_des
+                "),
+                'pd.monto_descuento',
+                'ptt.id as id_nom_tabla',
+                'ptt.nombre as nombre_tabla',
+                DB::raw("
+                    CASE
+                        WHEN pcp.es_cantidad_es_monto = 1 THEN '#'
+                        WHEN pcp.es_cantidad_es_monto = 2 THEN 'BS'
+                        ELSE NULL
+                    END AS tipo_can_valor
+                "),
+                DB::raw("
+                    CASE
+                        WHEN pcp.regla = 1 THEN '<'
+                        WHEN pcp.regla = 2 THEN '>'
+                        WHEN pcp.regla = 3 THEN '='
+                        ELSE NULL
+                    END AS regla
+                "),
+                'pcp.cantidad_valor',
+                'pcli.id_cliente_p',
+                'ppd.id_prod',
+                'pcp.id as id_tabla_cant_valor',
+                'pcli.id as id_tabla_cliente',
+                'ppd.id as id_tabla_prod',
+                'pp2.id as id_perso',
+                DB::raw("
+                CASE
+                WHEN ptt.id=1 THEN '0'
+                WHEN ptt.id=2 THEN 	pcp.id
+                WHEN ptt.id=3 THEN 	pcli.id
+                WHEN ptt.id=4 THEN ppd.id
+                WHEN ptt.id=5 THEN pp2.id
+                WHEN ptt.id=6 THEN 'f' 
+            ELSE NULL
+              END as id_tablas_x
+                "),
+                'pad1.personalizado as per'
+            )
+            ->where('pd.activo', 1)
+            ->where(DB::raw('LEFT(pad1.cod, 3)'), 'TDA')
+            ->where('pad1.id_sucursal', $idsuc)
+            ->where('pad1.personalizado','=',1)
+            ->get();
+        
+           
+            return response()->json(['descuento' => $descuento, 'validador' => $validador]);
+        }else{
+            $descuento = DB::table('par__asignacion_descuento as pad1')
+            ->join('par__descuentos as pd', 'pd.id', '=', 'pad1.id_descuento')
+            ->join('par_tipo_tabla as ptt', 'ptt.id', '=', 'pd.id_tipo_tabla')
+            ->leftJoin('par__cantidad_precio as pcp', 'pcp.id_descuento', '=', 'pd.id')
+            ->leftJoin('par__cliente_producto as pcli', 'pcli.id_descuento', '=', 'pd.id')
+            ->leftJoin('par__producto_desc as ppd', 'ppd.id_descuento', '=', 'pd.id')
+            ->leftJoin('par__personalizado as pp2','pp2.id_descuento','=','pd.id') 
+            ->select(
+                'pad1.id_descuento as id',
+                'pad1.cod',
+                'pd.nombre_descuento',
+                DB::raw("
+                    CASE
+                        WHEN pd.desc_num = 1 THEN '#'
+                        WHEN pd.desc_num = 2 THEN '%'
+                        ELSE NULL
+                    END AS tipo_num_des
+                "),
+                'pd.monto_descuento',
+                'ptt.id as id_nom_tabla',
+                'ptt.nombre as nombre_tabla',
+                DB::raw("
+                    CASE
+                        WHEN pcp.es_cantidad_es_monto = 1 THEN '#'
+                        WHEN pcp.es_cantidad_es_monto = 2 THEN 'BS'
+                        ELSE NULL
+                    END AS tipo_can_valor
+                "),
+                DB::raw("
+                    CASE
+                        WHEN pcp.regla = 1 THEN '<'
+                        WHEN pcp.regla = 2 THEN '>'
+                        WHEN pcp.regla = 3 THEN '='
+                        ELSE NULL
+                    END AS regla
+                "),
+                'pcp.cantidad_valor',
+                'pcli.id_cliente_p',
+                'ppd.id_prod',
+                'pcp.id as id_tabla_cant_valor',
+                'pcli.id as id_tabla_cliente',
+                'ppd.id as id_tabla_prod',
+                'pp2.id as id_perso',
+                DB::raw("
+                CASE
+                WHEN ptt.id=1 THEN '0'
+                WHEN ptt.id=2 THEN 	pcp.id
+                WHEN ptt.id=3 THEN 	pcli.id
+                WHEN ptt.id=4 THEN ppd.id
+                WHEN ptt.id=5 THEN pp2.id
+                WHEN ptt.id=6 THEN 'f' 
+            ELSE NULL
+              END as id_tablas_x
+                "),
+                'pad1.personalizado as per'
+            )
+            ->where('pd.activo', 1)
+            ->where(DB::raw('LEFT(pad1.cod, 3)'), 'TDA')
+            ->where('pad1.id_sucursal', $idsuc)
+            ->get();
+        
+            return response()->json(['descuento' => $descuento, 'validador' => $validador]);
+        }
+       
 
     }
     

@@ -286,7 +286,7 @@
     <br>
                                     <div class="from-group row">
                                         <div class="col-md-4">
-                                            <strong>Nombre descuento:</strong>
+                                            <strong>Nombre tipo:</strong>
                                             <div class="col-auto my-1">
                                            
                                                 <select class="custom-select mr-sm-2" id="inlineFormCustomSelect" v-model="selectTipoNumPor">
@@ -389,12 +389,17 @@
                                         </div>
                                     
                              </div>
-                                <div v-if="selectTabla==5">
-                                    <div class="from-group row">                       
-                                            <strong> <span>Valor maximo:</span></strong>                                    
-                                                <input type="number"  style="text-align: right;" class="form-control" placeholder="Debe ingresar un monto mayor a cero " v-model="personalizado" v-on:focus="selectAll" >
-                                            <span  v-if="personalizado==0||personalizado==''" class="error">Debe ingresar un valor.</span> 
-                                    </div> 
+                                <div v-if="selectTabla==5 && selectTipoNumPor!=0 && monto!=''">
+                                    <div class="alert alert-danger" role="alert">
+                                      Una vez que asigne este descuento alguna sucursal, tienda o almacen.
+                                      Solo funcionara este descuento ya que es un descuento personalizado y si tiene algun descuento asignado en esa sucursal dejara de funcionar. 
+                                      </div>
+                                      <div class="alert alert-danger" role="alert">
+                                     Solo puede existir uno seleccionado por sucursal, el valor maximo de <strong> Valor maximo de {{ monto}} </strong>  </div>
+                                 
+                                                  
+                                    
+                                   
                                 </div>  
                             </div>
                         </form>
@@ -684,6 +689,7 @@ export default {
             }
             return pagesArray;
         },
+
     },
 
     methods: {
@@ -746,9 +752,10 @@ export default {
             codificador=1;
         }
     case 5:{
-        if (me.personalizado==''||me.personalizado==0) {
-            codificador=1; 
-        }        
+        if (me.nombre_Des==""|| me.descripcion_Des==""||me.selectTipoNumPor==0||me.monto=="") {
+                        codificador=1;
+        }   
+        break;    
     }    
     case 6:
     if (me.nombre_Des==""|| me.descripcion_Des==""||me.selectTipoNumPor==0||me.monto=="") {
@@ -837,7 +844,7 @@ if (valor == 5) {
       'descripcion': me.descripcion_Des,
       'desc_num': me.selectTipoNumPor,
       'monto_descuento': me.monto,
-      'personalizado':me.personalizado
+      'personalizado':me.monto
      
 
   };
@@ -961,7 +968,6 @@ axios.post('/descuento2/registrarDescuento', data)
         },
 
         listarSucursalesX_descuentos(){
-
             let me = this;
             var url = "/descuento2/listarSucursalesX_descuentos";
             axios
@@ -977,7 +983,6 @@ axios.post('/descuento2/registrarDescuento', data)
                     error401(error);
                     console.log(error);
                 });
-
         },
 
         listarAlmTienda() {
@@ -996,6 +1001,7 @@ axios.post('/descuento2/registrarDescuento', data)
                     console.log(error);
                 });
         },
+
         cambiarPestana(idPestana) {
             this.pestañaActiva = idPestana;
 
@@ -1138,10 +1144,10 @@ axios.post('/descuento2/registrarDescuento', data)
         }
         break;  
     case 5:
-        if (me.personalizado==null||me.personalizado==0) {
-            codificador=1;
-        }
-        break; 
+    if (me.nombre_Des==""|| me.descripcion_Des==""||me.selectTipoNumPor==0||me.monto=="") {
+                        codificador=1;
+                    }
+        break;  
           
         case 6:
     if (me.nombre_Des==""|| me.descripcion_Des==""||me.selectTipoNumPor==0||me.monto=="") {
@@ -1235,7 +1241,7 @@ if (valor == 5) {
        'desc_num': me.selectTipoNumPor,
        'monto_descuento': me.monto,
        'id_personalizado':me.id_personalizado,
-       'personalizado': me.personalizado,
+       'personalizado': me.monto,
        'id_descuento_x':me.id_descuento_x,
    };
 }
@@ -1271,6 +1277,7 @@ axios.put('/descuento2/actualizar', data)
         },
 
         asignarSucursal(){
+            
                 let me =this;               
                let cadena=[];
       
@@ -1291,19 +1298,42 @@ axios.put('/descuento2/actualizar', data)
                     p:me.selectTabla,
                     
                 }).then(function (response) {
-                    me.listarIndex();
+                  
+                    if (response.data.status === 200) {
+                        Swal.fire(
+                    "Error",
+                    "200 (No puede existir dos datos en la misma sucursal) "+response.data.message, // Muestra el mensaje de error en el alert
+                    "error");  
+                    }else{
+                        me.listarIndex();
                     Swal.fire(
                         'Asigno Correctamente!',
                         'El Accion realizada Correctamente',
                         'success'
                     )
-                }).catch(function (error) {
-                    error401(error);
-                });
+                    }
+                   
+                }).catch(function (error) {                
+                if (error.response.status === 500) {
+                    me.errorMsg = error.response.data.error; // Asigna el mensaje de error a la variable errorMsg
+                Swal.fire(
+                    "Error",
+                    "500 (Internal Server Error)"+me.errorMsg, // Muestra el mensaje de error en el alert
+                    "error"       );
+                }else{
+                    Swal.fire(
+                    "Error",
+                    ""+error, // Muestra el mensaje de error en el alert
+                    "error"
+                );  
+                }              
+            });
                 me.arrayFalso=[];
                 me.cerrarModal('registrar1');
                
             },
+
+
         abrirModal(accion, data = []) {
             let me = this;
         //    let respuesta = me.arraySucursal.find(
@@ -1386,14 +1416,14 @@ axios.put('/descuento2/actualizar', data)
                    }
 
                    if(data.id_tipo_tabla==5){
-                
+              
                     me.nombre_Des=data.nombre_descuento;
                         me.descripcion_Des=data.descripcion;
                         me.selectTipoNumPor=data.desc_num === null ? 0 : data.desc_num;
                         me.monto=data.monto_descuento;
                         me.personalizado=data.max;
                         me.id_personalizado=data.id_personalizado;
-                        me.id_descuento_x=data.id_personalizado;
+                        me.id_descuento_x=data.id_descuento_personal;
                    }
                     me.classModal.openModal("registrar");
 
