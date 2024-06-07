@@ -16,8 +16,7 @@ return new class extends Migration
             $table->decimal('max', 8, 2)->unsigned()->nullable()->comment('valor maximo');
             $table->integer('min')->default(0);        
             $table->smallInteger('id_descuento');
-            $table->string('cod')->nullable();
-            $table->smallInteger('id_sucursal')->nullable();
+ 
         });
     }
 

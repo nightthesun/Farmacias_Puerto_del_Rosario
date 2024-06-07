@@ -132,7 +132,7 @@
                </td>
              
                  <td class="col-md-1">
-                     <input v-show="validadorPersonal === 1" type="text" class="form-control" id="inlineFormInputName" v-model="descuento">
+                     <input v-show="validadorPersonal === 1" :disabled="selected===null " type="text" class="form-control" id="inlineFormInputName" v-model="descuento">
                      <button v-show="validadorPersonal === 0" type="button" class="btn btn-success">Calcular</button>
                  </td>
           
@@ -706,6 +706,11 @@ export default {
     validadorPersonal:'',
 
     valorUnicoPersonalizado:0,
+
+    caso5_id:'',
+    caso5_nom:'',
+    caso5_id_tabla:'',
+
         };
     },
     created() {
@@ -730,8 +735,7 @@ watch: {
         },
 
     descuento: function (valor) {
-            if (valor > this.valorUnicoPersonalizado) {
-               
+            if (valor > this.valorUnicoPersonalizado) {               
                     this.descuento = 0;
                     Swal.fire(
                     "No puede ingresar un número mayor al descuento dado",
@@ -739,10 +743,26 @@ watch: {
                     "error",
                 );
             }    
-        }
+        },
+        selected: function (valor) {
+            if (valor !=null) {
+                this.arrayDescuentoOperacion.forEach((descuento) => {  
+                if(descuento.id_nom_tabla===5){
+                let caso_5 = this.operacion_Numeral_Procentaje(descuento.tipo_num_des, descuento.monto_descuento,this.selected.precio_lista_gespreventa);
+                console.log("caso_5: "+caso_5);
+                this.valorUnicoPersonalizado = caso_5;
+                this.caso5_id=descuento.id;
+                this.caso5_nom=descuento.nombre_descuento;
+                this.caso5_id_tabla=descuento.id_perso;//<====
+                }    
+              
+            });
+            }       
+        },    
+    
     },
     computed: {
-    
+       
         sicompleto() {
            let me = this;
      //       if (
@@ -790,10 +810,37 @@ watch: {
       });
     },
   
+    ///////////////////////////////funciones para la venta///////////////////////////////////////////////////////
+
+    operacion_Numeral_Procentaje(tipo_num_des,monto_descuento,precio_lista_gespreventa){
+        let me = this;  
+            let var1=0;
+            let porcentaje=0;
+            let  valorNumeral=0;
+   
+        if(tipo_num_des === '#'){
+            porcentaje=monto_descuento;
+            valorNumeral=precio_lista_gespreventa-porcentaje;
+            if (valorNumeral<0) {
+                valorNumeral=precio_lista_gespreventa;
+            }
+            return valorNumeral;             
+        }
+        else{
+            if (tipo_num_des === '%') {
+                porcentaje=monto_descuento/100;    
+                var1=porcentaje*precio_lista_gespreventa;
+                valorNumeral=precio_lista_gespreventa-var1;
+                return valorNumeral;
+            }else{
+                return valorNumeral;
+            }
+        }
+
+    },
         operacionDescuentos_tipo_tabla(tabla_id){
             let me = this; 
-         
-            console.log(me.arrayDescuentoOperacion);
+
             me.arrayDescuentoOperacion.forEach(function(descuento) {  
                 let var1=0;
             let porcentaje=0;
@@ -830,10 +877,7 @@ watch: {
                 };    
             }   
     }
-    if(descuento.id_nom_tabla===5){
-        me.valorUnicoPersonalizado=valorNumeral;
-    }    
-    
+
     
     if (descuento.id_nom_tabla===1) {
           // Agregar el objeto al array
@@ -880,29 +924,27 @@ watch: {
             }
 
         } 
-    }
-              
+    }              
 }); 
-
-        },
-        
+},        
         listarDescuento_Tipo_tabla(){
             let me = this;       
             var url ="/gestor_ventas/listarDescuento_Tipo_tabla";            
             axios
                 .get(url)
                 .then(function (response) {
-                    var respuesta = response.data;  
-                  
+                    var respuesta = response.data; 
+                    me.arrayDescuentoOperacion=respuesta.descuento;   
+                    console.log("/-/-/-/-/-/-/-/-/-/-/-");
+                    console.log(me.arrayDescuentoOperacion);       
                     if (respuesta.validador==true) {
                         me.validadorPersonal=1;
-                        
+                                       
                     } else {
                         me.validadorPersonal=0;
                     }   
-                    console.log("*--------------------*");            
-                   // console.log(respuesta.descuento[0].monto_descuento);
-                    me.arrayDescuentoOperacion=respuesta.descuento;                            
+             
+                                            
                     
             }).catch(function (error) {
                     error401(error);

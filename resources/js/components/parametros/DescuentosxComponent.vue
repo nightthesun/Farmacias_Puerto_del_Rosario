@@ -1343,7 +1343,24 @@ axios.put('/descuento2/actualizar', data)
          switch (accion) {
                 case "registrar": {
                     me.tipoAccion = 1;
-                    me.tituloModal = "Registro de descuentos";
+                    if(me.selectTabla==1){
+                        me.tituloModal = "Registro de descuento normal";
+                    }
+                    if(me.selectTabla==2){
+                        me.tituloModal = "Registro de descuento cantidad o valor";
+                    }
+                    if(me.selectTabla==3){
+                        me.tituloModal = "Registro de descuento por cliente";
+                    }
+                    if(me.selectTabla==4){
+                        me.tituloModal = "Registro de descuento por producto";
+                    }
+                    if(me.selectTabla==5){
+                        me.tituloModal = "Registro de descuento personalizado";
+                    }
+                    if(me.selectTabla==6){
+                        me.tituloModal = "Registro de descuento final";
+                    }
                           
                     me.nombre_Des="";
                     me.descripcion_Des="";
@@ -1375,6 +1392,7 @@ axios.put('/descuento2/actualizar', data)
                         me.descripcion_Des=data.descripcion;
                         me.selectTipoNumPor=data.desc_num === null ? 0 : data.desc_num;
                         me.monto=data.monto_descuento;
+                        me.tituloModal = "Registro de descuento Normal o Final";
                    }
                    if(data.id_tipo_tabla==2){
                         me.nombre_Des=data.nombre_descuento;
@@ -1386,8 +1404,10 @@ axios.put('/descuento2/actualizar', data)
                         me.selectRegla=data.regla === null ? 0: data.regla;                        
                         me.cantidad_monto_x=data.cantidad_valor;
                         me.id_descuento_x=data.id_descuento_pcp;
+                        me.tituloModal = "Registro de descuentos por cantidad o precio";
                    }
                    if(data.id_tipo_tabla==3){
+                    me.tituloModal = "Registro por cliente";
                         me.nombre_Des=data.nombre_descuento;
                         me.descripcion_Des=data.descripcion;
                         me.datos_cliente="Nombre a facturar:"+data.nom_facturar+" Numero de docuemnto:"+data.num_documento;
@@ -1401,6 +1421,7 @@ axios.put('/descuento2/actualizar', data)
                    }
                     
                    if(data.id_tipo_tabla==4){
+                    me.tituloModal = "Registro por cliente";
                         me.nombre_Des=data.nombre_descuento;
                         me.descripcion_Des=data.descripcion;
                         me.selectTipoNumPor=data.desc_num === null ? 0 : data.desc_num;
@@ -1416,7 +1437,7 @@ axios.put('/descuento2/actualizar', data)
                    }
 
                    if(data.id_tipo_tabla==5){
-              
+                    me.tituloModal = "Registro personalizado";
                     me.nombre_Des=data.nombre_descuento;
                         me.descripcion_Des=data.descripcion;
                         me.selectTipoNumPor=data.desc_num === null ? 0 : data.desc_num;
