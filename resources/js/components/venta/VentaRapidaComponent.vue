@@ -133,19 +133,43 @@
              
                  <td class="col-md-1">
                      <input v-show="validadorPersonal === 1" :disabled="selected===null " type="text" class="form-control" id="inlineFormInputName" v-model="descuento">
-                     <button v-show="validadorPersonal === 0" type="button" class="btn btn-success">Calcular</button>
+                     
+                     <span v-show="validadorPersonal === 2" style="text-align: center;">
+                        Automatico
+                     </span>
+                     <input v-show="validadorPersonal === 3" :disabled="selected===null " type="text" class="form-control" id="inlineFormInputName" placeholder="Error.">
+                   
+                    <button v-show="validadorPersonal === 0" type="button" class="btn btn-success">Calcular</button>
                  </td>
           
                <td class="col-md-1">
                  <input type="text" class="form-control" id="inlineFormInputName" v-model="numero" @keydown="filtrarNumeros">
                </td>
                <td class="col-md-1">
-                 <button v-if="selected!==null && numero!=='' && descuento!=='' " type="button" class="btn btn-success btn-sm" style="margin-right: 5px;" @click="agregarVenta();">
-                     <i class="fa fa-plus" aria-hidden="true"></i>
-                     </button> 
-                 <button v-else  type="button" class="btn btn-secondary  btn-sm" style="margin-right: 5px;">
-                     <i class="fa fa-plus" aria-hidden="true"></i>
-                 </button>                     
+                    <div v-if="validadorPersonal === 1">
+                        <button v-if="selected!==null && numero!=='' && descuento!=='' " type="button" class="btn btn-success btn-sm" style="margin-right: 5px;" @click="agregarVenta();">
+                            <i class="fa fa-plus" aria-hidden="true"></i>
+                            </button> 
+                        <button v-else  type="button" class="btn btn-secondary  btn-sm" style="margin-right: 5px;">
+                            <i class="fa fa-plus" aria-hidden="true"></i>
+                        </button>  
+                    </div>
+                    <div v-if="validadorPersonal === 2">
+                        <button v-if="selected!==null && numero!==''" type="button" class="btn btn-success btn-sm" style="margin-right: 5px;" @click="agregarVenta();">
+                            <i class="fa fa-plus" aria-hidden="true"></i>
+                            </button> 
+                        <button v-else  type="button" class="btn btn-secondary  btn-sm" style="margin-right: 5px;">
+                            <i class="fa fa-plus" aria-hidden="true"></i>
+                        </button>  
+                    </div> 
+                    <div v-if="validadorPersonal === 0">
+                        <button v-if="selected!==null && numero!==''" type="button" class="btn btn-success btn-sm" style="margin-right: 5px;" @click="agregarVenta();">
+                            <i class="fa fa-plus" aria-hidden="true"></i>
+                            </button> 
+                        <button v-else  type="button" class="btn btn-secondary  btn-sm" style="margin-right: 5px;">
+                            <i class="fa fa-plus" aria-hidden="true"></i>
+                        </button>  
+                    </div>         
                </td>
              </tr>   
            </tbody>
@@ -746,17 +770,15 @@ watch: {
         },
         selected: function (valor) {
             if (valor !=null) {
-                this.arrayDescuentoOperacion.forEach((descuento) => {  
-                if(descuento.id_nom_tabla===5){
-                let caso_5 = this.operacion_Numeral_Procentaje(descuento.tipo_num_des, descuento.monto_descuento,this.selected.precio_lista_gespreventa);
-                console.log("caso_5: "+caso_5);
+                if (this.arrayDescuentoOperacion[0].id_nom_tabla===5) {
+                    let caso_5 = this.operacion_Numeral_Procentaje(this.arrayDescuentoOperacion[0].tipo_num_des, this.arrayDescuentoOperacion[0].monto_descuento,this.selected.precio_lista_gespreventa);
+                    console.log("caso_5: "+caso_5);
                 this.valorUnicoPersonalizado = caso_5;
-                this.caso5_id=descuento.id;
-                this.caso5_nom=descuento.nombre_descuento;
-                this.caso5_id_tabla=descuento.id_perso;//<====
-                }    
+                this.caso5_id=this.arrayDescuentoOperacion[0].id;
+                this.caso5_nom=this.arrayDescuentoOperacion[0].nombre_descuento;
+                this.caso5_id_tabla=this.arrayDescuentoOperacion[0].id_perso;//<====
+                }
               
-            });
             }       
         },    
     
@@ -930,6 +952,9 @@ watch: {
         listarDescuento_Tipo_tabla(){
             let me = this;       
             var url ="/gestor_ventas/listarDescuento_Tipo_tabla";            
+            let contador_Normal=0;
+            let contador_Dis_normal=0;
+            
             axios
                 .get(url)
                 .then(function (response) {
@@ -941,7 +966,34 @@ watch: {
                         me.validadorPersonal=1;
                                        
                     } else {
-                        me.validadorPersonal=0;
+                            if ( me.arrayDescuentoOperacion.length===0) {
+                                console.log("tamaño 0");
+                            } else {
+                                console.log("tamaño grade");
+                            }
+
+                        me.arrayDescuentoOperacion.forEach((descuento) => {   
+                            if(descuento.id_nom_tabla!==1){
+                                contador_Dis_normal=contador_Dis_normal+1;
+                            }
+                            if(descuento.id_nom_tabla===1){
+                                contador_Normal=contador_Normal+1;
+                            }
+                        });
+                        if (contador_Normal>0&&contador_Dis_normal>0) {
+                            me.validadorPersonal=0;
+                        }else{
+                            if (contador_Normal>0&&contador_Dis_normal===0) {
+                                me.validadorPersonal=2;
+                            }else{
+                                if (contador_Normal===0&&contador_Dis_normal>0) {
+                                    me.validadorPersonal=0;
+                                } else {
+                                    me.validadorPersonal=3;
+                                }
+                            }
+                        }
+                       console.log(me.validadorPersonal);
                     }   
              
                                             
@@ -960,21 +1012,21 @@ watch: {
                 .get(url)
                 .then(function (response) {
                     var respuesta = response.data;                    
-                  // Verificar y mostrar la longitud del array 'lista' en la respuesta
-            if (respuesta.lista && Array.isArray(respuesta.lista)) {
-                me.nom_lista=respuesta.lista.nombre_lista;
-            } else {
-                me.nom_lista="Sin lista";   
-            }
+            
+                 if (respuesta.lista) {
+                    me.nom_lista=respuesta.lista.nombre_lista;
+                 } else {
+                    me.nom_lista="Sin lista";  
+                 }
+          
 // Verificar y mostrar la longitud del array 'descuento' en la respuesta (si es necesario)
-if (respuesta.descuento && Array.isArray(respuesta.descuento)) {
-   
-    me.arrayDescuento=respuesta.descuento;
-    
-   }
-   else{
-    me.descuentoNombre="Sin descuentos";
-   }
+                 if (respuesta.descuento.length>0) {
+                    me.arrayDescuento=respuesta.descuento;
+                 } else {
+                    me.descuentoNombre="Sin descuentos";
+                 }
+
+
             }).catch(function (error) {
                     error401(error);
                     console.log(error);

@@ -18,6 +18,9 @@ class AdmSucursalController extends Controller
      */
     public function index(Request $request)
     {
+       
+       
+    
         $buscararray=array();
         if(!empty($request->buscar)){
             $buscararray = explode(" ",$request->buscar);
@@ -27,99 +30,191 @@ class AdmSucursalController extends Controller
                 $sqls='';
                 foreach($buscararray as $valor){
                     if(empty($sqls)){
-                        $sqls="(razon_social like '%".$valor."%' or nit like '%".$valor."%' or direccion like '%".$valor."%' or adm__rubros.nombre like '%".$valor."%')" ;
+                        $sqls="(ass.razon_social like '%".$valor."%' or ass.nit' like '%".$valor."%')" ;
                     }
                     else
                     {
-                        $sqls.=" and (razon_social like '%".$valor."%' or nit like '%".$valor."%' or direccion like '%".$valor."%' or adm__rubros.nombre like '%".$valor."%')" ;
+                        $sqls.=" and (ass.razon_social like '%".$valor."%' or ass.nit' like '%".$valor."%')" ;
                     }
     
                 }
-                /**
-                 * select adm__sucursals.id,
-                 * 	      adm__rubros.id as idrubro,
-                 * 	      adm__rubros.nombre as nomrubro,
-                 *        adm__sucursals.tipo,
-                 *        adm__sucursals.cod,
-                 *        adm__sucursals.correlativo,
-                 *        adm__sucursals.razon_social,
-                 *        adm__sucursals.nombre_comercial,
-                 *        adm__sucursals.telefonos,
-                 *        adm__sucursals.nit,
-                 *        adm__sucursals.direccion,
-                 *        adm__sucursals.ciudad, 
-                 *        adm__sucursals.activo, 
-                 *        alm__almacens.codigo  as codalamcen
-                 * from adm__sucursals
-                 * join adm__rubros on adm__sucursals.idrubro = adm__rubros.id
-                 * join alm__almacens on adm__sucursals.id = alm__almacens.idsucursal
-                 */
-
-
-                $sucursales= Adm_Sucursal::join('adm__rubros','adm__rubros.id','adm__sucursals.idrubro')
-                                         ->leftJoin('alm__almacens','adm__sucursals.id','alm__almacens.idsucursal')
-                                            ->select('adm__sucursals.id',
-                                                    'adm__rubros.id as idrubro',
-                                                    'adm__rubros.nombre as nomrubro',
-                                                    'adm__sucursals.tipo',
-                                                    'adm__sucursals.cod',
-                                                    'adm__sucursals.correlativo',
-                                                    'adm__sucursals.razon_social',
-                                                    'adm__sucursals.nombre_comercial',
-                                                    'adm__sucursals.telefonos',
-                                                    'adm__sucursals.nit',
-                                                    'adm__sucursals.direccion',
-                                                    'adm__sucursals.departamento',
-                                                    'adm__sucursals.ciudad',
-                                                    'adm__sucursals.activo',
-                                                    DB::raw('alm__almacens.codigo  as codalamcen')
-                                                    )
-                                            //->orderby('razon_social','asc')
-                                            ->orderby('correlativo','asc')
-                                            ->whereraw($sqls)
-                                            
-                                            ->paginate(50);
+                $sucursales0 = DB::table('adm__sucursals as ass')
+                ->join('adm__rubros as ar', 'ass.idrubro', '=', 'ar.id')
+                ->join('tda__tiendas as tt', 'tt.idsucursal', '=', 'ass.id')
+                ->join ('adm__departamentos as ad','ad.id','=','ass.departamento')   
+                ->where('tt.activo', 1)
+                ->whereraw($sqls)
+                ->select(
+                    'ass.id',
+                    'ar.id as idrubro',
+                    'ar.nombre as nomrubro',
+                    'ass.tipo',
+                    'ass.cod',
+                    'ass.correlativo',
+                    'ass.razon_social',
+                    'ass.nombre_comercial',
+                    'ass.telefonos',
+                    'ass.nit',
+                    'ass.direccion',
+                    'ass.departamento',
+                    'ad.nombre as nom_departamento',
+                    'ass.ciudad',
+                    'ass.activo',
+                    'tt.id as id_tienda',
+                    'tt.codigo as codigo_tienda',
+                    DB::raw('NULL as codalmacen'),
+                    DB::raw('NULL as nombre_alm'),
+                    
+                )
+                ->orderBy('ass.id', 'desc')
+                ->get();
+                $almacenes = DB::table('alm__almacens as aa')
+                ->join('adm__sucursals as ass', 'ass.id', '=', 'aa.idsucursal')
+                ->where('aa.activo', 1)
+                ->select(
+                    'aa.id',
+                    'aa.codigo as codalamcen',
+                    'aa.nombre_almacen',
+                    'aa.idsucursal'
+                )
+                ->get();
+                $sucursales = $sucursales0;
+                
+                
+                $sucursales = $sucursales0->map(function($su) use ($almacenes) {
+                    $cadenaCod = "";
+                $cadenaNom = "";
+                    $almacenesSuc = $almacenes->where('idsucursal', $su->id);
+                    
+                    if ($almacenesSuc->isNotEmpty()) {
+                        $cods = $almacenesSuc->pluck('codalamcen')->implode(' ');
+                        $nombres = $almacenesSuc->pluck('nombre_almacen')->implode(' ');
+                        
+                        $cadenaCod .= ' ' . $cods;
+                        $cadenaNom .= ' ' . $nombres;
+                        
+                        $su->codalmacen = trim($cadenaCod);
+                        $su->nombre_alm = trim($cadenaNom);
+                    } else {
+                        $su->codalmacen = 'Sin almacen';
+                        $su->nombre_alm = 'Sin almacen';
+                    }
+                
+                    return $su;
+                });
+                
+              
+    // Ahora vamos a utilizar el paginador de Laravel
+    $sucursalesPaginated = new \Illuminate\Pagination\LengthAwarePaginator(
+        $sucursales->forPage(\Illuminate\Pagination\Paginator::resolveCurrentPage(), 10),
+        $sucursales->count(),
+        10,
+        \Illuminate\Pagination\Paginator::resolveCurrentPage(),
+        ['path' => \Illuminate\Pagination\Paginator::resolveCurrentPath()]
+    );
             }
+            return ['pagination'=>[
+                'total'         =>    $sucursalesPaginated->total(),
+                'current_page'  =>    $sucursalesPaginated->currentPage(),
+                'per_page'      =>    $sucursalesPaginated->perPage(),
+                'last_page'     =>    $sucursalesPaginated->lastPage(),
+                'from'          =>    $sucursalesPaginated->firstItem(),
+                'to'            =>    $sucursalesPaginated->lastItem(),
+
+            ] ,
+                'sucursalesPaginated'=>$sucursalesPaginated,
+        ];
         }
         
         else
-        {
-            $sucursales= Adm_Sucursal::join('adm__rubros','adm__rubros.id','adm__sucursals.idrubro')
-                                     ->leftJoin('alm__almacens','adm__sucursals.id','alm__almacens.idsucursal')
-                                    ->select('adm__sucursals.id',
-                                            'adm__rubros.id as idrubro',
-                                            'adm__rubros.nombre as nomrubro',
-                                            'adm__sucursals.tipo',
-                                            'adm__sucursals.cod',
-                                            'adm__sucursals.correlativo',
-                                            'adm__sucursals.razon_social',
-                                            'adm__sucursals.nombre_comercial',
-                                            'adm__sucursals.telefonos',
-                                            'adm__sucursals.nit',
-                                            'adm__sucursals.direccion',
-                                            'adm__sucursals.departamento',
-                                            'adm__sucursals.ciudad',
-                                            'adm__sucursals.activo',
-                                            DB::raw('alm__almacens.codigo  as codalamcen')
-                                            )
-                                    //->orderby('razon_social','asc')
-                                    ->orderby('correlativo','asc')
-                                    ->paginate(50);
+        {$sucursales0 = DB::table('adm__sucursals as ass')
+            ->join('adm__rubros as ar', 'ass.idrubro', '=', 'ar.id')
+            ->join('tda__tiendas as tt', 'tt.idsucursal', '=', 'ass.id')
+            ->join ('adm__departamentos as ad','ad.id','=','ass.departamento')
+            ->where('tt.activo', 1)
+            ->select(
+                'ass.id',
+                'ar.id as idrubro',
+                'ar.nombre as nomrubro',
+                'ass.tipo',
+                'ass.cod',
+                'ass.correlativo',
+                'ass.razon_social',
+                'ass.nombre_comercial',
+                'ass.telefonos',
+                'ass.nit',
+                'ass.direccion',
+                'ass.departamento',
+                'ad.nombre as nom_departamento',
+                'ass.ciudad',
+                'ass.activo',
+                'tt.id as id_tienda',
+                'tt.codigo as codigo_tienda',
+                DB::raw('NULL as codalmacen'),
+                DB::raw('NULL as nombre_alm'),
+            )
+            ->orderBy('ass.id', 'desc')
+            ->get();
+        
+        $almacenes = DB::table('alm__almacens as aa')
+            ->join('adm__sucursals as ass', 'ass.id', '=', 'aa.idsucursal')
+            ->where('aa.activo', 1)
+            ->select(
+                'aa.id',
+                'aa.codigo as codalamcen',
+                'aa.nombre_almacen',
+                'aa.idsucursal'
+            )
+            ->get();
+        
+        $sucursales = $sucursales0->map(function($su) use ($almacenes) {
+            $cadenaCod = "";
+            $cadenaNom = "";
+            $almacenesSuc = $almacenes->where('idsucursal', $su->id);
+            
+            if ($almacenesSuc->isNotEmpty()) {
+                $cods = $almacenesSuc->pluck('codalamcen')->implode(' ');
+                $nombres = $almacenesSuc->pluck('nombre_almacen')->implode(' ');
+                
+                $cadenaCod .= ' ' . $cods;
+                $cadenaNom .= ' ' . $nombres;
+                
+                $su->codalmacen = trim($cadenaCod);
+                $su->nombre_alm = trim($cadenaNom);
+            } else {
+                $su->codalmacen = 'Sin almacen';
+                $su->nombre_alm = 'Sin almacen';
+            }
+        
+            return $su;
+        });
+        
+     // Ahora vamos a utilizar el paginador de Laravel
+$sucursalesPaginated = new \Illuminate\Pagination\LengthAwarePaginator(
+    $sucursales->forPage(\Illuminate\Pagination\Paginator::resolveCurrentPage(), 10),
+    $sucursales->count(),
+    10,
+    \Illuminate\Pagination\Paginator::resolveCurrentPage(),
+    ['path' => \Illuminate\Pagination\Paginator::resolveCurrentPath()]
+);
+        
+ 
+            return ['pagination'=>[
+                'total'         =>    $sucursalesPaginated->total(),
+                'current_page'  =>    $sucursalesPaginated->currentPage(),
+                'per_page'      =>    $sucursalesPaginated->perPage(),
+                'last_page'     =>    $sucursalesPaginated->lastPage(),
+                'from'          =>    $sucursalesPaginated->firstItem(),
+                'to'            =>    $sucursalesPaginated->lastItem(),
+
+            ] ,
+                'sucursalesPaginated'=>$sucursalesPaginated,
+        ];
         }
         
         //$sucursales = Adm_Sucursal::all();
         
-        return ['pagination'=>[
-                'total'         =>    $sucursales->total(),
-                'current_page'  =>    $sucursales->currentPage(),
-                'per_page'      =>    $sucursales->perPage(),
-                'last_page'     =>    $sucursales->lastPage(),
-                'from'          =>    $sucursales->firstItem(),
-                'to'            =>    $sucursales->lastItem(),
-
-            ] ,
-                'sucursales'=>$sucursales,
-        ];
+      
     }
 
     /**

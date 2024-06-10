@@ -354,6 +354,7 @@ return $resultado;
                 ->where('pd.activo', 1)
                 ->where(DB::raw('LEFT(pad1.cod, 3)'), 'TDA')
                 ->where('pad1.id_sucursal', $idsuc)
+                ->where('pad1.personalizado','=',0)
                 ->get();  
        
             }

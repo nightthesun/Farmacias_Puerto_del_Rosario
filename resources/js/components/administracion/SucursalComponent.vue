@@ -31,8 +31,8 @@
                                 <th>Codigo</th>
                                 <th>Tipo</th>
                                 <th>Nit</th>
-                                <th>Razon Social</th>
-                                <th>Nombre Comercial</th>
+                                <th>Razòn social</th>
+                                <th>Codigo ALM y TDA</th>
                                 <!-- <th>Rubro</th> -->
                                 <th>Direccion</th>
                                 <th>Departamento</th>
@@ -92,16 +92,10 @@
                                 <td v-text="sucursal.tipo == 'Casa_Matriz'? (sucursal.tipo + (sucursal.codalamcen==null?'':' -> '+sucursal.codalamcen)):(sucursal.tipo + ' - ' +sucursal.correlativo)+(sucursal.codalamcen==null?'':' -> '+sucursal.codalamcen)"></td>
                                 <td v-text="sucursal.nit"></td>
                                 <td v-text="sucursal.razon_social"></td>
-                                <td v-text="sucursal.nombre_comercial"></td>
+                                <td>{{'['+sucursal.codalmacen+']'+'['+sucursal.codigo_tienda+']'}}</td>
                                 <!-- <td v-text="sucursal.nomrubro"></td> -->
                                 <td v-text="sucursal.direccion"></td>
-                                <td>
-                                    <div v-for="dpta in arrayDepartamentos">
-                                        <div v-if="dpta.id == sucursal.departamento">
-                                            {{ dpta.nombre }}
-                                        </div>
-                                    </div>
-                                </td>
+                                <td v-text="sucursal.nom_departamento"></td>
                                 <td v-text="sucursal.ciudad"></td>
                                     <!-- <div v-for="ciudad in arrayciudad">
                                         <div v-if="ciudad.id == sucursal.ciudad">
@@ -151,6 +145,7 @@
                         </button>
                     </div>
                     <div class="modal-body">
+                    
                         <form action=""  class="form-horizontal">
                             <div class="form-group row">
                                 <label class="col-md-2 form-control-label" for="text-input">Tipo <span  v-if="tipo==0" class="error">(*)</span></label>
@@ -259,7 +254,10 @@
                     </div>
                     <div class="modal-body">
                         <div class="alert alert-success" role="alert">
-                            Esta opcion solo es para el modulo de ventas caso gestor de ventas  y venta avanzada 
+                            Esta opcion solo es para el modulo de ventas caso gestor de ventas  y venta rapida 
+                        </div>
+                        <div class="alert alert-info" role="alert">
+                          {{ tituloModalSub }}
                         </div>
                         <form action=""  class="form-horizontal">
                             <div class="card">
@@ -417,6 +415,7 @@ import { error401 } from '../../errores';
                 nombre:'',
                 tipo:0,
                 nit:'',
+                tituloModalSub:'',
                 direccion:'',
                 arraySucursales:[],
                 arraySucursalesCopia:[],
@@ -672,7 +671,7 @@ import { error401 } from '../../errores';
                 .then(function(response){
                     var respuesta=response.data;
                     me.pagination=respuesta.pagination;
-                    me.arraySucursales=respuesta.sucursales.data;
+                    me.arraySucursales=respuesta.sucursalesPaginated.data;
                     let resp=me.arraySucursales.find(element=>element.tipo=='Casa_Matriz');
                     if(resp!= undefined)
                     {
@@ -869,6 +868,7 @@ import { error401 } from '../../errores';
                     
                     case 'actualizar':
                     {
+                       
                         me.idsucursal=data.id;
                         me.tipoAccion=2;
                         me.tituloModal='Actualizar Sucursal'
@@ -887,7 +887,7 @@ import { error401 } from '../../errores';
                     }
                     case 'modal_listas':
                     {
-                
+                        me.tituloModalSub='Codigo de almacen: '+data.codalmacen+' Codigo tienda: '+data.codigo_tienda;
                         me.tituloModal='Añadir lista a '+data.razon_social
                         me.id_sucursal_z=data.id;
                         me.listarArrayRapido(data.id);
@@ -915,7 +915,7 @@ import { error401 } from '../../errores';
                 me.arrayLitasAv=[];
                 me.opcionSeleccionada=1; 
                 me.radioButtoRapido=0;
-                
+                me.tituloModalSub='';
                 me.opcionSeleccionadaAvanzada=1;
                 me.checkbox=[];
                 me.id_sucursal_z='';
