@@ -137,8 +137,9 @@
                      <span v-show="validadorPersonal === 2" style="text-align: center;">
                         Automatico
                      </span>
-                     <input v-show="validadorPersonal === 3" :disabled="selected===null " type="text" class="form-control" id="inlineFormInputName" placeholder="Error.">
-                   
+                     <span v-show="validadorPersonal === 3" style="color: black; display: flex; justify-content: center; align-items: center; font-size: 24px; width: 100%;">
+                        <i class="fa fa-user-times" aria-hidden="true"></i>
+                    </span>   
                     <button v-show="validadorPersonal === 0" type="button" class="btn btn-success">Calcular</button>
                  </td>
           
@@ -154,22 +155,15 @@
                             <i class="fa fa-plus" aria-hidden="true"></i>
                         </button>  
                     </div>
-                    <div v-if="validadorPersonal === 2">
+                    <div v-if="validadorPersonal === 3 || validadorPersonal === 2" >
                         <button v-if="selected!==null && numero!==''" type="button" class="btn btn-success btn-sm" style="margin-right: 5px;" @click="agregarVenta();">
                             <i class="fa fa-plus" aria-hidden="true"></i>
                             </button> 
                         <button v-else  type="button" class="btn btn-secondary  btn-sm" style="margin-right: 5px;">
                             <i class="fa fa-plus" aria-hidden="true"></i>
                         </button>  
-                    </div> 
-                    <div v-if="validadorPersonal === 0">
-                        <button v-if="selected!==null && numero!==''" type="button" class="btn btn-success btn-sm" style="margin-right: 5px;" @click="agregarVenta();">
-                            <i class="fa fa-plus" aria-hidden="true"></i>
-                            </button> 
-                        <button v-else  type="button" class="btn btn-secondary  btn-sm" style="margin-right: 5px;">
-                            <i class="fa fa-plus" aria-hidden="true"></i>
-                        </button>  
-                    </div>         
+                    </div>               
+                            
                </td>
              </tr>   
            </tbody>
@@ -213,7 +207,7 @@
                          </tr>
                          <tr>
                              <th colspan="5" style="text-align:right">Efectivo:</th>
-                             <th><input type="number" v-model="efectivo" v-on:focus="selectAll"  style="text-align:right"></th>
+                             <th><input type="number" v-model="efectivo" v-on:focus="selectAll"  :disabled="sumatotal===0" @keyup="restartotal()" style="text-align:right"></th>
                          </tr>
                          <tr>
                              <th colspan="5" style="text-align:right">Cambio:</th>
@@ -734,7 +728,10 @@ export default {
     caso5_id:'',
     caso5_nom:'',
     caso5_id_tabla:'',
-
+    sumatotal:0,
+                efectivo:0,
+                cambio:0,
+     id_tabla_y2:'',           
         };
     },
     created() {
@@ -759,25 +756,33 @@ watch: {
         },
 
     descuento: function (valor) {
-            if (valor > this.valorUnicoPersonalizado) {               
+        if (this.arrayDescuentoOperacion.length===1) {
+            if (this.arrayDescuentoOperacion[0].id_nom_tabla===5) {
+                if (valor > this.valorUnicoPersonalizado) {               
                     this.descuento = 0;
                     Swal.fire(
                     "No puede ingresar un número mayor al descuento dado",
                     "Haga click en Ok",
                     "error",
                 );
-            }    
+            }  
+            }
+        }
+             
         },
         selected: function (valor) {
             if (valor !=null) {
-                if (this.arrayDescuentoOperacion[0].id_nom_tabla===5) {
+                if (this.arrayDescuentoOperacion.length===1) {
+                    if (this.arrayDescuentoOperacion[0].id_nom_tabla===5) {
                     let caso_5 = this.operacion_Numeral_Procentaje(this.arrayDescuentoOperacion[0].tipo_num_des, this.arrayDescuentoOperacion[0].monto_descuento,this.selected.precio_lista_gespreventa);
                     console.log("caso_5: "+caso_5);
                 this.valorUnicoPersonalizado = caso_5;
                 this.caso5_id=this.arrayDescuentoOperacion[0].id;
                 this.caso5_nom=this.arrayDescuentoOperacion[0].nombre_descuento;
                 this.caso5_id_tabla=this.arrayDescuentoOperacion[0].id_perso;//<====
-                }
+                }  
+                } 
+                
               
             }       
         },    
@@ -835,6 +840,7 @@ watch: {
     ///////////////////////////////funciones para la venta///////////////////////////////////////////////////////
 
     operacion_Numeral_Procentaje(tipo_num_des,monto_descuento,precio_lista_gespreventa){
+       
         let me = this;  
             let var1=0;
             let porcentaje=0;
@@ -842,20 +848,26 @@ watch: {
    
         if(tipo_num_des === '#'){
             porcentaje=monto_descuento;
+           
             valorNumeral=precio_lista_gespreventa-porcentaje;
             if (valorNumeral<0) {
                 valorNumeral=precio_lista_gespreventa;
+                porcentaje=0;
             }
-            return valorNumeral;             
+            me.descuento=porcentaje;
+            return { valorNumeral, porcentaje };           
         }
         else{
             if (tipo_num_des === '%') {
                 porcentaje=monto_descuento/100;    
-                var1=porcentaje*precio_lista_gespreventa;
+                var1=precio_lista_gespreventa*porcentaje;
                 valorNumeral=precio_lista_gespreventa-var1;
-                return valorNumeral;
-            }else{
-                return valorNumeral;
+                if (valorNumeral<0) {
+                valorNumeral=precio_lista_gespreventa;
+                porcentaje=0;
+            }
+                me.descuento=var1;
+                return { valorNumeral, porcentaje };
             }
         }
 
@@ -962,38 +974,49 @@ watch: {
                     me.arrayDescuentoOperacion=respuesta.descuento;   
                     console.log("/-/-/-/-/-/-/-/-/-/-/-");
                     console.log(me.arrayDescuentoOperacion);       
-                    if (respuesta.validador==true) {
-                        me.validadorPersonal=1;
+                    if (respuesta.validador==true && me.arrayDescuentoOperacion.length===1&&me.arrayDescuentoOperacion[0].id_nom_tabla===5) {
+                        me.validadorPersonal=1;// caso personal
+                        me.id_tabla_y2=me.arrayDescuentoOperacion[0].id_nom_tabla;
                                        
                     } else {
-                            if ( me.arrayDescuentoOperacion.length===0) {
-                                console.log("tamaño 0");
-                            } else {
-                                console.log("tamaño grade");
-                            }
-
-                        me.arrayDescuentoOperacion.forEach((descuento) => {   
-                            if(descuento.id_nom_tabla!==1){
-                                contador_Dis_normal=contador_Dis_normal+1;
-                            }
-                            if(descuento.id_nom_tabla===1){
-                                contador_Normal=contador_Normal+1;
-                            }
-                        });
-                        if (contador_Normal>0&&contador_Dis_normal>0) {
-                            me.validadorPersonal=0;
-                        }else{
-                            if (contador_Normal>0&&contador_Dis_normal===0) {
-                                me.validadorPersonal=2;
-                            }else{
-                                if (contador_Normal===0&&contador_Dis_normal>0) {
-                                    me.validadorPersonal=0;
-                                } else {
-                                    me.validadorPersonal=3;
+                          if (me.arrayDescuentoOperacion.length===0) {
+                            me.validadorPersonal=3;// caso cero no exite descuento
+                            me.id_tabla_y2=0;
+                          }else{
+                            let contador_1_normal=0;
+                                let contador_1_can_compra=0;
+                                let contador_1_cliente=0;
+                                let contador_1_producto=0;
+                                let contador_1_final=0;
+                            me.arrayDescuentoOperacion.forEach((descuento) => {   
+                               
+                            
+                                if(descuento.id_nom_tabla===1){
+                                    contador_1_normal++;
+                                    me.id_tabla_y2=descuento.id_nom_tabla;
                                 }
-                            }
-                        }
-                       console.log(me.validadorPersonal);
+                                if(descuento.id_nom_tabla===2){
+                                    contador_1_can_compra++;
+                                }
+                                if(descuento.id_nom_tabla===3){
+                                    contador_1_cliente++;
+                                }
+                                if(descuento.id_nom_tabla===4){
+                                    contador_1_producto++;
+                                }
+                                if(descuento.id_nom_tabla===6){
+                                    contador_1_final++;
+                                }
+
+                            });
+                                    if (contador_1_normal>0&&contador_1_can_compra===0&&contador_1_cliente===0&&contador_1_producto===0&&contador_1_final===0) {
+                                        me.validadorPersonal=2;// caso normal sin otras tablas  
+                                      
+                                    }
+                          }
+
+
+                    
                     }   
              
                                             
@@ -1048,19 +1071,74 @@ watch: {
         agregarVenta(){
             try {
             let me = this;
-            me.operacionDescuentos_tipo_tabla();
+            // caso sin descuento-----
+          if (me.validadorPersonal===3) {
+            me.descuento=0;
+            var precioXcantida=0;
+            var subtotal=0;
+            console.log("*****************************************");
+            console.log(me.numero);
+            precioXcantida=me.selected.precio_lista_gespreventa*me.numero;
+            subtotal=precioXcantida;
+          }
+          //caso personalizado validoPersonal=1
+          if (me.validadorPersonal===1) {
+            
+            var descuento=0;
+            var precioXcantida=0;
+            var subtotal=0;
+         
+            precioXcantida=me.selected.precio_lista_gespreventa*me.numero;
+            //descuento=1-(me.descuento/100);
+            descuento=me.descuento;
+            subtotal=precioXcantida-descuento;
+            //subtotal=precioXcantida*descuento;
+          }
+          if (me.validadorPersonal===2) {
+            let sumador_21_sub=0;
+            let sumador_21_des=0;
+            let operacion_21_1='';
+           
+            me.arrayDescuentoOperacion.forEach((descuento) => {   
+                    operacion_21=this.operacion_Numeral_Procentaje(descuento.tipo_num_des,descuento.monto_descuento,this.selected.precio_lista_gespreventa);
+                    let { valorNumeral, porcentaje } = operacion_21;
+                    sumador_21_sub=sumador_21+valorNumeral;
+                    sumador_21_des=sumador_21+porcentaje;
+            });
+            me.descuento=sumador_21;
             var descuento=0;
             var precioXcantida=0;
             var subtotal=0;
             precioXcantida=me.selected.precio_lista_gespreventa*me.numero;
-            descuento=1-(me.descuento/100);
-            subtotal=precioXcantida*descuento;
-
+            //descuento=1-(me.descuento/100);
+            descuento=sumador_21;
+            subtotal=precioXcantida-descuento;
+            console.log(operacion_21);
+            //subtotal=precioXcantida*descuento;
+            if(subtotal<=0){
+                subtotal=precioXcantida;
+                me.descuento=0;
+                descuento=me.descuento;
+                Swal.fire(
+        "El descuento es mayo al precio original",
+        "Haga click en Ok, el valor de descuento se sera de 0",
+        "error",
+        );
+        }else{
+            me.descuento=sumador_21;
+            descuento=sumador_21;
+        }
+       
+          }
+            
+          me.sumatotal=me.sumatotal+subtotal;
             // Convertir a un número con dos decimales
             subtotal = parseFloat(subtotal.toFixed(2));
+
+
             
             me.arrayVentas.push({id: me.selected.id,leyenda: me.selected.leyenda,cantidad:me.numero,precio:me.selected.precio_lista_gespreventa,
-            descuento:me.descuento,subtotal:subtotal,id_ingreso:me.selected.id_ingreso,id_pro:me.selected.id_prod
+            descuento: descuento,subtotal:subtotal,id_ingreso:me.selected.id_ingreso,id_pro:me.selected.id_prod
             });
 
             } catch (error) {
@@ -1187,7 +1265,13 @@ watch: {
         this.cerrarModal('cliente_modal')       
       },
 
-      
+      restartotal(){
+                let me=this;
+                if(me.efectivo!=0)
+                    me.cambio=Number(me.efectivo-me.sumatotal);
+                else
+                    me.cambio=0;
+            },
 
       limpiar(){
         this.id_tipo_doc="";
