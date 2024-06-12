@@ -78,6 +78,7 @@ class ParDescuentoController extends Controller
                 ->leftJoin('par__personalizado as pp2', 'pp2.id_descuento', '=', 'pd.id')
                 ->join('users as u', 'u.id', '=', 'pd.id_usuario_registra')
                 ->where('pd.id_tipo_tabla',  $bus)
+                 
                 ->whereRaw($sqls)
                 ->orderBy('id', 'desc')
                 ->paginate(15);
@@ -658,7 +659,18 @@ class ParDescuentoController extends Controller
                 }
              }
              else{
-                $codiogACtivacion=0;
+                if ($request->p==3) {
+                    $datos = [
+                        'id_descuento' => $request->id,
+                        'id_sucursal' => $idSucursal,
+                        'id_alm_tda' => $idTiendaAlmacen,
+                        'cod' => $codigo,
+                        'cliente' => 1,               
+                    ];
+                
+                    DB::table('par__asignacion_descuento')->insert($datos);
+                }else{
+                    $codiogACtivacion=0;
                 $datos = [
                     'id_descuento' => $request->id,
                     'id_sucursal' => $idSucursal,
@@ -668,6 +680,8 @@ class ParDescuentoController extends Controller
                 ];
             
                 DB::table('par__asignacion_descuento')->insert($datos);
+                }
+                
              }
              
              

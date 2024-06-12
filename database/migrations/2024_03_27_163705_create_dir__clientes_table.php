@@ -30,6 +30,7 @@ return new class extends Migration
             $table->tinyInteger('tipo_per_emp')->comment('si es persona tiene el valor 0, si es empresa valor 1');
             $table->tinyInteger('activo')->default(1);
             $table->tinyInteger('casual')->default(0)->nullable();
+           
         });
     }
 

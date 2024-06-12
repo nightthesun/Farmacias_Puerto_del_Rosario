@@ -34,6 +34,13 @@
                         style="margin-left: 10px;"> 
                             <i class="fa fa-eye" aria-hidden="true"></i> Ver descuento x sucursal
                         </button>
+
+                        <button type="button" v-if="selectTabla===3 && puedeHacerOpciones_especiales==1"
+                        class="btn btn-outline-info"
+                        @click="abrirModal('asignar');listarDescuentoXtdaAlm(0);"
+                        style="margin-left: 10px;"> 
+                        <i class="fa fa-plus" aria-hidden="true"></i> Añadir sucursal
+                        </button>
                     </div>                                    
                 </div>
                 
@@ -134,7 +141,7 @@
                                         </button> 
                                     </div>    
                                         
-                                    <div v-if="puedeHacerOpciones_especiales==1">
+                                    <div v-if="puedeHacerOpciones_especiales==1 && selectTabla!=3">
                                         <button type="button" @click="listarDescuentoXtdaAlm(i.id); abrirModal('asignar',i);" 
                                         class="btn btn-secondary btn-sm" style="margin-right: 5px; color: white;" data-toggle="tooltip" data-placement="right" >
                                                 <i class="fa fa-plus" aria-hidden="true"></i>
@@ -271,12 +278,12 @@
                                
                                 <div v-if="selectTabla!=0">
                                     <div class="from-group row" >
-                                        <div class="col-md-6">
+                                        <div class="col-md-6" v-if="selectTabla!==3">
                                             <strong>Nombre descuento:</strong>
                                             <input type="text" class="form-control" placeholder="Nombre Descuento" v-model="nombre_Des" v-on:focus="selectAll" >
                                         <span  v-if="nombre_Des==''" class="error">Debe Ingresar el nombre de descuento</span>
                                         </div>
-                                        <div class="col-md-6">
+                                        <div class="col-md-6" v-if="selectTabla!==3">
                                             <strong>Descripcion:</strong>                                    
                                                 <input type="text" class="form-control" placeholder="Describa como se realizara el descuento" v-model="descripcion_Des" v-on:focus="selectAll" >
                                             <span  v-if="descripcion_Des==''" class="error">Debe Ingresar la descripcion de descuento</span>
@@ -360,8 +367,9 @@
                                             <input type="text" id="texto" disabled name="texto" class="form-control" placeholder="Debe buscar un cliente"
                                                  :value="datos_cliente"/>
                                         </div>
+                                     
                                     </div>
-                                   
+                                 
                                 </div>                             
                                 <div v-if="selectTabla==4">
                                     <div class="form-group row">
@@ -649,6 +657,7 @@ export default {
 
                 personalizado:0,
                 id_personalizado:'',
+            
         };
     },
 
@@ -932,6 +941,35 @@ axios.post('/descuento2/registrarDescuento', data)
                     console.log(error);
                 });
         },
+
+
+        listarLista_cliente() {
+            let me = this;
+            var url = "/descuento2/listarClienteX?num="+me.buscarCliente;
+            axios
+                .get(url)
+                .then(function (response) {
+                    var respuesta1 = response.data;
+                    if(respuesta1.nom_a_facturar==undefined&&respuesta1.num_cliente==undefined){
+                        me.datos_cliente="No se encontro cliente."
+                        me.nombre_cliente="Sin datos";
+                        me.num_cliente="No se encontro datos";
+                        me.id_cliente=0;
+                    }else{
+                        me.id_cliente=respuesta1.id;
+                        me.datos_cliente="Nombre a facturar:"+respuesta1.nom_a_facturar+" Numero de docuemnto:"+respuesta1.num_documento;
+                    me.nombre_cliente=respuesta1.nom_a_facturar;
+                    me.num_cliente=respuesta1.num_documento;
+                    }
+               
+            
+                })
+                .catch(function (error) {
+                    error401(error);
+                    console.log(error);
+                });
+        },
+
         
         listarIndex(page)
             {
@@ -1280,8 +1318,10 @@ axios.put('/descuento2/actualizar', data)
             
                 let me =this;               
                let cadena=[];
-      
-               for (const selectedOption of this.selectAlmTda2) {
+
+   
+           
+                for (const selectedOption of this.selectAlmTda2) {
                 let elemento = {
       'codigo': selectedOption.codigo,
       'id_sucursal': selectedOption.id_sucursal,
@@ -1291,7 +1331,6 @@ axios.put('/descuento2/actualizar', data)
 
       }
   
-      
                 axios.post('/descuento2/asignar',{
                     id:me.id_index,
                     bloque:cadena,
@@ -1345,25 +1384,36 @@ axios.put('/descuento2/actualizar', data)
                     me.tipoAccion = 1;
                     if(me.selectTabla==1){
                         me.tituloModal = "Registro de descuento normal";
+                        me.nombre_Des="";
+                    me.descripcion_Des="";
                     }
                     if(me.selectTabla==2){
                         me.tituloModal = "Registro de descuento cantidad o valor";
+                        me.nombre_Des="";
+                    me.descripcion_Des="";
                     }
                     if(me.selectTabla==3){
                         me.tituloModal = "Registro de descuento por cliente";
+                        me.nombre_Des="Lista de clientes";
+                        me.descripcion_Des="Lista generica de clientes con descuento";
                     }
                     if(me.selectTabla==4){
                         me.tituloModal = "Registro de descuento por producto";
+                        me.nombre_Des="";
+                    me.descripcion_Des="";
                     }
                     if(me.selectTabla==5){
                         me.tituloModal = "Registro de descuento personalizado";
+                        me.nombre_Des="";
+                    me.descripcion_Des="";
                     }
                     if(me.selectTabla==6){
                         me.tituloModal = "Registro de descuento final";
+                        me.nombre_Des="";
+                    me.descripcion_Des="";
                     }
                           
-                    me.nombre_Des="";
-                    me.descripcion_Des="";
+                   
                     me.selectTipoNumPor=0;
                     me.monto="",
             
@@ -1455,12 +1505,18 @@ axios.put('/descuento2/actualizar', data)
                     {                                            
                          me.tituloModal='Asignar sucursal';
                          me.selectAlmTda2=me.arrayFalso;
-                        me.id_index=data.id;
+                         if (me.selectTabla===3) {
+                            me.id_index=0;
+                         } else {
+                            me.id_index=data.id;
+                         }
+                       
                         me.classModal.openModal('registrar1');
                    
                         break;
 
                     }
+                    
             case 'vista_descuento':{
                 me.tituloModal='Asignar sucursal';
                 me.classModal.openModal('vista_descuento');
@@ -1512,8 +1568,7 @@ axios.put('/descuento2/actualizar', data)
      
             listarDescuentoXtdaAlm(id)
             {
-                   let me = this;
-               
+                   let me = this;               
                    if (typeof id!=="undefined") {
                     var url = "/descuento2/listarAsignar?id="+id;
              
