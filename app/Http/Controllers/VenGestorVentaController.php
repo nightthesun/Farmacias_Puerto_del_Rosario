@@ -173,9 +173,19 @@ class VenGestorVentaController extends Controller
                  'dtd.id as id_tipo_doc',
                  'dtd.nombre_doc as tipo_doc_nombre',
                  'dtd.datos as tipo_doc_datos',
-                 DB::raw("CONCAT(dp.nombres, ' ', dp.apellidos) AS nombre_completo"))
+                 DB::raw("CONCAT(dp.nombres, ' ', dp.apellidos) AS nombre_completo"),
+                 DB::raw("CASE
+                 WHEN pd2.desc_num = 1 THEN '#'
+                 WHEN pd2.desc_num = 2 THEN '%'
+                 ELSE NULL
+             END as tipo_num_des"),
+             'pd2.monto_descuento',
+             'pd2.activo as descuento_activo')
         ->join('dir__tipo_doc as dtd', 'dc.id_tipo_doc', '=', 'dtd.id')
         ->join('dir__personas as dp', 'dc.id_per_emp', '=', 'dp.id')
+        ->leftJoin('par__cliente_producto as pcp2', 'pcp2.id_cliente_p', '=', 'dc.id')
+    ->leftJoin('par__descuentos as pd2', 'pd2.id', '=', 'pcp2.id_descuento')
+   
         ->where('dc.tipo_per_emp', 1)
         ->where('dc.activo', 1)
         ->where('dc.num_documento',  $request->num_doc)
@@ -187,9 +197,19 @@ class VenGestorVentaController extends Controller
                      'dtd.id as id_tipo_doc',
                      'dtd.nombre_doc as tipo_doc_nombre',
                      'dtd.datos as tipo_doc_datos',
-                     'de.razon_social AS nombre_completo')
+                     'de.razon_social AS nombre_completo',
+                     DB::raw("CASE
+                     WHEN pd2.desc_num = 1 THEN '#'
+                     WHEN pd2.desc_num = 2 THEN '%'
+                     ELSE NULL
+                 END as tipo_num_des"),
+                 'pd2.monto_descuento',
+                 'pd2.activo as descuento_activo')
             ->join('dir__empresas as de', 'dc.id_per_emp', '=', 'de.id')
             ->join('dir__tipo_doc as dtd', 'dc.id_tipo_doc', '=', 'dtd.id')
+            ->leftJoin('par__cliente_producto as pcp2', 'pcp2.id_cliente_p', '=', 'dc.id')
+            ->leftJoin('par__descuentos as pd2', 'pd2.id', '=', 'pcp2.id_descuento')
+           
             ->where('dc.tipo_per_emp', 2)
             ->where('dc.activo', 1)
             ->where('dc.num_documento', $request->num_doc))
@@ -234,9 +254,17 @@ class VenGestorVentaController extends Controller
                          'dtd.nombre_doc as tipo_doc_nombre',
                          'dtd.datos as tipo_doc_datos',
                          DB::raw("CONCAT(dp.nombres, ' ', dp.apellidos) AS nombre_completo"),
-                         'dc.created_at as fecha')
+                         'dc.created_at as fecha',
+                         DB::raw("CASE
+                         WHEN pd2.desc_num = 1 THEN '#'
+                         WHEN pd2.desc_num = 2 THEN '%'
+                         ELSE NULL
+                     END as tipo_num_des"),
+                     'pd2.monto_descuento')
                 ->join('dir__tipo_doc as dtd', 'dc.id_tipo_doc', '=', 'dtd.id')
                 ->join('dir__personas as dp', 'dc.id_per_emp', '=', 'dp.id')
+                ->leftJoin('par__cliente_producto as pcp2', 'pcp2.id_cliente_p', '=', 'dc.id')
+                ->leftJoin('par__descuentos as pd2', 'pd2.id', '=', 'pcp2.id_descuento')
                 ->where('dc.tipo_per_emp', 1)
                 ->where('dc.activo', 1);
             
@@ -249,9 +277,17 @@ class VenGestorVentaController extends Controller
                          'dtd.nombre_doc as tipo_doc_nombre',
                          'dtd.datos as tipo_doc_datos',
                          'de.razon_social AS nombre_completo',
-                         'dc.created_at as fecha')
+                         'dc.created_at as fecha',
+                         DB::raw("CASE
+                         WHEN pd2.desc_num = 1 THEN '#'
+                         WHEN pd2.desc_num = 2 THEN '%'
+                         ELSE NULL
+                     END as tipo_num_des"),
+                     'pd2.monto_descuento')
                 ->join('dir__empresas as de', 'dc.id_per_emp', '=', 'de.id')
                 ->join('dir__tipo_doc as dtd', 'dc.id_tipo_doc', '=', 'dtd.id')
+                ->leftJoin('par__cliente_producto as pcp2', 'pcp2.id_cliente_p', '=', 'dc.id')
+                ->leftJoin('par__descuentos as pd2', 'pd2.id', '=', 'pcp2.id_descuento')
                 ->where('dc.tipo_per_emp', 2)
                 ->where('dc.activo', 1);
             
@@ -340,9 +376,9 @@ return $resultado;
         ->get();  
         
             } else {
-                $descuento =  DB::table('par__asignacion_descuento as pad1')
-                ->join('par__descuentos as pd', 'pd.id', '=', 'pad1.id_descuento')
-                ->join('par_tipo_tabla as ptt', 'ptt.id', '=', 'pd.id_tipo_tabla')
+                $descuento = DB::table('par__asignacion_descuento AS pad1')
+                ->join('par__descuentos AS pd', 'pd.id', '=', 'pad1.id_descuento')
+                ->join('par_tipo_tabla AS ptt', 'ptt.id', '=', 'pd.id_tipo_tabla')
                 ->select(
                     'pad1.id_descuento as id',
                     'pad1.cod',
@@ -354,9 +390,8 @@ return $resultado;
                 ->where('pd.activo', 1)
                 ->where(DB::raw('LEFT(pad1.cod, 3)'), 'TDA')
                 ->where('pad1.id_sucursal', $idsuc)
-                ->where('pad1.personalizado','=',0)
-                ->get();  
-       
+                ->where('pad1.personalizado', '=', 0)->get();       
+  
             }
 
             $lista = DB::table('adm__sucursal_listas as asl')
@@ -365,7 +400,7 @@ return $resultado;
             ->where('pl.activo', '=',1)
             ->where('asl.id_sucursal','=',$idsuc)
             ->first();
-
+          
     return response()->json(['descuento' => $descuento, 'lista' => $lista]);
     }
 

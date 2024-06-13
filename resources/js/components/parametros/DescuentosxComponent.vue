@@ -35,12 +35,6 @@
                             <i class="fa fa-eye" aria-hidden="true"></i> Ver descuento x sucursal
                         </button>
 
-                        <button type="button" v-if="selectTabla===3 && puedeHacerOpciones_especiales==1"
-                        class="btn btn-outline-info"
-                        @click="abrirModal('asignar');listarDescuentoXtdaAlm(0);"
-                        style="margin-left: 10px;"> 
-                        <i class="fa fa-plus" aria-hidden="true"></i> Añadir sucursal
-                        </button>
                     </div>                                    
                 </div>
                 
@@ -141,7 +135,7 @@
                                         </button> 
                                     </div>    
                                         
-                                    <div v-if="puedeHacerOpciones_especiales==1 && selectTabla!=3">
+                                    <div v-if="puedeHacerOpciones_especiales==1 ">
                                         <button type="button" @click="listarDescuentoXtdaAlm(i.id); abrirModal('asignar',i);" 
                                         class="btn btn-secondary btn-sm" style="margin-right: 5px; color: white;" data-toggle="tooltip" data-placement="right" >
                                                 <i class="fa fa-plus" aria-hidden="true"></i>
@@ -278,12 +272,12 @@
                                
                                 <div v-if="selectTabla!=0">
                                     <div class="from-group row" >
-                                        <div class="col-md-6" v-if="selectTabla!==3">
+                                        <div class="col-md-6">
                                             <strong>Nombre descuento:</strong>
                                             <input type="text" class="form-control" placeholder="Nombre Descuento" v-model="nombre_Des" v-on:focus="selectAll" >
                                         <span  v-if="nombre_Des==''" class="error">Debe Ingresar el nombre de descuento</span>
                                         </div>
-                                        <div class="col-md-6" v-if="selectTabla!==3">
+                                        <div class="col-md-6">
                                             <strong>Descripcion:</strong>                                    
                                                 <input type="text" class="form-control" placeholder="Describa como se realizara el descuento" v-model="descripcion_Des" v-on:focus="selectAll" >
                                             <span  v-if="descripcion_Des==''" class="error">Debe Ingresar la descripcion de descuento</span>
@@ -1315,20 +1309,16 @@ axios.put('/descuento2/actualizar', data)
         },
 
         asignarSucursal(){
-            
-                let me =this;               
-               let cadena=[];
 
-   
-           
+            let me =this;               
+            let cadena=[];            
                 for (const selectedOption of this.selectAlmTda2) {
                 let elemento = {
-      'codigo': selectedOption.codigo,
-      'id_sucursal': selectedOption.id_sucursal,
-      'id_tienda_almacen': selectedOption.id_tienda_almacen
-    };
-    cadena.push(elemento);
-
+                'codigo': selectedOption.codigo,
+                'id_sucursal': selectedOption.id_sucursal,
+                'id_tienda_almacen': selectedOption.id_tienda_almacen
+                };
+                cadena.push(elemento);
       }
   
                 axios.post('/descuento2/asignar',{
@@ -1503,14 +1493,9 @@ axios.put('/descuento2/actualizar', data)
 
             case 'asignar':
                     {                                            
-                         me.tituloModal='Asignar sucursal';
-                         me.selectAlmTda2=me.arrayFalso;
-                         if (me.selectTabla===3) {
-                            me.id_index=0;
-                         } else {
-                            me.id_index=data.id;
-                         }
-                       
+                        me.tituloModal='Asignar sucursal';
+                        me.selectAlmTda2=me.arrayFalso;                        
+                        me.id_index=data.id;                                                
                         me.classModal.openModal('registrar1');
                    
                         break;

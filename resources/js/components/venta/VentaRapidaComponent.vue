@@ -26,12 +26,15 @@
                                <div class="mr-2 mb-2">
                                  <span class="badge badge-pill badge-primary">{{"Lista: "+ nom_lista }}</span>
                                </div>
+                               <div class="mr-2 mb-2" v-if="existe_cliente===1">
+                                <span  class="badge badge-pill badge-success">Descuento:Cliente</span>
+                              </div>
+                               
                                <div v-if="arrayDescuento.length > 0" class="d-flex flex-wrap align-items-center">
                                  <div v-for="d in arrayDescuento" :key="d.id" class="mr-2 mb-2">
                                     
                                      <span v-if="d.id_tabla == 1" class="badge badge-pill badge-warning">{{ "Descuento: "+d.nombre_descuento }}</span>
                                      <span v-if="d.id_tabla == 2" class="badge badge-pill badge-secondary">{{ "Descuento: "+d.nombre_descuento }}</span>
-                                     <span v-if="d.id_tabla == 3" class="badge badge-pill badge-success">{{ "Descuento: "+d.nombre_descuento }}</span>
                                      <span v-if="d.id_tabla == 4" class="badge badge-pill badge-danger">{{ "Descuento: "+d.nombre_descuento }}</span>                             
                                      <span v-if="d.id_tabla == 5" class="badge badge-pill badge-dark" style="background-color: darkmagenta;">{{ "Descuento: "+d.nombre_descuento }}</span>      
                                 
@@ -43,6 +46,7 @@
                                <div v-else class="ml-2 mb-2">
                                  <span class="badge badge-pill badge-dark">{{ descuentoNombre }}</span>
                                </div>
+
                              </div>
                            </div>
                            
@@ -134,16 +138,13 @@
                  <td class="col-md-1">
                      <input v-show="validadorPersonal === 1" :disabled="selected===null " type="text" class="form-control" id="inlineFormInputName" v-model="descuento">
                      
-                     <span v-show="validadorPersonal === 2 || validadorPersonal === 4 " style="text-align: center;">
+                     <span v-show="validadorPersonal === 2 || validadorPersonal === 4 || validadorPersonal === 5" style="text-align: center;">
                         Automatico
                      </span>
                      <span v-show="validadorPersonal === 3" style="color: black; display: flex; justify-content: center; align-items: center; font-size: 24px; width: 100%;">
                         <i class="fa fa-user-times" aria-hidden="true"></i>
-                    </span> 
-                      
-                    <span v-show="validadorPersonal === 5" style="color: black; display: flex; justify-content: center; align-items: center; font-size: 24px; width: 100%;">
-                        <i class="fa fa-user-plus" aria-hidden="true"></i>
-                    </span> 
+                    </span>                       
+                  
 
                     <button v-show="validadorPersonal === 0" type="button" class="btn btn-success">Calcular</button>
                  </td>
@@ -736,7 +737,13 @@ export default {
     sumatotal:0,
                 efectivo:0,
                 cambio:0,
-     id_tabla_y2:'',           
+     id_tabla_y2:'', 
+     existe_cliente:0,  
+     
+     cliente_des:'',
+     cliente_num_por:'',
+     cliente_activo_descuento:'',
+
         };
     },
     created() {
@@ -863,7 +870,7 @@ watch: {
                 valorNumeral=precio_lista_gespreventa;
                 porcentaje=0;
             }
-            console.log("11-"+valorNumeral+"11--"+porcentaje); 
+
             return { valorNumeral, porcentaje };           
         }
         else{
@@ -926,6 +933,9 @@ if (tipo_can_valor==='BS') {
 } 
 },
 
+        existe_cliente(){
+
+        },
           
         listarDescuento_Tipo_tabla(){
             let me = this;       
@@ -982,8 +992,9 @@ if (tipo_can_valor==='BS') {
                                         me.validadorPersonal=4;// caso normal sin otras tablas                                       
                                     }
                                     if (contador_1_normal===0&&contador_1_can_compra===0&&contador_1_cliente>0&&contador_1_producto===0&&contador_1_final===0) {
-                                        me.validadorPersonal=5;// caso normal sin otras tablas                                       
+                                        me.validadorPersonal=5;// caso normal cliente                                      
                                     }
+                                    
                           }
 
 
@@ -1012,10 +1023,17 @@ if (tipo_can_valor==='BS') {
                  } else {
                     me.nom_lista="Sin lista";  
                  }
-          
+          console.log(respuesta);
 // Verificar y mostrar la longitud del array 'descuento' en la respuesta (si es necesario)
                  if (respuesta.descuento.length>0) {
-                    me.arrayDescuento=respuesta.descuento;
+
+                    respuesta.descuento.forEach(des => {
+                        if (des.id_tabla) {
+                            me.existe_cliente=1;
+                        }
+                   });
+                            me.arrayDescuento=respuesta.descuento;
+                            
                  } else {
                     me.descuentoNombre="Sin descuentos";
                  }
@@ -1125,8 +1143,19 @@ if (tipo_can_valor==='BS') {
             //subtotal=sumador_21_sub;
             
             //subtotal=precioXcantida*descuento;  
-
          } 
+         if (me.validadorPersonal===5) {
+            if (me.num_documento==='') {
+                Swal.fire(
+                    "Primero debe escoger un cliente",
+                    "Haga click en Ok",
+                    "error"
+                );
+            }else{
+                console.log( me.cliente_des);
+            }
+               
+         }
           me.sumatotal=me.sumatotal+subtotal;
             // Convertir a un número con dos decimales
             subtotal = parseFloat(subtotal.toFixed(2));
@@ -1318,8 +1347,11 @@ if (tipo_can_valor==='BS') {
                 .get(url)
                 .then(function (response) {
                     var respuesta = response.data;
+                    
                     console.log(response.data);
                     me.cliente_id=response.data.id;
+                    me.cliente_des=response.data.descuento_activo;
+
                     if (me.cliente_id==undefined) {
                         me.datos_cliete="No se encontro cliente..."
                     } else {

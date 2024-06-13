@@ -616,17 +616,19 @@ class ParDescuentoController extends Controller
     public function asignar(Request $request){
 
         try {
+                  
+ // Buscar asignaciones existentes para el vehículo
+ $asignarExistente = DB::table('par__asignacion_descuento')
+ ->where('id_descuento', $request->id)
+ ->get();
+ // Si existen asignaciones, eliminarlas
+ if ($asignarExistente->count() > 0) {
+     DB::table('par__asignacion_descuento')
+     ->where('id_descuento', $request->id)
+     ->delete();
+   }
+                  
             
-             // Buscar asignaciones existentes para el vehículo
-        $asignarExistente = DB::table('par__asignacion_descuento')
-        ->where('id_descuento', $request->id)
-        ->get();
-        // Si existen asignaciones, eliminarlas
-        if ($asignarExistente->count() > 0) {
-            DB::table('par__asignacion_descuento')
-            ->where('id_descuento', $request->id)
-            ->delete();
-          }
       
         $bloque = $request->bloque;
             foreach ($bloque as $item) {
@@ -659,17 +661,7 @@ class ParDescuentoController extends Controller
                 }
              }
              else{
-                if ($request->p==3) {
-                    $datos = [
-                        'id_descuento' => $request->id,
-                        'id_sucursal' => $idSucursal,
-                        'id_alm_tda' => $idTiendaAlmacen,
-                        'cod' => $codigo,
-                        'cliente' => 1,               
-                    ];
-                
-                    DB::table('par__asignacion_descuento')->insert($datos);
-                }else{
+              
                     $codiogACtivacion=0;
                 $datos = [
                     'id_descuento' => $request->id,
@@ -680,7 +672,7 @@ class ParDescuentoController extends Controller
                 ];
             
                 DB::table('par__asignacion_descuento')->insert($datos);
-                }
+                
                 
              }
              
@@ -759,6 +751,40 @@ $resultados = DB::table('par__asignacion_descuento as pad1')
 )
 ->orderBy('ass.id', 'asc')
 ->get();
+/**
+$clien = DB::table('par__asignacion_descuento as pad1')
+    ->join('adm__sucursals as ass', 'ass.id', '=', 'pad1.id_sucursal')
+    ->leftJoin('tda__tiendas as tt', 'tt.codigo', '=', 'pad1.cod')
+    ->leftJoin('alm__almacens as aa', 'aa.codigo', '=', 'pad1.cod')
+    ->join('par_tipo_tabla as att', DB::raw('3'), '=', 'att.id')
+    ->where('pad1.cliente', 3)
+    ->select(
+        'ass.id',
+        'ass.razon_social as nom_suc',
+        'ass.cod as cod_suc',
+        DB::raw("CASE 
+            WHEN tt.codigo IS NOT NULL THEN 'Tienda'
+            WHEN aa.codigo IS NOT NULL THEN 'Almacen'
+            ELSE NULL
+        END as tipo_tienda_almacen"),
+        DB::raw("CASE 
+            WHEN tt.codigo IS NOT NULL THEN tt.codigo
+            WHEN aa.codigo IS NOT NULL THEN aa.codigo
+            ELSE NULL
+        END as codigo_alm_tda"),
+        DB::raw("'sin definir' as nombre_descuento"),
+        DB::raw("CASE 
+            WHEN tt.codigo IS NOT NULL THEN ass.razon_social
+            WHEN aa.codigo IS NOT NULL THEN aa.nombre_almacen
+            ELSE NULL
+        END as nom_alm_td"),
+        DB::raw("'sin definir' as tipo_descuento"),
+        'att.nombre as nombre_de_tabla',
+        DB::raw("0 as monto_descuento")
+    )
+    ->get();
+    $resultados=$res->union($clien);
+**/
 
 $arrayTotal=[];
 $controlador=0;
