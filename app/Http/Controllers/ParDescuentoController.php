@@ -28,15 +28,17 @@ class ParDescuentoController extends Controller
                         $sqls="(
                             pd.nombre_descuento like '%".$valor."%' 
                                 or pd.descripcion like '%".$valor."%' 
-                               
-                                                             
+                               or p_cli.num_documento like '%".$valor."%' 
+                                or ppd.cod_prod like '%".$valor."%'                             
                               )" ;
                     }
                     else
                     {
                         $sqls.="and (
-                            pd.nombre_descuento like '%".$valor."%' 
-                            or pd.descripcion like '%".$valor."%' 
+                              pd.nombre_descuento like '%".$valor."%' 
+                                or pd.descripcion like '%".$valor."%' 
+                               or p_cli.num_documento  like '%".$valor."%' 
+                                or ppd.cod_prod like '%".$valor."%'   
                            
                           )" ;
                     }    
@@ -661,18 +663,52 @@ class ParDescuentoController extends Controller
                 }
              }
              else{
-              
-                    $codiogACtivacion=0;
+
+              if ($request->p==3) {
+      
                 $datos = [
                     'id_descuento' => $request->id,
                     'id_sucursal' => $idSucursal,
                     'id_alm_tda' => $idTiendaAlmacen,
                     'cod' => $codigo,
-                    'personalizado' => $codiogACtivacion,               
+       
+                    'cliente' => 1,
+                    
                 ];
             
                 DB::table('par__asignacion_descuento')->insert($datos);
+              }else{
+                if ($request->p==4) {
+         
+                    $datos = [
+                        'id_descuento' => $request->id,
+                        'id_sucursal' => $idSucursal,
+                        'id_alm_tda' => $idTiendaAlmacen,
+                        'cod' => $codigo,
+                      
+                        'producto' => 1,
+                        
+                    ];
                 
+                    DB::table('par__asignacion_descuento')->insert($datos);
+                  }  else{
+                                  
+                $datos = [
+                    'id_descuento' => $request->id,
+                    'id_sucursal' => $idSucursal,
+                    'id_alm_tda' => $idTiendaAlmacen,
+                    'cod' => $codigo,
+                   
+                    
+                ];
+            
+                DB::table('par__asignacion_descuento')->insert($datos);
+                  }
+              }
+                 
+            
+
+                 
                 
              }
              
@@ -829,5 +865,29 @@ foreach ($sucursales as $key => $s) {
 return  $arrayTotal;
     }
 
-   
+
+    public function quitarSucursal_z(Request $request)
+    {
+        $bloque = $request->bloque;
+        $arrayE = [];    
+        foreach ($bloque as $item) {
+            $codigo = $item['codigo'];
+            $idSucursal = $item['id_sucursal'];
+            $idTiendaAlmacen = $item['id_tienda_almacen'];
+    
+            $deletedRows = DB::table('par__asignacion_descuento')
+                ->where('cliente', 1)
+                ->where('id_sucursal', $idSucursal)
+                ->where('cod', $codigo)
+                ->where('id_alm_tda', $idTiendaAlmacen)
+                ->delete();    
+            
+        if ($deletedRows === 0) {
+            $arrayE[] = $item;
+        } 
+        }
+    
+        return response()->json(['noEliminados' => $arrayE]);
+    }
+  
 }

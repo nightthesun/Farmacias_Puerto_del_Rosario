@@ -258,18 +258,18 @@ $clientes = $clientes->orderByDesc('id')->paginate(10);
             // El numero de docuemnto no está registrado tipo_per_emp=1 es persona  y tipo_per_emp=2 es empresa 
             if ($request->tipo_per_emp==1) {
                 $persona_empresa=new dir_Persona();               
-                $persona_empresa->nombres=$request->nombre;
-                $persona_empresa->apellidos=$request->apellido;
-                $persona_empresa->documento_identidad=$request->num_documento;
-                $persona_empresa->complemento=$request->ex;
+                $persona_empresa->nombres=strtoupper($request->nombre);
+                $persona_empresa->apellidos=strtoupper($request->apellido);
+                $persona_empresa->documento_identidad=strtoupper($request->num_documento);
+                $persona_empresa->complemento=strtoupper($request->ex);
                 $persona_empresa->save();
                 }
                 else {
                     //empresa
                     if ($request->tipo_per_emp==2) {
                 $persona_empresa=new dir_Empresa();
-                $persona_empresa->razon_social=$request->nom_a_facturar;      
-                $persona_empresa->nit=$request->num_documento;   
+                $persona_empresa->razon_social=strtoupper($request->nom_a_facturar);      
+                $persona_empresa->nit=strtoupper($request->num_documento);   
                 $persona_empresa->save();
                     }
                     else{
@@ -282,10 +282,10 @@ $clientes = $clientes->orderByDesc('id')->paginate(10);
                 $cliente=new Dir_Cliente();
                 $cliente->correo=$dato_correo;
                 $cliente->telefono=$request->telefono;
-                $cliente->direccion=$request->direccion;
+                $cliente->direccion=strtoupper($request->direccion);
                 $cliente->id_tipo_doc=$request->id_tipo_doc;
-                $cliente->nom_a_facturar=$request->nom_a_facturar;
-                $cliente->pais=$request->pais;
+                $cliente->nom_a_facturar=strtoupper($request->nom_a_facturar);
+                $cliente->pais=strtoupper($request->pais);
                 $cliente->ciudad=$request->ciudad;
                 $cliente->id_user=auth()->user()->id;
                 $cliente->id_usuario_registra=auth()->user()->id;

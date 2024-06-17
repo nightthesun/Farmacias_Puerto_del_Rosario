@@ -53,6 +53,8 @@ class VenGestorVentaController extends Controller
             ->join('prod__registro_pre_x_lists as prp', 'prp.id', '=', 'gpv.id_lista')
             ->join('prod__listas as pl', 'pl.id', '=', 'prp.id_lista')
             ->join('prod__lineas as pppl','pppl.id','=','pp.idlinea')
+            ->leftJoin('par__producto_desc as pcp', 'pcp.id_prod', '=', 'pp.id')
+            ->leftJoin('par__descuentos as pd2', 'pd2.id', '=', 'pcp.id_descuento')
             ->select(
                 'gpv.id as id',
                 'gpv.precio_lista_gespreventa',
@@ -79,7 +81,16 @@ class VenGestorVentaController extends Controller
                     END AS leyenda
                 "),
                 'gpv.id_lista','pppl.nombre as nombre_linea','pp.id as id_prod',
-                DB::raw('DATEDIFF(fecha_vencimiento, NOW()) AS dias')
+                DB::raw('DATEDIFF(fecha_vencimiento, NOW()) AS dias'),
+                DB::raw("
+                CASE 
+                    WHEN pd2.desc_num = 1 THEN '#'
+                    WHEN pd2.desc_num = 2 THEN '%'
+                    ELSE NULL
+                END as tipo_num_des
+            "),
+            'pd2.monto_descuento',
+            'pd2.activo as descuento_activo'
             )
             ->where('ass.id', $id_suc)
             ->where('gpv.listo_venta', 1)
@@ -105,7 +116,9 @@ class VenGestorVentaController extends Controller
             ->leftJoin('prod__forma_farmaceuticas as ff_2', 'ff_2.id', '=', 'pp.idformafarmaceuticasecundario')
             ->leftJoin('prod__forma_farmaceuticas as ff_3', 'ff_3.id', '=', 'pp.idformafarmaceuticaterciario')
             ->join('prod__lineas as pppl','pppl.id','=','pp.idlinea')
-          
+            ->leftJoin('par__producto_desc as pcp', 'pcp.id_prod', '=', 'pp.id')
+    ->leftJoin('par__descuentos as pd2', 'pd2.id', '=', 'pcp.id_descuento')
+   
             ->select(
                 'gpv.id as id',
                 'gpv.precio_lista_gespreventa',
@@ -132,7 +145,17 @@ class VenGestorVentaController extends Controller
                     END AS leyenda
                 "),
                 'gpv.id_lista','pppl.nombre as nombre_linea','pp.id as id_prod',
-                DB::raw('DATEDIFF(fecha_vencimiento, NOW()) AS dias')
+                DB::raw('DATEDIFF(fecha_vencimiento, NOW()) AS dias'),
+                DB::raw("
+            CASE 
+                WHEN pd2.desc_num = 1 THEN '#'
+                WHEN pd2.desc_num = 2 THEN '%'
+                ELSE NULL
+            END as tipo_num_des
+        "),
+        'pd2.monto_descuento',
+        'pd2.activo as descuento_activo'
+               
             )
             ->where('ass.id', $idsuc)
             ->where('gpv.listo_venta', 1)
@@ -165,177 +188,160 @@ class VenGestorVentaController extends Controller
         //
     }
     public function listarUsuario(Request $request){
-        $resultado = DB::table('dir__clientes as dc')
-        ->select('dc.id', 
-                 'dc.nom_a_facturar', 
-                 'dc.id_per_emp', 
-                 'dc.num_documento', 
-                 'dtd.id as id_tipo_doc',
-                 'dtd.nombre_doc as tipo_doc_nombre',
-                 'dtd.datos as tipo_doc_datos',
-                 DB::raw("CONCAT(dp.nombres, ' ', dp.apellidos) AS nombre_completo"),
-                 DB::raw("CASE
-                 WHEN pd2.desc_num = 1 THEN '#'
-                 WHEN pd2.desc_num = 2 THEN '%'
-                 ELSE NULL
-             END as tipo_num_des"),
-             'pd2.monto_descuento',
-             'pd2.activo as descuento_activo')
+        $clientes = DB::table('dir__clientes as dc')
         ->join('dir__tipo_doc as dtd', 'dc.id_tipo_doc', '=', 'dtd.id')
-        ->join('dir__personas as dp', 'dc.id_per_emp', '=', 'dp.id')
-        ->leftJoin('par__cliente_producto as pcp2', 'pcp2.id_cliente_p', '=', 'dc.id')
-    ->leftJoin('par__descuentos as pd2', 'pd2.id', '=', 'pcp2.id_descuento')
-   
-        ->where('dc.tipo_per_emp', 1)
+        ->leftJoin('dir__personas as dp', function ($join) {
+            $join->on('dp.id', '=', 'dc.id_per_emp')
+                 ->where('dc.tipo_per_emp', '=', 1);
+        })
+        ->leftJoin('dir__empresas as de', function ($join) {
+            $join->on('de.id', '=', 'dc.id_per_emp')
+                 ->where('dc.tipo_per_emp', '=', 2);
+        })
+        ->leftJoin('par__cliente_producto as pcp', 'pcp.id_cliente_p', '=', 'dc.id')
+        ->leftJoin('par__descuentos as pd2', 'pd2.id', '=', 'pcp.id_descuento')
         ->where('dc.activo', 1)
-        ->where('dc.num_documento',  $request->num_doc)
-        ->unionAll(DB::table('dir__clientes as dc')
-            ->select('dc.id', 
-                     'dc.nom_a_facturar', 
-                     'dc.id_per_emp', 
-                     'dc.num_documento', 
-                     'dtd.id as id_tipo_doc',
-                     'dtd.nombre_doc as tipo_doc_nombre',
-                     'dtd.datos as tipo_doc_datos',
-                     'de.razon_social AS nombre_completo',
-                     DB::raw("CASE
-                     WHEN pd2.desc_num = 1 THEN '#'
-                     WHEN pd2.desc_num = 2 THEN '%'
-                     ELSE NULL
-                 END as tipo_num_des"),
-                 'pd2.monto_descuento',
-                 'pd2.activo as descuento_activo')
-            ->join('dir__empresas as de', 'dc.id_per_emp', '=', 'de.id')
-            ->join('dir__tipo_doc as dtd', 'dc.id_tipo_doc', '=', 'dtd.id')
-            ->leftJoin('par__cliente_producto as pcp2', 'pcp2.id_cliente_p', '=', 'dc.id')
-            ->leftJoin('par__descuentos as pd2', 'pd2.id', '=', 'pcp2.id_descuento')
-           
-            ->where('dc.tipo_per_emp', 2)
-            ->where('dc.activo', 1)
-            ->where('dc.num_documento', $request->num_doc))
+        ->where('dc.num_documento', $request->num_doc)
+ 
+        ->select([
+            'dc.id',
+            'dc.nom_a_facturar',
+            'dc.id_per_emp',
+            'dc.num_documento',
+            'dtd.id as id_tipo_doc',
+            'dtd.nombre_doc as tipo_doc_nombre',
+            'dtd.datos as tipo_doc_datos',
+            DB::raw('CASE 
+                        WHEN dp.id IS NOT NULL THEN CONCAT(dp.nombres, " ", dp.apellidos)
+                        WHEN de.id IS NOT NULL THEN de.razon_social
+                        ELSE NULL
+                    END as nombre_completo'),
+            'dc.created_at as fecha',
+            DB::raw('CASE 
+                        WHEN pd2.desc_num = 1 THEN "#"
+                        WHEN pd2.desc_num = 2 THEN "%"
+                        ELSE NULL
+                    END as tipo_num_des'),
+            'pd2.monto_descuento',
+            'pd2.activo as descuento_activo'
+        ])        
        
         ->first();
   
-        return $resultado;
+        return $clientes;
     }
-    public function listarUsuarioRetorno(Request $request){
-        $buscararray = array();
-    
-        if (!empty($request->buscar)) {
-            $buscararray = explode(" ", $request->buscar);
-            $valor = sizeof($buscararray);
-            if ($valor > 0) {
-                $sqls = '';
 
-                foreach ($buscararray as $valor) {
-                    if (empty($sqls)) {
-                        $sqls = "(
-                            
-                            or dc.nom_a_facturar like '%" . $valor . "%' 
-                            or dc.num_documento like '%" . $valor . "%' 
-                         
-                               )";
-                    } else {
-                        $sqls .= "and 
+    public function listarUsuarioRetorno(Request $request)
+{
+    $buscararray = array();
+    if (!empty($request->buscar)) {
+        $buscararray = explode(" ", $request->buscar);
+        $valor = sizeof($buscararray);
+        if ($valor > 0) {
+            $sqls = '';
+            foreach ($buscararray as $key => $valor) {
+                // Corrección: Se verifica si $sqls está vacío antes de añadir la primera condición
+                if (empty($sqls)) {
+                    $sqls = "(
                         dc.nom_a_facturar like '%" . $valor . "%' 
-                        or dc.num_documento like '%" . $valor . "%' 
-                       
-                       
-                       )";
-                    }
+                        or dc.num_documento like '%" . $valor . "%'
+                    )";
+                } else {
+                    // Corrección: Se añade un paréntesis de apertura y se corrige la concatenación
+                    $sqls .= " and (
+                        dc.nom_a_facturar like '%" . $valor . "%' 
+                        or dc.num_documento like '%" . $valor . "%'
+                    )";
                 }
-                //consulta---------------------------------------------------
-                $subconsulta = DB::table('dir__clientes as dc')
-                ->select('dc.id', 
-                         'dc.nom_a_facturar', 
-                         'dc.id_per_emp', 
-                         'dc.num_documento', 
-                         'dtd.id as id_tipo_doc',
-                         'dtd.nombre_doc as tipo_doc_nombre',
-                         'dtd.datos as tipo_doc_datos',
-                         DB::raw("CONCAT(dp.nombres, ' ', dp.apellidos) AS nombre_completo"),
-                         'dc.created_at as fecha',
-                         DB::raw("CASE
-                         WHEN pd2.desc_num = 1 THEN '#'
-                         WHEN pd2.desc_num = 2 THEN '%'
-                         ELSE NULL
-                     END as tipo_num_des"),
-                     'pd2.monto_descuento')
-                ->join('dir__tipo_doc as dtd', 'dc.id_tipo_doc', '=', 'dtd.id')
-                ->join('dir__personas as dp', 'dc.id_per_emp', '=', 'dp.id')
-                ->leftJoin('par__cliente_producto as pcp2', 'pcp2.id_cliente_p', '=', 'dc.id')
-                ->leftJoin('par__descuentos as pd2', 'pd2.id', '=', 'pcp2.id_descuento')
-                ->where('dc.tipo_per_emp', 1)
-                ->where('dc.activo', 1);
+            }
             
-            $subconsultaEmpresas = DB::table('dir__clientes as dc')
-                ->select('dc.id', 
-                         'dc.nom_a_facturar', 
-                         'dc.id_per_emp', 
-                         'dc.num_documento', 
-                         'dtd.id as id_tipo_doc',
-                         'dtd.nombre_doc as tipo_doc_nombre',
-                         'dtd.datos as tipo_doc_datos',
-                         'de.razon_social AS nombre_completo',
-                         'dc.created_at as fecha',
-                         DB::raw("CASE
-                         WHEN pd2.desc_num = 1 THEN '#'
-                         WHEN pd2.desc_num = 2 THEN '%'
-                         ELSE NULL
-                     END as tipo_num_des"),
-                     'pd2.monto_descuento')
-                ->join('dir__empresas as de', 'dc.id_per_emp', '=', 'de.id')
+            $clientes = DB::table('dir__clientes as dc')
                 ->join('dir__tipo_doc as dtd', 'dc.id_tipo_doc', '=', 'dtd.id')
-                ->leftJoin('par__cliente_producto as pcp2', 'pcp2.id_cliente_p', '=', 'dc.id')
-                ->leftJoin('par__descuentos as pd2', 'pd2.id', '=', 'pcp2.id_descuento')
-                ->where('dc.tipo_per_emp', 2)
-                ->where('dc.activo', 1);
-            
-            $resultado = $subconsulta->unionAll($subconsultaEmpresas)
-                ->orderBy('id', 'desc') // Ordenar por id de forma descendente
-                ->take(30) // Limitar a 100 registros
-                ->get();       
-            }    
-            return $resultado;
-        } else{
-            $subconsulta = DB::table('dir__clientes as dc')
-    ->select('dc.id', 
-             'dc.nom_a_facturar', 
-             'dc.id_per_emp', 
-             'dc.num_documento', 
-             'dtd.id as id_tipo_doc',
-             'dtd.nombre_doc as tipo_doc_nombre',
-             'dtd.datos as tipo_doc_datos',
-             DB::raw("CONCAT(dp.nombres, ' ', dp.apellidos) AS nombre_completo"),
-             'dc.created_at as fecha')
-    ->join('dir__tipo_doc as dtd', 'dc.id_tipo_doc', '=', 'dtd.id')
-    ->join('dir__personas as dp', 'dc.id_per_emp', '=', 'dp.id')
-    ->where('dc.tipo_per_emp', 1)
-    ->where('dc.activo', 1);
+                ->leftJoin('dir__personas as dp', function ($join) {
+                    $join->on('dp.id', '=', 'dc.id_per_emp')
+                         ->where('dc.tipo_per_emp', '=', 1);
+                })
+                ->leftJoin('dir__empresas as de', function ($join) {
+                    $join->on('de.id', '=', 'dc.id_per_emp')
+                         ->where('dc.tipo_per_emp', '=', 2);
+                })
+                ->leftJoin('par__cliente_producto as pcp', 'pcp.id_cliente_p', '=', 'dc.id')
+                ->leftJoin('par__descuentos as pd2', 'pd2.id', '=', 'pcp.id_descuento')
+                ->where('dc.activo', 1)
+                ->whereRaw($sqls)
+                ->take(10)
+                ->orderBy('id', 'desc')
+                ->select([
+                    'dc.id',
+                    'dc.nom_a_facturar',
+                    'dc.id_per_emp',
+                    'dc.num_documento',
+                    'dtd.id as id_tipo_doc',
+                    'dtd.nombre_doc as tipo_doc_nombre',
+                    'dtd.datos as tipo_doc_datos',
+                    DB::raw('CASE 
+                                WHEN dp.id IS NOT NULL THEN CONCAT(dp.nombres, " ", dp.apellidos)
+                                WHEN de.id IS NOT NULL THEN de.razon_social
+                                ELSE NULL
+                            END as nombre_completo'),
+                    'dc.created_at as fecha',
+                    DB::raw('CASE 
+                                WHEN pd2.desc_num = 1 THEN "#"
+                                WHEN pd2.desc_num = 2 THEN "%"
+                                ELSE NULL
+                            END as tipo_num_des'),
+                    'pd2.monto_descuento',
+                    'pd2.activo as descuento_activo'
+                ])
+                ->get();
 
-$subconsultaEmpresas = DB::table('dir__clientes as dc')
-    ->select('dc.id', 
-             'dc.nom_a_facturar', 
-             'dc.id_per_emp', 
-             'dc.num_documento', 
-             'dtd.id as id_tipo_doc',
-             'dtd.nombre_doc as tipo_doc_nombre',
-             'dtd.datos as tipo_doc_datos',
-             'de.razon_social AS nombre_completo',
-             'dc.created_at as fecha')
-    ->join('dir__empresas as de', 'dc.id_per_emp', '=', 'de.id')
-    ->join('dir__tipo_doc as dtd', 'dc.id_tipo_doc', '=', 'dtd.id')
-    ->where('dc.tipo_per_emp', 2)
-    ->where('dc.activo', 1);
+            return $clientes;
+        }
+    } else {
+        // Si no hay parámetro de búsqueda, se ejecuta esta parte del código
+        $clientes = DB::table('dir__clientes as dc')
+            ->join('dir__tipo_doc as dtd', 'dc.id_tipo_doc', '=', 'dtd.id')
+            ->leftJoin('dir__personas as dp', function ($join) {
+                $join->on('dp.id', '=', 'dc.id_per_emp')
+                     ->where('dc.tipo_per_emp', '=', 1);
+            })
+            ->leftJoin('dir__empresas as de', function ($join) {
+                $join->on('de.id', '=', 'dc.id_per_emp')
+                     ->where('dc.tipo_per_emp', '=', 2);
+            })
+            ->leftJoin('par__cliente_producto as pcp', 'pcp.id_cliente_p', '=', 'dc.id')
+            ->leftJoin('par__descuentos as pd2', 'pd2.id', '=', 'pcp.id_descuento')
+            ->where('dc.activo', 1)
+            ->orderBy('id', 'desc')
+            ->take(40)
+            ->select([
+                'dc.id',
+                'dc.nom_a_facturar',
+                'dc.id_per_emp',
+                'dc.num_documento',
+                'dtd.id as id_tipo_doc',
+                'dtd.nombre_doc as tipo_doc_nombre',
+                'dtd.datos as tipo_doc_datos',
+                DB::raw('CASE 
+                            WHEN dp.id IS NOT NULL THEN CONCAT(dp.nombres, " ", dp.apellidos)
+                            WHEN de.id IS NOT NULL THEN de.razon_social
+                            ELSE NULL
+                        END as nombre_completo'),
+                'dc.created_at as fecha',
+                DB::raw('CASE 
+                            WHEN pd2.desc_num = 1 THEN "#"
+                            WHEN pd2.desc_num = 2 THEN "%"
+                            ELSE NULL
+                        END as tipo_num_des'),
+                'pd2.monto_descuento',
+                'pd2.activo as descuento_activo'
+            ])
+            ->get();
 
-$resultado = $subconsulta->unionAll($subconsultaEmpresas)
-    ->orderBy('id', 'desc') // Ordenar por id de forma descendente
-    ->take(100) // Limitar a 100 registros
-    ->get();
+        return $clientes;
+    }
+}
 
-return $resultado;
-        }   
-    } 
     
 
     public function listarDescuentos_listas(Request $request){

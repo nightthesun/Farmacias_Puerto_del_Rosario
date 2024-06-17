@@ -17,7 +17,8 @@ return new class extends Migration
             $table->smallInteger('id_alm_tda');
             $table->string('cod')->nullable();
             $table->tinyInteger('personalizado')->nullable()->default(0);
-            
+            $table->tinyInteger('cliente')->nullable()->default(0);
+            $table->tinyInteger('producto')->nullable()->default(0);
         });
     }
 

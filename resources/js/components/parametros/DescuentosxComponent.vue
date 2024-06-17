@@ -33,7 +33,21 @@
                         @click="listarSucursalesX_descuentos();abrirModal('vista_descuento');"
                         style="margin-left: 10px;"> 
                             <i class="fa fa-eye" aria-hidden="true"></i> Ver descuento x sucursal
+                        </button> &nbsp;
+                        <button  type="button"
+                        class="btn btn-outline-secondary"
+                        @click="abrirModal('colores');"
+                        style="margin-left: 10px;"> 
+                        <i class="fa fa-leanpub" aria-hidden="true"></i> Ver lista por colores
+                        </button> &nbsp;
+                        
+                        <button v-if="selectTabla===3 && puedeHacerOpciones_especiales===1" type="button"
+                        class="btn btn-outline-secondary"
+                        @click="abrirModal('quitar_d');"
+                        style="margin-left: 10px;"> 
+                        <i class="fa fa-list-ol" aria-hidden="true"></i>  Quitar descuentos cliente
                         </button>
+
 
                     </div>                                    
                 </div>
@@ -104,7 +118,7 @@
                 </thead>
                 <tbody v-if="selectTabla == 0"></tbody>
                         <tbody v-else>
-                          
+            
                         <tr v-for="i in arrayIndex" :key="i.id">
                             <td class="col-md-1">
                                 <div  class="d-flex justify-content-start">
@@ -206,7 +220,7 @@
                             <td class="col-md-1" v-text="i.nom_facturar" v-if="selectTabla == 3"></td>
 
                             <td class="col-md-1" v-text="i.lugar" v-if="selectTabla == 4"></td>
-                            <td class="col-md-1" v-if="selectTabla == 4">{{i.cod_prod+' '+i.leyenda+' envase: '+i.envase}}</td>
+                            <td class="col-md-1" v-if="selectTabla == 4">{{i.cod_prod+' '+i.leyenda+' Envase: '+i.envase}}</td>
                             <td class="col-md-1" v-if="selectTabla == 5">{{i.max}}</td>
                             <td class="col-md-1" v-text="i.user_name"></td>
                             <td class="col-md-1">
@@ -499,7 +513,9 @@
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary"  @click="cerrarModal1('registrar1')">Cerrar</button>
  
-                        <button type="button" class="btn btn-primary" @click="asignarSucursal()">Asignar</button>
+                        <button v-if="tipoAccion===1" type="button" class="btn btn-primary" @click="asignarSucursal()">Asignar</button>
+                        <button  v-if="tipoAccion===3" :disabled="selectAlmTda2.length===0" type="button" class="btn btn-primary" @click="quitarSucursal()" >Quitar</button>
+                        
                     </div>
                 </div>
                 <!-- /.modal-content -->
@@ -578,6 +594,72 @@
             <!-- /.modal-dialog -->
         </div>
         <!--Fin del modal-->
+
+    <!------------------------MODAL DE COLORES-------------------------->
+    <!-- Modal -->
+
+    <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" id="colores_venta" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+        <div class="modal-dialog modal-primary modal-sm" role="document">
+
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">{{ tituloModal }}</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th scope="col">Color</th>
+                                <th scope="col">Descuento</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <button type="button" class="btn btn-dark btn-sm btn-block"></button>
+                                </td>
+                                <td>Sin descuento</td>
+                            </tr>
+                            <tr v-for="i in arrayTabla" :key="i.id">
+                                <td>
+                                    <div v-if="i.id===1">
+                                        <button type="button" class="btn btn-warning btn-sm btn-block"></button>
+                                    </div>
+                                    <div v-if="i.id===2">
+                                        <button type="button" class="btn btn-secondary btn-sm btn-block"></button>
+                                    </div>
+                                    <div v-if="i.id===3">
+                                        <button type="button" class="btn btn-success btn-sm btn-block"></button>
+                                    </div>
+                                    <div v-if="i.id===4">
+                                        <button type="button" class="btn btn-danger btn-sm btn-block"></button>
+                                    </div>
+                                    <div v-if="i.id===5">
+                                        <button type="button" class="btn btn-dark btn-sm btn-block" style="background-color: darkmagenta;"></button>
+                                    </div>
+                                    <div v-if="i.id===6">
+                                        <button type="button" class="btn btn-dark btn-sm btn-block" style="background-color: chocolate;"></button>
+                                    </div>
+                                </td>
+                                <td>{{ i.nombre }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+    <!-----------------------------FIN DE COLORES MODAL-------------------------------->
 
     </main>
 </template>
@@ -724,9 +806,9 @@ export default {
 },
 //--------------------------------------------------------------  
 
-        nameWithLang ({codigo_prod,leyenda, envase,tipo_lugar}) {
+        nameWithLang ({codigo_prod,leyenda, envase,tipo_lugar,nombre_linea}) {
             
-            return `${codigo_prod} ${leyenda} ${envase} ${tipo_lugar}`
+            return `${codigo_prod} linea:${nombre_linea} ${leyenda} ${envase}${tipo_lugar}`
           },
 
           registrarDescuento(){
@@ -821,7 +903,7 @@ if (valor == 3) {
    
 }
 if (valor == 4) {
-  
+  let cadena_L_L= me.selected.leyenda+" Linea:"+me.selected.nombre_linea 
     data = {
         'id_tipo_tabla': valor,
       
@@ -834,7 +916,7 @@ if (valor == 4) {
         'envase': me.selected.envase,
         'tipo_tda_alm': me.selected.tipo_lugar,
         'id_linea': me.selected.id_liena,
-        'leyenda': me.selected.leyenda,
+        'leyenda': cadena_L_L,
 
     };
 }
@@ -1016,6 +1098,75 @@ axios.post('/descuento2/registrarDescuento', data)
                     console.log(error);
                 });
         },
+
+         quitarSucursal(){
+            let me =this;      
+            let cadena=[]; 
+          
+          for (const selectedOption of this.selectAlmTda2) {
+          let elemento = {
+          'codigo': selectedOption.codigo,
+          'id_sucursal': selectedOption.id_sucursal,
+          'id_tienda_almacen': selectedOption.id_tienda_almacen
+          };
+          cadena.push(elemento);
+      }
+    
+        if (cadena.length===0) {
+            Swal.fire(
+                        'Datos nulos!',
+                        'No puede ingresar datos nulos o vacios',
+                        'error'
+                    )
+        } else {
+            axios.post('/descuento2/quitarSucursal_z',{
+          
+          bloque:cadena,             
+      }).then(function (response) {            
+          me.listarIndex();
+          me.cerrarModal1('registrar1')
+          let noEliminados = response.data.noEliminados;
+          if (noEliminados.length > 0) {
+            let elementosNoEliminados = '';
+                noEliminados.forEach(item => {
+              elementosNoEliminados += `Código: ${item.codigo}, Sucursal: ${item.id_sucursal}, Tienda/Almacén: ${item.id_tienda_almacen}<br>`;
+            });
+        
+        
+          Swal.fire({
+              title: '¡Alerta!',
+              html: `No existe las siguientes asignaciones:<br>${elementosNoEliminados}`,
+              icon: 'warning'
+            });
+          }else{
+            Swal.fire({
+              title: '¡Solicitud!',
+              html: 'Realizada con exito',
+              icon: 'success'
+            });
+          }
+
+          
+          
+         
+      }).catch(function (error) {                
+      if (error.response.status === 500) {
+          me.errorMsg = error.response.data.error; // Asigna el mensaje de error a la variable errorMsg
+      Swal.fire(
+          "Error",
+          "500 (Internal Server Error)"+me.errorMsg, // Muestra el mensaje de error en el alert
+          "error"       );
+      }else{
+          Swal.fire(
+          "Error",
+          ""+error, // Muestra el mensaje de error en el alert
+          "error"
+      );  
+      }              
+  });  
+        }    
+        },
+
 
         listarAlmTienda() {
             let me = this;
@@ -1368,7 +1519,7 @@ axios.put('/descuento2/actualizar', data)
         //    let respuesta = me.arraySucursal.find(
         //        (element) => element.codigo == me.sucursalSeleccionada,
         //    );
-           
+     
          switch (accion) {
                 case "registrar": {
                     me.tipoAccion = 1;
@@ -1389,8 +1540,8 @@ axios.put('/descuento2/actualizar', data)
                     }
                     if(me.selectTabla==4){
                         me.tituloModal = "Registro de descuento por producto";
-                        me.nombre_Des="";
-                    me.descripcion_Des="";
+                        me.nombre_Des="Lista de productos";
+                    me.descripcion_Des="Lista generica de productos";
                     }
                     if(me.selectTabla==5){
                         me.tituloModal = "Registro de descuento personalizado";
@@ -1494,6 +1645,7 @@ axios.put('/descuento2/actualizar', data)
             case 'asignar':
                     {                                            
                         me.tituloModal='Asignar sucursal';
+                        me.tipoAccion=1;
                         me.selectAlmTda2=me.arrayFalso;                        
                         me.id_index=data.id;                                                
                         me.classModal.openModal('registrar1');
@@ -1503,9 +1655,23 @@ axios.put('/descuento2/actualizar', data)
                     }
                     
             case 'vista_descuento':{
-                me.tituloModal='Asignar sucursal';
+                me.tituloModal='Vista total de descuentos';
                 me.classModal.openModal('vista_descuento');
+                break;
             }   
+            case 'quitar_d':{
+                me.selectAlmTda2=[];
+                me.tipoAccion = 3;
+                me.tituloModal='Quitar descuentos';
+                me.classModal.openModal('registrar1');
+                break;
+            }
+
+            case 'colores':{
+                me.tituloModal='Descuento por colores';
+                me.classModal.openModal('colores_venta');
+                break;
+            }
 
             }
         },
@@ -1610,6 +1776,8 @@ axios.put('/descuento2/actualizar', data)
         this.listarDescuentoXtdaAlm();
         
         this.classModal.addModal("vista_descuento");
+        this.classModal.addModal("colores_venta");
+        
     },
 };
 </script>

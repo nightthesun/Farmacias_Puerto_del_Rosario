@@ -27,7 +27,10 @@
                                  <span class="badge badge-pill badge-primary">{{"Lista: "+ nom_lista }}</span>
                                </div>
                                <div class="mr-2 mb-2" v-if="existe_cliente===1">
-                                <span  class="badge badge-pill badge-success">Descuento:Cliente</span>
+                                <span  class="badge badge-pill badge-success">Descuento: Cliente</span>
+                              </div>
+                              <div class="mr-2 mb-2" v-if="existe_producto===1">
+                                <span class="badge badge-pill badge-danger">Descuento: Producto</span> 
                               </div>
                                
                                <div v-if="arrayDescuento.length > 0" class="d-flex flex-wrap align-items-center">
@@ -35,7 +38,7 @@
                                     
                                      <span v-if="d.id_tabla == 1" class="badge badge-pill badge-warning">{{ "Descuento: "+d.nombre_descuento }}</span>
                                      <span v-if="d.id_tabla == 2" class="badge badge-pill badge-secondary">{{ "Descuento: "+d.nombre_descuento }}</span>
-                                     <span v-if="d.id_tabla == 4" class="badge badge-pill badge-danger">{{ "Descuento: "+d.nombre_descuento }}</span>                             
+                                                               
                                      <span v-if="d.id_tabla == 5" class="badge badge-pill badge-dark" style="background-color: darkmagenta;">{{ "Descuento: "+d.nombre_descuento }}</span>      
                                 
                                      <span v-if="d.id_tabla == 6" class="badge badge-pill badge-dark" style="background-color: chocolate;">{{ "Descuento: "+d.nombre_descuento }}</span>
@@ -138,7 +141,7 @@
                  <td class="col-md-1">
                      <input v-show="validadorPersonal === 1" :disabled="selected===null " type="text" class="form-control" id="inlineFormInputName" v-model="descuento">
                      
-                     <span v-show="validadorPersonal === 2 || validadorPersonal === 4 || validadorPersonal === 5" style="text-align: center;">
+                     <span v-show="validadorPersonal === 2 || validadorPersonal === 4 || validadorPersonal === 5 || validadorPersonal ===6" style="text-align: center;">
                         Automatico
                      </span>
                      <span v-show="validadorPersonal === 3" style="color: black; display: flex; justify-content: center; align-items: center; font-size: 24px; width: 100%;">
@@ -161,7 +164,7 @@
                             <i class="fa fa-plus" aria-hidden="true"></i>
                         </button>  
                     </div>
-                    <div v-if="validadorPersonal === 3 || validadorPersonal === 2 || validadorPersonal === 4 || validadorPersonal === 5" >
+                    <div v-if="validadorPersonal === 3 || validadorPersonal === 2 || validadorPersonal === 4 || validadorPersonal === 5 || validadorPersonal === 6" >
                         <button v-if="selected!==null && numero!==''" type="button" class="btn btn-success btn-sm" style="margin-right: 5px;" @click="agregarVenta();">
                             <i class="fa fa-plus" aria-hidden="true"></i>
                             </button> 
@@ -192,6 +195,7 @@
                              <th class="col-1">Precio de venta</th>
                              <th class="col-1">Descuento</th>
                              <th class="col-2" >Sub Total</th>
+                          
                          </tr>
                      </thead>
                      <tbody>
@@ -219,6 +223,14 @@
                              <th colspan="5" style="text-align:right">Cambio:</th>
                              <th v-text="cambio + ' Bs.'" style="text-align:right"></th>
                          </tr>
+                         <tr>
+                            <th colspan="5" style="text-align:right">Des:</th>
+                            <th v-text="venta.final_d + ' Bs.'" style="text-align:right"></th>
+                        </tr>
+                        <tr>
+                            <th colspan="5" style="text-align:right">Total:</th>
+                            <th v-text="venta.total_d + ' Bs.'" style="text-align:right"></th>
+                        </tr>
                     
                      </tbody>
                  
@@ -238,7 +250,7 @@
                <hr> <!-- Línea horizontal -->                      
                <div class="row">
              
-                 <div class="form-group col-sm-4" style="display: flex; align-items: center;">
+                 <div class="form-group col-sm-4" style="display: flex; align-items: center;" v-if="contador_cliente===0">
                      <input type="text" class="form-control"  placeholder="Número de Documento" v-model="buscarCliente">
                      <button class="btn btn-primary" type="button" 
                              @click="listarUsuario()" :disabled="buscarCliente==''">
@@ -246,17 +258,32 @@
                      </button>
                    
                  </div>
+                 <div class="form-group col-sm-4" style="display: flex; align-items: center;" v-else>
+                    <input type="text" class="form-control"  placeholder="Número de Documento" disabled>
+                    <button class="btn btn-light" type="button" disabled>
+                        Buscar
+                    </button>                  
+                </div>
                  <div class="form-group col-sm-6" style="display: flex; align-items: center;">
                      <input type="text" class="form-control"  v-model="datos_cliete" disabled placeholder="Número Documento/Número de Cliente">
-                     <button class="btn btn-primary" type="button" @click="abrirModal('lote_cliete');listarUsuarioRetorno();">
+                     <button class="btn btn-primary" type="button" @click="abrirModal('lote_cliete');listarUsuarioRetorno();" v-if="contador_cliente===0">
                          <i class="fa fa-search-plus" aria-hidden="true"></i>
-                     </button>                            
-                     <button class="btn btn-info" type="button" style="color: white;"  @click="abrirModal('registrar_cliente');listarEX();listarTipoDoc();">
+                     </button>
+                     <button class="btn btn-light" style="color: white;" type="button" v-else>
+                        <i class="fa fa-search-plus" aria-hidden="true"></i>
+                    </button>                               
+                     <button class="btn btn-info" type="button" style="color: white;"  @click="abrirModal('registrar_cliente');listarEX();listarTipoDoc();" v-if="contador_cliente===0">
                          <i class="fa fa-user-plus" aria-hidden="true"></i>
                      </button>
-                     <button class="btn btn-secondary" type="button" style="color: white;"  @click="limpiar();">
+                     <button class="btn btn-light" type="button" style="color: white;"   v-else>
+                        <i class="fa fa-user-plus" aria-hidden="true"></i>
+                    </button>
+                     <button class="btn btn-secondary" type="button" style="color: white;"  @click="limpiar();" v-if="contador_cliente===0">
                          Limpiar
                      </button>
+                     <button class="btn btn-light" type="button" style="color: white;" v-else>
+                        Limpiar
+                    </button>
                  </div>           
                 
                
@@ -743,7 +770,12 @@ export default {
      cliente_des:'',
      cliente_num_por:'',
      cliente_activo_descuento:'',
+     
+     contador_cliente:0,
+     contador_cliente_anterior:'',
+     existe_producto:0,
 
+     tota_des_:0,
         };
     },
     created() {
@@ -881,6 +913,8 @@ watch: {
                 if (valorNumeral<0) {
                 valorNumeral=precio_lista_gespreventa;
                 porcentaje=0;
+            }else{
+                porcentaje=var1;
             }
                
                console.log("-"+valorNumeral+"--"+porcentaje); 
@@ -933,9 +967,6 @@ if (tipo_can_valor==='BS') {
 } 
 },
 
-        existe_cliente(){
-
-        },
           
         listarDescuento_Tipo_tabla(){
             let me = this;       
@@ -983,6 +1014,8 @@ if (tipo_can_valor==='BS') {
                                 if(descuento.id_nom_tabla===6){
                                     contador_1_final++;
                                 }
+                                
+                                
 
                             });
                                     if (contador_1_normal>0&&contador_1_can_compra===0&&contador_1_cliente===0&&contador_1_producto===0&&contador_1_final===0) {
@@ -993,6 +1026,9 @@ if (tipo_can_valor==='BS') {
                                     }
                                     if (contador_1_normal===0&&contador_1_can_compra===0&&contador_1_cliente>0&&contador_1_producto===0&&contador_1_final===0) {
                                         me.validadorPersonal=5;// caso normal cliente                                      
+                                    }
+                                    if (contador_1_normal===0&&contador_1_can_compra===0&&contador_1_cliente===0&&contador_1_producto>0&&contador_1_final===0) {
+                                        me.validadorPersonal=6;// caso normal producto                                      
                                     }
                                     
                           }
@@ -1028,8 +1064,11 @@ if (tipo_can_valor==='BS') {
                  if (respuesta.descuento.length>0) {
 
                     respuesta.descuento.forEach(des => {
-                        if (des.id_tabla) {
+                        if (des.id_tabla && des.id_tabla===3) {
                             me.existe_cliente=1;
+                        }
+                        if (des.id_tabla===4) {
+                            me.existe_producto=1;
                         }
                    });
                             me.arrayDescuento=respuesta.descuento;
@@ -1053,8 +1092,16 @@ if (tipo_can_valor==='BS') {
         },
 
         quitarVEnta(id){            
-            let me = this;            
+            let me = this;
             me.arrayVentas = me.arrayVentas.filter(venta => venta.id !== id);
+            if (me.arrayVentas.length===0) {
+               me.contador_cliente=0;
+               me.arrayVentas=[];
+               me.sumatotal=0;
+            }           
+           // me.arrayVentas = me.arrayVentas.filter(venta => venta.id !== id);
+            console.log("----------------------");
+            console.log(me.arrayVentas);
         },
 
         agregarVenta(){
@@ -1076,7 +1123,8 @@ if (tipo_can_valor==='BS') {
             var descuento=0;
             var precioXcantida=0;
             var subtotal=0;
-         
+            var final_d=0; 
+            var total_d=0;
             precioXcantida=me.selected.precio_lista_gespreventa*me.numero;
             //descuento=1-(me.descuento/100);
             descuento=me.descuento;
@@ -1101,6 +1149,8 @@ if (tipo_can_valor==='BS') {
             var descuento=0;
             var precioXcantida=0;
             var subtotal=0;
+            var final_d=0; 
+            var total_d=0;
             precioXcantida=me.selected.precio_lista_gespreventa*me.numero;
             //descuento=1-(me.descuento/100);
         
@@ -1132,9 +1182,11 @@ if (tipo_can_valor==='BS') {
                     }
                 });
                 me.descuento=parseFloat(sumador_21_des.toFixed(2));
-            var descuento=0;
+                var descuento=0;
             var precioXcantida=0;
             var subtotal=0;
+            var final_d=0; 
+            var total_d=0;
             precioXcantida=me.selected.precio_lista_gespreventa*me.numero;
             //descuento=1-(me.descuento/100);
         
@@ -1147,23 +1199,92 @@ if (tipo_can_valor==='BS') {
          if (me.validadorPersonal===5) {
             if (me.num_documento==='') {
                 Swal.fire(
-                    "Primero debe escoger un cliente",
+                    "Primero debe seleccionar un cliente",
                     "Haga click en Ok",
                     "error"
                 );
+            return ;
             }else{
-                console.log( me.cliente_des);
+             
+                me.contador_cliente=1;
+     
+                if (me.cliente_activo_descuento===1) {
+                    let operacion_21 = this.operacion_Numeral_Procentaje(me.cliente_num_por, me.cliente_des, this.selected.precio_lista_gespreventa);
+                    
+                    
+                    let { valorNumeral, porcentaje } = operacion_21;
+                    me.descuento = porcentaje;
+                    console.log(porcentaje);
+                    var descuento=0;
+            var precioXcantida=0;
+            var subtotal=0;
+            var final_d=0; 
+            var total_d=0;
+            precioXcantida=me.selected.precio_lista_gespreventa*me.numero;
+            //descuento=1-(me.descuento/100);
+        
+            descuento= me.descuento;
+            subtotal=precioXcantida-descuento;
+                  
+                } else {
+                    me.descuento=0;
+                    var descuento=0;
+            var precioXcantida=0;
+            var subtotal=0;
+            var final_d=0; 
+            var total_d=0;
+            precioXcantida=me.selected.precio_lista_gespreventa*me.numero;
+            //descuento=1-(me.descuento/100);
+        
+            descuento= me.descuento;
+            subtotal=precioXcantida-descuento; 
+                }         
+
             }
-               
+          
+         }
+         if (me.validadorPersonal===6) {
+                if (this.selected.descuento_activo===1) {
+                    let operacion_21 = this.operacion_Numeral_Procentaje(this.selected.tipo_num_des, this.selected.monto_descuento, this.selected.precio_lista_gespreventa);
+                    let { valorNumeral, porcentaje } = operacion_21;
+                    me.descuento = 0;
+                
+                    var descuento=0;
+            var precioXcantida=0;
+            var subtotal=0;
+            var final_d=0; 
+            var total_d=0;
+            precioXcantida=me.selected.precio_lista_gespreventa*me.numero;
+            //descuento=1-(me.descuento/100);
+        
+            descuento= 0;
+            subtotal=precioXcantida-descuento;
+            final_d=porcentaje;
+            
+                } else {
+                    me.descuento=0;
+                    var descuento=0;
+            var precioXcantida=0;
+            var subtotal=0;
+            var final_d=0; 
+            var total_d=0;
+            precioXcantida=me.selected.precio_lista_gespreventa*me.numero;
+            //descuento=1-(me.descuento/100);
+        
+            descuento= me.descuento;
+            subtotal=precioXcantida-descuento; 
+                }
+                    
          }
           me.sumatotal=me.sumatotal+subtotal;
+          
             // Convertir a un número con dos decimales
             subtotal = parseFloat(subtotal.toFixed(2));
-
+            
 
             
             me.arrayVentas.push({id: me.selected.id,leyenda: me.selected.leyenda,cantidad:me.numero,precio:me.selected.precio_lista_gespreventa,
-            descuento: descuento,subtotal:subtotal,id_ingreso:me.selected.id_ingreso,id_pro:me.selected.id_prod
+            descuento: descuento,subtotal:subtotal,id_ingreso:me.selected.id_ingreso,id_pro:me.selected.id_prod,final_d:final_d,total_d:total_d
             });
 
             } catch (error) {
@@ -1272,6 +1393,7 @@ if (tipo_can_valor==='BS') {
                 .get(url)
                 .then(function (response) {
                     var respuesta = response.data;
+                    console.log(respuesta);
                     me.arrayClienteLote = respuesta;
             }).catch(function (error) {
                     error401(error);
@@ -1350,7 +1472,9 @@ if (tipo_can_valor==='BS') {
                     
                     console.log(response.data);
                     me.cliente_id=response.data.id;
-                    me.cliente_des=response.data.descuento_activo;
+                    me.cliente_des=response.data.monto_descuento;
+                    me.cliente_num_por=response.data.tipo_num_des;
+                    me.cliente_activo_descuento=response.data.descuento_activo;
 
                     if (me.cliente_id==undefined) {
                         me.datos_cliete="No se encontro cliente..."
@@ -1445,7 +1569,7 @@ if (tipo_can_valor==='BS') {
                     me.nom_a_facturar='';
                     me.num_documento='';
                     me.datos_cliete='';
-       
+                    document.addEventListener('keydown', this.preventEnter);
                     me.classModal.openModal("lote_cliete");
                     break;
                 }
@@ -1474,6 +1598,15 @@ if (tipo_can_valor==='BS') {
                 }            
             }
         },
+
+
+        preventEnter(event) {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+      }
+    },
+
+
         cerrarModal(accion) {
             let me = this;          
             me.classModal.closeModal(accion);

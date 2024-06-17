@@ -323,6 +323,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/descuento/selectdescuento', [ParDescServicioController::class, 'selectDescuento']);
     Route::get('/obtenerfecha', [ParDescServicioController::class, 'obtenerFecha']);
 
+
     Route::get('/clientes', [ParClienteController::class, 'index']);
     Route::get('/clientes/selectclientes', [ParClienteController::class, 'selectClientes']);
     Route::get('/clientes/selectcli', [ParClienteController::class, 'selectCli']);
@@ -341,7 +342,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/descuento2/asignar', [ParDescuentoController::class, 'asignar']);
     Route::get('/descuento2/listarAsignar', [ParDescuentoController::class, 'listarAsignar']);
     Route::get('/descuento2/listarSucursalesX_descuentos', [ParDescuentoController::class, 'listarSucursalesX_descuentos']);
-    
+    Route::post('/descuento2/quitarSucursal_z', [ParDescuentoController::class, 'quitarSucursal_z']);
+       
 
     ////////////////////////productos//////////////////////////////
     Route::get('/linea', [ProdLineaController::class, 'index']);
