@@ -343,6 +343,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/descuento2/listarAsignar', [ParDescuentoController::class, 'listarAsignar']);
     Route::get('/descuento2/listarSucursalesX_descuentos', [ParDescuentoController::class, 'listarSucursalesX_descuentos']);
     Route::post('/descuento2/quitarSucursal_z', [ParDescuentoController::class, 'quitarSucursal_z']);
+    Route::post('/descuento2/eliminacion_descuento', [ParDescuentoController::class, 'eliminacion_descuento']);    
        
 
     ////////////////////////productos//////////////////////////////

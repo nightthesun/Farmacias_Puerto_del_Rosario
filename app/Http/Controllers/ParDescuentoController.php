@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Par_Descuento;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use PharIo\Manifest\Author;
@@ -889,5 +890,26 @@ return  $arrayTotal;
     
         return response()->json(['noEliminados' => $arrayE]);
     }
-  
+
+  public function eliminacion_descuento(Request $request){
+    //1=add, 2=delete, 3=create, 4=edit, 5=show
+    // Truncar la tabla para eliminar todo su contenido
+    try {
+        $now = Carbon::now();
+        DB::table('par__asignacion_descuento')->truncate();
+        $datos = [
+            'id_modulo' => $request->id_modulo,
+            'id_sub_modulo' => $request->id_sub_modulo,
+            'accion' => 2,
+            'descripcion' => $request->des,          
+            'user_id' =>auth()->user()->id, 
+            'created_at'=>$now,        
+        ];
+    
+        DB::table('log__sistema')->insert($datos);
+    } catch (\Throwable $th) {
+        return response()->json(['error' => $th->getMessage()],500);
+    }
+    
+  }
 }

@@ -9,9 +9,11 @@
 use App\Http\Controllers\AdmSessionController;
 $var2 = AdmSessionController::listarVentanas(); 
 ?>
+  
     @foreach($var2 as $ventana)
+    
         <template v-if="menu=={{ $ventana->codventana }}">
-            <{{ $ventana->template }} :codventana="{{ $ventana->id }}"></{{ $ventana->template }}>
+            <{{ $ventana->template }} :codventana="{{ $ventana->id }}" :idmodulo="{{ $ventana->idmodulo }}"></{{ $ventana->template }}>
         </template>
     @endforeach
 

@@ -40,7 +40,13 @@
                         style="margin-left: 10px;"> 
                         <i class="fa fa-leanpub" aria-hidden="true"></i> Ver lista por colores
                         </button> &nbsp;
-                        
+
+                        <button  v-if="puedeActivar===1 && puedeHacerOpciones_especiales===1" type="button"
+                        class="btn btn-outline-secondary"
+                        @click="abrirModal('eliminar_descuento');"
+                        style="margin-left: 10px;"> 
+                        <i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Eliminar descuentos
+                        </button> &nbsp;
                         <button v-if="selectTabla===3 && puedeHacerOpciones_especiales===1" type="button"
                         class="btn btn-outline-secondary"
                         @click="abrirModal('quitar_d');"
@@ -660,7 +666,33 @@
 
 
     <!-----------------------------FIN DE COLORES MODAL-------------------------------->
-
+<!-----------------------------------MODAL DE ELIMINACION DE DESCUENTO-------------------------------->
+<!-- Modal -->
+<div class="modal fade" id="del_descuento" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-primary " role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">{{ tituloModal }}</h4>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="alert alert-danger" role="alert">
+  <h4 class="alert-heading">Desea eliminar!</h4>
+  <p>Recuerde que eliminara todas las asignaciones de descuentos en todas la sucursales, tiendas o almacenes.</p>
+  <hr>
+  <p class="mb-0">Es una opcion muy peligrosa de realizar ya que eliminara toda asignacion.</p>
+</div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+        <button type="button" class="btn btn-danger" @click="eliminacion_descuento()">Realizar</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!--------------------FIN DE MODAL DECUENTO ELIMINACION ------------------------->
     </main>
 </template>
 
@@ -672,7 +704,7 @@ import VueMultiselect from 'vue-multiselect';
 export default {
     components: { VueMultiselect},
     //---permisos_R_W_S
-    props: ['codventana'],
+    props: ['codventana','idmodulo'],
         //-------------------
     data() {
         return {
@@ -781,7 +813,7 @@ export default {
     
                     //-----------------------------------permisos_R_W_S        
  listarPerimsoxyz() {
-                //console.log(this.codventana);
+              
     let me = this;        
     var url = '/gestion_permiso_editar_eliminar?win='+me.codventana;  
     axios.get(url)
@@ -1250,6 +1282,8 @@ axios.post('/descuento2/registrarDescuento', data)
                 });
         },
 
+
+        
         activar(id) {
             let me = this;
             const swalWithBootstrapButtons = Swal.mixin({
@@ -1300,6 +1334,34 @@ axios.post('/descuento2/registrarDescuento', data)
                 });
         },
 
+        eliminacion_descuento(){
+            let me = this;
+           // console.log("--------------");
+           // console.log(this.codventana+" "+this.idmodulo);
+            axios
+                    .post("/descuento2/eliminacion_descuento", {                      
+                        id_modulo: me.idmodulo,
+                        id_sub_modulo:me.codventana, 
+                        des:"eliminacion_descuento"                   
+                    })
+                    .then(function (response) {
+                    
+                        me.cerrarModal('del_descuento');
+                        Swal.fire({
+              title: '¡Alerta!',
+              html: `Se borraron las asignaciones`,
+              icon: 'warning'
+            });
+                    })
+                    
+                   .catch(function (error) {
+                      error401(error);
+                     console.log(error);
+                   });
+                
+            },
+            
+      
         actualizar() {            
             let me = this;
             let codificador=0;
@@ -1672,6 +1734,11 @@ axios.put('/descuento2/actualizar', data)
                 me.classModal.openModal('colores_venta');
                 break;
             }
+            case 'eliminar_descuento':{
+                me.tituloModal='Ventana de eliminacion';
+                me.classModal.openModal('del_descuento');
+                break;
+            }
 
             }
         },
@@ -1777,6 +1844,8 @@ axios.put('/descuento2/actualizar', data)
         
         this.classModal.addModal("vista_descuento");
         this.classModal.addModal("colores_venta");
+
+        this.classModal.addModal("del_descuento");
         
     },
 };

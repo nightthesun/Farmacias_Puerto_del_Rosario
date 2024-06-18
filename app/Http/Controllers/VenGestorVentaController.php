@@ -53,8 +53,12 @@ class VenGestorVentaController extends Controller
             ->join('prod__registro_pre_x_lists as prp', 'prp.id', '=', 'gpv.id_lista')
             ->join('prod__listas as pl', 'pl.id', '=', 'prp.id_lista')
             ->join('prod__lineas as pppl','pppl.id','=','pp.idlinea')
-            ->leftJoin('par__producto_desc as pcp', 'pcp.id_prod', '=', 'pp.id')
-            ->leftJoin('par__descuentos as pd2', 'pd2.id', '=', 'pcp.id_descuento')
+            ->leftJoin('par__producto_desc as ppd', 'ppd.id_prod', '=', 'pp.id')
+            ->leftJoin('par__descuentos as pd2', 'ppd.id_descuento', '=', 'pd2.id')
+            ->leftJoin('par__asignacion_descuento as pad2', function($join) {
+                $join->on('pad2.id_descuento', '=', 'pd2.id')
+                     ->where('pad2.id_sucursal', '=', 1);
+            })
             ->select(
                 'gpv.id as id',
                 'gpv.precio_lista_gespreventa',
@@ -82,15 +86,14 @@ class VenGestorVentaController extends Controller
                 "),
                 'gpv.id_lista','pppl.nombre as nombre_linea','pp.id as id_prod',
                 DB::raw('DATEDIFF(fecha_vencimiento, NOW()) AS dias'),
-                DB::raw("
-                CASE 
-                    WHEN pd2.desc_num = 1 THEN '#'
-                    WHEN pd2.desc_num = 2 THEN '%'
-                    ELSE NULL
-                END as tipo_num_des
-            "),
-            'pd2.monto_descuento',
-            'pd2.activo as descuento_activo'
+                DB::raw("CASE 
+                WHEN pd2.desc_num = 1 THEN '#'
+                WHEN pd2.desc_num = 2 THEN '%'
+                ELSE NULL
+            END as tipo_num_des"),
+    'pd2.monto_descuento',
+    'pd2.activo as descuento_activo',
+    'pad2.id_sucursal as id_11'
             )
             ->where('ass.id', $id_suc)
             ->where('gpv.listo_venta', 1)
@@ -116,8 +119,12 @@ class VenGestorVentaController extends Controller
             ->leftJoin('prod__forma_farmaceuticas as ff_2', 'ff_2.id', '=', 'pp.idformafarmaceuticasecundario')
             ->leftJoin('prod__forma_farmaceuticas as ff_3', 'ff_3.id', '=', 'pp.idformafarmaceuticaterciario')
             ->join('prod__lineas as pppl','pppl.id','=','pp.idlinea')
-            ->leftJoin('par__producto_desc as pcp', 'pcp.id_prod', '=', 'pp.id')
-    ->leftJoin('par__descuentos as pd2', 'pd2.id', '=', 'pcp.id_descuento')
+            ->leftJoin('par__producto_desc as ppd', 'ppd.id_prod', '=', 'pp.id')
+            ->leftJoin('par__descuentos as pd2', 'ppd.id_descuento', '=', 'pd2.id')
+            ->leftJoin('par__asignacion_descuento as pad2', function($join) {
+                $join->on('pad2.id_descuento', '=', 'pd2.id')
+                     ->where('pad2.id_sucursal', '=', 1);
+            })
    
             ->select(
                 'gpv.id as id',
@@ -146,15 +153,14 @@ class VenGestorVentaController extends Controller
                 "),
                 'gpv.id_lista','pppl.nombre as nombre_linea','pp.id as id_prod',
                 DB::raw('DATEDIFF(fecha_vencimiento, NOW()) AS dias'),
-                DB::raw("
-            CASE 
+                DB::raw("CASE 
                 WHEN pd2.desc_num = 1 THEN '#'
                 WHEN pd2.desc_num = 2 THEN '%'
                 ELSE NULL
-            END as tipo_num_des
-        "),
-        'pd2.monto_descuento',
-        'pd2.activo as descuento_activo'
+            END as tipo_num_des"),
+    'pd2.monto_descuento',
+    'pd2.activo as descuento_activo',
+    'pad2.id_sucursal as id_11'
                
             )
             ->where('ass.id', $idsuc)
@@ -200,6 +206,10 @@ class VenGestorVentaController extends Controller
         })
         ->leftJoin('par__cliente_producto as pcp', 'pcp.id_cliente_p', '=', 'dc.id')
         ->leftJoin('par__descuentos as pd2', 'pd2.id', '=', 'pcp.id_descuento')
+        ->leftJoin('par__asignacion_descuento as pad2', function($join) {
+            $join->on('pad2.id_descuento', '=', 'pd2.id')
+                 ->where('pad2.id_sucursal', '=', 1);
+        })
         ->where('dc.activo', 1)
         ->where('dc.num_documento', $request->num_doc)
  
@@ -223,7 +233,8 @@ class VenGestorVentaController extends Controller
                         ELSE NULL
                     END as tipo_num_des'),
             'pd2.monto_descuento',
-            'pd2.activo as descuento_activo'
+            'pd2.activo as descuento_activo',
+            'pad2.id_sucursal as id_11'
         ])        
        
         ->first();
@@ -267,6 +278,10 @@ class VenGestorVentaController extends Controller
                 })
                 ->leftJoin('par__cliente_producto as pcp', 'pcp.id_cliente_p', '=', 'dc.id')
                 ->leftJoin('par__descuentos as pd2', 'pd2.id', '=', 'pcp.id_descuento')
+                ->leftJoin('par__asignacion_descuento as pad2', function($join) {
+                    $join->on('pad2.id_descuento', '=', 'pd2.id')
+                         ->where('pad2.id_sucursal', '=', 1);
+                })
                 ->where('dc.activo', 1)
                 ->whereRaw($sqls)
                 ->take(10)
@@ -291,7 +306,8 @@ class VenGestorVentaController extends Controller
                                 ELSE NULL
                             END as tipo_num_des'),
                     'pd2.monto_descuento',
-                    'pd2.activo as descuento_activo'
+                    'pd2.activo as descuento_activo',
+            'pad2.id_sucursal as id_11'
                 ])
                 ->get();
 
@@ -311,6 +327,10 @@ class VenGestorVentaController extends Controller
             })
             ->leftJoin('par__cliente_producto as pcp', 'pcp.id_cliente_p', '=', 'dc.id')
             ->leftJoin('par__descuentos as pd2', 'pd2.id', '=', 'pcp.id_descuento')
+            ->leftJoin('par__asignacion_descuento as pad2', function($join) {
+                $join->on('pad2.id_descuento', '=', 'pd2.id')
+                     ->where('pad2.id_sucursal', '=', 1);
+            })
             ->where('dc.activo', 1)
             ->orderBy('id', 'desc')
             ->take(40)
@@ -334,7 +354,8 @@ class VenGestorVentaController extends Controller
                             ELSE NULL
                         END as tipo_num_des'),
                 'pd2.monto_descuento',
-                'pd2.activo as descuento_activo'
+                'pd2.activo as descuento_activo',
+            'pad2.id_sucursal as id_11'
             ])
             ->get();
 
@@ -407,7 +428,7 @@ class VenGestorVentaController extends Controller
             ->where('asl.id_sucursal','=',$idsuc)
             ->first();
           
-    return response()->json(['descuento' => $descuento, 'lista' => $lista]);
+    return response()->json(['descuento' => $descuento, 'lista' => $lista,'id_descuento_x'=>$idsuc]);
     }
 
 
