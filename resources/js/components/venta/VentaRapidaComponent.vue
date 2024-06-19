@@ -141,7 +141,7 @@
                  <td class="col-md-1">
                      <input v-show="validadorPersonal === 1" :disabled="selected===null " type="text" class="form-control" id="inlineFormInputName" v-model="descuento">
                      
-                     <span v-show="validadorPersonal === 2 || validadorPersonal === 4 || validadorPersonal === 5 || validadorPersonal ===6 || validadorPersonal ===7" style="text-align: center;">
+                     <span v-show="validadorPersonal === 2 || validadorPersonal === 4 || validadorPersonal === 5 || validadorPersonal ===6 || validadorPersonal ===7 || validadorPersonal ===99" style="text-align: center;">
                         Automatico
                      </span>
                      <span v-show="validadorPersonal === 3" style="color: black; display: flex; justify-content: center; align-items: center; font-size: 24px; width: 100%;">
@@ -153,19 +153,19 @@
                  </td>
           
                <td class="col-md-1">
-                 <input type="text" class="form-control" id="inlineFormInputName" v-model="numero" @keydown="filtrarNumeros">
+                 <input type="text" class="form-control" id="inlineFormInputName" v-model="numero" @keydown="filtrarNumeros" >
                </td>
                <td class="col-md-1">
                     <div v-if="validadorPersonal === 1">
-                        <button v-if="selected!==null && numero!=='' && descuento!=='' " type="button" class="btn btn-success btn-sm" style="margin-right: 5px;" @click="agregarVenta();">
+                        <button v-if="selected!==null && numero!=='' && descuento!=='' &&numero>0" type="button" class="btn btn-success btn-sm" style="margin-right: 5px;" @click="agregarVenta();">
                             <i class="fa fa-plus" aria-hidden="true"></i>
                             </button> 
                         <button v-else  type="button" class="btn btn-secondary  btn-sm" style="margin-right: 5px;">
                             <i class="fa fa-plus" aria-hidden="true"></i>
                         </button>  
                     </div>
-                    <div v-if="validadorPersonal === 3 || validadorPersonal === 2 || validadorPersonal === 4 || validadorPersonal === 5 || validadorPersonal === 6 || validadorPersonal ===7" >
-                        <button v-if="selected!==null && numero!==''" type="button" class="btn btn-success btn-sm" style="margin-right: 5px;" @click="agregarVenta();">
+                    <div v-if="validadorPersonal === 3 || validadorPersonal === 2 || validadorPersonal === 4 || validadorPersonal === 5 || validadorPersonal === 6 || validadorPersonal ===7 || validadorPersonal === 99" >
+                        <button v-if="selected!==null && numero!=='' &&numero>0" type="button" class="btn btn-success btn-sm" style="margin-right: 5px;" @click="agregarVenta();">
                             <i class="fa fa-plus" aria-hidden="true"></i>
                             </button> 
                         <button v-else  type="button" class="btn btn-secondary  btn-sm" style="margin-right: 5px;">
@@ -215,14 +215,7 @@
                              <th colspan="5" style="text-align:right">Suma Total:</th>
                              <th v-text="sumatotal + ' Bs.'" style="text-align:right"></th>
                          </tr>
-                         <tr>
-                             <th colspan="5" style="text-align:right">Efectivo:</th>
-                             <th><input type="number" v-model="efectivo" v-on:focus="selectAll"  :disabled="sumatotal===0" @keyup="restartotal()" style="text-align:right"></th>
-                         </tr>
-                         <tr>
-                             <th colspan="5" style="text-align:right">Cambio:</th>
-                             <th v-text="cambio + ' Bs.'" style="text-align:right"></th>
-                         </tr>
+                 
                          <tr>
                             <th colspan="5" style="text-align:right">Des:</th>
                             <th v-text="descuento_final + ' Bs.'" style="text-align:right"></th>
@@ -231,7 +224,14 @@
                             <th colspan="5" style="text-align:right">Total:</th>
                             <th v-text="tota_del_total + ' Bs.'" style="text-align:right"></th>
                         </tr>
-                    
+                        <tr>
+                            <th colspan="5" style="text-align:right">Efectivo:</th>
+                            <th><input type="number" v-model="efectivo" v-on:focus="selectAll"  :disabled="sumatotal===0" @keyup="restartotal()" style="text-align:right"></th>
+                        </tr>
+                        <tr>
+                            <th colspan="5" style="text-align:right">Cambio:</th>
+                            <th v-text="cambio + ' Bs.'" style="text-align:right"></th>
+                        </tr>
                      </tbody>
             
                   
@@ -804,19 +804,7 @@ watch: {
         },
 
         descuento: function (valor) {
-// Convertir los valores a números
-console.log("*****************");
-console.log(this.selected);
-let valorNumerico = parseFloat(valor);
-if (this.selected!==null) {
-    if (this.selected.stock_ingreso<valor) {
-        Swal.fire(
-                    "No puede ingresar un número mayor a la cantidad del producto.",
-                    "Haga click en Ok",
-                    "error"
-                );
-                this.numero=0;
-    }else{
+            let valorNumerico = parseFloat(valor);  
     
     let valorUnicoPersonalizadoNumerico = parseFloat(this.valorUnicoPersonalizado);
 
@@ -832,10 +820,7 @@ if (this.selected!==null) {
             }  
         }
     }
-    }
-} 
-
-
+    
 },
         selected: function (valor) {
             if (valor !=null) {
@@ -853,7 +838,22 @@ if (this.selected!==null) {
                 
               
             }       
-        },    
+        }, 
+        
+        numero: function (valor){
+            if (this.selected!==null) {
+                if (valor>this.selected.stock_ingreso) {
+                    Swal.fire(
+                    "No puede ingresar un número mayor a la cantidad del producto.",
+                    "Haga click en Ok",
+                    "error"
+                );
+                this.numero=0;
+                } 
+                
+            }
+           
+        },
     
     },
     computed: {
@@ -1014,6 +1014,8 @@ if (tipo_can_valor==='BS') {
                                 let contador_1_cliente=0;
                                 let contador_1_producto=0;
                                 let contador_1_final=0;
+                               
+                             
                             me.arrayDescuentoOperacion.forEach((descuento) => {   
                                
                             
@@ -1051,6 +1053,10 @@ if (tipo_can_valor==='BS') {
                                     }
                                     if (contador_1_normal===0&&contador_1_can_compra===0&&contador_1_cliente===0&&contador_1_producto===0&&contador_1_final>0) {
                                         me.validadorPersonal=7;// caso normal final                                      
+                                    }
+                                    //caso vario
+                                    if (me.validadorPersonal===''||me.validadorPersonal===null||me.validadorPersonal>0) {
+                                        me.validadorPersonal=99;
                                     }
                           }
 
@@ -1128,13 +1134,93 @@ if (tipo_can_valor==='BS') {
         agregarVenta(){
             try {
             let me = this;
+             if (me.validadorPersonal===99) {
+                if (me.num_documento==='') {
+                Swal.fire(
+                    "Primero debe seleccionar un cliente",
+                    "Haga click en Ok",
+                    "error"
+                );
+            return ;
+            }else{
+                me.contador_cliente=1;
+                let sumador_21_sub = 0;
+                let sumador_21_des = 0;
+                me.arrayDescuentoOperacion.forEach((descuento) => {
+                    if (descuento.id_nom_tabla===1) {
+                        let operacion_21 = this.operacion_Numeral_Procentaje(descuento.tipo_num_des, descuento.monto_descuento, this.selected.precio_lista_gespreventa);
+                        let { valorNumeral, porcentaje } = operacion_21;
+                        sumador_21_sub += parseFloat(valorNumeral);  // Acumular los valores numerales como float
+                        sumador_21_des += parseFloat(porcentaje); 
+
+                    }
+                    if (descuento.id_nom_tabla===2) {
+                        let var_c = this.operacion_cantida_valor(descuento.tipo_can_valor,descuento.regla,descuento.cantidad_valor,me.selected.precio_lista_gespreventa);
+                    if (var_c) {
+                        let operacion_21 = this.operacion_Numeral_Procentaje(descuento.tipo_num_des, descuento.monto_descuento, me.selected.precio_lista_gespreventa);
+                    let { valorNumeral, porcentaje } = operacion_21;
+               
+                    sumador_21_sub += parseFloat(valorNumeral);  // Acumular los valores numerales como float
+                    sumador_21_des += parseFloat(porcentaje); 
+                    }
+                    else{
+                    sumador_21_sub += parseFloat(0);  // Acumular los valores numerales como float
+                    sumador_21_des += parseFloat(0);   
+                    }
+                }
+                    if (descuento.id_nom_tabla===3) {
+                      
+                        if (me.cliente_activo_descuento===1&&me.cliente_id_sucursal_desc===me.id_descuento_x) {
+                    let operacion_21 = this.operacion_Numeral_Procentaje(me.cliente_num_por, me.cliente_des, this.selected.precio_lista_gespreventa);                   
+                    let { valorNumeral, porcentaje } = operacion_21;
+                    sumador_21_sub += parseFloat(valorNumeral);  // Acumular los valores numerales como float
+                    sumador_21_des += parseFloat(porcentaje); 
+                    }else{
+                        sumador_21_sub += parseFloat(0);  // Acumular los valores numerales como float
+                    sumador_21_des += parseFloat(0);   
+                    }
+                    }
+                    if (descuento.id_nom_tabla===4) {
+                        if (me.selected.descuento_activo===1 && me.selected.id_11===me.id_descuento_x) {
+                            let operacion_21 = this.operacion_Numeral_Procentaje(this.selected.tipo_num_des, this.selected.monto_descuento, this.selected.precio_lista_gespreventa);
+                            let { valorNumeral, porcentaje } = operacion_21;
+                            sumador_21_sub += parseFloat(valorNumeral);  // Acumular los valores numerales como float
+                            sumador_21_des += parseFloat(porcentaje); 
+                        }else{
+                            sumador_21_sub += parseFloat(0);  // Acumular los valores numerales como float
+                            sumador_21_des += parseFloat(0);    
+                        }
+                    }          
+
+
+            });
+            me.descuento=parseFloat(sumador_21_des.toFixed(2));
+                var descuento=0;
+            var precioXcantida=0;
+            var subtotal=0;
+            var final_d=0; 
+            var total_d=0;
+            precioXcantida=me.selected.precio_lista_gespreventa*me.numero;
+            //descuento=1-(me.descuento/100);
+        
+            descuento=sumador_21_des;
+            subtotal=precioXcantida-descuento;
+            //subtotal=sumador_21_sub;
+            
+            //subtotal=precioXcantida*descuento;  
+              
+            }   
+               
+             }   
+
+
+
             // caso sin descuento-----
           if (me.validadorPersonal===3) {
             me.descuento=0;
             var precioXcantida=0;
             var subtotal=0;
-            console.log("*****************************************");
-            console.log(me.numero);
+        
             precioXcantida=me.selected.precio_lista_gespreventa*me.numero;
             subtotal=precioXcantida;
           }
@@ -1235,7 +1321,7 @@ if (tipo_can_valor==='BS') {
                     
                     let { valorNumeral, porcentaje } = operacion_21;
                     me.descuento = porcentaje;
-                    console.log(porcentaje);
+   
                     var descuento=0;
             var precioXcantida=0;
             var subtotal=0;
@@ -1312,7 +1398,7 @@ if (tipo_can_valor==='BS') {
                     
          }
           me.sumatotal=me.sumatotal+subtotal;
-         
+          me.tota_del_total=me.sumatotal;
             // Convertir a un número con dos decimales
             subtotal = parseFloat(subtotal.toFixed(2));
             
@@ -1473,7 +1559,7 @@ if (tipo_can_valor==='BS') {
       restartotal(){
                 let me=this;
                 if(me.efectivo!=0)
-                    me.cambio=Number(me.efectivo-me.sumatotal);
+                    me.cambio=Number(me.efectivo-me.tota_del_total);
                 else
                     me.cambio=0;
             },
@@ -1560,6 +1646,7 @@ if (tipo_can_valor==='BS') {
                 this.complemento_='';  
             }
         },
+       
         listarSucursalGet() {
             let me = this;
            // var url = "/listarSucursalGet";
