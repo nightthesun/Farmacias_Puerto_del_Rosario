@@ -767,7 +767,7 @@ export default {
                 cambio:0,
      id_tabla_y2:'', 
      existe_cliente:0,  
-     
+     existe_cliente_f:0,
      cliente_des:'',
      cliente_num_por:'',
      cliente_activo_descuento:'',
@@ -780,6 +780,7 @@ export default {
      tota_del_total:0,
      descuento_final:0,       
      id_descuento_x:0,
+     existe_final:0,
         };
     },
     created() {
@@ -1039,25 +1040,37 @@ if (tipo_can_valor==='BS') {
                                 
 
                             });
+                            me.existe_cliente_f=contador_1_cliente;
+                          
                                     if (contador_1_normal>0&&contador_1_can_compra===0&&contador_1_cliente===0&&contador_1_producto===0&&contador_1_final===0) {
-                                        me.validadorPersonal=2;// caso normal sin otras tablas                                       
+                                        me.validadorPersonal=2;// caso normal sin otras tablas     
+                                        return;                                  
                                     }
                                     if (contador_1_normal===0&&contador_1_can_compra>0&&contador_1_cliente===0&&contador_1_producto===0&&contador_1_final===0) {
-                                        me.validadorPersonal=4;// caso normal sin otras tablas                                       
+                                        me.validadorPersonal=4;// caso normal sin otras tablas 
+                                        return;                                      
                                     }
                                     if (contador_1_normal===0&&contador_1_can_compra===0&&contador_1_cliente>0&&contador_1_producto===0&&contador_1_final===0) {
-                                        me.validadorPersonal=5;// caso normal cliente                                      
+                                        me.validadorPersonal=5;// caso normal cliente
+                                        return;                                      
                                     }
                                     if (contador_1_normal===0&&contador_1_can_compra===0&&contador_1_cliente===0&&contador_1_producto>0&&contador_1_final===0) {
-                                        me.validadorPersonal=6;// caso normal producto                                      
+                                        me.validadorPersonal=6;// caso normal producto  
+                                        return;                                    
                                     }
                                     if (contador_1_normal===0&&contador_1_can_compra===0&&contador_1_cliente===0&&contador_1_producto===0&&contador_1_final>0) {
-                                        me.validadorPersonal=7;// caso normal final                                      
+                                        me.validadorPersonal=7;// caso normal final  
+                                     
+                                        return;                                    
                                     }
+
                                     //caso vario
                                     if (me.validadorPersonal===''||me.validadorPersonal===null||me.validadorPersonal>0) {
                                         me.validadorPersonal=99;
+                                        me.existe_final=contador_1_final;
+                                        return;
                                     }
+                                
                           }
 
 
@@ -1133,9 +1146,12 @@ if (tipo_can_valor==='BS') {
 
         agregarVenta(){
             try {
-            let me = this;
-             if (me.validadorPersonal===99) {
-                if (me.num_documento==='') {
+                            let me = this;
+                        
+                            console.log(me.validadorPersonal);
+                            if (me.validadorPersonal===99) {
+                              
+                if (me.num_documento===''&&me.existe_cliente_f>0) {
                 Swal.fire(
                     "Primero debe seleccionar un cliente",
                     "Haga click en Ok",
@@ -1146,6 +1162,8 @@ if (tipo_can_valor==='BS') {
                 me.contador_cliente=1;
                 let sumador_21_sub = 0;
                 let sumador_21_des = 0;
+           
+                
                 me.arrayDescuentoOperacion.forEach((descuento) => {
                     if (descuento.id_nom_tabla===1) {
                         let operacion_21 = this.operacion_Numeral_Procentaje(descuento.tipo_num_des, descuento.monto_descuento, this.selected.precio_lista_gespreventa);
@@ -1190,8 +1208,9 @@ if (tipo_can_valor==='BS') {
                             sumador_21_sub += parseFloat(0);  // Acumular los valores numerales como float
                             sumador_21_des += parseFloat(0);    
                         }
-                    }          
-
+                    }   
+                        
+               
 
             });
             me.descuento=parseFloat(sumador_21_des.toFixed(2));
@@ -1408,7 +1427,7 @@ if (tipo_can_valor==='BS') {
             descuento: descuento,subtotal:subtotal,id_ingreso:me.selected.id_ingreso,id_pro:me.selected.id_prod
             });
  
-            if (me.validadorPersonal===7) {
+            if (me.validadorPersonal===7 || me.existe_final>0) {
             let sumador_21_sub = 0;
             let sumador_21_des = 0;
 
@@ -1416,21 +1435,23 @@ if (tipo_can_valor==='BS') {
                 if (descuento.id_nom_tabla===6) {
                     let operacion_21 = this.operacion_Numeral_Procentaje(descuento.tipo_num_des, descuento.monto_descuento, me.sumatotal);
                 let { valorNumeral, porcentaje } = operacion_21;
-                                      sumador_21_sub += parseFloat(valorNumeral);  // Acumular los valores numerales como float
-    sumador_21_des += parseFloat(porcentaje); 
-                }
-                    
-
+                sumador_21_sub += parseFloat(valorNumeral);  // Acumular los valores numerales como float
+                sumador_21_des += parseFloat(porcentaje); 
+               
+                }                    
+               
 
             });
-            
+          
             me.descuento_final=parseFloat(sumador_21_des.toFixed(2));
-            var descuento=0;
+            console.log(me.descuento_final+"--"+sumador_21_des);
+            var descuento=me.descuento_final;
                 
             descuento=sumador_21_des;
             me.tota_del_total=me.sumatotal-descuento;
        
           }
+        
             } catch (error) {
                 console.log(error);
             }          
