@@ -248,10 +248,11 @@
          
              <div class="card-body" >
                <strong >Detalle de cliente</strong> 
-               <hr> <!-- Línea horizontal -->                      
+               <hr> <!-- Línea horizontal -->       
+                              
                <div class="row">
              
-                 <div class="form-group col-sm-4" style="display: flex; align-items: center;" v-if="contador_cliente===0">
+                 <div class="form-group col-sm-3" style="display: flex; align-items: center;" v-if="contador_cliente===0">
                      <input type="text" class="form-control"  placeholder="Número de Documento" v-model="buscarCliente">
                      <button class="btn btn-primary" type="button" 
                              @click="listarUsuario()" :disabled="buscarCliente==''">
@@ -259,13 +260,13 @@
                      </button>
                    
                  </div>
-                 <div class="form-group col-sm-4" style="display: flex; align-items: center;" v-else>
+                 <div class="form-group col-sm-3" style="display: flex; align-items: center;" v-else>
                     <input type="text" class="form-control"  placeholder="Número de Documento" disabled>
                     <button class="btn btn-light" type="button" disabled>
                         Buscar
                     </button>                  
                 </div>
-                 <div class="form-group col-sm-6" style="display: flex; align-items: center;">
+                 <div class="form-group col-sm-5" style="display: flex; align-items: center;">
                      <input type="text" class="form-control"  v-model="datos_cliete" disabled placeholder="Número Documento/Número de Cliente">
                      <button class="btn btn-primary" type="button" @click="abrirModal('lote_cliete');listarUsuarioRetorno();" v-if="contador_cliente===0">
                          <i class="fa fa-search-plus" aria-hidden="true"></i>
@@ -285,7 +286,14 @@
                      <button class="btn btn-light" type="button" style="color: white;" v-else>
                         Limpiar
                     </button>
-                 </div>           
+                 </div>   
+                 <div class="form-group col-sm-2">
+                </div>
+                <div class="form-group col-sm-2"   v-if="contador_cliente===0">
+
+                    
+                    <button type="button" class="btn btn-lg btn-primary" @click="realziarVenta()">REALIZAR VENTA</button>  
+                </div>          
                 
                
                  
@@ -379,25 +387,37 @@
                                  <h4 class="modal-title">Datos de cliente</h4>
                                  <button class="close" @click="cerrarModal('cliente_modal')">x</button>
                              </div>
-                             <div class="modal-body">
-                                 <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                             <div v-if="cod_99001_000===1" class="modal-body">
+                                 <div  class="alert alert-warning alert-dismissible fade show" role="alert">
                                      <strong>NO ESCRITO EN EL PADRÓN</strong> <br>
-                                     OD-OTRO DOCUMENTO DE IDENTIDAD 99001.
+                                    <p>{{name_moda}}</p> 
                                     
-                                   </div>
+                                </div>
                                    <div class="row justify-content-center">
                                      <div class="form-group col-sm-6">
                                          <strong>Razon social:</strong>
                                          <input type="text" class="form-control" v-model="razon_social_99001">
                                      </div>
-                                 </div>
-                                 
-                             
+                                 </div>                    
                              </div>
+                             <div v-if="cod_99001_000===2" class="modal-body">
+                                <div  class="alert alert-info alert-dismissible fade show" role="alert">
+                                    <strong>Datos unicos para la empresa</strong> <br>
+                                   <p>{{name_moda}}</p> 
+                                   
+                               </div>
+                                  <div class="row justify-content-center">
+                                    <div class="form-group col-sm-6">
+                                        <strong>Razon social:</strong>
+                                        <input type="text" class="form-control" v-model="razon_social_000">
+                                    </div>
+                                </div>                    
+                            </div>
+                             
                              <div class="modal-footer">
                                  <button type="button" class="btn btn-secondary" @click="cerrarModal('cliente_modal')">Cerrar</button>
-                                 <button :disabled="razon_social_99001==''" class="btn btn-primary" @click="caso_99001();">Guardar</button>
-                                 
+                                 <button v-if="cod_99001_000===1" :disabled="razon_social_99001==''" class="btn btn-primary" @click="caso_99001();">Guardar</button>
+                                 <button v-if="cod_99001_000===2" :disabled="razon_social_000==''" class="btn btn-primary" @click="caso_000();">Guardar</button>
                              </div>
                          </div>
                      </div>
@@ -692,6 +712,7 @@ export default {
             selected: null,
       options: ['list', 'of', 'options'],
             tituloModal: "",
+            name_moda:"",
             //selecto get sucursal
          
             arraySucursalGet:[],    
@@ -708,7 +729,8 @@ export default {
             //casos especiales
         
             id_tipo_doc:'',
-            razon_social_99001:'',    
+            razon_social_99001:'',   
+            razon_social_000:'', 
             //cliente_lote
             buscar:'',
             clientelote:'',
@@ -781,6 +803,8 @@ export default {
      descuento_final:0,       
      id_descuento_x:0,
      existe_final:0,
+
+     cod_99001_000:1,
         };
     },
     created() {
@@ -1576,6 +1600,15 @@ if (tipo_can_valor==='BS') {
         this.datos_cliete=this.nom_a_facturar+"/"+this.num_documento+"/OD-OTRO DOCUMENTO DE IDENTIDAD";
         this.cerrarModal('cliente_modal')       
       },
+      caso_000(){
+        this.id_tipo_doc=4;
+        this.cliente_id=0;
+        this.num_documento="000";
+        this.correo_cliente="";
+        this.nom_a_facturar=this.razon_social_000;        
+        this.datos_cliete=this.nom_a_facturar+"/"+this.num_documento+"/OD-OTRO DOCUMENTO DE IDENTIDAD";
+        this.cerrarModal('cliente_modal')       
+      },
 
       restartotal(){
                 let me=this;
@@ -1593,6 +1626,7 @@ if (tipo_can_valor==='BS') {
         this.nom_a_facturar="";
         //var documento      
         this.datos_cliete="";
+        this.razon_social_000="";
         this.buscarCliente="";
       },
 
@@ -1628,6 +1662,10 @@ if (tipo_can_valor==='BS') {
         me.nom_a_facturar="SIN NOMBRE";
         me.correo_cliente="farmacia_pueto_del_rosarioxwass1234887458888@gmail.com";
         me.datos_cliete=me.nom_a_facturar+"/"+me.num_documento+"/OD-OTRO DOCUMENTO DE IDENTIDAD";
+    break;
+    case '000':    
+        me.abrirModal('cliente_modal_recibo');
+
     break;
     default:
     axios
@@ -1723,10 +1761,19 @@ if (tipo_can_valor==='BS') {
                     break;
                 }
                 case "cliente_modal":{
+                    me.cod_99001_000=1;
+                    me.name_moda='OD-OTRO DOCUMENTO DE IDENTIDAD 99001.';
                     me.v99001='';
                     me.id_tipo_doc='';
                     me.razon_social_99001="";
                     me.cliente_id="";
+                    me.classModal.openModal("cliente_modal");
+                    break;
+                }
+                case "cliente_modal_recibo":{
+                    me.cod_99001_000=2;
+                    me.name_moda='RECIBO PARA CLIENTE.';                    
+                    me.razon_social_000='S/N';                 
                     me.classModal.openModal("cliente_modal");
                     break;
                 }
@@ -1796,6 +1843,49 @@ if (tipo_can_valor==='BS') {
                    // me.extencion_tipodocumento="";
                    // me.nombre_documento="";    
             me.v99001="";               
+            
+        },
+
+        realziarVenta(){
+            let me = this;          
+                axios
+                    .post("/gestor_ventas/venta", {
+                        'num_documento': me.num_documento,                       
+                    })
+                    .then(function (response) {
+                        me.cerrarModal("registrar");
+                        Swal.fire(
+                            "Venta realzada",
+                            "Haga click en Ok para ver lal factura o recibo",
+                            "success",
+                        ).then(() => {
+            // Abrir nueva pestaña para generar el PDF
+            const url = `/gestor_ventas/venta/pdf?num_documento=${me.num_documento}`;
+            window.open(url, '_blank');
+          });
+
+                   //     me.listarAjusteNegativos();
+                    //    me.sucursalFiltro();
+                    })
+                   // .catch(function (error) {
+                   //     error401(error);
+                   //     console.log(error);
+                   // });
+                   .catch(function (error) {                
+                if (error.response.status === 500) {
+                    me.errorMsg = error.response.data.error; // Asigna el mensaje de error a la variable errorMsg
+                Swal.fire(
+                    "Error",
+                    "500 (Internal Server Error)"+me.errorMsg, // Muestra el mensaje de error en el alert
+                    "error"       );
+                }else{
+                    Swal.fire(
+                    "Error",
+                    ""+error, // Muestra el mensaje de error en el alert
+                    "error"
+                );  
+                }              
+            });
             
         },
 

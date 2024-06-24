@@ -229,7 +229,9 @@ return [
         'URL' => Illuminate\Support\Facades\URL::class,
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
-
+         // Otros alias añadidos
+        'Pdf' => Barryvdh\DomPDF\Facade\Pdf::class,
+    
     ],
 
 ];

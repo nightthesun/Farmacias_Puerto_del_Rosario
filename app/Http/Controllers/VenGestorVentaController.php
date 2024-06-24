@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Ven_GestorVenta;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+
 
 class VenGestorVentaController extends Controller
 {
@@ -13,7 +15,51 @@ class VenGestorVentaController extends Controller
      */
     public function index()
     {
-        //
+        
+    }
+
+    public function venta(Request $request){
+        try {
+               // Iniciar una transacción
+               DB::beginTransaction();
+               $num_documento = $request->input('num_documento');
+               $data = [
+                'title' => 'Factura de Venta',
+                'num_documento' => $num_documento,
+                'contenido' => 'Contenido de la factura...' // Aquí puedes agregar más datos necesarios para la factura
+            ];
+    
+            // Convertir las dimensiones a puntos (1 mm = 2.83465 puntos)
+            $width = 80 * 2.83465; // 80 mm a puntos
+            $height = 500; // Suficientemente grande para permitir crecimiento
+    
+            // Definir el tamaño del papel
+            $customPaper = array(0, 0, $width, $height);
+    
+            $pdf = Pdf::loadView('factura.recibo', $data)
+                ->setPaper($customPaper, 'portrait');
+               
+    
+            return $pdf->stream('ticket.pdf');
+    
+
+        } catch (\Throwable $th) {
+              return response()->json(['error' => $th->getMessage()],500);
+        }
+      
+
+       
+       // return $pdf->inline('factura.ticket');
+
+       // return $pdf->download('mi_archivo.pdf');
+       //return $pdf->inline('cxc_pdf', compact('fecha','fechaCarta'));
+        //$pdf = \PDF::loadView('reports.pdf.carta',compact('cadenaDL1','cadenaBS1','fechaC','fechaH','nameCxc','cxcCarta','totalS','cadenaDL','cadenaBS','arraycxcCarta','formatter'))
+      
+        
+    
+  
+        
+    
     }
 
     public function get_sucusal(){

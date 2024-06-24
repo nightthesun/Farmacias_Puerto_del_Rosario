@@ -639,7 +639,7 @@
                 );
             } else {
                 
-                if (me.num_documento!=99001&&me.num_documento!=99002&&me.num_documento!=99003) {
+                if (me.num_documento!=99001&&me.num_documento!=99002&&me.num_documento!=99003&&me.num_documento!=0&&me.num_documento!="000") {
                     axios
                     .post("/directorio/registrar", {
                         tipo_per_emp: me.selectTipo,
@@ -685,7 +685,7 @@
             });
                 }   else {
                     Swal.fire(
-                    "Los numeros 99001, 99002, 99003. Esta ocupado para actividades especiales",
+                    "Los numeros 99001, 99002, 99003, 0, 000. Esta ocupado para actividades especiales",
                     "Haga click en Ok",
                     "warning",
                 ); 
@@ -723,7 +723,7 @@
                 );
             }
             else{
-                if (me.num_documento!=99001&&me.num_documento!=99002&&me.num_documento!=99003) {
+                if (me.num_documento!=99001&&me.num_documento!=99002&&me.num_documento!=99003&&me.num_documento!=0&&me.num_documento!="000") {
                     axios 
             .put("/directorio/actualizar", {
                         id:me.id,
@@ -775,7 +775,7 @@
             me.cerrarModal("registrar"); 
                 }else{
                     Swal.fire(
-                    "Los numeros 99001, 99002, 99003. Esta ocupado para actividades especiales",
+                    "Los numeros 99001, 99002, 99003, 0, 000. Esta ocupado para actividades especiales",
                     "Haga click en Ok",
                     "warning",
                 ); 
