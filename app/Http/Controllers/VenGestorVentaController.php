@@ -22,6 +22,22 @@ class VenGestorVentaController extends Controller
         try {
                // Iniciar una transacción
                DB::beginTransaction();
+               $user_1 = auth()->user()->id;
+               $nomsucursal="";
+               $iduserrolesuc = "";
+               $idsuc = "";
+               $name_user = ""; 
+               if ($user_1==1) {
+                $nomsucursal="SUCURSAL MAIN";
+                $iduserrolesuc = 1;
+               $idsuc = 1;
+               $name_user = "administrador";
+               }else{
+                $iduserrolesuc = session('iduserrolesuc');
+                $idsuc = session('idsuc');
+                $id_user2 = session('id_user2'); 
+               } 
+
                $num_documento = $request->input('num_documento');
                $data = [
                 'title' => 'Factura de Venta',
@@ -66,7 +82,7 @@ class VenGestorVentaController extends Controller
         
         $user_1 = auth()->user()->id;
         $user_2 = auth()->user()->name;
-
+        //dd(session()->all());
         if ($user_1==1) {
             $idsuc=1;
         }else{
