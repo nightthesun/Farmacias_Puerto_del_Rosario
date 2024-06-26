@@ -20,6 +20,7 @@ return new class extends Migration
     $table->string('contraseña'); // Cambiado de password_hash a string
     $table->tinyInteger('ssl');
     $table->timestamps();
+    $table->string('nit')->nullable();
 
         });
     }

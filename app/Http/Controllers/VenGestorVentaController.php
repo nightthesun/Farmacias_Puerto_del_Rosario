@@ -33,10 +33,24 @@ class VenGestorVentaController extends Controller
                $idsuc = 1;
                $name_user = "administrador";
                }else{
+                $nomsucursal= session('nomsucursal');
                 $iduserrolesuc = session('iduserrolesuc');
                 $idsuc = session('idsuc');
                 $id_user2 = session('id_user2'); 
                } 
+                
+               $ultimoComprobante = DB::table('ven__recibos')
+    ->orderBy('nro_comprobante_venta', 'desc')
+    ->value('nro_comprobante_venta');
+
+if (is_null($ultimoComprobante)) {
+    // La tabla está vacía, iniciar con 1
+    $nuevoComprobante = 1;
+} else {
+    // Incrementar el último número de comprobante
+    $nuevoComprobante = $ultimoComprobante + 1;
+}
+
 
                $num_documento = $request->input('num_documento');
                $data = [
@@ -44,10 +58,10 @@ class VenGestorVentaController extends Controller
                 'num_documento' => $num_documento,
                 'contenido' => 'Contenido de la factura...' // Aquí puedes agregar más datos necesarios para la factura
             ];
-    
+    $array=$request->dato;
             // Convertir las dimensiones a puntos (1 mm = 2.83465 puntos)
             $width = 80 * 2.83465; // 80 mm a puntos
-            $height = 500; // Suficientemente grande para permitir crecimiento
+            $height = 326; // Suficientemente grande para permitir crecimiento
     
             // Definir el tamaño del papel
             $customPaper = array(0, 0, $width, $height);
@@ -137,6 +151,7 @@ class VenGestorVentaController extends Controller
                 'tip.fecha_vencimiento',
                 'tip.lote',
                 'pp.codigo as codigo_prod',
+             
                 'tip.id as id_ingreso',
                 DB::raw("
                     CASE 
@@ -155,7 +170,7 @@ class VenGestorVentaController extends Controller
             END as tipo_num_des"),
     'pd2.monto_descuento',
     'pd2.activo as descuento_activo',
-    'pad2.id_sucursal as id_11'
+    'pad2.id_sucursal as id_11','pppl.id as id_linea'
             )
             ->where('ass.id', $id_suc)
             ->where('gpv.listo_venta', 1)
@@ -204,6 +219,7 @@ class VenGestorVentaController extends Controller
                 'tip.fecha_vencimiento',
                 'tip.lote',
                 'pp.codigo as codigo_prod',
+              
                 'tip.id as id_ingreso',
                 DB::raw("
                     CASE 
@@ -222,7 +238,7 @@ class VenGestorVentaController extends Controller
             END as tipo_num_des"),
     'pd2.monto_descuento',
     'pd2.activo as descuento_activo',
-    'pad2.id_sucursal as id_11'
+    'pad2.id_sucursal as id_11','pppl.id as id_linea'
                
             )
             ->where('ass.id', $idsuc)

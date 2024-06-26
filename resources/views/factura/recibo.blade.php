@@ -98,5 +98,21 @@
     <span style="padding-left: 130px">IMPORTE TOTAL: BS.</span><span >14.70</span>
     <br>
     <span style="padding-left: 151px">DESCUENTO: BS.</span><span >0.00</span>
+    <br>
+    <span style="padding-left: 118px">IMPORTE A PAGAR: BS.</span><span >14.70</span>
+    <br>
+    <span>IMPORTE NO VALIDO PARA CRÈDITO FISCAL</span>
+    <hr>
+    <span style="padding-left: 114px">PAGO EB EFECTIVO: BS.</span><span >40.00</span>
+    <br>
+    <span style="padding-left: 173px">CAMBIO: BS.</span><span >25.30</span>
+    <hr>
+    <span>* CODIGO DE CONTROL: 107198</span>
+    <br>
+    <span>* Valido desde 13/05/2024 hasta 20/05/2024 en la misma tienda, términos y codiciones según politica de cambios y devoluiones</span>
+    <br>
+    <span>* Atención al cliente whatsapp 69910577</span>
+    <br>
+    <span>Usuario: JEANETTE MARLENE AG</span>
 </body>
 </html>

@@ -99,11 +99,19 @@
                     <div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">
                         <div class="card">
                             <div class="card-header">
-                                Profile Settings
+                              Datos de la empresa
                             </div>
                             <div class="card-body">
-                                <!-- Profile content goes here -->
-                                <p>Contenido del perfil.</p>
+                                <div class="form-group row">
+
+                                    <label class="col-md-1 form-control-label" for="text-input"><strong>NIT:</strong> 
+                                    <span v-if="nit == ''" class="error">(*)</span></label>
+                                    <div class="col-md-3">
+                                        <input type="text" v-model="nit" class="form-control" placeholder="nit de la empresa" v-on:focus="selectAll"/>
+                                        <span v-if="nit == ''" class="error">Debe escribir el nit</span>
+                                    </div>
+
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -137,6 +145,7 @@ export default {
             contraseña:'',
             ssl:0, 
             credenciales_correo:[],
+            nit:'',
 
 //---permisos_R_W_S
 puedeEditar:2,
@@ -269,28 +278,7 @@ puedeEditar:2,
             
         
         },
-        listarCredencial() {
-            let me = this;
-            var url = "/credenciales_correo";
-            axios
-                .get(url)
-                .then(function (response) {
-                    var respuesta = response.data;
-                   me.id_credencial=response.data[0].id;
-                    me.host=response.data[0].host;                   
-                   me.correo=response.data[0].correo;
-                    me.puerto=response.data[0].puerto;
-                    me.usuario=response.data[0].usuario;
-                    me.contraseña=response.data[0].contraseña;
-                    me.ssl=response.data[0].ssl;
-               
-                 
-                })
-                .catch(function (error) {
-                    error401(error);
-                    console.log(error);
-                });
-        },
+   
         cambiarPestana(idPestana) {
             this.pestañaActiva = idPestana;
 

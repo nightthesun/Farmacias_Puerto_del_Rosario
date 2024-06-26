@@ -287,12 +287,17 @@
                         Limpiar
                     </button>
                  </div>   
-                 <div class="form-group col-sm-2">
-                </div>
-                <div class="form-group col-sm-2"   v-if="contador_cliente===0">
+                
+                <div class="form-group col-sm-3"   v-if="contador_cliente===0">
 
-                    
-                    <button type="button" class="btn btn-lg btn-primary" @click="realziarVenta()">REALIZAR VENTA</button>  
+
+                    <select class="custom-select mr-sm-2" id="inlineFormCustomSelect" v-model="TipoComprobate">
+                        <option value="0" selected disabled>Comprobante</option>
+                        <option value="1">Recibo</option>
+                        <option value="2">Factura</option>
+                        
+                      </select>
+                    <button type="button" class="btn btn-primary" @click="realziarVenta()">REALIZAR VENTA</button>  
                 </div>          
                 
                
@@ -759,7 +764,7 @@ export default {
             correo_cliente:'',
             extencion_tipodocumento:'',
             nombre_documento:'',
-        
+            TipoComprobate:0,
     //----venta----
     arrayVentas:[],
     
