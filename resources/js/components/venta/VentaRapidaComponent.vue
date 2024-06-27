@@ -191,7 +191,7 @@
                          <tr>
                              <th >Opciones</th>
                              <th class="col-6">Producto</th>
-                             <th class="col-1">cantidad</th>
+                             <th class="col-1">Cantidad</th>
                              <th class="col-1">Precio de venta</th>
                              <th class="col-1">Descuento</th>
                              <th class="col-2" >Sub Total</th>
@@ -288,7 +288,7 @@
                     </button>
                  </div>   
                 
-                <div class="form-group col-sm-3"   v-if="contador_cliente===0">
+                <div class="form-group col-sm-3">
 
 
                     <select class="custom-select mr-sm-2" id="inlineFormCustomSelect" v-model="TipoComprobate">
@@ -297,7 +297,9 @@
                         <option value="2">Factura</option>
                         
                       </select>
-                    <button type="button" class="btn btn-primary" @click="realziarVenta()">REALIZAR VENTA</button>  
+                    <button v-if="TipoComprobate!=0&& buscarCliente!=''&&id_tipo_doc!=''&&arrayVentas.length>0" type="button" class="btn btn-primary" @click="realizarVenta()">REALIZAR VENTA</button>  
+                      
+                    <button v-else type="button" class="btn btn-light" >REALIZAR VENTA</button>
                 </div>          
                 
                
@@ -392,7 +394,7 @@
                                  <h4 class="modal-title">Datos de cliente</h4>
                                  <button class="close" @click="cerrarModal('cliente_modal')">x</button>
                              </div>
-                             <div v-if="cod_99001_000===1" class="modal-body">
+                       
                                  <div  class="alert alert-warning alert-dismissible fade show" role="alert">
                                      <strong>NO ESCRITO EN EL PADRÓN</strong> <br>
                                     <p>{{name_moda}}</p> 
@@ -404,26 +406,13 @@
                                          <input type="text" class="form-control" v-model="razon_social_99001">
                                      </div>
                                  </div>                    
-                             </div>
-                             <div v-if="cod_99001_000===2" class="modal-body">
-                                <div  class="alert alert-info alert-dismissible fade show" role="alert">
-                                    <strong>Datos unicos para la empresa</strong> <br>
-                                   <p>{{name_moda}}</p> 
-                                   
-                               </div>
-                                  <div class="row justify-content-center">
-                                    <div class="form-group col-sm-6">
-                                        <strong>Razon social:</strong>
-                                        <input type="text" class="form-control" v-model="razon_social_000">
-                                    </div>
-                                </div>                    
-                            </div>
+                             
+                            
                              
                              <div class="modal-footer">
                                  <button type="button" class="btn btn-secondary" @click="cerrarModal('cliente_modal')">Cerrar</button>
-                                 <button v-if="cod_99001_000===1" :disabled="razon_social_99001==''" class="btn btn-primary" @click="caso_99001();">Guardar</button>
-                                 <button v-if="cod_99001_000===2" :disabled="razon_social_000==''" class="btn btn-primary" @click="caso_000();">Guardar</button>
-                             </div>
+                                 <button  :disabled="razon_social_99001==''" class="btn btn-primary" @click="caso_99001();">Guardar</button>
+                              </div>
                          </div>
                      </div>
                  </div>
@@ -700,6 +689,7 @@ import Swal from "sweetalert2";
 import { error401 } from "../../errores";
 import VueMultiselect from 'vue-multiselect';
 
+
 //Vue.use(VeeValidate);
 export default {
     components: { VueMultiselect },
@@ -809,7 +799,7 @@ export default {
      id_descuento_x:0,
      existe_final:0,
 
-     cod_99001_000:1,
+  
         };
     },
     created() {
@@ -1167,6 +1157,9 @@ if (tipo_can_valor==='BS') {
                me.contador_cliente=0;
                me.arrayVentas=[];
                me.sumatotal=0;
+               me.descuento_final=0; 
+                me.tota_del_total=0;
+
             }           
            // me.arrayVentas = me.arrayVentas.filter(venta => venta.id !== id);
             console.log("----------------------");
@@ -1250,7 +1243,9 @@ if (tipo_can_valor==='BS') {
             var total_d=0;
             precioXcantida=me.selected.precio_lista_gespreventa*me.numero;
             //descuento=1-(me.descuento/100);
-        
+            if (sumador_21_des>me.selected.precio_lista_gespreventa) {
+                sumador_21_des=0.00;
+            } 
             descuento=sumador_21_des;
             subtotal=precioXcantida-descuento;
             //subtotal=sumador_21_sub;
@@ -1601,19 +1596,11 @@ if (tipo_can_valor==='BS') {
         this.num_documento=99001;
         this.correo_cliente="";
         this.nom_a_facturar=this.razon_social_99001;
-        
+        this.TipoComprobate=2;
         this.datos_cliete=this.nom_a_facturar+"/"+this.num_documento+"/OD-OTRO DOCUMENTO DE IDENTIDAD";
         this.cerrarModal('cliente_modal')       
       },
-      caso_000(){
-        this.id_tipo_doc=4;
-        this.cliente_id=0;
-        this.num_documento="000";
-        this.correo_cliente="";
-        this.nom_a_facturar=this.razon_social_000;        
-        this.datos_cliete=this.nom_a_facturar+"/"+this.num_documento+"/OD-OTRO DOCUMENTO DE IDENTIDAD";
-        this.cerrarModal('cliente_modal')       
-      },
+    
 
       restartotal(){
                 let me=this;
@@ -1651,6 +1638,7 @@ if (tipo_can_valor==='BS') {
             me.nom_a_facturar="CONTROL TRIBUTARIO";
             me.correo_cliente="";
             me.datos_cliete=me.nom_a_facturar+"/"+ me.num_documento+"/OD-OTRO DOCUMENTO DE IDENTIDAD";
+            me.TipoComprobate=2;
         break;
     case '99003':
         me.id_tipo_doc=4;
@@ -1659,6 +1647,7 @@ if (tipo_can_valor==='BS') {
         me.correo_cliente="";
         me.nom_a_facturar="VENTAS MENORES DEL DIA";
         me.datos_cliete=me.nom_a_facturar+"/"+me.num_documento+"/OD-OTRO DOCUMENTO DE IDENTIDAD";
+        me.TipoComprobate=2;
     break;
     case '0':
         me.id_tipo_doc=4;
@@ -1667,10 +1656,16 @@ if (tipo_can_valor==='BS') {
         me.nom_a_facturar="SIN NOMBRE";
         me.correo_cliente="farmacia_pueto_del_rosarioxwass1234887458888@gmail.com";
         me.datos_cliete=me.nom_a_facturar+"/"+me.num_documento+"/OD-OTRO DOCUMENTO DE IDENTIDAD";
+        me.TipoComprobate=2;
     break;
     case '000':    
-        me.abrirModal('cliente_modal_recibo');
-
+    me.id_tipo_doc=4;
+        me.cliente_id=0;
+        me.num_documento="000";
+        me.nom_a_facturar="S/N";
+        me.correo_cliente="farmacia_pueto_del_rosarioxwass1234887458888@gmail.com";
+        me.datos_cliete=me.nom_a_facturar+"/"+me.num_documento+"/OD-OTRO DOCUMENTO DE IDENTIDAD";
+        me.TipoComprobate=1;
     break;
     default:
     axios
@@ -1693,6 +1688,7 @@ if (tipo_can_valor==='BS') {
                         me.cliente_id=response.data.id;
                         me.correo_cliente=response.data.correo;
                         me.datos_cliete=response.data.nom_a_facturar+"/"+response.data.num_documento+"/"+response.data.tipo_doc_nombre;  
+                     
                     }
                   
                 })
@@ -1766,22 +1762,17 @@ if (tipo_can_valor==='BS') {
                     break;
                 }
                 case "cliente_modal":{
-                    me.cod_99001_000=1;
+                 
                     me.name_moda='OD-OTRO DOCUMENTO DE IDENTIDAD 99001.';
                     me.v99001='';
                     me.id_tipo_doc='';
                     me.razon_social_99001="";
                     me.cliente_id="";
+                    me.TipoComprobate=0;
                     me.classModal.openModal("cliente_modal");
                     break;
                 }
-                case "cliente_modal_recibo":{
-                    me.cod_99001_000=2;
-                    me.name_moda='RECIBO PARA CLIENTE.';                    
-                    me.razon_social_000='S/N';                 
-                    me.classModal.openModal("cliente_modal");
-                    break;
-                }
+                
                 case "lote_cliete":{
                     me.buscar='';
                     me.id_tipo_doc=''
@@ -1789,6 +1780,7 @@ if (tipo_can_valor==='BS') {
                     me.nom_a_facturar='';
                     me.num_documento='';
                     me.datos_cliete='';
+                    me.TipoComprobate=0;
                     document.addEventListener('keydown', this.preventEnter);
                     me.classModal.openModal("lote_cliete");
                     break;
@@ -1812,7 +1804,7 @@ if (tipo_can_valor==='BS') {
                     me.extencion_tipodocumento='';
                     me.nombre_documento='';
                     me.num_documento2='';
-            
+                    me.TipoComprobate=0;
                     me.classModal.openModal("registrar_cliente");
                     break;
                 }            
@@ -1851,48 +1843,91 @@ if (tipo_can_valor==='BS') {
             
         },
 
-        realziarVenta(){
-            let me = this;          
-                axios
-                    .post("/gestor_ventas/venta", {
-                        'num_documento': me.num_documento,                       
-                    })
-                    .then(function (response) {
-                        me.cerrarModal("registrar");
-                        Swal.fire(
-                            "Venta realzada",
-                            "Haga click en Ok para ver lal factura o recibo",
-                            "success",
-                        ).then(() => {
-            // Abrir nueva pestaña para generar el PDF
-            const url = `/gestor_ventas/venta/pdf?num_documento=${me.num_documento}`;
-            window.open(url, '_blank');
-          });
+        realizarVenta() {
+        let me = this;
 
-                   //     me.listarAjusteNegativos();
-                    //    me.sucursalFiltro();
-                    })
-                   // .catch(function (error) {
-                   //     error401(error);
-                   //     console.log(error);
-                   // });
-                   .catch(function (error) {                
-                if (error.response.status === 500) {
-                    me.errorMsg = error.response.data.error; // Asigna el mensaje de error a la variable errorMsg
+        // Validaciones iniciales
+        if (me.TipoComprobate === "1") {
+            if ([0, 99001, 99002, 99003].includes(me.num_documento)) {
                 Swal.fire(
-                    "Error",
-                    "500 (Internal Server Error)"+me.errorMsg, // Muestra el mensaje de error en el alert
-                    "error"       );
-                }else{
-                    Swal.fire(
-                    "Error",
-                    ""+error, // Muestra el mensaje de error en el alert
+                    "No pudo realizar la venta",
+                    "Un recibo no puede tener datos de factura como ser 0, 99001, 99002, 99003",
                     "error"
-                );  
-                }              
+                );
+                return;
+            }
+        } else if (me.TipoComprobate === "2") {
+            Swal.fire(
+                "Modulo en construcción",
+                "No se pudo hacer la venta",
+                "error"
+            );
+            return;
+        } else {
+            Swal.fire(
+                "Contacte al administrador",
+                "No se pudo hacer la venta por motivos que no es un recibo o factura",
+                "error"
+            );
+            return;
+        }
+
+        // Definir el objeto de datos
+        const data = {
+            TipoComprobate: me.TipoComprobate,
+            num_documento: me.num_documento,
+            id_tipo_doc: me.id_tipo_doc,
+            cliente_id: me.cliente_id,
+            nom_a_facturar: me.nom_a_facturar,
+            correo_cliente: me.correo_cliente,
+        };
+        console.log(me.correo_cliente);
+        // Función para convertir un objeto en una cadena de consulta (query string)
+        function toQueryString(params) {
+            return Object.keys(params)
+                .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`)
+                .join('&');
+        }
+
+        // Realizar la solicitud POST con Axios
+        axios.post("/gestor_ventas/venta", data)
+            .then(response => {
+                // Cerrar el modal
+                me.cerrarModal("registrar");
+
+                // Mostrar la alerta de éxito
+                Swal.fire({
+                    title: "Venta realizada",
+                    text: "Haga click en Ok para ver la factura o recibo",
+                    icon: "success",
+                }).then(() => {
+                    // Crear la URL para generar el PDF con todos los datos
+                    const queryString = toQueryString(data);
+                    const url = `/gestor_ventas/venta/pdf?${queryString}`;
+
+                    // Abrir una nueva pestaña con la URL generada
+                    window.open(url, '_blank');
+                });
+            })
+            .catch(error => {
+                // Manejar el error
+                if (error.response && error.response.status === 500) {
+                    me.errorMsg = error.response.data.error; // Asigna el mensaje de error a la variable errorMsg
+                    Swal.fire(
+                        "Error",
+                        "500 (Internal Server Error): " + me.errorMsg, // Muestra el mensaje de error en el alert
+                        "error"
+                    );
+                } else {
+                    Swal.fire(
+                        "Error",
+                        error.message || error, // Muestra el mensaje de error en el alert
+                        "error"
+                    );
+                }
             });
-            
-        },
+    },
+
 
         registrar_cliente_modal() {
       

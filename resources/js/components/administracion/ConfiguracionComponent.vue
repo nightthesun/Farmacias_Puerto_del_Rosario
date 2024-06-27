@@ -16,7 +16,7 @@
                     <a class="nav-link active" id="pills-home-tab" data-toggle="pill" href="#pills-home" role="tab" aria-controls="pills-credencial" aria-selected="true">Configuración de credenciales</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" id="pills-profile-tab" data-toggle="pill" href="#pills-profile" role="tab" aria-controls="pills-profile" aria-selected="false">Profile</a>
+                    <a class="nav-link" id="pills-profile-tab" data-toggle="pill" href="#pills-profile" role="tab" aria-controls="pills-profile" aria-selected="false">Datos de empresa</a>
                 </li>
             </ul>
         </div>
@@ -239,7 +239,8 @@ puedeEditar:2,
                     puerto:me.puerto,
                     usuario:me.usuario,
                     contraseña:me.contraseña,
-                    ssl:me.ssl
+                    ssl:me.ssl,
+                    nit:me.nit
                 })
                 .then(function (response) {
                     me.listarCredencial();
@@ -298,9 +299,8 @@ puedeEditar:2,
                     me.puerto=response.data[0].puerto;
                     me.usuario=response.data[0].usuario;
                     me.contraseña=response.data[0].contraseña;
-                    me.ssl=response.data[0].ssl;
-               
-                 
+                    me.ssl=response.data[0].ssl;               
+                    me.nit=response.data[0].nit;
                 })
                 .catch(function (error) {
                     error401(error);

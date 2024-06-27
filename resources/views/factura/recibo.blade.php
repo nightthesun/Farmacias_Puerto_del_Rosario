@@ -54,21 +54,21 @@
        
     </div>
     <div id="sucursal">
-        <span>SUCURSAL 1</span>
+        <span>{{$nombre_negocio}}</span>
     </div>
     <div id="direccion">
-        <span> AV.JUNIN N45 EDIF. SIN NOMBRE PISO PB DETOP. TIENDA EXTERIOR, Z .VILLA ADELA</span>
+        <span>{{$direccionMayusculas}}</span>
     </div>
     <hr>    
-    <span>TICKET Nro.:</span><span style="padding-left: 15px">107198</span>
+    <span>TICKET Nro.:</span><span style="padding-left: 15px">{{$nuevoComprobante}}</span>
     <br>
-    <span>FECHA:</span><span style="padding-left: 40px">13/05/2024</span> <span> HORA: 18:29:26</span>
+    <span>FECHA:</span><span style="padding-left: 40px">{{$fecha}}</span> <span>HORA: {{$hora}}</span>
     <br>
-    <span>NIT/CI:</span><span style="padding-left: 44px">8325365</span>
+    <span>NIT/CI:</span><span style="padding-left: 44px">{{$num_documento}}</span>
     <br>
-    <span>NOMBRE:</span><span style="padding-left: 29px">TARQUI</span>
+    <span>NOMBRE:</span><span style="padding-left: 29px">{{$nom_a_facturar}}</span>
     <hr>
-
+  
     <table >
         <thead>
             <tr>
@@ -107,12 +107,14 @@
     <br>
     <span style="padding-left: 173px">CAMBIO: BS.</span><span >25.30</span>
     <hr>
-    <span>* CODIGO DE CONTROL: 107198</span>
+    <span>* CODIGO DE CONTROL: {{$nuevoComprobante}}</span>
     <br>
-    <span>* Valido desde 13/05/2024 hasta 20/05/2024 en la misma tienda, términos y codiciones según politica de cambios y devoluiones</span>
+    <span>* Valido desde {{$fecha}} hasta {{$fechaMas7Dias}}</span>
     <br>
-    <span>* Atención al cliente whatsapp 69910577</span>
+    <span>* Ticket para el cambio valido hasta {{$fecha}} en la misma tienda, términos y codiciones según politica de cambios y devoluiones</span>
     <br>
-    <span>Usuario: JEANETTE MARLENE AG</span>
+    <span>* Atención al cliente whatsapp {{$numero_referencia}}</span>
+    <br>
+    <span>Usuario: {{$nombreCompleto_1}}</span>
 </body>
 </html>
