@@ -290,17 +290,16 @@
                 
                 <div class="form-group col-sm-3">
 
-
-                    <select class="custom-select mr-sm-2" id="inlineFormCustomSelect" v-model="TipoComprobate">
+                    <select v-model="TipoComprobate" class="custom-select mr-sm-2" >
                         <option value="0" selected disabled>Comprobante</option>
                         <option value="1">Recibo</option>
                         <option value="2">Factura</option>
-                        
-                      </select>
-                    <button v-if="TipoComprobate!=0&& buscarCliente!=''&&id_tipo_doc!=''&&arrayVentas.length>0" type="button" class="btn btn-primary" @click="realizarVenta()">REALIZAR VENTA</button>  
+                </select>
+                <button v-if="TipoComprobate!=0&& buscarCliente!=''&&id_tipo_doc!=''&&arrayVentas.length>0" type="button" class="btn btn-primary" @click="realizarVenta()">REALIZAR VENTA</button>  
                       
-                    <button v-else type="button" class="btn btn-light" >REALIZAR VENTA</button>
-                </div>          
+                      <button v-else type="button" class="btn btn-light" >REALIZAR VENTA</button>
+                </div>
+                       
                 
                
                  

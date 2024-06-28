@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Ven_GestorVenta;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -43,6 +44,7 @@ class VenGestorVentaController extends Controller
     ->orderBy('nro_comprobante_venta', 'desc')
     ->value('nro_comprobante_venta');
 
+
 if (is_null($ultimoComprobante)) {
     // La tabla está vacía, iniciar con 1
     $nuevoComprobante = 1;
@@ -50,15 +52,35 @@ if (is_null($ultimoComprobante)) {
     // Incrementar el último número de comprobante
     $nuevoComprobante = $ultimoComprobante + 1;
 }
+$direccion = DB::table('adm__sucursals')
+                ->where('id', $idsuc)
+                ->value('direccion');
 
+$nombreCompleto = DB::table('rrh__empleados as re')
+    ->join('users as u', 're.id', '=', 'u.idempleado')
+    ->where('u.id', 2)
+    ->selectRaw("CONCAT(COALESCE(re.nombre, ''), ' ', COALESCE(re.papellido, ''), ' ', COALESCE(re.sapellido, '')) as nombre_completo")
+    ->value('nombre_completo');
+$nombreCompleto_1=strtoupper($nombreCompleto);
+$direccionMayusculas = strtoupper($direccion);  
+$nombre_negocio=strtoupper($nomsucursal);        
+$currentDateTime = Carbon::now();
 
-               $num_documento = $request->input('num_documento');
-               $data = [
-                'title' => 'Factura de Venta',
-                'num_documento' => $num_documento,
-                'contenido' => 'Contenido de la factura...' // Aquí puedes agregar más datos necesarios para la factura
-            ];
-    $array=$request->dato;
+// Formatear la fecha y la hora en los formatos deseados
+$fecha = $currentDateTime->format('d/m/Y');
+$hora = $currentDateTime->format('H:i:s');
+// Añadir 7 días a la fecha actual
+$fechaMasSieteDias = $currentDateTime->addDays(7);
+// Formatear la fecha en el formato deseado
+$fechaFormateada = $fechaMasSieteDias->format('d/m/Y');          
+    $num_documento = $request->input('num_documento');
+    $TipoComprobate = $request->input('TipoComprobate');          
+            $id_tipo_doc = $request->input('id_tipo_doc');
+            $cliente_id= $request->input('cliente_id');
+            $nom_a_facturar=strtoupper($request->input('nom_a_facturar'));
+            $correo_cliente=$request->input('me.correo_cliente');
+            $numero_referencia=69910577;
+         
             // Convertir las dimensiones a puntos (1 mm = 2.83465 puntos)
             $width = 80 * 2.83465; // 80 mm a puntos
             $height = 326; // Suficientemente grande para permitir crecimiento
@@ -66,7 +88,8 @@ if (is_null($ultimoComprobante)) {
             // Definir el tamaño del papel
             $customPaper = array(0, 0, $width, $height);
     
-            $pdf = Pdf::loadView('factura.recibo', $data)
+            $pdf = Pdf::loadView('factura.recibo',compact('num_documento','nomsucursal','direccionMayusculas',
+            'nuevoComprobante','fecha','hora','nombreCompleto_1','numero_referencia','fechaFormateada','nombre_negocio','nom_a_facturar'))
                 ->setPaper($customPaper, 'portrait');
                
     
@@ -90,7 +113,7 @@ if (is_null($ultimoComprobante)) {
   
         
     
-    }
+    }          
 
     public function get_sucusal(){
         

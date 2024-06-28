@@ -109,7 +109,7 @@
     <hr>
     <span>* CODIGO DE CONTROL: {{$nuevoComprobante}}</span>
     <br>
-    <span>* Valido desde {{$fecha}} hasta {{$fechaMas7Dias}}</span>
+    <span>* Valido desde {{$fecha}} hasta {{$fechaFormateada}}</span>
     <br>
     <span>* Ticket para el cambio valido hasta {{$fecha}} en la misma tienda, términos y codiciones según politica de cambios y devoluiones</span>
     <br>
