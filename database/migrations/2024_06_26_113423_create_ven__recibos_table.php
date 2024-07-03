@@ -24,6 +24,7 @@ return new class extends Migration
             $table->decimal('descuento_venta', 11, 2)->default(0.00);
             $table->tinyInteger('anulado')->default(0)->comment('1 esta anulado, 0 no anulado');           
             $table->timestamps();
+            $table->decimal('total_sin_des',11,2);
         });
     }
 

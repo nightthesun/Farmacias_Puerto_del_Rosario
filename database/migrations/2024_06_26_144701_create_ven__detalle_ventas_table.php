@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('ven__detalle_ventas', function (Blueprint $table) {
-            $table->id();
+         
             $table->smallInteger('id_venta');
             $table->smallInteger('id_detalle_descuento')->default(0);
             $table->smallInteger('es_lista')->default(0)->comment('0 es para lista por defecto 1 es para lista');

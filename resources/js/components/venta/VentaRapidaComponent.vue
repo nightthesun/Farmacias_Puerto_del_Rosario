@@ -290,16 +290,17 @@
                 
                 <div class="form-group col-sm-3">
 
-                    <select v-model="TipoComprobate" class="custom-select mr-sm-2" >
+
+                    <select class="custom-select mr-sm-2" id="inlineFormCustomSelect" v-model="TipoComprobate">
                         <option value="0" selected disabled>Comprobante</option>
                         <option value="1">Recibo</option>
                         <option value="2">Factura</option>
-                </select>
-                <button v-if="TipoComprobate!=0&& buscarCliente!=''&&id_tipo_doc!=''&&arrayVentas.length>0" type="button" class="btn btn-primary" @click="realizarVenta()">REALIZAR VENTA</button>  
+                        
+                      </select>
+                    <button v-if="TipoComprobate!=0&& buscarCliente!=''&&id_tipo_doc!=''&&arrayVentas.length>0" type="button" class="btn btn-primary" @click="realizarVenta()">REALIZAR VENTA</button>  
                       
-                      <button v-else type="button" class="btn btn-light" >REALIZAR VENTA</button>
-                </div>
-                       
+                    <button v-else type="button" class="btn btn-light" >REALIZAR VENTA</button>
+                </div>          
                 
                
                  
@@ -756,7 +757,7 @@ export default {
             TipoComprobate:0,
     //----venta----
     arrayVentas:[],
-    
+    descuento_1:0,
     numero :'',
     descuento:0,
   
@@ -772,7 +773,7 @@ export default {
     nom_lista:'',
 
     validadorPersonal:'',
-
+    arrayProducto_recibo_1:[],
     valorUnicoPersonalizado:0,
 
     caso5_id:'',
@@ -797,7 +798,7 @@ export default {
      descuento_final:0,       
      id_descuento_x:0,
      existe_final:0,
-
+     array_vetasQuery:[],       
   
         };
     },
@@ -1229,10 +1230,7 @@ if (tipo_can_valor==='BS') {
                             sumador_21_sub += parseFloat(0);  // Acumular los valores numerales como float
                             sumador_21_des += parseFloat(0);    
                         }
-                    }   
-                        
-               
-
+                    }                      
             });
             me.descuento=parseFloat(sumador_21_des.toFixed(2));
                 var descuento=0;
@@ -1246,6 +1244,7 @@ if (tipo_can_valor==='BS') {
                 sumador_21_des=0.00;
             } 
             descuento=sumador_21_des;
+            me.descuento_1 += descuento;
             subtotal=precioXcantida-descuento;
             //subtotal=sumador_21_sub;
             
@@ -1262,7 +1261,7 @@ if (tipo_can_valor==='BS') {
             me.descuento=0;
             var precioXcantida=0;
             var subtotal=0;
-        
+            me.descuento_1 +=me.descuento;
             precioXcantida=me.selected.precio_lista_gespreventa*me.numero;
             subtotal=precioXcantida;
           }
@@ -1277,6 +1276,7 @@ if (tipo_can_valor==='BS') {
             precioXcantida=me.selected.precio_lista_gespreventa*me.numero;
             //descuento=1-(me.descuento/100);
             descuento=me.descuento;
+            me.descuento_1 +=descuento;
             subtotal=precioXcantida-descuento;
             //subtotal=precioXcantida*descuento;
           }
@@ -1287,8 +1287,7 @@ if (tipo_can_valor==='BS') {
                 me.arrayDescuentoOperacion.forEach((descuento) => {
                 let operacion_21 = this.operacion_Numeral_Procentaje(descuento.tipo_num_des, descuento.monto_descuento, this.selected.precio_lista_gespreventa);
                 let { valorNumeral, porcentaje } = operacion_21;
-                    console.log("+++/");
-                    console.log(valorNumeral+"  -  "+porcentaje);    
+                  
                     sumador_21_sub += parseFloat(valorNumeral);  // Acumular los valores numerales como float
     sumador_21_des += parseFloat(porcentaje); 
 
@@ -1304,6 +1303,7 @@ if (tipo_can_valor==='BS') {
             //descuento=1-(me.descuento/100);
         
             descuento=sumador_21_des;
+            me.descuento_1 +=descuento;
             subtotal=precioXcantida-descuento;
             //subtotal=sumador_21_sub;
             
@@ -1331,6 +1331,7 @@ if (tipo_can_valor==='BS') {
                     }
                 });
                 me.descuento=parseFloat(sumador_21_des.toFixed(2));
+                
                 var descuento=0;
             var precioXcantida=0;
             var subtotal=0;
@@ -1340,6 +1341,7 @@ if (tipo_can_valor==='BS') {
             //descuento=1-(me.descuento/100);
         
             descuento=sumador_21_des;
+            me.descuento_1 += descuento;
             subtotal=precioXcantida-descuento;
             //subtotal=sumador_21_sub;
             
@@ -1373,6 +1375,7 @@ if (tipo_can_valor==='BS') {
             //descuento=1-(me.descuento/100);
         
             descuento= me.descuento;
+            me.descuento_1 += descuento;
             subtotal=precioXcantida-descuento;
                   
                 } else {
@@ -1386,6 +1389,7 @@ if (tipo_can_valor==='BS') {
             //descuento=1-(me.descuento/100);
         
             descuento= me.descuento;
+            me.descuento_1 +=descuento;
             subtotal=precioXcantida-descuento; 
                 }         
 
@@ -1418,6 +1422,7 @@ if (tipo_can_valor==='BS') {
        precioXcantida=me.selected.precio_lista_gespreventa*me.numero;
     
        descuento= me.descuento;
+       me.descuento_1 +=descuento;
        subtotal=precioXcantida-descuento; 
                }
                
@@ -1435,6 +1440,7 @@ if (tipo_can_valor==='BS') {
             precioXcantida=me.selected.precio_lista_gespreventa*me.numero;
          
             descuento= me.descuento;
+       
             subtotal=precioXcantida-descuento; 
                 
                     
@@ -1449,7 +1455,14 @@ if (tipo_can_valor==='BS') {
             me.arrayVentas.push({id: me.selected.id,leyenda: me.selected.leyenda,cantidad:me.numero,precio:me.selected.precio_lista_gespreventa,
             descuento: descuento,subtotal:subtotal,id_ingreso:me.selected.id_ingreso,id_pro:me.selected.id_prod
             });
- 
+            let es_lista=0;
+            if (me.selected.id_lista==="x") {
+                es_lista=0;
+            } else {
+                es_lista=me.selected.id_lista;
+            }
+            me.array_vetasQuery.push({es_lista: es_lista,id_ges_pre:me.selected.id,id_ingreso:me.selected.id_ingreso,id_producto:me.selected.id_prod,id_linea:me.selected.id_linea,precio_venta:me.selected.precio_lista_gespreventa,cantidad_venta:me.numero});
+            me.arrayProducto_recibo_1.push({cant:me.numero,descrip:me.selected.leyenda,p_u:me.selected.precio_lista_gespreventa,});
             if (me.validadorPersonal===7 || me.existe_final>0) {
             let sumador_21_sub = 0;
             let sumador_21_des = 0;
@@ -1467,10 +1480,10 @@ if (tipo_can_valor==='BS') {
             });
           
             me.descuento_final=parseFloat(sumador_21_des.toFixed(2));
-            console.log(me.descuento_final+"--"+sumador_21_des);
             var descuento=me.descuento_final;
                 
             descuento=sumador_21_des;
+           
             me.tota_del_total=me.sumatotal-descuento;
        
           }
@@ -1870,8 +1883,9 @@ if (tipo_can_valor==='BS') {
             );
             return;
         }
-
+        me.descuento_1=me.descuento_final+me.descuento_1;
         // Definir el objeto de datos
+        console.log( me.arrayProducto_recibo_1);
         const data = {
             TipoComprobate: me.TipoComprobate,
             num_documento: me.num_documento,
@@ -1879,33 +1893,30 @@ if (tipo_can_valor==='BS') {
             cliente_id: me.cliente_id,
             nom_a_facturar: me.nom_a_facturar,
             correo_cliente: me.correo_cliente,
+
+            total_venta:me.tota_del_total,
+            efectivo_venta:me.efectivo,
+            cambio_venta:me.cambio,
+            descuento_venta:me.descuento_1,
+            arrayProRecibo:me.arrayProducto_recibo_1,
+            arrayDescuentoOperacion: me.arrayDescuentoOperacion, // Incluir el array en el objeto data
+            arrayDesatlleVenta: me.array_vetasQuery
         };
-        console.log(me.correo_cliente);
-        // Función para convertir un objeto en una cadena de consulta (query string)
-        function toQueryString(params) {
-            return Object.keys(params)
-                .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`)
-                .join('&');
-        }
+
+        
+     
 
         // Realizar la solicitud POST con Axios
         axios.post("/gestor_ventas/venta", data)
             .then(response => {
                 // Cerrar el modal
                 me.cerrarModal("registrar");
-
+  
                 // Mostrar la alerta de éxito
                 Swal.fire({
                     title: "Venta realizada",
                     text: "Haga click en Ok para ver la factura o recibo",
                     icon: "success",
-                }).then(() => {
-                    // Crear la URL para generar el PDF con todos los datos
-                    const queryString = toQueryString(data);
-                    const url = `/gestor_ventas/venta/pdf?${queryString}`;
-
-                    // Abrir una nueva pestaña con la URL generada
-                    window.open(url, '_blank');
                 });
             })
             .catch(error => {

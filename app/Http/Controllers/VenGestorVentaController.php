@@ -20,6 +20,7 @@ class VenGestorVentaController extends Controller
     }
 
     public function venta(Request $request){
+      
         try {
                // Iniciar una transacción
                DB::beginTransaction();
@@ -44,7 +45,6 @@ class VenGestorVentaController extends Controller
     ->orderBy('nro_comprobante_venta', 'desc')
     ->value('nro_comprobante_venta');
 
-
 if (is_null($ultimoComprobante)) {
     // La tabla está vacía, iniciar con 1
     $nuevoComprobante = 1;
@@ -52,68 +52,128 @@ if (is_null($ultimoComprobante)) {
     // Incrementar el último número de comprobante
     $nuevoComprobante = $ultimoComprobante + 1;
 }
-$direccion = DB::table('adm__sucursals')
-                ->where('id', $idsuc)
-                ->value('direccion');
 
-$nombreCompleto = DB::table('rrh__empleados as re')
-    ->join('users as u', 're.id', '=', 'u.idempleado')
-    ->where('u.id', 2)
-    ->selectRaw("CONCAT(COALESCE(re.nombre, ''), ' ', COALESCE(re.papellido, ''), ' ', COALESCE(re.sapellido, '')) as nombre_completo")
-    ->value('nombre_completo');
-$nombreCompleto_1=strtoupper($nombreCompleto);
-$direccionMayusculas = strtoupper($direccion);  
-$nombre_negocio=strtoupper($nomsucursal);        
+$num_documento = $request->input('num_documento');
+$nom_a_facturar = strtoupper($request->input('nom_a_facturar'));
+$numero_referencia = 69910577;
+// Obtener la fecha y hora actual
 $currentDateTime = Carbon::now();
+   
+ 
 
-// Formatear la fecha y la hora en los formatos deseados
-$fecha = $currentDateTime->format('d/m/Y');
-$hora = $currentDateTime->format('H:i:s');
-// Añadir 7 días a la fecha actual
-$fechaMasSieteDias = $currentDateTime->addDays(7);
-// Formatear la fecha en el formato deseado
-$fechaFormateada = $fechaMasSieteDias->format('d/m/Y');          
-    $num_documento = $request->input('num_documento');
-    $TipoComprobate = $request->input('TipoComprobate');          
-            $id_tipo_doc = $request->input('id_tipo_doc');
-            $cliente_id= $request->input('cliente_id');
-            $nom_a_facturar=strtoupper($request->input('nom_a_facturar'));
-            $correo_cliente=$request->input('me.correo_cliente');
-            $numero_referencia=69910577;
-         
-            // Convertir las dimensiones a puntos (1 mm = 2.83465 puntos)
-            $width = 80 * 2.83465; // 80 mm a puntos
-            $height = 326; // Suficientemente grande para permitir crecimiento
+    // datos para cargar 
+        $total_venta=$request->total_venta;
+        $efectivo_venta=$request->efectivo_venta;
+        $cambio_venta=$request->cambio_venta;
+        $descuento_venta=$request->descuento_venta;
+        $total_sin_des= $total_venta+$descuento_venta;
     
-            // Definir el tamaño del papel
-            $customPaper = array(0, 0, $width, $height);
-    
-            $pdf = Pdf::loadView('factura.recibo',compact('num_documento','nomsucursal','direccionMayusculas',
-            'nuevoComprobante','fecha','hora','nombreCompleto_1','numero_referencia','fechaFormateada','nombre_negocio','nom_a_facturar'))
-                ->setPaper($customPaper, 'portrait');
-               
-    
-            return $pdf->stream('ticket.pdf');
-    
-
+    $data_recibo = [
+        'id_sucursal' => $idsuc,
+        'id_cliente' => $request->cliente_id,
+        'id_usuario'=>$id_user2,
+        'nro_comprobante_venta' => $nuevoComprobante,
+        'total_venta' => $total_venta,
+        'efectivo_venta' => $efectivo_venta, 
+        'cambio_venta' => $cambio_venta,       
+        'descuento_venta' => $descuento_venta,
+        'created_at' => $currentDateTime,
+        'updated_at' => $currentDateTime,
+        'total_sin_des' => $total_sin_des
+       ];   
+       $id_recibo = DB::table('ven__recibos')->insertGetId($data_recibo);
+   
+       /////// detalle_descuento
+       $bloque_descuento = $request->arrayDescuentoOperacion;
+       foreach ($bloque_descuento as $item) {
+        $id_tabla = $item['id_nom_tabla'];
+        $id_descuento = $item['id'];
+        $cantidad_descuento = $item['monto_descuento'];
+        $tipo_num_des =$item['tipo_num_des'];
+        $data_descuento = [
+            'id_venta' => $id_recibo,
+            'id_tabla' => $id_tabla,  
+            'id_descuento' => $id_descuento,
+            'cantidad_descuento' => $cantidad_descuento, 
+            'tipo_num_des'=> $tipo_num_des       
+           ];    
+           $id_descuento = DB::table('ven__detalle_descuentos')->insertGetId($data_descuento);
+       }  
+        /////// detalle_venta
+        //$es_lista si es lita esta por default 0 pero si es lista es 1
+        $bloque_venta_detalle=$request->arrayDesatlleVenta;
+        foreach ($bloque_venta_detalle as $item) {
+            $es_lista=$item['es_lista'];
+            $id_ges_pre=$item['id_ges_pre'];
+            $id_ingreso=$item['id_ingreso'];
+            $id_producto=$item['id_producto'];
+            $id_linea=$item['id_linea'];
+            $precio_venta=$item['precio_venta'];
+            $cantidad_venta=$item['cantidad_venta'];
+            $data_det_venta = [
+                'id_venta' => $id_recibo,          
+                'es_lista' => $es_lista,
+                'id_ges_pre' => $id_ges_pre,
+                'id_ingreso' => $id_ingreso, 
+                'id_producto' => $id_producto,       
+                'id_linea' => $id_linea,    
+                'precio_venta' => $precio_venta,
+                'cantidad_venta' => $cantidad_venta, 
+               ];  
+            DB::table('ven__detalle_ventas')->insert($data_det_venta);
+        }       
+            // Si todo sale bien, confirmar la transacción
+      
+    DB::commit();
+        // Llamar a create_recibo
+        $array_Z=$request->arrayProRecibo;
+        $reciboData = $this->create_recibo($idsuc,$id_user2,$nuevoComprobante,$nomsucursal,$num_documento,$currentDateTime,$nom_a_facturar,$numero_referencia,$array_Z,$total_sin_des,$descuento_venta, $total_venta,$efectivo_venta,$cambio_venta);
         } catch (\Throwable $th) {
+            // Revertir la transacción en caso de error
+        DB::rollback();
               return response()->json(['error' => $th->getMessage()],500);
         }
       
+    }
 
-       
-       // return $pdf->inline('factura.ticket');
+    ///---------------------------------------------------------------------------------
+        public function create_recibo($id_su, $id_user,$nuevoComprobante,$nomsucursal,$num_documento,$currentDateTime,$nom_a_facturar,$numero_referencia,$arrayProRecibo,$total_sin_des,$descuento_venta,$total_venta,$efectivo_venta,$cambio_venta){
+        $direccion = DB::table('adm__sucursals')
+        ->where('id', $id_su)
+        ->value('direccion'); 
 
-       // return $pdf->download('mi_archivo.pdf');
-       //return $pdf->inline('cxc_pdf', compact('fecha','fechaCarta'));
-        //$pdf = \PDF::loadView('reports.pdf.carta',compact('cadenaDL1','cadenaBS1','fechaC','fechaH','nameCxc','cxcCarta','totalS','cadenaDL','cadenaBS','arraycxcCarta','formatter'))
-      
-        
-    
-  
-        
-    
-    }          
+    $nombreCompletoObj = DB::table('rrh__empleados as re')
+        ->join('users as u', 're.id', '=', 'u.idempleado')
+        ->where('u.id', $id_user)
+        ->select(DB::raw("CONCAT(
+            COALESCE(re.nombre, ''), ' ',
+            COALESCE(re.papellido, ''), ' ',
+            COALESCE(re.sapellido, '')
+        ) as nombre_completo"))
+        ->first();
+// Verificar si se obtuvo el nombre completo
+$nombreCompleto = $nombreCompletoObj ? $nombreCompletoObj->nombre_completo : '';
+              //datos para hacer factura vista
+        $nombre_negocio = strtoupper($nomsucursal);      
+        $direccionMayusculas=strtoupper($direccion);     
+        $fecha = $currentDateTime->format('d/m/Y');
+        $hora = $currentDateTime->format('H:i:s');       
+        $fechaMas7Dias = $currentDateTime->addDays(7);
+        $nombreCompleto_1=strtoupper($nombreCompleto);
+// Convertir las dimensiones a puntos (1 mm = 2.83465 puntos)
+$width = 80 * 2.83465; // 80 mm a puntos
+$height = 326; // Suficientemente grande para permitir crecimiento 326
+ // Definir el tamaño del papel
+ $customPaper = array(0, 0, $width, $height);
+   // Generar el PDF
+   
+   $pdf = PDF::loadView('factura.recibo', compact('nombre_negocio','direccionMayusculas','nuevoComprobante','fecha','hora','num_documento','nom_a_facturar','arrayProRecibo','total_sin_des','descuento_venta','total_venta','efectivo_venta','cambio_venta','fechaMas7Dias','numero_referencia','nombreCompleto_1'))
+   ->setPaper($customPaper, 'portrait');
+   // Devolver el PDF como respuesta HTTP
+   return $pdf->stream('recibo.pdf', ['Attachment' => false]);
+}
+
+    //------------------------------------------------------------------------------------
 
     public function get_sucusal(){
         
@@ -276,17 +336,7 @@ $fechaFormateada = $fechaMasSieteDias->format('d/m/Y');
        
     }
    
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-   
-
+ 
     /**
      * Update the specified resource in storage.
      */

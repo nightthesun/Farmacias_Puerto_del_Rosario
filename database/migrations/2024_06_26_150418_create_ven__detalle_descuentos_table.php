@@ -12,11 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('ven__detalle_descuentos', function (Blueprint $table) {
-            $table->id();
+      
             $table->smallInteger('id_venta');
             $table->smallInteger('id_tabla');
             $table->smallInteger('id_descuento');            
-            $table->decimal('cantidad_descuento', 11, 2);           
+            $table->decimal('cantidad_descuento', 11, 2);   
+            $table->string('tipo_num_des',20);        
         });
     }
 
