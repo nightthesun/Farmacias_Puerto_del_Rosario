@@ -29,10 +29,10 @@
 </head>
 <body>
     <div class="container">
-        <div class="title">{{ $title }}</div>
+        <div class="title">sasas</div>
         <div class="content">
             <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Laudantium enim dolore ducimus qui consectetur maiores pariatur numquam temporibus. Minus soluta distinctio iusto veritatis harum? Iste necessitatibus corporis pariatur suscipit facilis.</p>
-            <p>Número de Documento: {{ $num_documento }}</p>
+            <p>Número de Documento: es un pdf</p>
         </div>
         <div class="footer">
             <p>Gracias por su compra</p>

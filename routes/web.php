@@ -585,6 +585,6 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/gestor_ventas/listarDescuento_Tipo_tabla', [VenGestorVentaController::class, 'listarDescuento_Tipo_tabla']); 
     Route::post('/gestor_ventas/venta', [VenGestorVentaController::class, 'venta']);
     Route::get('/gestor_ventas/venta/pdf', [VenGestorVentaController::class, 'venta']);
-    
+    Route::get('/gestor_ventas/venta/pdf2', [VenGestorVentaController::class, 'mostrarPDF']);
     
 });

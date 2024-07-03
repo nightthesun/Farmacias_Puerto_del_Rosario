@@ -1911,12 +1911,27 @@ if (tipo_can_valor==='BS') {
             .then(response => {
                 // Cerrar el modal
                 me.cerrarModal("registrar");
-  
+                let respuesta= response.data;
+               // console.log(respuesta);
+             // console.log(respuesta.idsuc);
                 // Mostrar la alerta de éxito
                 Swal.fire({
                     title: "Venta realizada",
                     text: "Haga click en Ok para ver la factura o recibo",
                     icon: "success",
+                })
+                var url = "/gestor_ventas/venta/pdf2?data="+encodeURIComponent(JSON.stringify(respuesta));
+                console.log(respuesta);
+            axios
+                .get(url)
+                .then(function (response) {
+                    
+                  //  window.open('/gestor_ventas/venta/pdf2', '_blank');                
+                
+                })
+                .catch(function (error) {
+                    error401(error);
+                    console.log(error);
                 });
             })
             .catch(error => {

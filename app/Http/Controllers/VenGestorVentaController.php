@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Ven_GestorVenta;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -126,9 +128,27 @@ $currentDateTime = Carbon::now();
       
     DB::commit();
         // Llamar a create_recibo
-        $array_Z=$request->arrayProRecibo;
-        $reciboData = $this->create_recibo($idsuc,$id_user2,$nuevoComprobante,$nomsucursal,$num_documento,$currentDateTime,$nom_a_facturar,$numero_referencia,$array_Z,$total_sin_des,$descuento_venta, $total_venta,$efectivo_venta,$cambio_venta);
-        } catch (\Throwable $th) {
+        //$reciboData = $this->create_recibo($idsuc,$id_user2,$nuevoComprobante,$nomsucursal,$num_documento,$currentDateTime,$nom_a_facturar,$numero_referencia,$request->arrayProRecibo,$total_sin_des,$descuento_venta, $total_venta,$efectivo_venta,$cambio_venta);
+            // Devolver una respuesta JSON con un mensaje de éxito
+          $array_recibo = $request->arrayProRecibo;
+
+        return response()->json([
+            'idsuc' => $idsuc,
+            'id_user2' => $id_user2,
+            'nuevoComprobante' => $nuevoComprobante,
+            'nomsucursal' => $nomsucursal,
+            'num_documento' => $num_documento,
+            'currentDateTime' => $currentDateTime,
+            'nom_a_facturar' => $nom_a_facturar,
+            'numero_referencia' => $numero_referencia,
+            'array_recibo' => $array_recibo,
+            'total_sin_des' => $total_sin_des,                
+            'efectivo_venta' => $efectivo_venta,
+            'total_venta' =>$total_venta,
+            'descuento_venta' => $descuento_venta,
+            'cambio_venta' => $cambio_venta
+        ]);
+    } catch (\Throwable $th) {
             // Revertir la transacción en caso de error
         DB::rollback();
               return response()->json(['error' => $th->getMessage()],500);
@@ -138,7 +158,7 @@ $currentDateTime = Carbon::now();
 
     ///---------------------------------------------------------------------------------
         public function create_recibo($id_su, $id_user,$nuevoComprobante,$nomsucursal,$num_documento,$currentDateTime,$nom_a_facturar,$numero_referencia,$arrayProRecibo,$total_sin_des,$descuento_venta,$total_venta,$efectivo_venta,$cambio_venta){
-        $direccion = DB::table('adm__sucursals')
+            $direccion = DB::table('adm__sucursals')
         ->where('id', $id_su)
         ->value('direccion'); 
 
@@ -162,18 +182,63 @@ $nombreCompleto = $nombreCompletoObj ? $nombreCompletoObj->nombre_completo : '';
         $nombreCompleto_1=strtoupper($nombreCompleto);
 // Convertir las dimensiones a puntos (1 mm = 2.83465 puntos)
 $width = 80 * 2.83465; // 80 mm a puntos
-$height = 326; // Suficientemente grande para permitir crecimiento 326
+$height = 0; // Suficientemente grande para permitir crecimiento 326
  // Definir el tamaño del papel
  $customPaper = array(0, 0, $width, $height);
    // Generar el PDF
-   
    $pdf = PDF::loadView('factura.recibo', compact('nombre_negocio','direccionMayusculas','nuevoComprobante','fecha','hora','num_documento','nom_a_facturar','arrayProRecibo','total_sin_des','descuento_venta','total_venta','efectivo_venta','cambio_venta','fechaMas7Dias','numero_referencia','nombreCompleto_1'))
    ->setPaper($customPaper, 'portrait');
-   // Devolver el PDF como respuesta HTTP
-   return $pdf->stream('recibo.pdf', ['Attachment' => false]);
-}
+   // Descargar el PDF
+   return $pdf->download('recibo.pdf');
+        }
 
     //------------------------------------------------------------------------------------
+
+    public function mostrarPDF(Request $request){
+            // Crea una instancia de Dompdf con opciones (si es necesario)
+    
+          // Obtén los datos necesarios para generar el PDF
+   // Obtén los datos de la solicitud GET
+   $data = $request->query('data'); // Obtén el parámetro 'data' de la URL
+
+   // Decodifica la cadena JSON recibida en un array asociativo
+   $datos = json_decode($data, true);
+
+   // Ahora puedes acceder a cada dato individualmente
+$idsuc = $data['idsuc']; 
+$id_user2 = $data ['id_user2'];
+$nuevoComprobante = ['nuevoComprobante'];
+$nomsucursal = ['nomsucursal'];
+$num_documento = ['num_documento'];
+        currentDateTime' => $currentDateTime,
+            'nom_a_facturar' => $nom_a_facturar,
+            'numero_referencia' => $numero_referencia,
+            'array_recibo' => $array_recibo,
+            'total_sin_des' => $total_sin_des,                
+            'efectivo_venta' => $efectivo_venta,
+            'total_venta' =>$total_venta,
+            'descuento_venta' => $descuento_venta,
+            'cambio_venta' => $cambio_venta
+
+   
+   dd($array_recibo);     
+               $options = new Options();
+    $options->set('isHtml5ParserEnabled', true);
+
+    $dompdf = new Dompdf($options);
+
+    // Renderiza la vista "pdf.template" en HTML
+    $html = view('factura.ticket')->render();
+
+    // Carga el HTML al Dompdf
+    $dompdf->loadHtml($html);
+
+    // Renderiza el PDF
+    $dompdf->render();
+
+    // Envía el PDF al navegador
+    return $dompdf->stream('document.pdf');
+    }   
 
     public function get_sucusal(){
         
