@@ -12,6 +12,7 @@
         margin: 2;
         padding: 1;
         box-sizing: border-box; /* Asegura que el tamaño total incluya padding y border */
+       
     }
     
     body {
@@ -79,7 +80,7 @@
             </tr>
         </thead>
         <tbody>
-            @foreach ($array_Z as $item)
+            @foreach ($array_recibo as $item)
             <tr>
                 <td style="text-align:center">{{ $item['cant'] }}</td>
                 <td>{{ $item['descrip'] }}</td>

@@ -688,7 +688,10 @@
 import Swal from "sweetalert2";
 import { error401 } from "../../errores";
 import VueMultiselect from 'vue-multiselect';
-
+import pdfMake from 'pdfmake/build/pdfmake';
+import pdfFonts from 'pdfmake/build/vfs_fonts';
+// Asigna los fonts a pdfmake
+pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
 //Vue.use(VeeValidate);
 export default {
@@ -916,6 +919,7 @@ watch: {
     },
 
     methods: {
+        
         loadData() {
       return new Promise(resolve => {
         setTimeout(() => {
@@ -926,6 +930,40 @@ watch: {
     },
   
     ///////////////////////////////funciones para la venta///////////////////////////////////////////////////////
+    generarPDF() {
+      // Define el contenido del PDF
+      const documentDefinition = {
+        pageSize: {
+    width: 80 * 2.83465, // Ancho en puntos (conversión a puntos desde mm)
+    height: 326,// Altura en puntos
+    marginTop: 2, // Márgen superior en puntos
+          marginBottom: 1, // Márgen inferior en puntos
+          marginLeft: 1, // Márgen izquierdo en puntos
+          marginRight: 1 // Márgen derecho en puntos
+  },
+ 
+      content: [
+        {
+            text: 'FARMACIA PUERTO DEL ROSARIO',
+            style: 'header'
+          },
+          
+        ],
+        styles: {
+          header: {
+            fontSize: 7,
+            bold: true,
+            alignment: 'center',
+          
+            margin: [0, 1, 0, 0]
+          },
+          
+        }
+      };
+
+      // Genera el PDF y abre una nueva ventana con el documento
+      pdfMake.createPdf(documentDefinition).open();
+    },
 
     operacion_Numeral_Procentaje(tipo_num_des,monto_descuento,precio_lista_gespreventa){
        
@@ -1904,7 +1942,8 @@ if (tipo_can_valor==='BS') {
         };
 
         
-     
+    
+
 
         // Realizar la solicitud POST con Axios
         axios.post("/gestor_ventas/venta", data)
@@ -1921,13 +1960,11 @@ if (tipo_can_valor==='BS') {
                     icon: "success",
                 })
                 var url = "/gestor_ventas/venta/pdf2?data="+encodeURIComponent(JSON.stringify(respuesta));
-                console.log(respuesta);
+               
             axios
                 .get(url)
                 .then(function (response) {
-                    
-                  //  window.open('/gestor_ventas/venta/pdf2', '_blank');                
-                
+                    me.generarPDF();
                 })
                 .catch(function (error) {
                     error401(error);

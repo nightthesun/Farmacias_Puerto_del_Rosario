@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Ven_GestorVenta;
 use Barryvdh\DomPDF\Facade\Pdf;
+
 use Carbon\Carbon;
 use Dompdf\Dompdf;
 use Dompdf\Options;
@@ -195,49 +196,91 @@ $height = 0; // Suficientemente grande para permitir crecimiento 326
     //------------------------------------------------------------------------------------
 
     public function mostrarPDF(Request $request){
-            // Crea una instancia de Dompdf con opciones (si es necesario)
-    
-          // Obtén los datos necesarios para generar el PDF
-   // Obtén los datos de la solicitud GET
+    // Obtén los datos de la solicitud GET
    $data = $request->query('data'); // Obtén el parámetro 'data' de la URL
-
    // Decodifica la cadena JSON recibida en un array asociativo
    $datos = json_decode($data, true);
-
    // Ahora puedes acceder a cada dato individualmente
-$idsuc = $data['idsuc']; 
-$id_user2 = $data ['id_user2'];
-$nuevoComprobante = ['nuevoComprobante'];
-$nomsucursal = ['nomsucursal'];
-$num_documento = ['num_documento'];
-        currentDateTime' => $currentDateTime,
-            'nom_a_facturar' => $nom_a_facturar,
-            'numero_referencia' => $numero_referencia,
-            'array_recibo' => $array_recibo,
-            'total_sin_des' => $total_sin_des,                
-            'efectivo_venta' => $efectivo_venta,
-            'total_venta' =>$total_venta,
-            'descuento_venta' => $descuento_venta,
-            'cambio_venta' => $cambio_venta
+$idsuc = $datos['idsuc']; 
 
-   
-   dd($array_recibo);     
+$id_user2 = $datos['id_user2'];
+$nuevoComprobante = $datos['nuevoComprobante'];
+$nomsucursal = $datos['nomsucursal'];
+$num_documento = $datos['num_documento'];
+$currentDateTime = $datos['currentDateTime'];
+$nom_a_facturar = $datos['nom_a_facturar'];
+$numero_referencia = $datos['numero_referencia'];
+$array_recibo = $datos['array_recibo'];
+$total_sin_des = $datos['total_sin_des'];                
+$efectivo_venta = $datos['efectivo_venta']; 
+$total_venta = $datos['total_venta'];
+$descuento_venta = $datos['descuento_venta'];
+$cambio_venta = $datos['cambio_venta'];   
+
+$direccion = DB::table('adm__sucursals')
+->where('id', $idsuc)
+->value('direccion'); 
+
+$nombreCompletoObj = DB::table('rrh__empleados as re')
+->join('users as u', 're.id', '=', 'u.idempleado')
+->where('u.id', $id_user2)
+->select(DB::raw("CONCAT(
+    COALESCE(re.nombre, ''), ' ',
+    COALESCE(re.papellido, ''), ' ',
+    COALESCE(re.sapellido, '')
+) as nombre_completo"))
+->first();
+// Verificar si se obtuvo el nombre completo
+$nombreCompleto = $nombreCompletoObj ? $nombreCompletoObj->nombre_completo : '';
+        $nombre_negocio = strtoupper($nomsucursal);      
+        $direccionMayusculas=strtoupper($direccion);
+        $currentDateTime = Carbon::now();
+        $fecha = $currentDateTime->format('d/m/Y');        
+        $hora = $currentDateTime->format('H:i:s');          
+        $fechaMas7Dias = $currentDateTime->addDays(7);
+        $nombreCompleto_1=strtoupper($nombreCompleto);  
+
+// Convertir milímetros a puntos (1 mm = aproximadamente 2.83465 puntos)
+$width = 80 * 2.83465; // Ancho en puntos
+$height = 326; // Altura en puntos
+
+// Definir el tamaño del papel como un array de márgenes y dimensiones en puntos
+$customPaper = array(0, 0, $width, $height);
+
+
+    
                $options = new Options();
     $options->set('isHtml5ParserEnabled', true);
 
     $dompdf = new Dompdf($options);
 
     // Renderiza la vista "pdf.template" en HTML
-    $html = view('factura.ticket')->render();
+    $html = view('factura.recibo',compact('nombre_negocio','direccionMayusculas','nuevoComprobante','fecha','hora',
+    'num_documento','nom_a_facturar','array_recibo','fechaMas7Dias','numero_referencia','nombreCompleto_1'))->render();
 
     // Carga el HTML al Dompdf
     $dompdf->loadHtml($html);
-
+  
+     // Configura el tamaño del papel (por ejemplo, 'A4' o 'letter')
+    $dompdf->setPaper($customPaper, 'portrait'); // También puedes usar 'landscape' para orientación horizontal
+   
     // Renderiza el PDF
     $dompdf->render();
+    // Genera el nombre del archivo PDF
+    $filename = 'recibo_' . $nom_a_facturar . '_nuevoComprobante' . '.pdf';
+    // Envia el archivo al navegador para su descarga
+    $dompdf->stream($filename, array('Attachment' => true));
+    // Genera el contenido del PDF como una cadena
+$output = $dompdf->output();
+  // Mostrar el PDF en otra ventana o pestaña del navegador
+header('Content-Type: application/pdf');
+header('Content-Disposition: inline; filename="' . $filename . '"');
+header('Content-Length: ' . strlen($output));
+header('Content-Transfer-Encoding: binary');
+header('Accept-Ranges: bytes');
 
-    // Envía el PDF al navegador
-    return $dompdf->stream('document.pdf');
+echo $output;
+
     }   
 
     public function get_sucusal(){
