@@ -132,23 +132,52 @@ $currentDateTime = Carbon::now();
         //$reciboData = $this->create_recibo($idsuc,$id_user2,$nuevoComprobante,$nomsucursal,$num_documento,$currentDateTime,$nom_a_facturar,$numero_referencia,$request->arrayProRecibo,$total_sin_des,$descuento_venta, $total_venta,$efectivo_venta,$cambio_venta);
             // Devolver una respuesta JSON con un mensaje de éxito
           $array_recibo = $request->arrayProRecibo;
+          $direccion = DB::table('adm__sucursals')
+          ->where('id', $idsuc)
+          ->value('direccion'); 
+  
+      $nombreCompletoObj = DB::table('rrh__empleados as re')
+          ->join('users as u', 're.id', '=', 'u.idempleado')
+          ->where('u.id', $id_user2)
+          ->select(DB::raw("CONCAT(
+              COALESCE(re.nombre, ''), ' ',
+              COALESCE(re.papellido, ''), ' ',
+              COALESCE(re.sapellido, '')
+          ) as nombre_completo"))
+          ->first();
+          $nombreCompleto = $nombreCompletoObj ? $nombreCompletoObj->nombre_completo : '';
+              //datos para hacer factura vista
+        $nombre_negocio = strtoupper($nomsucursal);      
+        $direccionMayusculas=strtoupper($direccion);     
+        $fecha = $currentDateTime->format('d/m/Y');
+        $hora = $currentDateTime->format('H:i:s'); 
+        $fecha_7 = $currentDateTime->addDays(7);     
+        $fechaMas7Dias = $fecha_7->format('d/m/Y');
+        $nombreCompleto_1=strtoupper($nombreCompleto);
 
         return response()->json([
-            'idsuc' => $idsuc,
-            'id_user2' => $id_user2,
-            'nuevoComprobante' => $nuevoComprobante,
-            'nomsucursal' => $nomsucursal,
+           // 'idsuc' => $idsuc,
+           // 'id_user2' => $id_user2,           
+           'nomsucursal' => $nombre_negocio,
+           'direccionMayusculas' => $direccionMayusculas, 
+           'nuevoComprobante' => $nuevoComprobante,          
+            'fecha' => $fecha,
+            'hora' => $hora, 
             'num_documento' => $num_documento,
-            'currentDateTime' => $currentDateTime,
             'nom_a_facturar' => $nom_a_facturar,
-            'numero_referencia' => $numero_referencia,
-            'array_recibo' => $array_recibo,
-            'total_sin_des' => $total_sin_des,                
+            //'currentDateTime' => $currentDateTime,
+           'array_recibo' => $array_recibo,
+           'total_sin_des' => $total_sin_des,                
             'efectivo_venta' => $efectivo_venta,
             'total_venta' =>$total_venta,
             'descuento_venta' => $descuento_venta,
-            'cambio_venta' => $cambio_venta
+            'cambio_venta' => $cambio_venta,
+            'fechaMas7Dias' => $fechaMas7Dias,
+            'numero_referencia' => $numero_referencia,
+            'nombreCompleto_1' => $nombreCompleto_1           
         ]);
+
+
     } catch (\Throwable $th) {
             // Revertir la transacción en caso de error
         DB::rollback();

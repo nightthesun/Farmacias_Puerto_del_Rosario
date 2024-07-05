@@ -297,7 +297,7 @@
                         <option value="2">Factura</option>
                         
                       </select>
-                    <button v-if="TipoComprobate!=0&& buscarCliente!=''&&id_tipo_doc!=''&&arrayVentas.length>0" type="button" class="btn btn-primary" @click="realizarVenta()">REALIZAR VENTA</button>  
+                    <button v-if="TipoComprobate!=0&& datos_cliete!=''&&id_tipo_doc!=''&&arrayVentas.length>0" type="button" class="btn btn-primary" @click="realizarVenta()">REALIZAR VENTA</button>  
                       
                     <button v-else type="button" class="btn btn-light" >REALIZAR VENTA</button>
                 </div>          
@@ -851,7 +851,7 @@ watch: {
                     if (this.arrayDescuentoOperacion[0].id_nom_tabla===5) {
                     let operacion_21 = this.operacion_Numeral_Procentaje(this.arrayDescuentoOperacion[0].tipo_num_des, this.arrayDescuentoOperacion[0].monto_descuento,this.selected.precio_lista_gespreventa);
                     let { valorNumeral, porcentaje } = operacion_21;
-                    console.log("caso_5: "+operacion_21);
+                    console.log("caso_5: "+porcentaje);
                 this.valorUnicoPersonalizado = porcentaje;
                 this.caso5_id=this.arrayDescuentoOperacion[0].id;
                 this.caso5_nom=this.arrayDescuentoOperacion[0].nombre_descuento;
@@ -928,36 +928,197 @@ watch: {
         }, 1090);
       });
     },
-  
+   
     ///////////////////////////////funciones para la venta///////////////////////////////////////////////////////
-    generarPDF() {
+    generarPDF( direccionMayusculas,nomsucursal,nuevoComprobante,fecha,hora,num_documento,nom_a_facturar,array_recibo,total_sin_des,descuento_venta,total_venta,efectivo_venta,cambio_venta,fechaMas7Dias,numero_referencia,nombreCompleto_1) {
       // Define el contenido del PDF
+console.log("-------------------------------------------");
+console.log(descuento_venta);
+ // Crea el cuerpo de la tabla dinámicamente
+ const tableBody = [
+    // Agrega los encabezados de la tabla
+    [
+      { text: 'CANT.', style: 'tableHeader_2' }, 
+      { text: 'DESCRIPCIÓN', style: 'tableHeader_2' }, 
+      { text: 'P.U.', style: 'tableHeader_2' }, 
+      { text: 'TOT.', style: 'tableHeader_2' }
+    ]
+  ];
+
+  // Itera sobre los datos y agrega filas a la tabla
+  array_recibo.forEach(item => {
+    tableBody.push([
+      { text: item.cant, fontSize: 8, alignment: 'center' },
+      { text: item.descrip, fontSize: 8, alignment: 'left' },
+      { text: item.p_u, fontSize: 8, alignment: 'center' },
+      { text: (item.cant * item.p_u).toFixed(2), fontSize: 8, alignment: 'center' } // Operación y formato
+    ]);
+  });
+
       const documentDefinition = {
+        pageMargins: [5, 8, 5, 4], // Configura los márgenes en cero
         pageSize: {
     width: 80 * 2.83465, // Ancho en puntos (conversión a puntos desde mm)
-    height: 326,// Altura en puntos
-    marginTop: 2, // Márgen superior en puntos
-          marginBottom: 1, // Márgen inferior en puntos
-          marginLeft: 1, // Márgen izquierdo en puntos
-          marginRight: 1 // Márgen derecho en puntos
+    height: 'auto',
+    columnGap: 2,
   },
  
       content: [
+      {
+        text: 'FARMACIA PUERTO DEL ROSARIO',
+      
+        style: 'header'
+      },
+      {
+        text: direccionMayusculas,
+    
+        style: 'header'
+      },
+      {
+        text: nomsucursal,
+   
+        style: 'header'
+      },
+      {
+        canvas: [
+          { type: 'line', x1: 0, y1: 0, x2: 226.8, y2: 0, lineWidth: 1, dash: { length: 2, space: 3 } } // Línea punteada
+        ],
+        margin: [1, 5, 1, 5]
+      },
+      {
+        text: 'TICKETT Nro.:'+'           '+nuevoComprobante,   
+        style: 'datos_f',
+        margin: [ 6, 1, 6, 1 ]
+      },
+      {
+        text: 'FECHA:'+'                       '+fecha+'   HORA:  '+hora,    
+        style: 'datos_f',
+        margin: [ 6, 1, 6, 1 ]
+      },
+      {
+        text: 'NIT/CI.:'+'                       '+num_documento,    
+        style: 'datos_f',
+        margin: [ 6, 1, 6, 1 ]
+      },
+      {
+        text: 'NOMBRE:'+'                   '+nom_a_facturar,    
+        style: 'datos_f',
+        margin: [ 6, 1, 6, 1 ]
+      },
+      {
+        canvas: [
+          { type: 'line', x1: 0, y1: 0, x2: 226.8, y2: 0, lineWidth: 1, dash: { length: 2, space: 3 } } // Línea punteada
+        ],
+        margin: [6, 4, 6, 4]
+      },
+      {
+        style: 'tableExample',
+        table: {
+          headerRows: 1,
+          widths: ['12%', '54%', '17%', '17%'], // Ajusta los anchos de las columnas
+          body: tableBody
+        },
+        layout: 'noBorders'
+		},
         {
-            text: 'FARMACIA PUERTO DEL ROSARIO',
-            style: 'header'
-          },
-          
+        canvas: [
+          { type: 'line', x1: 0, y1: 0, x2: 226.8, y2: 0, lineWidth: 1, dash: { length: 2, space: 3 } } // Línea punteada
+        ],
+        margin: [6, 4, 8, 4]
+      },
+      {
+        text: 'IMPORTE TOTAL: Bs.   '+total_sin_des.toFixed(2),      
+        style: 'header_1',margin: [0, 0, 8, 0]
+      },
+      {
+        text: 'DESCUENTO: Bs.   '+descuento_venta.toFixed(2),      
+        style: 'header_1',margin: [0, 0, 8, 0]
+      },
+      {
+        text: 'IMPORTE A PAGAR: Bs.   '+total_venta.toFixed(2),      
+        style: 'header_1',margin: [0, 0, 8, 0]
+      },
+      
+      {
+        text: 'IMPORTE NO VALIODO PARA CRÉDITO FISCAL.',      
+        alignment: 'left',fontSize: 8, margin: [6, 4, 6, 4]
+      },
+      {
+        canvas: [
+          { type: 'line', x1: 0, y1: 0, x2: 226.8, y2: 0, lineWidth: 1, dash: { length: 2, space: 3 } } // Línea punteada
+        ],
+        margin: [6, 4, 6, 4]
+      },
+      {
+        text: 'PAGO EN EFECTIVO: Bs.   '+efectivo_venta.toFixed(2),      
+        style: 'header_1',margin: [0, 0, 8, 0]
+      },
+      {
+        text: 'CAMBIO: Bs.   '+cambio_venta.toFixed(2),      
+        style: 'header_1',margin: [0, 0, 8, 0]
+      },
+
+      {
+        canvas: [
+          { type: 'line', x1: 0, y1: 0, x2: 226.8, y2: 0, lineWidth: 1, dash: { length: 2, space: 3 } } // Línea punteada
+        ],
+        margin: [6, 4, 6, 4]
+      },
+      {
+        text: '* CODIGO DE CONTROL: '+nuevoComprobante,    
+        style: 'datos_f'
+      },
+      {
+        text: '* Valido desde '+ fecha +' hasta '+fechaMas7Dias,    
+        style: 'datos_f'
+      },
+      {
+        text: '* Ticket para el cambio valido hasta '+ fecha+' en la misma tienda, términos y codiciones según politica de cambios y devoluiones',
+        style: 'datos_f'
+      },
+      {
+        text: '* Atención al cliente whatsapp '+numero_referencia,
+        style: 'datos_f'
+      },
+      {
+        text: 'Usuario: '+ nombreCompleto_1,
+        style: 'datos_f'
+      },
+      
         ],
         styles: {
           header: {
-            fontSize: 7,
+            fontSize: 8,
+            bold: true,
+            alignment: 'center',         
+          },
+          header_1: {
+            fontSize: 8,
+            bold: true,
+            alignment: 'right', 
+                    
+          },
+          datos_f: {
+            fontSize: 8,
+            bold: true,
+            alignment: 'left',         
+          },
+          tableExample: {
+			margin: [1, 6, 1, 6],
+           
+		},
+        tableHeader_1: {
+        bold: true,
+        fontSize: 8,
+            bold: true,
+            alignment: 'justify',
+      },
+      tableHeader_2: {
+        bold: true,
+        fontSize: 8,
             bold: true,
             alignment: 'center',
-          
-            margin: [0, 1, 0, 0]
-          },
-          
+      }
         }
       };
 
@@ -1282,7 +1443,7 @@ if (tipo_can_valor==='BS') {
                 sumador_21_des=0.00;
             } 
             descuento=sumador_21_des;
-            me.descuento_1 += descuento;
+            me.descuento_1 += parseFloat(descuento);
             subtotal=precioXcantida-descuento;
             //subtotal=sumador_21_sub;
             
@@ -1299,7 +1460,7 @@ if (tipo_can_valor==='BS') {
             me.descuento=0;
             var precioXcantida=0;
             var subtotal=0;
-            me.descuento_1 +=me.descuento;
+            me.descuento_1 +=parseFloat(descuento);;
             precioXcantida=me.selected.precio_lista_gespreventa*me.numero;
             subtotal=precioXcantida;
           }
@@ -1314,7 +1475,12 @@ if (tipo_can_valor==='BS') {
             precioXcantida=me.selected.precio_lista_gespreventa*me.numero;
             //descuento=1-(me.descuento/100);
             descuento=me.descuento;
-            me.descuento_1 +=descuento;
+           
+            //me.descuento_1=me.descuento;
+            console.log(me.descuento_1);
+            me.descuento_1 +=parseFloat(descuento);
+            console.log("/////////////****************************")
+            console.log(me.descuento_1);
             subtotal=precioXcantida-descuento;
             //subtotal=precioXcantida*descuento;
           }
@@ -1341,7 +1507,7 @@ if (tipo_can_valor==='BS') {
             //descuento=1-(me.descuento/100);
         
             descuento=sumador_21_des;
-            me.descuento_1 +=descuento;
+            me.descuento_1 +=parseFloat(descuento);
             subtotal=precioXcantida-descuento;
             //subtotal=sumador_21_sub;
             
@@ -1379,7 +1545,7 @@ if (tipo_can_valor==='BS') {
             //descuento=1-(me.descuento/100);
         
             descuento=sumador_21_des;
-            me.descuento_1 += descuento;
+            me.descuento_1 += parseFloat(descuento);
             subtotal=precioXcantida-descuento;
             //subtotal=sumador_21_sub;
             
@@ -1413,7 +1579,7 @@ if (tipo_can_valor==='BS') {
             //descuento=1-(me.descuento/100);
         
             descuento= me.descuento;
-            me.descuento_1 += descuento;
+            me.descuento_1 += parseFloat(descuento);
             subtotal=precioXcantida-descuento;
                   
                 } else {
@@ -1460,7 +1626,7 @@ if (tipo_can_valor==='BS') {
        precioXcantida=me.selected.precio_lista_gespreventa*me.numero;
     
        descuento= me.descuento;
-       me.descuento_1 +=descuento;
+       me.descuento_1 +=parseFloat(descuento);
        subtotal=precioXcantida-descuento; 
                }
                
@@ -1499,6 +1665,7 @@ if (tipo_can_valor==='BS') {
             } else {
                 es_lista=me.selected.id_lista;
             }
+            
             me.array_vetasQuery.push({es_lista: es_lista,id_ges_pre:me.selected.id,id_ingreso:me.selected.id_ingreso,id_producto:me.selected.id_prod,id_linea:me.selected.id_linea,precio_venta:me.selected.precio_lista_gespreventa,cantidad_venta:me.numero});
             me.arrayProducto_recibo_1.push({cant:me.numero,descrip:me.selected.leyenda,p_u:me.selected.precio_lista_gespreventa,});
             if (me.validadorPersonal===7 || me.existe_final>0) {
@@ -1921,9 +2088,14 @@ if (tipo_can_valor==='BS') {
             );
             return;
         }
+      
+        
         me.descuento_1=me.descuento_final+me.descuento_1;
+      
+        console.log(me.descuento_1);
         // Definir el objeto de datos
         console.log( me.arrayProducto_recibo_1);
+        
         const data = {
             TipoComprobate: me.TipoComprobate,
             num_documento: me.num_documento,
@@ -1941,17 +2113,30 @@ if (tipo_can_valor==='BS') {
             arrayDesatlleVenta: me.array_vetasQuery
         };
 
-        
-    
-
-
         // Realizar la solicitud POST con Axios
         axios.post("/gestor_ventas/venta", data)
             .then(response => {
                 // Cerrar el modal
                 me.cerrarModal("registrar");
                 let respuesta= response.data;
-               // console.log(respuesta);
+
+                let direccionMayusculas = respuesta.direccionMayusculas;
+                let nomsucursal = respuesta.nomsucursal;
+                let nuevoComprobante = respuesta.nuevoComprobante;
+                let fecha = respuesta.fecha;
+                let hora = respuesta.hora;
+                let num_documento = respuesta.num_documento;
+                let nom_a_facturar = respuesta.nom_a_facturar;
+                let array_recibo = respuesta.array_recibo;
+                let total_sin_des = respuesta.total_sin_des;
+                let descuento_venta = respuesta.descuento_venta;
+                let total_venta = respuesta.total_venta;
+                let efectivo_venta = respuesta.efectivo_venta;
+                let cambio_venta = respuesta.cambio_venta;
+                let fechaMas7Dias = respuesta.fechaMas7Dias;
+                let numero_referencia = respuesta.numero_referencia;
+                let nombreCompleto_1 = respuesta.nombreCompleto_1;
+                console.log(respuesta);
              // console.log(respuesta.idsuc);
                 // Mostrar la alerta de éxito
                 Swal.fire({
@@ -1959,17 +2144,20 @@ if (tipo_can_valor==='BS') {
                     text: "Haga click en Ok para ver la factura o recibo",
                     icon: "success",
                 })
-                var url = "/gestor_ventas/venta/pdf2?data="+encodeURIComponent(JSON.stringify(respuesta));
+                me.generarPDF(direccionMayusculas,nomsucursal,nuevoComprobante,fecha,hora,num_documento,nom_a_facturar,array_recibo,
+                total_sin_des,descuento_venta,total_venta,efectivo_venta,cambio_venta,fechaMas7Dias,numero_referencia,nombreCompleto_1
+                );
+               // var url = "/gestor_ventas/venta/pdf2?data="+encodeURIComponent(JSON.stringify(respuesta));
                
-            axios
-                .get(url)
-                .then(function (response) {
-                    me.generarPDF();
-                })
-                .catch(function (error) {
-                    error401(error);
-                    console.log(error);
-                });
+          //  axios
+          //      .get(url)
+          //      .then(function (response) {
+          //          me.generarPDF();
+          //      })
+          //      .catch(function (error) {
+           //         error401(error);
+           //         console.log(error);
+           //     });
             })
             .catch(error => {
                 // Manejar el error
