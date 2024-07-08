@@ -189,8 +189,10 @@
                  <table class="table table-bordered table-sm table-responsive table-primary ">
                      <thead>
                          <tr>
-                             <th >Opciones</th>
-                             <th class="col-6">Producto</th>
+                             <th class="col-1">Opciones</th>
+                             <th class="col-1">Linea</th>
+                             <th class="col-5">Producto</th>
+                             
                              <th class="col-1">Cantidad</th>
                              <th class="col-1">Precio de venta</th>
                              <th class="col-1">Descuento</th>
@@ -200,36 +202,37 @@
                      </thead>
                      <tbody>
                          <tr v-for="venta in arrayVentas" :key="venta.id">
-                             <td style="text-align:center">
+                             <td class="col-1" style="text-align:center">
                                  <button type="button" class="btn btn-danger btn-sm" @click="quitarVEnta(venta.id)">
                                      <i class="fa fa-minus" aria-hidden="true"></i>
                                  </button>
                              </td>
-                             <td class="col-6" v-text="venta.leyenda"></td>
+                             <td class="col-1" v-text="venta.nombre_linea"></td>
+                             <td class="col-5" v-text="venta.leyenda"></td>
                              <td class="col-1" v-text="venta.cantidad" style="text-align:right"></td>
                              <td class="col-1" v-text="venta.precio" style="text-align:right"></td>
                              <td class="col-1" v-text="venta.descuento" style="text-align:right"></td>
                              <td class="col-2" v-text="venta.subtotal" style="text-align:right"></td>
                          </tr>
                          <tr>
-                             <th colspan="5" style="text-align:right">Suma Total:</th>
+                             <th colspan="6" style="text-align:right">Suma Total:</th>
                              <th v-text="sumatotal + ' Bs.'" style="text-align:right"></th>
                          </tr>
                  
                          <tr>
-                            <th colspan="5" style="text-align:right">Des:</th>
+                            <th colspan="6" style="text-align:right">Des:</th>
                             <th v-text="descuento_final + ' Bs.'" style="text-align:right"></th>
                         </tr>
                         <tr>
-                            <th colspan="5" style="text-align:right">Total:</th>
+                            <th colspan="6" style="text-align:right">Total:</th>
                             <th v-text="tota_del_total + ' Bs.'" style="text-align:right"></th>
                         </tr>
                         <tr>
-                            <th colspan="5" style="text-align:right">Efectivo:</th>
+                            <th colspan="6" style="text-align:right">Efectivo:</th>
                             <th><input type="number" v-model="efectivo" v-on:focus="selectAll"  :disabled="sumatotal===0" @keyup="restartotal()" style="text-align:right"></th>
                         </tr>
                         <tr>
-                            <th colspan="5" style="text-align:right">Cambio:</th>
+                            <th colspan="6" style="text-align:right">Cambio:</th>
                             <th v-text="cambio + ' Bs.'" style="text-align:right"></th>
                         </tr>
                      </tbody>
@@ -292,9 +295,9 @@
 
 
                     <select class="custom-select mr-sm-2" id="inlineFormCustomSelect" v-model="TipoComprobate">
-                        <option value="0" selected disabled>Comprobante</option>
-                        <option value="1">Recibo</option>
-                        <option value="2">Factura</option>
+                        <option value=0 selected disabled>Comprobante</option>
+                        <option value=1>Recibo</option>
+                        <option value=2>Factura</option>
                         
                       </select>
                     <button v-if="TipoComprobate!=0&& datos_cliete!=''&&id_tipo_doc!=''&&arrayVentas.length>0" type="button" class="btn btn-primary" @click="realizarVenta()">REALIZAR VENTA</button>  
@@ -712,8 +715,7 @@ export default {
             tituloModal: "",
             name_moda:"",
             //selecto get sucursal
-         
-            arraySucursalGet:[],    
+      
             //producto
             arrayProducto:[], 
             selectProducto:null,           
@@ -731,7 +733,7 @@ export default {
             razon_social_000:'', 
             //cliente_lote
             buscar:'',
-            clientelote:'',
+           
             arrayClienteLote:[],
             tipoAccion:1,
             //add_cliente 
@@ -769,9 +771,7 @@ export default {
     descuentoNombre:'',
     arrayDescuentoOperacion:[],
     //----- numeral
-    arrayNumDescunto:[],
-    arryPorDescuento:[],
-    
+
     //lista
     nom_lista:'',
 
@@ -789,12 +789,12 @@ export default {
      existe_cliente:0,  
      existe_cliente_f:0,
      cliente_des:'',
-     cliente_num_por:'',
+
      cliente_activo_descuento:'',
      cliente_id_sucursal_desc:'',
      
      contador_cliente:0,
-     contador_cliente_anterior:'',
+ 
      existe_producto:0,
 
      tota_del_total:0,
@@ -1206,6 +1206,71 @@ if (tipo_can_valor==='BS') {
 } 
 },
 
+    resetVenta(){
+        let me=this;
+        me.name_moda="";
+            //producto
+            me.selected=null;
+            me.selectProducto=null;           
+            me.inputTextBuscarProductoIngreso="";
+            //clientes
+            me.buscarCliente="";
+            me.cliente_id="";
+            me.datos_cliete="";
+            me.nom_a_facturar="";
+            me.num_documento="";
+            //casos especiales        
+            me.id_tipo_doc="";
+           me.razon_social_99001="";   
+            me.razon_social_000=""; 
+            //cliente_lote
+            me.buscar=""; 
+            me.tipoAccion=1;
+            //add_cliente                     
+            me.selectTipoDoc=0;
+            me.selectTipo=0;           
+            me.selectEX=0;  
+            //datos de cliente
+            me.pais="";
+            me.ciudad="";
+            me.direccion="";
+            me.telefono="";
+            me.num_documento2="";
+            me.correo="";
+            me.nombre_a_facturar="";
+            me.nombres="";
+            me.complemento_="";
+            //tipo de codigo 
+            me.correo_cliente="";
+            me.extencion_tipodocumento="";
+            me.nombre_documento="";
+            me.TipoComprobate=0;
+            //----venta----
+            me.arrayVentas=[];
+            me.descuento_1=0;
+            me.numero="";
+            me.descuento=0;   
+            //----- numeral  
+     
+            me.arrayProducto_recibo_1=[];
+            me.valorUnicoPersonalizado=0;
+            me.caso5_id="";
+            me.caso5_nom="";
+            me.caso5_id_tabla="";
+            me.sumatotal=0;
+            me.efectivo=0;
+            me.cambio=0;
+            me.id_tabla_y2=""; 
+            me.existe_cliente=0;  
+            me.existe_cliente_f=0;    
+            me.contador_cliente=0;  
+            me.existe_producto=0;
+            me.tota_del_total=0;
+            me.descuento_final=0;      
+            me.array_vetasQuery=[];  
+  
+    },
+
           
         listarDescuento_Tipo_tabla(){
             let me = this;       
@@ -1367,8 +1432,7 @@ if (tipo_can_valor==='BS') {
 
         agregarVenta(){
             try {
-                            let me = this;
-                        
+                            let me = this;                        
                             console.log(me.validadorPersonal);
                             if (me.validadorPersonal===99) {
                               
@@ -1457,10 +1521,13 @@ if (tipo_can_valor==='BS') {
 
             // caso sin descuento-----
           if (me.validadorPersonal===3) {
+            var descuento=0;
             me.descuento=0;
             var precioXcantida=0;
             var subtotal=0;
-            me.descuento_1 +=parseFloat(descuento);;
+            me.descuento_1 +=parseFloat(descuento);
+            console.log("---------------");
+            console.log(me.descuento_1);
             precioXcantida=me.selected.precio_lista_gespreventa*me.numero;
             subtotal=precioXcantida;
           }
@@ -1493,8 +1560,7 @@ if (tipo_can_valor==='BS') {
                 let { valorNumeral, porcentaje } = operacion_21;
                   
                     sumador_21_sub += parseFloat(valorNumeral);  // Acumular los valores numerales como float
-    sumador_21_des += parseFloat(porcentaje); 
-
+                    sumador_21_des += parseFloat(porcentaje);    
 
             });
             me.descuento=parseFloat(sumador_21_des.toFixed(2));
@@ -1655,9 +1721,9 @@ if (tipo_can_valor==='BS') {
             subtotal = parseFloat(subtotal.toFixed(2));
             
 
-           
+           console.log(me.selected.nombre_linea);
             me.arrayVentas.push({id: me.selected.id,leyenda: me.selected.leyenda,cantidad:me.numero,precio:me.selected.precio_lista_gespreventa,
-            descuento: descuento,subtotal:subtotal,id_ingreso:me.selected.id_ingreso,id_pro:me.selected.id_prod
+            descuento: descuento,subtotal:subtotal,id_ingreso:me.selected.id_ingreso,id_pro:me.selected.id_prod,nombre_linea:me.selected.nombre_linea
             });
             let es_lista=0;
             if (me.selected.id_lista==="x") {
@@ -2009,12 +2075,13 @@ if (tipo_can_valor==='BS') {
                     me.ciudad='';
                     me.direccion='';
                     me.telefono='';
-                    me.num_documento2='';
+                    
                     me.correo='';
                     me.nombre_a_facturar='';
                     me.nombres='';
                     me.selectEX=0; 
                     me.apellidos='';
+                    me.num_documento='';
                     me.selectTipoDoc=0;
                     me.selectTipo=0;
                     me.complemento_='';
@@ -2062,120 +2129,130 @@ if (tipo_can_valor==='BS') {
 
         realizarVenta() {
         let me = this;
-
+            console.log("//////////////////***");
+            console.log(me.num_documento);
+            console.log(me.TipoComprobate);
+            console.log("//////////////////*****");
         // Validaciones iniciales
-        if (me.TipoComprobate === "1") {
-            if ([0, 99001, 99002, 99003].includes(me.num_documento)) {
+        if (parseInt(me.TipoComprobate) === 1) {
+               if (0===parseInt(me.num_documento)||99001===parseInt(me.num_documento)||99002===parseInt(me.num_documento)||99003===parseInt(me.num_documento)) {
                 Swal.fire(
                     "No pudo realizar la venta",
                     "Un recibo no puede tener datos de factura como ser 0, 99001, 99002, 99003",
                     "error"
                 );
-                return;
-            }
-        } else if (me.TipoComprobate === "2") {
+                return;           
+                }else{
+                    console.log("*********DATO EXITOSO*********");   
+                    return
+                }
+               } else {  
+                if(parseInt(me.TipoComprobate) === 2){
             Swal.fire(
                 "Modulo en construcción",
                 "No se pudo hacer la venta",
                 "error"
             );
             return;
-        } else {
+        }else{
             Swal.fire(
                 "Contacte al administrador",
-                "No se pudo hacer la venta por motivos que no es un recibo o factura",
+                "Error de tipo de comprobante o input de entrada",
                 "error"
             );
             return;
-        }
-      
-        
+        }            
+                
+               }               
+       
+
+
+    },
+
+
+    EnviarRecibo(){
         me.descuento_1=me.descuento_final+me.descuento_1;
-      
-        console.log(me.descuento_1);
-        // Definir el objeto de datos
-        console.log( me.arrayProducto_recibo_1);
-        
         const data = {
-            TipoComprobate: me.TipoComprobate,
-            num_documento: me.num_documento,
-            id_tipo_doc: me.id_tipo_doc,
-            cliente_id: me.cliente_id,
-            nom_a_facturar: me.nom_a_facturar,
-            correo_cliente: me.correo_cliente,
+          TipoComprobate: me.TipoComprobate,
+          num_documento: me.num_documento,
+          id_tipo_doc: me.id_tipo_doc,
+          cliente_id: me.cliente_id,
+          nom_a_facturar: me.nom_a_facturar,
+          correo_cliente: me.correo_cliente,
 
-            total_venta:me.tota_del_total,
-            efectivo_venta:me.efectivo,
-            cambio_venta:me.cambio,
-            descuento_venta:me.descuento_1,
-            arrayProRecibo:me.arrayProducto_recibo_1,
-            arrayDescuentoOperacion: me.arrayDescuentoOperacion, // Incluir el array en el objeto data
-            arrayDesatlleVenta: me.array_vetasQuery
-        };
+          total_venta:me.tota_del_total,
+          efectivo_venta:me.efectivo,
+          cambio_venta:me.cambio,
+          descuento_venta:me.descuento_1,
+          arrayProRecibo:me.arrayProducto_recibo_1,
+          arrayDescuentoOperacion: me.arrayDescuentoOperacion, // Incluir el array en el objeto data
+          arrayDesatlleVenta: me.array_vetasQuery
+      };
 
-        // Realizar la solicitud POST con Axios
-        axios.post("/gestor_ventas/venta", data)
-            .then(response => {
-                // Cerrar el modal
-                me.cerrarModal("registrar");
-                let respuesta= response.data;
+      // Realizar la solicitud POST con Axios
+      axios.post("/gestor_ventas/venta", data)
+          .then(response => {
+              // Cerrar el modal
+              me.cerrarModal("registrar");
+              me.resetVenta();
+              me.respuesta = response.data.data;
+              if (me.respuesta==='1') {
+                  Swal.fire({
+                  title: "El usuario root no puede realizar ventas",
+                  text: "Haga click en Ok ",
+                  icon: "error",
+              })  
+              } else {
+                  let respuesta= response.data;
 
-                let direccionMayusculas = respuesta.direccionMayusculas;
-                let nomsucursal = respuesta.nomsucursal;
-                let nuevoComprobante = respuesta.nuevoComprobante;
-                let fecha = respuesta.fecha;
-                let hora = respuesta.hora;
-                let num_documento = respuesta.num_documento;
-                let nom_a_facturar = respuesta.nom_a_facturar;
-                let array_recibo = respuesta.array_recibo;
-                let total_sin_des = respuesta.total_sin_des;
-                let descuento_venta = respuesta.descuento_venta;
-                let total_venta = respuesta.total_venta;
-                let efectivo_venta = respuesta.efectivo_venta;
-                let cambio_venta = respuesta.cambio_venta;
-                let fechaMas7Dias = respuesta.fechaMas7Dias;
-                let numero_referencia = respuesta.numero_referencia;
-                let nombreCompleto_1 = respuesta.nombreCompleto_1;
-                console.log(respuesta);
-             // console.log(respuesta.idsuc);
-                // Mostrar la alerta de éxito
-                Swal.fire({
-                    title: "Venta realizada",
-                    text: "Haga click en Ok para ver la factura o recibo",
-                    icon: "success",
-                })
-                me.generarPDF(direccionMayusculas,nomsucursal,nuevoComprobante,fecha,hora,num_documento,nom_a_facturar,array_recibo,
-                total_sin_des,descuento_venta,total_venta,efectivo_venta,cambio_venta,fechaMas7Dias,numero_referencia,nombreCompleto_1
-                );
-               // var url = "/gestor_ventas/venta/pdf2?data="+encodeURIComponent(JSON.stringify(respuesta));
-               
-          //  axios
-          //      .get(url)
-          //      .then(function (response) {
-          //          me.generarPDF();
-          //      })
-          //      .catch(function (error) {
-           //         error401(error);
-           //         console.log(error);
-           //     });
-            })
-            .catch(error => {
-                // Manejar el error
-                if (error.response && error.response.status === 500) {
-                    me.errorMsg = error.response.data.error; // Asigna el mensaje de error a la variable errorMsg
-                    Swal.fire(
-                        "Error",
-                        "500 (Internal Server Error): " + me.errorMsg, // Muestra el mensaje de error en el alert
-                        "error"
-                    );
-                } else {
-                    Swal.fire(
-                        "Error",
-                        error.message || error, // Muestra el mensaje de error en el alert
-                        "error"
-                    );
-                }
-            });
+let direccionMayusculas = respuesta.direccionMayusculas;
+let nomsucursal = respuesta.nomsucursal;
+let nuevoComprobante = respuesta.nuevoComprobante;
+let fecha = respuesta.fecha;
+let hora = respuesta.hora;
+let num_documento = respuesta.num_documento;
+let nom_a_facturar = respuesta.nom_a_facturar;
+let array_recibo = respuesta.array_recibo;
+let total_sin_des = respuesta.total_sin_des;
+let descuento_venta = respuesta.descuento_venta;
+let total_venta = respuesta.total_venta;
+let efectivo_venta = respuesta.efectivo_venta;
+let cambio_venta = respuesta.cambio_venta;
+let fechaMas7Dias = respuesta.fechaMas7Dias;
+let numero_referencia = respuesta.numero_referencia;
+let nombreCompleto_1 = respuesta.nombreCompleto_1;
+console.log(respuesta);
+// console.log(respuesta.idsuc);
+// Mostrar la alerta de éxito
+Swal.fire({
+  title: "Venta realizada",
+  text: "Haga click en Ok para ver la factura o recibo",
+  icon: "success",
+})
+me.generarPDF(direccionMayusculas,nomsucursal,nuevoComprobante,fecha,hora,num_documento,nom_a_facturar,array_recibo,
+total_sin_des,descuento_venta,total_venta,efectivo_venta,cambio_venta,fechaMas7Dias,numero_referencia,nombreCompleto_1
+);
+                  
+              }
+
+          })
+          .catch(error => {
+              // Manejar el error
+              if (error.response && error.response.status === 500) {
+                  me.errorMsg = error.response.data.error; // Asigna el mensaje de error a la variable errorMsg
+                  Swal.fire(
+                      "Error",
+                      "500 (Internal Server Error): " + me.errorMsg, // Muestra el mensaje de error en el alert
+                      "error"
+                  );
+              } else {
+                  Swal.fire(
+                      "Error",
+                      error.message || error, // Muestra el mensaje de error en el alert
+                      "error"
+                  );
+              }
+          });
     },
 
 

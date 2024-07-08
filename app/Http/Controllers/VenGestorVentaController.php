@@ -33,10 +33,8 @@ class VenGestorVentaController extends Controller
                $idsuc = "";
                $name_user = ""; 
                if ($user_1==1) {
-                $nomsucursal="SUCURSAL MAIN";
-                $iduserrolesuc = 1;
-               $idsuc = 1;
-               $name_user = "administrador";
+                $valor = '1';
+                return response()->json(['data' => $valor]);
                }else{
                 $nomsucursal= session('nomsucursal');
                 $iduserrolesuc = session('iduserrolesuc');
