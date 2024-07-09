@@ -16,7 +16,7 @@ return new class extends Migration
             $table->smallInteger('id_sucursal');
             $table->smallInteger('id_cliente');
             $table->smallInteger('id_usuario');
-            $table->smallInteger('nro_comprobante_venta');
+            $table->integer('nro_comprobante_venta');
             $table->decimal('total_venta', 11, 2);
             $table->decimal('efectivo_venta', 11, 2)->default(0.00);
             $table->decimal('cambio_venta', 11, 2)->default(0.00);
@@ -25,6 +25,7 @@ return new class extends Migration
             $table->tinyInteger('anulado')->default(0)->comment('1 esta anulado, 0 no anulado');           
             $table->timestamps();
             $table->decimal('total_sin_des',11,2);
+            $table->tinyInteger('tipo_venta_reci_fac')->comment('1 para recibo 2 para factura');
         });
     }
 

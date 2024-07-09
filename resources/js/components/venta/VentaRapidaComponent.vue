@@ -103,7 +103,7 @@
                                  deselectLabel="Quitar seleccion"
                                  selectedLabel="Seleccionado"
          
-                                 @select="lipiar_cantida_cantida();" 
+                                 @select="limpiar_cantida_cantida();" 
                                 >
                                 <template #noResult>
                                  No se encontraron elementos. Considere cambiar la consulta de búsqueda.
@@ -203,7 +203,7 @@
                      <tbody>
                          <tr v-for="venta in arrayVentas" :key="venta.id">
                              <td class="col-1" style="text-align:center">
-                                 <button type="button" class="btn btn-danger btn-sm" @click="quitarVEnta(venta.id)">
+                                 <button type="button" class="btn btn-danger btn-sm" @click="quitarVEnta(venta.id_contador)">
                                      <i class="fa fa-minus" aria-hidden="true"></i>
                                  </button>
                              </td>
@@ -295,12 +295,12 @@
 
 
                     <select class="custom-select mr-sm-2" id="inlineFormCustomSelect" v-model="TipoComprobate">
-                        <option value=0 selected disabled>Comprobante</option>
-                        <option value=1>Recibo</option>
-                        <option value=2>Factura</option>
+                        <option value="0" selected disabled>Comprobante</option>
+                        <option value="1">Recibo</option>
+                        <option value="2">Factura</option>
                         
                       </select>
-                    <button v-if="TipoComprobate!=0&& datos_cliete!=''&&id_tipo_doc!=''&&arrayVentas.length>0" type="button" class="btn btn-primary" @click="realizarVenta()">REALIZAR VENTA</button>  
+                    <button v-if="(TipoComprobate!=0&& datos_cliete!=''&&id_tipo_doc!=''&&arrayVentas.length>0&&key_1===1)" type="button" class="btn btn-primary" @click="realizarVenta()">REALIZAR VENTA</button>  
                       
                     <button v-else type="button" class="btn btn-light" >REALIZAR VENTA</button>
                 </div>          
@@ -801,8 +801,9 @@ export default {
      descuento_final:0,       
      id_descuento_x:0,
      existe_final:0,
-     array_vetasQuery:[],       
-  
+     array_vetasQuery:[],    
+     key_1:0,   
+     controlador_venta_id:0,       
         };
     },
     created() {
@@ -1267,7 +1268,8 @@ if (tipo_can_valor==='BS') {
             me.existe_producto=0;
             me.tota_del_total=0;
             me.descuento_final=0;      
-            me.array_vetasQuery=[];  
+            me.array_vetasQuery=[]; 
+            me.key_1=0; 
   
     },
 
@@ -1408,7 +1410,7 @@ if (tipo_can_valor==='BS') {
         },
 
 
-        lipiar_cantida_cantida(){
+        limpiar_cantida_cantida(){
             let me = this;          
             me.numero='';
             me.descuento='';
@@ -1416,14 +1418,41 @@ if (tipo_can_valor==='BS') {
 
         quitarVEnta(id){            
             let me = this;
-            me.arrayVentas = me.arrayVentas.filter(venta => venta.id !== id);
+            let verificador=me.arrayVentas.find(venta => venta.id_contador === id);            
+            console.log(verificador.subtotal);
+            let sumadoT= me.sumatotal;
+            
+      
+            me.sumatotal = parseFloat((Number(sumadoT) - Number(verificador.subtotal)).toFixed(2));  
+me.tota_del_total = parseFloat((me.sumatotal - Number(me.descuento_final)).toFixed(2));  
+
+if(Number(me.efectivo) > 0){
+    me.cambio = parseFloat((Number(me.efectivo) - me.tota_del_total).toFixed(2)); 
+    me.cambio =  me.cambio.toFixed(2);
+}
+
+//me.tota_del_total=me.sumatotal-descuento_final;
+//me.descuento_1=me.descuento_final+me.descuento_1;
+           console.log("=="+me.sumatotal);
+          //  me.tota_del_total=me.sumatotal;
+          me.arrayProducto_recibo_1 =me.arrayProducto_recibo_1.filter(ve => ve.id_contador !== id);
+           me.arrayVentas = me.arrayVentas.filter(venta => venta.id_contador !== id);
+           me.array_vetasQuery=me.array_vetasQuery.filter(ven => ven.id_contador !==id);
+           const totalDescuento = me.array_vetasQuery.reduce((total, venta) => {
+  return total + (parseFloat(venta.descuento) || 0);
+}, 0);
+console.log("///////"+totalDescuento);    
+
+
             if (me.arrayVentas.length===0) {
                me.contador_cliente=0;
                me.arrayVentas=[];
                me.sumatotal=0;
                me.descuento_final=0; 
                 me.tota_del_total=0;
-
+                me.controlador_venta_id=0;
+                me.efectivo=0;
+                me.cambio=0;
             }           
            // me.arrayVentas = me.arrayVentas.filter(venta => venta.id !== id);
             console.log("----------------------");
@@ -1432,7 +1461,8 @@ if (tipo_can_valor==='BS') {
 
         agregarVenta(){
             try {
-                            let me = this;                        
+                            let me = this;      
+                            me.controlador_venta_id++;                  
                             console.log(me.validadorPersonal);
                             if (me.validadorPersonal===99) {
                               
@@ -1716,13 +1746,14 @@ if (tipo_can_valor==='BS') {
                     
          }
           me.sumatotal=me.sumatotal+subtotal;
+
           me.tota_del_total=me.sumatotal;
             // Convertir a un número con dos decimales
             subtotal = parseFloat(subtotal.toFixed(2));
             
 
            console.log(me.selected.nombre_linea);
-            me.arrayVentas.push({id: me.selected.id,leyenda: me.selected.leyenda,cantidad:me.numero,precio:me.selected.precio_lista_gespreventa,
+            me.arrayVentas.push({id_contador:me.controlador_venta_id, id: me.selected.id,leyenda: me.selected.leyenda,cantidad:me.numero,precio:me.selected.precio_lista_gespreventa,
             descuento: descuento,subtotal:subtotal,id_ingreso:me.selected.id_ingreso,id_pro:me.selected.id_prod,nombre_linea:me.selected.nombre_linea
             });
             let es_lista=0;
@@ -1732,8 +1763,8 @@ if (tipo_can_valor==='BS') {
                 es_lista=me.selected.id_lista;
             }
             
-            me.array_vetasQuery.push({es_lista: es_lista,id_ges_pre:me.selected.id,id_ingreso:me.selected.id_ingreso,id_producto:me.selected.id_prod,id_linea:me.selected.id_linea,precio_venta:me.selected.precio_lista_gespreventa,cantidad_venta:me.numero});
-            me.arrayProducto_recibo_1.push({cant:me.numero,descrip:me.selected.leyenda,p_u:me.selected.precio_lista_gespreventa,});
+            me.array_vetasQuery.push({id_contador:me.controlador_venta_id,descuento: descuento,es_lista: es_lista,id_ges_pre:me.selected.id,id_ingreso:me.selected.id_ingreso,id_producto:me.selected.id_prod,id_linea:me.selected.id_linea,precio_venta:me.selected.precio_lista_gespreventa,cantidad_venta:me.numero});
+            me.arrayProducto_recibo_1.push({id_contador:me.controlador_venta_id,cant:me.numero,descrip:me.selected.leyenda,p_u:me.selected.precio_lista_gespreventa,});
             if (me.validadorPersonal===7 || me.existe_final>0) {
             let sumador_21_sub = 0;
             let sumador_21_des = 0;
@@ -1855,6 +1886,7 @@ if (tipo_can_valor==='BS') {
         this.nom_a_facturar=cliente.nom_a_facturar;
         this.num_documento=cliente.num_documento;
         this.datos_cliete=cliente.nom_a_facturar+"/"+cliente.num_documento+"/"+cliente.tipo_doc_datos+"-"+cliente.tipo_doc_nombre;
+        this.key_1=1;
         this.cerrarModal('lote_cliete')
         },
 
@@ -1880,8 +1912,10 @@ if (tipo_can_valor==='BS') {
         this.correo_cliente="";
         this.nom_a_facturar=this.razon_social_99001;
         this.TipoComprobate=2;
+        this.key_1=1;
         this.datos_cliete=this.nom_a_facturar+"/"+this.num_documento+"/OD-OTRO DOCUMENTO DE IDENTIDAD";
-        this.cerrarModal('cliente_modal')       
+        
+        this.cerrarModal('cliente_modal');       
       },
     
 
@@ -1903,6 +1937,7 @@ if (tipo_can_valor==='BS') {
         this.datos_cliete="";
         this.razon_social_000="";
         this.buscarCliente="";
+        this.key_1=0;
       },
 
         listarUsuario() {
@@ -1922,6 +1957,7 @@ if (tipo_can_valor==='BS') {
             me.correo_cliente="";
             me.datos_cliete=me.nom_a_facturar+"/"+ me.num_documento+"/OD-OTRO DOCUMENTO DE IDENTIDAD";
             me.TipoComprobate=2;
+            me.key_1=1;
         break;
     case '99003':
         me.id_tipo_doc=4;
@@ -1931,6 +1967,7 @@ if (tipo_can_valor==='BS') {
         me.nom_a_facturar="VENTAS MENORES DEL DIA";
         me.datos_cliete=me.nom_a_facturar+"/"+me.num_documento+"/OD-OTRO DOCUMENTO DE IDENTIDAD";
         me.TipoComprobate=2;
+        me.key_1=1;
     break;
     case '0':
         me.id_tipo_doc=4;
@@ -1940,6 +1977,7 @@ if (tipo_can_valor==='BS') {
         me.correo_cliente="farmacia_pueto_del_rosarioxwass1234887458888@gmail.com";
         me.datos_cliete=me.nom_a_facturar+"/"+me.num_documento+"/OD-OTRO DOCUMENTO DE IDENTIDAD";
         me.TipoComprobate=2;
+        me.key_1=1;
     break;
     case '000':    
     me.id_tipo_doc=4;
@@ -1949,6 +1987,7 @@ if (tipo_can_valor==='BS') {
         me.correo_cliente="farmacia_pueto_del_rosarioxwass1234887458888@gmail.com";
         me.datos_cliete=me.nom_a_facturar+"/"+me.num_documento+"/OD-OTRO DOCUMENTO DE IDENTIDAD";
         me.TipoComprobate=1;
+        me.key_1=1;
     break;
     default:
     axios
@@ -1964,6 +2003,8 @@ if (tipo_can_valor==='BS') {
                     me.cliente_id_sucursal_desc=response.data.id_11;
                     if (me.cliente_id==undefined) {
                         me.datos_cliete="No se encontro cliente..."
+                        me.key_1=0;
+                        me.TipoComprobate=0;
                     } else {
                         me.id_tipo_doc=response.data.id_tipo_doc;
                         me.nom_a_facturar=response.data.nom_a_facturar;
@@ -1971,7 +2012,7 @@ if (tipo_can_valor==='BS') {
                         me.cliente_id=response.data.id;
                         me.correo_cliente=response.data.correo;
                         me.datos_cliete=response.data.nom_a_facturar+"/"+response.data.num_documento+"/"+response.data.tipo_doc_nombre;  
-                     
+                        me.key_1=1;
                     }
                   
                 })
@@ -2051,7 +2092,7 @@ if (tipo_can_valor==='BS') {
                     me.id_tipo_doc='';
                     me.razon_social_99001="";
                     me.cliente_id="";
-                    me.TipoComprobate=0;
+                   me.TipoComprobate=0;
                     me.classModal.openModal("cliente_modal");
                     break;
                 }
@@ -2063,7 +2104,7 @@ if (tipo_can_valor==='BS') {
                     me.nom_a_facturar='';
                     me.num_documento='';
                     me.datos_cliete='';
-                    me.TipoComprobate=0;
+                   me.TipoComprobate=0;
                     document.addEventListener('keydown', this.preventEnter);
                     me.classModal.openModal("lote_cliete");
                     break;
@@ -2133,45 +2174,54 @@ if (tipo_can_valor==='BS') {
             console.log(me.num_documento);
             console.log(me.TipoComprobate);
             console.log("//////////////////*****");
-        // Validaciones iniciales
-        if (parseInt(me.TipoComprobate) === 1) {
-               if (0===parseInt(me.num_documento)||99001===parseInt(me.num_documento)||99002===parseInt(me.num_documento)||99003===parseInt(me.num_documento)) {
+            let cadena=String(me.num_documento);
+            let cadena_tipo=String(me.TipoComprobate);
+            switch (cadena_tipo) {
+                case "1":
+                if ("0"===cadena||"99001"===cadena||"99002"===cadena||"99003"===cadena) {
                 Swal.fire(
                     "No pudo realizar la venta",
                     "Un recibo no puede tener datos de factura como ser 0, 99001, 99002, 99003",
                     "error"
                 );
-                return;           
+                         
                 }else{
-                    console.log("*********DATO EXITOSO*********");   
-                    return
+                    me.EnviarRecibo();
                 }
-               } else {  
-                if(parseInt(me.TipoComprobate) === 2){
-            Swal.fire(
-                "Modulo en construcción",
-                "No se pudo hacer la venta",
-                "error"
-            );
-            return;
-        }else{
-            Swal.fire(
-                "Contacte al administrador",
-                "Error de tipo de comprobante o input de entrada",
-                "error"
-            );
-            return;
-        }            
-                
-               }               
-       
+                    break;
+            
+                case "2":
+                    if ("000"===cadena) {
+                        Swal.fire(
+                    "No pudo realizar la venta",
+                    "Un recibo no puede tener datos de factura como ser 000",
+                    "error"
+                ); 
+                    } else {
+                        me.EnviarRecibo(); 
+                    }
+                    break;    
+                default:
+                Swal.fire(
+                    "Error no esperado",
+                    "Contacte al administrador.",
+                    "error"
+                );
+                    break;
+            }      
 
-
+                  
+      
     },
 
-
     EnviarRecibo(){
-        me.descuento_1=me.descuento_final+me.descuento_1;
+        let me = this;
+       
+        const totalDescuento = me.array_vetasQuery.reduce((total, venta) => {
+  return total + (parseFloat(venta.descuento) || 0);
+}, 0);
+me.descuento_1=totalDescuento+me.descuento_final;
+
         const data = {
           TipoComprobate: me.TipoComprobate,
           num_documento: me.num_documento,
@@ -2221,17 +2271,31 @@ let cambio_venta = respuesta.cambio_venta;
 let fechaMas7Dias = respuesta.fechaMas7Dias;
 let numero_referencia = respuesta.numero_referencia;
 let nombreCompleto_1 = respuesta.nombreCompleto_1;
+let tipocom = respuesta.tipocom;
 console.log(respuesta);
 // console.log(respuesta.idsuc);
 // Mostrar la alerta de éxito
-Swal.fire({
+                if (tipocom===1) {
+                    Swal.fire({
   title: "Venta realizada",
-  text: "Haga click en Ok para ver la factura o recibo",
+  text: "Haga click en Ok ",
   icon: "success",
 })
 me.generarPDF(direccionMayusculas,nomsucursal,nuevoComprobante,fecha,hora,num_documento,nom_a_facturar,array_recibo,
 total_sin_des,descuento_venta,total_venta,efectivo_venta,cambio_venta,fechaMas7Dias,numero_referencia,nombreCompleto_1
-);
+); 
+                } else{
+                    if (tipocom===2) {
+                        Swal.fire({
+                        title: "Venta realizada",
+                        text: "Haga click en Ok ",
+                        icon: "success",
+                        })
+                        ///falta modelo de factura ------------
+
+                    } 
+                }
+
                   
               }
 
@@ -2315,7 +2379,7 @@ if (!correoRegex.test(me.correo)) {
         //var documento
       
         me.datos_cliete=me.nom_a_facturar+"/"+me.num_documento+"/"+me.extencion_tipodocumento+"-"+me.nombre_documento;
-           
+        me.key_1=1; 
             me.cerrarModal("registrar_cliente");
             Swal.fire(
                 "Registro exitosamente",

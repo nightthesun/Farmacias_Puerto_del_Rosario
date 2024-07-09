@@ -96,7 +96,7 @@
                             <tr v-for="venta in arrayVentas" :key="venta.id">
                                 <td>
                                     <button v-if="venta.estado==0" type="button" class="btn btn-danger btn-sm" @click="eliminarVenta(venta.id)" >
-                                        <i class="icon-trash"></i>
+                                        <i class="icon-trash">11</i>
                                     </button>
                                 </td>
                                 <td v-text="venta.cod"></td>

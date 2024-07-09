@@ -45,10 +45,13 @@ class VenGestorVentaController extends Controller
                $ultimoComprobante = DB::table('ven__recibos')
     ->orderBy('nro_comprobante_venta', 'desc')
     ->value('nro_comprobante_venta');
-
+    $currentDateTime = Carbon::now();
 if (is_null($ultimoComprobante)) {
     // La tabla está vacía, iniciar con 1
-    $nuevoComprobante = 1;
+    $year = $currentDateTime->year;   
+    $compro=strval($year)."1"; 
+    $compro_v2 = intval($compro);
+    $nuevoComprobante = $compro_v2;
 } else {
     // Incrementar el último número de comprobante
     $nuevoComprobante = $ultimoComprobante + 1;
@@ -58,9 +61,7 @@ $num_documento = $request->input('num_documento');
 $nom_a_facturar = strtoupper($request->input('nom_a_facturar'));
 $numero_referencia = 69910577;
 // Obtener la fecha y hora actual
-$currentDateTime = Carbon::now();
-   
- 
+
 
     // datos para cargar 
         $total_venta=$request->total_venta;
@@ -68,7 +69,7 @@ $currentDateTime = Carbon::now();
         $cambio_venta=$request->cambio_venta;
         $descuento_venta=$request->descuento_venta;
         $total_sin_des= $total_venta+$descuento_venta;
-    
+        $dato_tipo=intval($request->TipoComprobate);
     $data_recibo = [
         'id_sucursal' => $idsuc,
         'id_cliente' => $request->cliente_id,
@@ -80,7 +81,8 @@ $currentDateTime = Carbon::now();
         'descuento_venta' => $descuento_venta,
         'created_at' => $currentDateTime,
         'updated_at' => $currentDateTime,
-        'total_sin_des' => $total_sin_des
+        'total_sin_des' => $total_sin_des,
+        'tipo_venta_reci_fac' => $dato_tipo
        ];   
        $id_recibo = DB::table('ven__recibos')->insertGetId($data_recibo);
    
@@ -172,7 +174,8 @@ $currentDateTime = Carbon::now();
             'cambio_venta' => $cambio_venta,
             'fechaMas7Dias' => $fechaMas7Dias,
             'numero_referencia' => $numero_referencia,
-            'nombreCompleto_1' => $nombreCompleto_1           
+            'nombreCompleto_1' => $nombreCompleto_1,
+            'tipocom'=> $dato_tipo           
         ]);
 
 
