@@ -1262,10 +1262,10 @@ if (tipo_can_valor==='BS') {
             me.efectivo=0;
             me.cambio=0;
             me.id_tabla_y2=""; 
-            me.existe_cliente=0;  
+      
             me.existe_cliente_f=0;    
             me.contador_cliente=0;  
-            me.existe_producto=0;
+           
             me.tota_del_total=0;
             me.descuento_final=0;      
             me.array_vetasQuery=[]; 
@@ -1466,7 +1466,7 @@ console.log("///////"+totalDescuento);
                             console.log(me.validadorPersonal);
                             if (me.validadorPersonal===99) {
                               
-                if (me.num_documento===''&&me.existe_cliente_f>0) {
+                if (me.num_documento===''||me.datos_cliete==='') {
                 Swal.fire(
                     "Primero debe seleccionar un cliente",
                     "Haga click en Ok",
@@ -2149,12 +2149,12 @@ console.log("///////"+totalDescuento);
             me.classModal.closeModal(accion);
             me.tituloModal = "";
             me.buscarCliente ="";
-                    //me.pais='';
-                    //me.ciudad='';
-                    //me.direccion='';
-                    //me.telefono='';
-                    //me.num_documento2='';
-                    //me.correo='';
+                    me.pais='';
+                    me.ciudad='';
+                    me.direccion='';
+                    me.telefono='';
+                    me.num_documento2='';
+                    me.correo='';
                     //me.nombre_a_facturar='';
                     //me.nombres='';
                     //me.selectEX=0; 

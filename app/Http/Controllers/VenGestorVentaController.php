@@ -43,19 +43,19 @@ class VenGestorVentaController extends Controller
                } 
                 
                $ultimoComprobante = DB::table('ven__recibos')
-    ->orderBy('nro_comprobante_venta', 'desc')
-    ->value('nro_comprobante_venta');
+    ->orderBy('contador', 'desc')
+    ->value('contador');
     $currentDateTime = Carbon::now();
 if (is_null($ultimoComprobante)) {
-    // La tabla está vacía, iniciar con 1
-    $year = $currentDateTime->year;   
-    $compro=strval($year)."1"; 
-    $compro_v2 = intval($compro);
-    $nuevoComprobante = $compro_v2;
+    // La tabla está vacía, iniciar con 1    
+    $contador_2 = 1;
 } else {
     // Incrementar el último número de comprobante
-    $nuevoComprobante = $ultimoComprobante + 1;
+    $contador_2 = $ultimoComprobante + 1;
 }
+$year = strval($currentDateTime->year); 
+$contadorCadena=strval($contador_2);
+$controlador_2_1=$year.$contadorCadena;
 
 $num_documento = $request->input('num_documento');
 $nom_a_facturar = strtoupper($request->input('nom_a_facturar'));
@@ -74,7 +74,7 @@ $numero_referencia = 69910577;
         'id_sucursal' => $idsuc,
         'id_cliente' => $request->cliente_id,
         'id_usuario'=>$id_user2,
-        'nro_comprobante_venta' => $nuevoComprobante,
+        'nro_comprobante_venta' => $controlador_2_1,
         'total_venta' => $total_venta,
         'efectivo_venta' => $efectivo_venta, 
         'cambio_venta' => $cambio_venta,       
@@ -82,7 +82,8 @@ $numero_referencia = 69910577;
         'created_at' => $currentDateTime,
         'updated_at' => $currentDateTime,
         'total_sin_des' => $total_sin_des,
-        'tipo_venta_reci_fac' => $dato_tipo
+        'tipo_venta_reci_fac' => $dato_tipo,
+        'contador'=> $contador_2
        ];   
        $id_recibo = DB::table('ven__recibos')->insertGetId($data_recibo);
    
@@ -160,7 +161,7 @@ $numero_referencia = 69910577;
            // 'id_user2' => $id_user2,           
            'nomsucursal' => $nombre_negocio,
            'direccionMayusculas' => $direccionMayusculas, 
-           'nuevoComprobante' => $nuevoComprobante,          
+           'nuevoComprobante' => $controlador_2_1,          
             'fecha' => $fecha,
             'hora' => $hora, 
             'num_documento' => $num_documento,
