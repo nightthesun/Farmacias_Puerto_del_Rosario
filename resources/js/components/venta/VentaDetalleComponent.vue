@@ -68,10 +68,46 @@
                                 </button>
                             </div>
                         </div>
+                        
+                       
 
             </div>
-            <!---inserte tabla-->
+             
 
+            <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="row">
+        <div class="col-md-4" v-if="sucursalSeleccionada !== 0">
+          <label for="start-date">Fecha inicial:</label>
+          <input id="start-date" type="date" class="form-control" v-model="startDate">
+        </div>
+        <div class="col-md-4" v-if="sucursalSeleccionada !== 0">
+          <label for="end-date">Fecha final:</label>
+          <input id="end-date" type="date" class="form-control" v-model="endDate">
+        </div>
+      </div>
+    </div>
+  </div>
+  <br>
+            <!---inserte tabla-->
+            <table class="table table-bordered table-striped table-sm table-responsive" >
+                <thead>
+                    <tr>
+                        <th>Opciones</th>
+                        <th class="col-md-1">Cliente</th>
+                        <th class="col-md-5">Nro docuemnto</th>
+                        <th>Tipo de comprobante</th>
+                        <th>Numero de comprobante</th>
+                        <th class="col-md-1">Total</th>
+                        <th class="col-md-1">Destino</th>
+                        <th>Vehiculo</th>
+                        <th class="col-md-3">Observación</th>
+                        <th class="col-md-2">Per. Enviada</th>
+                        <th>Usuario</th>
+                        <th>Estado</th>       
+                    </tr>
+                </thead>
+            </table>    
 
             <!-----fin de tabla------->
         </div>
@@ -179,11 +215,29 @@ export default {
             arraySucursal:[],
             buscar:"",
             tipoAccion:1,
-            
+            startDate: '',
+      endDate: '',
+      id_seleccionada_sucursal:0,
+      cod_seleccionada_sucursal:'',
         };
     },
 
-   
+    watch: {
+    sucursalSeleccionada(valor) {
+      if (valor !== 0) {
+        let sucursal = this.sucursales.find(element => element.codigo === valor);
+
+        if (sucursal) {
+          this.id_seleccionada_sucursal = sucursal.id;
+          this.cod_seleccionada_sucursal = sucursal.codigo;
+        }
+
+        console.log(this.id_seleccionada_sucursal);
+        console.log(this.cod_seleccionada_sucursal);
+      }
+    }
+  },
+
 
     computed: {
       //  sicompleto() {
@@ -279,6 +333,20 @@ export default {
             
             }
         },
+
+        fecha_inicial(){
+            // Obtener la fecha actual
+    const today = new Date();
+    // Obtener el año, mes y día actual
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0'); // Meses en JavaScript son de 0 a 11
+    const day = String(today.getDate()).padStart(2, '0');
+
+    // Asignar la fecha del primer día del mes al input de fecha de inicio
+    this.startDate = `${year}-${month}-01`;
+    // Asignar la fecha actual al input de fecha final
+    this.endDate = `${year}-${month}-${day}`;
+        },
         cerrarModal(accion) {
             let me = this;
             if (accion == "registrar") {
@@ -310,6 +378,7 @@ export default {
     mounted() {
         this.classModal = new _pl.Modals();
         this.sucursalFiltro();
+        this.fecha_inicial();
         this.classModal.addModal("registrar");
     
     

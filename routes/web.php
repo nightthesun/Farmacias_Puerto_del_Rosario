@@ -157,7 +157,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/tiene_movimiento', [GetController::class, 'tiene_movimiento']);
     Route::get('/listarSucusal_TDA_ALM_sin_permiso', [GetController::class, 'listarSucusal_TDA_ALM_sin_permiso']);      
     
-   
+    
     //adm///////////////////////////////////////////////////////////////////////////////////
 
     Route::get('/rubro', [AdmRubroController::class, 'index']);
