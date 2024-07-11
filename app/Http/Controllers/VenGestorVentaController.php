@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Tda_ingresoProducto2;
 use App\Models\Ven_GestorVenta;
 use Barryvdh\DomPDF\Facade\Pdf;
 
@@ -70,6 +71,8 @@ $numero_referencia = 69910577;
         $descuento_venta=$request->descuento_venta;
         $total_sin_des= $total_venta+$descuento_venta;
         $dato_tipo=intval($request->TipoComprobate);
+        $codigo_tienda_almacen_0=$request->codigo_tienda_almacen_0;
+        $id_lista_v2=$request->id_lista_v2;
     $data_recibo = [
         'id_sucursal' => $idsuc,
         'id_cliente' => $request->cliente_id,
@@ -83,7 +86,9 @@ $numero_referencia = 69910577;
         'updated_at' => $currentDateTime,
         'total_sin_des' => $total_sin_des,
         'tipo_venta_reci_fac' => $dato_tipo,
-        'contador'=> $contador_2
+        'contador'=> $contador_2,
+        'cod'=> $codigo_tienda_almacen_0,
+        'id_lista'=>$id_lista_v2,
        ];   
        $id_recibo = DB::table('ven__recibos')->insertGetId($data_recibo);
    
@@ -114,6 +119,7 @@ $numero_referencia = 69910577;
             $id_linea=$item['id_linea'];
             $precio_venta=$item['precio_venta'];
             $cantidad_venta=$item['cantidad_venta'];
+            $codigo_tienda_almacen=$item['codigo_tienda_almacen'];
             $data_det_venta = [
                 'id_venta' => $id_recibo,          
                 'es_lista' => $es_lista,
@@ -122,12 +128,17 @@ $numero_referencia = 69910577;
                 'id_producto' => $id_producto,       
                 'id_linea' => $id_linea,    
                 'precio_venta' => $precio_venta,
-                'cantidad_venta' => $cantidad_venta, 
+                'cantidad_venta' => $cantidad_venta,
+                'codigo_tienda_almacen'=>$codigo_tienda_almacen 
                ];  
             DB::table('ven__detalle_ventas')->insert($data_det_venta);
+           // Si todo sale bien, confirmar la transacción
+           $update = Tda_ingresoProducto2::find($id_ingreso);
+           $cantidad_v3=$update->stock_ingreso;
+           $update->stock_ingreso = $cantidad_v3-$cantidad_venta;
+           $update->save();    
         }       
-            // Si todo sale bien, confirmar la transacción
-      
+            
     DB::commit();
         // Llamar a create_recibo
         //$reciboData = $this->create_recibo($idsuc,$id_user2,$nuevoComprobante,$nomsucursal,$num_documento,$currentDateTime,$nom_a_facturar,$numero_referencia,$request->arrayProRecibo,$total_sin_des,$descuento_venta, $total_venta,$efectivo_venta,$cambio_venta);
@@ -188,131 +199,8 @@ $numero_referencia = 69910577;
       
     }
 
-    ///---------------------------------------------------------------------------------
-        public function create_recibo($id_su, $id_user,$nuevoComprobante,$nomsucursal,$num_documento,$currentDateTime,$nom_a_facturar,$numero_referencia,$arrayProRecibo,$total_sin_des,$descuento_venta,$total_venta,$efectivo_venta,$cambio_venta){
-            $direccion = DB::table('adm__sucursals')
-        ->where('id', $id_su)
-        ->value('direccion'); 
-
-    $nombreCompletoObj = DB::table('rrh__empleados as re')
-        ->join('users as u', 're.id', '=', 'u.idempleado')
-        ->where('u.id', $id_user)
-        ->select(DB::raw("CONCAT(
-            COALESCE(re.nombre, ''), ' ',
-            COALESCE(re.papellido, ''), ' ',
-            COALESCE(re.sapellido, '')
-        ) as nombre_completo"))
-        ->first();
-// Verificar si se obtuvo el nombre completo
-$nombreCompleto = $nombreCompletoObj ? $nombreCompletoObj->nombre_completo : '';
-              //datos para hacer factura vista
-        $nombre_negocio = strtoupper($nomsucursal);      
-        $direccionMayusculas=strtoupper($direccion);     
-        $fecha = $currentDateTime->format('d/m/Y');
-        $hora = $currentDateTime->format('H:i:s');       
-        $fechaMas7Dias = $currentDateTime->addDays(7);
-        $nombreCompleto_1=strtoupper($nombreCompleto);
-// Convertir las dimensiones a puntos (1 mm = 2.83465 puntos)
-$width = 80 * 2.83465; // 80 mm a puntos
-$height = 0; // Suficientemente grande para permitir crecimiento 326
- // Definir el tamaño del papel
- $customPaper = array(0, 0, $width, $height);
-   // Generar el PDF
-   $pdf = PDF::loadView('factura.recibo', compact('nombre_negocio','direccionMayusculas','nuevoComprobante','fecha','hora','num_documento','nom_a_facturar','arrayProRecibo','total_sin_des','descuento_venta','total_venta','efectivo_venta','cambio_venta','fechaMas7Dias','numero_referencia','nombreCompleto_1'))
-   ->setPaper($customPaper, 'portrait');
-   // Descargar el PDF
-   return $pdf->download('recibo.pdf');
-        }
-
-    //------------------------------------------------------------------------------------
-
-    public function mostrarPDF(Request $request){
-    // Obtén los datos de la solicitud GET
-   $data = $request->query('data'); // Obtén el parámetro 'data' de la URL
-   // Decodifica la cadena JSON recibida en un array asociativo
-   $datos = json_decode($data, true);
-   // Ahora puedes acceder a cada dato individualmente
-$idsuc = $datos['idsuc']; 
-
-$id_user2 = $datos['id_user2'];
-$nuevoComprobante = $datos['nuevoComprobante'];
-$nomsucursal = $datos['nomsucursal'];
-$num_documento = $datos['num_documento'];
-$currentDateTime = $datos['currentDateTime'];
-$nom_a_facturar = $datos['nom_a_facturar'];
-$numero_referencia = $datos['numero_referencia'];
-$array_recibo = $datos['array_recibo'];
-$total_sin_des = $datos['total_sin_des'];                
-$efectivo_venta = $datos['efectivo_venta']; 
-$total_venta = $datos['total_venta'];
-$descuento_venta = $datos['descuento_venta'];
-$cambio_venta = $datos['cambio_venta'];   
-
-$direccion = DB::table('adm__sucursals')
-->where('id', $idsuc)
-->value('direccion'); 
-
-$nombreCompletoObj = DB::table('rrh__empleados as re')
-->join('users as u', 're.id', '=', 'u.idempleado')
-->where('u.id', $id_user2)
-->select(DB::raw("CONCAT(
-    COALESCE(re.nombre, ''), ' ',
-    COALESCE(re.papellido, ''), ' ',
-    COALESCE(re.sapellido, '')
-) as nombre_completo"))
-->first();
-// Verificar si se obtuvo el nombre completo
-$nombreCompleto = $nombreCompletoObj ? $nombreCompletoObj->nombre_completo : '';
-        $nombre_negocio = strtoupper($nomsucursal);      
-        $direccionMayusculas=strtoupper($direccion);
-        $currentDateTime = Carbon::now();
-        $fecha = $currentDateTime->format('d/m/Y');        
-        $hora = $currentDateTime->format('H:i:s');          
-        $fechaMas7Dias = $currentDateTime->addDays(7);
-        $nombreCompleto_1=strtoupper($nombreCompleto);  
-
-// Convertir milímetros a puntos (1 mm = aproximadamente 2.83465 puntos)
-$width = 80 * 2.83465; // Ancho en puntos
-$height = 326; // Altura en puntos
-
-// Definir el tamaño del papel como un array de márgenes y dimensiones en puntos
-$customPaper = array(0, 0, $width, $height);
-
 
     
-               $options = new Options();
-    $options->set('isHtml5ParserEnabled', true);
-
-    $dompdf = new Dompdf($options);
-
-    // Renderiza la vista "pdf.template" en HTML
-    $html = view('factura.recibo',compact('nombre_negocio','direccionMayusculas','nuevoComprobante','fecha','hora',
-    'num_documento','nom_a_facturar','array_recibo','fechaMas7Dias','numero_referencia','nombreCompleto_1'))->render();
-
-    // Carga el HTML al Dompdf
-    $dompdf->loadHtml($html);
-  
-     // Configura el tamaño del papel (por ejemplo, 'A4' o 'letter')
-    $dompdf->setPaper($customPaper, 'portrait'); // También puedes usar 'landscape' para orientación horizontal
-   
-    // Renderiza el PDF
-    $dompdf->render();
-    // Genera el nombre del archivo PDF
-    $filename = 'recibo_' . $nom_a_facturar . '_nuevoComprobante' . '.pdf';
-    // Envia el archivo al navegador para su descarga
-    $dompdf->stream($filename, array('Attachment' => true));
-    // Genera el contenido del PDF como una cadena
-$output = $dompdf->output();
-  // Mostrar el PDF en otra ventana o pestaña del navegador
-header('Content-Type: application/pdf');
-header('Content-Disposition: inline; filename="' . $filename . '"');
-header('Content-Length: ' . strlen($output));
-header('Content-Transfer-Encoding: binary');
-header('Accept-Ranges: bytes');
-
-echo $output;
-
-    }   
 
     public function get_sucusal(){
         
@@ -367,6 +255,7 @@ echo $output;
                 'gpv.margen_30p_gespreventa',
                 'gpv.utilidad_bruta_gespreventa',
                 'gpv.utilidad_neto_gespreventa',
+                'tt.codigo as codigo_tienda_almacen' ,
                 'tip.envase',
                 'tip.cantidad',
                 'tip.stock_ingreso',
@@ -435,6 +324,7 @@ echo $output;
                 'gpv.margen_30p_gespreventa',
                 'gpv.utilidad_bruta_gespreventa',
                 'gpv.utilidad_neto_gespreventa',
+                'tt.codigo as codigo_tienda_almacen' ,
                 'tip.envase',
                 'tip.cantidad',
                 'tip.stock_ingreso',

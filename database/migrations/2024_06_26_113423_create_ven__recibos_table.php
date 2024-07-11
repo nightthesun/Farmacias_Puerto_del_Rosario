@@ -27,6 +27,9 @@ return new class extends Migration
             $table->decimal('total_sin_des',11,2);
             $table->tinyInteger('tipo_venta_reci_fac')->comment('1 para recibo 2 para factura');
             $table->integer('contador')->nullable();
+            $table->string('cod',25)->nullable();
+            $table->smallInteger('id_lista_v2')->nullable();
+        
         });
     }
 

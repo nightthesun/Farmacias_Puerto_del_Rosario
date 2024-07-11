@@ -84,7 +84,7 @@ createApp ({
     //Ventas
     .component('gestor-venta-component', require('./components/venta/GestorVentaComponent.vue').default)
     .component('venta-rapida-component', require('./components/venta/VentaRapidaComponent.vue').default)
-
+    .component('venta-detalle-component', require('./components/venta/VentaDetalleComponent.vue').default)
     
   
     .mount('#app');

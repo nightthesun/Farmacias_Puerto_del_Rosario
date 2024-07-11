@@ -771,10 +771,11 @@ export default {
     descuentoNombre:'',
     arrayDescuentoOperacion:[],
     //----- numeral
-
+            
+    codigo_tienda_almacen:'',
     //lista
     nom_lista:'',
-
+    id_lista_v2:0,        
     validadorPersonal:'',
     arrayProducto_recibo_1:[],
     valorUnicoPersonalizado:0,
@@ -1270,7 +1271,7 @@ if (tipo_can_valor==='BS') {
             me.descuento_final=0;      
             me.array_vetasQuery=[]; 
             me.key_1=0; 
-  
+            me.codigo_tienda_almacen='';
     },
 
           
@@ -1381,8 +1382,10 @@ if (tipo_can_valor==='BS') {
                     me.id_descuento_x=response.data.id_descuento_x;
                  if (respuesta.lista) {
                     me.nom_lista=respuesta.lista.nombre_lista;
+                    me.id_lista_v2=response.lista.id;
                  } else {
                     me.nom_lista="Sin lista";  
+                    me.id_lista_v2=0;
                  }
           console.log(respuesta);
 // Verificar y mostrar la longitud del array 'descuento' en la respuesta (si es necesario)
@@ -1762,8 +1765,8 @@ console.log("///////"+totalDescuento);
             } else {
                 es_lista=me.selected.id_lista;
             }
-            
-            me.array_vetasQuery.push({id_contador:me.controlador_venta_id,descuento: descuento,es_lista: es_lista,id_ges_pre:me.selected.id,id_ingreso:me.selected.id_ingreso,id_producto:me.selected.id_prod,id_linea:me.selected.id_linea,precio_venta:me.selected.precio_lista_gespreventa,cantidad_venta:me.numero});
+            me.codigo_tienda_almacen=me.selected.codigo_tienda_almacen;
+            me.array_vetasQuery.push({id_contador:me.controlador_venta_id,descuento: descuento,es_lista: es_lista,id_ges_pre:me.selected.id,id_ingreso:me.selected.id_ingreso,id_producto:me.selected.id_prod,id_linea:me.selected.id_linea,precio_venta:me.selected.precio_lista_gespreventa,cantidad_venta:me.numero,codigo_tienda_almacen:me.selected.codigo_tienda_almacen});
             me.arrayProducto_recibo_1.push({id_contador:me.controlador_venta_id,cant:me.numero,descrip:me.selected.leyenda,p_u:me.selected.precio_lista_gespreventa,});
             if (me.validadorPersonal===7 || me.existe_final>0) {
             let sumador_21_sub = 0;
@@ -2236,15 +2239,19 @@ me.descuento_1=totalDescuento+me.descuento_final;
           descuento_venta:me.descuento_1,
           arrayProRecibo:me.arrayProducto_recibo_1,
           arrayDescuentoOperacion: me.arrayDescuentoOperacion, // Incluir el array en el objeto data
-          arrayDesatlleVenta: me.array_vetasQuery
+          arrayDesatlleVenta: me.array_vetasQuery,
+          codigo_tienda_almacen_0:me.codigo_tienda_almacen,
+          id_lista_v2:me.id_lista_v2,
       };
 
       // Realizar la solicitud POST con Axios
       axios.post("/gestor_ventas/venta", data)
           .then(response => {
               // Cerrar el modal
-              me.cerrarModal("registrar");
               me.resetVenta();
+              me.listarSucursalGet();
+              me.cerrarModal("registrar");
+              
               me.respuesta = response.data.data;
               if (me.respuesta==='1') {
                   Swal.fire({

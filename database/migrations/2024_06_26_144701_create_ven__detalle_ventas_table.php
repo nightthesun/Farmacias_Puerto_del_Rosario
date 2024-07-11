@@ -22,6 +22,7 @@ return new class extends Migration
             $table->smallInteger('id_linea');
             $table->decimal('precio_venta', 11, 2);
             $table->integer('cantidad_venta');
+            $table->string('codigo_tienda_almacen',25)->nullable();    
            
         });
     }
