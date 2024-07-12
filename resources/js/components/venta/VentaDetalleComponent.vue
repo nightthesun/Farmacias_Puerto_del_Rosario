@@ -30,7 +30,7 @@
                 </div>
                         <div class="col-md-6">
                             <div class="input-group">
-                                <select class="form-control" v-model="sucursalSeleccionada">
+                                <select class="form-control" v-model="sucursalSeleccionada"    @change="listarVentas(0)">
                                     <option value="0" disabled selected>Seleccionar...</option>
                                     <option v-for="sucursal in arraySucursal" :key="sucursal.id"  :value="sucursal.codigo"
                                         v-text="
@@ -89,28 +89,67 @@
     </div>
   </div>
   <br>
-            <!---inserte tabla-->
-            <table class="table table-bordered table-striped table-sm table-responsive" >
+  
+    <div v-if="sucursalSeleccionada ===0" class="alert alert-secondary" role="alert">
+  Debe seleccionar una sucursal!
+</div>
+<div v-else>
+    <!---inserte tabla-->
+    <table class="table table-bordered table-striped table-sm table-responsive" >
                 <thead>
                     <tr>
-                        <th>Opciones</th>
+                        <th class="col-md-1">Opciones</th>
                         <th class="col-md-1">Cliente</th>
-                        <th class="col-md-5">Nro docuemnto</th>
-                        <th>Tipo de comprobante</th>
-                        <th>Numero de comprobante</th>
+                        <th class="col-md-1">Nro Documento</th>
+                        <th class="col-md-1">Nro Transaccion</th>
+                        <th class="col-md-1">Tipo Comprobante</th>
+                        
                         <th class="col-md-1">Total</th>
-                        <th class="col-md-1">Destino</th>
-                        <th>Vehiculo</th>
-                        <th class="col-md-3">Observación</th>
-                        <th class="col-md-2">Per. Enviada</th>
-                        <th>Usuario</th>
-                        <th>Estado</th>       
+                        <th class="col-md-1">Efectivo</th>
+                        <th class="col-md-1">Cambio</th>
+                        <th class="col-md-2">Fecha/Hora</th>
+                        <th class="col-md-1">Usuario</th>
+                        <th>Anulado</th>
+                        <th>Estado</th>
+
                     </tr>
                 </thead>
+                <tbody>
+                    <tr v-for="v in arrayVentas" :key="v.id">
+                        <td>
+                            <button type="button" class="btn btn-primary "  style="margin-right: 5px;">
+                                <i class="fa fa-file-text" aria-hidden="true"></i>
+                </button>
+                <button type="button" class="btn btn-info "  style="margin-right: 5px;">
+                    <i class="fa fa-file-text-o" aria-hidden="true"></i>
+                </button>
+                <button type="button" class="btn btn-warning "  style="margin-right: 5px;">
+                    <i class="fa fa-eye" aria-hidden="true"></i>
+                </button>
+                <button type="button" class="btn btn-danger "  style="margin-right: 5px;">
+                    <i class="fa fa-trash" aria-hidden="true"></i>
+                </button>
+                        </td>
+                        <td v-text="v.nom_a_facturar"></td>
+                        <td v-text="v.num_documento"></td>
+                        <td v-text="v.nro_comprobante_venta"></td>
+                        <td v-text="v.tipo_venta_reci_fac"></td>
+                        <td v-text="v.total_venta"></td>
+                        <td v-text="v.efectivo_venta"></td>
+                        <td v-text="v.cambio_venta"></td>
+                        <td v-text="v.created_at"></td>
+                        <td v-text="v.name"></td>
+                        <td v-text="v.anulado"></td>
+                        <td v-text="v.estado_venta"></td>
+                    </tr>
+                </tbody>
             </table>    
 
             <!-----fin de tabla------->
         </div>
+</div>
+ 
+            
 
 
             </div>   
@@ -219,25 +258,29 @@ export default {
       endDate: '',
       id_seleccionada_sucursal:0,
       cod_seleccionada_sucursal:'',
+      arrayVentas:[],
         };
     },
 
     watch: {
     sucursalSeleccionada(valor) {
       if (valor !== 0) {
-        let sucursal = this.sucursales.find(element => element.codigo === valor);
+        let sucursal = this.arraySucursal.find(element => element.codigo === valor);
 
         if (sucursal) {
-          this.id_seleccionada_sucursal = sucursal.id;
+          this.id_seleccionada_sucursal = sucursal.id_sucursal;
           this.cod_seleccionada_sucursal = sucursal.codigo;
         }
 
         console.log(this.id_seleccionada_sucursal);
         console.log(this.cod_seleccionada_sucursal);
+        console.log(this.startDate);
+        console.log(this.endDate);
       }
     }
   },
 
+  
 
     computed: {
       //  sicompleto() {
@@ -277,6 +320,24 @@ export default {
     },
 
     methods: {
+  
+    listarVentas(page){
+        let me=this;       
+        var url = "/detalle_venta_2/index?page="+page+"&buscar=" +me.buscar+"&id_sucursal="+me.id_seleccionada_sucursal+"&codigo_tienda_almacen="+me.cod_seleccionada_sucursal+"&startDate="+me.startDate+"&endDate="+me.endDate;
+        axios
+                .get(url)
+                .then(function (response) {
+                    var respuesta = response.data;
+                    me.pagination = respuesta.pagination;
+                    me.arrayVentas = respuesta.ventas_show.data;
+                    console.log(me.arrayVentas);
+                })
+                .catch(function (error) {
+                    error401(error);
+                    console.log(error);
+                });
+    },    
+
         sucursalFiltro() {
             let me = this;
            // var url = "/traspaso/listarSucursal";

@@ -59,6 +59,7 @@ use App\Http\Controllers\ProdListaController;
 use App\Http\Controllers\ProdRegistroPreXListController;
 use App\Http\Controllers\TdaIngresoProducto2Controller;
 use App\Http\Controllers\VenGestorVentaController;
+use App\Http\Controllers\VenGestorVentaVistaController;
 use App\Models\Alm_IngresoProducto;
 use App\Models\Tda_Tienda;
 
@@ -586,5 +587,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/gestor_ventas/venta', [VenGestorVentaController::class, 'venta']);
     Route::get('/gestor_ventas/venta/pdf', [VenGestorVentaController::class, 'venta']);
     Route::get('/gestor_ventas/venta/pdf2', [VenGestorVentaController::class, 'mostrarPDF']);
+
+    //mostrar venta,anular
+    Route::get('/detalle_venta_2/index', [VenGestorVentaVistaController::class, 'index']);
     
 });
