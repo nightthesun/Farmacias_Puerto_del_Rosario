@@ -10,18 +10,8 @@
         <div class="container-fluid">
             <div class="card">
                 <div class="card-header">
-                    <i class="fa fa-align-justify"></i> Traslados               
-                    <button
-                        type="button"
-                        class="btn btn-secondary"
-                        @click="abrirModal('registrar');"
-                        :disabled="selectAlmTienda == 0"
-                    >
-                        <i class="icon-plus"></i>&nbsp;Nuevo
-                    </button>
-                    <span v-if="selectAlmTienda == 0" class="error"
-                        >&nbsp; &nbsp;Debe Seleccionar un almacen o
-                        tienda.</span >
+                    <i class="fa fa-align-justify"></i> Detalle de ventas               
+                 
                 </div>
         <div class="card-body">
             <div class="form-group row">
@@ -51,16 +41,16 @@
                                     id="texto"
                                     name="texto"
                                     class="form-control"
-                                    placeholder="Texto a buscar"
+                                    placeholder="Texto a buscar por usuario, nombre a facturar, numero de documento"
                                     v-model="buscar"
-                               
+                                    @keyup.enter="listarVentas(1)" 
                                     :hidden="sucursalSeleccionada == 0"
                                     :disabled="sucursalSeleccionada == 0"
                                 />
                                 <button
                                     type="submit"
                                     class="btn btn-primary"
-                              
+                                    @click="listarVentas(1)"
                                     :hidden="sucursalSeleccionada == 0"
                                     :disabled="sucursalSeleccionada == 0"
                                 >
@@ -79,11 +69,11 @@
       <div class="row">
         <div class="col-md-4" v-if="sucursalSeleccionada !== 0">
           <label for="start-date">Fecha inicial:</label>
-          <input id="start-date" type="date" class="form-control" v-model="startDate">
+          <input  @change="listarVentas(1)" id="start-date" type="date" class="form-control" v-model="startDate">
         </div>
         <div class="col-md-4" v-if="sucursalSeleccionada !== 0">
           <label for="end-date">Fecha final:</label>
-          <input id="end-date" type="date" class="form-control" v-model="endDate">
+          <input  @change="listarVentas(1)" id="end-date" type="date" class="form-control" v-model="endDate">
         </div>
       </div>
     </div>
@@ -116,36 +106,64 @@
                 </thead>
                 <tbody>
                     <tr v-for="v in arrayVentas" :key="v.id">
-                        <td>
-                            <button type="button" class="btn btn-primary "  style="margin-right: 5px;">
-                                <i class="fa fa-file-text" aria-hidden="true"></i>
-                </button>
-                <button type="button" class="btn btn-info "  style="margin-right: 5px;">
-                    <i class="fa fa-file-text-o" aria-hidden="true"></i>
-                </button>
-                <button type="button" class="btn btn-warning "  style="margin-right: 5px;">
-                    <i class="fa fa-eye" aria-hidden="true"></i>
-                </button>
-                <button type="button" class="btn btn-danger "  style="margin-right: 5px;">
-                    <i class="fa fa-trash" aria-hidden="true"></i>
-                </button>
+                        <td class="col-md-1">
+            <!-- Example single danger button -->
+<div class="btn-group">
+  <button type="button" style="color: white;" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    <i class="fa fa-bars" aria-hidden="true"></i>
+  </button>
+  <div class="dropdown-menu">
+    <a class="dropdown-item" href="#" ><i style="color: black;" class="fa fa-file-pdf-o" aria-hidden="true"></i> Re imprimir factura ticket</a>
+    <a class="dropdown-item" href="#"><i style="color: black;" class="fa fa-file-pdf-o" aria-hidden="true"></i> Re imprimir factura plana</a>
+    <a class="dropdown-item" href="#"><i style="color: black;" class="fa fa-eye" aria-hidden="true"></i> Ver estado</a>
+    <a class="dropdown-item" href="#"><i style="color: black;" class="fa fa-trash" aria-hidden="true"></i> Anular venta</a>
+    
+    
+  </div>
+</div>                       
                         </td>
-                        <td v-text="v.nom_a_facturar"></td>
-                        <td v-text="v.num_documento"></td>
-                        <td v-text="v.nro_comprobante_venta"></td>
-                        <td v-text="v.tipo_venta_reci_fac"></td>
-                        <td v-text="v.total_venta"></td>
-                        <td v-text="v.efectivo_venta"></td>
-                        <td v-text="v.cambio_venta"></td>
-                        <td v-text="v.created_at"></td>
-                        <td v-text="v.name"></td>
-                        <td v-text="v.anulado"></td>
-                        <td v-text="v.estado_venta"></td>
+                        <td class="col-md-1" v-text="v.nom_a_facturar"></td>
+                        <td class="col-md-1" v-text="v.num_documento"></td>
+                        <td class="col-md-1" v-text="v.nro_comprobante_venta"></td>
+                        <td class="col-md-1" v-text="v.tipo_venta_reci_fac"></td>
+                        <td class="col-md-1" v-text="v.total_venta"></td>
+                        <td class="col-md-1" v-text="v.efectivo_venta"></td>
+                        <td class="col-md-1" v-text="v.cambio_venta"></td>
+                        <td class="col-md-2" v-text="v.created_at"></td>
+                        <td class="col-md-1" v-text="v.name"></td>
+                        <td>
+                            <div v-if="v.anulado===0">
+                                <span class="badge badge-pill badge-success">Activo</span>
+                            </div>
+                            <div v-else>
+                                <span  class="badge badge-pill badge-dange">Eliminado</span>
+                            </div>
+                        </td>
+                        <td >
+                            <div v-if="v.estado_venta==='ACEPTADO'">
+                                <span class="badge badge-pill badge-success">Valida</span>
+                            </div>
+                            <div v-else>
+                                <span  class="badge badge-pill badge-warning">Revisar</span>
+                            </div>
+                        </td>
                     </tr>
                 </tbody>
             </table>    
-
             <!-----fin de tabla------->
+            <nav>
+                <ul class="pagination">
+                    <li class="page-item" v-if="pagination.current_page > 1">
+                                <a class="page-link" href="#" @click.prevent="cambiarPagina(pagination.current_page - 1,)">Ant</a>
+                    </li>
+                    <li class="page-item" v-for="page in pagesNumber" :key="page" :class="[page == isActived ? 'active' : '']">
+                                <a class="page-link" href="#" @click.prevent="cambiarPagina(page)" v-text="page"></a>
+                    </li>
+                    <li class="page-item" v-if="pagination.current_page < pagination.last_page">
+                                <a class="page-link" href="#" @click.prevent="cambiarPagina(pagination.current_page + 1,)">Sig</a>
+                    </li>
+                </ul>
+            </nav>
         </div>
 </div>
  
@@ -365,7 +383,7 @@ export default {
         cambiarPagina(page) {
             let me = this;
             me.pagination.current_page = page;
-        //    me.listarAjusteNegativos(page);
+            me.listarVentas(page);
         },
 
         abrirModal(accion, data = []) {
