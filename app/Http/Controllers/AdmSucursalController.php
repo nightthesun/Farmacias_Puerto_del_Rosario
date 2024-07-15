@@ -39,35 +39,56 @@ class AdmSucursalController extends Controller
     
                 }
                 $sucursales0 = DB::table('adm__sucursals as ass')
-                ->join('adm__rubros as ar', 'ass.idrubro', '=', 'ar.id')
-                ->join('tda__tiendas as tt', 'tt.idsucursal', '=', 'ass.id')
-                ->join ('adm__departamentos as ad','ad.id','=','ass.departamento')   
-                ->where('tt.activo', 1)
-                ->whereraw($sqls)
-                ->select(
-                    'ass.id',
-                    'ar.id as idrubro',
-                    'ar.nombre as nomrubro',
-                    'ass.tipo',
-                    'ass.cod',
-                    'ass.correlativo',
-                    'ass.razon_social',
-                    'ass.nombre_comercial',
-                    'ass.telefonos',
-                    'ass.nit',
-                    'ass.direccion',
-                    'ass.departamento',
-                    'ad.nombre as nom_departamento',
-                    'ass.ciudad',
-                    'ass.activo',
-                    'tt.id as id_tienda',
-                    'tt.codigo as codigo_tienda',
-                    DB::raw('NULL as codalmacen'),
-                    DB::raw('NULL as nombre_alm'),
-                    
-                )
-                ->orderBy('ass.id', 'desc')
-                ->get();
+    ->join('adm__rubros as ar', 'ass.idrubro', '=', 'ar.id')
+    ->join('tda__tiendas as tt', 'tt.idsucursal', '=', 'ass.id')
+    ->join('adm__departamentos as ad', 'ad.id', '=', 'ass.departamento')
+    ->leftJoin('ven__recibos as vdv', 'vdv.id_sucursal', '=', 'ass.id')
+    ->where('tt.activo', 1)
+    ->whereraw($sqls)
+    ->groupBy([
+        'ass.id',
+        'ar.id',
+        'ar.nombre',
+        'ass.tipo',
+        'ass.cod',
+        'ass.correlativo',
+        'ass.razon_social',
+        'ass.nombre_comercial',
+        'ass.telefonos',
+        'ass.nit',
+        'ass.direccion',
+        'ass.departamento',
+        'ad.nombre',
+        'ass.ciudad',
+        'ass.activo',
+        'tt.id',
+        'tt.codigo'
+    ])
+    ->select([
+        'ass.id',
+        'ar.id as idrubro',
+        'ar.nombre as nomrubro',
+        'ass.tipo',
+        'ass.cod',
+        'ass.correlativo',
+        'ass.razon_social',
+        'ass.nombre_comercial',
+        'ass.telefonos',
+        'ass.nit',
+        'ass.direccion',
+        'ass.departamento',
+        'ad.nombre as nom_departamento',
+        'ass.ciudad',
+        'ass.activo',
+        'tt.id as id_tienda',
+        'tt.codigo as codigo_tienda',
+        DB::raw('NULL as codalmacen'),
+        DB::raw('NULL as nombre_alm'),
+        DB::raw('MAX(vdv.id_sucursal) as max_id_sucursal')
+    ])
+    ->orderBy('ass.id', 'desc')
+    ->get();
+                
                 $almacenes = DB::table('alm__almacens as aa')
                 ->join('adm__sucursals as ass', 'ass.id', '=', 'aa.idsucursal')
                 ->where('aa.activo', 1)
@@ -130,9 +151,29 @@ class AdmSucursalController extends Controller
         {$sucursales0 = DB::table('adm__sucursals as ass')
             ->join('adm__rubros as ar', 'ass.idrubro', '=', 'ar.id')
             ->join('tda__tiendas as tt', 'tt.idsucursal', '=', 'ass.id')
-            ->join ('adm__departamentos as ad','ad.id','=','ass.departamento')
+            ->join('adm__departamentos as ad', 'ad.id', '=', 'ass.departamento')
+            ->leftJoin('ven__recibos as vdv', 'vdv.id_sucursal', '=', 'ass.id')
             ->where('tt.activo', 1)
-            ->select(
+            ->groupBy([
+                'ass.id',
+                'ar.id',
+                'ar.nombre',
+                'ass.tipo',
+                'ass.cod',
+                'ass.correlativo',
+                'ass.razon_social',
+                'ass.nombre_comercial',
+                'ass.telefonos',
+                'ass.nit',
+                'ass.direccion',
+                'ass.departamento',
+                'ad.nombre',
+                'ass.ciudad',
+                'ass.activo',
+                'tt.id',
+                'tt.codigo'
+            ])
+            ->select([
                 'ass.id',
                 'ar.id as idrubro',
                 'ar.nombre as nomrubro',
@@ -152,7 +193,8 @@ class AdmSucursalController extends Controller
                 'tt.codigo as codigo_tienda',
                 DB::raw('NULL as codalmacen'),
                 DB::raw('NULL as nombre_alm'),
-            )
+                DB::raw('MAX(vdv.id_sucursal) as max_id_sucursal')
+            ])
             ->orderBy('ass.id', 'desc')
             ->get();
         
