@@ -21,7 +21,8 @@ return new class extends Migration
     $table->tinyInteger('ssl');
     $table->timestamps();
     $table->string('nit')->nullable();
-
+    $table->string('nro_celular',35)->nullable();
+    $table->string('nom_empresa',150)->nullable();
         });
     }
 

@@ -932,7 +932,7 @@ watch: {
     },
    
     ///////////////////////////////funciones para la venta///////////////////////////////////////////////////////
-    generarPDF( direccionMayusculas,nomsucursal,nuevoComprobante,fecha,hora,num_documento,nom_a_facturar,array_recibo,total_sin_des,descuento_venta,total_venta,efectivo_venta,cambio_venta,fechaMas7Dias,numero_referencia,nombreCompleto_1) {
+    generarPDF( direccionMayusculas,nomsucursal,nuevoComprobante,fecha,hora,num_documento,nom_a_facturar,array_recibo,total_sin_des,descuento_venta,total_venta,efectivo_venta,cambio_venta,fechaMas7Dias,numero_referencia,nombreCompleto_1,nombre_empresa) {
       // Define el contenido del PDF
 console.log("-------------------------------------------");
 console.log(descuento_venta);
@@ -2279,6 +2279,8 @@ let fechaMas7Dias = respuesta.fechaMas7Dias;
 let numero_referencia = respuesta.numero_referencia;
 let nombreCompleto_1 = respuesta.nombreCompleto_1;
 let tipocom = respuesta.tipocom;
+let nombre_empresa = respuesta.nombre_empresa;
+
 console.log(respuesta);
 // console.log(respuesta.idsuc);
 // Mostrar la alerta de éxito
@@ -2289,7 +2291,7 @@ console.log(respuesta);
   icon: "success",
 })
 me.generarPDF(direccionMayusculas,nomsucursal,nuevoComprobante,fecha,hora,num_documento,nom_a_facturar,array_recibo,
-total_sin_des,descuento_venta,total_venta,efectivo_venta,cambio_venta,fechaMas7Dias,numero_referencia,nombreCompleto_1
+total_sin_des,descuento_venta,total_venta,efectivo_venta,cambio_venta,fechaMas7Dias,numero_referencia,nombreCompleto_1,nombre_empresa
 ); 
                 } else{
                     if (tipocom===2) {

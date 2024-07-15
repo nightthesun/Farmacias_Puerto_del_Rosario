@@ -72,7 +72,7 @@ $endDate = $request->endDate;
     )
     ->where('vr.id_sucursal', $sucursalId)
     ->where('vr.cod', $codigo)
-    ->whereBetween('vr.created_at', [$startDate, $endDate])
+    ->whereBetween(DB::raw('DATE(vr.created_at)'), [$startDate, $endDate])
     ->whereRaw($sqls)
     ->orderByDesc('vr.id')
     ->paginate(15);
@@ -120,7 +120,7 @@ $endDate = $request->endDate;
     )
     ->where('vr.id_sucursal', $sucursalId)
     ->where('vr.cod', $codigo)
-    ->whereBetween('vr.created_at', [$startDate, $endDate])
+    ->whereBetween(DB::raw('DATE(vr.created_at)'), [$startDate, $endDate])
    
     ->orderByDesc('vr.id')
     ->paginate(15);

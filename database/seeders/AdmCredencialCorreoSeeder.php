@@ -13,6 +13,6 @@ class AdmCredencialCorreoSeeder extends Seeder
      */
     public function run(): void
     {
-        DB::table('adm__credecial_correos')->insert(['host'=>'mail.ejemplo.com','correo'=>'correo@correo.es','puerto'=>'555','usuario'=>'usuario@admin.uk','contraseña'=>bcrypt('secret'),'ssl'=>'0','nit'=>'123456789123']);
+        DB::table('adm__credecial_correos')->insert(['host'=>'mail.ejemplo.com','correo'=>'correo@correo.es','puerto'=>'555','usuario'=>'usuario@admin.uk','contraseña'=>bcrypt('secret'),'ssl'=>'0','nit'=>'123456789123','nro_celular'=>'000000000','nom_empresa'=>'Empresa_prubea']);
     }
 }

@@ -46,6 +46,13 @@ class VenGestorVentaController extends Controller
                $ultimoComprobante = DB::table('ven__recibos')
     ->orderBy('contador', 'desc')
     ->value('contador');
+
+    $credencial = DB::table('adm__credecial_correos')
+    ->select('nro_celular', 'nom_empresa')
+    ->get();
+
+$nombre_e = $credencial[0]->nom_empresa;
+$num_e = $credencial[0]->nro_celular;       
     $currentDateTime = Carbon::now();
 if (is_null($ultimoComprobante)) {
     // La tabla está vacía, iniciar con 1    
@@ -54,13 +61,15 @@ if (is_null($ultimoComprobante)) {
     // Incrementar el último número de comprobante
     $contador_2 = $ultimoComprobante + 1;
 }
+
 $year = strval($currentDateTime->year); 
 $contadorCadena=strval($contador_2);
 $controlador_2_1=$year.$contadorCadena;
 
 $num_documento = $request->input('num_documento');
 $nom_a_facturar = strtoupper($request->input('nom_a_facturar'));
-$numero_referencia = 69910577;
+$numero_referencia = $num_e;
+$nombre_empresa = strtoupper($nombre_e); 
 // Obtener la fecha y hora actual
 
 
@@ -187,7 +196,8 @@ $numero_referencia = 69910577;
             'fechaMas7Dias' => $fechaMas7Dias,
             'numero_referencia' => $numero_referencia,
             'nombreCompleto_1' => $nombreCompleto_1,
-            'tipocom'=> $dato_tipo           
+            'tipocom'=> $dato_tipo,
+            'nombre_empresa' => $nombre_empresa,           
         ]);
 
 

@@ -110,7 +110,19 @@
                                         <input type="text" v-model="nit" class="form-control" placeholder="nit de la empresa" v-on:focus="selectAll"/>
                                         <span v-if="nit == ''" class="error">Debe escribir el nit</span>
                                     </div>
-
+                                      
+                                    <label class="col-md-1 form-control-label" for="text-input"><strong>NOMBRE DE EMPRESA:</strong> 
+                                    <span v-if="nombre_empresa == ''" class="error">(*)</span></label>
+                                    <div class="col-md-3">
+                                        <input type="text" v-model="nombre_empresa" class="form-control" placeholder="nombre de negocio" v-on:focus="selectAll"/>
+                                        <span v-if="nombre_empresa == ''" class="error">Debe escribir el un nombre de negocio</span>
+                                    </div>
+                                    <label class="col-md-1 form-control-label" for="text-input"><strong>TELEFONO/CELULAR:</strong> 
+                                    <span v-if="celular == ''" class="error">(*)</span></label>
+                                    <div class="col-md-3">
+                                        <input type="text" v-model="celular" class="form-control" placeholder="nit de la empresa" v-on:focus="selectAll"/>
+                                        <span v-if="celular == ''" class="error">Debe escribir telefono o celular</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -146,6 +158,8 @@ export default {
             ssl:0, 
             credenciales_correo:[],
             nit:'',
+            nombre_empresa:'',
+            celular:'',
 
 //---permisos_R_W_S
 puedeEditar:2,
@@ -239,8 +253,8 @@ puedeEditar:2,
                     puerto:me.puerto,
                     usuario:me.usuario,
                     contraseña:me.contraseña,
-                    ssl:me.ssl,
-                    nit:me.nit
+                    ssl:me.ssl
+                  
                 })
                 .then(function (response) {
                     me.listarCredencial();
@@ -301,6 +315,9 @@ puedeEditar:2,
                     me.contraseña=response.data[0].contraseña;
                     me.ssl=response.data[0].ssl;               
                     me.nit=response.data[0].nit;
+                    me.nombre_empresa=response.data[0].nom_empresa;
+                    me.celular=response.data[0].nro_celular;
+                  
                 })
                 .catch(function (error) {
                     error401(error);
