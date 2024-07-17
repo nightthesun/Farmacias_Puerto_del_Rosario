@@ -98,6 +98,9 @@ $nombre_empresa = strtoupper($nombre_e);
         'contador'=> $contador_2,
         'cod'=> $codigo_tienda_almacen_0,
         'id_lista'=>$id_lista_v2,
+        'nro_ref'=>$numero_referencia,
+        'nro_doc'=> $num_documento,
+        'razon_social'=>$nom_a_facturar
        ];   
        $id_recibo = DB::table('ven__recibos')->insertGetId($data_recibo);
    

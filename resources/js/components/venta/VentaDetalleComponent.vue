@@ -635,18 +635,15 @@ console.log(descuento_venta);
         cerrarModal(accion) {
             let me = this;
             if (accion == "registrar") {
-                me.classModal.closeModal(accion);
-               
-                    me.tituloModal = " ";
-             
+                me.classModal.closeModal(accion);               
+                    me.tituloModal = " ";             
                     setTimeout(me.tiempo, 200); 
                     //me.ProductoLineaIngresoSeleccionado = 0;
                     me.inputTextBuscarProductoIngreso = "";
-                        me.arrayRetornarProductosIngreso = "";
+                    me.arrayRetornarProductosIngreso = "";
               
             } else {
-                me.classModal.closeModal(accion);
-              
+                me.classModal.closeModal(accion);              
                 me.classModal.openModal("registrar");
             }
         },

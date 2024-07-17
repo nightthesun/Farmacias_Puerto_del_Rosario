@@ -65,10 +65,11 @@ $endDate = $request->endDate;
                     WHEN vr.tipo_venta_reci_fac = 2 THEN 'FACTURA'
                     ELSE NULL
                  END AS tipo_venta_reci_fac"),
-        'dc.nom_a_facturar',
-        'dc.num_documento',
+        'vr.razon_social as nom_a_facturar',
+        'vr.nro_doc as num_documento',
         'u.name',
-        'vr.cod'
+        'vr.cod',
+        'nro_ref as numero_referencia'
     )
     ->where('vr.id_sucursal', $sucursalId)
     ->where('vr.cod', $codigo)
@@ -113,10 +114,11 @@ $endDate = $request->endDate;
                     WHEN vr.tipo_venta_reci_fac = 2 THEN 'FACTURA'
                     ELSE NULL
                  END AS tipo_venta_reci_fac"),
-        'dc.nom_a_facturar',
-        'dc.num_documento',
+                 'vr.razon_social as nom_a_facturar',
+                 'vr.nro_doc as num_documento',
         'u.name',
-        'vr.cod'
+        'vr.cod',
+        'nro_ref as numero_referencia'
     )
     ->where('vr.id_sucursal', $sucursalId)
     ->where('vr.cod', $codigo)

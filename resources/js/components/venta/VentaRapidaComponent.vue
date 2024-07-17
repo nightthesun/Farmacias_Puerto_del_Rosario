@@ -1765,9 +1765,10 @@ console.log("///////"+totalDescuento);
             } else {
                 es_lista=me.selected.id_lista;
             }
+            let may_leyenda=(me.selected.leyenda).toUpperCase();
             me.codigo_tienda_almacen=me.selected.codigo_tienda_almacen;
             me.array_vetasQuery.push({id_contador:me.controlador_venta_id,descuento: descuento,es_lista: es_lista,id_ges_pre:me.selected.id,id_ingreso:me.selected.id_ingreso,id_producto:me.selected.id_prod,id_linea:me.selected.id_linea,precio_venta:me.selected.precio_lista_gespreventa,cantidad_venta:me.numero,codigo_tienda_almacen:me.selected.codigo_tienda_almacen});
-            me.arrayProducto_recibo_1.push({id_contador:me.controlador_venta_id,cant:me.numero,descrip:me.selected.leyenda,p_u:me.selected.precio_lista_gespreventa,});
+            me.arrayProducto_recibo_1.push({id_contador:me.controlador_venta_id,cant:me.numero,descrip:may_leyenda,p_u:me.selected.precio_lista_gespreventa,});
             if (me.validadorPersonal===7 || me.existe_final>0) {
             let sumador_21_sub = 0;
             let sumador_21_des = 0;

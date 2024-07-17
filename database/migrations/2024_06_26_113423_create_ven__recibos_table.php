@@ -28,8 +28,10 @@ return new class extends Migration
             $table->tinyInteger('tipo_venta_reci_fac')->comment('1 para recibo 2 para factura');
             $table->integer('contador')->nullable();
             $table->string('cod',25)->nullable();
-            $table->smallInteger('id_lista_v2')->nullable();
-        
+            $table->smallInteger('id_lista')->nullable();
+            $table->string('nro_ref',15)->nullable();
+            $table->string('nro_doc',100)->nullable();
+            $table->string('razon_social',100)->nullable();        
         });
     }
 

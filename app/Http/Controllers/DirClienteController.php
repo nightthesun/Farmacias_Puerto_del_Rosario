@@ -15,6 +15,10 @@ class DirClienteController extends Controller
     public function index(Request $request)
     {
         $buscararray=array();
+        $limite_x=$request->limite;
+        if ($limite_x==10) {
+            $limite_x=9999999999999;
+        }
         $bus = $request->query('buscarP_E');
         if(!empty($request->buscar)){
             $buscararray = explode(" ",$request->buscar);
@@ -69,16 +73,42 @@ $clientesPersonas = DB::table('dir__clientes as dc')
     'dt.id as id_tipo_doc',
 
     'dt.nombre_doc as nom_documento',
-    'dt.datos as datos_tipo_documento'
+    'dt.datos as datos_tipo_documento',
+    DB::raw('MAX(vr.id_cliente) AS id_max')
 )
 ->join('dir__tipo_doc as dt', 'dc.id_tipo_doc', '=', 'dt.id')
 ->join('users as u', 'dc.id_user', '=', 'u.id')
 ->join('dir__personas as dp', 'dp.id', '=', 'dc.id_per_emp')
-
+->leftJoin('ven__recibos as vr', 'vr.id_cliente', '=', 'dc.id')
 ->whereRaw($sqls)
 
-->where('dc.tipo_per_emp', '=', $bus);
-
+->where('dc.tipo_per_emp', '=', $bus)
+->groupBy(
+    'dc.id',
+    'dc.id_per_emp',
+    'dp.nombres',
+    'dp.apellidos',
+    'dp.documento_identidad',
+    'dp.complemento',
+    'dc.correo',
+    'dc.telefono',
+    'dc.direccion',
+    'dc.nom_a_facturar',
+    'dc.pais',
+    'dc.ciudad',
+    'u.name',
+    'u.id',
+    'dt.id',
+    'dt.nombre_doc',
+    'dt.datos',
+    'dc.created_at',
+    'dc.updated_at',
+    'dc.num_documento',
+    'dc.tipo_per_emp',
+    'dc.activo'
+)
+->orderBy('dc.id', 'desc')
+->limit($limite_x);
 // Consulta para obtener los clientes empresas
 $clientesEmpresas = DB::table('dir__clientes as dc')
 ->select(
@@ -104,19 +134,44 @@ $clientesEmpresas = DB::table('dir__clientes as dc')
     'dt.id as id_tipo_doc',
     
     'dt.nombre_doc as nom_documento',
-    'dt.datos as datos_tipo_documento'
+    'dt.datos as datos_tipo_documento',
+    DB::raw('MAX(vr.id_cliente) AS id_max')
+
 )
 ->join('dir__tipo_doc as dt', 'dc.id_tipo_doc', '=', 'dt.id')
 ->join('users as u', 'dc.id_user', '=', 'u.id')
 ->join('dir__empresas as de','dc.id_per_emp', '=', 'de.id')
-
+->leftJoin('ven__recibos as vr', 'vr.id_cliente', '=', 'dc.id')
 ->whereRaw($sqls)
-
-->where('dc.tipo_per_emp', '=', $bus);
+->where('dc.tipo_per_emp', '=', $bus)
+->groupBy(
+    'dc.id',
+    'dc.id_per_emp',
+    'de.razon_social',
+    'de.nit',
+    'dc.correo',
+    'dc.telefono',
+    'dc.direccion',
+    'dc.nom_a_facturar',
+    'dc.pais',
+    'dc.ciudad',
+    'u.name',
+    'u.id',
+    'dc.created_at',
+    'dc.updated_at',
+    'dc.num_documento',
+    'dc.tipo_per_emp',
+    'dc.activo',
+    'dt.id',
+    'dt.nombre_doc',
+    'dt.datos'
+)
+->orderBy('dc.id', 'desc')
+->limit($limite_x);
 
 // Unir los resultados de ambas consultas
 $clientes = $clientesPersonas->unionAll($clientesEmpresas);
-$clientes = $clientes->orderByDesc('id')->paginate(10);
+$clientes = $clientes->orderByDesc('id')->paginate(25);
          }    
          return  
          [
@@ -156,15 +211,40 @@ $clientes = $clientes->orderByDesc('id')->paginate(10);
             'dt.id as id_tipo_doc',
             
             'dt.nombre_doc as nom_documento',
-            'dt.datos as datos_tipo_documento'
+            'dt.datos as datos_tipo_documento',
+            DB::raw('MAX(vr.id_cliente) AS id_max')
         )
         ->join('dir__tipo_doc as dt', 'dc.id_tipo_doc', '=', 'dt.id')
         ->join('users as u', 'dc.id_user', '=', 'u.id')
-        ->join('dir__personas as dp', 'dp.id', '=', 'dc.id_per_emp')
-       
-      
-        ->where('dc.tipo_per_emp', '=', $bus);
-        
+        ->join('dir__personas as dp', 'dp.id', '=', 'dc.id_per_emp') 
+        ->leftJoin('ven__recibos as vr', 'vr.id_cliente', '=', 'dc.id') 
+        ->where('dc.tipo_per_emp', '=', $bus)
+        ->groupBy(
+            'dc.id',
+            'dc.id_per_emp',
+            'dp.nombres',
+            'dp.apellidos',
+            'dp.documento_identidad',
+            'dp.complemento',
+            'dc.correo',
+            'dc.telefono',
+            'dc.direccion',
+            'dc.nom_a_facturar',
+            'dc.pais',
+            'dc.ciudad',
+            'u.name',
+            'u.id',
+            'dt.id',
+            'dt.nombre_doc',
+            'dt.datos',
+            'dc.created_at',
+            'dc.updated_at',
+            'dc.num_documento',
+            'dc.tipo_per_emp',
+            'dc.activo'
+        )
+        ->orderBy('dc.id', 'desc')
+        ->limit($limite_x);
         // Consulta para obtener los clientes empresas
         $clientesEmpresas = DB::table('dir__clientes as dc')
         ->select(
@@ -190,17 +270,43 @@ $clientes = $clientes->orderByDesc('id')->paginate(10);
             'dt.id as id_tipo_doc',
           
             'dt.nombre_doc as nom_documento',
-            'dt.datos as datos_tipo_documento'
+            'dt.datos as datos_tipo_documento',
+            DB::raw('MAX(vr.id_cliente) AS id_max')
         )
         ->join('dir__tipo_doc as dt', 'dc.id_tipo_doc', '=', 'dt.id')
         ->join('users as u', 'dc.id_user', '=', 'u.id')
         ->join('dir__empresas as de', 'de.id', '=', 'dc.id_per_emp')
+        ->leftJoin('ven__recibos as vr', 'vr.id_cliente', '=', 'dc.id')
+        ->where('dc.tipo_per_emp', '=', $bus)
        
-        ->where('dc.tipo_per_emp', '=', $bus);
+    ->groupBy(
+        'dc.id',
+        'dc.id_per_emp',
+        'de.razon_social',
+        'de.nit',
+        'dc.correo',
+        'dc.telefono',
+        'dc.direccion',
+        'dc.nom_a_facturar',
+        'dc.pais',
+        'dc.ciudad',
+        'u.name',
+        'u.id',
+        'dc.created_at',
+        'dc.updated_at',
+        'dc.num_documento',
+        'dc.tipo_per_emp',
+        'dc.activo',
+        'dt.id',
+        'dt.nombre_doc',
+        'dt.datos'
+    )
+    ->orderBy('dc.id', 'desc')
+    ->limit($limite_x);
         
         // Unir los resultados de ambas consultas
         $clientes = $clientesPersonas->unionAll($clientesEmpresas);
-        $clientes = $clientes->orderByDesc('id')->paginate(10);
+        $clientes = $clientes->orderByDesc('id')->paginate(25);
         return  
         [ 'pagination'=>
                 [
