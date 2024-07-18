@@ -47,6 +47,9 @@ $endDate = $request->endDate;
                 $ventas_show = DB::table('ven__recibos as vr')
     ->join('dir__clientes as dc', 'vr.id_cliente', '=', 'dc.id')
     ->join('users as u', 'u.id', '=', 'vr.id_usuario')
+    ->join('adm__sucursals as ass','ass.id','=','vr.id_sucursal') 
+    ->join('rrh__empleados as re','re.id','=','u.idempleado')            
+ 
     ->select(
         'vr.id',
         'vr.id_sucursal',
@@ -69,7 +72,18 @@ $endDate = $request->endDate;
         'vr.nro_doc as num_documento',
         'u.name',
         'vr.cod',
-        'nro_ref as numero_referencia'
+        'nro_ref as numero_referencia',
+        'ass.razon_social',
+        'ass.direccion',
+        DB::raw("DATE_FORMAT(vr.created_at, '%d/%m/%Y') as fecha_formateada"),
+        DB::raw("DATE_FORMAT(vr.created_at, '%H:%i:%s') as hora_formateada"),
+        DB::raw("DATE_FORMAT(DATE_ADD(vr.created_at, INTERVAL 7 DAY), '%d/%m/%Y') as fecha_mas_siete"),
+        DB::raw("UPPER(CONCAT(
+            COALESCE(re.nombre, ''), ' ',
+            COALESCE(re.papellido, ''), ' ',
+            COALESCE(re.sapellido, '')
+        )) as nombre_completo") 
+
     )
     ->where('vr.id_sucursal', $sucursalId)
     ->where('vr.cod', $codigo)
@@ -96,6 +110,8 @@ $endDate = $request->endDate;
             $ventas_show = DB::table('ven__recibos as vr')
     ->join('dir__clientes as dc', 'vr.id_cliente', '=', 'dc.id')
     ->join('users as u', 'u.id', '=', 'vr.id_usuario')
+    ->join('adm__sucursals as ass','ass.id','=','vr.id_sucursal') 
+    ->join('rrh__empleados as re','re.id','=','u.idempleado') 
     ->select(
         'vr.id',
         'vr.id_sucursal',
@@ -118,7 +134,17 @@ $endDate = $request->endDate;
                  'vr.nro_doc as num_documento',
         'u.name',
         'vr.cod',
-        'nro_ref as numero_referencia'
+        'nro_ref as numero_referencia',
+        'ass.razon_social',
+        'ass.direccion',
+        DB::raw("DATE_FORMAT(vr.created_at, '%d/%m/%Y') as fecha_formateada"),
+        DB::raw("DATE_FORMAT(vr.created_at, '%H:%i:%s') as hora_formateada"),
+        DB::raw("DATE_FORMAT(DATE_ADD(vr.created_at, INTERVAL 7 DAY), '%d/%m/%Y') as fecha_mas_siete"),
+        DB::raw("UPPER(CONCAT(
+            COALESCE(re.nombre, ''), ' ',
+            COALESCE(re.papellido, ''), ' ',
+            COALESCE(re.sapellido, '')
+        )) as nombre_completo")  
     )
     ->where('vr.id_sucursal', $sucursalId)
     ->where('vr.cod', $codigo)
@@ -143,6 +169,76 @@ $endDate = $request->endDate;
         
 
    
+    }
+
+
+    public function re_imprecion(Request $request){
+
+        if($request->tipofactura=="RECIBO"){
+            $idVenta = $request->id_venta;
+            $datos_empresa = DB::table('adm__credecial_correos')
+        ->select('nit', 'nom_empresa')
+        ->get();
+    
+    $detalle_venta = DB::table('ven__detalle_ventas as vd')
+        ->select(
+            'vd.id_venta as id',
+            'vd.cantidad_venta',
+            DB::raw("
+                CASE 
+                    WHEN tip.envase = 'primario' THEN CONCAT(
+                        UPPER(COALESCE(pp.nombre, '')), ' ', 
+                        UPPER(COALESCE(pd_1.nombre, '')), ' x ', 
+                        COALESCE(pp.cantidadprimario, ''), ' ', 
+                        UPPER(COALESCE(ff_1.nombre, ''))
+                    ) 
+                    WHEN tip.envase = 'secundario' THEN CONCAT(
+                        UPPER(COALESCE(pp.nombre, '')), ' ', 
+                        UPPER(COALESCE(pd_2.nombre, '')), ' x ', 
+                        COALESCE(pp.cantidadsecundario, ''), ' ', 
+                        UPPER(COALESCE(ff_2.nombre, ''))
+                    ) 
+                    WHEN tip.envase = 'terciario' THEN CONCAT(
+                        UPPER(COALESCE(pp.nombre, '')), ' ', 
+                        UPPER(COALESCE(pd_3.nombre, '')), ' x ', 
+                        COALESCE(pp.cantidadterciario, ''), ' ', 
+                        UPPER(COALESCE(ff_3.nombre, ''))
+                    ) 
+                    ELSE NULL 
+                END AS leyenda
+            "),
+            'vd.precio_venta as precio_unitario',
+            DB::raw('(vd.cantidad_venta * vd.precio_venta) as tot')
+        )
+        ->join('prod__productos as pp', 'vd.id_producto', '=', 'pp.id')
+        ->join('tda__ingreso_productos as tip', 'tip.id', '=', 'vd.id_ingreso')
+        ->leftJoin('prod__dispensers as pd_1', 'pd_1.id', '=', 'pp.iddispenserprimario')
+        ->leftJoin('prod__dispensers as pd_2', 'pd_2.id', '=', 'pp.iddispensersecundario')
+        ->leftJoin('prod__dispensers as pd_3', 'pd_3.id', '=', 'pp.iddispenserterciario')
+        ->leftJoin('prod__forma_farmaceuticas as ff_1', 'ff_1.id', '=', 'pp.idformafarmaceuticaprimario')
+        ->leftJoin('prod__forma_farmaceuticas as ff_2', 'ff_2.id', '=', 'pp.idformafarmaceuticasecundario')
+        ->leftJoin('prod__forma_farmaceuticas as ff_3', 'ff_3.id', '=', 'pp.idformafarmaceuticaterciario')
+        ->where('vd.id_venta', $idVenta)
+        ->get();
+        $respuesta_v2 = [
+            'detalle_venta' => $detalle_venta,
+            'datos_empresa' => $datos_empresa,
+        ];
+    
+        // Devolver la respuesta JSON
+        return response()->json($respuesta_v2);
+        }else{
+            if ($request->tipofactura=="FACTURA") {
+               dd("datos en contrucion");
+            } else {
+                dd("error no exite datos");
+            }
+            
+        }
+
+       
+   
+
     }
    
 }

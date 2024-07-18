@@ -114,7 +114,7 @@
   </button>
   <div class="dropdown-menu">
     <a @click.prevent="abrirModal('recibo_r', v);" class="dropdown-item" href="#"><i style="color: black;" class="fa fa-file-pdf-o" aria-hidden="true"></i> Re imprimir factura ticket</a>
-    <a class="dropdown-item" href="#"><i style="color: black;" class="fa fa-file-pdf-o" aria-hidden="true"></i> Re imprimir factura plana</a>
+    <a @click.prevent="abrirModal('pdf_plana', v);" class="dropdown-item" href="#"><i style="color: black;" class="fa fa-file-pdf-o" aria-hidden="true"></i> Re imprimir factura plana</a>
     <a class="dropdown-item" href="#"><i style="color: black;" class="fa fa-eye" aria-hidden="true"></i> Ver estado</a>
     <a class="dropdown-item" href="#"><i style="color: black;" class="fa fa-trash" aria-hidden="true"></i> Anular venta</a>
     
@@ -281,6 +281,7 @@ export default {
       id_seleccionada_sucursal:0,
       cod_seleccionada_sucursal:'',
       arrayVentas:[],
+      arrayDetalle_venta:[],
         };
     },
 
@@ -344,10 +345,9 @@ export default {
     methods: {
 
             ///////////////////////////////funciones para la venta///////////////////////////////////////////////////////
-    generarPDF( direccionMayusculas,nomsucursal,nuevoComprobante,fecha,hora,num_documento,nom_a_facturar,array_recibo,total_sin_des,descuento_venta,total_venta,efectivo_venta,cambio_venta,fechaMas7Dias,numero_referencia,nombreCompleto_1) {
+    generarPDF(nom_empresa,direccionMayusculas,nomsucursal,nuevoComprobante,fecha,hora,num_documento,nom_a_facturar,array_recibo,total_sin_des,descuento_venta,total_venta,efectivo_venta,cambio_venta,fechaMas7Dias,numero_referencia,nombreCompleto_1) {
       // Define el contenido del PDF
-console.log("-------------------------------------------");
-console.log(descuento_venta);
+
  // Crea el cuerpo de la tabla dinámicamente
  const tableBody = [
     // Agrega los encabezados de la tabla
@@ -362,10 +362,10 @@ console.log(descuento_venta);
   // Itera sobre los datos y agrega filas a la tabla
   array_recibo.forEach(item => {
     tableBody.push([
-      { text: item.cant, fontSize: 8, alignment: 'center' },
-      { text: item.descrip, fontSize: 8, alignment: 'left' },
-      { text: item.p_u, fontSize: 8, alignment: 'center' },
-      { text: (item.cant * item.p_u).toFixed(2), fontSize: 8, alignment: 'center' } // Operación y formato
+      { text: item.cantidad_venta, fontSize: 8, alignment: 'center' },
+      { text: item.leyenda, fontSize: 8, alignment: 'left' },
+      { text: item.precio_unitario, fontSize: 8, alignment: 'center' },
+      { text: (item.cantidad_venta * item.precio_unitario).toFixed(2), fontSize: 8, alignment: 'center' } // Operación y formato
     ]);
   });
 
@@ -441,15 +441,15 @@ console.log(descuento_venta);
         margin: [6, 4, 8, 4]
       },
       {
-        text: 'IMPORTE TOTAL: Bs.   '+total_sin_des.toFixed(2),      
+        text: 'IMPORTE TOTAL: Bs.   '+total_sin_des,      
         style: 'header_1',margin: [0, 0, 8, 0]
       },
       {
-        text: 'DESCUENTO: Bs.   '+descuento_venta.toFixed(2),      
+        text: 'DESCUENTO: Bs.   '+descuento_venta,      
         style: 'header_1',margin: [0, 0, 8, 0]
       },
       {
-        text: 'IMPORTE A PAGAR: Bs.   '+total_venta.toFixed(2),      
+        text: 'IMPORTE A PAGAR: Bs.   '+total_venta,      
         style: 'header_1',margin: [0, 0, 8, 0]
       },
       
@@ -464,11 +464,11 @@ console.log(descuento_venta);
         margin: [6, 4, 6, 4]
       },
       {
-        text: 'PAGO EN EFECTIVO: Bs.   '+efectivo_venta.toFixed(2),      
+        text: 'PAGO EN EFECTIVO: Bs.   '+efectivo_venta,      
         style: 'header_1',margin: [0, 0, 8, 0]
       },
       {
-        text: 'CAMBIO: Bs.   '+cambio_venta.toFixed(2),      
+        text: 'CAMBIO: Bs.   '+cambio_venta,      
         style: 'header_1',margin: [0, 0, 8, 0]
       },
 
@@ -540,6 +540,102 @@ console.log(descuento_venta);
       pdfMake.createPdf(documentDefinition).open();
     },
   
+    generarFacPlana() {
+  const docDefinition = {
+    pageSize: 'LETTER', // Tamaño carta
+    pageMargins: [25, 30, 25, 30], // Márgenes: [left, top, right, bottom]
+    content: [
+
+		{
+			fontSize: 8,
+			table: {
+				headerRows: 1,
+        
+        bold: true,
+				body: [
+					[
+						'PUERTO DEL ROSARIO',
+						'NIT:',
+						'1026603028',
+					],
+          ['SUCURSAL 1',
+            'RECIBO Nº:',
+            '415149',
+          ],
+          [
+            'DIRECION DEL LA SUCURSAL PUEDE SER CUAL QUIERA ECT ETC',
+            'COD. DE CONTROL:',
+            'fsafsaf1231fsafasqwerwqewqewq121fdsa4fsafsafsafsafsaghsd4gfd56sgdsgdsgdsgdsgdsgdsgdsgdserwqewqe782145dsfg1444fdfqqw5'
+          ]
+				]
+       
+       
+			},
+
+      
+			layout: 'noBorders'
+		},
+    {
+      columns: [
+        {
+          
+          fontSize: 8,
+          // margin: [left, top, right, bottom]
+          margin:[ 0, 0, 0,0], // Espacio a la derecha de 30 unidades
+          stack: [
+            { text: 'PUERTO DEL ROSARIO' },
+            { text: 'SUCURSAL 1DDDDDDSADASDSADSA' },
+            { text: 'DIRECION DEL LA SUCURSAL PUEDE SER CUAL QUIERA ECT ETCssssssssssssssssssssssssssssssssssssssssssssSSSSS' }
+          ]
+        },
+        {
+          
+          fontSize: 8,
+          // margin: [left, top, right, bottom]
+          margin:[ 0, 0, 0,0], // Espacio a la derecha de 30 unidades
+          stack: [
+            { text: 'NIT: ' },
+            { text: 'RECIBO Nº: ' },
+            { text: 'COD. DE CONTROL: ' }
+          ]
+        },
+        {
+          
+          fontSize: 8,
+          // margin: [left, top, right, bottom]
+          margin:[ 0, 0, 0,0], // Espacio a la derecha de 30 unidades
+          stack: [
+            { text: '1026603028' },
+            { text: '415149' },
+            { text: 'fsafsaf1231fsafasqwerwqewqewq121fdsa4fsafsafsafsafsaghsd4gfd56sgdsgdsgdsgdsgdsgdsgdsgdserwqewqe782145dsfg1444fdfqqw5' }
+          ]
+        },
+   
+      ]
+    },
+      // Aquí puedes agregar más contenido debajo de las columnas
+      {
+        text: 'Contenido adicional debajo de las columnas',
+        style: 'header'
+      }
+    ],
+    styles: {
+      header: {
+        fontSize: 9,
+        bold: true,
+      },
+      tableHeader: {
+			bold: true,
+		
+			color: 'black'
+		}
+    }
+  };
+
+  // Generar y abrir el PDF
+  pdfMake.createPdf(docDefinition).open();
+},
+
     listarVentas(page){
         let me=this;       
         var url = "/detalle_venta_2/index?page="+page+"&buscar=" +me.buscar+"&id_sucursal="+me.id_seleccionada_sucursal+"&codigo_tienda_almacen="+me.cod_seleccionada_sucursal+"&startDate="+me.startDate+"&endDate="+me.endDate;
@@ -586,6 +682,31 @@ console.log(descuento_venta);
             me.pagination.current_page = page;
             me.listarVentas(page);
         },
+        
+        detalleVenta(id,tipo,direccion,razon_social,nro_comprobante_venta,fecha_formateada,hora_formateada,
+        num_documento,nom_a_facturar,total_sin_des,descuento_venta,total_venta,efectivo_venta,cambio_venta,fecha_mas_siete,
+        numero_referencia,nombre_completo){
+          let me=this;       
+        var url = "/detalle_venta_2/re_imprecion?id_venta="+id+"&tipofactura="+tipo;
+        axios
+                .get(url)
+                .then(function (response) {
+                    var respuesta = response.data;   
+                    let respuesta_empresa = respuesta.datos_empresa;
+                   
+                    let nit =respuesta_empresa[0].nit;  
+                    let nom_empresa =respuesta_empresa[0].nom_empresa;             
+                     me.arrayDetalle_venta = respuesta.detalle_venta;             
+                     console.log( me.arrayDetalle_venta);
+                     me.generarPDF(nom_empresa,direccion,razon_social,nro_comprobante_venta,fecha_formateada,
+                     hora_formateada,num_documento,nom_a_facturar,me.arrayDetalle_venta,total_sin_des,descuento_venta,total_venta,
+                    efectivo_venta,cambio_venta,fecha_mas_siete,numero_referencia,nombre_completo);  
+                })
+                .catch(function (error) {
+                    error401(error);
+                    console.log(error);
+                });
+        },
 
         abrirModal(accion, data = []) {
             let me = this;
@@ -604,13 +725,21 @@ console.log(descuento_venta);
 
                 case "recibo_r": {
                     console.log(data);
+                    me.detalleVenta(data.id,data.tipo_venta_reci_fac,data.direccion,data.razon_social,data.nro_comprobante_venta,
+                    data.fecha_formateada,data.hora_formateada,data.num_documento,data.nom_a_facturar,data.total_sin_des,
+                    data.descuento_venta,data.total_venta,data.efectivo_venta,data.cambio_venta,data.fecha_mas_siete,
+                    data.numero_referencia,data.nombre_completo
+                    );
                     break;
                 }
+
+                case "pdf_plana":{
+                  me.generarFacPlana();
+                  break;
+                }
+                
                 case "actualizar": {
                     me.tipoAccion = 2;
-                   
-          
-            
                     me.classModal.openModal("registrar");
 
                     break;

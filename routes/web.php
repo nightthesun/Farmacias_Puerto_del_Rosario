@@ -588,7 +588,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/gestor_ventas/venta/pdf', [VenGestorVentaController::class, 'venta']);
     Route::get('/gestor_ventas/venta/pdf2', [VenGestorVentaController::class, 'mostrarPDF']);
 
-    //mostrar venta,anular
+    //mostrar venta,re-imprimir,anular
     Route::get('/detalle_venta_2/index', [VenGestorVentaVistaController::class, 'index']);
-    
+    Route::get('/detalle_venta_2/re_imprecion',[VenGestorVentaVistaController::class, 're_imprecion']);
 });
