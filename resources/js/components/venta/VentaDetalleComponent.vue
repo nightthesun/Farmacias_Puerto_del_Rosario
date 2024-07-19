@@ -547,9 +547,9 @@ export default {
     content: [
 
     {
-			style: 'tableExample',
+			
 			table: {
-				widths: [115,'*',95, 100],
+				widths: [120,'*',90, 100],
 				body: [
 					[{text: 'PUERTO DEL ROSARIO',fontSize: 9},
           { },{text: 'NIT:',fontSize: 9},{text: '1020603028',fontSize: 9}
@@ -566,13 +566,92 @@ export default {
 			},
       layout: 'noBorders'
 		},
-   
+    {text: 'RECIBO', style: 'header' },
+    {
+			
+			table: {
+				widths: [90,120,'*',60,105],
+				body: [
+					[{text: 'Fecha:',fontSize: 9},
+          {text: '04/02/2024 04::40 PM',fontSize: 9},{ },
+          {text: 'NIT/CI/CEX:',fontSize: 9},
+          {text: '6912345',fontSize: 9},         
+          ],
+					[{text: 'Nombre/Razón Social:',fontSize: 9},
+          {text: 'CHOQUE',fontSize: 9},{ },
+          {text: 'Cod. Cliente:',fontSize: 9},
+          {text: '6912345',fontSize: 9},         
+          ],
+				]
+			},
+      layout: 'noBorders'
+		},
+    {
+			margin:[0,10,0,10],
+			table: {
+		    widths: [50,'*',55,34,32,36,40,40,40,40],
+				body: [
+					[{text: 'Código Producto / Servicio',fontSize: 8 ,alignment: 'center',fillColor: '#d3d3d3'},
+          {text: 'Descripción',fontSize: 8 ,alignment: 'center' ,fillColor: '#d3d3d3'},
+          {text: 'Vencimiento',fontSize: 8 ,alignment: 'center' ,fillColor: '#d3d3d3'},
+          {text: 'Lote',fontSize: 8 ,alignment: 'center' ,fillColor: '#d3d3d3'},
+          {text: 'Linea',fontSize: 8 ,alignment: 'center' ,fillColor: '#d3d3d3'},
+          {text: 'Cantidad',fontSize: 8 ,alignment: 'center' ,fillColor: '#d3d3d3'},
+          {text: 'Precio Unitario',fontSize: 8 ,alignment: 'center' ,fillColor: '#d3d3d3'},
+          {text: 'Venta Total',fontSize: 8 ,alignment: 'center' ,fillColor: '#d3d3d3'},
+          {text: 'Descuento',fontSize: 8 ,alignment: 'center' ,fillColor: '#d3d3d3'},
+          {text: 'SubTotal',fontSize: 8 ,alignment: 'center',fillColor: '#d3d3d3'},       
+          ],
+					[{text: 'FPR0477',fontSize: 8},
+          {text: 'DEXTROMETORFANO 15MG CAJA X 100 - COMPRIMIDOS',fontSize: 8 },          
+          {text: '29/20/2000',fontSize: 8},
+          {text: '23121ds',fontSize: 8},
+          {text: 'INTI',fontSize: 8},
+          {text: '2',fontSize: 8,alignment: 'right'},
+          {text: '1.50',fontSize: 8,alignment: 'right' },
+          {text: '3.00',fontSize: 8,alignment: 'right' },       
+          {text: '0.00',fontSize: 8,alignment: 'right' },
+          {text: '3.00',fontSize: 8,alignment: 'right' },  
+        ],
+        [
+          
+            { text: 'SubTotal', colSpan: 9, fontSize: 8,alignment: 'right',	border: [false, true, true, false] },
+            {}, {}, {}, {}, {}, {}, {}, {},
+            { text: '10.00', fontSize: 8, alignment: 'right' }
+          ],
+          [
+            { text: 'Descuento', colSpan: 9, fontSize: 8,alignment: 'right',border: [false, false, true, false]  },
+            {}, {}, {}, {}, {}, {}, {}, {},
+            { text: '0.00', fontSize: 8, alignment: 'right' }
+          ],
+          [
+            { text: 'Total', colSpan: 9, fontSize: 8,alignment: 'right',border: [false, false, true, false]  },
+            {}, {}, {}, {}, {}, {}, {}, {},
+            { text: '10.00', fontSize: 8, alignment: 'right' }
+          ]
+				]
+			},
+     
+		},
+    {
+      text:'Son Dies 00/100 Bolivianos',fontSize: 8
+    },
+    {
+      text:'Lorem Ipsum es simplemente el texto de relleno de las imprentas y archivos de texto. Lorem Ipsum ha sido el texto de relleno estándar de las industrias desde el año 1500, cuando un impresor (N. del T. persona que se dedica a la imprenta) desconocido usó una galería de textos y los mezcló de tal manera que logró hacer un libro de textos especimen.'
+      ,fontSize: 8
+    },
     ],
     styles: {
       header: {
-        fontSize: 9,
+        fontSize: 13,
         bold: true,
         color: 'black',
+        alignment: 'center',
+        margin:[0,10,0,10]
+      },
+      cabeza: {
+        fontZise: 9,
+
       },
       tableExample:{
         fontSize: 9,
