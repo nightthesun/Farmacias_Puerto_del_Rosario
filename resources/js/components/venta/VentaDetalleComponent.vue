@@ -546,92 +546,59 @@ export default {
     pageMargins: [25, 30, 25, 30], // Márgenes: [left, top, right, bottom]
     content: [
 
-		{
-			fontSize: 8,
-			table: {
-				headerRows: 1,
-        
-        bold: true,
-				body: [
-					[
-						'PUERTO DEL ROSARIO',
-						'NIT:',
-						'1026603028',
-					],
-          ['SUCURSAL 1',
-            'RECIBO Nº:',
-            '415149',
-          ],
-          [
-            'DIRECION DEL LA SUCURSAL PUEDE SER CUAL QUIERA ECT ETC',
-            'COD. DE CONTROL:',
-            'fsafsaf1231fsafasqwerwqewqewq121fdsa4fsafsafsafsafsaghsd4gfd56sgdsgdsgdsgdsgdsgdsgdsgdserwqewqe782145dsfg1444fdfqqw5'
-          ]
-				]
-       
-       
-			},
-
-      
-			layout: 'noBorders'
-		},
     {
-      columns: [
-        {
-          
-          fontSize: 8,
-          // margin: [left, top, right, bottom]
-          margin:[ 0, 0, 0,0], // Espacio a la derecha de 30 unidades
-          stack: [
-            { text: 'PUERTO DEL ROSARIO' },
-            { text: 'SUCURSAL 1DDDDDDSADASDSADSA' },
-            { text: 'DIRECION DEL LA SUCURSAL PUEDE SER CUAL QUIERA ECT ETCssssssssssssssssssssssssssssssssssssssssssssSSSSS' }
-          ]
-        },
-        {
-          
-          fontSize: 8,
-          // margin: [left, top, right, bottom]
-          margin:[ 0, 0, 0,0], // Espacio a la derecha de 30 unidades
-          stack: [
-            { text: 'NIT: ' },
-            { text: 'RECIBO Nº: ' },
-            { text: 'COD. DE CONTROL: ' }
-          ]
-        },
-        {
-          
-          fontSize: 8,
-          // margin: [left, top, right, bottom]
-          margin:[ 0, 0, 0,0], // Espacio a la derecha de 30 unidades
-          stack: [
-            { text: '1026603028' },
-            { text: '415149' },
-            { text: 'fsafsaf1231fsafasqwerwqewqewq121fdsa4fsafsafsafsafsaghsd4gfd56sgdsgdsgdsgdsgdsgdsgdsgdserwqewqe782145dsfg1444fdfqqw5' }
-          ]
-        },
+			style: 'tableExample',
+			table: {
+				widths: [115,'*',95, 100],
+				body: [
+					[{text: 'PUERTO DEL ROSARIO',fontSize: 9},
+          { },{text: 'NIT:',fontSize: 9},{text: '1020603028',fontSize: 9}
+          ],
+					[{text: 'SUCURSAL EL ALTO',fontSize: 9},{ },
+           {text: 'RECIBO Nº:',fontSize: 9},
+            {text: '2024984',fontSize: 9}, 
+            ],
+            [{text: 'DIRECION ZONA NOSE SABE FSAFSAFSAS1231321321232132132\n telefono 123132132',fontSize: 9},{ },
+           {text: 'COD DE CONTROL:',fontSize: 9},
+            {text: '45CF3B8E784D40176D6865AECBDCD4866B53D917C3750AD4C2A3D8E74',fontSize: 9}, 
+            ],
+				]
+			},
+      layout: 'noBorders'
+		},
    
-      ]
-    },
-      // Aquí puedes agregar más contenido debajo de las columnas
-      {
-        text: 'Contenido adicional debajo de las columnas',
-        style: 'header'
-      }
     ],
     styles: {
       header: {
         fontSize: 9,
         bold: true,
+        color: 'black',
       },
-      tableHeader: {
+      tableExample:{
+        fontSize: 9,
+        bold: true,
+      },
+		tableHeader: {
 			bold: true,
-		
-			color: 'black'
+			fontSize: 9,
+			color: 'black',
+     // margin:[ 0, 0, 100,0]
+		},
+    tableHeader2 : {
+			bold: true,
+			fontSize: 8,
+			color: 'black',
+      margin:[ 180, 0, 20,0] 
+		},
+    tableHeader3 : {
+			bold: true,
+			fontSize: 8,
+			color: 'black',
+      margin:[ 50, 0, 10,0] 
 		}
     }
   };
-
+ // margin: [left, top, right, bottom]
   // Generar y abrir el PDF
   pdfMake.createPdf(docDefinition).open();
 },
