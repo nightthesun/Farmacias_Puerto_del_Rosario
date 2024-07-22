@@ -194,19 +194,19 @@ $endDate = $request->endDate;
                     CASE 
                         WHEN tip.envase = 'primario' THEN CONCAT(
                             UPPER(COALESCE(pp.nombre, '')), ' ', 
-                            UPPER(COALESCE(pd_1.nombre, '')), ' x ', 
+                            UPPER(COALESCE(pd_1.nombre, '')), ' X ', 
                             COALESCE(pp.cantidadprimario, ''), ' ', 
                             UPPER(COALESCE(ff_1.nombre, ''))
                         ) 
                         WHEN tip.envase = 'secundario' THEN CONCAT(
                             UPPER(COALESCE(pp.nombre, '')), ' ', 
-                            UPPER(COALESCE(pd_2.nombre, '')), ' x ', 
+                            UPPER(COALESCE(pd_2.nombre, '')), ' X ', 
                             COALESCE(pp.cantidadsecundario, ''), ' ', 
                             UPPER(COALESCE(ff_2.nombre, ''))
                         ) 
                         WHEN tip.envase = 'terciario' THEN CONCAT(
                             UPPER(COALESCE(pp.nombre, '')), ' ', 
-                            UPPER(COALESCE(pd_3.nombre, '')), ' x ', 
+                            UPPER(COALESCE(pd_3.nombre, '')), ' X ', 
                             COALESCE(pp.cantidadterciario, ''), ' ', 
                             UPPER(COALESCE(ff_3.nombre, ''))
                         ) 
@@ -214,9 +214,18 @@ $endDate = $request->endDate;
                     END AS leyenda
                 "),
                 'vd.precio_venta as precio_unitario',
-                DB::raw('(vd.cantidad_venta * vd.precio_venta) as tot')
+                DB::raw('(vd.cantidad_venta * vd.precio_venta) as tot'),
+                'pp.codigo as cod_prod',
+                DB::raw("DATE_FORMAT(tip.fecha_vencimiento, '%d/%m/%Y') as fecha_vencimiento"),
+              
+                'tip.lote',
+                'pl.nombre as linea_nombre',
+                'vd.descuento as descuento'
+
             )
             ->join('prod__productos as pp', 'vd.id_producto', '=', 'pp.id')
+            
+            ->join('prod__lineas as pl','pp.idlinea','=','pl.id')
             ->join('tda__ingreso_productos as tip', 'tip.id', '=', 'vd.id_ingreso')
             ->leftJoin('prod__dispensers as pd_1', 'pd_1.id', '=', 'pp.iddispenserprimario')
             ->leftJoin('prod__dispensers as pd_2', 'pd_2.id', '=', 'pp.iddispensersecundario')

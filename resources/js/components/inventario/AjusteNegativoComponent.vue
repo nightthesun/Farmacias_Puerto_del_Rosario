@@ -81,9 +81,7 @@
                     <!---codigo antiguo-->
 
                     <!---------------------------------------------------------------->
-                    <table
-                        class="table table-bordered table-striped table-sm table-responsive"
-                    >
+                    <table class="table table-bordered table-striped table-sm table-responsive">
                         <thead>
                             <tr>
                                 <th class="col-md-1">Opciones</th>

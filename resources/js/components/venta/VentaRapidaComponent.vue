@@ -967,7 +967,7 @@ console.log(descuento_venta);
  
       content: [
       {
-        text: 'FARMACIA PUERTO DEL ROSARIO',
+        text: nombre_empresa,
       
         style: 'header'
       },

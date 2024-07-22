@@ -132,6 +132,7 @@ $nombre_empresa = strtoupper($nombre_e);
             $precio_venta=$item['precio_venta'];
             $cantidad_venta=$item['cantidad_venta'];
             $codigo_tienda_almacen=$item['codigo_tienda_almacen'];
+            $descuento=$item['descuento'];
             $data_det_venta = [
                 'id_venta' => $id_recibo,          
                 'es_lista' => $es_lista,
@@ -141,7 +142,8 @@ $nombre_empresa = strtoupper($nombre_e);
                 'id_linea' => $id_linea,    
                 'precio_venta' => $precio_venta,
                 'cantidad_venta' => $cantidad_venta,
-                'codigo_tienda_almacen'=>$codigo_tienda_almacen 
+                'codigo_tienda_almacen'=>$codigo_tienda_almacen,
+                 'descuento'=>$descuento,
                ];  
             DB::table('ven__detalle_ventas')->insert($data_det_venta);
            // Si todo sale bien, confirmar la transacción
@@ -174,11 +176,12 @@ $nombre_empresa = strtoupper($nombre_e);
         $nombre_negocio = strtoupper($nomsucursal);      
         $direccionMayusculas=strtoupper($direccion);     
         $fecha = $currentDateTime->format('d/m/Y');
-        $hora = $currentDateTime->format('H:i:s'); 
-        $fecha_7 = $currentDateTime->addDays(7);     
+       // $hora = $currentDateTime->format('H:i:s'); 
+       $hora = $currentDateTime->format('h:i:s A');
+       $fecha_7 = $currentDateTime->addDays(7);     
         $fechaMas7Dias = $fecha_7->format('d/m/Y');
         $nombreCompleto_1=strtoupper($nombreCompleto);
-
+       
         return response()->json([
            // 'idsuc' => $idsuc,
            // 'id_user2' => $id_user2,           
@@ -278,13 +281,13 @@ $nombre_empresa = strtoupper($nombre_e);
              
                 'tip.id as id_ingreso',
                 DB::raw("
-                    CASE 
-                        WHEN tip.envase = 'primario' THEN CONCAT(COALESCE(pp.nombre, ''), ' ', COALESCE(pd_1.nombre, ''), ' x ', COALESCE(pp.cantidadprimario, ''), ' ', COALESCE(ff_1.nombre, ''))
-                        WHEN tip.envase = 'secundario' THEN CONCAT(COALESCE(pp.nombre, ''), ' ', COALESCE(pd_2.nombre, ''), ' x ', COALESCE(pp.cantidadsecundario, ''), ' ', COALESCE(ff_2.nombre, ''))
-                        WHEN tip.envase = 'terciario' THEN CONCAT(COALESCE(pp.nombre, ''), ' ', COALESCE(pd_3.nombre, ''), ' x ', COALESCE(pp.cantidadterciario, ''), ' ', COALESCE(ff_3.nombre, ''))
-                        ELSE NULL
-                    END AS leyenda
-                "),
+                CASE 
+                    WHEN tip.envase = 'primario' THEN UPPER(CONCAT(COALESCE(pp.nombre, ''), ' ', COALESCE(pd_1.nombre, ''), ' X ', COALESCE(pp.cantidadprimario, ''), ' ', COALESCE(ff_1.nombre, '')))
+                    WHEN tip.envase = 'secundario' THEN UPPER(CONCAT(COALESCE(pp.nombre, ''), ' ', COALESCE(pd_2.nombre, ''), ' X ', COALESCE(pp.cantidadsecundario, ''), ' ', COALESCE(ff_2.nombre, '')))
+                    WHEN tip.envase = 'terciario' THEN UPPER(CONCAT(COALESCE(pp.nombre, ''), ' ', COALESCE(pd_3.nombre, ''), ' X ', COALESCE(pp.cantidadterciario, ''), ' ', COALESCE(ff_3.nombre, '')))
+                    ELSE NULL
+                END AS leyenda
+            "),
                 'gpv.id_lista','pppl.nombre as nombre_linea','pp.id as id_prod',
                 DB::raw('DATEDIFF(fecha_vencimiento, NOW()) AS dias'),
                 DB::raw("CASE 
@@ -347,13 +350,13 @@ $nombre_empresa = strtoupper($nombre_e);
               
                 'tip.id as id_ingreso',
                 DB::raw("
-                    CASE 
-                        WHEN tip.envase = 'primario' THEN CONCAT(COALESCE(pp.nombre, ''), ' ', COALESCE(pd_1.nombre, ''), ' x ', COALESCE(pp.cantidadprimario, ''), ' ', COALESCE(ff_1.nombre, ''))
-                        WHEN tip.envase = 'secundario' THEN CONCAT(COALESCE(pp.nombre, ''), ' ', COALESCE(pd_2.nombre, ''), ' x ', COALESCE(pp.cantidadsecundario, ''), ' ', COALESCE(ff_2.nombre, ''))
-                        WHEN tip.envase = 'terciario' THEN CONCAT(COALESCE(pp.nombre, ''), ' ', COALESCE(pd_3.nombre, ''), ' x ', COALESCE(pp.cantidadterciario, ''), ' ', COALESCE(ff_3.nombre, ''))
-                        ELSE NULL
-                    END AS leyenda
-                "),
+                CASE 
+                    WHEN tip.envase = 'primario' THEN UPPER(CONCAT(COALESCE(pp.nombre, ''), ' ', COALESCE(pd_1.nombre, ''), ' X ', COALESCE(pp.cantidadprimario, ''), ' ', COALESCE(ff_1.nombre, '')))
+                    WHEN tip.envase = 'secundario' THEN UPPER(CONCAT(COALESCE(pp.nombre, ''), ' ', COALESCE(pd_2.nombre, ''), ' X ', COALESCE(pp.cantidadsecundario, ''), ' ', COALESCE(ff_2.nombre, '')))
+                    WHEN tip.envase = 'terciario' THEN UPPER(CONCAT(COALESCE(pp.nombre, ''), ' ', COALESCE(pd_3.nombre, ''), ' X ', COALESCE(pp.cantidadterciario, ''), ' ', COALESCE(ff_3.nombre, '')))
+                    ELSE NULL
+                END AS leyenda
+            "),
                 'gpv.id_lista','pppl.nombre as nombre_linea','pp.id as id_prod',
                 DB::raw('DATEDIFF(fecha_vencimiento, NOW()) AS dias'),
                 DB::raw("CASE 

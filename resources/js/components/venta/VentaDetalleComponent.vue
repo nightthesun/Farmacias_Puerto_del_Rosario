@@ -115,7 +115,7 @@
   <div class="dropdown-menu">
     <a @click.prevent="abrirModal('recibo_r', v);" class="dropdown-item" href="#"><i style="color: black;" class="fa fa-file-pdf-o" aria-hidden="true"></i> Re imprimir factura ticket</a>
     <a @click.prevent="abrirModal('pdf_plana', v);" class="dropdown-item" href="#"><i style="color: black;" class="fa fa-file-pdf-o" aria-hidden="true"></i> Re imprimir factura plana</a>
-    <a class="dropdown-item" href="#"><i style="color: black;" class="fa fa-eye" aria-hidden="true"></i> Ver estado</a>
+    <a @click.prevent="abrirModal('ver_detalle_venta',v)"  class="dropdown-item" href="#"><i style="color: black;" class="fa fa-eye" aria-hidden="true"></i> Ver estado</a>
     <a class="dropdown-item" href="#"><i style="color: black;" class="fa fa-trash" aria-hidden="true"></i> Anular venta</a>
     
     
@@ -179,7 +179,7 @@
             tabindex="-1"
             role="dialog"
             arial-labelledby="myModalLabel"
-            id="registrar"
+            id="ver_detalle"
             aria-hidden="true"
             data-backdrop="static"
             data-key="false" >
@@ -191,57 +191,79 @@
                             type="button"
                             class="close"
                             aria-label="Close"
-                            @click="cerrarModal('registrar')"
+                            @click="cerrarModal('ver_detalle')"
                         >
                             <span aria-hidden="true">x</span>
                         </button>
                     </div>
                     <div class="modal-body">
-                        <div class="alert alert-warning" role="alert">
-                            Todos los campos con (*) son requeridos
-                        </div>
-                        <form action="" class="form-horizontal">
+                      <table class="table table-bordered table-striped table-sm table-responsive">
+      <thead>
+        <tr>
+          <th>Codigo de cliente</th>
+          <th>Nombre de cliente</th>
+          <th>Nombre a facturar</th>
+          <th>Numero de documento</th>
+          <th>Correo</th>
+        </tr>
+      </thead>
+    </table>
+                      <div class="card">
+  <h5 class="card-header">Datos de cliente</h5>
+  <div class="card-body">
+    <table class="table table-bordered table-striped table-sm table-responsive">
+      <thead>
+        <tr>
+          <th>Nombre de cliente</th>
+          <th>Nombre a facturar</th>
+          <th>Numero de documento</th>
+          <th>Correo</th>
+        </tr>
+      </thead>
+    </table>
+  </div>
+</div>  
+                 
                         
                             <!-- insertar datos -->
                             <div class="container">
                                 
                                 <div class="form-group row">
-                                   
-                                   
+                                 <table class="table table-bordered table-striped table-sm table-responsive">
+                        <thead>
+                            <tr>
+                                <th class="col-md-1">Opciones</th>
+                                <th class="col-md-1">Codigó</th>
+                                <th>Linea</th>
+                                <th class="col-md-5">Producto</th>
+                                <th>Cantidad</th>
+                                <th>Tipo</th>
+                                <th class="col-md-2">Descripción</th>
+                                <th>Fecha/Hora</th>
+                                <th >Usuario</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        </table
+                        >
         
                                 </div>
                               
                             
                                
                             </div>
-                        </form>
+               
                     </div>
                   
                     <div class="modal-footer">
                         <button
                             type="button"
                             class="btn btn-secondary"
-                            @click="cerrarModal('registrar')"
+                            @click="cerrarModal('ver_detalle')"
                         >
                             Cerrar
                         </button>
-                        <button
-                            type="button"
-                            v-if="tipoAccion == 1"
-                            class="btn btn-primary"
-                           
-                            :disabled="!sicompleto"
-                        >
-                            Guardar
-                        </button>
-                        <button
-                            type="button"
-                            v-if="tipoAccion == 2"
-                            class="btn btn-primary"
-                          
-                        >
-                            Actualizar
-                        </button>
+                       
                     </div>
                 </div>
             </div>
@@ -542,7 +564,59 @@ export default {
     },
   
     generarFacPlana(cod_cliente,numero_identificacion,respuesta_total,nom_empresa,direccionMayusculas,nomsucursal,nuevoComprobante,fecha,hora,num_documento,nom_a_facturar,array_recibo,total_sin_des,descuento_venta,total_venta,efectivo_venta,cambio_venta,fechaMas7Dias,numero_referencia,nombreCompleto_1) {
-  const docDefinition = {
+  
+  // Crea el cuerpo de la tabla dinámicamente
+ const tableBody = [
+    // Agrega los encabezados de la tabla
+    [
+      { text: 'Código Producto / Servicio.', style: 'tableHeader_2',alignment: 'center',fillColor: '#d3d3d3' }, 
+      { text: 'Descripción', style: 'tableHeader_2',alignment: 'center',fillColor: '#d3d3d3' }, 
+      { text: 'Vencimiento', style: 'tableHeader_2',alignment: 'center',fillColor: '#d3d3d3' }, 
+      { text: 'Lote', style: 'tableHeader_2',alignment: 'center',fillColor: '#d3d3d3' },
+      { text: 'Linea', style: 'tableHeader_2',alignment: 'center',fillColor: '#d3d3d3' },
+      { text: 'Cantidad', style: 'tableHeader_2',alignment: 'center',fillColor: '#d3d3d3' },
+      { text: 'Precio Unitario', style: 'tableHeader_2',alignment: 'center',fillColor: '#d3d3d3' },
+      { text: 'Venta Total', style: 'tableHeader_2',alignment: 'center',fillColor: '#d3d3d3' },
+      { text: 'Descuento', style: 'tableHeader_2',alignment: 'center',fillColor: '#d3d3d3' },
+      { text: 'SubTotal' , style: 'tableHeader_2',alignment: 'center',fillColor: '#d3d3d3' },
+    ]
+  ];
+  
+  // Itera sobre los datos y agrega filas a la tabla
+  array_recibo.forEach(item => {
+    tableBody.push([
+      { text: item.cod_prod, fontSize: 8, alignment: 'left' },
+      { text: item.leyenda, fontSize: 8, alignment: 'left' },
+      { text: item.fecha_vencimiento, fontSize: 8, alignment: 'left' },
+      { text: item.lote, fontSize: 8, alignment: 'left' },
+      { text: item.linea_nombre, fontSize: 8, alignment: 'left' },
+      { text: item.cantidad_venta, fontSize: 8, alignment: 'right' },
+      { text: item.precio_unitario, fontSize: 8, alignment: 'right' },
+      { text: item.tot, fontSize: 8, alignment: 'right' },
+      { text: item.descuento, fontSize: 8, alignment: 'right' },
+      
+      { text: (item.cantidad_venta * item.precio_unitario).toFixed(2), fontSize: 8, alignment: 'right' } // Operación y formato
+    ]);
+  });
+  // Agrega las filas con colspan al final del tableBody
+tableBody.push(
+  [
+    { text: 'SubTotal', colSpan: 9, fontSize: 8, alignment: 'right', border: [false, true, true, false] },
+    {}, {}, {}, {}, {}, {}, {}, {},
+    { text: total_sin_des, fontSize: 8, alignment: 'right' }
+  ],
+  [
+    { text: 'Descuento', colSpan: 9, fontSize: 8, alignment: 'right', border: [false, false, true, false] },
+    {}, {}, {}, {}, {}, {}, {}, {},
+    { text: descuento_venta, fontSize: 8, alignment: 'right' }
+  ],
+  [
+    { text: 'Total', colSpan: 9, fontSize: 8, alignment: 'right', border: [false, false, true, false] },
+    {}, {}, {}, {}, {}, {}, {}, {},
+    { text: total_venta , fontSize: 8, alignment: 'right' }
+  ]
+);
+      const docDefinition = {
     pageSize: 'LETTER', // Tamaño carta
     pageMargins: [25, 30, 25, 30], // Márgenes: [left, top, right, bottom]
     content: [
@@ -588,59 +662,28 @@ export default {
       layout: 'noBorders'
 		},
     {
-			margin:[0,10,0,10],
-			table: {
-		    widths: [50,'*',55,34,32,36,40,40,40,40],
-				body: [
-					[{text: 'Código Producto / Servicio',fontSize: 8 ,alignment: 'center',fillColor: '#d3d3d3'},
-          {text: 'Descripción',fontSize: 8 ,alignment: 'center' ,fillColor: '#d3d3d3'},
-          {text: 'Vencimiento',fontSize: 8 ,alignment: 'center' ,fillColor: '#d3d3d3'},
-          {text: 'Lote',fontSize: 8 ,alignment: 'center' ,fillColor: '#d3d3d3'},
-          {text: 'Linea',fontSize: 8 ,alignment: 'center' ,fillColor: '#d3d3d3'},
-          {text: 'Cantidad',fontSize: 8 ,alignment: 'center' ,fillColor: '#d3d3d3'},
-          {text: 'Precio Unitario',fontSize: 8 ,alignment: 'center' ,fillColor: '#d3d3d3'},
-          {text: 'Venta Total',fontSize: 8 ,alignment: 'center' ,fillColor: '#d3d3d3'},
-          {text: 'Descuento',fontSize: 8 ,alignment: 'center' ,fillColor: '#d3d3d3'},
-          {text: 'SubTotal',fontSize: 8 ,alignment: 'center',fillColor: '#d3d3d3'},       
-          ],
-					[{text: 'FPR0477',fontSize: 8},
-          {text: 'DEXTROMETORFANO 15MG CAJA X 100 - COMPRIMIDOS',fontSize: 8 },          
-          {text: '29/20/2000',fontSize: 8},
-          {text: '23121ds',fontSize: 8},
-          {text: 'INTI',fontSize: 8},
-          {text: '2',fontSize: 8,alignment: 'right'},
-          {text: '1.50',fontSize: 8,alignment: 'right' },
-          {text: '3.00',fontSize: 8,alignment: 'right' },       
-          {text: '0.00',fontSize: 8,alignment: 'right' },
-          {text: '3.00',fontSize: 8,alignment: 'right' },  
-        ],
-        [
-          
-            { text: 'SubTotal', colSpan: 9, fontSize: 8,alignment: 'right',	border: [false, true, true, false] },
-            {}, {}, {}, {}, {}, {}, {}, {},
-            { text: '10.00', fontSize: 8, alignment: 'right' }
-          ],
-          [
-            { text: 'Descuento', colSpan: 9, fontSize: 8,alignment: 'right',border: [false, false, true, false]  },
-            {}, {}, {}, {}, {}, {}, {}, {},
-            { text: '0.00', fontSize: 8, alignment: 'right' }
-          ],
-          [
-            { text: 'Total', colSpan: 9, fontSize: 8,alignment: 'right',border: [false, false, true, false]  },
-            {}, {}, {}, {}, {}, {}, {}, {},
-            { text: '10.00', fontSize: 8, alignment: 'right' }
-          ]
-				]
-			},
-     
+        style: 'tableExample',
+        margin:[0,10,0,0],
+        table: {
+          headerRows: 1,
+          widths: [50,'*',55,34,32,37,40,40,43,40], // Ajusta los anchos de las columnas
+          body: tableBody         
+        },
+      
 		},
+    
     {
       text: respuesta_total ,fontSize: 8
     },
     {
-      text:'Lorem Ipsum es simplemente el texto de relleno de las imprentas y archivos de texto. Lorem Ipsum ha sido el texto de relleno estándar de las industrias desde el año 1500, cuando un impresor (N. del T. persona que se dedica a la imprenta) desconocido usó una galería de textos y los mezcló de tal manera que logró hacer un libro de textos especimen.'
+      text:'Valido desde '+ fecha +' hasta '+fechaMas7Dias+',valor de vigencia para el recibo para el cambio valido hasta '+ fecha+' en la misma tienda, términos y codiciones según politica de cambios y devoluiones'
       ,fontSize: 8
     },
+   
+      {
+        text: 'Usuario: '+ nombreCompleto_1,
+        fontSize: 8
+      },
     ],
     styles: {
       header: {
@@ -775,9 +818,15 @@ export default {
                 case "registrar": {
                     me.tipoAccion = 1;
                     me.tituloModal = "Registro de traspaso origen ";
-            
+
                     me.classModal.openModal("registrar");
                     break;
+                }
+                case "ver_detalle_venta":{
+                  me.tituloModal = "Detalle de venta";
+
+                  me.classModal.openModal("ver_detalle");
+                  break;
                 }
 
                 case "recibo_r": {
@@ -862,6 +911,8 @@ export default {
         this.sucursalFiltro();
         this.fecha_inicial();
         this.classModal.addModal("registrar");
+
+        this.classModal.addModal("ver_detalle");
     
     
     },
