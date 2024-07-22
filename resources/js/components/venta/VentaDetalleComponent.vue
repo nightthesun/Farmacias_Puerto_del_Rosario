@@ -282,6 +282,7 @@ export default {
       cod_seleccionada_sucursal:'',
       arrayVentas:[],
       arrayDetalle_venta:[],
+      recibo_ticket_plana:0,
         };
     },
 
@@ -379,7 +380,7 @@ export default {
  
       content: [
       {
-        text: 'FARMACIA PUERTO DEL ROSARIO',
+        text: nom_empresa,
       
         style: 'header'
       },
@@ -540,7 +541,7 @@ export default {
       pdfMake.createPdf(documentDefinition).open();
     },
   
-    generarFacPlana() {
+    generarFacPlana(cod_cliente,numero_identificacion,respuesta_total,nom_empresa,direccionMayusculas,nomsucursal,nuevoComprobante,fecha,hora,num_documento,nom_a_facturar,array_recibo,total_sin_des,descuento_venta,total_venta,efectivo_venta,cambio_venta,fechaMas7Dias,numero_referencia,nombreCompleto_1) {
   const docDefinition = {
     pageSize: 'LETTER', // Tamaño carta
     pageMargins: [25, 30, 25, 30], // Márgenes: [left, top, right, bottom]
@@ -551,16 +552,16 @@ export default {
 			table: {
 				widths: [120,'*',90, 100],
 				body: [
-					[{text: 'PUERTO DEL ROSARIO',fontSize: 9},
-          { },{text: 'NIT:',fontSize: 9},{text: '1020603028',fontSize: 9}
+					[{text: nom_empresa ,fontSize: 9},
+          { },{text: 'IDENTIFICACIÓN ',fontSize: 9},{text: numero_identificacion ,fontSize: 9}
           ],
-					[{text: 'SUCURSAL EL ALTO',fontSize: 9},{ },
+					[{text: nomsucursal,fontSize: 9},{ },
            {text: 'RECIBO Nº:',fontSize: 9},
-            {text: '2024984',fontSize: 9}, 
+            {text: nuevoComprobante,fontSize: 9}, 
             ],
-            [{text: 'DIRECION ZONA NOSE SABE FSAFSAFSAS1231321321232132132\n telefono 123132132',fontSize: 9},{ },
+            [{text: direccionMayusculas+' \n'+'TELEFONO '+numero_referencia ,fontSize: 9},{ },
            {text: 'COD DE CONTROL:',fontSize: 9},
-            {text: '45CF3B8E784D40176D6865AECBDCD4866B53D917C3750AD4C2A3D8E74',fontSize: 9}, 
+            {text: nuevoComprobante ,fontSize: 9}, 
             ],
 				]
 			},
@@ -573,14 +574,14 @@ export default {
 				widths: [90,120,'*',60,105],
 				body: [
 					[{text: 'Fecha:',fontSize: 9},
-          {text: '04/02/2024 04::40 PM',fontSize: 9},{ },
+          {text: fecha+' '+ hora ,fontSize: 9},{ },
           {text: 'NIT/CI/CEX:',fontSize: 9},
-          {text: '6912345',fontSize: 9},         
+          {text: num_documento,fontSize: 9},         
           ],
 					[{text: 'Nombre/Razón Social:',fontSize: 9},
-          {text: 'CHOQUE',fontSize: 9},{ },
+          {text: nom_a_facturar,fontSize: 9},{ },
           {text: 'Cod. Cliente:',fontSize: 9},
-          {text: '6912345',fontSize: 9},         
+          {text: cod_cliente,fontSize: 9},         
           ],
 				]
 			},
@@ -634,7 +635,7 @@ export default {
      
 		},
     {
-      text:'Son Dies 00/100 Bolivianos',fontSize: 8
+      text: respuesta_total ,fontSize: 8
     },
     {
       text:'Lorem Ipsum es simplemente el texto de relleno de las imprentas y archivos de texto. Lorem Ipsum ha sido el texto de relleno estándar de las industrias desde el año 1500, cuando un impresor (N. del T. persona que se dedica a la imprenta) desconocido usó una galería de textos y los mezcló de tal manera que logró hacer un libro de textos especimen.'
@@ -729,24 +730,34 @@ export default {
             me.listarVentas(page);
         },
         
-        detalleVenta(id,tipo,direccion,razon_social,nro_comprobante_venta,fecha_formateada,hora_formateada,
+        detalleVenta(cod_cliente,validor_12,id,tipo,direccion,razon_social,nro_comprobante_venta,fecha_formateada,hora_formateada,
         num_documento,nom_a_facturar,total_sin_des,descuento_venta,total_venta,efectivo_venta,cambio_venta,fecha_mas_siete,
         numero_referencia,nombre_completo){
-          let me=this;       
-        var url = "/detalle_venta_2/re_imprecion?id_venta="+id+"&tipofactura="+tipo;
+          let me=this;  
+          console.log(validor_12);    
+        var url = "/detalle_venta_2/re_imprecion?id_venta="+id+"&tipofactura="+tipo+"&venta="+total_venta;
         axios
                 .get(url)
                 .then(function (response) {
                     var respuesta = response.data;   
                     let respuesta_empresa = respuesta.datos_empresa;
-                   
+                    let respuesta_total = respuesta.datoTexto_v2;
+                   console.log(respuesta);
                     let nit =respuesta_empresa[0].nit;  
                     let nom_empresa =respuesta_empresa[0].nom_empresa;             
                      me.arrayDetalle_venta = respuesta.detalle_venta;             
-                     console.log( me.arrayDetalle_venta);
-                     me.generarPDF(nom_empresa,direccion,razon_social,nro_comprobante_venta,fecha_formateada,
+               
+                     if (validor_12===1) {
+                      me.generarPDF(nom_empresa,direccion,razon_social,nro_comprobante_venta,fecha_formateada,
                      hora_formateada,num_documento,nom_a_facturar,me.arrayDetalle_venta,total_sin_des,descuento_venta,total_venta,
                     efectivo_venta,cambio_venta,fecha_mas_siete,numero_referencia,nombre_completo);  
+                     } 
+                     if (validor_12===2) {
+                      me.generarFacPlana(cod_cliente,id,respuesta_total,nom_empresa,direccion,razon_social,nro_comprobante_venta,fecha_formateada,
+                     hora_formateada,num_documento,nom_a_facturar,me.arrayDetalle_venta,total_sin_des,descuento_venta,total_venta,
+                    efectivo_venta,cambio_venta,fecha_mas_siete,numero_referencia,nombre_completo);
+                     } 
+                     
                 })
                 .catch(function (error) {
                     error401(error);
@@ -770,17 +781,31 @@ export default {
                 }
 
                 case "recibo_r": {
+                  me.recibo_ticket_plana=1;
                     console.log(data);
-                    me.detalleVenta(data.id,data.tipo_venta_reci_fac,data.direccion,data.razon_social,data.nro_comprobante_venta,
+                    if (data.tipo_venta_reci_fac==="RECIBO") {
+                      me.detalleVenta(data.id_cliente,me.recibo_ticket_plana,data.id,data.tipo_venta_reci_fac,data.direccion,data.razon_social,data.nro_comprobante_venta,
                     data.fecha_formateada,data.hora_formateada,data.num_documento,data.nom_a_facturar,data.total_sin_des,
                     data.descuento_venta,data.total_venta,data.efectivo_venta,data.cambio_venta,data.fecha_mas_siete,
                     data.numero_referencia,data.nombre_completo
                     );
+                    }
+                   
                     break;
                 }
 
                 case "pdf_plana":{
-                  me.generarFacPlana();
+                  me.recibo_ticket_plana=2;
+                  console.log(data.id);
+                  if (data.tipo_venta_reci_fac==="RECIBO") {
+                    me.detalleVenta(data.id_cliente,me.recibo_ticket_plana,data.id,data.tipo_venta_reci_fac,data.direccion,data.razon_social,data.nro_comprobante_venta,
+                    data.fecha_formateada,data.hora_formateada,data.num_documento,data.nom_a_facturar,data.total_sin_des,
+                    data.descuento_venta,data.total_venta,data.efectivo_venta,data.cambio_venta,data.fecha_mas_siete,
+                    data.numero_referencia,data.nombre_completo
+                    );
+              
+                  }         
+                 
                   break;
                 }
                 
