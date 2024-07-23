@@ -103,20 +103,23 @@ $nombre_empresa = strtoupper($nombre_e);
         'razon_social'=>$nom_a_facturar
        ];   
        $id_recibo = DB::table('ven__recibos')->insertGetId($data_recibo);
-   
+     
+         
        /////// detalle_descuento
        $bloque_descuento = $request->arrayDescuentoOperacion;
        foreach ($bloque_descuento as $item) {
-        $id_tabla = $item['id_nom_tabla'];
-        $id_descuento = $item['id'];
-        $cantidad_descuento = $item['monto_descuento'];
-        $tipo_num_des =$item['tipo_num_des'];
+        $id_tabla = $item['id_tabla'];
+        $id_descuento = $item['id_descuento'];
+        $cantidad_descuento = $item['cantidad_descuento'];
+        $tipo_num_des =$item['id_contador'];
+        $tipo_2=$item['tipo'];
         $data_descuento = [
             'id_venta' => $id_recibo,
             'id_tabla' => $id_tabla,  
             'id_descuento' => $id_descuento,
             'cantidad_descuento' => $cantidad_descuento, 
-            'tipo_num_des'=> $tipo_num_des       
+            'id_detalle_descuento'=> $tipo_num_des,
+            'tipo' => $tipo_2      
            ];    
            $id_descuento = DB::table('ven__detalle_descuentos')->insertGetId($data_descuento);
        }  
@@ -124,6 +127,7 @@ $nombre_empresa = strtoupper($nombre_e);
         //$es_lista si es lita esta por default 0 pero si es lista es 1
         $bloque_venta_detalle=$request->arrayDesatlleVenta;
         foreach ($bloque_venta_detalle as $item) {
+            $id_contador=$item['id_contador'];
             $es_lista=$item['es_lista'];
             $id_ges_pre=$item['id_ges_pre'];
             $id_ingreso=$item['id_ingreso'];
@@ -134,6 +138,7 @@ $nombre_empresa = strtoupper($nombre_e);
             $codigo_tienda_almacen=$item['codigo_tienda_almacen'];
             $descuento=$item['descuento'];
             $data_det_venta = [
+                'id_detalle_descuento'=>$id_contador,
                 'id_venta' => $id_recibo,          
                 'es_lista' => $es_lista,
                 'id_ges_pre' => $id_ges_pre,
@@ -382,13 +387,7 @@ $nombre_empresa = strtoupper($nombre_e);
     }
    
  
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Ven_GestorVenta $ven_GestorVenta)
-    {
-        //
-    }
+   
     public function listarUsuario(Request $request){
         $clientes = DB::table('dir__clientes as dc')
         ->join('dir__tipo_doc as dtd', 'dc.id_tipo_doc', '=', 'dtd.id')
@@ -430,7 +429,9 @@ $nombre_empresa = strtoupper($nombre_e);
                     END as tipo_num_des'),
             'pd2.monto_descuento',
             'pd2.activo as descuento_activo',
-            'pad2.id_sucursal as id_11'
+            'pad2.id_sucursal as id_11',
+            'pd2.id as id_descuento',
+            'pd2.id_tipo_tabla as id_tabla'
         ])        
        
         ->first();
@@ -503,7 +504,9 @@ $nombre_empresa = strtoupper($nombre_e);
                             END as tipo_num_des'),
                     'pd2.monto_descuento',
                     'pd2.activo as descuento_activo',
-            'pad2.id_sucursal as id_11'
+            'pad2.id_sucursal as id_11',
+            'pd2.id as id_descuento',
+            'pd2.id_tipo_tabla as id_tabla'
                 ])
                 ->get();
 
@@ -551,7 +554,9 @@ $nombre_empresa = strtoupper($nombre_e);
                         END as tipo_num_des'),
                 'pd2.monto_descuento',
                 'pd2.activo as descuento_activo',
-            'pad2.id_sucursal as id_11'
+            'pad2.id_sucursal as id_11',
+            'pd2.id as id_descuento',
+            'pd2.id_tipo_tabla as id_tabla'
             ])
             ->get();
 

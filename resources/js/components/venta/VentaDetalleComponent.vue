@@ -595,7 +595,7 @@ export default {
       { text: item.tot, fontSize: 8, alignment: 'right' },
       { text: item.descuento, fontSize: 8, alignment: 'right' },
       
-      { text: (item.cantidad_venta * item.precio_unitario).toFixed(2), fontSize: 8, alignment: 'right' } // Operación y formato
+      { text: (item.tot - item.descuento).toFixed(2), fontSize: 8, alignment: 'right' } // Operación y formato
     ]);
   });
   // Agrega las filas con colspan al final del tableBody

@@ -783,6 +783,7 @@ export default {
     caso5_id:'',
     caso5_nom:'',
     caso5_id_tabla:'',
+    caso5_id_tabla_p:'',
     sumatotal:0,
                 efectivo:0,
                 cambio:0,
@@ -790,7 +791,8 @@ export default {
      existe_cliente:0,  
      existe_cliente_f:0,
      cliente_des:'',
-
+     cliente_id_descuento:'',
+     cliente_id_tabla:'',       
      cliente_activo_descuento:'',
      cliente_id_sucursal_desc:'',
      
@@ -804,7 +806,8 @@ export default {
      existe_final:0,
      array_vetasQuery:[],    
      key_1:0,   
-     controlador_venta_id:0,       
+     controlador_venta_id:0,   
+     array_ven__detalle_descuentos:[],    
         };
     },
     created() {
@@ -854,14 +857,19 @@ watch: {
                     let operacion_21 = this.operacion_Numeral_Procentaje(this.arrayDescuentoOperacion[0].tipo_num_des, this.arrayDescuentoOperacion[0].monto_descuento,this.selected.precio_lista_gespreventa);
                     let { valorNumeral, porcentaje } = operacion_21;
                     console.log("caso_5: "+porcentaje);
+                    
                 this.valorUnicoPersonalizado = porcentaje;
                 this.caso5_id=this.arrayDescuentoOperacion[0].id;
                 this.caso5_nom=this.arrayDescuentoOperacion[0].nombre_descuento;
                 this.caso5_id_tabla=this.arrayDescuentoOperacion[0].id_perso;//<====
+                this.caso5_id_tabla_p=this.arrayDescuentoOperacion[0].id_nom_tabla;
+                console.log("caso_5: "+this.caso5_id);
+                console.log("caso_5: "+this.caso5_nom);
+                console.log("caso_5: "+this.caso5_id_tabla);
+            
                 }  
                 } 
-                
-              
+               
             }       
         }, 
         
@@ -1272,6 +1280,8 @@ if (tipo_can_valor==='BS') {
             me.array_vetasQuery=[]; 
             me.key_1=0; 
             me.codigo_tienda_almacen='';
+         me.array_ven__detalle_descuentos=[];
+         me.caso5_id_tabla_p='';
     },
 
           
@@ -1304,7 +1314,7 @@ if (tipo_can_valor==='BS') {
                                
                              
                             me.arrayDescuentoOperacion.forEach((descuento) => {   
-                               
+                       
                             
                                 if(descuento.id_nom_tabla===1){
                                     contador_1_normal++;
@@ -1487,8 +1497,8 @@ console.log("///////"+totalDescuento);
                         let operacion_21 = this.operacion_Numeral_Procentaje(descuento.tipo_num_des, descuento.monto_descuento, this.selected.precio_lista_gespreventa);
                         let { valorNumeral, porcentaje } = operacion_21;
                         sumador_21_sub += parseFloat(valorNumeral);  // Acumular los valores numerales como float
-                        sumador_21_des += parseFloat(porcentaje); 
-
+                        sumador_21_des += parseFloat(porcentaje);            
+            
                     }
                     if (descuento.id_nom_tabla===2) {
                         let var_c = this.operacion_cantida_valor(descuento.tipo_can_valor,descuento.regla,descuento.cantidad_valor,me.selected.precio_lista_gespreventa);
@@ -1563,6 +1573,8 @@ console.log("///////"+totalDescuento);
             console.log(me.descuento_1);
             precioXcantida=me.selected.precio_lista_gespreventa*me.numero;
             subtotal=precioXcantida;
+            //me.array_ven__detalle_descuentos.push({id_contador:0,id_tabla:0,id_descuento:0,cantidad_descuento:0.00,tipo:1});
+            
           }
           //caso personalizado validoPersonal=1
           if (me.validadorPersonal===1) {
@@ -1575,15 +1587,15 @@ console.log("///////"+totalDescuento);
             precioXcantida=me.selected.precio_lista_gespreventa*me.numero;
             //descuento=1-(me.descuento/100);
             descuento=me.descuento;
-           
-            //me.descuento_1=me.descuento;
-            console.log(me.descuento_1);
+     
             me.descuento_1 +=parseFloat(descuento);
-            console.log("/////////////****************************")
-            console.log(me.descuento_1);
+             
             subtotal=precioXcantida-descuento;
+            me.array_ven__detalle_descuentos.push({id_contador:me.controlador_venta_id,id_tabla:me.caso5_id_tabla_p,id_descuento:me.caso5_id ,cantidad_descuento:parseFloat(descuento),tipo:1});
             //subtotal=precioXcantida*descuento;
           }
+
+          ///////////CASO NORMAL /////////////////////////////////////////////
           if (me.validadorPersonal===2) {
             let sumador_21_sub = 0;
             let sumador_21_des = 0;
@@ -1594,7 +1606,7 @@ console.log("///////"+totalDescuento);
                   
                     sumador_21_sub += parseFloat(valorNumeral);  // Acumular los valores numerales como float
                     sumador_21_des += parseFloat(porcentaje);    
-
+                    me.array_ven__detalle_descuentos.push({id_contador:me.controlador_venta_id,id_tabla:descuento.id_nom_tabla,id_descuento:descuento.id ,cantidad_descuento:parseFloat(porcentaje),tipo:1});   
             });
             me.descuento=parseFloat(sumador_21_des.toFixed(2));
             var descuento=0;
@@ -1611,8 +1623,9 @@ console.log("///////"+totalDescuento);
             //subtotal=sumador_21_sub;
             
             //subtotal=precioXcantida*descuento;      
+        
           }
-            
+            /////////////////////////DESCUENTO CATIDAD O COMPRA//////////////////////////////////
          if (me.validadorPersonal===4) {
            let asigner=false;
            let sumador_21_sub = 0;
@@ -1627,10 +1640,14 @@ console.log("///////"+totalDescuento);
                     console.log(valorNumeral+"  -  "+porcentaje);    
                     sumador_21_sub += parseFloat(valorNumeral);  // Acumular los valores numerales como float
                     sumador_21_des += parseFloat(porcentaje); 
+                    me.array_ven__detalle_descuentos.push({id_contador:me.controlador_venta_id,id_tabla:descuento.id_nom_tabla,id_descuento:descuento.id ,cantidad_descuento:parseFloat(porcentaje),tipo:1});
+            
                     }
                     else{
                     sumador_21_sub += parseFloat(0);  // Acumular los valores numerales como float
-                    sumador_21_des += parseFloat(0);   
+                    sumador_21_des += parseFloat(0);  
+                    me.array_ven__detalle_descuentos.push({id_contador:me.controlador_venta_id,id_tabla:descuento.id_nom_tabla,id_descuento:descuento.id ,cantidad_descuento:parseFloat(0),tipo:1});
+            
                     }
                 });
                 me.descuento=parseFloat(sumador_21_des.toFixed(2));
@@ -1650,6 +1667,7 @@ console.log("///////"+totalDescuento);
             
             //subtotal=precioXcantida*descuento;  
          } 
+         ////////////////////////////CLIENTE //////////////////////////
          if (me.validadorPersonal===5) {
             if (me.num_documento==='') {
                 Swal.fire(
@@ -1660,8 +1678,7 @@ console.log("///////"+totalDescuento);
             return ;
             }else{
              
-                me.contador_cliente=1;
-     
+                me.contador_cliente=1;     
                 if (me.cliente_activo_descuento===1&&me.cliente_id_sucursal_desc===me.id_descuento_x) {
                     let operacion_21 = this.operacion_Numeral_Procentaje(me.cliente_num_por, me.cliente_des, this.selected.precio_lista_gespreventa);
                     
@@ -1680,7 +1697,8 @@ console.log("///////"+totalDescuento);
             descuento= me.descuento;
             me.descuento_1 += parseFloat(descuento);
             subtotal=precioXcantida-descuento;
-                  
+            me.array_ven__detalle_descuentos.push({id_contador:me.controlador_venta_id,id_tabla:me.cliente_id_tabla, id_descuento:me.cliente_id_descuento ,cantidad_descuento:parseFloat(descuento),tipo:1});
+              
                 } else {
                     me.descuento=0;
                     var descuento=0;
@@ -1694,6 +1712,7 @@ console.log("///////"+totalDescuento);
             descuento= me.descuento;
             me.descuento_1 +=descuento;
             subtotal=precioXcantida-descuento; 
+            me.array_ven__detalle_descuentos.push({id_contador:me.controlador_venta_id,id_tabla:me.cliente_id_tabla, id_descuento:me.cliente_id_descuento ,cantidad_descuento:parseFloat(0),tipo:1});
                 }         
 
             }
@@ -2004,7 +2023,9 @@ console.log("///////"+totalDescuento);
                     me.cliente_des=response.data.monto_descuento;
                     me.cliente_num_por=response.data.tipo_num_des;
                     me.cliente_activo_descuento=response.data.descuento_activo;
-                    me.cliente_id_sucursal_desc=response.data.id_11;
+                    me.cliente_id_sucursal_desc=response.data.id_11;                    
+                    me.cliente_id_descuento=response.data.id_descuento; 
+                    me.cliente_id_tabla=response.data.id_tabla;
                     if (me.cliente_id==undefined) {
                         me.datos_cliete="No se encontro cliente..."
                         me.key_1=0;
@@ -2221,11 +2242,19 @@ console.log("///////"+totalDescuento);
     EnviarRecibo(){
         let me = this;
        
+        if (me.validadorPersonal===3) {
+           
+            me.array_ven__detalle_descuentos.push({id_contador:0,id_tabla:0,id_descuento:0,cantidad_descuento:0.00,tipo:1});
+            
+          }
         const totalDescuento = me.array_vetasQuery.reduce((total, venta) => {
   return total + (parseFloat(venta.descuento) || 0);
 }, 0);
 me.descuento_1=totalDescuento+me.descuento_final;
-
+    console.log("-----------------x-------------------");
+    console.log(me.array_ven__detalle_descuentos);
+   console.log(me.array_vetasQuery);
+    console.log("-----------------x-------------------");
         const data = {
           TipoComprobate: me.TipoComprobate,
           num_documento: me.num_documento,
@@ -2239,7 +2268,7 @@ me.descuento_1=totalDescuento+me.descuento_final;
           cambio_venta:me.cambio,
           descuento_venta:me.descuento_1,
           arrayProRecibo:me.arrayProducto_recibo_1,
-          arrayDescuentoOperacion: me.arrayDescuentoOperacion, // Incluir el array en el objeto data
+          arrayDescuentoOperacion: me.array_ven__detalle_descuentos, // Incluir el array en el objeto data
           arrayDesatlleVenta: me.array_vetasQuery,
           codigo_tienda_almacen_0:me.codigo_tienda_almacen,
           id_lista_v2:me.id_lista_v2,
