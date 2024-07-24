@@ -84,7 +84,8 @@ $endDate = $request->endDate;
             COALESCE(re.nombre, ''), ' ',
             COALESCE(re.papellido, ''), ' ',
             COALESCE(re.sapellido, '')
-        )) as nombre_completo") 
+        )) as nombre_completo"),
+        'dc.tipo_per_emp'  
 
     )
     ->where('vr.id_sucursal', $sucursalId)
@@ -146,7 +147,8 @@ $endDate = $request->endDate;
             COALESCE(re.nombre, ''), ' ',
             COALESCE(re.papellido, ''), ' ',
             COALESCE(re.sapellido, '')
-        )) as nombre_completo")  
+        )) as nombre_completo"),
+         'dc.tipo_per_emp'    
     )
     ->where('vr.id_sucursal', $sucursalId)
     ->where('vr.cod', $codigo)
@@ -274,6 +276,43 @@ $endDate = $request->endDate;
     
         // Retorna la combinación de ambas partes
         return ucfirst($textoEntero) . ' ' . $textoDecimal;
+    }
+
+    public function verCliente_x_venta(Request $request){
+
+        if($request->tipo_per_emp==1){
+            $cliente = DB::table('dir__clientes as dc')
+    ->select(
+        'dc.id as cod_cliente',
+        DB::raw("UPPER(CONCAT(COALESCE(dp.nombres, ''), ' ', COALESCE(dp.apellidos, ''))) as nombre_completo"),
+        'dc.nom_a_facturar',
+        'dc.num_documento',
+        'dc.correo'
+    )
+    ->join('dir__personas as dp', 'dc.id_per_emp', '=', 'dp.id')
+    ->where('dc.id', '=', $request->id_cliente)
+    ->where('dc.tipo_per_emp', '=', 1)
+    ->first();
+        }else{
+            if ($request->tipo_per_emp==2) {
+                $cliente = DB::table('dir__clientes as dc')
+                ->select(
+                    'dc.id as cod_cliente',
+                    DB::raw('UPPER(de.razon_social) as nombre_completo'),
+                    'dc.nom_a_facturar',
+                    'dc.num_documento',
+                    'dc.correo'
+                )
+                ->join('dir__empresas as de', 'dc.id_per_emp', '=', 'de.id')
+                ->where('dc.id', '=', $request->id_cliente)
+                ->where('dc.tipo_per_emp', '=', 2)
+                ->first();
+            }else{
+                dd("error de entrada");
+            }
+        }
+        return response()->json($cliente);
+
     }
    
 }

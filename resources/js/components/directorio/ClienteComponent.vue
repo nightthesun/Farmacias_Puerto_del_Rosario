@@ -83,9 +83,11 @@
                              </div>
                         </div>        
                     </div>   
-              
-                   
-              <table class="table table-bordered table-striped table-sm table-responsive">
+                    <div v-if="selectTipo===0" class="alert alert-secondary" role="alert">
+  Debe seleccionar una opcion.
+</div>
+                   <div v-else>
+                    <table class="table table-bordered table-striped table-sm table-responsive">
                         <thead>
                             <tr>
                                 <th>Opciones</th>                             
@@ -94,7 +96,14 @@
                                 <th class="col-md-1">Tipo de documentos</th>
                                 <th class="col-md-2">Correo</th>
                                 <th class="col-md-2">Nombre cliente</th>
-                                <th class="col-md-2">Numero de identidad</th>                              
+                                <th class="col-md-2">
+                                    <span v-if="selectTipo===1">
+                                        Numero de identidad
+                                    </span>
+                                    <span v-if="selectTipo===2">
+                                       Nit
+                                    </span>
+                                    </th>                              
                                 <th class="col-md-1">Fecha/Hora</th>
                                 <th class="col-md-1">Usuario</th>
                                 <th>Estado</th>
@@ -192,6 +201,8 @@
                             </li>
                         </ul>
                     </nav>
+                   </div>
+              
                 </div>
             </div>
             <!-- Fin ejemplo de tabla Listado -->
@@ -294,6 +305,13 @@
                                 <!------else del if-------->
                                 <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordionExample" v-else>
                                     <div class="card-body">
+                                        <div class="row">
+                                            <div class="form-group col-sm-4">
+                                                <strong>Nombre de empresa: </strong>
+                                                <input type="text" class="form-control" v-model="nombres"  placeholder="Nombres.">                                              
+                                            </div>
+                                            
+                                        </div> 
                                         <div class="row">
                                             <div class="form-group col-sm-4">
                                                 <strong>Razon_social: <span  v-if="nombre_a_facturar==''" class="error">(*)</span></strong>

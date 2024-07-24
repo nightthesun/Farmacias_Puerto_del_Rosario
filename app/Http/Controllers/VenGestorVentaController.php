@@ -302,7 +302,9 @@ $nombre_empresa = strtoupper($nombre_e);
             END as tipo_num_des"),
     'pd2.monto_descuento',
     'pd2.activo as descuento_activo',
-    'pad2.id_sucursal as id_11','pppl.id as id_linea'
+    'pad2.id_sucursal as id_11','pppl.id as id_linea',
+     'pd2.id as id_descuento',
+            'pd2.id_tipo_tabla as id_tabla'
             )
             ->where('ass.id', $id_suc)
             ->where('gpv.listo_venta', 1)
@@ -371,8 +373,9 @@ $nombre_empresa = strtoupper($nombre_e);
             END as tipo_num_des"),
     'pd2.monto_descuento',
     'pd2.activo as descuento_activo',
-    'pad2.id_sucursal as id_11','pppl.id as id_linea'
-               
+    'pad2.id_sucursal as id_11','pppl.id as id_linea',
+    'pd2.id as id_descuento',
+    'pd2.id_tipo_tabla as id_tabla'         
             )
             ->where('ass.id', $idsuc)
             ->where('gpv.listo_venta', 1)

@@ -207,22 +207,42 @@
           <th>Correo</th>
         </tr>
       </thead>
+      <tbody>
+        <tr>
+          <td>1</td>
+          <td>1</td>
+          <td>1</td>
+          <td>1</td>
+          <td>1</td>
+        </tr>
+      </tbody>
     </table>
-                      <div class="card">
-  <h5 class="card-header">Datos de cliente</h5>
-  <div class="card-body">
     <table class="table table-bordered table-striped table-sm table-responsive">
       <thead>
         <tr>
-          <th>Nombre de cliente</th>
-          <th>Nombre a facturar</th>
-          <th>Numero de documento</th>
-          <th>Correo</th>
+          <th style="font-size: 12px;">Numero de identificacion</th>
+          <th>Numero de recibo</th>
+          <th>Fecha de venta</th>
+          <th>Sub venta</th>
+          <th>Descuento</th>
+          <th>Venta total</th>
+          <th>Efectivo</th>
+          <th>Cambio</th>
         </tr>
       </thead>
+      <tbody>
+        <tr>
+          <td>1</td>
+          <td>1</td>
+          <td>1</td>
+          <td>1</td>
+          <td>1</td>
+          <td>1</td>
+          <td>1</td>
+          <td>1</td>
+        </tr>
+      </tbody>
     </table>
-  </div>
-</div>  
                  
                         
                             <!-- insertar datos -->
@@ -824,7 +844,7 @@ tableBody.push(
                 }
                 case "ver_detalle_venta":{
                   me.tituloModal = "Detalle de venta";
-
+                  console.log(data);
                   me.classModal.openModal("ver_detalle");
                   break;
                 }
