@@ -50,7 +50,14 @@ $endDate = $request->endDate;
     ->join('users as u', 'u.id', '=', 'vr.id_usuario')
     ->join('adm__sucursals as ass','ass.id','=','vr.id_sucursal') 
     ->join('rrh__empleados as re','re.id','=','u.idempleado')            
- 
+    ->leftJoin('dir__personas as dp', function ($join) {
+        $join->on('dp.id', '=', 'dc.id_per_emp')
+             ->where('dc.tipo_per_emp', '=', 1);
+    })
+    ->leftJoin('dir__empresas as de', function ($join) {
+        $join->on('de.id', '=', 'dc.id_per_emp')
+             ->where('dc.tipo_per_emp', '=', 2);
+    })
     ->select(
         'vr.id',
         'vr.id_sucursal',
@@ -85,7 +92,19 @@ $endDate = $request->endDate;
             COALESCE(re.papellido, ''), ' ',
             COALESCE(re.sapellido, '')
         )) as nombre_completo"),
-        'dc.tipo_per_emp'  
+        'dc.tipo_per_emp',
+        DB::raw("UPPER(CONCAT(
+            COALESCE(re.nombre, ''), ' ',
+            COALESCE(re.papellido, ''), ' ',
+            COALESCE(re.sapellido, '')
+        )) as nombre_completo"),
+         'dc.tipo_per_emp',
+        DB::raw("CASE 
+        WHEN dp.id IS NOT NULL THEN UPPER(CONCAT(COALESCE(dp.nombres, ''), ' ', COALESCE(dp.apellidos, '')))
+        WHEN de.id IS NOT NULL THEN UPPER(de.razon_social)
+        ELSE NULL
+    END AS nombre_completo"),
+    'dc.correo'    
 
     )
     ->where('vr.id_sucursal', $sucursalId)
@@ -115,6 +134,14 @@ $endDate = $request->endDate;
     ->join('users as u', 'u.id', '=', 'vr.id_usuario')
     ->join('adm__sucursals as ass','ass.id','=','vr.id_sucursal') 
     ->join('rrh__empleados as re','re.id','=','u.idempleado') 
+    ->leftJoin('dir__personas as dp', function ($join) {
+        $join->on('dp.id', '=', 'dc.id_per_emp')
+             ->where('dc.tipo_per_emp', '=', 1);
+    })
+    ->leftJoin('dir__empresas as de', function ($join) {
+        $join->on('de.id', '=', 'dc.id_per_emp')
+             ->where('dc.tipo_per_emp', '=', 2);
+    })
     ->select(
         'vr.id',
         'vr.id_sucursal',
@@ -148,7 +175,13 @@ $endDate = $request->endDate;
             COALESCE(re.papellido, ''), ' ',
             COALESCE(re.sapellido, '')
         )) as nombre_completo"),
-         'dc.tipo_per_emp'    
+         'dc.tipo_per_emp',
+        DB::raw("CASE 
+        WHEN dp.id IS NOT NULL THEN UPPER(CONCAT(COALESCE(dp.nombres, ''), ' ', COALESCE(dp.apellidos, '')))
+        WHEN de.id IS NOT NULL THEN UPPER(de.razon_social)
+        ELSE NULL
+    END AS nombre_completo"),
+    'dc.correo'   
     )
     ->where('vr.id_sucursal', $sucursalId)
     ->where('vr.cod', $codigo)
@@ -278,41 +311,19 @@ $endDate = $request->endDate;
         return ucfirst($textoEntero) . ' ' . $textoDecimal;
     }
 
-    public function verCliente_x_venta(Request $request){
-
-        if($request->tipo_per_emp==1){
-            $cliente = DB::table('dir__clientes as dc')
-    ->select(
-        'dc.id as cod_cliente',
-        DB::raw("UPPER(CONCAT(COALESCE(dp.nombres, ''), ' ', COALESCE(dp.apellidos, ''))) as nombre_completo"),
-        'dc.nom_a_facturar',
-        'dc.num_documento',
-        'dc.correo'
-    )
-    ->join('dir__personas as dp', 'dc.id_per_emp', '=', 'dp.id')
-    ->where('dc.id', '=', $request->id_cliente)
-    ->where('dc.tipo_per_emp', '=', 1)
-    ->first();
-        }else{
-            if ($request->tipo_per_emp==2) {
-                $cliente = DB::table('dir__clientes as dc')
-                ->select(
-                    'dc.id as cod_cliente',
-                    DB::raw('UPPER(de.razon_social) as nombre_completo'),
-                    'dc.nom_a_facturar',
-                    'dc.num_documento',
-                    'dc.correo'
-                )
-                ->join('dir__empresas as de', 'dc.id_per_emp', '=', 'de.id')
-                ->where('dc.id', '=', $request->id_cliente)
-                ->where('dc.tipo_per_emp', '=', 2)
-                ->first();
-            }else{
-                dd("error de entrada");
-            }
-        }
-        return response()->json($cliente);
-
+    public function verCliente_x_venta(Request $request)
+    {
+        $descuentos = DB::table('ven__detalle_descuentos as vdd')
+            ->join('par_tipo_tabla as ptt', 'ptt.id', '=', 'vdd.id_tabla')
+            ->join('par__descuentos as pd', 'pd.id', '=', 'vdd.id_descuento')
+            ->where('vdd.id_venta', $request->id_venta)
+            ->distinct()
+            ->select('pd.id', 'ptt.nombre', 'pd.nombre_descuento')
+            ->get();
+    
+        $dato = "nulo";
+        
+        return response()->json(['descuento' => $descuentos, 'dato' => $dato]);
     }
    
 }

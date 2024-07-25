@@ -197,81 +197,107 @@
                         </button>
                     </div>
                     <div class="modal-body">
+                      
                       <table class="table table-bordered table-striped table-sm table-responsive">
       <thead>
         <tr>
-          <th>Codigo de cliente</th>
-          <th>Nombre de cliente</th>
-          <th>Nombre a facturar</th>
-          <th>Numero de documento</th>
-          <th>Correo</th>
+          <th  class="col-md-1" style="font-size: 11px; text-align: center">Codigo de cliente</th>
+          <th class="col-md-2" style="font-size: 11px; text-align: center">Nombre de cliente</th>
+          <th  class="col-md-2" style="font-size: 11px; text-align: center">Nombre a facturar</th>
+          <th  class="col-md-2" style="font-size: 11px; text-align: center">Numero de documento</th>
+          <th  class="col-md-3" style="font-size: 11px; text-align: center">Correo</th>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td>1</td>
-          <td>1</td>
-          <td>1</td>
-          <td>1</td>
-          <td>1</td>
+          <td class="col-md-1" style="font-size: 11px; text-align: center;">{{cod_cliente}}</td>
+          <td class="col-md-2" style="font-size: 11px; text-align: center;">{{nom_cliente}}</td>
+          <td class="col-md-2" style="font-size: 11px; text-align: center;">{{nom_facturar}}</td>
+          <td class="col-md-2" style="font-size: 11px; text-align: center;">{{num_documento}}</td>
+          <td class="col-md-3" style="font-size: 11px; text-align: center;">{{ correo }}</td>
         </tr>
       </tbody>
     </table>
     <table class="table table-bordered table-striped table-sm table-responsive">
       <thead>
         <tr>
-          <th style="font-size: 12px;">Numero de identificacion</th>
-          <th>Numero de recibo</th>
-          <th>Fecha de venta</th>
-          <th>Sub venta</th>
-          <th>Descuento</th>
-          <th>Venta total</th>
-          <th>Efectivo</th>
-          <th>Cambio</th>
+          <th class="col-md-2" style="font-size: 11px; text-align: center;">Numero de identificacion</th>
+          <th class="col-md-1" style="font-size: 11px; text-align: center;">
+          <span v-if="tipo_per_emp===1">Numero recibo</span>
+          <span v-if="tipo_per_emp===2">Numero factura</span>
+          </th>
+          <th class="col-md-1" style="font-size: 11px; text-align: center;">Fecha</th>
+          <th class="col-md-1" style="font-size: 11px; text-align: center;">Hora</th>
+          <th class="col-md-6" style="font-size: 11px; text-align: center;">Descuentos</th>        
+          <th class="col-md-1" style="font-size: 11px; text-align: center;">Estado</th>
+          
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td>1</td>
-          <td>1</td>
-          <td>1</td>
-          <td>1</td>
-          <td>1</td>
-          <td>1</td>
-          <td>1</td>
-          <td>1</td>
+          <td class="col-md-2" style="font-size: 11px; text-align: center;">{{num_identificacion}}</td>
+          <td class="col-md-1" style="font-size: 11px; text-align: center;">{{num_reci_fac}}</td>
+          <td class="col-md-1" style="font-size: 11px; text-align: center;">{{fecha_x}}</td>
+          <td class="col-md-1" style="font-size: 11px; text-align: center;">{{hora_x}}</td>
+          <td class="col-md-6" style="font-size: 11px; text-align: center;">
+            <span v-for="nombre in array_nombre_des" :key="nombre.id" style="display: inline-block; margin-right: 5px;">
+      {{"["+nombre.nombre+"-"+ nombre.nombre_descuento+"]"}}
+    </span>
+            
+          </td>
+          <td class="col-md-1" style="font-size: 11px; text-align: center;">
+            <span class="badge badge-pill badge-success" v-if="anulado_x==='ACTIVO'"> {{anulado_x}}</span>
+            <span class="badge badge-pill badge-danger" v-if="anulado_x==='ANULADO'"> {{anulado_x}}</span>
+           
+          </td>
         </tr>
       </tbody>
     </table>
-                 
-                        
-                            <!-- insertar datos -->
-                            <div class="container">
-                                
-                                <div class="form-group row">
-                                 <table class="table table-bordered table-striped table-sm table-responsive">
-                        <thead>
-                            <tr>
-                                <th class="col-md-1">Opciones</th>
-                                <th class="col-md-1">Codigó</th>
-                                <th>Linea</th>
-                                <th class="col-md-5">Producto</th>
-                                <th>Cantidad</th>
-                                <th>Tipo</th>
-                                <th class="col-md-2">Descripción</th>
-                                <th>Fecha/Hora</th>
-                                <th >Usuario</th>
-                                <th>Estado</th>
-                            </tr>
-                        </thead>
-                        </table
-                        >
-        
-                                </div>
-                              
-                            
-                               
-                            </div>
+    <table class="table table-bordered table-striped table-sm table-responsive">
+      <thead>
+        <tr>
+          <th class="col-md-1" style="font-size: 11px; text-align: center;">Cod. Prod</th>
+          <th class="col-md-1" style="font-size: 11px; text-align: center;">Liena</th>
+          <th class="col-md-4" style="font-size: 11px; text-align: center;">Producto</th>
+          <th class="col-md-1" style="font-size: 11px; text-align: center;">Cantidad</th>
+          <th class="col-md-3" style="font-size: 11px; text-align: center;">Descuento</th>
+          <th class="col-md-2" style="font-size: 11px; text-align: center;">Sub Total</th>
+          
+        </tr>
+      </thead>
+        <tbody>
+          <tr>
+            <td class="col-md-1" style="font-size: 11px; text-align: center;">1</td>
+            <td class="col-md-1" style="font-size: 11px; text-align: center;">1</td>
+            <td class="col-md-4" style="font-size: 11px; text-align: center;">1</td>
+            <td class="col-md-1" style="font-size: 11px; text-align: center;">1</td>
+            <td class="col-md-3" style="font-size: 11px; text-align: center;">1</td>
+            <td class="col-md-2" style="font-size: 11px; text-align: center;">1</td>
+          </tr>
+          <tr>
+            <th colspan="5" style="font-size: 11px; text-align:right">Suma Total:</th>
+            <th style="font-size: 11px; text-align:right">{{suma_total}} Bs</th>
+        </tr>        
+        <tr>
+          <th colspan="5" style="font-size: 11px; text-align:right ">Descuento:</th>
+          <th style="font-size: 11px; text-align:right">{{descuento}} Bs</th>
+        </tr>
+        <tr>
+          <th colspan="5" style="font-size: 11px; text-align:right">Total:</th>
+          <th style="font-size: 11px; text-align:right">{{total}} Bs</th>
+        </tr>
+        <tr>
+          <th colspan="5" style="font-size: 11px; text-align:right">Efectivo:</th>
+          <th style="font-size: 11px; text-align:right">{{efectivo}} Bs</th>
+        </tr>
+        <tr>
+          <th colspan="5" style="font-size: 11px; text-align:right">Cambio:</th>
+          <th style="font-size: 11px; text-align:right">{{cambio}} Bs</th>
+        </tr>
+   
+        </tbody>       
+    </table>
+ 
                
                     </div>
                   
@@ -325,6 +351,26 @@ export default {
       arrayVentas:[],
       arrayDetalle_venta:[],
       recibo_ticket_plana:0,
+       // datos de vista detalle venta
+       cod_cliente:'',
+       nom_cliente:'',
+       nom_facturar:'',
+       num_documento:'',
+       correo:'',
+       num_identificacion:'',
+       num_reci_fac:'',
+       fecha_x:'',
+       hora_x:'',
+       anulado_x:'',
+       suma_total:'',
+       descuento:'',
+       total:'',
+       efectivo:'',
+       cambio:'',
+       nom_user:'',
+       tipo_per_emp:'',
+       //---
+       array_nombre_des:[],
         };
     },
 
@@ -746,6 +792,23 @@ tableBody.push(
   pdfMake.createPdf(docDefinition).open();
 },
 
+listarDetalle_producto_x(id,tipo_per_emp) {
+            let me = this;           
+            var url = "/detalle_venta_2/verCliente_x_venta?id_venta="+id+"&tipo_per_emp="+tipo_per_emp;
+            axios
+                .get(url)
+                .then(function (response) {
+                    var respuesta_1 = response.data.descuento;                    
+                    me.array_nombre_des=respuesta_1;
+                    console.log(me.array_nombre_des);                 
+                })
+                .catch(function (error) {
+                    error401(error);
+                    console.log(error);
+                });
+        },
+
+
     listarVentas(page){
         let me=this;       
         var url = "/detalle_venta_2/index?page="+page+"&buscar=" +me.buscar+"&id_sucursal="+me.id_seleccionada_sucursal+"&codigo_tienda_almacen="+me.cod_seleccionada_sucursal+"&startDate="+me.startDate+"&endDate="+me.endDate;
@@ -843,8 +906,30 @@ tableBody.push(
                     break;
                 }
                 case "ver_detalle_venta":{
-                  me.tituloModal = "Detalle de venta";
-                  console.log(data);
+                  me.tituloModal = "Detalle de venta de la sucursal "+data.razon_social+" codigo "+data.cod;
+                  //console.log(data);
+                  me.cod_cliente=data.id_cliente;
+                  me.nom_cliente=data.nombre_completo;
+                  me.nom_facturar=data.nom_a_facturar;
+                  me.num_documento=data.num_documento;
+                  me.correo=data.correo;
+                  me.num_identificacion=data.id;
+                  me.num_reci_fac=data.nro_comprobante_venta;
+                  me.fecha_x=data.fecha_formateada;
+                  me.hora_x=data.hora_formateada;
+                  if(data.anulado===0){
+                  me.anulado_x="ACTIVO";    
+                  }else{
+                    me.anulado_x="ANULADO";  
+                  }                  
+                  me.suma_total=data.total_sin_des;
+                  me.descuento=data.descuento_venta;
+                  me.total=data.total_venta;
+                  me.efectivo=data.efectivo_venta;
+                  me.cambio=data.cambio_venta;
+                  me.nom_user=data.name;
+                  me.tipo_per_emp=data.tipo_per_emp;
+                  me.listarDetalle_producto_x(data.id,data.tipo_per_emp);
                   me.classModal.openModal("ver_detalle");
                   break;
                 }
