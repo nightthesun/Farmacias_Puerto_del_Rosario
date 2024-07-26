@@ -201,7 +201,7 @@
                       <table class="table table-bordered table-striped table-sm table-responsive">
       <thead>
         <tr>
-          <th  class="col-md-1" style="font-size: 11px; text-align: center">Codigo de cliente</th>
+          <th  class="col-md-1" style="font-size: 11px; text-align: center">Cod. Cliente</th>
           <th class="col-md-2" style="font-size: 11px; text-align: center">Nombre de cliente</th>
           <th  class="col-md-2" style="font-size: 11px; text-align: center">Nombre a facturar</th>
           <th  class="col-md-2" style="font-size: 11px; text-align: center">Numero de documento</th>
@@ -222,30 +222,25 @@
       <thead>
         <tr>
           <th class="col-md-2" style="font-size: 11px; text-align: center;">Numero de identificacion</th>
-          <th class="col-md-1" style="font-size: 11px; text-align: center;">
+          <th class="col-md-2" style="font-size: 11px; text-align: center;">
           <span v-if="tipo_per_emp===1">Numero recibo</span>
           <span v-if="tipo_per_emp===2">Numero factura</span>
           </th>
-          <th class="col-md-1" style="font-size: 11px; text-align: center;">Fecha</th>
-          <th class="col-md-1" style="font-size: 11px; text-align: center;">Hora</th>
-          <th class="col-md-6" style="font-size: 11px; text-align: center;">Descuentos</th>        
-          <th class="col-md-1" style="font-size: 11px; text-align: center;">Estado</th>
+          <th class="col-md-2" style="font-size: 11px; text-align: center;">Fecha</th>
+          <th class="col-md-2" style="font-size: 11px; text-align: center;">Hora</th>
+          <th class="col-md-2" style="font-size: 11px; text-align: center;">Vendedor</th>
+          <th class="col-md-2" style="font-size: 11px; text-align: center;">Estado</th>
           
         </tr>
       </thead>
       <tbody>
         <tr>
           <td class="col-md-2" style="font-size: 11px; text-align: center;">{{num_identificacion}}</td>
-          <td class="col-md-1" style="font-size: 11px; text-align: center;">{{num_reci_fac}}</td>
-          <td class="col-md-1" style="font-size: 11px; text-align: center;">{{fecha_x}}</td>
-          <td class="col-md-1" style="font-size: 11px; text-align: center;">{{hora_x}}</td>
-          <td class="col-md-6" style="font-size: 11px; text-align: center;">
-            <span v-for="nombre in array_nombre_des" :key="nombre.id" style="display: inline-block; margin-right: 5px;">
-      {{"["+nombre.nombre+"-"+ nombre.nombre_descuento+"]"}}
-    </span>
-            
-          </td>
-          <td class="col-md-1" style="font-size: 11px; text-align: center;">
+          <td class="col-md-2" style="font-size: 11px; text-align: center;">{{num_reci_fac}}</td>
+          <td class="col-md-2" style="font-size: 11px; text-align: center;">{{fecha_x}}</td>
+          <td class="col-md-2" style="font-size: 11px; text-align: center;">{{hora_x}}</td>
+          <td class="col-md-2" style="font-size: 11px; text-align: center;">{{nom_user}}</td>
+          <td class="col-md-2" style="font-size: 11px; text-align: center;">
             <span class="badge badge-pill badge-success" v-if="anulado_x==='ACTIVO'"> {{anulado_x}}</span>
             <span class="badge badge-pill badge-danger" v-if="anulado_x==='ANULADO'"> {{anulado_x}}</span>
            
@@ -260,38 +255,43 @@
           <th class="col-md-1" style="font-size: 11px; text-align: center;">Liena</th>
           <th class="col-md-4" style="font-size: 11px; text-align: center;">Producto</th>
           <th class="col-md-1" style="font-size: 11px; text-align: center;">Cantidad</th>
-          <th class="col-md-3" style="font-size: 11px; text-align: center;">Descuento</th>
+          <th class="col-md-1" style="font-size: 11px; text-align: center;">P/U</th>
+          <th class="col-md-1" style="font-size: 11px; text-align: center;">Pre. Total</th>
+          <th class="col-md-1" style="font-size: 11px; text-align: center;">Descuento</th>
           <th class="col-md-2" style="font-size: 11px; text-align: center;">Sub Total</th>
           
         </tr>
       </thead>
         <tbody>
-          <tr>
-            <td class="col-md-1" style="font-size: 11px; text-align: center;">1</td>
-            <td class="col-md-1" style="font-size: 11px; text-align: center;">1</td>
-            <td class="col-md-4" style="font-size: 11px; text-align: center;">1</td>
-            <td class="col-md-1" style="font-size: 11px; text-align: center;">1</td>
-            <td class="col-md-3" style="font-size: 11px; text-align: center;">1</td>
-            <td class="col-md-2" style="font-size: 11px; text-align: center;">1</td>
+          
+            <tr v-for="d_v in array_detalle_venta" :key="d_v.id">
+            <td class="col-md-1" style="font-size: 11px; text-align: center;">{{d_v.cod_prod}}</td>
+            <td class="col-md-1" style="font-size: 11px; text-align: center;">{{d_v.linea_nombre}}</td>
+            <td class="col-md-4" style="font-size: 11px; text-align: center;">{{d_v.leyenda}}</td>
+            <td class="col-md-1" style="font-size: 11px; text-align: right;">{{d_v.cantidad_venta}}</td>
+            <td class="col-md-1" style="font-size: 11px; text-align: right;">{{d_v.precio_unitario}}</td>
+            <td class="col-md-1" style="font-size: 11px; text-align: right;">{{d_v.tot}}</td>
+            <td class="col-md-1" style="font-size: 11px; text-align: right;">{{d_v.descuento}}</td>
+            <td class="col-md-2" style="font-size: 11px; text-align: right;">{{(d_v.tot-d_v.descuento).toFixed(2)}}</td>
           </tr>
           <tr>
-            <th colspan="5" style="font-size: 11px; text-align:right">Suma Total:</th>
+            <th colspan="7" style="font-size: 11px; text-align:right">Suma Total:</th>
             <th style="font-size: 11px; text-align:right">{{suma_total}} Bs</th>
         </tr>        
         <tr>
-          <th colspan="5" style="font-size: 11px; text-align:right ">Descuento:</th>
+          <th colspan="7" style="font-size: 11px; text-align:right ">Descuento:</th>
           <th style="font-size: 11px; text-align:right">{{descuento}} Bs</th>
         </tr>
         <tr>
-          <th colspan="5" style="font-size: 11px; text-align:right">Total:</th>
+          <th colspan="7" style="font-size: 11px; text-align:right">Total:</th>
           <th style="font-size: 11px; text-align:right">{{total}} Bs</th>
         </tr>
         <tr>
-          <th colspan="5" style="font-size: 11px; text-align:right">Efectivo:</th>
+          <th colspan="7" style="font-size: 11px; text-align:right">Efectivo:</th>
           <th style="font-size: 11px; text-align:right">{{efectivo}} Bs</th>
         </tr>
         <tr>
-          <th colspan="5" style="font-size: 11px; text-align:right">Cambio:</th>
+          <th colspan="7" style="font-size: 11px; text-align:right">Cambio:</th>
           <th style="font-size: 11px; text-align:right">{{cambio}} Bs</th>
         </tr>
    
@@ -371,6 +371,7 @@ export default {
        tipo_per_emp:'',
        //---
        array_nombre_des:[],
+       array_detalle_venta:[],
         };
     },
 
@@ -860,7 +861,7 @@ listarDetalle_producto_x(id,tipo_per_emp) {
         num_documento,nom_a_facturar,total_sin_des,descuento_venta,total_venta,efectivo_venta,cambio_venta,fecha_mas_siete,
         numero_referencia,nombre_completo){
           let me=this;  
-          console.log(validor_12);    
+         
         var url = "/detalle_venta_2/re_imprecion?id_venta="+id+"&tipofactura="+tipo+"&venta="+total_venta;
         axios
                 .get(url)
@@ -882,8 +883,24 @@ listarDetalle_producto_x(id,tipo_per_emp) {
                       me.generarFacPlana(cod_cliente,id,respuesta_total,nom_empresa,direccion,razon_social,nro_comprobante_venta,fecha_formateada,
                      hora_formateada,num_documento,nom_a_facturar,me.arrayDetalle_venta,total_sin_des,descuento_venta,total_venta,
                     efectivo_venta,cambio_venta,fecha_mas_siete,numero_referencia,nombre_completo);
-                     } 
-                     
+                     }                      
+                })
+                .catch(function (error) {
+                    error401(error);
+                    console.log(error);
+                });
+        },
+
+        detalle_venta_vista(id,tipo,total_venta){
+          let me=this;  
+          var url = "/detalle_venta_2/re_imprecion?id_venta="+id+"&tipofactura="+tipo+"&venta="+total_venta;
+        axios
+                .get(url)
+                .then(function (response) {
+                  var respuesta = response.data;                           
+                  me.array_detalle_venta = respuesta.detalle_venta;
+                  console.log(me.array_detalle_venta);  
+                
                 })
                 .catch(function (error) {
                     error401(error);
@@ -929,7 +946,8 @@ listarDetalle_producto_x(id,tipo_per_emp) {
                   me.cambio=data.cambio_venta;
                   me.nom_user=data.name;
                   me.tipo_per_emp=data.tipo_per_emp;
-                  me.listarDetalle_producto_x(data.id,data.tipo_per_emp);
+                  me.detalle_venta_vista(data.id,data.tipo_venta_reci_fac,me.total);
+                  
                   me.classModal.openModal("ver_detalle");
                   break;
                 }
@@ -956,8 +974,7 @@ listarDetalle_producto_x(id,tipo_per_emp) {
                     data.fecha_formateada,data.hora_formateada,data.num_documento,data.nom_a_facturar,data.total_sin_des,
                     data.descuento_venta,data.total_venta,data.efectivo_venta,data.cambio_venta,data.fecha_mas_siete,
                     data.numero_referencia,data.nombre_completo
-                    );
-              
+                    );              
                   }         
                  
                   break;
@@ -986,21 +1003,33 @@ listarDetalle_producto_x(id,tipo_per_emp) {
     // Asignar la fecha actual al input de fecha final
     this.endDate = `${year}-${month}-${day}`;
         },
+
+
         cerrarModal(accion) {
-            let me = this;
-            if (accion == "registrar") {
+            let me = this;           
                 me.classModal.closeModal(accion);               
-                    me.tituloModal = " ";             
-                    setTimeout(me.tiempo, 200); 
-                    //me.ProductoLineaIngresoSeleccionado = 0;
-                    me.inputTextBuscarProductoIngreso = "";
-                    me.arrayRetornarProductosIngreso = "";
-              
-            } else {
-                me.classModal.closeModal(accion);              
-                me.classModal.openModal("registrar");
-            }
-        },
+                me.tituloModal = "";
+                me.cod_cliente="";
+                  me.nom_cliente="";
+                  me.nom_facturar="";
+                  me.num_documento="";
+                  me.correo="";
+                  me.num_identificacion="";
+                  me.num_reci_fac=""
+                  me.fecha_x="";
+                  me.hora_x="";
+                  me.anulado_x="";                                   
+                  me.suma_total="";
+                  me.descuento="";
+                  me.total="";
+                  me.efectivo="";
+                  me.cambio="";
+                  me.nom_user="";
+                  me.tipo_per_emp="";
+                  me.array_nombre_des=[];
+                  me.array_detalle_venta=[];
+                  me.classModal.openModal("ver_detalle");
+         },
 
      
 
