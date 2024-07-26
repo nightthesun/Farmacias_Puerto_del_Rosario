@@ -372,6 +372,7 @@ export default {
        //---
        array_nombre_des:[],
        array_detalle_venta:[],
+       venta_con_descuento:"",
         };
     },
 
@@ -630,7 +631,7 @@ export default {
       pdfMake.createPdf(documentDefinition).open();
     },
   
-    generarFacPlana(cod_cliente,numero_identificacion,respuesta_total,nom_empresa,direccionMayusculas,nomsucursal,nuevoComprobante,fecha,hora,num_documento,nom_a_facturar,array_recibo,total_sin_des,descuento_venta,total_venta,efectivo_venta,cambio_venta,fechaMas7Dias,numero_referencia,nombreCompleto_1) {
+    generarFacPlana(cod_cliente,numero_identificacion,respuesta_total,nom_empresa,direccionMayusculas,nomsucursal,nuevoComprobante,fecha,hora,num_documento,nom_a_facturar,array_recibo,total_sin_des,descuento_venta,total_venta,efectivo_venta,cambio_venta,fechaMas7Dias,numero_referencia,nombreCompleto_1,venta_con_descuento,resta) {
   
   // Crea el cuerpo de la tabla dinámicamente
  const tableBody = [
@@ -668,9 +669,9 @@ export default {
   // Agrega las filas con colspan al final del tableBody
 tableBody.push(
   [
-    { text: 'SubTotal', colSpan: 9, fontSize: 8, alignment: 'right', border: [false, true, true, false] },
+    { text: 'Suma Total', colSpan: 9, fontSize: 8, alignment: 'right', border: [false, true, true, false] },
     {}, {}, {}, {}, {}, {}, {}, {},
-    { text: total_sin_des, fontSize: 8, alignment: 'right' }
+    { text: venta_con_descuento, fontSize: 8, alignment: 'right' }
   ],
   [
     { text: 'Descuento', colSpan: 9, fontSize: 8, alignment: 'right', border: [false, false, true, false] },
@@ -680,7 +681,7 @@ tableBody.push(
   [
     { text: 'Total', colSpan: 9, fontSize: 8, alignment: 'right', border: [false, false, true, false] },
     {}, {}, {}, {}, {}, {}, {}, {},
-    { text: total_venta , fontSize: 8, alignment: 'right' }
+    { text: resta.toFixed(2) , fontSize: 8, alignment: 'right' }
   ]
 );
       const docDefinition = {
@@ -819,6 +820,7 @@ listarDetalle_producto_x(id,tipo_per_emp) {
                     var respuesta = response.data;
                     me.pagination = respuesta.pagination;
                     me.arrayVentas = respuesta.ventas_show.data;
+                    
                     console.log(me.arrayVentas);
                 })
                 .catch(function (error) {
@@ -869,11 +871,14 @@ listarDetalle_producto_x(id,tipo_per_emp) {
                     var respuesta = response.data;   
                     let respuesta_empresa = respuesta.datos_empresa;
                     let respuesta_total = respuesta.datoTexto_v2;
+                    let respuesta_descuento_1 = respuesta.venta_con_descuento;
                    console.log(respuesta);
                     let nit =respuesta_empresa[0].nit;  
                     let nom_empresa =respuesta_empresa[0].nom_empresa;             
                      me.arrayDetalle_venta = respuesta.detalle_venta;             
-               
+                     me.venta_con_descuento = respuesta_descuento_1.venta_con_descuento;
+                    let resta = total_venta - me.venta_con_descuento;
+
                      if (validor_12===1) {
                       me.generarPDF(nom_empresa,direccion,razon_social,nro_comprobante_venta,fecha_formateada,
                      hora_formateada,num_documento,nom_a_facturar,me.arrayDetalle_venta,total_sin_des,descuento_venta,total_venta,
@@ -882,8 +887,8 @@ listarDetalle_producto_x(id,tipo_per_emp) {
                      if (validor_12===2) {
                       me.generarFacPlana(cod_cliente,id,respuesta_total,nom_empresa,direccion,razon_social,nro_comprobante_venta,fecha_formateada,
                      hora_formateada,num_documento,nom_a_facturar,me.arrayDetalle_venta,total_sin_des,descuento_venta,total_venta,
-                    efectivo_venta,cambio_venta,fecha_mas_siete,numero_referencia,nombre_completo);
-                     }                      
+                    efectivo_venta,cambio_venta,fecha_mas_siete,numero_referencia,nombre_completo,me.venta_con_descuento,resta);
+                     }                   
                 })
                 .catch(function (error) {
                     error401(error);
@@ -924,7 +929,7 @@ listarDetalle_producto_x(id,tipo_per_emp) {
                 }
                 case "ver_detalle_venta":{
                   me.tituloModal = "Detalle de venta de la sucursal "+data.razon_social+" codigo "+data.cod;
-                  //console.log(data);
+                  console.log(data);
                   me.cod_cliente=data.id_cliente;
                   me.nom_cliente=data.nombre_completo;
                   me.nom_facturar=data.nom_a_facturar;
@@ -1028,6 +1033,7 @@ listarDetalle_producto_x(id,tipo_per_emp) {
                   me.tipo_per_emp="";
                   me.array_nombre_des=[];
                   me.array_detalle_venta=[];
+                  me.venta_con_descuento="";
                   me.classModal.openModal("ver_detalle");
          },
 

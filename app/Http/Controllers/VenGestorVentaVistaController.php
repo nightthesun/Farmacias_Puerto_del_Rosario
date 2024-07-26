@@ -220,7 +220,12 @@ $endDate = $request->endDate;
                 $datos_empresa = DB::table('adm__credecial_correos')
             ->select('nit', 'nom_empresa')
             ->get();
-        
+          
+            $venta_con_descuento = DB::table('ven__detalle_ventas as vdv')
+    ->select(DB::raw('ROUND(SUM(vdv.precio_venta - vdv.descuento), 2) as venta_con_descuento'))
+    ->where('vdv.id_venta', $idVenta)
+    ->first();
+
         $detalle_venta = DB::table('ven__detalle_ventas as vd')
             ->select(
                 'vd.id_venta as id',
@@ -273,7 +278,8 @@ $endDate = $request->endDate;
             $respuesta_v2 = [
                 'detalle_venta' => $detalle_venta,
                 'datos_empresa' => $datos_empresa,
-                'datoTexto_v2' => $datoTexto
+                'datoTexto_v2' => $datoTexto,
+                'venta_con_descuento' => $venta_con_descuento,
             ];
         
             // Devolver la respuesta JSON
