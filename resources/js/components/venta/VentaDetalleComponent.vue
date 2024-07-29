@@ -280,11 +280,11 @@
         </tr>        
         <tr>
           <th colspan="7" style="font-size: 11px; text-align:right ">Descuento:</th>
-          <th style="font-size: 11px; text-align:right">{{descuento}} Bs</th>
+          <th style="font-size: 11px; text-align:right">{{decuento_sin_venta}} Bs</th>
         </tr>
         <tr>
           <th colspan="7" style="font-size: 11px; text-align:right">Total:</th>
-          <th style="font-size: 11px; text-align:right">{{total}} Bs</th>
+          <th style="font-size: 11px; text-align:right">{{total_1}} Bs</th>
         </tr>
         <tr>
           <th colspan="7" style="font-size: 11px; text-align:right">Efectivo:</th>
@@ -300,7 +300,49 @@
  
                
                     </div>
-                  
+                   <!---- acoordion ----> 
+                   <div class="accordion" id="accordionExample" v-if="selectTipoDoc!=0">
+                                <div class="card">
+                                  <div class="card-header" id="headingOne">
+                                    <h2 class="mb-0">
+                                      <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                        Descuentos
+                                      </button>
+                                    </h2>
+                                  
+                                    
+                                  </div>
+                              
+                                  <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordionExample" >
+                                    <div class="card-body">
+                                      <div v-for="d_v in array_detalle_venta" :key="d_v.id">
+  <span>  <strong>{{ d_v.cod_prod + " " + d_v.leyenda }}</strong></span>
+  <table class="table table-bordered table-striped table-sm table-responsive">
+    <thead>
+      <tr>
+        <th>Tabla</th>
+        <th>Descuento</th>
+        <th>Cantidad descuento</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>1</td>
+        <td>2</td>
+        <td>3</td>
+      </tr>
+    </tbody> 
+  </table>   
+</div>
+                                                                       
+                                    </div>
+                                  </div>
+                              
+
+                                </div>
+                              
+                          
+                              </div>
                     <div class="modal-footer">
                         <button
                             type="button"
@@ -364,7 +406,7 @@ export default {
        anulado_x:'',
        suma_total:'',
        descuento:'',
-       total:'',
+       total_1:'',
        efectivo:'',
        cambio:'',
        nom_user:'',
@@ -373,6 +415,7 @@ export default {
        array_nombre_des:[],
        array_detalle_venta:[],
        venta_con_descuento:"",
+       decuento_sin_venta:'',
         };
     },
 
@@ -631,7 +674,7 @@ export default {
       pdfMake.createPdf(documentDefinition).open();
     },
   
-    generarFacPlana(cod_cliente,numero_identificacion,respuesta_total,nom_empresa,direccionMayusculas,nomsucursal,nuevoComprobante,fecha,hora,num_documento,nom_a_facturar,array_recibo,total_sin_des,descuento_venta,total_venta,efectivo_venta,cambio_venta,fechaMas7Dias,numero_referencia,nombreCompleto_1,venta_con_descuento,resta) {
+    generarFacPlana(cod_cliente,numero_identificacion,respuesta_total,nom_empresa,direccionMayusculas,nomsucursal,nuevoComprobante,fecha,hora,num_documento,nom_a_facturar,array_recibo,total_sin_des,descuento_venta,total_venta,efectivo_venta,cambio_venta,fechaMas7Dias,numero_referencia,nombreCompleto_1,venta_con_descuento,resultado_descuento_2) {
   
   // Crea el cuerpo de la tabla dinámicamente
  const tableBody = [
@@ -676,12 +719,12 @@ tableBody.push(
   [
     { text: 'Descuento', colSpan: 9, fontSize: 8, alignment: 'right', border: [false, false, true, false] },
     {}, {}, {}, {}, {}, {}, {}, {},
-    { text: descuento_venta, fontSize: 8, alignment: 'right' }
+    { text: resultado_descuento_2, fontSize: 8, alignment: 'right' }
   ],
   [
     { text: 'Total', colSpan: 9, fontSize: 8, alignment: 'right', border: [false, false, true, false] },
     {}, {}, {}, {}, {}, {}, {}, {},
-    { text: resta.toFixed(2) , fontSize: 8, alignment: 'right' }
+    { text: total_venta , fontSize: 8, alignment: 'right' }
   ]
 );
       const docDefinition = {
@@ -864,7 +907,7 @@ listarDetalle_producto_x(id,tipo_per_emp) {
         numero_referencia,nombre_completo){
           let me=this;  
          
-        var url = "/detalle_venta_2/re_imprecion?id_venta="+id+"&tipofactura="+tipo+"&venta="+total_venta;
+        var url = "/detalle_venta_2/re_imprecion?id_venta="+id+"&tipofactura="+tipo+"&venta="+total_venta+"&total_sin_des="+total_sin_des;
         axios
                 .get(url)
                 .then(function (response) {
@@ -872,12 +915,16 @@ listarDetalle_producto_x(id,tipo_per_emp) {
                     let respuesta_empresa = respuesta.datos_empresa;
                     let respuesta_total = respuesta.datoTexto_v2;
                     let respuesta_descuento_1 = respuesta.venta_con_descuento;
-                   console.log(respuesta);
+                    let resultado_descuento_2 = respuesta.resultado_descuento_2;
+
+                    me.decuento_sin_venta=resultado_descuento_2.resultado;
+            
                     let nit =respuesta_empresa[0].nit;  
                     let nom_empresa =respuesta_empresa[0].nom_empresa;             
                      me.arrayDetalle_venta = respuesta.detalle_venta;             
                      me.venta_con_descuento = respuesta_descuento_1.venta_con_descuento;
-                    let resta = total_venta - me.venta_con_descuento;
+           
+                    
 
                      if (validor_12===1) {
                       me.generarPDF(nom_empresa,direccion,razon_social,nro_comprobante_venta,fecha_formateada,
@@ -887,7 +934,7 @@ listarDetalle_producto_x(id,tipo_per_emp) {
                      if (validor_12===2) {
                       me.generarFacPlana(cod_cliente,id,respuesta_total,nom_empresa,direccion,razon_social,nro_comprobante_venta,fecha_formateada,
                      hora_formateada,num_documento,nom_a_facturar,me.arrayDetalle_venta,total_sin_des,descuento_venta,total_venta,
-                    efectivo_venta,cambio_venta,fecha_mas_siete,numero_referencia,nombre_completo,me.venta_con_descuento,resta);
+                    efectivo_venta,cambio_venta,fecha_mas_siete,numero_referencia,nombre_completo,respuesta_descuento_1,resultado_descuento_2.resultado);
                      }                   
                 })
                 .catch(function (error) {
@@ -896,15 +943,19 @@ listarDetalle_producto_x(id,tipo_per_emp) {
                 });
         },
 
-        detalle_venta_vista(id,tipo,total_venta){
+        detalle_venta_vista(id,tipo,total_venta,total_sin_des){
           let me=this;  
-          var url = "/detalle_venta_2/re_imprecion?id_venta="+id+"&tipofactura="+tipo+"&venta="+total_venta;
+          var url = "/detalle_venta_2/re_imprecion?id_venta="+id+"&tipofactura="+tipo+"&venta="+total_venta+"&total_sin_des="+total_sin_des;
         axios
                 .get(url)
                 .then(function (response) {
-                  var respuesta = response.data;                           
+                  var respuesta = response.data;  
+                  let respuesta_descuento_1 = respuesta.venta_con_descuento;
+                    let resultado_descuento_2 = respuesta.resultado_descuento_2;
+                    me.suma_total=respuesta_descuento_1;                         
                   me.array_detalle_venta = respuesta.detalle_venta;
-                  console.log(me.array_detalle_venta);  
+                  me.decuento_sin_venta=resultado_descuento_2.resultado;
+                
                 
                 })
                 .catch(function (error) {
@@ -944,14 +995,14 @@ listarDetalle_producto_x(id,tipo_per_emp) {
                   }else{
                     me.anulado_x="ANULADO";  
                   }                  
-                  me.suma_total=data.total_sin_des;
+            
                   me.descuento=data.descuento_venta;
-                  me.total=data.total_venta;
+                  me.total_1=data.total_venta;
                   me.efectivo=data.efectivo_venta;
                   me.cambio=data.cambio_venta;
                   me.nom_user=data.name;
                   me.tipo_per_emp=data.tipo_per_emp;
-                  me.detalle_venta_vista(data.id,data.tipo_venta_reci_fac,me.total);
+                  me.detalle_venta_vista(data.id,data.tipo_venta_reci_fac,me.total_1,data.total_sin_des);
                   
                   me.classModal.openModal("ver_detalle");
                   break;
@@ -974,6 +1025,7 @@ listarDetalle_producto_x(id,tipo_per_emp) {
                 case "pdf_plana":{
                   me.recibo_ticket_plana=2;
                   console.log(data.id);
+                  console.log(data);
                   if (data.tipo_venta_reci_fac==="RECIBO") {
                     me.detalleVenta(data.id_cliente,me.recibo_ticket_plana,data.id,data.tipo_venta_reci_fac,data.direccion,data.razon_social,data.nro_comprobante_venta,
                     data.fecha_formateada,data.hora_formateada,data.num_documento,data.nom_a_facturar,data.total_sin_des,
@@ -1026,7 +1078,7 @@ listarDetalle_producto_x(id,tipo_per_emp) {
                   me.anulado_x="";                                   
                   me.suma_total="";
                   me.descuento="";
-                  me.total="";
+                  me.total_1="";
                   me.efectivo="";
                   me.cambio="";
                   me.nom_user="";
@@ -1034,6 +1086,7 @@ listarDetalle_producto_x(id,tipo_per_emp) {
                   me.array_nombre_des=[];
                   me.array_detalle_venta=[];
                   me.venta_con_descuento="";
+                  me.decuento_sin_venta="";
                   me.classModal.openModal("ver_detalle");
          },
 

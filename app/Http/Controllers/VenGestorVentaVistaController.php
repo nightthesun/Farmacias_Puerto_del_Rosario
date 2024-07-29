@@ -214,18 +214,30 @@ $endDate = $request->endDate;
         try {
    
             $datoTexto = $this->convertirNumeroATexto($request->venta);
-
+            $total_sin_des=$request->total_sin_des;
+            
             if($request->tipofactura=="RECIBO"){
                 $idVenta = $request->id_venta;
                 $datos_empresa = DB::table('adm__credecial_correos')
             ->select('nit', 'nom_empresa')
             ->get();
           
-            $venta_con_descuento = DB::table('ven__detalle_ventas as vdv')
-    ->select(DB::raw('ROUND(SUM(vdv.precio_venta - vdv.descuento), 2) as venta_con_descuento'))
-    ->where('vdv.id_venta', $idVenta)
-    ->first();
+            $result = DB::table('ven__detalle_ventas as vdv')
+            ->select(DB::raw('SUM(vdv.descuento) as suma_descuento'))
+            ->where('vdv.id_venta', $idVenta)
+            ->first();
 
+            $resultado_descuento_2 = DB::table('ven__detalle_descuentos as vdd')
+    ->select(DB::raw('ROUND(SUM(vdd.cantidad_descuento), 2) as resultado'))
+    ->where('vdd.id_venta', $idVenta)
+    ->where('vdd.tipo', 2)
+    ->first();
+        
+             
+            $sumaDescuento = $result ? number_format($result->suma_descuento, 2) : '0.00';
+
+            $resultado_sumatoria=($total_sin_des-$sumaDescuento);
+        
         $detalle_venta = DB::table('ven__detalle_ventas as vd')
             ->select(
                 'vd.id_venta as id',
@@ -260,7 +272,8 @@ $endDate = $request->endDate;
               
                 'tip.lote',
                 'pl.nombre as linea_nombre',
-                'vd.descuento as descuento'
+                'vd.descuento as descuento',
+                'vd.id_detalle_descuento as id_detalle_descuento'
 
             )
             ->join('prod__productos as pp', 'vd.id_producto', '=', 'pp.id')
@@ -275,11 +288,16 @@ $endDate = $request->endDate;
             ->leftJoin('prod__forma_farmaceuticas as ff_3', 'ff_3.id', '=', 'pp.idformafarmaceuticaterciario')
             ->where('vd.id_venta', $idVenta)
             ->get();
+
+                
+
+
             $respuesta_v2 = [
                 'detalle_venta' => $detalle_venta,
                 'datos_empresa' => $datos_empresa,
                 'datoTexto_v2' => $datoTexto,
-                'venta_con_descuento' => $venta_con_descuento,
+                'venta_con_descuento' => $resultado_sumatoria,
+                'resultado_descuento_2' => $resultado_descuento_2
             ];
         
             // Devolver la respuesta JSON
@@ -319,6 +337,17 @@ $endDate = $request->endDate;
 
     public function verCliente_x_venta(Request $request)
     {
+        $idVenta = 351;
+$idDetalleDescuento = 2;
+
+$ven_detalle_descuentos = DB::table('ven__detalle_descuentos as vdd')
+    ->join('par_tipo_tabla as ptt', 'vdd.id_tabla', '=', 'ptt.id')
+    ->join('par__descuentos as pdes', 'vdd.id_descuento', '=', 'pdes.id')
+    ->select('ptt.nombre as nom_tabla', 'pdes.nombre_descuento', 'vdd.cantidad_descuento')
+    ->where('vdd.id_venta', $idVenta)
+    ->where('vdd.id_detalle_descuento', $idDetalleDescuento)
+    ->get();
+
         $descuentos = DB::table('ven__detalle_descuentos as vdd')
             ->join('par_tipo_tabla as ptt', 'ptt.id', '=', 'vdd.id_tabla')
             ->join('par__descuentos as pd', 'pd.id', '=', 'vdd.id_descuento')
