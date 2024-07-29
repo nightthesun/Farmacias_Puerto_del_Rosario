@@ -501,7 +501,7 @@ class DirClienteController extends Controller
              else {
                  if ($request->tipo_per_emp==2) {
             $persona_empresa=dir_Empresa::find($request->id_per_emp);
-             $persona_empresa->razon_social=strtoupper($request->nom_a_facturar);      
+             $persona_empresa->razon_social=strtoupper($request->nombre);      
              $persona_empresa->nit=$request->num_documento;   
              $persona_empresa->save();
                  }

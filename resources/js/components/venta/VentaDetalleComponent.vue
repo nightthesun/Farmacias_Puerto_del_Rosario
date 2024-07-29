@@ -298,51 +298,67 @@
         </tbody>       
     </table>
  
-               
-                    </div>
-                   <!---- acoordion ----> 
-                   <div class="accordion" id="accordionExample" v-if="selectTipoDoc!=0">
-                                <div class="card">
-                                  <div class="card-header" id="headingOne">
-                                    <h2 class="mb-0">
-                                      <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                                        Descuentos
-                                      </button>
-                                    </h2>
-                                  
-                                    
-                                  </div>
-                              
-                                  <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordionExample" >
-                                    <div class="card-body">
-                                      <div v-for="d_v in array_detalle_venta" :key="d_v.id">
-  <span>  <strong>{{ d_v.cod_prod + " " + d_v.leyenda }}</strong></span>
+    <p>
+
+  <button v-if="array_nombre_des.length === 0" class="btn btn-light" type="button">
+   Descuentos
+  </button>
+  <button v-else class="btn btn-primary" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+   Descuentos
+  </button>
+
+</p>
+<div class="collapse" id="collapseExample">
+  <div class="card card-body">
+    <div v-for="d_v in array_detalle_venta" :key="d_v.id">
+  <span style="font-size: 11px;"><strong>{{ d_v.cod_prod + " " + d_v.leyenda }}</strong></span>
   <table class="table table-bordered table-striped table-sm table-responsive">
     <thead>
       <tr>
-        <th>Tabla</th>
-        <th>Descuento</th>
-        <th>Cantidad descuento</th>
+        <th style="font-size: 11px;">Tabla</th>
+        <th style="font-size: 11px;">Descuento</th>
+        <th style="font-size: 11px;">Cantidad descuento</th>
       </tr>
     </thead>
     <tbody>
-      <tr>
-        <td>1</td>
-        <td>2</td>
-        <td>3</td>
+      <tr v-for="des in array_nombre_des.filter(item => item.id_detalle_descuento === d_v.id_detalle_descuento)" :key="des.id">
+        <td style="font-size: 11px;">{{ des.nom_tabla }}</td>
+        <td style="font-size: 11px;">{{ des.nombre_descuento }}</td>
+        <td style="font-size: 11px;text-align: right;">{{ des.cantidad_descuento }}</td>
       </tr>
     </tbody> 
   </table>   
+ 
+ 
 </div>
-                                                                       
-                                    </div>
-                                  </div>
-                              
+<span style="font-size: 11px;"><strong>Descuento agregado final</strong></span>
+<table class="table table-bordered table-striped table-sm table-responsive">
+    <thead>
+      <tr>
+        <th style="font-size: 11px;">Tabla</th>
+        <th style="font-size: 11px;">Descuento</th>
+        <th style="font-size: 11px;">Cantidad descuento</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr v-for="des in array_nombre_des.filter(item => item.id_detalle_descuento === 0)" :key="des.id">
+        <td style="font-size: 11px;">{{ des.nom_tabla }}</td>
+        <td style="font-size: 11px;">{{ des.nombre_descuento }}</td>
+        <td style="font-size: 11px;text-align: right;">{{ des.cantidad_descuento }}</td>
+      </tr>
+    </tbody> 
+  </table>   
 
-                                </div>
-                              
-                          
-                              </div>
+  </div>
+  <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+    <i class="fa fa-arrow-circle-up" aria-hidden="true"></i> Subir
+  </button>
+</div>
+               
+                    </div>
+                   <!---- acoordion ----> 
+              
+
                     <div class="modal-footer">
                         <button
                             type="button"
@@ -839,13 +855,15 @@ tableBody.push(
 
 listarDetalle_producto_x(id,tipo_per_emp) {
             let me = this;           
-            var url = "/detalle_venta_2/verCliente_x_venta?id_venta="+id+"&tipo_per_emp="+tipo_per_emp;
+            var url = "/detalle_venta_2/verCliente_x_venta?id_venta="+id;
             axios
                 .get(url)
                 .then(function (response) {
-                    var respuesta_1 = response.data.descuento;                    
+                    var respuesta_1 = response.data;    
+                    console.log(respuesta_1);                                 
                     me.array_nombre_des=respuesta_1;
-                    console.log(me.array_nombre_des);                 
+                    console.log("-*-------------------");
+                   
                 })
                 .catch(function (error) {
                     error401(error);
@@ -916,9 +934,15 @@ listarDetalle_producto_x(id,tipo_per_emp) {
                     let respuesta_total = respuesta.datoTexto_v2;
                     let respuesta_descuento_1 = respuesta.venta_con_descuento;
                     let resultado_descuento_2 = respuesta.resultado_descuento_2;
-
-                    me.decuento_sin_venta=resultado_descuento_2.resultado;
-            
+                    console.log("---------------------------------");
+                    console.log(resultado_descuento_2.resultado);
+                    if(resultado_descuento_2.resultado===null){
+                      me.decuento_sin_venta="0.00";
+                    }else{
+                      me.decuento_sin_venta=resultado_descuento_2.resultado;  
+                    }
+                    
+                    
                     let nit =respuesta_empresa[0].nit;  
                     let nom_empresa =respuesta_empresa[0].nom_empresa;             
                      me.arrayDetalle_venta = respuesta.detalle_venta;             
@@ -934,7 +958,7 @@ listarDetalle_producto_x(id,tipo_per_emp) {
                      if (validor_12===2) {
                       me.generarFacPlana(cod_cliente,id,respuesta_total,nom_empresa,direccion,razon_social,nro_comprobante_venta,fecha_formateada,
                      hora_formateada,num_documento,nom_a_facturar,me.arrayDetalle_venta,total_sin_des,descuento_venta,total_venta,
-                    efectivo_venta,cambio_venta,fecha_mas_siete,numero_referencia,nombre_completo,respuesta_descuento_1,resultado_descuento_2.resultado);
+                    efectivo_venta,cambio_venta,fecha_mas_siete,numero_referencia,nombre_completo,respuesta_descuento_1,me.decuento_sin_venta);
                      }                   
                 })
                 .catch(function (error) {
@@ -955,7 +979,13 @@ listarDetalle_producto_x(id,tipo_per_emp) {
                     me.suma_total=respuesta_descuento_1;                         
                   me.array_detalle_venta = respuesta.detalle_venta;
                   me.decuento_sin_venta=resultado_descuento_2.resultado;
-                
+                 
+                  if(resultado_descuento_2.resultado===null){
+                    me.decuento_sin_venta="0.00";
+                  }else{
+                    me.decuento_sin_venta=resultado_descuento_2.resultado;
+                  }
+                 
                 
                 })
                 .catch(function (error) {
@@ -1003,7 +1033,7 @@ listarDetalle_producto_x(id,tipo_per_emp) {
                   me.nom_user=data.name;
                   me.tipo_per_emp=data.tipo_per_emp;
                   me.detalle_venta_vista(data.id,data.tipo_venta_reci_fac,me.total_1,data.total_sin_des);
-                  
+                  me.listarDetalle_producto_x(data.id)
                   me.classModal.openModal("ver_detalle");
                   break;
                 }

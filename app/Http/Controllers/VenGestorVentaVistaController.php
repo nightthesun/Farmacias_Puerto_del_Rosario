@@ -337,28 +337,19 @@ $endDate = $request->endDate;
 
     public function verCliente_x_venta(Request $request)
     {
-        $idVenta = 351;
-$idDetalleDescuento = 2;
+     
 
 $ven_detalle_descuentos = DB::table('ven__detalle_descuentos as vdd')
     ->join('par_tipo_tabla as ptt', 'vdd.id_tabla', '=', 'ptt.id')
     ->join('par__descuentos as pdes', 'vdd.id_descuento', '=', 'pdes.id')
-    ->select('ptt.nombre as nom_tabla', 'pdes.nombre_descuento', 'vdd.cantidad_descuento')
-    ->where('vdd.id_venta', $idVenta)
-    ->where('vdd.id_detalle_descuento', $idDetalleDescuento)
+    ->select('vdd.id_venta as id','ptt.nombre as nom_tabla', 'pdes.nombre_descuento', 'vdd.cantidad_descuento','vdd.id_detalle_descuento')
+    ->where('vdd.id_venta', $request->id_venta)
+   
     ->get();
 
-        $descuentos = DB::table('ven__detalle_descuentos as vdd')
-            ->join('par_tipo_tabla as ptt', 'ptt.id', '=', 'vdd.id_tabla')
-            ->join('par__descuentos as pd', 'pd.id', '=', 'vdd.id_descuento')
-            ->where('vdd.id_venta', $request->id_venta)
-            ->distinct()
-            ->select('pd.id', 'ptt.nombre', 'pd.nombre_descuento')
-            ->get();
-    
-        $dato = "nulo";
-        
-        return response()->json(['descuento' => $descuentos, 'dato' => $dato]);
+       
+    return $ven_detalle_descuentos;
+       
     }
    
 }

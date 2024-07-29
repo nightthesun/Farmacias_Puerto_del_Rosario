@@ -618,7 +618,7 @@
                     }
                     case 'actualizar':
                         {
-                            
+                    console.log(data);          
                     me.tituloModal='Registro de cliente';
                         me.tipoAccion=2;
                         if (data.id_max===null) {
@@ -626,10 +626,15 @@
                         } else {
                             me.id_max_2=1;
                         }
+                        if (data.selectTipo===1) {
+                            me.nombres=data.nombre;
+                            me.apellidos=data.apellido;
+                        } else {
+                            me.nombres=data.nombre_completo; 
+                            me.apellidos=data.apellido;                           
+                        }
                         me.selectTipoDoc=data.id_tipo_doc === null ? 0:data.id_tipo_doc;              
-            
-                        me.nombres=data.nombre;
-                        me.apellidos=data.apellido;
+                   
                         me.num_documento=data.num_documento;
                         me.complemento_=data.complemento;
                         me.razon_social="";
