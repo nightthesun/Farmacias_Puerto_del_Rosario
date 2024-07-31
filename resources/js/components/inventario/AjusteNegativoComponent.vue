@@ -736,9 +736,6 @@ export default {
             arrayRetornarProductosIngreso: [],
             leyenda: "",
 
-            //cargarpermisos
-            e_1:"",
-            a_1:"",
             //---permisos_R_W_S
             puedeEditar:2,
                 puedeActivar:2,

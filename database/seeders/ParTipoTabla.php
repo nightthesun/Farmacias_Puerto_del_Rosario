@@ -17,5 +17,7 @@ class ParTipoTabla extends Seeder
         DB::table('par_tipo_tabla')->insert(['nombre'=>'Cantidad o Compra','descripcion'=>'valores por cantidad o compra']);
         DB::table('par_tipo_tabla')->insert(['nombre'=>'Cliente','descripcion'=>'valore por cliente']);
         DB::table('par_tipo_tabla')->insert(['nombre'=>'Producto','descripcion'=>'valor por producto']);
+        DB::table('par_tipo_tabla')->insert(['nombre'=>'Personalizado','descripcion'=>'descuento que tiene un valor como maximo']);
+        DB::table('par_tipo_tabla')->insert(['nombre'=>'Final','descripcion'=>'descuento final para impuestos']);
     }
 }

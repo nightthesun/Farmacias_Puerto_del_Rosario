@@ -228,6 +228,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/credenciales_correo', [AdmCredecialCorreoController::class, 'credencia_correo']);
     Route::put('/credenciales_correo/update', [AdmCredecialCorreoController::class, 'update']);   
     
+    Route::get('/dosificacion/getDataSucursal', [AdmCredecialCorreoController::class, 'getDataSucursal']);
+    
     //*******para listar si tiene permisos de edicion y activacion usar en todos los reporte o modulos*/
     Route::get('/userrolesuc/listarPermiso_Activacion', [AdmUserRoleSucursalController::class, 'listarPermiso_Activacion']);
     //*******para listar si tiene permisos de ver esa sucursal, tienda , almacen....*/
@@ -592,4 +594,5 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/detalle_venta_2/index', [VenGestorVentaVistaController::class, 'index']);
     Route::get('/detalle_venta_2/re_imprecion',[VenGestorVentaVistaController::class, 're_imprecion']);
     Route::get('/detalle_venta_2/verCliente_x_venta', [VenGestorVentaVistaController::class, 'verCliente_x_venta']);
+    Route::post('/detalle_venta_2/desactivar', [VenGestorVentaVistaController::class, 'desactivar']);
 });

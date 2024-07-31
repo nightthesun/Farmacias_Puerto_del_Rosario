@@ -31,21 +31,21 @@
                             <div class="card-body">    
                                 <div class="form-group row">
 
-                                    <label class="col-md-1 form-control-label" for="text-input"><strong>Host:</strong> 
+                                    <label class="col-md-1 form-control-label" for="text-input" style="font-size: 12px;"><strong>Host:</strong> 
                                     <span v-if="host == ''" class="error">(*)</span></label>
                                     <div class="col-md-3">
                                         <input type="text" v-model="host" class="form-control" placeholder="mail.empresa.com" v-on:focus="selectAll"/>
                                         <span v-if="host == ''" class="error">Debe escribir el host</span>
                                     </div>
 
-                                    <label class="col-md-1 form-control-label" for="text-input"><strong>Correo:</strong> 
+                                    <label class="col-md-1 form-control-label" for="text-input" style="font-size: 12px;"><strong>Correo:</strong> 
                                     <span v-if="correo == ''" class="error">(*)</span></label>
                                     <div class="col-md-3">
                                         <input type="text" v-model="correo" class="form-control" placeholder="correo@correo.es" v-on:focus="selectAll"/>
                                         <span v-if="correo == ''" class="error">Debe escribir un correo</span>
                                     </div>
 
-                                    <label class="col-md-1 form-control-label" for="text-input"><strong>Puerto:</strong> 
+                                    <label class="col-md-1 form-control-label" for="text-input" style="font-size: 12px;"><strong>Puerto:</strong> 
                                     <span v-if="puerto == ''" class="error">(*)</span></label>
                                     <div class="col-md-3">
                                         <input type="number" min="0" v-model="puerto" class="form-control" placeholder="" v-on:focus="selectAll"/>
@@ -54,21 +54,21 @@
                                 </div>
                                 <div class="form-group row">
 
-<label class="col-md-1 form-control-label" for="text-input"><strong>Usuario:</strong> 
+<label class="col-md-1 form-control-label" for="text-input" style="font-size: 12px;"><strong>Usuario:</strong> 
 <span v-if="usuario == ''" class="error">(*)</span></label>
 <div class="col-md-3">
     <input type="text" v-model="usuario" class="form-control" placeholder="puede ser un correo" v-on:focus="selectAll"/>
     <span v-if="host == ''" class="error">Debe escribir el usuario</span>
 </div>
 
-<label class="col-md-1 form-control-label" for="text-input"><strong>Contraseña:</strong> 
+<label class="col-md-1 form-control-label" for="text-input" style="font-size: 12px;"><strong>Contraseña:</strong> 
 <span v-if="contraseña == ''" class="error">(*)</span></label>
 <div class="col-md-3">
     <input type="password" v-model="contraseña" class="form-control"  v-on:focus="selectAll"/>
     <span v-if="contraseña == ''" class="error">Debe escribir una contraseña</span>
 </div>
 
-<label class="col-md-1 form-control-label" for="text-input"><strong>SSL:</strong> 
+<label class="col-md-1 form-control-label" for="text-input" style="font-size: 12px;"><strong>SSL:</strong> 
 </label>
 <div class="col-md-3">
     <div class="form-check">
@@ -104,20 +104,20 @@
                             <div class="card-body">
                                 <div class="form-group row">
 
-                                    <label class="col-md-1 form-control-label" for="text-input"><strong>NIT:</strong> 
+                                    <label class="col-md-1 form-control-label" for="text-input" style="font-size: 12px;"><strong>NIT:</strong> 
                                     <span v-if="nit == ''" class="error">(*)</span></label>
                                     <div class="col-md-3">
                                         <input type="text" v-model="nit" class="form-control" placeholder="nit de la empresa" v-on:focus="selectAll"/>
                                         <span v-if="nit == ''" class="error">Debe escribir el nit</span>
                                     </div>
                                       
-                                    <label class="col-md-1 form-control-label" for="text-input"><strong>NOMBRE DE EMPRESA:</strong> 
+                                    <label class="col-md-1 form-control-label" for="text-input" style="font-size: 12px;"><strong>Empresa:</strong> 
                                     <span v-if="nombre_empresa == ''" class="error">(*)</span></label>
                                     <div class="col-md-3">
                                         <input type="text" v-model="nombre_empresa" class="form-control" placeholder="nombre de negocio" v-on:focus="selectAll"/>
                                         <span v-if="nombre_empresa == ''" class="error">Debe escribir el un nombre de negocio</span>
                                     </div>
-                                    <label class="col-md-1 form-control-label" for="text-input"><strong>TELEFONO/CELULAR:</strong> 
+                                    <label class="col-md-1 form-control-label" for="text-input" style="font-size: 12px;"><strong>Nro CEL/TEL:</strong> 
                                     <span v-if="celular == ''" class="error">(*)</span></label>
                                     <div class="col-md-3">
                                         <input type="text" v-model="celular" class="form-control" placeholder="nit de la empresa" v-on:focus="selectAll"/>

@@ -73,4 +73,22 @@ class AdmCredecialCorreoController extends Controller
         $datos = DB::table('adm__credecial_correos')->get();
         return $datos;
     }
+
+    public function getDataSucursal(Request $request){
+
+        $sucursal = DB::table('adm__sucursals as ass')
+        ->select('ass.id', 'ass.cod', 'ass.razon_social', 'ass.nit')
+        ->where('ass.activo', 1)
+        ->get();     
+
+
+        $credecion = DB::table('adm__credecial_correos')
+        ->select('nom_empresa','nit')       
+        ->first();
+
+        return response()->json(['sucursal' => $sucursal, 'credecion' => $credecion]);
+    }
+
+   
+    
 }

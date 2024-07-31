@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('descripcion')->nullable()->comment('descripcion del boton, tabla, modal, como se hizo');
             $table->unsignedSmallInteger('user_id');
             $table->timestamps();
+            $table->smallInteger('id_movimiento')->nullable()->comment('id de venta o accion, o movimiento');
         });
     }
 

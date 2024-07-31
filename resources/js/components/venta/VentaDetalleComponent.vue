@@ -108,18 +108,24 @@
                     <tr v-for="v in arrayVentas" :key="v.id">
                         <td class="col-md-1">
             <!-- Example single danger button -->
-<div class="btn-group">
+<div class="btn-group" v-if="puedeHacerOpciones_especiales==1">
   <button type="button" style="color: white;" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
     <i class="fa fa-bars" aria-hidden="true"></i>
   </button>
   <div class="dropdown-menu">
-    <a @click.prevent="abrirModal('recibo_r', v);" class="dropdown-item" href="#"><i style="color: black;" class="fa fa-file-pdf-o" aria-hidden="true"></i> Re imprimir factura ticket</a>
+    <div v-if="puedeHacerOpciones_especiales==1">
+      <a @click.prevent="abrirModal('recibo_r', v);" class="dropdown-item" href="#"><i style="color: black;" class="fa fa-file-pdf-o" aria-hidden="true"></i> Re imprimir factura ticket</a>
     <a @click.prevent="abrirModal('pdf_plana', v);" class="dropdown-item" href="#"><i style="color: black;" class="fa fa-file-pdf-o" aria-hidden="true"></i> Re imprimir factura plana</a>
     <a @click.prevent="abrirModal('ver_detalle_venta',v)"  class="dropdown-item" href="#"><i style="color: black;" class="fa fa-eye" aria-hidden="true"></i> Ver estado</a>
-    <a class="dropdown-item" href="#"><i style="color: black;" class="fa fa-trash" aria-hidden="true"></i> Anular venta</a>
-    
-    
+    </div>      
+      <a v-if="puedeActivar==1" @click.prevent="eliminar(v.id,v.fecha_formateada,v.fecha_mas_tres);"  class="dropdown-item" href="#"><i style="color: black;" class="fa fa-trash" aria-hidden="true"></i> Anular venta</a>
+   
   </div>
+</div>
+<div v-else>
+  <button type="button" style="color: white;"  class="btn btn-light">
+    <i class="fa fa-bars" aria-hidden="true"></i>
+  </button>
 </div>                       
                         </td>
                         <td class="col-md-1" v-text="v.nom_a_facturar"></td>
@@ -136,7 +142,7 @@
                                 <span class="badge badge-pill badge-success">Activo</span>
                             </div>
                             <div v-else>
-                                <span  class="badge badge-pill badge-dange">Eliminado</span>
+                                <span  class="badge badge-pill badge-danger">Anulado</span>
                             </div>
                         </td>
                         <td >
@@ -381,10 +387,12 @@ import Swal from "sweetalert2";
 import { error401 } from "../../errores";
 import pdfMake from 'pdfmake/build/pdfmake';
 import pdfFonts from 'pdfmake/build/vfs_fonts';
+import moment from 'moment';
 // Asigna los fonts a pdfmake
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 //Vue.use(VeeValidate);
 export default {
+  props: ['codventana','idmodulo'],
     data() {
         return {
             pagination: {
@@ -430,8 +438,17 @@ export default {
        //---
        array_nombre_des:[],
        array_detalle_venta:[],
-       venta_con_descuento:"",
+       venta_con_descuento:'',
        decuento_sin_venta:'',
+       nombre_completo_cliente:'',
+       nombre_completo_empleado:'',
+        todayDate: '',
+           //---permisos_R_W_S
+           puedeEditar:2,
+                puedeActivar:2,
+                puedeHacerOpciones_especiales:2,
+                puedeCrear:2,
+                //-----------
         };
     },
 
@@ -493,11 +510,43 @@ export default {
     },
 
     methods: {
+      //-----------------------------------permisos_R_W_S        
+listarPerimsoxyz() {
+                //console.log(this.codventana);
+    let me = this;
+        
+    var url = '/gestion_permiso_editar_eliminar?win='+me.codventana;
+  
+    axios.get(url)
+        .then(function(response) {
+            var respuesta = response.data;
+     
+            if(respuesta=="root"){
+            me.puedeEditar=1;
+            me.puedeActivar=1;
+            me.puedeHacerOpciones_especiales=1;
+            me.puedeCrear=1; 
+            }else{
+            me.puedeEditar=respuesta.edit;
+            me.puedeActivar=respuesta.activar;
+            me.puedeHacerOpciones_especiales=respuesta.especial;
+            me.puedeCrear=respuesta.crear;        
+            }
+           
+        })
+        .catch(function(error) {
+            error401(error);
+            console.log(error);
+        });
+},
 
             ///////////////////////////////funciones para la venta///////////////////////////////////////////////////////
-    generarPDF(nom_empresa,direccionMayusculas,nomsucursal,nuevoComprobante,fecha,hora,num_documento,nom_a_facturar,array_recibo,total_sin_des,descuento_venta,total_venta,efectivo_venta,cambio_venta,fechaMas7Dias,numero_referencia,nombreCompleto_1) {
+    generarPDF(nom_empresa,direccionMayusculas,nomsucursal,nuevoComprobante,fecha,hora,num_documento,nom_a_facturar,array_recibo,total_sin_des,descuento_venta,total_venta,efectivo_venta,cambio_venta,fechaMas7Dias,numero_referencia,nombreCompleto_1,anulado) {
       // Define el contenido del PDF
-
+      let watermark = {};      
+      if (anulado===1) { // Aquí puedes poner tu condición
+  watermark = { text: 'ANULADO', color: 'red', angle: -45, opacity: 0.3, bold: true, italics: false, fontSize: 40 };
+}
  // Crea el cuerpo de la tabla dinámicamente
  const tableBody = [
     // Agrega los encabezados de la tabla
@@ -520,6 +569,8 @@ export default {
   });
 
       const documentDefinition = {
+        
+      
         pageMargins: [5, 8, 5, 4], // Configura los márgenes en cero
         pageSize: {
     width: 80 * 2.83465, // Ancho en puntos (conversión a puntos desde mm)
@@ -528,6 +579,7 @@ export default {
   },
  
       content: [
+     
       {
         text: nom_empresa,
       
@@ -650,6 +702,7 @@ export default {
       },
       
         ],
+        watermark: watermark, // Agrega la marca de agua condicionalmente
         styles: {
           header: {
             fontSize: 8,
@@ -682,6 +735,9 @@ export default {
         fontSize: 8,
             bold: true,
             alignment: 'center',
+      },
+      anulado: {
+        fontSize: 8,
       }
         }
       };
@@ -690,10 +746,15 @@ export default {
       pdfMake.createPdf(documentDefinition).open();
     },
   
-    generarFacPlana(cod_cliente,numero_identificacion,respuesta_total,nom_empresa,direccionMayusculas,nomsucursal,nuevoComprobante,fecha,hora,num_documento,nom_a_facturar,array_recibo,total_sin_des,descuento_venta,total_venta,efectivo_venta,cambio_venta,fechaMas7Dias,numero_referencia,nombreCompleto_1,venta_con_descuento,resultado_descuento_2) {
+    generarFacPlana(cod_cliente,numero_identificacion,respuesta_total,nom_empresa,direccionMayusculas,nomsucursal,nuevoComprobante,fecha,hora,num_documento,nom_a_facturar,array_recibo,total_sin_des,descuento_venta,total_venta,efectivo_venta,cambio_venta,fechaMas7Dias,numero_referencia,nombreCompleto_1,venta_con_descuento,resultado_descuento_2,anulado) {
   
   // Crea el cuerpo de la tabla dinámicamente
- const tableBody = [
+  // Define el contenido del PDF
+  let watermark = {};      
+      if (anulado===1) { // Aquí puedes poner tu condición
+  watermark = { text: 'ANULADO', color: 'red', angle: -45, opacity: 0.3, bold: true, italics: false, fontSize: 65 };
+}
+  const tableBody = [
     // Agrega los encabezados de la tabla
     [
       { text: 'Código Producto / Servicio.', style: 'tableHeader_2',alignment: 'center',fillColor: '#d3d3d3' }, 
@@ -768,6 +829,7 @@ tableBody.push(
 			},
       layout: 'noBorders'
 		},
+   
     {text: 'RECIBO', style: 'header' },
     {
 			
@@ -812,6 +874,7 @@ tableBody.push(
         fontSize: 8
       },
     ],
+    watermark: watermark, // Agrega la marca de agua condicionalmente
     styles: {
       header: {
         fontSize: 13,
@@ -922,7 +985,7 @@ listarDetalle_producto_x(id,tipo_per_emp) {
         
         detalleVenta(cod_cliente,validor_12,id,tipo,direccion,razon_social,nro_comprobante_venta,fecha_formateada,hora_formateada,
         num_documento,nom_a_facturar,total_sin_des,descuento_venta,total_venta,efectivo_venta,cambio_venta,fecha_mas_siete,
-        numero_referencia,nombre_completo){
+        numero_referencia,nombre_completo,anulado){
           let me=this;  
          
         var url = "/detalle_venta_2/re_imprecion?id_venta="+id+"&tipofactura="+tipo+"&venta="+total_venta+"&total_sin_des="+total_sin_des;
@@ -953,12 +1016,12 @@ listarDetalle_producto_x(id,tipo_per_emp) {
                      if (validor_12===1) {
                       me.generarPDF(nom_empresa,direccion,razon_social,nro_comprobante_venta,fecha_formateada,
                      hora_formateada,num_documento,nom_a_facturar,me.arrayDetalle_venta,total_sin_des,descuento_venta,total_venta,
-                    efectivo_venta,cambio_venta,fecha_mas_siete,numero_referencia,nombre_completo);  
+                    efectivo_venta,cambio_venta,fecha_mas_siete,numero_referencia,nombre_completo,anulado);  
                      } 
                      if (validor_12===2) {
                       me.generarFacPlana(cod_cliente,id,respuesta_total,nom_empresa,direccion,razon_social,nro_comprobante_venta,fecha_formateada,
                      hora_formateada,num_documento,nom_a_facturar,me.arrayDetalle_venta,total_sin_des,descuento_venta,total_venta,
-                    efectivo_venta,cambio_venta,fecha_mas_siete,numero_referencia,nombre_completo,respuesta_descuento_1,me.decuento_sin_venta);
+                    efectivo_venta,cambio_venta,fecha_mas_siete,numero_referencia,nombre_completo,respuesta_descuento_1,me.decuento_sin_venta,anulado);
                      }                   
                 })
                 .catch(function (error) {
@@ -1001,6 +1064,7 @@ listarDetalle_producto_x(id,tipo_per_emp) {
         //    );
            
          switch (accion) {
+                
                 case "registrar": {
                     me.tipoAccion = 1;
                     me.tituloModal = "Registro de traspaso origen ";
@@ -1010,9 +1074,9 @@ listarDetalle_producto_x(id,tipo_per_emp) {
                 }
                 case "ver_detalle_venta":{
                   me.tituloModal = "Detalle de venta de la sucursal "+data.razon_social+" codigo "+data.cod;
-                  console.log(data);
+         //         console.log(data);
                   me.cod_cliente=data.id_cliente;
-                  me.nom_cliente=data.nombre_completo;
+                  me.nom_cliente=data.nombre_completo_cliente;
                   me.nom_facturar=data.nom_a_facturar;
                   me.num_documento=data.num_documento;
                   me.correo=data.correo;
@@ -1045,7 +1109,7 @@ listarDetalle_producto_x(id,tipo_per_emp) {
                       me.detalleVenta(data.id_cliente,me.recibo_ticket_plana,data.id,data.tipo_venta_reci_fac,data.direccion,data.razon_social,data.nro_comprobante_venta,
                     data.fecha_formateada,data.hora_formateada,data.num_documento,data.nom_a_facturar,data.total_sin_des,
                     data.descuento_venta,data.total_venta,data.efectivo_venta,data.cambio_venta,data.fecha_mas_siete,
-                    data.numero_referencia,data.nombre_completo
+                    data.numero_referencia,data.nombre_completo_empleado,data.anulado
                     );
                     }
                    
@@ -1054,13 +1118,13 @@ listarDetalle_producto_x(id,tipo_per_emp) {
 
                 case "pdf_plana":{
                   me.recibo_ticket_plana=2;
-                  console.log(data.id);
-                  console.log(data);
+               //   console.log(data.id);
+              //    console.log(data);
                   if (data.tipo_venta_reci_fac==="RECIBO") {
                     me.detalleVenta(data.id_cliente,me.recibo_ticket_plana,data.id,data.tipo_venta_reci_fac,data.direccion,data.razon_social,data.nro_comprobante_venta,
                     data.fecha_formateada,data.hora_formateada,data.num_documento,data.nom_a_facturar,data.total_sin_des,
                     data.descuento_venta,data.total_venta,data.efectivo_venta,data.cambio_venta,data.fecha_mas_siete,
-                    data.numero_referencia,data.nombre_completo
+                    data.numero_referencia,data.nombre_completo_empleado,data.anulado
                     );              
                   }         
                  
@@ -1073,6 +1137,7 @@ listarDetalle_producto_x(id,tipo_per_emp) {
 
                     break;
                 }
+            
             
             }
         },
@@ -1091,6 +1156,102 @@ listarDetalle_producto_x(id,tipo_per_emp) {
     this.endDate = `${year}-${month}-${day}`;
         },
 
+        eliminar(id,fecha_i,fecha_f) {
+            let me = this;  
+    // Función para convertir una fecha en formato dd/mm/yyyy a un objeto Date
+function parseDate(dateString) {
+    const [day, month, year] = dateString.split('/').map(Number);
+    return new Date(year, month - 1, day);
+}
+
+// Fechas en formato dd/mm/yyyy
+const startDateStr = fecha_i;
+const endDateStr = fecha_f;
+
+// Convertir las fechas a objetos Date
+const startDate = parseDate(startDateStr);
+const endDate = parseDate(endDateStr);
+
+// Obtener la fecha actual
+const today = new Date();
+
+// Comprobar si la fecha actual está dentro del rango
+const isInRange = today >= startDate && today <= endDate;
+
+        if (isInRange===false) {
+              Swal.fire(
+                    "Error",
+                    "La venta no puede ser anulada ya que paso con el tiempo de vigencia",
+                    "error");
+            } else {
+              const swalWithBootstrapButtons = Swal.mixin({
+                customClass: {
+                    confirmButton: "btn btn-success",
+                    cancelButton: "btn btn-danger",
+                },
+                buttonsStyling: false,
+            });
+            swalWithBootstrapButtons
+                .fire({
+                    title: "Esta Seguro de Desactivar?",
+                    text: "Es una eliminacion logica",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Si, Desactivar",
+                    cancelButtonText: "No, Cancelar",
+                    reverseButtons: true,
+                })
+                .then((result) => {
+                    if (result.isConfirmed) {
+                        axios
+                            .post("/detalle_venta_2/desactivar", {
+                              id_modulo: me.idmodulo,
+                                id_sub_modulo:me.codventana, 
+                                des:"eliminacion_de_venta",  
+                                id: id,
+                                
+                            })
+                            .then(function (response) {
+                               // me.listarAjusteNegativos();
+                               me.listarVentas();
+                                swalWithBootstrapButtons.fire(
+                                    "Desactivado!",
+                                    "El registro eliminado",
+                                    "success",
+                                );
+                             //   me.listarAjusteNegativos();
+                            })
+                    
+                       .catch(function (error) {                
+                if (error.response.status === 500) {
+                    me.errorMsg = error.response.data.error; // Asigna el mensaje de error a la variable errorMsg
+                Swal.fire(
+                    "Error",
+                    "500 (Internal Server Error)"+me.errorMsg, // Muestra el mensaje de error en el alert
+                    "error"       );
+                }else{
+                    Swal.fire(
+                    "Error",
+                    ""+error, // Muestra el mensaje de error en el alert
+                    "error"
+                );  
+                }              
+            });
+                    } else if (
+                        /* Read more about handling dismissals below */
+                        result.dismiss === Swal.DismissReason.cancel
+                    ) {
+                        /* swalWithBootstrapButtons.fire(
+                    'Cancelado!',
+                    'El Registro no fue desactivado',
+                    'error'
+                    ) */
+                    }
+                });
+          
+            }
+            
+        },
 
         cerrarModal(accion) {
             let me = this;           
@@ -1130,6 +1291,10 @@ listarDetalle_producto_x(id,tipo_per_emp) {
     },
 
     mounted() {
+       //-------permiso E_W_S-----
+       this.listarPerimsoxyz();
+             // this.listarAlmacenes_tiendas_con_permisos();
+            //-----------------------
         this.classModal = new _pl.Modals();
         this.sucursalFiltro();
         this.fecha_inicial();

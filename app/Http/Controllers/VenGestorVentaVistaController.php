@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Ven_GestorVentaVista;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use NumberToWords\NumberToWords;
 
@@ -87,23 +88,18 @@ $endDate = $request->endDate;
         DB::raw("DATE_FORMAT(vr.created_at, '%d/%m/%Y') as fecha_formateada"),
         DB::raw("DATE_FORMAT(vr.created_at, '%h:%i:%s %p') as hora_formateada"),
         DB::raw("DATE_FORMAT(DATE_ADD(vr.created_at, INTERVAL 7 DAY), '%d/%m/%Y') as fecha_mas_siete"),
+        DB::raw("DATE_FORMAT(DATE_ADD(vr.created_at, INTERVAL 3 DAY), '%d/%m/%Y') as fecha_mas_tres"),
         DB::raw("UPPER(CONCAT(
             COALESCE(re.nombre, ''), ' ',
             COALESCE(re.papellido, ''), ' ',
             COALESCE(re.sapellido, '')
-        )) as nombre_completo"),
-        'dc.tipo_per_emp',
-        DB::raw("UPPER(CONCAT(
-            COALESCE(re.nombre, ''), ' ',
-            COALESCE(re.papellido, ''), ' ',
-            COALESCE(re.sapellido, '')
-        )) as nombre_completo"),
+        )) as nombre_completo_empleado"),
          'dc.tipo_per_emp',
         DB::raw("CASE 
         WHEN dp.id IS NOT NULL THEN UPPER(CONCAT(COALESCE(dp.nombres, ''), ' ', COALESCE(dp.apellidos, '')))
         WHEN de.id IS NOT NULL THEN UPPER(de.razon_social)
         ELSE NULL
-    END AS nombre_completo"),
+    END AS nombre_completo_cliente"),
     'dc.correo'    
 
     )
@@ -170,17 +166,18 @@ $endDate = $request->endDate;
         DB::raw("DATE_FORMAT(vr.created_at, '%d/%m/%Y') as fecha_formateada"),
         DB::raw("DATE_FORMAT(vr.created_at, '%h:%i:%s %p') as hora_formateada"),      
         DB::raw("DATE_FORMAT(DATE_ADD(vr.created_at, INTERVAL 7 DAY), '%d/%m/%Y') as fecha_mas_siete"),
+        DB::raw("DATE_FORMAT(DATE_ADD(vr.created_at, INTERVAL 3 DAY), '%d/%m/%Y') as fecha_mas_tres"),
         DB::raw("UPPER(CONCAT(
             COALESCE(re.nombre, ''), ' ',
             COALESCE(re.papellido, ''), ' ',
             COALESCE(re.sapellido, '')
-        )) as nombre_completo"),
+        )) as nombre_completo_empleado"),
          'dc.tipo_per_emp',
         DB::raw("CASE 
         WHEN dp.id IS NOT NULL THEN UPPER(CONCAT(COALESCE(dp.nombres, ''), ' ', COALESCE(dp.apellidos, '')))
         WHEN de.id IS NOT NULL THEN UPPER(de.razon_social)
         ELSE NULL
-    END AS nombre_completo"),
+    END AS nombre_completo_cliente"),
     'dc.correo'   
     )
     ->where('vr.id_sucursal', $sucursalId)
@@ -350,6 +347,36 @@ $ven_detalle_descuentos = DB::table('ven__detalle_descuentos as vdd')
        
     return $ven_detalle_descuentos;
        
+    }
+
+    public function desactivar(Request $request){
+        //1=add, 2=delete, 3=create, 4=edit, 5=show
+    // Truncar la tabla para eliminar todo su contenido
+        try {         
+           
+            $eliminar = Ven_GestorVentaVista::findOrFail($request->id);
+            $eliminar->anulado=1;
+            $eliminar->save(); 
+            $now = Carbon::now();
+        DB::table('par__asignacion_descuento')->truncate();
+        $datos = [
+            'id_modulo' => $request->id_modulo,
+            'id_sub_modulo' => $request->id_sub_modulo,
+            'accion' => 2,
+            'descripcion' => $request->des,          
+            'user_id' =>auth()->user()->id, 
+            'created_at'=>$now,
+            'id_movimiento'=>$request->id        
+        ];
+    
+        DB::table('log__sistema')->insert($datos);         
+           
+        } catch (\Throwable $th) {
+           // DB::rollback();
+            return response()->json(['error' => $th->getMessage()],500);
+        }
+       
+      
     }
    
 }
