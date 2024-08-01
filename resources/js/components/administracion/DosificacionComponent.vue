@@ -14,7 +14,7 @@
                     <button
                         type="button"
                         class="btn btn-secondary"
-                        @click="sucursalGet_data(); abrirModal('registrar');"
+                        @click="abrirModal('registrar');"
                         :disabled="selectAlmTienda == 0"
                     >
                         <i class="icon-plus"></i>&nbsp;Nuevo
@@ -30,17 +30,14 @@
                 </div>
                         <div class="col-md-6">
                             <div class="input-group">
-                                <select class="form-control" v-model="sucursalSeleccionada">
-                                    <option value="0" disabled selected>Seleccionar...</option>
-                                    <option v-for="sucursal in arraySucursal" :key="sucursal.id"  :value="sucursal.codigo"
-                                        v-text="
-                                            sucursal.codigoS +
-                                            ' -> ' +
-                                            sucursal.codigo+
-                                            ' ' +
-                                            sucursal.razon_social
-                                        "
-                                    ></option>
+                                <select class="form-control" v-model="sucursalSeleccionada_intro">
+                                   
+                                                    <option value="0" disabled selected>Seleccionar...</option>
+                                                    <option v-for="sucursal in arraySucursal" :key="sucursal.id"  :value="sucursal.id"
+                                                    v-text="sucursal.cod +' -> ' +sucursal.razon_social">
+                                                    </option>
+                                
+                                    
                                 </select>
                             </div>
                         </div>
@@ -54,15 +51,15 @@
                                     placeholder="Texto a buscar"
                                     v-model="buscar"
                                
-                                    :hidden="sucursalSeleccionada == 0"
-                                    :disabled="sucursalSeleccionada == 0"
+                                    :hidden="sucursalSeleccionada_intro == 0"
+                                    :disabled="sucursalSeleccionada_intro == 0"
                                 />
                                 <button
                                     type="submit"
                                     class="btn btn-primary"
                               
-                                    :hidden="sucursalSeleccionada == 0"
-                                    :disabled="sucursalSeleccionada == 0"
+                                    :hidden="sucursalSeleccionada_intro == 0"
+                                    :disabled="sucursalSeleccionada_intro == 0"
                                 >
                                     <i class="fa fa-search"></i> Buscar
                                 </button>
@@ -94,19 +91,33 @@
                 <thead>
                     <tr>
                         <th>Opciones</th>
-                        <th class="col-md-1">Cliente</th>
-                        <th class="col-md-5">Nro docuemnto</th>
-                        <th>Tipo de comprobante</th>
-                        <th>Numero de comprobante</th>
-                        <th class="col-md-1">Total</th>
-                        <th class="col-md-1">Destino</th>
-                        <th>Vehiculo</th>
-                        <th class="col-md-3">Observación</th>
-                        <th class="col-md-2">Per. Enviada</th>
-                        <th>Usuario</th>
-                        <th>Estado</th>       
+                        <th class="col-md-1">Nro. Autorización</th>
+                        <th class="col-md-1">Nro. Identificación</th>
+                        <th class="col-md-3">Dosificación</th>
+                        <th class="col-md-1">Fecha activación</th>
+                        <th class="col-md-1">Fecha emision</th>                        
+                        <th class="col-md-1">Nro. inicial de factura</th>
+                        <th class="col-md-1">Nro. final de factura</th>
+                        <th class="col-md-1">Nro. actual de factura</th>                    
+                        <th class="col-md-1">Usuario</th>
+                        <th class="col-md-1">Estado</th>    
                     </tr>
                 </thead>
+                <tbody>
+                    <tr>
+                        <td>Opciones</td>
+                        <td class="col-md-1">Nro. Autorización</td>
+                        <td class="col-md-1">Nro. Identificación</td>
+                        <td class="col-md-3">Dosificación</td>
+                        <td class="col-md-1">Fecha activación</td>
+                        <td class="col-md-1">Fecha emision</td>                        
+                        <td class="col-md-1">Nro. inicial de factura</td>
+                        <td class="col-md-1">Nro. final de factura</td>
+                        <td class="col-md-1">Nro. actual de factura</td>                    
+                        <td class="col-md-1">Usuario</td>
+                        <td class="col-md-1">Estado</td>   
+                    </tr>
+                </tbody>
             </table>    
 
             <!-----fin de tabla------->
@@ -149,7 +160,7 @@
                             <div class="container">
                                 <div class="card">
   <div class="card-body">
-   <span><strong>NIT: {{nit}}</strong></span> 
+   <span><strong>NIT: {{nit}}</strong></span>  
    <span style="padding-left: 20px;"><strong>Nombre: {{nom_empresa}}</strong></span>
   </div>
 </div>
@@ -181,13 +192,13 @@
                                                 <div class="form-group col-sm-4" >
                                                     <strong>Llave de dosificación: <span  v-if="fecha_a==''" class="error">(*)</span></strong>
                                                     <input  type="text" class="form-control" placeholder="Ingrese llave doficicacion"   v-model="dosificacion">                                  
-                                                    <span  v-if="dosificacion==''" class="error">Debe ingresar la fecha de emision</span>
+                                                    <span  v-if="dosificacion==''" class="error">Debe ingresar la dosificacion</span>
                                                 </div>
 
                                                 <div class="form-group col-sm-4">
                                                     <strong>Fecha activación: <span  v-if="fecha_a==''" class="error">(*)</span></strong>
                                                     <input  type="date" class="form-control" placeholder="Ingrese la fecha de emision"  v-model="fecha_a" v-on:focus="selectAll" required>
-                                                    <span  v-if="fecha_a==''" class="error">Debe ingresar la fecha de emision</span>   
+                                                    <span  v-if="fecha_a==''" class="error">Debe ingresar la fecha de activación</span>   
                                                 </div>
                                                 <div class="form-group col-sm-4">
                                                     <strong>Fecha limite de emision: <span  v-if="fecha_e==''" class="error">(*)</span></strong>
@@ -199,77 +210,82 @@
                                                 <div class="form-group col-sm-4" >
                                                     <strong>Nro. Inicio facturación: <span  v-if="n_ini_facturacion==''" class="error">(*)</span></strong>
                                                     <input  type="number" class="form-control" placeholder="Ingrese llave doficicacion"   v-model="n_ini_facturacion" style="text-align: right;">                                  
-                                                    <span  v-if="n_ini_facturacion==''" class="error">Debe ingresar la fecha de emision</span>
+                                                    <span  v-if="n_ini_facturacion==''" class="error">Debe ingresar el numero de incio</span>
                                                 </div>
 
                                                 <div class="form-group col-sm-4">
                                                     <strong>Nro. Final de facturación: <span  v-if="n_fin_facturacion==''" class="error">(*)</span></strong>
                                                     <input  type="number" class="form-control" placeholder="Ingrese la fecha de emision"  v-model="n_fin_facturacion" v-on:focus="selectAll" style="text-align: right;" required>
-                                                    <span  v-if="n_fin_facturacion==''" class="error">Debe ingresar la fecha de emision</span>   
+                                                    <span  v-if="n_fin_facturacion==''" class="error">Debe ingresar el numero final</span>   
                                                 </div>
                                                 <div class="form-group col-sm-4">
                                                     <strong>Nro. actual de facturación: <span  v-if="n_act_facturacion==''" class="error">(*)</span></strong>
                                                     <input type="number"  class="form-control" placeholder="Ingrese el limite de emision"  v-model="n_act_facturacion" v-on:focus="selectAll" style="text-align: right;">
-                                                    <span  v-if="n_act_facturacion==''" class="error">Debe ingresar la fecha de emision</span>
+                                                    <span  v-if="n_act_facturacion==''" class="error">Debe ingresar numero actual</span>
                                                 </div>                                             
-                                            </div>                                    
-                                    </div>
-                                    <hr>
-                                    <div class="row" >
-                 <table class="table table-bordered table-sm table-responsive table-primary ">
+                                            </div> 
+                                            <div class="modal-body">
+                                                <div class="d-flex justify-content-end">
+        <button style="color: white;" @click="cargarDosificacion()" type="button" v-if="tipoAccion == 1" class="btn btn-secondary">
+            <i class="fa fa-plus-square" aria-hidden="true"></i> Añadir
+        </button>
+    </div>
+</div>
+
+                                            
+                                            <div class="row" v-if="arrayCargar_dosificacion.length>0">
+                                                <table class="table table-bordered table-sm table-responsive table-sm">
                      <thead>
                          <tr>
-                             <th class="col-1">Opciones</th>
-                             <th class="col-2">Sucursal</th>
-                             <th class="col-5">Descripción</th>
+                             <th style="font-size: 12px;" class="col-1">Opciones</th>
+                             <th style="font-size: 12px;" class="col-3">Sucursal</th>
+                             <th style="font-size: 12px;" class="col-6">Descripción</th>
                                                        
                          </tr>
                      </thead>
                      <tbody>
-                        <tr v-for="venta in arrayVentas" :key="venta.id">
-                            <td></td>
+                        <tr v-for="d in arrayCargar_dosificacion" :key="d.id_sucursal">
+                            <td class="col-1">
+                                <button @click="quitarDosificacion(d.id_contador)" style="font-size: 12px;" type="button" class="btn btn-danger btn-sm">
+                                    <i class="fa fa-minus-square" aria-hidden="true"></i> Quitar</button>                               
+                            </td>
+                            <td style="font-size: 12px;" class="col-3">{{d.cod+"->"+d.nom_sucursal}}</td>
+                            <td style="font-size: 12px;" class="col-6">{{d.dosificacion+"-"+d.identificacion+"-"+d.autorizacion}}</td>
                         </tr>   
                     </tbody>       
-                    </table>
-                  </div>    
+                    </table>    
+                             
+                                            </div>                                   
+                                    </div>  
         
-                                </div>
-                              
-                            
-                               
+                                </div>     
+                                
                             </div>
                         </form>
                     </div>
-                  
                     <div class="modal-footer">
-                        <button
-                            type="button"
-                            class="btn btn-secondary"
-                            @click="cerrarModal('registrar')"
-                        >
+                        
+                        <button type="button" class="btn btn-secondary" @click="cerrarModal('registrar')">
                             Cerrar
                         </button>
-                        <button
-                            type="button"
-                            v-if="tipoAccion == 1"
-                            class="btn btn-primary"
-                           
-                            :disabled="!sicompleto"
-                        >
+                        <button type="button" @click="registrar()" style="color: white;" v-if="tipoAccion == 1" :class="arrayCargar_dosificacion <= 0 ? 'btn btn-secondary' : 'btn btn-primary'" :disabled="arrayCargar_dosificacion<=0">
                             Guardar
                         </button>
-                        <button
-                            type="button"
-                            v-if="tipoAccion == 2"
-                            class="btn btn-primary"
-                          
-                        >
+                        <button type="button" style="color: white;" v-if="tipoAccion == 2"  :class="arrayCargar_dosificacion <= 0 ? 'btn btn-secondary' : 'btn btn-primary'" :disabled="arrayCargar_dosificacion<=0">
                             Actualizar
                         </button>
                     </div>
+                               
+                                 
+                
+                  </div>                    
+
+
+
+                   
                 </div>
             </div>
-        </div>
+        
         <!--fin del modal-->
     </main>
 </template>
@@ -279,6 +295,7 @@ import Swal from "sweetalert2";
 import { error401 } from "../../errores";
 //Vue.use(VeeValidate);
 export default {
+    props: ['codventana','idmodulo'],
     data() {
         return {
             pagination: {
@@ -301,6 +318,7 @@ export default {
 
             //------------------
             sucursalSeleccionada:0,
+            sucursalSeleccionada_intro:0,
             autorizacion:'',
             identificacion:'',
             dosificacion:'',
@@ -317,6 +335,7 @@ export default {
             contador:0,
             nom_sucursal:'',
             cod_sucursal:'',
+            nit_x_sucursal:'',
 
         };
     },
@@ -330,6 +349,7 @@ export default {
                 if (newTipo) {
                     this.nom_sucursal = newTipo.razon_social;
                     this.cod_sucursal =newTipo.cod;
+                    this.nit_x_sucursal=newTipo.nit;
                 }         
 
         }
@@ -373,6 +393,13 @@ export default {
     },
 
     methods: {
+        quitarDosificacion(id){
+            let me=this;
+            me.arrayCargar_dosificacion = me.arrayCargar_dosificacion.filter(ve => ve.id_contador !== id);
+            if (me.arrayCargar_dosificacion.length===0) {
+                me.arrayCargar_dosificacion=[];
+            }
+        },
 
         cargarDosificacion(){
             let me = this;
@@ -384,7 +411,7 @@ export default {
                 );
             }else{
                 me.contador++;
-                me.arrayCargar_dosificacion.push({id_contador:me.contador,id_sucursal:me.sucursalSeleccionada,cod:me.cod_sucursal,nom_sucursal:me.nom_sucursal});
+                me.arrayCargar_dosificacion.push({id_contador:me.contador,id_sucursal:me.sucursalSeleccionada,autorizacion:me.autorizacion,identificacion:me.identificacion,dosificacion:me.dosificacion,fecha_a:me.fecha_a,fecha_e:me.fecha_e,n_ini_facturacion:me.n_ini_facturacion,n_fin_facturacion:me.n_fin_facturacion,n_act_facturacion:me.n_act_facturacion,cod:me.cod_sucursal,nom_sucursal:me.nom_sucursal,nit_x_sucursal:me.nit_x_sucursal});
                 me.sucursalSeleccionada=0;
                 me.autorizacion="";
                 me.identificacion="";
@@ -397,23 +424,61 @@ export default {
             }
          },
 
-        sucursalGet_data(){
+         registrar(){
+            let me = this;   
+            console.log(me.arrayCargar_dosificacion);
+            const data = {
+                nit_empresa:me.nit,          
+                nom_empresa:me.nom_empresa,            
+                arrayCargar_dosificacion:me.arrayCargar_dosificacion,
+                id_modulo: me.idmodulo,
+                id_sub_modulo:me.codventana, 
+                des:"creacion de registro",  
+            }     
+            // Realizar la solicitud POST con Axios
+            axios.post("/dosificacion/store_dosificacion", data)
+           
+            .then(response => {
+                me.cerrarModal("registrar");
+                Swal.fire(
+                        "Registro Correctamente!",
+                        "El registro a fue creado correctamente",
+                        "success",
+                    );
+              //me.resetVenta();
+             //me.listarSucursalGet();
             
-            let me = this;
-     
-           var url = "/dosificacion/getDataSucursal";
+            })       
+          .catch(function (error) {                  
+          if (error.response.status === 500) {
+              me.errorMsg = error.response.data.error; // Asigna el mensaje de error a la variable errorMsg
+          Swal.fire(
+              "Error",
+              "500 (Internal Server Error)"+me.errorMsg, // Muestra el mensaje de error en el alert
+              "error"
+          );
+          }else{
+              Swal.fire(
+              "Error",
+              ""+error, // Muestra el mensaje de error en el alert
+              "error"
+          );  
+          }              
+      });
+         },
+
+        sucursalGet_data(){            
+            let me = this;     
+            var url = "/dosificacion/getDataSucursal";
             axios
                 .get(url)
                 .then(function (response) {
                     var respuesta_s = response.data.sucursal;
                     var respuesta_c = response.data.credecion;
-                   // me.arraySucursal = respuesta;
-                    console.log(respuesta_s);
-                    console.log(respuesta_c);
                     me.arraySucursal_2 = respuesta_s;
                     me.nit=respuesta_c.nit;
                     me.nom_empresa=respuesta_c.nom_empresa;
-                 
+                    me.arraySucursal=respuesta_s;
                 })
                 .catch(function (error) {
                     error401(error);
@@ -500,23 +565,23 @@ export default {
     // Asignar la fecha actual al input de fecha final
     this.endDate = `${year}-${month}-${day}`;
         },
+
+
         cerrarModal(accion) {
-            let me = this;
-            if (accion == "registrar") {
-                me.classModal.closeModal(accion);
-               
-                    me.tituloModal = " ";
-             
-                    setTimeout(me.tiempo, 200); 
-                    //me.ProductoLineaIngresoSeleccionado = 0;
-                    me.inputTextBuscarProductoIngreso = "";
-                        me.arrayRetornarProductosIngreso = "";
-              
-            } else {
-                me.classModal.closeModal(accion);
-              
-                me.classModal.openModal("registrar");
-            }
+            let me = this;           
+                me.classModal.closeModal(accion);               
+                me.tituloModal = " ";             
+                me.contador=0;
+                me.sucursalSeleccionada=0;
+                me.autorizacion="";
+                me.identificacion="";
+                me.dosificacion="";
+                me.fecha_a="";
+                me.fecha_e="";
+                me.n_ini_facturacion="";
+                me.n_fin_facturacion="";
+                me.n_act_facturacion="";
+                arrayCargar_dosificacion=[];              
         },
 
      
@@ -530,8 +595,8 @@ export default {
 
     mounted() {
         this.classModal = new _pl.Modals();
-        this.sucursalFiltro();
-        this.fecha_inicial();
+        this.sucursalGet_data();
+    
         this.classModal.addModal("registrar");
     
     
