@@ -23,7 +23,7 @@ return new class extends Migration
             $table->integer('n_fin_facturacion');
             $table->integer('n_act_facturacion');
             $table->string('nit');
-            $table->tinyInteger('estado')->default(1)->comment('1->activo, 0->inactivo');
+            $table->tinyInteger('estado')->default(0)->comment('1->activo, 0->inactivo 2->expirado');
             $table->smallInteger('id_usuario_registra')->unsigned()->nullable()->comment('identificador del usuario que esta registrando el almacen');        
             $table->timestamps();
         });

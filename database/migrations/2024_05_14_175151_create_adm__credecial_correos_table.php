@@ -23,6 +23,8 @@ return new class extends Migration
     $table->string('nit')->nullable();
     $table->string('nro_celular',35)->nullable();
     $table->string('nom_empresa',150)->nullable();
+    $table->tinyInteger('factura_dosificacion')->nullable()->comment("1=factura 2=dosificacion");
+    
         });
     }
 

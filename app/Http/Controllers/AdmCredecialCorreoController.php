@@ -105,5 +105,141 @@ class AdmCredecialCorreoController extends Controller
        
     }
    
-    
+    public function index_dosificacion(Request $request){
+        
+        $sucursalId = $request->id_sucursal;
+        $buscararray=array();  
+        $fechaHoy = Carbon::now()->format('Y-m-d');      
+        if(!empty($request->buscar))
+        {
+            $buscararray = explode(" ",$request->buscar);
+            $valor=sizeof($buscararray);
+            if($valor > 0){
+                $sqls=''; 
+                foreach($buscararray as $valor)
+                {
+                    if(empty($sqls)){
+                        $sqls="(
+                            u.name like '%".$valor."%' 
+                                or dd.nro_autorizacion like '%".$valor."%' 
+                                or dd.dosificacion like '%".$valor."%'                              
+                                                             
+                              )" ;
+                    }
+                    else
+                    {
+                        $sqls.="and (
+                            u.name like '%".$valor."%' 
+                                or dd.nro_autorizacion like '%".$valor."%' 
+                                or dd.dosificacion like '%".$valor."%'  
+                          )" ;
+                    }  
+                } 
+                $dosificacion = 
+                DB::table('dos__dosificacion as dd')
+    ->select(
+        'dd.id', 
+        'dd.nro_autorizacion', 
+        'dd.identificacion', 
+        'dd.dosificacion', 
+        'dd.fecha_a',
+        'dd.fecha_e', 
+        'dd.n_ini_facturacion', 
+        'dd.n_fin_facturacion', 
+        'dd.n_act_facturacion', 
+        'u.name',
+        'dd.estado',
+        'dd.id_sucursal',
+        DB::raw("DATEDIFF(dd.fecha_e, '$fechaHoy') as diferencia_dias")
+    )
+    ->join('users as u', 'u.id', '=', 'dd.id_usuario_registra')
+    ->where('dd.id_sucursal', $sucursalId)
+    ->whereRaw($sqls)->paginate(15);                   
+            }   
+            return 
+            [
+                    'pagination'=>
+                        [
+                            'total'         =>    $dosificacion->total(),
+                            'current_page'  =>    $dosificacion->currentPage(),
+                            'per_page'      =>    $dosificacion->perPage(),
+                            'last_page'     =>    $dosificacion->lastPage(),
+                            'from'          =>    $dosificacion->firstItem(),
+                            'to'            =>    $dosificacion->lastItem(),
+                        ] ,
+                    'dosificacion' => $dosificacion,
+            ];    
+        } else {
+            $dosificacion = DB::table('dos__dosificacion as dd')
+            ->select('dd.id', 'dd.nro_autorizacion', 'dd.identificacion', 'dd.dosificacion', 'dd.fecha_a',
+            'dd.fecha_e', 'dd.n_ini_facturacion', 'dd.n_fin_facturacion', 'dd.n_act_facturacion', 'u.name','dd.estado','dd.id_sucursal'
+            ,DB::raw("DATEDIFF(dd.fecha_e, '$fechaHoy') as diferencia_dias"))
+            ->join('users as u', 'u.id', '=', 'dd.id_usuario_registra')
+            ->where('dd.id_sucursal',  $sucursalId)          
+            ->orderByDesc('dd.id')
+            ->paginate(15);  
+            return 
+            [
+                    'pagination'=>
+                        [
+                            'total'         =>    $dosificacion->total(),
+                            'current_page'  =>    $dosificacion->currentPage(),
+                            'per_page'      =>    $dosificacion->perPage(),
+                            'last_page'     =>    $dosificacion->lastPage(),
+                            'from'          =>    $dosificacion->firstItem(),
+                            'to'            =>    $dosificacion->lastItem(),
+                        ] ,
+                    'dosificacion' => $dosificacion,
+            ];    
+        }
+       
+    }        
+
+    public function update_dosificacion(Request $request){
+                  //1=add, 2=delete, 3=create, 4=edit, 5=show
+                // Truncar la tabla para eliminar todo su contenido
+        try {
+            $fechaActual = Carbon::now(); // Obtiene la fecha y hora actual
+            $id = $request->id;
+            $nro_autorizacion = $request->autorizacion;
+            $identificacion = $request->identificacion;
+            $dosificacion = $request->dosificacion;
+            $fecha_a = $request->fecha_a;
+            $fecha_e = $request->fecha_e;
+            $n_ini_facturacion = $request->n_ini_facturacion;
+            $n_fin_facturacion = $request->n_fin_facturacion;
+            $n_act_facturacion = $request->n_act_facturacion;
+            $id_sucursal = $request->id_sucursal;
+            $data_cargar = [
+                'id_sucursal' => $id_sucursal,
+                'nro_autorizacion' => $nro_autorizacion,  
+                'identificacion' => $identificacion,
+                'dosificacion' => $dosificacion, 
+                'fecha_a'=> $fecha_a,
+                'fecha_e' => $fecha_e, 
+                'n_ini_facturacion' => $n_ini_facturacion,   
+                'n_fin_facturacion' => $n_fin_facturacion,   
+                'n_act_facturacion' => $n_act_facturacion,              
+                'id_usuario_registra' =>auth()->user()->id, 
+                'created_at' => $fechaActual,      
+               ];    
+               DB::table('dos__dosificacion')->where('id', $id)->update($data_cargar);
+            $datos = [
+                'id_modulo' => $request->id_modulo,
+                'id_sub_modulo' => $request->id_sub_modulo,
+                'accion' => 4,
+                'descripcion' => $request->des,          
+                'user_id' =>auth()->user()->id, 
+                'created_at'=>$fechaActual,
+                'id_movimiento'=>$id,   
+            ];
+        
+            DB::table('log__sistema')->insert($datos);   
+       
+        } catch (\Throwable $th) {
+            return response()->json(['error' => $th->getMessage()],500);
+        }
+
+    }
+
 }

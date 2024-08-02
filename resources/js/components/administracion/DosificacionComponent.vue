@@ -10,33 +10,24 @@
         <div class="container-fluid">
             <div class="card">
                 <div class="card-header">
-                    <i class="fa fa-align-justify"></i> Traslados               
-                    <button
-                        type="button"
-                        class="btn btn-secondary"
-                        @click="abrirModal('registrar');"
-                        :disabled="selectAlmTienda == 0"
-                    >
+                    <i class="fa fa-align-justify"></i> Dosificación               
+                    <button type="button" class="btn btn-secondary" @click="abrirModal('registrar');">
                         <i class="icon-plus"></i>&nbsp;Nuevo
-                    </button>
-                    <span v-if="selectAlmTienda == 0" class="error"
-                        >&nbsp; &nbsp;Debe Seleccionar un almacen o
-                        tienda.</span >
+                    </button>                   
                 </div>
         <div class="card-body">
             <div class="form-group row">
                 <div class="col-md-2" style="text-align: center">
-                     <label for="">Almacen o Tienda:</label>
+                     <label for="">Sucursales:</label>
                 </div>
                         <div class="col-md-6">
                             <div class="input-group">
-                                <select class="form-control" v-model="sucursalSeleccionada_intro">
+                                <select class="form-control" v-model="sucursalSeleccionada_intro"  @change="listarIndex(1)">
                                    
                                                     <option value="0" disabled selected>Seleccionar...</option>
                                                     <option v-for="sucursal in arraySucursal" :key="sucursal.id"  :value="sucursal.id"
                                                     v-text="sucursal.cod +' -> ' +sucursal.razon_social">
-                                                    </option>
-                                
+                                                    </option>                                
                                     
                                 </select>
                             </div>
@@ -71,21 +62,7 @@
             </div>
              
 
-            <div class="row justify-content-center">
-    <div class="col-md-8">
-      <div class="row">
-        <div class="col-md-4" v-if="sucursalSeleccionada !== 0">
-          <label for="start-date">Fecha inicial:</label>
-          <input id="start-date" type="date" class="form-control" v-model="startDate">
-        </div>
-        <div class="col-md-4" v-if="sucursalSeleccionada !== 0">
-          <label for="end-date">Fecha final:</label>
-          <input id="end-date" type="date" class="form-control" v-model="endDate">
-        </div>
-      </div>
-    </div>
-  </div>
-  <br>
+      
             <!---inserte tabla-->
             <table class="table table-bordered table-striped table-sm table-responsive" >
                 <thead>
@@ -104,18 +81,27 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>Opciones</td>
-                        <td class="col-md-1">Nro. Autorización</td>
-                        <td class="col-md-1">Nro. Identificación</td>
-                        <td class="col-md-3">Dosificación</td>
-                        <td class="col-md-1">Fecha activación</td>
-                        <td class="col-md-1">Fecha emision</td>                        
-                        <td class="col-md-1">Nro. inicial de factura</td>
-                        <td class="col-md-1">Nro. final de factura</td>
-                        <td class="col-md-1">Nro. actual de factura</td>                    
-                        <td class="col-md-1">Usuario</td>
-                        <td class="col-md-1">Estado</td>   
+                    <tr v-for="d in arrayDosificacion" :key="d.id">
+                        <td>
+                            <button v-if="d.diferencia_dias>=0" type="button"  @click="abrirModal('actualizar',d);" class="btn btn-warning btn-sm"  style="margin-right: 5px;">
+                            <i class="icon-pencil"></i></button>
+                            <button  v-else type="button"   class="btn btn-light btn-sm"  style="margin-right: 5px;">
+                                <i class="icon-pencil"></i></button>
+                        </td>
+                        <td class="col-md-1" v-text="d.nro_autorizacion"></td>
+                        <td class="col-md-1" v-text="d.identificacion"></td>
+                        <td class="col-md-3" v-text="d.dosificacion"></td>
+                        <td class="col-md-1" v-text="d.fecha_a"></td>
+                        <td class="col-md-1" v-text="d.fecha_e"></td>                        
+                        <td class="col-md-1" style="text-align: right" v-text="d.n_ini_facturacion"></td>
+                        <td class="col-md-1" style="text-align: right" v-text="d.n_fin_facturacion"></td>
+                        <td class="col-md-1" style="text-align: right" v-text="d.n_act_facturacion"></td>
+                        <td class="col-md-1" v-text="d.name"></td>
+                        <td class="col-md-1">
+                            <span v-if="d.diferencia_dias>=0" class="badge badge-pill badge-success">Activo</span>
+                            <span v-else class="badge badge-pill badge-danger">Expirado</span>
+                          
+                        </td>   
                     </tr>
                 </tbody>
             </table>    
@@ -226,14 +212,14 @@
                                             </div> 
                                             <div class="modal-body">
                                                 <div class="d-flex justify-content-end">
-        <button style="color: white;" @click="cargarDosificacion()" type="button" v-if="tipoAccion == 1" class="btn btn-secondary">
+        <button style="color: white;" @click="cargarDosificacion()" type="button" v-if="tipoAccion === 1" class="btn btn-secondary">
             <i class="fa fa-plus-square" aria-hidden="true"></i> Añadir
         </button>
     </div>
 </div>
 
                                             
-                                            <div class="row" v-if="arrayCargar_dosificacion.length>0">
+                                            <div class="row" v-if="arrayCargar_dosificacion.length>0 && tipoAccion === 1">
                                                 <table class="table table-bordered table-sm table-responsive table-sm">
                      <thead>
                          <tr>
@@ -268,10 +254,10 @@
                         <button type="button" class="btn btn-secondary" @click="cerrarModal('registrar')">
                             Cerrar
                         </button>
-                        <button type="button" @click="registrar()" style="color: white;" v-if="tipoAccion == 1" :class="arrayCargar_dosificacion <= 0 ? 'btn btn-secondary' : 'btn btn-primary'" :disabled="arrayCargar_dosificacion<=0">
+                        <button type="button" @click="registrar()" style="color: white;" v-if="tipoAccion === 1" :class="arrayCargar_dosificacion <= 0 ? 'btn btn-secondary' : 'btn btn-primary'" :disabled="arrayCargar_dosificacion<=0">
                             Guardar
                         </button>
-                        <button type="button" style="color: white;" v-if="tipoAccion == 2"  :class="arrayCargar_dosificacion <= 0 ? 'btn btn-secondary' : 'btn btn-primary'" :disabled="arrayCargar_dosificacion<=0">
+                        <button type="button" @click="actualizar()" style="color: white;" class="btn btn-primary" v-if="tipoAccion === 2" >
                             Actualizar
                         </button>
                     </div>
@@ -336,6 +322,8 @@ export default {
             nom_sucursal:'',
             cod_sucursal:'',
             nit_x_sucursal:'',
+            arrayDosificacion:[],
+            id_dosificacion:'',
 
         };
     },
@@ -424,6 +412,79 @@ export default {
             }
          },
 
+         listarIndex(page){
+                let me=this;
+                console.log(me.sucursalSeleccionada_intro);
+                if (me.sucursalSeleccionada_intro!=0) {
+                    var url='/dosificacion/index_dosificacion?page='+page+'&buscar='+me.buscar+'&id_sucursal='+me.sucursalSeleccionada_intro;
+                axios.get(url)
+                .then(function(response){
+                    var respuesta = response.data;
+                    me.pagination = respuesta.pagination;
+                    me.arrayDosificacion = respuesta.dosificacion.data;
+                    console.log(me.arrayDosificacion);
+                })
+                .catch(function(error){
+                    error401(error);
+                });     
+            }              
+        }, 
+
+        actualizar() {
+            let me = this;    
+            if (me.sucursalSeleccionada===0||me.autorizacion===""||me.identificacion===""||me.dosificacion===""||me.fecha_a===""||me.fecha_e===""||me.n_ini_facturacion===""||me.n_fin_facturacion===""||me.n_act_facturacion==="") {
+                Swal.fire(
+                    "Error",
+                    "Existe datos nulos debe revisar que datos son nulos",
+                    "error"
+                );
+            }else{
+                axios
+                .post("/dosificacion/update_dosificacion", {
+                    id: me.id_dosificacion,
+                    autorizacion: me.autorizacion,
+                    identificacion: me.identificacion,
+                    dosificacion: me.dosificacion,
+                    fecha_a: me.fecha_a,
+                    fecha_e: me.fecha_e,
+                    n_ini_facturacion: me.n_ini_facturacion,
+                    n_fin_facturacion: me.n_fin_facturacion,
+                    n_act_facturacion: me.n_act_facturacion, 
+                    id_sucursal: me.sucursalSeleccionada,
+
+                    id_modulo: me.idmodulo,
+                    id_sub_modulo:me.codventana, 
+                    des:"creacion de registro",  
+                })
+                .then(function (response) {
+                    me.cerrarModal("registrar");
+                    me.listarIndex();
+                    Swal.fire(
+                        "Actualizado Correctamente!",
+                        "El registro a sido actualizado Correctamente",
+                        "success",
+                    );
+                })
+                .catch(function (error) {                  
+                if (error.response.status === 500) {
+                    me.errorMsg = error.response.data.error; // Asigna el mensaje de error a la variable errorMsg
+                Swal.fire(
+                    "Error",
+                    "500 (Internal Server Error)"+me.errorMsg, // Muestra el mensaje de error en el alert
+                    "error"
+                );
+                }else{
+                    Swal.fire(
+                    "Error",
+                    ""+error, // Muestra el mensaje de error en el alert
+                    "error"
+                );  
+                }
+            });
+            me.cerrarModal("registrar");
+            }               
+        },
+
          registrar(){
             let me = this;   
             console.log(me.arrayCargar_dosificacion);
@@ -431,6 +492,7 @@ export default {
                 nit_empresa:me.nit,          
                 nom_empresa:me.nom_empresa,            
                 arrayCargar_dosificacion:me.arrayCargar_dosificacion,
+
                 id_modulo: me.idmodulo,
                 id_sub_modulo:me.codventana, 
                 des:"creacion de registro",  
@@ -440,15 +502,13 @@ export default {
            
             .then(response => {
                 me.cerrarModal("registrar");
+                me.listarIndex();
                 Swal.fire(
                         "Registro Correctamente!",
                         "El registro a fue creado correctamente",
                         "success",
                     );
-              //me.resetVenta();
-             //me.listarSucursalGet();
-            
-            })       
+             })       
           .catch(function (error) {                  
           if (error.response.status === 500) {
               me.errorMsg = error.response.data.error; // Asigna el mensaje de error a la variable errorMsg
@@ -502,13 +562,12 @@ export default {
                     console.log(error);
                 });
         },
+
         cambiarPestana(idPestana) {
             this.pestañaActiva = idPestana;
 
             // Agrega aquí la lógica adicional que necesites al cambiar la pestaña
         },
-
-
 
         cambiarPagina(page) {
             let me = this;
@@ -541,9 +600,17 @@ export default {
                 }
                 case "actualizar": {
                     me.tipoAccion = 2;
-                   
-          
-            
+                    me.tituloModal = "Registro de Dosificación";
+                    me.sucursalSeleccionada=data.id_sucursal === null ? 0 : data.id_sucursal;
+                    me.autorizacion=data.nro_autorizacion;
+                    me.identificacion=data.identificacion;
+                    me.dosificacion=data.dosificacion;
+                    me.fecha_a=data.fecha_a;
+                    me.fecha_e=data.fecha_e;
+                    me.n_ini_facturacion=data.n_ini_facturacion;
+                    me.n_fin_facturacion=data.n_fin_facturacion;
+                    me.n_act_facturacion=data.n_act_facturacion;
+                    me.id_dosificacion=data.id;
                     me.classModal.openModal("registrar");
 
                     break;
@@ -581,7 +648,8 @@ export default {
                 me.n_ini_facturacion="";
                 me.n_fin_facturacion="";
                 me.n_act_facturacion="";
-                arrayCargar_dosificacion=[];              
+                me.arrayCargar_dosificacion=[];   
+                me.id_dosificacion="";           
         },
 
      
@@ -596,10 +664,8 @@ export default {
     mounted() {
         this.classModal = new _pl.Modals();
         this.sucursalGet_data();
-    
-        this.classModal.addModal("registrar");
-    
-    
+        this.listarIndex();
+        this.classModal.addModal("registrar");    
     },
 };
 </script>

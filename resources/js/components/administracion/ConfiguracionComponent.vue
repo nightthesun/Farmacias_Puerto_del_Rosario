@@ -18,6 +18,9 @@
                 <li class="nav-item">
                     <a class="nav-link" id="pills-profile-tab" data-toggle="pill" href="#pills-profile" role="tab" aria-controls="pills-profile" aria-selected="false">Datos de empresa</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="pills-fa-tab" data-toggle="pill" href="#pills-fa" role="tab" aria-controls="pills-fa" aria-selected="false">Tipo de venta</a>
+                </li>
             </ul>
         </div>
         <div class="card-body">
@@ -93,8 +96,6 @@
                     </div>
 
 
-
-
                     <!------------------------------------------------------------------------------------------------->
                     <div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">
                         <div class="card">
@@ -123,6 +124,42 @@
                                         <input type="text" v-model="celular" class="form-control" placeholder="nit de la empresa" v-on:focus="selectAll"/>
                                         <span v-if="celular == ''" class="error">Debe escribir telefono o celular</span>
                                     </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <!------------------------------------------------------------------------------------------>
+                <div class="tab-pane fade" id="pills-fa" role="tabpanel" aria-labelledby="pills-fa-tab">
+                    
+                        <div class="card">
+                            <div class="card-header">
+                             Tipo de venta
+                            </div>
+                            <div class="card-body">
+                                <div class="form-group row">
+                                    <label class="col-md-1 form-control-label" for="text-input" style="font-size: 12px;"><strong>Tipo:</strong> 
+                                    </label>
+                                    <div class="col-md-3">
+                                        <select class="form-control"  v-model="selectTipoFac" @change="cambioEstado(selectTipoFac)">
+                                            <option value="0" disabled selected>Seleccionar...</option>
+                                            <option v-for="t in arrayTipofac" :key="t.id" :value="t.id">
+                                                {{ t.tipo }}
+                                            </option>
+                                        </select>
+                                     </div>
+                                   
+                                    <div class="col-md-3">
+                                        <div v-if="selectTipoFac===0" class="alert alert-danger" role="alert">
+                                           SIN FACTURACION
+                                        </div>
+                                        <div v-if="selectTipoFac===1" class="alert alert-primary" role="alert">
+                                            FACTURA
+                                        </div>
+                                        <div v-if="selectTipoFac===2" class="alert alert-success" role="alert">
+                                            DOSIFICACION
+                                        </div>
+                                     </div>
+              
                                 </div>
                             </div>
                         </div>
@@ -160,7 +197,8 @@ export default {
             nit:'',
             nombre_empresa:'',
             celular:'',
-
+            selectTipoFac:0,  
+            arrayTipofac: [{ id: 1, tipo: "Facturacion en linea" },{ id: 2, tipo: "Dosificacion" }],
 //---permisos_R_W_S
 puedeEditar:2,
                 puedeActivar:2,
@@ -299,7 +337,74 @@ puedeEditar:2,
 
             // Agrega aquí la lógica adicional que necesites al cambiar la pestaña
         },
-
+        cambioEstado(id){
+            let me=this;
+            const swalWithBootstrapButtons = Swal.mixin({
+                customClass: {
+                    confirmButton: "btn btn-success",
+                    cancelButton: "btn btn-danger",
+                },
+                buttonsStyling: false,
+            });
+            if (id===1) {
+                
+            swalWithBootstrapButtons
+                .fire({
+                    title: "¿Esta Seguro de cambiar el tipo de facturación?",
+                    text: "Se cambiara a facturacion en liena",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Si, Desactivar",
+                    cancelButtonText: "No, Cancelar",
+                    reverseButtons: true,
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        me.selectTipoFac=1;
+                    } else if (
+                        /* Read more about handling dismissals below */
+                        result.dismiss === Swal.DismissReason.cancel
+                    ) {
+                        /* swalWithBootstrapButtons.fire(
+                    'Cancelado!',
+                    'El Registro no fue desactivado',
+                    'error'
+                    ) */
+                    }
+                });
+            } else {
+                if (id===2) {
+                    swalWithBootstrapButtons
+                .fire({
+                    title: "¿Esta Seguro de cambiar el tipo de facturación?",
+                    text: "Se cambiara a Dofisificacion",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Si, Desactivar",
+                    cancelButtonText: "No, Cancelar",
+                    reverseButtons: true,
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        me.selectTipoFac=2;
+                    } else if (
+                        /* Read more about handling dismissals below */
+                        result.dismiss === Swal.DismissReason.cancel
+                    ) {
+                        /* swalWithBootstrapButtons.fire(
+                    'Cancelado!',
+                    'El Registro no fue desactivado',
+                    'error'
+                    ) */
+                    }
+                });
+                } else {
+                    swalWithBootstrapButtons.fire(
+                                    "Error!",
+                                    "Esta haciendo procesos o una mala manipulación del sistema",
+                                    "error",
+                                );
+                }
+            }
+        },
  listarCredencial() {
             let me = this;
             var url = "/credenciales_correo";
