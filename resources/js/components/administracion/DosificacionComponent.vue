@@ -83,10 +83,18 @@
                 <tbody>
                     <tr v-for="d in arrayDosificacion" :key="d.id">
                         <td>
-                            <button v-if="d.diferencia_dias>=0" type="button"  @click="abrirModal('actualizar',d);" class="btn btn-warning btn-sm"  style="margin-right: 5px;">
+                            <div  class="d-flex justify-content-start">
+                                <button v-if="d.diferencia_dias>=0" type="button"  @click="abrirModal('actualizar',d);" class="btn btn-warning btn-sm"  style="margin-right: 5px;">
                             <i class="icon-pencil"></i></button>
                             <button  v-else type="button"   class="btn btn-light btn-sm"  style="margin-right: 5px;">
                                 <i class="icon-pencil"></i></button>
+
+                                <button v-if="d.diferencia_dias>=0 || notificador_2===1" type="button"  @click="abrirModal('actualizar',d);" class="btn btn-primary btn-sm"  style="margin-right: 5px; color: white;">
+                                    Activar</button>  
+                           
+                             </div>   
+                           
+                             
                         </td>
                         <td class="col-md-1" v-text="d.nro_autorizacion"></td>
                         <td class="col-md-1" v-text="d.identificacion"></td>
@@ -98,8 +106,17 @@
                         <td class="col-md-1" style="text-align: right" v-text="d.n_act_facturacion"></td>
                         <td class="col-md-1" v-text="d.name"></td>
                         <td class="col-md-1">
-                            <span v-if="d.diferencia_dias>=0" class="badge badge-pill badge-success">Activo</span>
-                            <span v-else class="badge badge-pill badge-danger">Expirado</span>
+                            <div v-if="d.diferencia_dias>=0">
+                                <span class="badge badge-pill badge-success">En rango</span>
+                                <span v-if="d.estado===0" class="badge badge-pill badge-warning">Sin activacion</span>                                
+                                <span v-else class="badge badge-pill badge-success">Activo</span>                                
+                               
+                            </div>
+                            <div v-else>
+                                <span class="badge badge-pill badge-danger">Expirado</span>
+                                <span v-if="d.estado===0" class="badge badge-pill badge-danger">Sin activacion</span>                                
+                                <span v-else class="badge badge-pill badge-danger">Activo</span> 
+                            </div>                     
                           
                         </td>   
                     </tr>
@@ -324,6 +341,7 @@ export default {
             nit_x_sucursal:'',
             arrayDosificacion:[],
             id_dosificacion:'',
+            notificador_2:'',
 
         };
     },
@@ -563,6 +581,32 @@ export default {
                 });
         },
 
+        getActivacion_dosificacion(){
+            let  me =this;
+            var url="/dosificacion/activar_verificar_dosificacion";
+            axios
+                .get(url)
+                .then(function (response) {
+                    var respuesta = response.data;
+                    me.notificador_2=respuesta; 
+                    if (me.notificador_2===0) {
+                        Swal.fire(
+                        "Debe activar el modo dosificación",
+                        "Para activar debe ir a Administración buscar la sub ventana configuración y escojer la cabecera TIPO DE VENTA y cambiar a dosificación.",
+                        "error",
+                    );    
+                    
+                    }                 
+                 
+                })
+                .catch(function (error) {
+                    error401(error);
+                    console.log(error);
+                });
+        },
+            
+       
+
         cambiarPestana(idPestana) {
             this.pestañaActiva = idPestana;
 
@@ -665,6 +709,7 @@ export default {
         this.classModal = new _pl.Modals();
         this.sucursalGet_data();
         this.listarIndex();
+        this.getActivacion_dosificacion();
         this.classModal.addModal("registrar");    
     },
 };

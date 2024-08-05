@@ -1442,11 +1442,8 @@ if (tipo_can_valor==='BS') {
 
         quitarVEnta(id){            
             let me = this;
-            let verificador=me.arrayVentas.find(venta => venta.id_contador === id);            
-            console.log(verificador.subtotal);
-            let sumadoT= me.sumatotal;
-            
-      
+            let verificador=me.arrayVentas.find(venta => venta.id_contador === id);          
+            let sumadoT= me.sumatotal;      
             me.sumatotal = parseFloat((Number(sumadoT) - Number(verificador.subtotal)).toFixed(2));  
           
 me.tota_del_total = parseFloat((me.sumatotal - Number(me.descuento_final)).toFixed(2));  
@@ -1456,19 +1453,13 @@ if(Number(me.efectivo) > 0){
     me.cambio =  me.cambio.toFixed(2);
 }
 
-//me.tota_del_total=me.sumatotal-descuento_final;
-//me.descuento_1=me.descuento_final+me.descuento_1;
-           console.log("=="+me.sumatotal);
-          //  me.tota_del_total=me.sumatotal;
           me.arrayProducto_recibo_1 =me.arrayProducto_recibo_1.filter(ve => ve.id_contador !== id);
            me.arrayVentas = me.arrayVentas.filter(venta => venta.id_contador !== id);
            me.array_vetasQuery=me.array_vetasQuery.filter(ven => ven.id_contador !==id);
            const totalDescuento = me.array_vetasQuery.reduce((total, venta) => {
   return total + (parseFloat(venta.descuento) || 0);
 }, 0);
-console.log("///////"+totalDescuento);    
-
-
+ 
             if (me.arrayVentas.length===0) {
                me.contador_cliente=0;
                me.arrayVentas=[];

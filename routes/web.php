@@ -226,12 +226,15 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/userrolesuc/getUsersWithRolesAndSucursals', [AdmUserRoleSucursalController::class, 'getUsersWithRolesAndSucursals']);
 
     Route::get('/credenciales_correo', [AdmCredecialCorreoController::class, 'credencia_correo']);
-    Route::put('/credenciales_correo/update', [AdmCredecialCorreoController::class, 'update']);   
-    
+    Route::post('/credenciales_correo/update', [AdmCredecialCorreoController::class, 'update']);   
+    Route::post('/credenciales_correo/tipo_venta_update', [AdmCredecialCorreoController::class, 'tipo_venta_update']); 
+
     Route::get('/dosificacion/getDataSucursal', [AdmCredecialCorreoController::class, 'getDataSucursal']);
     Route::post('/dosificacion/store_dosificacion', [AdmCredecialCorreoController::class, 'store_dosificacion']);
     Route::get('/dosificacion/index_dosificacion', [AdmCredecialCorreoController::class, 'index_dosificacion']);    
     Route::post('/dosificacion/update_dosificacion', [AdmCredecialCorreoController::class, 'update_dosificacion']);
+    Route::get('/dosificacion/activar_verificar_dosificacion', [AdmCredecialCorreoController::class, 'activar_verificar_dosificacion']);  
+    
 
     //*******para listar si tiene permisos de edicion y activacion usar en todos los reporte o modulos*/
     Route::get('/userrolesuc/listarPermiso_Activacion', [AdmUserRoleSucursalController::class, 'listarPermiso_Activacion']);

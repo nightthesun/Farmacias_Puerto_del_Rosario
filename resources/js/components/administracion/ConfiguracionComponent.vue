@@ -149,13 +149,13 @@
                                      </div>
                                    
                                     <div class="col-md-3">
-                                        <div v-if="selectTipoFac===0" class="alert alert-danger" role="alert">
+                                        <div v-if="validador_variables===0" class="alert alert-danger" role="alert">
                                            SIN FACTURACION
                                         </div>
-                                        <div v-if="selectTipoFac===1" class="alert alert-primary" role="alert">
+                                        <div v-if="validador_variables===1" class="alert alert-primary" role="alert">
                                             FACTURA
                                         </div>
-                                        <div v-if="selectTipoFac===2" class="alert alert-success" role="alert">
+                                        <div v-if="validador_variables===2" class="alert alert-success" role="alert">
                                             DOSIFICACION
                                         </div>
                                      </div>
@@ -181,7 +181,7 @@ import { error401 } from "../../errores";
 //Vue.use(VeeValidate);
 export default {
      //---permisos_R_W_S
-     props: ['codventana'],
+     props: ['codventana','idmodulo'],
         //-------------------
     data() {
         return {
@@ -205,7 +205,7 @@ puedeEditar:2,
                 puedeHacerOpciones_especiales:2,
                 puedeCrear:2,
                 //-----------
-            
+                validador_variables:0,
         };
     },
 
@@ -270,6 +270,52 @@ puedeEditar:2,
         });
 },
 //-------------------------------------------------------------- 
+
+        update_tipo_venta(){
+            let me= this;
+            axios
+                .post("/credenciales_correo/tipo_venta_update", {
+                    id: me.id_credencial,                   
+                    validador_variables:me.validador_variables,    
+                    
+                    id_modulo: me.idmodulo,
+                id_sub_modulo:me.codventana, 
+                des:"cambio de tipo de venta",  
+                  
+                })
+                .then(function (response) {
+                    me.listarCredencial();
+                    me.selectTipoFac=0;
+                    Swal.fire(
+                        "Actualizado Correctamente!",
+                        "El registro a sido actualizado Correctamente",
+                        "success",
+                    );
+                })
+                //.catch(function (error) {
+                //    error401(error);
+                //});
+                .catch(function (error) {           
+                
+                if (error.response.status === 500) {
+                    me.errorMsg = error.response.data.error; // Asigna el mensaje de error a la variable errorMsg
+                Swal.fire(
+                    "Error",
+                    "500 (Internal Server Error)"+me.errorMsg, // Muestra el mensaje de error en el alert
+                    "error"
+                );
+                }else{
+                    Swal.fire(
+                    "Error",
+                    ""+error, // Muestra el mensaje de error en el alert
+                    "error"
+                );  
+                }
+
+               
+            });
+        },
+
         update_credecial_correo() {
             let me = this;
             
@@ -284,14 +330,18 @@ puedeEditar:2,
             }else{
                
             axios
-                .put("/credenciales_correo/update", {
+                .post("/credenciales_correo/update", {
                     id: me.id_credencial,                   
                     host:me.host,
                     correo:me.correo,
                     puerto:me.puerto,
                     usuario:me.usuario,
                     contraseña:me.contraseña,
-                    ssl:me.ssl
+                    ssl:me.ssl,
+
+                    id_modulo: me.idmodulo,
+                id_sub_modulo:me.codventana, 
+                des:"actualziacion de credencial correo",  
                   
                 })
                 .then(function (response) {
@@ -337,6 +387,7 @@ puedeEditar:2,
 
             // Agrega aquí la lógica adicional que necesites al cambiar la pestaña
         },
+
         cambioEstado(id){
             let me=this;
             const swalWithBootstrapButtons = Swal.mixin({
@@ -359,11 +410,14 @@ puedeEditar:2,
                     reverseButtons: true,
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        me.selectTipoFac=1;
+                        me.validador_variables=1;
+                        me.update_tipo_venta();
                     } else if (
                         /* Read more about handling dismissals below */
+                       
                         result.dismiss === Swal.DismissReason.cancel
                     ) {
+                        me.selectTipoFac=0;
                         /* swalWithBootstrapButtons.fire(
                     'Cancelado!',
                     'El Registro no fue desactivado',
@@ -384,11 +438,13 @@ puedeEditar:2,
                     reverseButtons: true,
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        me.selectTipoFac=2;
+                        me.validador_variables=2;
+                        me.update_tipo_venta();
                     } else if (
                         /* Read more about handling dismissals below */
                         result.dismiss === Swal.DismissReason.cancel
                     ) {
+                        me.selectTipoFac=0;
                         /* swalWithBootstrapButtons.fire(
                     'Cancelado!',
                     'El Registro no fue desactivado',
@@ -397,6 +453,7 @@ puedeEditar:2,
                     }
                 });
                 } else {
+                    me.selectTipoFac=0,
                     swalWithBootstrapButtons.fire(
                                     "Error!",
                                     "Esta haciendo procesos o una mala manipulación del sistema",
@@ -405,6 +462,9 @@ puedeEditar:2,
                 }
             }
         },
+
+
+
  listarCredencial() {
             let me = this;
             var url = "/credenciales_correo";
@@ -412,7 +472,8 @@ puedeEditar:2,
                 .get(url)
                 .then(function (response) {
                     var respuesta = response.data;
-                   me.id_credencial=response.data[0].id;
+                  
+                    me.id_credencial=response.data[0].id;
                     me.host=response.data[0].host;                   
                    me.correo=response.data[0].correo;
                     me.puerto=response.data[0].puerto;
@@ -422,7 +483,8 @@ puedeEditar:2,
                     me.nit=response.data[0].nit;
                     me.nombre_empresa=response.data[0].nom_empresa;
                     me.celular=response.data[0].nro_celular;
-                  
+                    me.validador_variables=response.data[0].factura_dosificacion === null ? 0:response.data[0].factura_dosificacion;
+             
                 })
                 .catch(function (error) {
                     error401(error);

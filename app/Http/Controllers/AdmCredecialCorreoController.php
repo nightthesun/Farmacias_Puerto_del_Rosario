@@ -15,6 +15,18 @@ class AdmCredecialCorreoController extends Controller
     public function update(Request $request, adm_CredecialCorreo $adm_CredecialCorreo)
     {
         try {
+            $fechaActual = Carbon::now(); // Obtiene la fecha y hora actual
+            $datos = [
+                'id_modulo' => $request->id_modulo,
+                'id_sub_modulo' => $request->id_sub_modulo,
+                'accion' => 4,
+                'descripcion' => $request->des,          
+                'user_id' =>auth()->user()->id, 
+                'created_at'=>$fechaActual,
+                'id_movimiento'=>$request->id,   
+            ];
+        
+            DB::table('log__sistema')->insert($datos);   
             $update = adm_CredecialCorreo::find($request->id);
             $update->host=$request->host;
             $update->correo=$request->correo;
@@ -22,6 +34,33 @@ class AdmCredecialCorreoController extends Controller
             $update->usuario=$request->usuario;
             $update->contraseña=$request->contraseña;
             $update->ssl=$request->ssl;
+            $update->save();
+        } catch (\Throwable $th) {
+            return response()->json(['error' => $th->getMessage()],500);
+        }
+        
+     
+    }
+
+    public function tipo_venta_update(Request $request)
+    {
+        try {
+            $fechaActual = Carbon::now(); // Obtiene la fecha y hora actual
+            $datos = [
+                'id_modulo' => $request->id_modulo,
+                'id_sub_modulo' => $request->id_sub_modulo,
+                'accion' => 4,
+                'descripcion' => $request->des,          
+                'user_id' =>auth()->user()->id, 
+                'created_at'=>$fechaActual,
+                'id_movimiento'=>$request->id,   
+            ];
+        
+            DB::table('log__sistema')->insert($datos);   
+         
+            $update = adm_CredecialCorreo::find($request->id);
+            $update->factura_dosificacion=$request->validador_variables;
+           
             $update->save();
         } catch (\Throwable $th) {
             return response()->json(['error' => $th->getMessage()],500);
@@ -241,5 +280,28 @@ class AdmCredecialCorreoController extends Controller
         }
 
     }
+
+    public function activar_verificar_dosificacion(Request $request){
+
+        try {
+            // Using DB facade for raw SQL query
+        $verificacion = DB::table('adm__credecial_correos')
+        ->select('id', 'factura_dosificacion')
+        ->where('factura_dosificacion', 2)
+        ->get();
+        $valor="";    
+            if (count($verificacion)>0) {
+                return $valor=1;
+            }
+            else{
+                return $valor=0;              
+            }
+            
+        } catch (\Throwable $th) {
+            return response()->json(['error' => $th->getMessage()],500);
+        }
+       
+    }
+
 
 }
