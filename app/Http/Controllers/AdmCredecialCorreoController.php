@@ -303,5 +303,61 @@ class AdmCredecialCorreoController extends Controller
        
     }
 
+    public function verifica_esta_activo_dosificacacion_x_sucursal(Request $request){
+       
+        $existe = DB::table('dos__dosificacion')
+                      ->where('id_sucursal', 1)
+                      ->where('estado', 1)
+                      ->exists();
+
+                      if($existe){
+                        return 1;
+                      }
+                      else{
+                        return 0;
+                      }       
+      
+    }
+    public function desactivar_dosificacion(Request $request)
+    {        //1=add, 2=delete, 3=create, 4=edit, 5=show
+        $fechaActual = Carbon::now(); // Obtiene la fecha y hora actual
+        $id = $request->id;
+        $update = adm_CredecialCorreo::findOrFail($request->id);
+        $update->estado = 0;
+        $update->id_usuario_registra=auth()->user()->id;
+        $update->save();
+        $datos = [
+            'id_modulo' => $request->id_modulo,
+            'id_sub_modulo' => $request->id_sub_modulo,
+            'accion' => 2,
+            'descripcion' => $request->des,          
+            'user_id' =>auth()->user()->id, 
+            'created_at'=>$fechaActual,
+            'id_movimiento'=>$id,   
+        ];
+    
+        DB::table('log__sistema')->insert($datos);   
+    }
+
+    public function activar_dosificacion(Request $request)
+    { 
+        $fechaActual = Carbon::now(); // Obtiene la fecha y hora actual
+        $id = $request->id;
+        $update = adm_CredecialCorreo::findOrFail($request->id);
+        $update->estado = 1;
+        $update->id_usuario_registra=auth()->user()->id;     
+        $update->save();
+        $datos = [
+            'id_modulo' => $request->id_modulo,
+            'id_sub_modulo' => $request->id_sub_modulo,
+            'accion' => 4,
+            'descripcion' => $request->des,          
+            'user_id' =>auth()->user()->id, 
+            'created_at'=>$fechaActual,
+            'id_movimiento'=>$id,   
+        ];
+    
+        DB::table('log__sistema')->insert($datos);   
+    }
 
 }

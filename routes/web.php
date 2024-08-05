@@ -234,9 +234,14 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/dosificacion/index_dosificacion', [AdmCredecialCorreoController::class, 'index_dosificacion']);    
     Route::post('/dosificacion/update_dosificacion', [AdmCredecialCorreoController::class, 'update_dosificacion']);
     Route::get('/dosificacion/activar_verificar_dosificacion', [AdmCredecialCorreoController::class, 'activar_verificar_dosificacion']);  
+    Route::get('/dosificacion/verifica_esta_activo_dosificacacion_x_sucursal', [AdmCredecialCorreoController::class, 'verifica_esta_activo_dosificacacion_x_sucursal']);  
+    Route::put('/dosificacion/desactivar_dosificacion', [AdmCredecialCorreoController::class, 'desactivar_dosificacion']);  
+    Route::put('/dosificacion/activar_dosificacion', [AdmCredecialCorreoController::class, 'activar_dosificacion']);  
     
 
-    //*******para listar si tiene permisos de edicion y activacion usar en todos los reporte o modulos*/
+
+
+       //*******para listar si tiene permisos de edicion y activacion usar en todos los reporte o modulos*/
     Route::get('/userrolesuc/listarPermiso_Activacion', [AdmUserRoleSucursalController::class, 'listarPermiso_Activacion']);
     //*******para listar si tiene permisos de ver esa sucursal, tienda , almacen....*/
     Route::get('/userrolesuc/listarMas_sucursales', [AdmUserRoleSucursalController::class, 'listarMas_sucursales']);
