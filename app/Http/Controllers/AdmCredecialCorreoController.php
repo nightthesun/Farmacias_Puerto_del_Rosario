@@ -45,6 +45,13 @@ class AdmCredecialCorreoController extends Controller
     public function tipo_venta_update(Request $request)
     {
         try {
+         
+            $id=$request->id;
+            $validador_variables=$request->validador_variables;          
+            $update = adm_CredecialCorreo::find($id);            
+            $update->factura_dosificacion=$validador_variables;           
+            $update->save();
+
             $fechaActual = Carbon::now(); // Obtiene la fecha y hora actual
             $datos = [
                 'id_modulo' => $request->id_modulo,
@@ -58,10 +65,7 @@ class AdmCredecialCorreoController extends Controller
         
             DB::table('log__sistema')->insert($datos);   
          
-            $update = adm_CredecialCorreo::find($request->id);
-            $update->factura_dosificacion=$request->validador_variables;
-           
-            $update->save();
+
         } catch (\Throwable $th) {
             return response()->json(['error' => $th->getMessage()],500);
         }

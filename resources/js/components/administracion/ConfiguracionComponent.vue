@@ -271,12 +271,13 @@ puedeEditar:2,
 },
 //-------------------------------------------------------------- 
 
-        update_tipo_venta(){
+        update_tipo_venta(data){
             let me= this;
+            console.log(me.id_credencial+"  "+data);
             axios
-                .post("/credenciales_correo/tipo_venta_update", {
+                .put("/credenciales_correo/tipo_venta_update", {
                     id: me.id_credencial,                   
-                    validador_variables:me.validador_variables,    
+                    validador_variables:data,    
                     
                     id_modulo: me.idmodulo,
                 id_sub_modulo:me.codventana, 
@@ -411,7 +412,7 @@ puedeEditar:2,
                 }).then((result) => {
                     if (result.isConfirmed) {
                         me.validador_variables=1;
-                        me.update_tipo_venta();
+                        me.update_tipo_venta(1);
                     } else if (
                         /* Read more about handling dismissals below */
                        
@@ -439,7 +440,7 @@ puedeEditar:2,
                 }).then((result) => {
                     if (result.isConfirmed) {
                         me.validador_variables=2;
-                        me.update_tipo_venta();
+                        me.update_tipo_venta(2);
                     } else if (
                         /* Read more about handling dismissals below */
                         result.dismiss === Swal.DismissReason.cancel

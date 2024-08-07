@@ -227,7 +227,7 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::get('/credenciales_correo', [AdmCredecialCorreoController::class, 'credencia_correo']);
     Route::post('/credenciales_correo/update', [AdmCredecialCorreoController::class, 'update']);   
-    Route::post('/credenciales_correo/tipo_venta_update', [AdmCredecialCorreoController::class, 'tipo_venta_update']); 
+    Route::put('/credenciales_correo/tipo_venta_update', [AdmCredecialCorreoController::class, 'tipo_venta_update']); 
 
     Route::get('/dosificacion/getDataSucursal', [AdmCredecialCorreoController::class, 'getDataSucursal']);
     Route::post('/dosificacion/store_dosificacion', [AdmCredecialCorreoController::class, 'store_dosificacion']);

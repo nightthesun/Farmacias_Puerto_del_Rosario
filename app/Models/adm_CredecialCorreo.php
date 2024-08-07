@@ -8,5 +8,5 @@ use Illuminate\Database\Eloquent\Model;
 class adm_CredecialCorreo extends Model
 {
     use HasFactory;
-    protected $table='dos__dosificacion';
+ //   protected $table='dos__dosificacion';
 }
