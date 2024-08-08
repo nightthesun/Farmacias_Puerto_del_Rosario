@@ -6,6 +6,7 @@ use App\Models\adm_CredecialCorreo;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Helpers\Verhoeff;
 
 class AdmCredecialCorreoController extends Controller
 {
@@ -150,6 +151,9 @@ class AdmCredecialCorreoController extends Controller
    
     public function index_dosificacion(Request $request){
         
+        $numero = '420925371702716213';
+        $digitoControl = Verhoeff::generar($numero);
+        dd($digitoControl);
         $sucursalId = $request->id_sucursal;
         $buscararray=array();  
         $fechaHoy = Carbon::now()->format('Y-m-d');      
@@ -295,10 +299,12 @@ class AdmCredecialCorreoController extends Controller
         ->get();
         $valor="";    
             if (count($verificacion)>0) {
-                return $valor=1;
+                $valor=1;
+                return response()->json(['valor'=>$valor,'id'=>$verificacion[0]->id]); 
             }
             else{
-                return $valor=0;              
+                $valor=0;
+                return response()->json(['valor'=>$valor,'id'=>0]);              
             }
             
         } catch (\Throwable $th) {
@@ -324,33 +330,52 @@ class AdmCredecialCorreoController extends Controller
     }
     public function desactivar_dosificacion(Request $request)
     {        //1=add, 2=delete, 3=create, 4=edit, 5=show
-        $fechaActual = Carbon::now(); // Obtiene la fecha y hora actual
-        $id = $request->id;
-        $update = adm_CredecialCorreo::findOrFail($request->id);
-        $update->estado = 0;
-        $update->id_usuario_registra=auth()->user()->id;
-        $update->save();
-        $datos = [
-            'id_modulo' => $request->id_modulo,
-            'id_sub_modulo' => $request->id_sub_modulo,
-            'accion' => 2,
-            'descripcion' => $request->des,          
-            'user_id' =>auth()->user()->id, 
-            'created_at'=>$fechaActual,
-            'id_movimiento'=>$id,   
-        ];
+        try {
+            $fechaActual = Carbon::now(); // Obtiene la fecha y hora actual
+            $id = $request->id;
+            $user = auth()->user()->id;
+            $data_load = [
+                'estado' => 0,
+                'id_usuario_registra' => $user            
+            ];
+            DB::table('dos__dosificacion')->where('id', $id)->update($data_load);
     
-        DB::table('log__sistema')->insert($datos);   
+          
+    
+            $datos = [
+                'id_modulo' => $request->id_modulo,
+                'id_sub_modulo' => $request->id_sub_modulo,
+                'accion' => 2,
+                'descripcion' => $request->des,          
+                'user_id' =>auth()->user()->id, 
+                'created_at'=>$fechaActual,
+                'id_movimiento'=>$id,   
+            ];
+        
+            DB::table('log__sistema')->insert($datos);   
+        } catch (\Throwable $th) {
+            return response()->json(['error' => $th->getMessage()],500);
+        }
+      
     }
 
     public function activar_dosificacion(Request $request)
     { 
         $fechaActual = Carbon::now(); // Obtiene la fecha y hora actual
         $id = $request->id;
-        $update = adm_CredecialCorreo::findOrFail($request->id);
-        $update->estado = 1;
-        $update->id_usuario_registra=auth()->user()->id;     
+        $id_credencial=$request->id_credencial;
+        $user = auth()->user()->id;
+
+        $update = adm_CredecialCorreo::find($id_credencial);            
+        $update->id_dosificacion_siat=$id;           
         $update->save();
+
+        $data_load = [
+            'estado' => 1,
+            'id_usuario_registra' => $user            
+        ];
+        DB::table('dos__dosificacion')->where('id', $id)->update($data_load);
+      
         $datos = [
             'id_modulo' => $request->id_modulo,
             'id_sub_modulo' => $request->id_sub_modulo,

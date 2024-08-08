@@ -36,6 +36,7 @@ class AdmVentanaModuloSeeder extends Seeder
         DB::table('adm__ventana_modulos')->insert(['codventana'=>'104','idmodulo'=>$admin->id,'nombre'=>'Sucursales','template'=>'sucursal-component']);
         DB::table('adm__ventana_modulos')->insert(['codventana'=>'105','idmodulo'=>$admin->id,'nombre'=>'Rubros','template'=>'rubros-component']);
         DB::table('adm__ventana_modulos')->insert(['codventana'=>'106','idmodulo'=>$admin->id,'nombre'=>'Configuración','template'=>'configuracion-component']);
+        DB::table('adm__ventana_modulos')->insert(['codventana'=>'107','idmodulo'=>$admin->id,'nombre'=>'Dosificación','template'=>'dofisicacion-component']);        
         //recursos humanos 200
         DB::table('adm__ventana_modulos')->insert(['codventana'=>'201','idmodulo'=>$rh->id,'nombre'=>'Nivel de Formacion','template'=>'rrhnivel-component']);
         DB::table('adm__ventana_modulos')->insert(['codventana'=>'202','idmodulo'=>$rh->id,'nombre'=>'Profesiones','template'=>'rrhprofesion-component']);

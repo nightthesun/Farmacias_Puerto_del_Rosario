@@ -96,18 +96,19 @@
                                         <i class="icon-pencil"></i></button>
                                 </div>
                                 <div v-if="puedeActivar==1">
-                                    <div v-if="d.estado===1">
+                                <div v-if="d.estado===1">
                                 <button v-if="d.diferencia_dias>=0 && notificador_2===1" type="button"  @click="eliminar(d.id);" class="btn btn-danger btn-sm"  style="margin-right: 5px; color: white;">
-                                    Desactivar</button>  
-                              
+                                    Desactivar
+                                </button>                             
                                </div>
+
                                <div v-else>
                                 <button v-if="d.diferencia_dias>=0 && notificador_2===1" type="button"  @click="tiene_estado_2(d.id,d.id_sucursal,d.estado);" class="btn btn-primary btn-sm"  style="margin-right: 5px; color: white;">
                                     Activar</button>  
                                 
                                     <button v-else type="button"   class="btn btn-light btn-sm"  style="margin-right: 5px; ">
                                     Activar</button>     
-                               </div>
+                               </div>                               
                                 </div>
                                 <div v-else>
                                     <button  class="btn btn-light btn-sm"  style="margin-right: 5px; ">
@@ -378,7 +379,7 @@ export default {
             id_dosificacion:'',
             notificador_2:'',
             estado_venta_2:'',
-
+            id_credecia_2:'',
             //---permisos_R_W_S
             puedeEditar:2,
                 puedeActivar:2,
@@ -657,8 +658,12 @@ export default {
             axios
                 .get(url)
                 .then(function (response) {
-                    var respuesta = response.data;
-                    me.notificador_2=respuesta; 
+                    var respuesta_1 = response.data.valor;
+                    var respuesta_2 = response.data.id;
+                    me.notificador_2=respuesta_1; 
+                    me.id_credecia_2=respuesta_2;
+                    
+
                     if (me.notificador_2===0) {
                         Swal.fire(
                         "Debe activar el modo dosificación",
@@ -824,6 +829,7 @@ export default {
                 if (result.isConfirmed) {
                      axios.put('/dosificacion/activar_dosificacion',{
                         'id': id,
+                        'id_credencial':me.id_credecia_2,
                         'id_modulo': me.idmodulo,
                 'id_sub_modulo':me.codventana, 
                 'des':"se activado de registro", 

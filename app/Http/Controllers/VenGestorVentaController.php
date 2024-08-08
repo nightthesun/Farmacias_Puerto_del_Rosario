@@ -27,6 +27,7 @@ class VenGestorVentaController extends Controller
       
         try {
                // Iniciar una transacción
+               $fechaHoy = Carbon::now()->format('Y-m-d');
                DB::beginTransaction();
                $user_1 = auth()->user()->id;
                $nomsucursal="";

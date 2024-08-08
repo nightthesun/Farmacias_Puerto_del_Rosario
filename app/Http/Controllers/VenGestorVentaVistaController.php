@@ -334,19 +334,13 @@ $endDate = $request->endDate;
 
     public function verCliente_x_venta(Request $request)
     {
-     
-
-$ven_detalle_descuentos = DB::table('ven__detalle_descuentos as vdd')
+    $ven_detalle_descuentos = DB::table('ven__detalle_descuentos as vdd')
     ->join('par_tipo_tabla as ptt', 'vdd.id_tabla', '=', 'ptt.id')
     ->join('par__descuentos as pdes', 'vdd.id_descuento', '=', 'pdes.id')
     ->select('vdd.id_venta as id','ptt.nombre as nom_tabla', 'pdes.nombre_descuento', 'vdd.cantidad_descuento','vdd.id_detalle_descuento')
-    ->where('vdd.id_venta', $request->id_venta)
-   
-    ->get();
-
-       
-    return $ven_detalle_descuentos;
-       
+    ->where('vdd.id_venta', $request->id_venta)   
+    ->get();       
+    return $ven_detalle_descuentos;       
     }
 
     public function desactivar(Request $request){
@@ -374,9 +368,7 @@ $ven_detalle_descuentos = DB::table('ven__detalle_descuentos as vdd')
         } catch (\Throwable $th) {
            // DB::rollback();
             return response()->json(['error' => $th->getMessage()],500);
-        }
-       
-      
+        }    
     }
    
 }
