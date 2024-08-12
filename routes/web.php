@@ -600,6 +600,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/gestor_ventas/venta', [VenGestorVentaController::class, 'venta']);
     Route::get('/gestor_ventas/venta/pdf', [VenGestorVentaController::class, 'venta']);
     Route::get('/gestor_ventas/venta/pdf2', [VenGestorVentaController::class, 'mostrarPDF']);
+    Route::get('/gestor_ventas/verificador_dosificacion_o_facturacion', [VenGestorVentaController::class, 'verificador_dosificacion_o_facturacion']);    
 
     //mostrar venta,re-imprimir,anular
     Route::get('/detalle_venta_2/index', [VenGestorVentaVistaController::class, 'index']);

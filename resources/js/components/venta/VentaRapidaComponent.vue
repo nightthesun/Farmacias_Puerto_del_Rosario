@@ -817,6 +817,9 @@ export default {
      controlador_venta_id:0,   
      array_ven__detalle_descuentos:[],    
      producto_bandera_1:0,
+
+     estado_dosificacion_facctura:0,
+     arrayEstado_dosificacion_facctura:[],
         };
     },
     created() {
@@ -1295,7 +1298,24 @@ if (tipo_can_valor==='BS') {
          me.producto_bandera_1=0;
     },
 
-          
+        
+        listarPermisoFacturacion(){
+            let me = this;       
+            var url ="/gestor_ventas/verificador_dosificacion_o_facturacion";  
+            axios
+                .get(url)
+                .then(function (response){
+                    let respuesta = response.data; 
+                    me.estado_dosificacion_facctura=respuesta.estado;
+                    
+                    me.arrayEstado_dosificacion_facctura=respuesta.consulta;
+                               
+                }).catch(function (error) {
+                    error401(error);
+                    console.log(error);
+                });
+        },
+
         listarDescuento_Tipo_tabla(){
             let me = this;       
             var url ="/gestor_ventas/listarDescuento_Tipo_tabla";            
@@ -1308,7 +1328,7 @@ if (tipo_can_valor==='BS') {
                     var respuesta = response.data; 
                     me.arrayDescuentoOperacion=respuesta.descuento;   
                     console.log("/-/-/-/-/-/-/-/-/-/-/-");
-                    console.log(me.arrayDescuentoOperacion);       
+                  
                     if (respuesta.validador==true && me.arrayDescuentoOperacion.length===1&&me.arrayDescuentoOperacion[0].id_nom_tabla===5) {
                         me.validadorPersonal=1;// caso personal
                         me.id_tabla_y2=me.arrayDescuentoOperacion[0].id_nom_tabla;                                       
@@ -2534,7 +2554,7 @@ if (!correoRegex.test(me.correo)) {
         this.classModal = new _pl.Modals();
         this.listarDescuentos_listas();
         this.listarSucursalGet();
-       
+        this.listarPermisoFacturacion();
         this.classModal.addModal("registrar");
         this.classModal.addModal("cliente_modal");
         this.classModal.addModal("lote_cliete"); 

@@ -786,5 +786,53 @@ $nombre_empresa = strtoupper($nombre_e);
        
 
     }
+    public function verificador_dosificacion_o_facturacion(Request $request){
+        $credencialesCorreos = DB::table('adm__credecial_correos as acc')
+    ->select('acc.id', 'acc.factura_dosificacion')    
+    ->get();
+    $data_return_estado="";
+    if ($credencialesCorreos[0]->factura_dosificacion==null || $credencialesCorreos[0]->factura_dosificacion=="" || $credencialesCorreos[0]->factura_dosificacion==0) {
+        return response()->json(['estado' => 0, 'consulta' => null]);
+    } else{
+        if ($credencialesCorreos[0]->factura_dosificacion==1) {
+            $data_return_estado=1;     
+            ///---- falta datos de factura en linea siat
+            return response()->json(['estado' => $data_return_estado, 'consulta' => null]); 
+        }else{
+            if ($credencialesCorreos[0]->factura_dosificacion==2) {
+                $idsuc = session('idsuc');
+            $data_return_estado=2; 
+            $dosificaciones = DB::table('dos__dosificacion as dd')
+            ->select(
+                'dd.id',
+                'dd.nro_autorizacion',
+                'dd.dosificacion',
+                'dd.fecha_e',
+                'dd.n_ini_facturacion',
+                'dd.n_fin_facturacion',
+                'dd.n_act_facturacion',
+                'dd.nit'
+            )
+            ->where('dd.id_sucursal', $idsuc)
+            ->where('dd.estado', 1)
+            ->first();
+                if ( $dosificaciones) {
+                    return response()->json(['estado' => $data_return_estado, 'consulta' => $dosificaciones]);
+           
+                }
+                else {
+                    return response()->json(['estado' => "error", 'consulta' => null]);
+                }
+            }else{
+                dd("error de entrada");
+            }
+        }
+    }
+    
+   
+
+    
+
+    }
     
 }

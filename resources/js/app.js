@@ -22,7 +22,7 @@ createApp ({
     .component('rolpermiso-component',require('./components/administracion/RolPermisoComponent.vue').default)
     .component('usuario-component',require('./components/administracion/UsuariosComponent.vue').default)
     .component('configuracion-component',require('./components/administracion/ConfiguracionComponent.vue').default)
-
+    .component('dofisicacion-component',require('./components/administracion/DosificacionComponent.vue').default)
     //rrhh
     .component('rrhempleados-component',require('./components/recursos_humanos/EmpleadosComponent.vue').default)
     .component('rrhnivel-component',require('./components/recursos_humanos/NivelComponent.vue').default)
