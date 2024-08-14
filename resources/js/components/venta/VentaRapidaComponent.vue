@@ -297,7 +297,7 @@
                     <select class="custom-select mr-sm-2" id="inlineFormCustomSelect" v-model="TipoComprobate">
                         <option value="0" selected disabled>Comprobante</option>
                         <option value="1">Recibo</option>
-                        <option value="2">Factura</option>
+                        <option value="2" :disabled="estado_dosificacion_facctura==0">Factura</option>
                         
                       </select>
                     <button v-if="(TipoComprobate!=0&& datos_cliete!=''&&id_tipo_doc!=''&&arrayVentas.length>0&&key_1===1)" type="button" class="btn btn-primary" @click="realizarVenta()">REALIZAR VENTA</button>  
@@ -820,6 +820,14 @@ export default {
 
      estado_dosificacion_facctura:0,
      arrayEstado_dosificacion_facctura:[],
+     id_dosificacaion_1:'',
+     nro_autorizacion_1:'',
+     dosificacion_1:'', 
+     fecha_e_1:'', 
+     n_ini_facturacion_1:'', 
+     n_ini_facturacion_1:'',
+     n_fin_facturacion_1:'',
+     n_act_facturacion_1:'',
         };
     },
     created() {
@@ -875,9 +883,7 @@ watch: {
                 this.caso5_nom=this.arrayDescuentoOperacion[0].nombre_descuento;
                 this.caso5_id_tabla=this.arrayDescuentoOperacion[0].id_perso;//<====
                 this.caso5_id_tabla_p=this.arrayDescuentoOperacion[0].id_nom_tabla;
-                console.log("caso_5: "+this.caso5_id);
-                console.log("caso_5: "+this.caso5_nom);
-                console.log("caso_5: "+this.caso5_id_tabla);
+        
             
                 }  
                 } 
@@ -950,12 +956,309 @@ watch: {
         }, 1090);
       });
     },
+   /////////////////////////////////GENERAR PDF FACTURA DOSIFICACION/////////////////////////////////////////////////////////////////////////////
+   generarPDF_factura_dosificacion( direccionMayusculas,nomsucursal,nuevoComprobante,fecha,hora,num_documento,nom_a_facturar,array_recibo,total_sin_des,descuento_venta,total_venta,efectivo_venta,cambio_venta,fechaMas7Dias,numero_referencia,nombreCompleto_1,nombre_empresa,actividad_economica,num_auto,cod_autorizacion,fecha_e_2,ciudad_su_1,departamento_su_1,numero_factura,cliente_id) {
+ // Define el contenido del PDF
+
+
+
+  // Itera sobre los datos y agrega filas a la tabla
+  const tableBody_2=[];
+  array_recibo.forEach(item => {
+    tableBody_2.push([
+    { text: item.descrip , fontSize: 7, alignment: 'left' }, // Salto de línea
+      {},   
+    ]);
+    tableBody_2.push([
+    { text: 'Unidad de medida: '+item.unidad_medida, fontSize: 7, margin: [5, 0, 0, 0],alignment: 'left' }, // Salto de línea
+      {},   
+    ]);
+    tableBody_2.push([
+    { text: item.cant+'.00 x '+item.p_u+' - 0.00', fontSize: 7, alignment: 'left' }, // Salto de línea
+    { text: (item.cant * item.p_u).toFixed(2), fontSize: 7, alignment: 'right' },   
+    ]);
+  });
+  
+  const table_totales = [
+    // Agrega los encabezados de la tabla
+    [
+      { text: 'SubTotal Bs:   ',  fontSize: 7, alignment: 'right' }, 
+      { text: '999.00', fontSize: 7, alignment: 'right' }     
+    ],
+    [
+      { text: 'Descuento Bs:   ',  fontSize: 7, alignment: 'right' }, 
+      { text: '0.00', fontSize: 7, alignment: 'right' }     
+    ],
+    [
+      { text: 'Total Bs:   ',  fontSize: 7, alignment: 'right' }, 
+      { text: '999.00', fontSize: 7, alignment: 'right' }     
+    ],
+    [
+      { text: 'Monto gift card Bs:   ',  fontSize: 7, alignment: 'right' }, 
+      { text: '0.00', fontSize: 7, alignment: 'right' }     
+    ],
+    [
+      { text: 'Monto a pagar Bs:   ',  fontSize: 7, alignment: 'right',bold: true }, 
+      { text: '999.00', fontSize: 7, alignment: 'right' }     
+    ],
+    [
+      { text: 'Importe base crédito fiscal Bs:   ',  fontSize: 7, alignment: 'right',bold: true }, 
+      { text: '999.00', fontSize: 7, alignment: 'right' }     
+    ]
+  ];
+
+  const table_pago_efe_cambio=[
+  [
+      { text: 'Pago en efectivo Bs:   ',  fontSize: 7, alignment: 'right' }, 
+      { text: '0.00', fontSize: 7, alignment: 'right' }     
+    ],
+    [
+      { text: 'Cambio Bs:   ',  fontSize: 7, alignment: 'right' }, 
+      { text: '0.00', fontSize: 7, alignment: 'right' }     
+    ],
+  ];
+
+
+      const documentDefinition = {
+        pageMargins: [10, 12, 10, 8], // Configura los márgenes en cero
+        pageSize: {
+    width: 80 * 2.83465, // Ancho en puntos (conversión a puntos desde mm)
+    height: 'auto',
+    columnGap: 2,
+  },
+ 
+      content: [
+      {
+        text: 'FACTURA', bold: true,
+      
+        style: 'header'
+      },
+      {
+        text: 'CON DERECHO A CREDITO FISCAL', bold: true,
+      
+        style: 'header'
+      },
+      {
+        text: nombre_empresa,
+      
+        style: 'header'
+      },
+      {
+        text: nomsucursal,
    
-    ///////////////////////////////funciones para la venta///////////////////////////////////////////////////////
+        style: 'header'
+      },
+      {
+        text: direccionMayusculas,
+    
+        style: 'header'
+      },
+      {
+        text: 'Telefono: '+numero_referencia,
+    
+        style: 'header'
+      },      
+      {
+        text: ciudad_su_1+' - '+departamento_su_1,
+    
+        style: 'header'
+      },
+      
+      {
+        text: '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -',    
+        style:'linea_2' 
+      },
+      {
+        text: 'NIT', bold: true,
+    
+        style: 'header'
+      },
+      {
+        text: num_documento,
+    
+        style: 'header'
+      },
+      {
+        text: 'FACTURA Nro',bold: true,
+    
+        style: 'header'
+      },
+      {
+        text: numero_factura,
+    
+        style: 'header'
+      },
+      {
+        text: 'CÓD. AUTORIZACION', bold: true,
+    
+        style: 'header'
+      },
+      {
+        text: num_auto,
+    
+        style: 'header'
+      },
+      {
+        text: '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -',    
+        style:'linea_2' 
+      },
+    
+      {
+        text: actividad_economica,
+    
+        style: 'header'
+      },
+      
+      {
+        text: '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -',    
+        style:'linea_2' 
+      },
+      {
+        text: 'NOMBRE/RAZÓN SOCIAL:    '+nom_a_facturar,
+     style: 'normal', margin: [19, 0, 0, 0]        
+      },
+      {
+        text: 'NIT/CI/CEX:    '+num_documento,
+        style: 'normal', margin: [63, 0, 0, 0]             
+      },
+      {
+        text: 'COD.CLIENTE:    '+cliente_id,
+        style: 'normal', margin: [56, 0, 0, 0]        
+      },
+     
+      {
+        text: 'FECHA DE EMISIÓN:    '+fecha+' '+hora,
+        style: 'normal', margin: [37, 0, 0, 0] 
+      },
+      {
+        text: '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -',    
+        style:'linea_2' 
+      },,
+      {
+        text: 'DETALLE',
+    
+        style: 'header'
+      },       
+
+      {
+       
+        table: {
+          headerRows: 1,
+          widths: ['75%', '25%'], // Ajusta los anchos de las columnas
+          body: tableBody_2
+        },
+        layout: 'noBorders'
+		},
+        {
+        text: '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -',    
+        style:'linea_2' 
+      },
+        {
+         
+            table:{
+                headesRows:1,
+                widths: ['75%','25%'],
+                body: table_totales
+            }, layout: 'noBorders'
+        },
+    
+    
+      
+      {
+        text: 'Son: CUARENTA Y TRES CON 50/100 BOLIVIANOS',      
+        alignment: 'left',fontSize: 7
+      },
+      {
+        text: '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -',    
+        style:'linea_2' 
+      },     
+      {
+        margin: [1, 1, 1, 1],         
+            table:{
+                headesRows:1,
+                widths: ['75%','25%'],
+                body: table_pago_efe_cambio
+            }, layout: 'noBorders'
+      },
+      {
+        text: '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -',    
+        style:'linea_2' 
+      },
+
+      {
+        text: 'Codigo de control: '+cod_autorizacion,    
+        style: 'datos_f',margin: [6, 1, 6, 1]
+      },
+      {
+        text: 'Fecha limite de emision: '+fecha_e_2,    
+        style: 'datos_f',margin: [6, 0, 6, 1]
+      },
+      {
+        text: '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -',    
+        style:'linea_2' 
+      },
+      {
+        text: 'ESTA FACTURA CONTRIBUYE AL DESARROLLO DEL PAÍS, EL USO ILÍCITO SERÁ SANCIONADO PENALMENTE DE ACUERDO A LEY', bold: true,    
+        style: 'header', margin: [7, 5, 7, 1]
+      },
+
+      {
+        text: 'Ley N° 453: Está prohibido importar, distribuir o comercializar productos prohibidos o retirados en el país de origen por atentar a la integridad física y a la salud. Este documento es la Representación Gráfica de un Documento Fiscal Digital emitido en una modalidad de facturación en línea',   
+        style: 'header' ,margin: [7, 1, 7, 3]
+      },
+      { qr: 'text in QR' ,alignment: 'center',  fit: '85',margin: [0, 4, 0, 4] },
+      
+        ],
+        styles: {
+            linea_2: {
+                fontSize: 9,
+                 margin: [1, 1, 1, 1],
+                 alignment: 'center',  
+            },
+            normal: {
+            fontSize: 7,
+           
+                   
+          },
+          header: {
+            fontSize: 7,
+           
+            alignment: 'center',         
+          },
+          header_1: {
+            fontSize: 7,
+           
+            alignment: 'right', 
+                    
+          },
+          datos_f: {
+            fontSize: 7,
+         
+            alignment: 'left',         
+          },
+          
+        tableHeader_1: {
+  
+        fontSize: 7,
+
+            alignment: 'justify',
+      },
+      tableHeader_2: {
+
+        fontSize: 7,
+      
+            alignment: 'center',
+      }
+        }
+      };
+
+      // Genera el PDF y abre una nueva ventana con el documento
+      pdfMake.createPdf(documentDefinition).open();
+    }, 
+   ///////////////////////////////funciones para la venta///////////////////////////////////////////////////////
     generarPDF( direccionMayusculas,nomsucursal,nuevoComprobante,fecha,hora,num_documento,nom_a_facturar,array_recibo,total_sin_des,descuento_venta,total_venta,efectivo_venta,cambio_venta,fechaMas7Dias,numero_referencia,nombreCompleto_1,nombre_empresa) {
       // Define el contenido del PDF
-console.log("-------------------------------------------");
-console.log(descuento_venta);
+
  // Crea el cuerpo de la tabla dinámicamente
  const tableBody = [
     // Agrega los encabezados de la tabla
@@ -970,10 +1273,10 @@ console.log(descuento_venta);
   // Itera sobre los datos y agrega filas a la tabla
   array_recibo.forEach(item => {
     tableBody.push([
-      { text: item.cant, fontSize: 8, alignment: 'center' },
-      { text: item.descrip, fontSize: 8, alignment: 'left' },
-      { text: item.p_u, fontSize: 8, alignment: 'center' },
-      { text: (item.cant * item.p_u).toFixed(2), fontSize: 8, alignment: 'center' } // Operación y formato
+      { text: item.cant, fontSize: 7, alignment: 'center' },
+      { text: item.descrip, fontSize: 7, alignment: 'left' },
+      { text: item.p_u, fontSize: 7, alignment: 'center' },
+      { text: (item.cant * item.p_u).toFixed(2), fontSize: 7, alignment: 'center' } // Operación y formato
     ]);
   });
 
@@ -1003,7 +1306,7 @@ console.log(descuento_venta);
       },
       {
         canvas: [
-          { type: 'line', x1: 0, y1: 0, x2: 226.8, y2: 0, lineWidth: 1, dash: { length: 2, space: 3 } } // Línea punteada
+          { type: 'line', x1: 0, y1: 0, x2: 226.8, y2: 0, lineWidth: 1, dash: { length: 1, space: 2 } } // Línea punteada
         ],
         margin: [1, 5, 1, 5]
       },
@@ -1029,7 +1332,7 @@ console.log(descuento_venta);
       },
       {
         canvas: [
-          { type: 'line', x1: 0, y1: 0, x2: 226.8, y2: 0, lineWidth: 1, dash: { length: 2, space: 3 } } // Línea punteada
+          { type: 'line', x1: 0, y1: 0, x2: 226.8, y2: 0, lineWidth: 1, dash: { length: 1, space: 2 } } // Línea punteada
         ],
         margin: [6, 4, 6, 4]
       },
@@ -1044,7 +1347,7 @@ console.log(descuento_venta);
 		},
         {
         canvas: [
-          { type: 'line', x1: 0, y1: 0, x2: 226.8, y2: 0, lineWidth: 1, dash: { length: 2, space: 3 } } // Línea punteada
+          { type: 'line', x1: 0, y1: 0, x2: 226.8, y2: 0, lineWidth: 1, dash: { length: 1, space: 2 } } // Línea punteada
         ],
         margin: [6, 4, 8, 4]
       },
@@ -1067,7 +1370,7 @@ console.log(descuento_venta);
       },
       {
         canvas: [
-          { type: 'line', x1: 0, y1: 0, x2: 226.8, y2: 0, lineWidth: 1, dash: { length: 2, space: 3 } } // Línea punteada
+          { type: 'line', x1: 0, y1: 0, x2: 226.8, y2: 0, lineWidth: 1, dash: { length: 1, space: 2 } } // Línea punteada
         ],
         margin: [6, 4, 6, 4]
       },
@@ -1082,7 +1385,7 @@ console.log(descuento_venta);
 
       {
         canvas: [
-          { type: 'line', x1: 0, y1: 0, x2: 226.8, y2: 0, lineWidth: 1, dash: { length: 2, space: 3 } } // Línea punteada
+          { type: 'line', x1: 0, y1: 0, x2: 226.8, y2: 0, lineWidth: 1, dash: { length: 1, space: 2 } } // Línea punteada
         ],
         margin: [6, 4, 6, 4]
       },
@@ -1110,18 +1413,18 @@ console.log(descuento_venta);
         ],
         styles: {
           header: {
-            fontSize: 8,
+            fontSize: 7,
             bold: true,
             alignment: 'center',         
           },
           header_1: {
-            fontSize: 8,
+            fontSize: 7,
             bold: true,
             alignment: 'right', 
                     
           },
           datos_f: {
-            fontSize: 8,
+            fontSize: 7,
             bold: true,
             alignment: 'left',         
           },
@@ -1131,13 +1434,13 @@ console.log(descuento_venta);
 		},
         tableHeader_1: {
         bold: true,
-        fontSize: 8,
+        fontSize: 7,
             bold: true,
             alignment: 'justify',
       },
       tableHeader_2: {
         bold: true,
-        fontSize: 8,
+        fontSize: 7,
             bold: true,
             alignment: 'center',
       }
@@ -1296,6 +1599,18 @@ if (tipo_can_valor==='BS') {
          me.caso5_id_tabla_p='';
          me.cliente_bandera=0;             
          me.producto_bandera_1=0;
+
+     //    me.estado_dosificacion_facctura=0;
+    // me.arrayEstado_dosificacion_facctura:[],
+     //me.id_dosificacaion_1='';
+   //  me.nro_autorizacion_1='';
+   //  me.dosificacion_1=''; 
+   //  me.fecha_e_1=''; 
+   //  me.n_ini_facturacion_1=''; 
+   //  me.n_ini_facturacion_1='';
+   //  me.n_fin_facturacion_1='';
+   //  me.n_act_facturacion_1='';
+       
     },
 
         
@@ -1307,8 +1622,42 @@ if (tipo_can_valor==='BS') {
                 .then(function (response){
                     let respuesta = response.data; 
                     me.estado_dosificacion_facctura=respuesta.estado;
+                    me.arrayEstado_dosificacion_facctura=respuesta.consulta;  
+                    console.log("-++---------------------------");
+                    console.log(me.arrayEstado_dosificacion_facctura.id);
+                    console.log(me.arrayEstado_dosificacion_facctura);
+                    if ((me.estado_dosificacion_facctura===0||me.estado_dosificacion_facctura===null)&&(respuesta.consulta===null)) {
+                        Swal.fire({
+                  title: "No existe Dosificación o facturación",
+                  text: "Debe activar alguna de estas opciones para continuar.",
+                  icon: "error",
+              })  
+              me.estado_dosificacion_facctura=0;    
+                    }else{
+                        if (me.arrayEstado_dosificacion_facctura.diferencia_dias<=0) {
+                            Swal.fire({
+                  title: "Dosificación o facturación caducada",
+                  text: "Paso el tiempo de vigencia establecido.",
+                  icon: "error",
+              })  
+              me.estado_dosificacion_facctura=0; 
+                        } else {
+                            me.estado_dosificacion_facctura=respuesta.estado;
+                            me.id_dosificacaion_1=me.arrayEstado_dosificacion_facctura.id;                       
+                            me.nro_autorizacion_1=me.arrayEstado_dosificacion_facctura.nro_autorizacion;
+                            me.dosificacion_1=me.arrayEstado_dosificacion_facctura.dosificacion; 
+                            me.fecha_e_1=me.arrayEstado_dosificacion_facctura.fecha_e; 
+                            me.n_ini_facturacion_1=me.arrayEstado_dosificacion_facctura.n_ini_facturacion; 
+                            me.n_fin_facturacion_1=me.arrayEstado_dosificacion_facctura.n_fin_facturacion;     
+                            me.n_act_facturacion_1=me.arrayEstado_dosificacion_facctura.n_act_facturacion;  
+                            me.arrayEstado_dosificacion_facctura=respuesta.consulta;  
+                        }
+                       
+                    }
+                   
+
+
                     
-                    me.arrayEstado_dosificacion_facctura=respuesta.consulta;
                                
                 }).catch(function (error) {
                     error401(error);
@@ -1828,7 +2177,7 @@ if(Number(me.efectivo) > 0){
             let may_leyenda=(me.selected.leyenda).toUpperCase();
             me.codigo_tienda_almacen=me.selected.codigo_tienda_almacen;
             me.array_vetasQuery.push({id_contador:me.controlador_venta_id,descuento: descuento,es_lista: es_lista,id_ges_pre:me.selected.id,id_ingreso:me.selected.id_ingreso,id_producto:me.selected.id_prod,id_linea:me.selected.id_linea,precio_venta:me.selected.precio_lista_gespreventa,cantidad_venta:me.numero,codigo_tienda_almacen:me.selected.codigo_tienda_almacen});
-            me.arrayProducto_recibo_1.push({id_contador:me.controlador_venta_id,cant:me.numero,descrip:may_leyenda,p_u:me.selected.precio_lista_gespreventa,});
+            me.arrayProducto_recibo_1.push({id_contador:me.controlador_venta_id,cant:me.numero,descrip:may_leyenda,p_u:me.selected.precio_lista_gespreventa,unidad_medida:me.selected.unidad_medida});
             if (me.validadorPersonal===7 || me.existe_final>0) {
             let sumador_21_sub = 0;
             let sumador_21_des = 0;
@@ -2256,10 +2605,7 @@ if(Number(me.efectivo) > 0){
 
         realizarVenta() {
         let me = this;
-            console.log("//////////////////***");
-            console.log(me.num_documento);
-            console.log(me.TipoComprobate);
-            console.log("//////////////////*****");
+         
             let cadena=String(me.num_documento);
             let cadena_tipo=String(me.TipoComprobate);
             switch (cadena_tipo) {
@@ -2284,7 +2630,23 @@ if(Number(me.efectivo) > 0){
                     "error"
                 ); 
                     } else {
-                        me.EnviarRecibo(); 
+                        //----facturacion
+                        if(me.estado_dosificacion_facctura===1){
+                            Swal.fire(
+                    "Modulo en construcción",
+                    "Conctate al administrador para mas infromación",
+                    "error"); 
+                        } else {
+                            if (me.estado_dosificacion_facctura===2) {
+                                me.EnviarRecibo(); 
+                            } else {
+                                Swal.fire(
+                    "Acción no valida",
+                    "Error inesperado",
+                    "error"); 
+                            }
+                        }
+                   
                     }
                     break;    
                 default:
@@ -2301,12 +2663,9 @@ if(Number(me.efectivo) > 0){
     },
 
     EnviarRecibo(){
-        let me = this;
-       
-        if (me.validadorPersonal===3) {
-           
-            me.array_ven__detalle_descuentos.push({id_contador:0,id_tabla:0,id_descuento:0,cantidad_descuento:0.00,tipo:1});
-            
+        let me = this;       
+        if (me.validadorPersonal===3) {           
+            me.array_ven__detalle_descuentos.push({id_contador:0,id_tabla:0,id_descuento:0,cantidad_descuento:0.00,tipo:1});            
           }
           if (me.cliente_bandera === 1&&me.validadorPersonal===5) {
             me.array_ven__detalle_descuentos.push({id_contador:0,id_tabla:0,id_descuento:0,cantidad_descuento:0.00,tipo:1});
@@ -2322,15 +2681,12 @@ if(Number(me.efectivo) > 0){
                 sumador_21_sub += parseFloat(valorNumeral);  // Acumular los valores numerales como float
                 sumador_21_des += parseFloat(porcentaje); 
                 me.array_ven__detalle_descuentos.push({id_contador:0,id_tabla:descuento.id_nom_tabla,id_descuento:descuento.id,cantidad_descuento:parseFloat(porcentaje),tipo:2});
-                }                    
-               
-
-            });
-       
+                }                
+            });      
           }
           
         const totalDescuento = me.array_vetasQuery.reduce((total, venta) => {
-  return total + (parseFloat(venta.descuento) || 0);
+        return total + (parseFloat(venta.descuento) || 0);
 }, 0);
 me.descuento_1=totalDescuento+me.descuento_final;
     console.log("-----------------x-------------------");
@@ -2354,6 +2710,16 @@ me.descuento_1=totalDescuento+me.descuento_final;
           arrayDesatlleVenta: me.array_vetasQuery,
           codigo_tienda_almacen_0:me.codigo_tienda_almacen,
           id_lista_v2:me.id_lista_v2,
+
+          estado_dosificacion_facctura:me.estado_dosificacion_facctura,
+          id_dosificacaion_1:me.id_dosificacaion_1,
+          nro_autorizacion_1:me.nro_autorizacion_1,  
+          dosificacion_1:me.dosificacion_1,               
+          fecha_e_1:me.fecha_e_1,            
+          n_ini_facturacion_1:me.n_ini_facturacion_1,     
+          n_fin_facturacion_1:me.n_fin_facturacion_1,  
+          n_act_facturacion_1:me.n_act_facturacion_1,                        
+        //  arrayEstado_dosificacion_facctura:me.arrayEstado_dosificacion_facctura,
       };
 
       // Realizar la solicitud POST con Axios
@@ -2392,7 +2758,15 @@ let numero_referencia = respuesta.numero_referencia;
 let nombreCompleto_1 = respuesta.nombreCompleto_1;
 let tipocom = respuesta.tipocom;
 let nombre_empresa = respuesta.nombre_empresa;
+let ciudad_su_1 = respuesta.ciudad_su_1; 
+let departamento_su_1 = respuesta.departamento_su_1;
 
+let actividad_economica = respuesta.actividad_economica;
+let num_auto = respuesta.num_auto;
+let cod_autorizacion = respuesta.cod_autorizacion;
+let fecha_e_2 = respuesta.fecha_e_2;
+let numero_factura = respuesta.numero_factura;
+let cliente_id = respuesta.cliente_id;
 console.log(respuesta);
 // console.log(respuesta.idsuc);
 // Mostrar la alerta de éxito
@@ -2413,7 +2787,9 @@ total_sin_des,descuento_venta,total_venta,efectivo_venta,cambio_venta,fechaMas7D
                         icon: "success",
                         })
                         ///falta modelo de factura ------------
-
+                        me.generarPDF_factura_dosificacion(direccionMayusculas,nomsucursal,nuevoComprobante,fecha,hora,num_documento,nom_a_facturar,array_recibo,
+total_sin_des,descuento_venta,total_venta,efectivo_venta,cambio_venta,fechaMas7Dias,numero_referencia,nombreCompleto_1,nombre_empresa,actividad_economica,num_auto,cod_autorizacion,fecha_e_2,ciudad_su_1,departamento_su_1,numero_factura,cliente_id
+); 
                     } 
                 }
 

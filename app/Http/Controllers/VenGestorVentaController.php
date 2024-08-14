@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\operacionDosificacion;
 use App\Models\Tda_ingresoProducto2;
 use App\Models\Ven_GestorVenta;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -26,7 +27,9 @@ class VenGestorVentaController extends Controller
     public function venta(Request $request){
       
         try {
+           
                // Iniciar una transacción
+               $num_factura="";
                $fechaHoy = Carbon::now()->format('Y-m-d');
                DB::beginTransaction();
                $user_1 = auth()->user()->id;
@@ -49,11 +52,12 @@ class VenGestorVentaController extends Controller
     ->value('contador');
 
     $credencial = DB::table('adm__credecial_correos')
-    ->select('nro_celular', 'nom_empresa')
+    ->select('nro_celular', 'nom_empresa', 'actividad_economica')
     ->get();
 
 $nombre_e = $credencial[0]->nom_empresa;
 $num_e = $credencial[0]->nro_celular;       
+$actividad_economica = strtoupper($credencial[0]->actividad_economica);
     $currentDateTime = Carbon::now();
 if (is_null($ultimoComprobante)) {
     // La tabla está vacía, iniciar con 1    
@@ -71,7 +75,7 @@ $num_documento = $request->input('num_documento');
 $nom_a_facturar = strtoupper($request->input('nom_a_facturar'));
 $numero_referencia = $num_e;
 $nombre_empresa = strtoupper($nombre_e); 
-// Obtener la fecha y hora actual
+
 
 
     // datos para cargar 
@@ -83,9 +87,10 @@ $nombre_empresa = strtoupper($nombre_e);
         $dato_tipo=intval($request->TipoComprobate);
         $codigo_tienda_almacen_0=$request->codigo_tienda_almacen_0;
         $id_lista_v2=$request->id_lista_v2;
+        $cliente_id=$request->cliente_id;
     $data_recibo = [
         'id_sucursal' => $idsuc,
-        'id_cliente' => $request->cliente_id,
+        'id_cliente' => $cliente_id,
         'id_usuario'=>$id_user2,
         'nro_comprobante_venta' => $controlador_2_1,
         'total_venta' => $total_venta,
@@ -101,10 +106,49 @@ $nombre_empresa = strtoupper($nombre_e);
         'id_lista'=>$id_lista_v2,
         'nro_ref'=>$numero_referencia,
         'nro_doc'=> $num_documento,
-        'razon_social'=>$nom_a_facturar
+        'razon_social'=>$nom_a_facturar 
        ];   
        $id_recibo = DB::table('ven__recibos')->insertGetId($data_recibo);
      
+     //-------------- facturacion dosificacion
+     $estado_dosificacion_facctura=$request->estado_dosificacion_facctura;
+     $num_auto="";
+     $cod_autorizacion="";
+       if ($estado_dosificacion_facctura==2) {
+
+        $id_dosificacaion_1=$request->id_dosificacaion_1;
+        $num_auto=$request->nro_autorizacion_1;  
+        $Llave_Dosificacion=$request->dosificacion_1;               
+        $fecha_e_1=$request->fecha_e_1;            
+        $n_ini_facturacion_1=$request->n_ini_facturacion_1;     
+        $n_fin_facturacion_1=$request->n_fin_facturacion_1;  
+        $n_act_facturacion_1=$request->n_act_facturacion_1;  
+
+        $ultimo_factura_dosi = DB::table('ven__factura_dosi')
+        ->orderBy('numero_factura', 'desc')
+        ->value('numero_factura');
+        if (is_null($ultimo_factura_dosi)) {
+            // La tabla está vacía, iniciar con 1    
+            $num_factura = $n_ini_facturacion_1;
+        } else {
+            // Incrementar el último número de comprobante
+            $num_factura = $ultimo_factura_dosi + 1;
+        }
+        $fecha_transaccion = Carbon::createFromFormat('Y-m-d', $fechaHoy)->format('Ymd');
+       
+        $cod_autorizacion= operacionDosificacion::operacion($Llave_Dosificacion, $num_auto,$num_factura,$num_documento,$fecha_transaccion,$total_venta); 
+        $data_fac_dosi = [
+            'id_venta' => $id_recibo,         
+            'id_dosificacion'=>$id_dosificacaion_1,
+            'numero_factura' => $num_factura,
+            'total' => $total_venta,
+            'codigo_control' => $cod_autorizacion,             
+           ];   
+           $id_recibo = DB::table('ven__factura_dosi')->insertGetId($data_fac_dosi);
+
+
+      
+    }
          
        /////// detalle_descuento
        $bloque_descuento = $request->arrayDescuentoOperacion;
@@ -164,9 +208,22 @@ $nombre_empresa = strtoupper($nombre_e);
         //$reciboData = $this->create_recibo($idsuc,$id_user2,$nuevoComprobante,$nomsucursal,$num_documento,$currentDateTime,$nom_a_facturar,$numero_referencia,$request->arrayProRecibo,$total_sin_des,$descuento_venta, $total_venta,$efectivo_venta,$cambio_venta);
             // Devolver una respuesta JSON con un mensaje de éxito
           $array_recibo = $request->arrayProRecibo;
-          $direccion = DB::table('adm__sucursals')
-          ->where('id', $idsuc)
-          ->value('direccion'); 
+          
+
+        $sucursal_0 =  DB::table('adm__sucursals as ass')
+    ->join('adm__departamentos as ad', 'ass.departamento', '=', 'ad.id')
+    ->select('ass.razon_social', 'ass.telefonos', 'ass.nit', 'ass.direccion', 'ass.ciudad', 'ad.nombre as departamento')
+    ->where('ass.id', 1)
+    ->first();
+    $razonSocial_su = $sucursal_0->razon_social;
+    $telefonos_su = $sucursal_0->telefonos;
+    $nit_su = $sucursal_0->nit;
+    $direccion_su = $sucursal_0->direccion;
+    $ciudad_su = $sucursal_0->ciudad;
+    $departamento_su = $sucursal_0->departamento;
+        //  $direccion = DB::table('adm__sucursals')
+        //  ->where('id', $idsuc)
+        //  ->value('direccion'); 
   
       $nombreCompletoObj = DB::table('rrh__empleados as re')
           ->join('users as u', 're.id', '=', 'u.idempleado')
@@ -179,15 +236,18 @@ $nombre_empresa = strtoupper($nombre_e);
           ->first();
           $nombreCompleto = $nombreCompletoObj ? $nombreCompletoObj->nombre_completo : '';
               //datos para hacer factura vista
+              $ciudad_su_1 = strtoupper($ciudad_su);
+              $departamento_su_1 = strtoupper($departamento_su);       
         $nombre_negocio = strtoupper($nomsucursal);      
-        $direccionMayusculas=strtoupper($direccion);     
+        $direccionMayusculas=strtoupper($direccion_su);     
         $fecha = $currentDateTime->format('d/m/Y');
        // $hora = $currentDateTime->format('H:i:s'); 
        $hora = $currentDateTime->format('h:i:s A');
        $fecha_7 = $currentDateTime->addDays(7);     
         $fechaMas7Dias = $fecha_7->format('d/m/Y');
         $nombreCompleto_1=strtoupper($nombreCompleto);
-       
+        
+        $fecha_e_2 = Carbon::createFromFormat('Y-m-d', $fecha_e_1)->format('d-m-Y');
         return response()->json([
            // 'idsuc' => $idsuc,
            // 'id_user2' => $id_user2,           
@@ -209,7 +269,16 @@ $nombre_empresa = strtoupper($nombre_e);
             'numero_referencia' => $numero_referencia,
             'nombreCompleto_1' => $nombreCompleto_1,
             'tipocom'=> $dato_tipo,
-            'nombre_empresa' => $nombre_empresa,           
+            'nombre_empresa' => $nombre_empresa,  
+            'ciudad_su_1' => $ciudad_su_1, 
+            'departamento_su_1' => $departamento_su_1,
+
+            'actividad_economica' => $actividad_economica,
+            'num_auto' => $num_auto,
+            'cod_autorizacion' => $cod_autorizacion,
+            'fecha_e_2' => $fecha_e_2,
+            'numero_factura' => $num_factura,
+            'cliente_id' => $cliente_id
         ]);
 
 
@@ -294,6 +363,14 @@ $nombre_empresa = strtoupper($nombre_e);
                     ELSE NULL
                 END AS leyenda
             "),
+             DB::raw("
+             CASE 
+                    WHEN tip.envase = 'primario' THEN UPPER(CONCAT(COALESCE(ff_1.nombre, '')))
+                    WHEN tip.envase = 'secundario' THEN UPPER(CONCAT(COALESCE(ff_2.nombre, '')))
+                    WHEN tip.envase = 'terciario' THEN UPPER(CONCAT(COALESCE(ff_3.nombre, '')))
+                    ELSE NULL
+                END AS unidad_medida
+             "),   
                 'gpv.id_lista','pppl.nombre as nombre_linea','pp.id as id_prod',
                 DB::raw('DATEDIFF(fecha_vencimiento, NOW()) AS dias'),
                 DB::raw("CASE 
@@ -365,6 +442,14 @@ $nombre_empresa = strtoupper($nombre_e);
                     ELSE NULL
                 END AS leyenda
             "),
+            DB::raw("
+             CASE 
+                    WHEN tip.envase = 'primario' THEN UPPER(CONCAT(COALESCE(ff_1.nombre, '')))
+                    WHEN tip.envase = 'secundario' THEN UPPER(CONCAT(COALESCE(ff_2.nombre, '')))
+                    WHEN tip.envase = 'terciario' THEN UPPER(CONCAT(COALESCE(ff_3.nombre, '')))
+                    ELSE NULL
+                END AS unidad_medida
+             "),  
                 'gpv.id_lista','pppl.nombre as nombre_linea','pp.id as id_prod',
                 DB::raw('DATEDIFF(fecha_vencimiento, NOW()) AS dias'),
                 DB::raw("CASE 
@@ -791,6 +876,7 @@ $nombre_empresa = strtoupper($nombre_e);
     ->select('acc.id', 'acc.factura_dosificacion')    
     ->get();
     $data_return_estado="";
+    $fechaHoy = Carbon::now()->format('Y-m-d');  
     if ($credencialesCorreos[0]->factura_dosificacion==null || $credencialesCorreos[0]->factura_dosificacion=="" || $credencialesCorreos[0]->factura_dosificacion==0) {
         return response()->json(['estado' => 0, 'consulta' => null]);
     } else{
@@ -811,7 +897,8 @@ $nombre_empresa = strtoupper($nombre_e);
                 'dd.n_ini_facturacion',
                 'dd.n_fin_facturacion',
                 'dd.n_act_facturacion',
-                'dd.nit'
+                'dd.nit',
+                DB::raw("DATEDIFF(dd.fecha_e, '$fechaHoy') as diferencia_dias")
             )
             ->where('dd.id_sucursal', $idsuc)
             ->where('dd.estado', 1)

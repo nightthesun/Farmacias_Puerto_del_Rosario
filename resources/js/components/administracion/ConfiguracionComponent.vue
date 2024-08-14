@@ -84,8 +84,8 @@
                             <div class="form-group row justify-content-center">
     <div class="col-md-3 d-flex justify-content-center">
        
-        <button v-if="puedeEditar==1" type="button" class="btn btn-warning" style="color: white;"  @click="update_credecial_correo();">Actualizar</button>
-        <button v-else type="button" class="btn btn-light"  >Actualizar</button>
+        <button v-if="puedeEditar==1" type="button" class="btn btn-warning" style="color: white;"  @click="update_credecial_correo();">Actualizar configuracion correro</button>
+        <button v-else type="button" class="btn btn-light"  >Actualizar configuracion correro</button>
    
     </div>
 </div>
@@ -107,25 +107,42 @@
 
                                     <label class="col-md-1 form-control-label" for="text-input" style="font-size: 12px;"><strong>NIT:</strong> 
                                     <span v-if="nit == ''" class="error">(*)</span></label>
-                                    <div class="col-md-3">
+                                    <div class="col-md-4">
                                         <input type="text" v-model="nit" class="form-control" placeholder="nit de la empresa" v-on:focus="selectAll"/>
                                         <span v-if="nit == ''" class="error">Debe escribir el nit</span>
                                     </div>
                                       
                                     <label class="col-md-1 form-control-label" for="text-input" style="font-size: 12px;"><strong>Empresa:</strong> 
                                     <span v-if="nombre_empresa == ''" class="error">(*)</span></label>
-                                    <div class="col-md-3">
+                                    <div class="col-md-4">
                                         <input type="text" v-model="nombre_empresa" class="form-control" placeholder="nombre de negocio" v-on:focus="selectAll"/>
                                         <span v-if="nombre_empresa == ''" class="error">Debe escribir el un nombre de negocio</span>
-                                    </div>
+                                    </div>                   
+                               
+                                </div>  
+                                <div class="form-group row">
                                     <label class="col-md-1 form-control-label" for="text-input" style="font-size: 12px;"><strong>Nro CEL/TEL:</strong> 
                                     <span v-if="celular == ''" class="error">(*)</span></label>
-                                    <div class="col-md-3">
+                                    <div class="col-md-4">
                                         <input type="text" v-model="celular" class="form-control" placeholder="nit de la empresa" v-on:focus="selectAll"/>
                                         <span v-if="celular == ''" class="error">Debe escribir telefono o celular</span>
                                     </div>
-                                </div>
+                                    <label class="col-md-1 form-control-label" for="text-input" style="font-size: 12px;"><strong>Actividad economica:</strong> 
+                                    <span v-if="celular == ''" class="error">(*)</span></label>
+                                    <div class="col-md-4">
+                                        <input type="text" v-model="actividad_eco" class="form-control" placeholder="actividad economica" v-on:focus="selectAll"/>
+                                        <span v-if="actividad_eco == ''" class="error">Debe escribir actividad economica</span>
+                                    </div>
+                                </div> 
                             </div>
+                            <div class="form-group row justify-content-center">
+    <div class="col-md-3 d-flex justify-content-center">
+       
+        <button v-if="puedeEditar==1" type="button" class="btn btn-warning" style="color: white;"  @click="update_datos_empresa();">Actualizar datos de empresa</button>
+        <button v-else type="button" class="btn btn-light"  >Actualizar datos de empresa</button>
+   
+    </div>
+</div>
                         </div>
                     </div>
                 <!------------------------------------------------------------------------------------------>
@@ -198,6 +215,7 @@ export default {
             nombre_empresa:'',
             celular:'',
             selectTipoFac:0,  
+            actividad_eco:'',
             arrayTipofac: [{ id: 1, tipo: "Facturacion en linea" },{ id: 2, tipo: "Dosificacion" }],
 //---permisos_R_W_S
 puedeEditar:2,
@@ -316,7 +334,63 @@ puedeEditar:2,
                
             });
         },
+        update_datos_empresa(){
+            let me = this; 
+            if (me.nit===""||me.nombre_empresa===""||me.celular===""||me.actividad_eco==="") {
+                Swal.fire({
+  icon: "error",
+  title: "Oops...",
+  text: "datos nulos",
 
+});
+            }else{
+                axios
+                .post("/credenciales_correo/update_datos_empresa", {
+                    id: me.id_credencial,                   
+                    nit:me.nit,
+                    nombre_empresa:me.nombre_empresa,
+                    celular:me.celular,
+                    actividad_eco:me.actividad_eco,                  
+
+                    id_modulo: me.idmodulo,
+                    id_sub_modulo:me.codventana, 
+                    des:"actualziacion datos de empresa",  
+                  
+                })
+                .then(function (response) {
+                    me.listarCredencial();
+                
+                    Swal.fire(
+                        "Actualizado Correctamente!",
+                        "El registro a sido actualizado Correctamente",
+                        "success",
+                    );
+                })
+                //.catch(function (error) {
+                //    error401(error);
+                //});
+                .catch(function (error) {           
+                
+                if (error.response.status === 500) {
+                    me.errorMsg = error.response.data.error; // Asigna el mensaje de error a la variable errorMsg
+                Swal.fire(
+                    "Error",
+                    "500 (Internal Server Error)"+me.errorMsg, // Muestra el mensaje de error en el alert
+                    "error"
+                );
+                }else{
+                    Swal.fire(
+                    "Error",
+                    ""+error, // Muestra el mensaje de error en el alert
+                    "error"
+                );  
+                }
+
+               
+            });
+            }
+
+        },
         update_credecial_correo() {
             let me = this;
             
@@ -485,6 +559,7 @@ puedeEditar:2,
                     me.nombre_empresa=response.data[0].nom_empresa;
                     me.celular=response.data[0].nro_celular;
                     me.validador_variables=response.data[0].factura_dosificacion === null ? 0:response.data[0].factura_dosificacion;
+                    me.actividad_eco=response.data[0].actividad_economica;
              
                 })
                 .catch(function (error) {

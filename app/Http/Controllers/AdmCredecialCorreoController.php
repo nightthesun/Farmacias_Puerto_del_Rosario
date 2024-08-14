@@ -46,6 +46,35 @@ class AdmCredecialCorreoController extends Controller
      
     }
 
+    public function update_datos_empresa(Request $request)
+    {
+        try {
+            $fechaActual = Carbon::now(); // Obtiene la fecha y hora actual
+            $datos = [
+                'id_modulo' => $request->id_modulo,
+                'id_sub_modulo' => $request->id_sub_modulo,
+                'accion' => 4,
+                'descripcion' => $request->des,          
+                'user_id' =>auth()->user()->id, 
+                'created_at'=>$fechaActual,
+                'id_movimiento'=>$request->id,   
+            ];
+        
+            DB::table('log__sistema')->insert($datos);   
+            $update = adm_CredecialCorreo::find($request->id);
+            $update->nit=$request->nit;
+            $update->nom_empresa=$request->nombre_empresa;
+            $update->nro_celular=$request->celular;
+            $update->actividad_economica=$request->actividad_eco;
+       
+            $update->save();
+        } catch (\Throwable $th) {
+            return response()->json(['error' => $th->getMessage()],500);
+        }
+        
+     
+    }
+
     public function tipo_venta_update(Request $request)
     {
         try {
