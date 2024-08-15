@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use NumberToWords\NumberToWords;
+use App\Helpers\converso_numero_a_texto;
 
 class VenGestorVentaVistaController extends Controller
 {
@@ -209,8 +210,9 @@ $endDate = $request->endDate;
     public function re_imprecion(Request $request){
 
         try {
-   
-            $datoTexto = $this->convertirNumeroATexto($request->venta);
+            $datoTexto = converso_numero_a_texto::convertirNumeroATexto($request->venta);
+          //  $datoTexto = $this->convertirNumeroATexto($request->venta);
+
             $total_sin_des=$request->total_sin_des;
             
             if($request->tipofactura=="RECIBO"){
@@ -313,6 +315,7 @@ $endDate = $request->endDate;
 
     }
 
+  /* 
    private function convertirNumeroATexto($numero) {
         $numberToWords = new NumberToWords();
     
@@ -331,6 +334,8 @@ $endDate = $request->endDate;
         // Retorna la combinación de ambas partes
         return ucfirst($textoEntero) . ' ' . $textoDecimal;
     }
+  */
+   
 
     public function verCliente_x_venta(Request $request)
     {

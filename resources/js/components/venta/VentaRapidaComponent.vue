@@ -182,7 +182,7 @@
                            </div>
          <!----------------------------------------inicio de tabla------------------------------------------------->
          
-                           <div class="card w-100" style="margin-top: -20px;">
+          <div class="card w-100" style="margin-top: -20px;">
            <div class="card-body" >
              <h5 class="card-title" >Lista de productos</h5>
              <div class="row" >
@@ -220,7 +220,7 @@
                          </tr>
         
                          <tr>
-                            <th colspan="6" style="text-align:right">Des:</th>
+                            <th colspan="6" style="text-align:right">Descuento:</th>
                             <th v-text="parseFloat(descuento_final).toFixed(2) + ' Bs.'" style="text-align:right"></th>
                         </tr>
                         <tr>
@@ -574,7 +574,7 @@
                                                      </div>
                                                      <div class="form-group col-sm-4">
                                                          <strong>Número Documento: <span  v-if="num_documento==''" class="error">(*)</span></strong>
-                                                         <input type="text" @input="validateInput()" class="form-control" :placeholder="selectTipoDoc == 1 ? 'C.I.' : (selectTipoDoc == 2 ? 'C.I. Extranjero' : (selectTipoDoc == 3 ? 'Número pasaporte' : (selectTipoDoc == 4 ? 'Otro documento' : 'Nit')))" v-model="num_documento" v-on:focus="selectAll" >
+                                                         <input type="text"  class="form-control" :placeholder="selectTipoDoc == 1 ? 'C.I.' : (selectTipoDoc == 2 ? 'C.I. Extranjero' : (selectTipoDoc == 3 ? 'Número pasaporte' : (selectTipoDoc == 4 ? 'Otro documento' : 'Nit')))" v-model="num_documento"  maxlength="12" @input="validateNumber" pattern="[0-9]*" title="Solo se permiten números" v-on:focus="selectAll" >
                                                          <span  v-if="num_documento==''" class="error">Debe ingresar el documento de identidad</span>
                                                      </div>
                                                  </div> 
@@ -620,7 +620,7 @@
                                                      </div>
                                                      <div class="form-group col-sm-4">
                                                          <strong>Número Documento: <span  v-if="num_documento==''" class="error">(*)</span></strong>
-                                                         <input type="text" @input="validateInput()" class="form-control" :placeholder="selectTipoDoc == 1 ? 'C.I.' : (selectTipoDoc == 2 ? 'C.I. Extranjero' : (selectTipoDoc == 3 ? 'Número pasaporte' : (selectTipoDoc == 4 ? 'Otro documento' : 'Nit')))" v-model="num_documento" v-on:focus="selectAll">
+                                                         <input type="text"  class="form-control" :placeholder="selectTipoDoc == 1 ? 'C.I.' : (selectTipoDoc == 2 ? 'C.I. Extranjero' : (selectTipoDoc == 3 ? 'Número pasaporte' : (selectTipoDoc == 4 ? 'Otro documento' : 'Nit')))" v-model="num_documento" maxlength="12" @input="validateNumber" pattern="[0-9]*" title="Solo se permiten números" v-on:focus="selectAll">
                                                          <span  v-if="num_documento==''" class="error">Debe ingresar el documento de identidad</span>
                                                      </div>
                                                  </div> 
@@ -957,7 +957,7 @@ watch: {
       });
     },
    /////////////////////////////////GENERAR PDF FACTURA DOSIFICACION/////////////////////////////////////////////////////////////////////////////
-   generarPDF_factura_dosificacion( direccionMayusculas,nomsucursal,nuevoComprobante,fecha,hora,num_documento,nom_a_facturar,array_recibo,total_sin_des,descuento_venta,total_venta,efectivo_venta,cambio_venta,fechaMas7Dias,numero_referencia,nombreCompleto_1,nombre_empresa,actividad_economica,num_auto,cod_autorizacion,fecha_e_2,ciudad_su_1,departamento_su_1,numero_factura,cliente_id) {
+   generarPDF_factura_dosificacion( direccionMayusculas,nomsucursal,nuevoComprobante,fecha,hora,num_documento,nom_a_facturar,array_recibo,total_sin_des,descuento_venta,total_venta,efectivo_venta,cambio_venta,fechaMas7Dias,numero_referencia,nombreCompleto_1,nombre_empresa,actividad_economica,num_auto,cod_autorizacion,fecha_e_2,ciudad_su_1,departamento_su_1,numero_factura,cliente_id,descuento_final_2,total_literal) {
  // Define el contenido del PDF
 
 
@@ -965,6 +965,13 @@ watch: {
   // Itera sobre los datos y agrega filas a la tabla
   const tableBody_2=[];
   array_recibo.forEach(item => {
+    let descuento_dosificacion_2="";
+    if (Math.floor(item.descuento) !== number) {
+          // Si es un entero, lo formateamos con dos decimales
+        descuento_dosificacion_2 = item.descuento;
+        }else{        
+        descuento_dosificacion_2=item.descuento.toFixed(2);
+        } 
     tableBody_2.push([
     { text: item.descrip , fontSize: 7, alignment: 'left' }, // Salto de línea
       {},   
@@ -974,8 +981,8 @@ watch: {
       {},   
     ]);
     tableBody_2.push([
-    { text: item.cant+'.00 x '+item.p_u+' - 0.00', fontSize: 7, alignment: 'left' }, // Salto de línea
-    { text: (item.cant * item.p_u).toFixed(2), fontSize: 7, alignment: 'right' },   
+    { text: item.cant+'.00 x '+item.p_u+' - '+(descuento_dosificacion_2), fontSize: 7, alignment: 'left' }, // Salto de línea
+    { text: ((item.cant * item.p_u)-descuento_dosificacion_2), fontSize: 7, alignment: 'right' },   
     ]);
   });
   
@@ -983,15 +990,15 @@ watch: {
     // Agrega los encabezados de la tabla
     [
       { text: 'SubTotal Bs:   ',  fontSize: 7, alignment: 'right' }, 
-      { text: '999.00', fontSize: 7, alignment: 'right' }     
+      { text: (total_venta).toFixed(2), fontSize: 7, alignment: 'right' }     
     ],
     [
       { text: 'Descuento Bs:   ',  fontSize: 7, alignment: 'right' }, 
-      { text: '0.00', fontSize: 7, alignment: 'right' }     
+      { text: (descuento_final_2).toFixed(2), fontSize: 7, alignment: 'right' }     
     ],
     [
       { text: 'Total Bs:   ',  fontSize: 7, alignment: 'right' }, 
-      { text: '999.00', fontSize: 7, alignment: 'right' }     
+      { text: (total_venta).toFixed(2), fontSize: 7, alignment: 'right' }     
     ],
     [
       { text: 'Monto gift card Bs:   ',  fontSize: 7, alignment: 'right' }, 
@@ -999,11 +1006,11 @@ watch: {
     ],
     [
       { text: 'Monto a pagar Bs:   ',  fontSize: 7, alignment: 'right',bold: true }, 
-      { text: '999.00', fontSize: 7, alignment: 'right' }     
+      { text: (total_venta).toFixed(2), fontSize: 7, alignment: 'right' }     
     ],
     [
       { text: 'Importe base crédito fiscal Bs:   ',  fontSize: 7, alignment: 'right',bold: true }, 
-      { text: '999.00', fontSize: 7, alignment: 'right' }     
+      { text: (total_venta).toFixed(2), fontSize: 7, alignment: 'right' }     
     ]
   ];
 
@@ -1079,23 +1086,19 @@ watch: {
         style: 'header'
       },
       {
-        text: 'FACTURA Nro',bold: true,
-    
+        text: 'FACTURA Nro',bold: true,    
         style: 'header'
       },
       {
-        text: numero_factura,
-    
+        text: numero_factura,    
         style: 'header'
       },
       {
-        text: 'CÓD. AUTORIZACION', bold: true,
-    
+        text: 'CÓD. AUTORIZACION', bold: true,    
         style: 'header'
       },
       {
-        text: num_auto,
-    
+        text: num_auto,    
         style: 'header'
       },
       {
@@ -1133,7 +1136,7 @@ watch: {
       {
         text: '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -',    
         style:'linea_2' 
-      },,
+      },
       {
         text: 'DETALLE',
     
@@ -1153,8 +1156,7 @@ watch: {
         text: '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -',    
         style:'linea_2' 
       },
-        {
-         
+        {         
             table:{
                 headesRows:1,
                 widths: ['75%','25%'],
@@ -1165,7 +1167,7 @@ watch: {
     
       
       {
-        text: 'Son: CUARENTA Y TRES CON 50/100 BOLIVIANOS',      
+        text: 'Son: '+total_literal,      
         alignment: 'left',fontSize: 7
       },
       {
@@ -1206,7 +1208,7 @@ watch: {
         text: 'Ley N° 453: Está prohibido importar, distribuir o comercializar productos prohibidos o retirados en el país de origen por atentar a la integridad física y a la salud. Este documento es la Representación Gráfica de un Documento Fiscal Digital emitido en una modalidad de facturación en línea',   
         style: 'header' ,margin: [7, 1, 7, 3]
       },
-      { qr: 'text in QR' ,alignment: 'center',  fit: '85',margin: [0, 4, 0, 4] },
+      { qr:  num_documento+'|'+numero_factura+'|'+num_auto+'|'+fecha+'|'+total_venta+'|'+cod_autorizacion+'|'+cliente_id+'|0|0|0|0.00',alignment: 'center',  fit: '85',margin: [0, 4, 0, 4] },
       
         ],
         styles: {
@@ -2177,7 +2179,7 @@ if(Number(me.efectivo) > 0){
             let may_leyenda=(me.selected.leyenda).toUpperCase();
             me.codigo_tienda_almacen=me.selected.codigo_tienda_almacen;
             me.array_vetasQuery.push({id_contador:me.controlador_venta_id,descuento: descuento,es_lista: es_lista,id_ges_pre:me.selected.id,id_ingreso:me.selected.id_ingreso,id_producto:me.selected.id_prod,id_linea:me.selected.id_linea,precio_venta:me.selected.precio_lista_gespreventa,cantidad_venta:me.numero,codigo_tienda_almacen:me.selected.codigo_tienda_almacen});
-            me.arrayProducto_recibo_1.push({id_contador:me.controlador_venta_id,cant:me.numero,descrip:may_leyenda,p_u:me.selected.precio_lista_gespreventa,unidad_medida:me.selected.unidad_medida});
+            me.arrayProducto_recibo_1.push({id_contador:me.controlador_venta_id,cant:me.numero,descrip:may_leyenda,p_u:me.selected.precio_lista_gespreventa,unidad_medida:me.selected.unidad_medida,descuento: descuento});
             if (me.validadorPersonal===7 || me.existe_final>0) {
             let sumador_21_sub = 0;
             let sumador_21_des = 0;
@@ -2462,6 +2464,12 @@ if(Number(me.efectivo) > 0){
           
           
         },
+
+        validateNumber() {
+      // Permite solo números y corta a 15 caracteres si es necesario
+      this.num_documento = this.num_documento.replace(/[^0-9]/g, '').slice(0, 12);
+    },
+
         estadoEX(){
             if (this.selectTipoDoc!=1) {
                 this.complemento_='';  
@@ -2689,10 +2697,13 @@ if(Number(me.efectivo) > 0){
         return total + (parseFloat(venta.descuento) || 0);
 }, 0);
 me.descuento_1=totalDescuento+me.descuento_final;
-    console.log("-----------------x-------------------");
-    console.log(me.array_ven__detalle_descuentos);
+    console.log("-----------------arrayProducto_recibo_1-------------------");
+    console.log(me.arrayProducto_recibo_1);
+    console.log("-----------------array_ven__detalle_descuentos-------------------");
+   console.log(me.array_ven__detalle_descuentos);
+   console.log("-----------------array_vetasQuery-------------------");
    console.log(me.array_vetasQuery);
-    console.log("-----------------x-------------------");
+   
         const data = {
           TipoComprobate: me.TipoComprobate,
           num_documento: me.num_documento,
@@ -2760,13 +2771,14 @@ let tipocom = respuesta.tipocom;
 let nombre_empresa = respuesta.nombre_empresa;
 let ciudad_su_1 = respuesta.ciudad_su_1; 
 let departamento_su_1 = respuesta.departamento_su_1;
-
+let descuento_final_2 = respuesta.descuento_final_2;
 let actividad_economica = respuesta.actividad_economica;
 let num_auto = respuesta.num_auto;
 let cod_autorizacion = respuesta.cod_autorizacion;
 let fecha_e_2 = respuesta.fecha_e_2;
 let numero_factura = respuesta.numero_factura;
 let cliente_id = respuesta.cliente_id;
+let total_literal=respuesta.total_literal;
 console.log(respuesta);
 // console.log(respuesta.idsuc);
 // Mostrar la alerta de éxito
@@ -2788,7 +2800,7 @@ total_sin_des,descuento_venta,total_venta,efectivo_venta,cambio_venta,fechaMas7D
                         })
                         ///falta modelo de factura ------------
                         me.generarPDF_factura_dosificacion(direccionMayusculas,nomsucursal,nuevoComprobante,fecha,hora,num_documento,nom_a_facturar,array_recibo,
-total_sin_des,descuento_venta,total_venta,efectivo_venta,cambio_venta,fechaMas7Dias,numero_referencia,nombreCompleto_1,nombre_empresa,actividad_economica,num_auto,cod_autorizacion,fecha_e_2,ciudad_su_1,departamento_su_1,numero_factura,cliente_id
+total_sin_des,descuento_venta,total_venta,efectivo_venta,cambio_venta,fechaMas7Dias,numero_referencia,nombreCompleto_1,nombre_empresa,actividad_economica,num_auto,cod_autorizacion,fecha_e_2,ciudad_su_1,departamento_su_1,numero_factura,cliente_id,descuento_final_2,total_literal
 ); 
                     } 
                 }

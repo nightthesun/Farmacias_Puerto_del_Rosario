@@ -12,6 +12,7 @@ use Dompdf\Dompdf;
 use Dompdf\Options;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Helpers\converso_numero_a_texto;
 
 
 class VenGestorVentaController extends Controller
@@ -27,7 +28,8 @@ class VenGestorVentaController extends Controller
     public function venta(Request $request){
       
         try {
-           
+
+          
                // Iniciar una transacción
                $num_factura="";
                $fechaHoy = Carbon::now()->format('Y-m-d');
@@ -54,7 +56,7 @@ class VenGestorVentaController extends Controller
     $credencial = DB::table('adm__credecial_correos')
     ->select('nro_celular', 'nom_empresa', 'actividad_economica')
     ->get();
-
+    
 $nombre_e = $credencial[0]->nom_empresa;
 $num_e = $credencial[0]->nro_celular;       
 $actividad_economica = strtoupper($credencial[0]->actividad_economica);
@@ -108,13 +110,18 @@ $nombre_empresa = strtoupper($nombre_e);
         'nro_doc'=> $num_documento,
         'razon_social'=>$nom_a_facturar 
        ];   
+      
        $id_recibo = DB::table('ven__recibos')->insertGetId($data_recibo);
-     
+      
      //-------------- facturacion dosificacion
      $estado_dosificacion_facctura=$request->estado_dosificacion_facctura;
+    
      $num_auto="";
      $cod_autorizacion="";
-       if ($estado_dosificacion_facctura==2) {
+     $fecha_e_1="";
+     $fecha_e_2="";
+     
+       if ($estado_dosificacion_facctura==2&&$request->TipoComprobate==2) {
 
         $id_dosificacaion_1=$request->id_dosificacaion_1;
         $num_auto=$request->nro_autorizacion_1;  
@@ -123,7 +130,7 @@ $nombre_empresa = strtoupper($nombre_e);
         $n_ini_facturacion_1=$request->n_ini_facturacion_1;     
         $n_fin_facturacion_1=$request->n_fin_facturacion_1;  
         $n_act_facturacion_1=$request->n_act_facturacion_1;  
-
+        $fecha_e_2 = Carbon::createFromFormat('Y-m-d', $fecha_e_1)->format('d-m-Y');
         $ultimo_factura_dosi = DB::table('ven__factura_dosi')
         ->orderBy('numero_factura', 'desc')
         ->value('numero_factura');
@@ -134,23 +141,25 @@ $nombre_empresa = strtoupper($nombre_e);
             // Incrementar el último número de comprobante
             $num_factura = $ultimo_factura_dosi + 1;
         }
+         
         $fecha_transaccion = Carbon::createFromFormat('Y-m-d', $fechaHoy)->format('Ymd');
-       
+        //return "*-----*".$Llave_Dosificacion." ".$num_auto." ".$num_factura." ".$num_documento." ".$fecha_transaccion." ".$total_venta; 
         $cod_autorizacion= operacionDosificacion::operacion($Llave_Dosificacion, $num_auto,$num_factura,$num_documento,$fecha_transaccion,$total_venta); 
+        
         $data_fac_dosi = [
             'id_venta' => $id_recibo,         
             'id_dosificacion'=>$id_dosificacaion_1,
             'numero_factura' => $num_factura,
             'total' => $total_venta,
             'codigo_control' => $cod_autorizacion,             
-           ];   
-           $id_recibo = DB::table('ven__factura_dosi')->insertGetId($data_fac_dosi);
-
-
-      
+           ];  
+           
+            DB::table('ven__factura_dosi')->insert($data_fac_dosi);
+     
     }
-         
+    
        /////// detalle_descuento
+       $descuento_final_2=0;
        $bloque_descuento = $request->arrayDescuentoOperacion;
        foreach ($bloque_descuento as $item) {
         $id_tabla = $item['id_tabla'];
@@ -166,7 +175,11 @@ $nombre_empresa = strtoupper($nombre_e);
             'id_detalle_descuento'=> $tipo_num_des,
             'tipo' => $tipo_2      
            ];    
-           $id_descuento = DB::table('ven__detalle_descuentos')->insertGetId($data_descuento);
+           DB::table('ven__detalle_descuentos')->insert($data_descuento);
+           if($tipo_2==2&&$tipo_num_des==0){
+            $descuento_final_2=$descuento_final_2+$cantidad_descuento;
+           }
+          
        }  
         /////// detalle_venta
         //$es_lista si es lita esta por default 0 pero si es lista es 1
@@ -247,7 +260,8 @@ $nombre_empresa = strtoupper($nombre_e);
         $fechaMas7Dias = $fecha_7->format('d/m/Y');
         $nombreCompleto_1=strtoupper($nombreCompleto);
         
-        $fecha_e_2 = Carbon::createFromFormat('Y-m-d', $fecha_e_1)->format('d-m-Y');
+        
+        $total_literal = converso_numero_a_texto::convertirNumeroATexto($total_venta);
         return response()->json([
            // 'idsuc' => $idsuc,
            // 'id_user2' => $id_user2,           
@@ -272,19 +286,22 @@ $nombre_empresa = strtoupper($nombre_e);
             'nombre_empresa' => $nombre_empresa,  
             'ciudad_su_1' => $ciudad_su_1, 
             'departamento_su_1' => $departamento_su_1,
+            'descuento_final_2' => $descuento_final_2,
 
             'actividad_economica' => $actividad_economica,
             'num_auto' => $num_auto,
             'cod_autorizacion' => $cod_autorizacion,
             'fecha_e_2' => $fecha_e_2,
             'numero_factura' => $num_factura,
-            'cliente_id' => $cliente_id
+            'cliente_id' => $cliente_id,
+            'total_literal' => $total_literal
         ]);
 
 
     } catch (\Throwable $th) {
             // Revertir la transacción en caso de error
         DB::rollback();
+ 
               return response()->json(['error' => $th->getMessage()],500);
         }
       

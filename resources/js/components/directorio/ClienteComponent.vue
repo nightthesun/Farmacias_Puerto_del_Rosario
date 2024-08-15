@@ -279,7 +279,7 @@
                                             </div>
                                             <div class="form-group col-sm-4">
                                                 <strong>Número Documento: <span  v-if="num_documento==''" class="error">(*)</span></strong>
-                                                <input type="text" @input="validateInput()" class="form-control" :placeholder="selectTipoDoc == 1 ? 'C.I.' : (selectTipoDoc == 2 ? 'C.I. Extranjero' : (selectTipoDoc == 3 ? 'Número pasaporte' : (selectTipoDoc == 4 ? 'Otro documento' : 'Nit')))" v-model="num_documento" v-on:focus="selectAll" >
+                                                <input type="text"  class="form-control" :placeholder="selectTipoDoc == 1 ? 'C.I.' : (selectTipoDoc == 2 ? 'C.I. Extranjero' : (selectTipoDoc == 3 ? 'Número pasaporte' : (selectTipoDoc == 4 ? 'Otro documento' : 'Nit')))" v-model="num_documento" maxlength="12" @input="validateNumber" pattern="[0-9]*" title="Solo se permiten números" v-on:focus="selectAll" >
                                                 <span  v-if="num_documento==''" class="error">Debe ingresar el documento de identidad</span>
                                             </div>
                                         </div> 
@@ -325,7 +325,7 @@
                                             </div>
                                             <div class="form-group col-sm-4">
                                                 <strong>Número Documento: <span  v-if="num_documento==''" class="error">(*)</span></strong>
-                                                <input type="text" @input="validateInput()" class="form-control" :placeholder="selectTipoDoc == 1 ? 'C.I.' : (selectTipoDoc == 2 ? 'C.I. Extranjero' : (selectTipoDoc == 3 ? 'Número pasaporte' : (selectTipoDoc == 4 ? 'Otro documento' : 'Nit')))" v-model="num_documento" v-on:focus="selectAll">
+                                                <input type="text"  class="form-control" :placeholder="selectTipoDoc == 1 ? 'C.I.' : (selectTipoDoc == 2 ? 'C.I. Extranjero' : (selectTipoDoc == 3 ? 'Número pasaporte' : (selectTipoDoc == 4 ? 'Otro documento' : 'Nit')))" v-model="num_documento" maxlength="12" @input="validateNumber" pattern="[0-9]*" title="Solo se permiten números" v-on:focus="selectAll">
                                                 <span  v-if="num_documento==''" class="error">Debe ingresar el documento de identidad</span>
                                             </div>
                                         </div> 
@@ -654,7 +654,11 @@
                 }
                 
             },
-
+     
+    validateNumber() {
+      // Permite solo números y corta a 15 caracteres si es necesario
+      this.num_documento = this.num_documento.replace(/[^0-9]/g, '').slice(0, 12);
+    },
             cerrarModal(accion){
                 let me = this;
                 me.tipoAccion=1;
