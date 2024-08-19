@@ -78,6 +78,16 @@ $nom_a_facturar = strtoupper($request->input('nom_a_facturar'));
 $numero_referencia = $num_e;
 $nombre_empresa = strtoupper($nombre_e); 
 
+ //-------------- facturacion dosificacion
+ if ($request->TipoComprobate==1) {
+    $estado_dosificacion_facctura=0;
+ }else{
+    if ($request->TipoComprobate==2) {
+        $estado_dosificacion_facctura=$request->estado_dosificacion_facctura;
+    }else{
+        dd("error... de entrada de tipod e factura recibo");
+    }
+ }
 
 
     // datos para cargar 
@@ -108,13 +118,13 @@ $nombre_empresa = strtoupper($nombre_e);
         'id_lista'=>$id_lista_v2,
         'nro_ref'=>$numero_referencia,
         'nro_doc'=> $num_documento,
-        'razon_social'=>$nom_a_facturar 
+        'razon_social'=>$nom_a_facturar,
+        'dosificacion_o_electronica'=>$estado_dosificacion_facctura,
        ];   
       
        $id_recibo = DB::table('ven__recibos')->insertGetId($data_recibo);
       
-     //-------------- facturacion dosificacion
-     $estado_dosificacion_facctura=$request->estado_dosificacion_facctura;
+    
     
      $num_auto="";
      $cod_autorizacion="";
@@ -140,8 +150,12 @@ $nombre_empresa = strtoupper($nombre_e);
         } else {
             // Incrementar el último número de comprobante
             $num_factura = $ultimo_factura_dosi + 1;
+            if($num_factura>999999999999){
+                $error_logitud=12;
+                return $error_logitud;
+            }
         }
-         
+        
         $fecha_transaccion = Carbon::createFromFormat('Y-m-d', $fechaHoy)->format('Ymd');
         //return "*-----*".$Llave_Dosificacion." ".$num_auto." ".$num_factura." ".$num_documento." ".$fecha_transaccion." ".$total_venta; 
         $cod_autorizacion= operacionDosificacion::operacion($Llave_Dosificacion, $num_auto,$num_factura,$num_documento,$fecha_transaccion,$total_venta); 
@@ -209,6 +223,7 @@ $nombre_empresa = strtoupper($nombre_e);
                  'descuento'=>$descuento,
                ];  
             DB::table('ven__detalle_ventas')->insert($data_det_venta);
+
            // Si todo sale bien, confirmar la transacción
            $update = Tda_ingresoProducto2::find($id_ingreso);
            $cantidad_v3=$update->stock_ingreso;
@@ -226,7 +241,7 @@ $nombre_empresa = strtoupper($nombre_e);
         $sucursal_0 =  DB::table('adm__sucursals as ass')
     ->join('adm__departamentos as ad', 'ass.departamento', '=', 'ad.id')
     ->select('ass.razon_social', 'ass.telefonos', 'ass.nit', 'ass.direccion', 'ass.ciudad', 'ad.nombre as departamento')
-    ->where('ass.id', 1)
+    ->where('ass.id', $idsuc)
     ->first();
     $razonSocial_su = $sucursal_0->razon_social;
     $telefonos_su = $sucursal_0->telefonos;

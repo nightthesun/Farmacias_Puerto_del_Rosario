@@ -51,6 +51,7 @@ $endDate = $request->endDate;
                 ->leftJoin('dir__clientes as dc', 'vr.id_cliente', '=', 'dc.id')
     ->join('users as u', 'u.id', '=', 'vr.id_usuario')
     ->join('adm__sucursals as ass','ass.id','=','vr.id_sucursal') 
+    ->join('adm__departamentos as ad', 'ass.departamento', '=', 'ad.id')
     ->join('rrh__empleados as re','re.id','=','u.idempleado')            
     ->leftJoin('dir__personas as dp', function ($join) {
         $join->on('dp.id', '=', 'dc.id_per_emp')
@@ -85,6 +86,9 @@ $endDate = $request->endDate;
         'nro_ref as numero_referencia',
         DB::raw('UPPER(ass.razon_social) as razon_social'),
         DB::raw('UPPER(ass.direccion) as direccion'),
+        DB::raw('UPPER(ass.ciudad) as ciudad'),
+        DB::raw('UPPER(ad.nombre) as departamento'),
+       
  
         DB::raw("DATE_FORMAT(vr.created_at, '%d/%m/%Y') as fecha_formateada"),
         DB::raw("DATE_FORMAT(vr.created_at, '%h:%i:%s %p') as hora_formateada"),
@@ -101,8 +105,7 @@ $endDate = $request->endDate;
         WHEN de.id IS NOT NULL THEN UPPER(de.razon_social)
         ELSE NULL
     END AS nombre_completo_cliente"),
-    'dc.correo'    
-
+    'dc.correo','vr.dosificacion_o_electronica' 
     )
     ->where('vr.id_sucursal', $sucursalId)
     ->where('vr.cod', $codigo)
@@ -129,7 +132,8 @@ $endDate = $request->endDate;
             $ventas_show = DB::table('ven__recibos as vr')
     ->leftJoin('dir__clientes as dc', 'vr.id_cliente', '=', 'dc.id')
     ->join('users as u', 'u.id', '=', 'vr.id_usuario')
-    ->join('adm__sucursals as ass','ass.id','=','vr.id_sucursal') 
+    ->join('adm__sucursals as ass','ass.id','=','vr.id_sucursal')
+    ->join('adm__departamentos as ad', 'ass.departamento', '=', 'ad.id') 
     ->join('rrh__empleados as re','re.id','=','u.idempleado') 
     ->leftJoin('dir__personas as dp', function ($join) {
         $join->on('dp.id', '=', 'dc.id_per_emp')
@@ -164,6 +168,8 @@ $endDate = $request->endDate;
         'nro_ref as numero_referencia',
         DB::raw('UPPER(ass.razon_social) as razon_social'),
         DB::raw('UPPER(ass.direccion) as direccion'),
+        DB::raw('UPPER(ass.ciudad) as ciudad'),
+        DB::raw('UPPER(ad.nombre) as departamento'),
         DB::raw("DATE_FORMAT(vr.created_at, '%d/%m/%Y') as fecha_formateada"),
         DB::raw("DATE_FORMAT(vr.created_at, '%h:%i:%s %p') as hora_formateada"),      
         DB::raw("DATE_FORMAT(DATE_ADD(vr.created_at, INTERVAL 7 DAY), '%d/%m/%Y') as fecha_mas_siete"),
@@ -179,7 +185,7 @@ $endDate = $request->endDate;
         WHEN de.id IS NOT NULL THEN UPPER(de.razon_social)
         ELSE NULL
     END AS nombre_completo_cliente"),
-    'dc.correo'   
+    'dc.correo','vr.dosificacion_o_electronica'   
     )
     ->where('vr.id_sucursal', $sucursalId)
     ->where('vr.cod', $codigo)
@@ -214,13 +220,17 @@ $endDate = $request->endDate;
           //  $datoTexto = $this->convertirNumeroATexto($request->venta);
 
             $total_sin_des=$request->total_sin_des;
-            
-            if($request->tipofactura=="RECIBO"){
+            $facturas_dosi = DB::table('ven__factura_dosi as vfd')
+    ->join('dos__dosificacion as dd', 'vfd.id_dosificacion', '=', 'dd.id')
+    ->where('vfd.id_venta', $request->id)
+    ->select('vfd.*', 'dd.*') // Ajusta los campos que necesitas
+    ->get();
+           
                 $idVenta = $request->id_venta;
                 $datos_empresa = DB::table('adm__credecial_correos')
-            ->select('nit', 'nom_empresa')
-            ->get();
-          
+            ->select('nit', 'nom_empresa','actividad_economica','nro_celular')
+            ->get();           
+        
             $result = DB::table('ven__detalle_ventas as vdv')
             ->select(DB::raw('SUM(vdv.descuento) as suma_descuento'))
             ->where('vdv.id_venta', $idVenta)
@@ -231,7 +241,7 @@ $endDate = $request->endDate;
     ->where('vdd.id_venta', $idVenta)
     ->where('vdd.tipo', 2)
     ->first();
-        
+    
              
             $sumaDescuento = $result ? number_format($result->suma_descuento, 2) : '0.00';
 
@@ -288,27 +298,19 @@ $endDate = $request->endDate;
             ->where('vd.id_venta', $idVenta)
             ->get();
 
-                
-
 
             $respuesta_v2 = [
                 'detalle_venta' => $detalle_venta,
                 'datos_empresa' => $datos_empresa,
                 'datoTexto_v2' => $datoTexto,
                 'venta_con_descuento' => $resultado_sumatoria,
-                'resultado_descuento_2' => $resultado_descuento_2
+                'resultado_descuento_2' => $resultado_descuento_2,
+
             ];
         
             // Devolver la respuesta JSON
             return response()->json($respuesta_v2);
-            }else{
-                if ($request->tipofactura=="FACTURA") {
-                   dd("datos en contrucion");
-                } else {
-                    dd("error no exite datos");
-                }
-                
-            }
+            
         } catch (\Throwable $th) {
            dd($th);
         }

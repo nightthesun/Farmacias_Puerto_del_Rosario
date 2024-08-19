@@ -876,7 +876,7 @@ watch: {
                     if (this.arrayDescuentoOperacion[0].id_nom_tabla===5) {
                     let operacion_21 = this.operacion_Numeral_Procentaje(this.arrayDescuentoOperacion[0].tipo_num_des, this.arrayDescuentoOperacion[0].monto_descuento,this.selected.precio_lista_gespreventa);
                     let { valorNumeral, porcentaje } = operacion_21;
-                    console.log("caso_5: "+porcentaje);
+                  //------casos 5 
                     
                 this.valorUnicoPersonalizado = porcentaje;
                 this.caso5_id=this.arrayDescuentoOperacion[0].id;
@@ -964,14 +964,19 @@ watch: {
 
   // Itera sobre los datos y agrega filas a la tabla
   const tableBody_2=[];
+  let sumador_subtotal=0;
   array_recibo.forEach(item => {
+    
     let descuento_dosificacion_2="";
-    if (Math.floor(item.descuento) !== number) {
-          // Si es un entero, lo formateamos con dos decimales
-        descuento_dosificacion_2 = item.descuento;
-        }else{        
-        descuento_dosificacion_2=item.descuento.toFixed(2);
-        } 
+    if (Number.isInteger(Number(item.descuento))) {
+      descuento_dosificacion_2= Number(item.descuento).toFixed(2);
+    } else if (item.descuento === 0 || item.descuento === "0") {
+      descuento_dosificacion_2= "0.00";
+    } else {
+        // Si es decimal, devuelve el valor tal como está
+        descuento_dosificacion_2=item.descuento;
+    }
+    sumador_subtotal=sumador_subtotal+((item.cant * item.p_u)-descuento_dosificacion_2);
     tableBody_2.push([
     { text: item.descrip , fontSize: 7, alignment: 'left' }, // Salto de línea
       {},   
@@ -982,7 +987,7 @@ watch: {
     ]);
     tableBody_2.push([
     { text: item.cant+'.00 x '+item.p_u+' - '+(descuento_dosificacion_2), fontSize: 7, alignment: 'left' }, // Salto de línea
-    { text: ((item.cant * item.p_u)-descuento_dosificacion_2), fontSize: 7, alignment: 'right' },   
+    { text: ((item.cant * item.p_u)-descuento_dosificacion_2).toFixed(2), fontSize: 7, alignment: 'right' },   
     ]);
   });
   
@@ -990,7 +995,7 @@ watch: {
     // Agrega los encabezados de la tabla
     [
       { text: 'SubTotal Bs:   ',  fontSize: 7, alignment: 'right' }, 
-      { text: (total_venta).toFixed(2), fontSize: 7, alignment: 'right' }     
+      { text: (sumador_subtotal).toFixed(2), fontSize: 7, alignment: 'right' }     
     ],
     [
       { text: 'Descuento Bs:   ',  fontSize: 7, alignment: 'right' }, 
@@ -1017,15 +1022,14 @@ watch: {
   const table_pago_efe_cambio=[
   [
       { text: 'Pago en efectivo Bs:   ',  fontSize: 7, alignment: 'right' }, 
-      { text: '0.00', fontSize: 7, alignment: 'right' }     
+      { text: (efectivo_venta).toFixed(2), fontSize: 7, alignment: 'right' }     
     ],
     [
       { text: 'Cambio Bs:   ',  fontSize: 7, alignment: 'right' }, 
-      { text: '0.00', fontSize: 7, alignment: 'right' }     
+      { text: (cambio_venta).toFixed(2), fontSize: 7, alignment: 'right' }     
     ],
   ];
-
-
+   
       const documentDefinition = {
         pageMargins: [10, 12, 10, 8], // Configura los márgenes en cero
         pageSize: {
@@ -1483,7 +1487,7 @@ watch: {
                 porcentaje=var1;
             }
                
-               console.log("-"+valorNumeral+"--"+porcentaje); 
+         
                 return { valorNumeral, porcentaje };
 
             }
@@ -1625,9 +1629,7 @@ if (tipo_can_valor==='BS') {
                     let respuesta = response.data; 
                     me.estado_dosificacion_facctura=respuesta.estado;
                     me.arrayEstado_dosificacion_facctura=respuesta.consulta;  
-                    console.log("-++---------------------------");
-                    console.log(me.arrayEstado_dosificacion_facctura.id);
-                    console.log(me.arrayEstado_dosificacion_facctura);
+                
                     if ((me.estado_dosificacion_facctura===0||me.estado_dosificacion_facctura===null)&&(respuesta.consulta===null)) {
                         Swal.fire({
                   title: "No existe Dosificación o facturación",
@@ -1655,12 +1657,8 @@ if (tipo_can_valor==='BS') {
                             me.arrayEstado_dosificacion_facctura=respuesta.consulta;  
                         }
                        
-                    }
+                    }                   
                    
-
-
-                    
-                               
                 }).catch(function (error) {
                     error401(error);
                     console.log(error);
@@ -1678,7 +1676,7 @@ if (tipo_can_valor==='BS') {
                 .then(function (response) {
                     var respuesta = response.data; 
                     me.arrayDescuentoOperacion=respuesta.descuento;   
-                    console.log("/-/-/-/-/-/-/-/-/-/-/-");
+
                   
                     if (respuesta.validador==true && me.arrayDescuentoOperacion.length===1&&me.arrayDescuentoOperacion[0].id_nom_tabla===5) {
                         me.validadorPersonal=1;// caso personal
@@ -1752,7 +1750,6 @@ if (tipo_can_valor==='BS') {
                           }
 
 
-                    
                     }   
              
                                             
@@ -1779,8 +1776,7 @@ if (tipo_can_valor==='BS') {
                     me.nom_lista="Sin lista";  
                     me.id_lista_v2=0;
                  }
-          console.log(respuesta);
-// Verificar y mostrar la longitud del array 'descuento' en la respuesta (si es necesario)
+
                  if (respuesta.descuento.length>0) {
 
                     respuesta.descuento.forEach(des => {
@@ -1841,17 +1837,12 @@ if(Number(me.efectivo) > 0){
                 me.efectivo=0;
                 me.cambio=0;
             }           
-           // me.arrayVentas = me.arrayVentas.filter(venta => venta.id !== id);
-            console.log("----------------------");
-            console.log(me.arrayVentas);
-        },
+          },
 
         agregarVenta(){
             try {
                             let me = this;      
                             me.controlador_venta_id++;     
-             
-                            console.log(me.validadorPersonal);
                             if (me.validadorPersonal===99) {
                               
                 if (me.num_documento===''||me.datos_cliete==='') {
@@ -1953,9 +1944,7 @@ if(Number(me.efectivo) > 0){
             me.descuento=0;
             var precioXcantida=0;
             var subtotal=0;
-            me.descuento_1 +=parseFloat(descuento);
-            console.log("---------------");
-            console.log(me.descuento_1);
+            me.descuento_1 +=parseFloat(descuento);      
             precioXcantida=me.selected.precio_lista_gespreventa*me.numero;
             subtotal=precioXcantida;
             //me.array_ven__detalle_descuentos.push({id_contador:0,id_tabla:0,id_descuento:0,cantidad_descuento:0.00,tipo:1});
@@ -2021,8 +2010,6 @@ if(Number(me.efectivo) > 0){
                     if (var_c) {
                         let operacion_21 = this.operacion_Numeral_Procentaje(descuento.tipo_num_des, descuento.monto_descuento, me.selected.precio_lista_gespreventa);
                     let { valorNumeral, porcentaje } = operacion_21;
-                    console.log("+++/");
-                    console.log(valorNumeral+"  -  "+porcentaje);    
                     sumador_21_sub += parseFloat(valorNumeral);  // Acumular los valores numerales como float
                     sumador_21_des += parseFloat(porcentaje); 
                     me.array_ven__detalle_descuentos.push({id_contador:me.controlador_venta_id,id_tabla:descuento.id_nom_tabla,id_descuento:descuento.id ,cantidad_descuento:parseFloat(porcentaje),tipo:1});
@@ -2110,7 +2097,6 @@ if(Number(me.efectivo) > 0){
                 let operacion_21 = this.operacion_Numeral_Procentaje(this.selected.tipo_num_des, this.selected.monto_descuento, this.selected.precio_lista_gespreventa);
                 let { valorNumeral, porcentaje } = operacion_21;
                 me.descuento = porcentaje;
-                    console.log(porcentaje);
                     var descuento=0;
             var precioXcantida=0;
             var subtotal=0;
@@ -2164,9 +2150,6 @@ if(Number(me.efectivo) > 0){
           me.tota_del_total=me.sumatotal;
             // Convertir a un número con dos decimales
             subtotal = parseFloat(subtotal.toFixed(2));
-            
-
-           console.log(me.selected.nombre_linea);
             me.arrayVentas.push({id_contador:me.controlador_venta_id, id: me.selected.id,leyenda: me.selected.leyenda,cantidad:me.numero,precio:me.selected.precio_lista_gespreventa,
             descuento: descuento,subtotal:subtotal,id_ingreso:me.selected.id_ingreso,id_pro:me.selected.id_prod,nombre_linea:me.selected.nombre_linea
             });
@@ -2431,8 +2414,6 @@ if(Number(me.efectivo) > 0){
                 .get(url)
                 .then(function (response) {
                     var respuesta = response.data;
-                    console.log("//cliente------");
-                    console.log(response.data);
                     me.cliente_id=response.data.id;
                     me.cliente_des=response.data.monto_descuento;
                     me.cliente_num_por=response.data.tipo_num_des;
@@ -2486,7 +2467,6 @@ if(Number(me.efectivo) > 0){
                 .then(function (response) {
                     var respuesta = response.data;
                     me.arrayProducto = respuesta;
-                console.log(me.arrayProducto);
                 })
                 .catch(function (error) {
                     error401(error);
@@ -2697,13 +2677,6 @@ if(Number(me.efectivo) > 0){
         return total + (parseFloat(venta.descuento) || 0);
 }, 0);
 me.descuento_1=totalDescuento+me.descuento_final;
-    console.log("-----------------arrayProducto_recibo_1-------------------");
-    console.log(me.arrayProducto_recibo_1);
-    console.log("-----------------array_ven__detalle_descuentos-------------------");
-   console.log(me.array_ven__detalle_descuentos);
-   console.log("-----------------array_vetasQuery-------------------");
-   console.log(me.array_vetasQuery);
-   
         const data = {
           TipoComprobate: me.TipoComprobate,
           num_documento: me.num_documento,
@@ -2740,8 +2713,14 @@ me.descuento_1=totalDescuento+me.descuento_final;
               me.resetVenta();
               me.listarSucursalGet();
               me.cerrarModal("registrar");
-              
-              me.respuesta = response.data.data;
+              if (response.data===12) {
+                Swal.fire({
+                  title: "Logitud de numero de factura paso el limite de 12 digitos",
+                  text: "Haga click en Ok ",
+                  icon: "error",
+              })  
+              } else {
+                me.respuesta = response.data.data;
               if (me.respuesta==='1') {
                   Swal.fire({
                   title: "El usuario root no puede realizar ventas",
@@ -2779,8 +2758,7 @@ let fecha_e_2 = respuesta.fecha_e_2;
 let numero_factura = respuesta.numero_factura;
 let cliente_id = respuesta.cliente_id;
 let total_literal=respuesta.total_literal;
-console.log(respuesta);
-// console.log(respuesta.idsuc);
+
 // Mostrar la alerta de éxito
                 if (tipocom===1) {
                     Swal.fire({
@@ -2807,6 +2785,7 @@ total_sin_des,descuento_venta,total_venta,efectivo_venta,cambio_venta,fechaMas7D
 
                   
               }
+              } 
 
           })
           .catch(error => {
@@ -2860,9 +2839,9 @@ if (!correoRegex.test(me.correo)) {
 } else {
    
     if (me.num_documento!=99001&&me.num_documento!=99002&&me.num_documento!=99003&&me.num_documento!=0&&me.num_documento!="000") {
-       console.log("tipo:"+me.selectTipo+" tipo11: "+me.selectTipoDoc+" nombres: "+me.nombres
-        +" apellidos: "+me.apellidos+" numero_d "+me.num_documento+" complemento: "+me.complemento_+" name: "+
-        me.nombre_a_facturar+" telefono: "+me.telefono+" dir: "+me.direccion+" pais: "+me.pais+" ciudad: "+me.ciudad);
+      // console.log("tipo:"+me.selectTipo+" tipo11: "+me.selectTipoDoc+" nombres: "+me.nombres
+     //   +" apellidos: "+me.apellidos+" numero_d "+me.num_documento+" complemento: "+me.complemento_+" name: "+
+    //    me.nombre_a_facturar+" telefono: "+me.telefono+" dir: "+me.direccion+" pais: "+me.pais+" ciudad: "+me.ciudad);
         axios
         .post("/directorio/registrar", {
             tipo_per_emp: me.selectTipo,
@@ -2879,7 +2858,7 @@ if (!correoRegex.test(me.correo)) {
             ciudad: me.ciudad                
         })
         .then(function (response) {   
-            console.log("Respuesta del servidor:", response.data); // Mostrar toda la respuesta en la consola
+
             me.id_tipo_doc=response.data.id_tipo_doc;
             me.cliente_id=response.data.id;
             me.num_documento=response.data.num_documento;

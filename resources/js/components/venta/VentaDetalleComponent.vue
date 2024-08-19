@@ -117,10 +117,11 @@
       <a @click.prevent="abrirModal('recibo_r', v);" class="dropdown-item" href="#"><i style="color: black;" class="fa fa-file-pdf-o" aria-hidden="true"></i> Re imprimir factura ticket</a>
     <a @click.prevent="abrirModal('pdf_plana', v);" class="dropdown-item" href="#"><i style="color: black;" class="fa fa-file-pdf-o" aria-hidden="true"></i> Re imprimir factura plana</a>
     <a @click.prevent="abrirModal('ver_detalle_venta',v)"  class="dropdown-item" href="#"><i style="color: black;" class="fa fa-eye" aria-hidden="true"></i> Ver estado</a>
-    </div>      
-      <a v-if="puedeActivar==1" @click.prevent="eliminar(v.id,v.fecha_formateada,v.fecha_mas_tres);"  class="dropdown-item" href="#"><i style="color: black;" class="fa fa-trash" aria-hidden="true"></i> Anular venta</a>
-   
-  </div>
+    </div>
+         <a v-if="puedeActivar==1&&v.anulado===0" @click.prevent="eliminar(v.id,v.fecha_formateada,v.fecha_mas_tres);"  class="dropdown-item" href="#"><i style="color: black;" class="fa fa-trash" aria-hidden="true"></i> Anular venta</a>
+         <a v-else  class="dropdown-item" href="#"><i class="fa fa-trash-o" aria-hidden="true"></i> Venta ya anulada</a>
+         
+     </div>
 </div>
 <div v-else>
   <button type="button" style="color: white;"  class="btn btn-light">
@@ -540,6 +541,77 @@ listarPerimsoxyz() {
         });
 },
 
+////////facturacion x dosificacion////////////////
+  reimprecionFactura_dosificaicion(cod_cliente,numero_identificacion,respuesta_total,nom_empresa,direccionMayusculas,nomsucursal,nuevoComprobante,fecha,hora,num_documento,nom_a_facturar,array_recibo,total_sin_des,descuento_venta,total_venta,efectivo_venta,cambio_venta,fechaMas7Dias,numero_referencia,nombreCompleto_1,venta_con_descuento,resultado_descuento_2,anulado,actividad_economica,nro_celular,ciudad_su_1,departamento_su_1){
+    const documentDefinition = {
+        pageMargins: [10, 12, 10, 8], // Configura los márgenes en cero
+        pageSize: {
+    width: 80 * 2.83465, // Ancho en puntos (conversión a puntos desde mm)
+    height: 'auto',
+    columnGap: 2,
+  },
+  content: [
+  {
+        text: 'FACTURA', bold: true,
+      
+        style: 'header'
+      },
+      {
+        text: 'CON DERECHO A CREDITO FISCAL', bold: true,
+      
+        style: 'header'
+      },
+      {
+        text: nom_empresa,
+      
+        style: 'header'
+      },
+      {
+        text: nomsucursal,
+   
+        style: 'header'
+      },
+      {
+        text: direccionMayusculas,
+    
+        style: 'header'
+      },
+      {
+        text: 'Telefono: '+numero_referencia,
+    
+        style: 'header'
+      }, 
+      {
+        text: ciudad_su_1+' - '+departamento_su_1,
+    
+        style: 'header'
+      },
+      {
+        text: '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -',    
+        style:'linea_2' 
+      },
+      
+    ],
+    styles: {
+      header: {
+            fontSize: 7,
+           
+            alignment: 'center',         
+          },
+          linea_2: {
+                fontSize: 9,
+                 margin: [1, 1, 1, 1],
+                 alignment: 'center',  
+            },
+    }
+   
+};
+   // Genera el PDF y abre una nueva ventana con el documento
+   pdfMake.createPdf(documentDefinition).open();
+  },
+
+
+
             ///////////////////////////////funciones para la venta///////////////////////////////////////////////////////
     generarPDF(nom_empresa,direccionMayusculas,nomsucursal,nuevoComprobante,fecha,hora,num_documento,nom_a_facturar,array_recibo,total_sin_des,descuento_venta,total_venta,efectivo_venta,cambio_venta,fechaMas7Dias,numero_referencia,nombreCompleto_1,anulado) {
       // Define el contenido del PDF
@@ -561,10 +633,10 @@ listarPerimsoxyz() {
   // Itera sobre los datos y agrega filas a la tabla
   array_recibo.forEach(item => {
     tableBody.push([
-      { text: item.cantidad_venta, fontSize: 8, alignment: 'center' },
-      { text: item.leyenda, fontSize: 8, alignment: 'left' },
-      { text: item.precio_unitario, fontSize: 8, alignment: 'center' },
-      { text: (item.cantidad_venta * item.precio_unitario).toFixed(2), fontSize: 8, alignment: 'center' } // Operación y formato
+      { text: item.cantidad_venta, fontSize: 7, alignment: 'center' },
+      { text: item.leyenda, fontSize: 7, alignment: 'left' },
+      { text: item.precio_unitario, fontSize: 7, alignment: 'center' },
+      { text: (item.cantidad_venta * item.precio_unitario).toFixed(2), fontSize: 7, alignment: 'center' } // Operación y formato
     ]);
   });
 
@@ -597,7 +669,7 @@ listarPerimsoxyz() {
       },
       {
         canvas: [
-          { type: 'line', x1: 0, y1: 0, x2: 226.8, y2: 0, lineWidth: 1, dash: { length: 2, space: 3 } } // Línea punteada
+          { type: 'line', x1: 0, y1: 0, x2: 226.8, y2: 0, lineWidth: 1, dash: { length: 1, space: 2 } } // Línea punteada
         ],
         margin: [1, 5, 1, 5]
       },
@@ -623,7 +695,7 @@ listarPerimsoxyz() {
       },
       {
         canvas: [
-          { type: 'line', x1: 0, y1: 0, x2: 226.8, y2: 0, lineWidth: 1, dash: { length: 2, space: 3 } } // Línea punteada
+          { type: 'line', x1: 0, y1: 0, x2: 226.8, y2: 0, lineWidth: 1, dash: { length: 1, space: 2 } } // Línea punteada
         ],
         margin: [6, 4, 6, 4]
       },
@@ -638,7 +710,7 @@ listarPerimsoxyz() {
 		},
         {
         canvas: [
-          { type: 'line', x1: 0, y1: 0, x2: 226.8, y2: 0, lineWidth: 1, dash: { length: 2, space: 3 } } // Línea punteada
+          { type: 'line', x1: 0, y1: 0, x2: 226.8, y2: 0, lineWidth: 1, dash: { length: 1, space: 2 } } // Línea punteada
         ],
         margin: [6, 4, 8, 4]
       },
@@ -661,7 +733,7 @@ listarPerimsoxyz() {
       },
       {
         canvas: [
-          { type: 'line', x1: 0, y1: 0, x2: 226.8, y2: 0, lineWidth: 1, dash: { length: 2, space: 3 } } // Línea punteada
+          { type: 'line', x1: 0, y1: 0, x2: 226.8, y2: 0, lineWidth: 1, dash: { length: 1, space: 2 } } // Línea punteada
         ],
         margin: [6, 4, 6, 4]
       },
@@ -676,7 +748,7 @@ listarPerimsoxyz() {
 
       {
         canvas: [
-          { type: 'line', x1: 0, y1: 0, x2: 226.8, y2: 0, lineWidth: 1, dash: { length: 2, space: 3 } } // Línea punteada
+          { type: 'line', x1: 0, y1: 0, x2: 226.8, y2: 0, lineWidth: 1, dash: { length: 1, space: 2 } } // Línea punteada
         ],
         margin: [6, 4, 6, 4]
       },
@@ -705,18 +777,18 @@ listarPerimsoxyz() {
         watermark: watermark, // Agrega la marca de agua condicionalmente
         styles: {
           header: {
-            fontSize: 8,
+            fontSize: 7,
             bold: true,
             alignment: 'center',         
           },
           header_1: {
-            fontSize: 8,
+            fontSize: 7,
             bold: true,
             alignment: 'right', 
                     
           },
           datos_f: {
-            fontSize: 8,
+            fontSize: 7,
             bold: true,
             alignment: 'left',         
           },
@@ -726,18 +798,18 @@ listarPerimsoxyz() {
 		},
         tableHeader_1: {
         bold: true,
-        fontSize: 8,
+        fontSize: 7,
             bold: true,
             alignment: 'justify',
       },
       tableHeader_2: {
         bold: true,
-        fontSize: 8,
+        fontSize: 7,
             bold: true,
             alignment: 'center',
       },
       anulado: {
-        fontSize: 8,
+        fontSize: 7,
       }
         }
       };
@@ -783,25 +855,25 @@ listarPerimsoxyz() {
       { text: item.tot, fontSize: 8, alignment: 'right' },
       { text: item.descuento, fontSize: 8, alignment: 'right' },
       
-      { text: (item.tot - item.descuento).toFixed(2), fontSize: 8, alignment: 'right' } // Operación y formato
+      { text: (item.tot - item.descuento).toFixed(2), fontSize: 7, alignment: 'right' } // Operación y formato
     ]);
   });
   // Agrega las filas con colspan al final del tableBody
 tableBody.push(
   [
-    { text: 'Suma Total', colSpan: 9, fontSize: 8, alignment: 'right', border: [false, true, true, false] },
+    { text: 'Suma Total', colSpan: 9, fontSize: 7, alignment: 'right', border: [false, true, true, false] },
     {}, {}, {}, {}, {}, {}, {}, {},
-    { text: venta_con_descuento, fontSize: 8, alignment: 'right' }
+    { text: (venta_con_descuento).toFixed(2), fontSize: 7, alignment: 'right' }
   ],
   [
-    { text: 'Descuento', colSpan: 9, fontSize: 8, alignment: 'right', border: [false, false, true, false] },
+    { text: 'Descuento', colSpan: 9, fontSize: 7, alignment: 'right', border: [false, false, true, false] },
     {}, {}, {}, {}, {}, {}, {}, {},
-    { text: resultado_descuento_2, fontSize: 8, alignment: 'right' }
+    { text: resultado_descuento_2, fontSize: 7, alignment: 'right' }
   ],
   [
-    { text: 'Total', colSpan: 9, fontSize: 8, alignment: 'right', border: [false, false, true, false] },
+    { text: 'Total', colSpan: 9, fontSize: 7, alignment: 'right', border: [false, false, true, false] },
     {}, {}, {}, {}, {}, {}, {}, {},
-    { text: total_venta , fontSize: 8, alignment: 'right' }
+    { text: total_venta , fontSize: 7, alignment: 'right' }
   ]
 );
       const docDefinition = {
@@ -814,16 +886,16 @@ tableBody.push(
 			table: {
 				widths: [120,'*',90, 100],
 				body: [
-					[{text: nom_empresa ,fontSize: 9},
-          { },{text: 'IDENTIFICACIÓN ',fontSize: 9},{text: numero_identificacion ,fontSize: 9}
+					[{text: nom_empresa ,fontSize: 8},
+          { },{text: 'IDENTIFICACIÓN ',fontSize: 8},{text: numero_identificacion ,fontSize: 8}
           ],
-					[{text: nomsucursal,fontSize: 9},{ },
-           {text: 'RECIBO Nº:',fontSize: 9},
-            {text: nuevoComprobante,fontSize: 9}, 
+					[{text: nomsucursal,fontSize: 8},{ },
+           {text: 'RECIBO Nº:',fontSize: 8},
+            {text: nuevoComprobante,fontSize: 8}, 
             ],
-            [{text: direccionMayusculas+' \n'+'TELEFONO '+numero_referencia ,fontSize: 9},{ },
-           {text: 'COD DE CONTROL:',fontSize: 9},
-            {text: nuevoComprobante ,fontSize: 9}, 
+            [{text: direccionMayusculas+' \n'+'TELEFONO '+numero_referencia ,fontSize: 8},{ },
+           {text: 'COD DE CONTROL:',fontSize: 8},
+            {text: nuevoComprobante ,fontSize: 8}, 
             ],
 				]
 			},
@@ -836,15 +908,15 @@ tableBody.push(
 			table: {
 				widths: [90,120,'*',60,105],
 				body: [
-					[{text: 'Fecha:',fontSize: 9},
-          {text: fecha+' '+ hora ,fontSize: 9},{ },
-          {text: 'NIT/CI/CEX:',fontSize: 9},
-          {text: num_documento,fontSize: 9},         
+					[{text: 'Fecha:',fontSize: 8},
+          {text: fecha+' '+ hora ,fontSize: 8},{ },
+          {text: 'NIT/CI/CEX:',fontSize: 8},
+          {text: num_documento,fontSize: 8},         
           ],
-					[{text: 'Nombre/Razón Social:',fontSize: 9},
-          {text: nom_a_facturar,fontSize: 9},{ },
-          {text: 'Cod. Cliente:',fontSize: 9},
-          {text: cod_cliente,fontSize: 9},         
+					[{text: 'Nombre/Razón Social:',fontSize: 8},
+          {text: nom_a_facturar,fontSize: 8},{ },
+          {text: 'Cod. Cliente:',fontSize: 8},
+          {text: cod_cliente,fontSize: 8},         
           ],
 				]
 			},
@@ -862,33 +934,33 @@ tableBody.push(
 		},
     
     {
-      text: respuesta_total ,fontSize: 8
+      text: respuesta_total ,fontSize: 7
     },
     {
       text:'Valido desde '+ fecha +' hasta '+fechaMas7Dias+',valor de vigencia para el recibo para el cambio valido hasta '+ fecha+' en la misma tienda, términos y codiciones según politica de cambios y devoluiones'
-      ,fontSize: 8
+      ,fontSize: 7
     },
    
       {
         text: 'Usuario: '+ nombreCompleto_1,
-        fontSize: 8
+        fontSize: 7
       },
     ],
     watermark: watermark, // Agrega la marca de agua condicionalmente
     styles: {
       header: {
-        fontSize: 13,
+        fontSize: 12,
         bold: true,
         color: 'black',
         alignment: 'center',
         margin:[0,10,0,10]
       },
       cabeza: {
-        fontZise: 9,
+        fontZise: 8,
 
       },
       tableExample:{
-        fontSize: 9,
+        fontSize: 8,
         bold: true,
       },
 		tableHeader: {
@@ -899,13 +971,13 @@ tableBody.push(
 		},
     tableHeader2 : {
 			bold: true,
-			fontSize: 8,
+			fontSize: 7,
 			color: 'black',
       margin:[ 180, 0, 20,0] 
 		},
     tableHeader3 : {
 			bold: true,
-			fontSize: 8,
+			fontSize: 7,
 			color: 'black',
       margin:[ 50, 0, 10,0] 
 		}
@@ -922,10 +994,8 @@ listarDetalle_producto_x(id,tipo_per_emp) {
             axios
                 .get(url)
                 .then(function (response) {
-                    var respuesta_1 = response.data;    
-                    console.log(respuesta_1);                                 
-                    me.array_nombre_des=respuesta_1;
-                    console.log("-*-------------------");
+                    var respuesta_1 = response.data;                                          
+                    me.array_nombre_des=respuesta_1;         
                    
                 })
                 .catch(function (error) {
@@ -982,12 +1052,14 @@ listarDetalle_producto_x(id,tipo_per_emp) {
             me.pagination.current_page = page;
             me.listarVentas(page);
         },
+
+      
         
         detalleVenta(cod_cliente,validor_12,id,tipo,direccion,razon_social,nro_comprobante_venta,fecha_formateada,hora_formateada,
         num_documento,nom_a_facturar,total_sin_des,descuento_venta,total_venta,efectivo_venta,cambio_venta,fecha_mas_siete,
-        numero_referencia,nombre_completo,anulado){
+        numero_referencia,nombre_completo,anulado,dosificacion_o_electronica,ciudad,departamento){
           let me=this;  
-         
+         console.log("------"+validor_12+"++++"+dosificacion_o_electronica);
         var url = "/detalle_venta_2/re_imprecion?id_venta="+id+"&tipofactura="+tipo+"&venta="+total_venta+"&total_sin_des="+total_sin_des;
         axios
                 .get(url)
@@ -1007,22 +1079,35 @@ listarDetalle_producto_x(id,tipo_per_emp) {
                     
                     
                     let nit =respuesta_empresa[0].nit;  
-                    let nom_empresa =respuesta_empresa[0].nom_empresa;             
+                    let nom_empresa =respuesta_empresa[0].nom_empresa;   
+                    let nro_celular =respuesta_empresa[0].nro_celular;  
+                    let actividad_economica =respuesta_empresa[0].actividad_economica;           
                      me.arrayDetalle_venta = respuesta.detalle_venta;             
                      me.venta_con_descuento = respuesta_descuento_1.venta_con_descuento;
            
                     
-
-                     if (validor_12===1) {
-                      me.generarPDF(nom_empresa,direccion,razon_social,nro_comprobante_venta,fecha_formateada,
+                    //recibo normal tipo ticket
+                     if (validor_12===1&&dosificacion_o_electronica===0) {
+                    
+                          me.generarPDF(nom_empresa,direccion,razon_social,nro_comprobante_venta,fecha_formateada,
                      hora_formateada,num_documento,nom_a_facturar,me.arrayDetalle_venta,total_sin_des,descuento_venta,total_venta,
                     efectivo_venta,cambio_venta,fecha_mas_siete,numero_referencia,nombre_completo,anulado);  
-                     } 
-                     if (validor_12===2) {
+                       }
+                       //factura tipo ticket dosificacion 
+                       if (validor_12===1&&dosificacion_o_electronica===2) {
+                        me.reimprecionFactura_dosificaicion(cod_cliente,id,respuesta_total,nom_empresa,direccion,razon_social,nro_comprobante_venta,fecha_formateada,
+                     hora_formateada,num_documento,nom_a_facturar,me.arrayDetalle_venta,total_sin_des,descuento_venta,total_venta,
+                    efectivo_venta,cambio_venta,fecha_mas_siete,numero_referencia,nombre_completo,respuesta_descuento_1,me.decuento_sin_venta,anulado,actividad_economica,nro_celular,ciudad,departamento);
+                   
+                    }
+                     //recibo normal tipo plana
+                     if (validor_12===2&&dosificacion_o_electronica===0) {
                       me.generarFacPlana(cod_cliente,id,respuesta_total,nom_empresa,direccion,razon_social,nro_comprobante_venta,fecha_formateada,
                      hora_formateada,num_documento,nom_a_facturar,me.arrayDetalle_venta,total_sin_des,descuento_venta,total_venta,
                     efectivo_venta,cambio_venta,fecha_mas_siete,numero_referencia,nombre_completo,respuesta_descuento_1,me.decuento_sin_venta,anulado);
-                     }                   
+                     }
+                     
+                                  
                 })
                 .catch(function (error) {
                     error401(error);
@@ -1068,7 +1153,6 @@ listarDetalle_producto_x(id,tipo_per_emp) {
                 case "registrar": {
                     me.tipoAccion = 1;
                     me.tituloModal = "Registro de traspaso origen ";
-
                     me.classModal.openModal("registrar");
                     break;
                 }
@@ -1104,15 +1188,26 @@ listarDetalle_producto_x(id,tipo_per_emp) {
 
                 case "recibo_r": {
                   me.recibo_ticket_plana=1;
+                  console.log("------------*------------");
                     console.log(data);
+                    console.log("------------*------------");
                     if (data.tipo_venta_reci_fac==="RECIBO") {
                       me.detalleVenta(data.id_cliente,me.recibo_ticket_plana,data.id,data.tipo_venta_reci_fac,data.direccion,data.razon_social,data.nro_comprobante_venta,
                     data.fecha_formateada,data.hora_formateada,data.num_documento,data.nom_a_facturar,data.total_sin_des,
                     data.descuento_venta,data.total_venta,data.efectivo_venta,data.cambio_venta,data.fecha_mas_siete,
-                    data.numero_referencia,data.nombre_completo_empleado,data.anulado
+                    data.numero_referencia,data.nombre_completo_empleado,data.anulado,data.dosificacion_o_electronica,data.ciudad,data.departamento
                     );
-                    }
-                   
+                    } else {
+                    if (data.tipo_venta_reci_fac==="FACTURA") {         
+                          me.detalleVenta(data.id_cliente,me.recibo_ticket_plana,data.id,data.tipo_venta_reci_fac,data.direccion,data.razon_social,data.nro_comprobante_venta,
+                    data.fecha_formateada,data.hora_formateada,data.num_documento,data.nom_a_facturar,data.total_sin_des,
+                    data.descuento_venta,data.total_venta,data.efectivo_venta,data.cambio_venta,data.fecha_mas_siete,
+                    data.numero_referencia,data.nombre_completo_empleado,data.anulado,data.dosificacion_o_electronica,data.ciudad,data.departamento
+                    );
+                        
+                    } 
+                  }
+                    
                     break;
                 }
 
@@ -1124,9 +1219,10 @@ listarDetalle_producto_x(id,tipo_per_emp) {
                     me.detalleVenta(data.id_cliente,me.recibo_ticket_plana,data.id,data.tipo_venta_reci_fac,data.direccion,data.razon_social,data.nro_comprobante_venta,
                     data.fecha_formateada,data.hora_formateada,data.num_documento,data.nom_a_facturar,data.total_sin_des,
                     data.descuento_venta,data.total_venta,data.efectivo_venta,data.cambio_venta,data.fecha_mas_siete,
-                    data.numero_referencia,data.nombre_completo_empleado,data.anulado
+                    data.numero_referencia,data.nombre_completo_empleado,data.anulado,data.dosificacion_o_electronica,data.ciudad,data.departamento
                     );              
-                  }         
+                  } 
+
                  
                   break;
                 }
