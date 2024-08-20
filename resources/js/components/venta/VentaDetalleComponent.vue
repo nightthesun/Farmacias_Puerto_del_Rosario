@@ -540,9 +540,100 @@ listarPerimsoxyz() {
             console.log(error);
         });
 },
+/////////facturacion plana x dosificacion /////////////////////////////////
+reimprecionFactura_dosificaicion_plana(cod_cliente,numero_identificacion,respuesta_total,nom_empresa,direccionMayusculas,nomsucursal,nuevoComprobante,fecha,hora,num_documento,nom_a_facturar,array_recibo,total_sin_des,descuento_venta,total_venta,efectivo_venta,cambio_venta,fechaMas7Dias,numero_referencia,nombreCompleto_1,venta_con_descuento,resultado_descuento_2,anulado,actividad_economica,nro_celular,ciudad_su_1,departamento_su_1,codigo_control_dosifi,estado_factura_dosifi,fecha_e_dosifi,nro_autorizacion_dosifi,numero_factura_dosifi,nit,descuento_final,total_literal){
+  const imgUrl = '/img/favicon.png'; // Ruta de la imagen en la carpeta pública
+        const img = new Image();
+     
+  const docDefinition = {
+    pageSize: 'LETTER', // Tamaño carta
+    pageMargins: [25, 30, 25, 30], // Márgenes: [left, top, right, bottom]
+    content: [
+    {
+  		table: {
+				widths: [40,90,'*',80, 90],
+				body: [
+      	[{rowSpan: 3, image: '..public/img/favicon.png',fit: [100, 100]},{text: nom_empresa ,fontSize: 8},{ },{text: 'NIT: ',fontSize: 8},{text: numero_identificacion ,fontSize: 8}],
+					[{ },{text: nomsucursal,fontSize: 8},{ },{text: 'FACTURA Nº:',fontSize: 8},{text: nuevoComprobante,fontSize: 8}],
+          [{ },{text: direccionMayusculas+' \n'+'TELEFONO '+numero_referencia ,fontSize: 8},{ },{text: 'COD. AUTORIZACIÓN:',fontSize: 8},
+            {text: nuevoComprobante ,fontSize: 8}],
+				]
+			},
+      layout: 'noBorders'
+		},
+  ],
+  };
+   // Genera el PDF y abre una nueva ventana con el documento
+   pdfMake.createPdf(docDefinition).open();
+},
+////////facturacion ticket x dosificacion/////////////////////////////////
+  reimprecionFactura_dosificaicion(cod_cliente,numero_identificacion,respuesta_total,nom_empresa,direccionMayusculas,nomsucursal,nuevoComprobante,fecha,hora,num_documento,nom_a_facturar,array_recibo,total_sin_des,descuento_venta,total_venta,efectivo_venta,cambio_venta,fechaMas7Dias,numero_referencia,nombreCompleto_1,venta_con_descuento,resultado_descuento_2,anulado,actividad_economica,nro_celular,ciudad_su_1,departamento_su_1,codigo_control_dosifi,estado_factura_dosifi,fecha_e_dosifi,nro_autorizacion_dosifi,numero_factura_dosifi,nit,descuento_final,total_literal){
 
-////////facturacion x dosificacion////////////////
-  reimprecionFactura_dosificaicion(cod_cliente,numero_identificacion,respuesta_total,nom_empresa,direccionMayusculas,nomsucursal,nuevoComprobante,fecha,hora,num_documento,nom_a_facturar,array_recibo,total_sin_des,descuento_venta,total_venta,efectivo_venta,cambio_venta,fechaMas7Dias,numero_referencia,nombreCompleto_1,venta_con_descuento,resultado_descuento_2,anulado,actividad_economica,nro_celular,ciudad_su_1,departamento_su_1){
+    // Itera sobre los datos y agrega filas a la tabla
+  const tableBody_2=[];
+  let sumador_subtotal=0;
+  array_recibo.forEach(item => {
+    
+    let descuento_dosificacion_2="";
+    if (Number.isInteger(Number(item.descuento))) {
+      descuento_dosificacion_2= Number(item.descuento).toFixed(2);
+    } else if (item.descuento === 0 || item.descuento === "0") {
+      descuento_dosificacion_2= "0.00";
+    } else {
+        // Si es decimal, devuelve el valor tal como está
+        descuento_dosificacion_2=item.descuento;
+    }
+    sumador_subtotal=sumador_subtotal+((item.cantidad_venta * item.precio_unitario)-descuento_dosificacion_2);
+    tableBody_2.push([
+    { text: item.leyenda , fontSize: 7, alignment: 'left' }, // Salto de línea
+      {},   
+    ]);
+    tableBody_2.push([
+    { text: 'Unidad de medida: '+item.unidad_medida, fontSize: 7, margin: [5, 0, 0, 0],alignment: 'left' }, // Salto de línea
+      {},   
+    ]);
+    tableBody_2.push([
+    { text: item.cantidad_venta+'.00 x '+item.precio_unitario+' - '+(descuento_dosificacion_2), fontSize: 7, alignment: 'left' }, // Salto de línea
+    { text: ((item.cantidad_venta * item.precio_unitario)-descuento_dosificacion_2).toFixed(2), fontSize: 7, alignment: 'right' },   
+    ]);
+  });
+  const table_totales = [
+    // Agrega los encabezados de la tabla
+    [
+      { text: 'SubTotal Bs:   ',  fontSize: 7, alignment: 'right' }, 
+      { text: (sumador_subtotal).toFixed(2), fontSize: 7, alignment: 'right' }     
+    ],
+    [
+      { text: 'Descuento Bs:   ',  fontSize: 7, alignment: 'right' }, 
+      { text: descuento_final, fontSize: 7, alignment: 'right' }     
+    ],
+    [
+      { text: 'Total Bs:   ',  fontSize: 7, alignment: 'right' }, 
+      { text: total_venta, fontSize: 7, alignment: 'right' }     
+    ],
+    [
+      { text: 'Monto gift card Bs:   ',  fontSize: 7, alignment: 'right' }, 
+      { text: '0.00', fontSize: 7, alignment: 'right' }     
+    ],
+    [
+      { text: 'Monto a pagar Bs:   ',  fontSize: 7, alignment: 'right',bold: true }, 
+      { text: total_venta, fontSize: 7, alignment: 'right' }     
+    ],
+    [
+      { text: 'Importe base crédito fiscal Bs:   ',  fontSize: 7, alignment: 'right',bold: true }, 
+      { text: total_venta, fontSize: 7, alignment: 'right' }     
+    ]
+  ];
+  const table_pago_efe_cambio=[
+  [
+      { text: 'Pago en efectivo Bs:   ',  fontSize: 7, alignment: 'right' }, 
+      { text: efectivo_venta, fontSize: 7, alignment: 'right' }     
+    ],
+    [
+      { text: 'Cambio Bs:   ',  fontSize: 7, alignment: 'right' }, 
+      { text: cambio_venta, fontSize: 7, alignment: 'right' }     
+    ],
+  ];
     const documentDefinition = {
         pageMargins: [10, 12, 10, 8], // Configura los márgenes en cero
         pageSize: {
@@ -590,7 +681,134 @@ listarPerimsoxyz() {
         text: '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -',    
         style:'linea_2' 
       },
+      {
+        text: 'NIT', bold: true,    
+        style: 'header'
+      },
+      {
+        text: nit,    
+        style: 'header'
+      },
+      {
+        text: 'FACTURA Nro',bold: true,    
+        style: 'header'
+      },
+      {
+        text: numero_factura_dosifi,    
+        style: 'header'
+      },
+      {
+        text: 'CÓD. AUTORIZACION', bold: true,    
+        style: 'header'
+      },
+      {
+        text: nro_autorizacion_dosifi,    
+        style: 'header'
+      },
+      {
+        text: '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -',    
+        style:'linea_2' 
+      },
+    
+      {
+        text: actividad_economica.toUpperCase(),
+    
+        style: 'header'
+      },
       
+      {
+        text: '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -',    
+        style:'linea_2' 
+      },
+      {
+        text: 'NOMBRE/RAZÓN SOCIAL:    '+nom_a_facturar,
+     style: 'normal', margin: [19, 0, 0, 0]        
+      },
+      {
+        text: 'NIT/CI/CEX:    '+num_documento,
+        style: 'normal', margin: [63, 0, 0, 0]             
+      },
+      {
+        text: 'COD.CLIENTE:    '+cod_cliente,
+        style: 'normal', margin: [56, 0, 0, 0]        
+      },
+     
+      {
+        text: 'FECHA DE EMISIÓN:    '+fecha+' '+hora,
+        style: 'normal', margin: [37, 0, 0, 0] 
+      },
+      {
+        text: '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -',    
+        style:'linea_2' 
+      },
+      {
+        text: 'DETALLE',
+    
+        style: 'header'
+      },       
+
+      {       
+        table: {
+          headerRows: 1,
+          widths: ['75%', '25%'], // Ajusta los anchos de las columnas
+          body: tableBody_2
+        },
+        layout: 'noBorders'
+		},
+    {
+        text: '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -',    
+        style:'linea_2' 
+      },
+        {         
+            table:{
+                headesRows:1,
+                widths: ['75%','25%'],
+                body: table_totales
+            }, layout: 'noBorders'
+        },    
+        {
+        text: 'Son: '+total_literal,      
+        alignment: 'left',fontSize: 7
+      },
+      {
+        text: '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -',    
+        style:'linea_2' 
+      },     
+      {
+        margin: [1, 1, 1, 1],         
+            table:{
+                headesRows:1,
+                widths: ['75%','25%'],
+                body: table_pago_efe_cambio
+            }, layout: 'noBorders'
+      },
+      {
+        text: '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -',    
+        style:'linea_2' 
+      },
+      {
+        text: 'Codigo de control: '+codigo_control_dosifi,    
+        style: 'datos_f',margin: [6, 1, 6, 1]
+      },
+      {
+        text: 'Fecha limite de emision: '+fecha_e_dosifi,    
+        style: 'datos_f',margin: [6, 0, 6, 1]
+      },
+     {
+        text: '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -',    
+        style:'linea_2' 
+      },
+      {
+        text: 'ESTA FACTURA CONTRIBUYE AL DESARROLLO DEL PAÍS, EL USO ILÍCITO SERÁ SANCIONADO PENALMENTE DE ACUERDO A LEY', bold: true,    
+        style: 'header', margin: [7, 5, 7, 1]
+      },
+
+      {
+        text: 'Ley N° 453: Está prohibido importar, distribuir o comercializar productos prohibidos o retirados en el país de origen por atentar a la integridad física y a la salud. Este documento es la Representación Gráfica de un Documento Fiscal Digital emitido en una modalidad de facturación en línea',   
+        style: 'header' ,margin: [7, 1, 7, 3]
+      },
+      { qr:  nit+'|'+numero_factura_dosifi+'|'+nro_autorizacion_dosifi+'|'+fecha+'|'+total_venta+'|'+codigo_control_dosifi+'|'+cod_cliente+'|0|0|0|0.00',alignment: 'center',  fit: '85',margin: [0, 4, 0, 4] },
+    
     ],
     styles: {
       header: {
@@ -603,6 +821,14 @@ listarPerimsoxyz() {
                  margin: [1, 1, 1, 1],
                  alignment: 'center',  
             },
+            normal: {
+            fontSize: 7,                  
+          },
+          datos_f: {
+            fontSize: 7,
+         
+            alignment: 'left',         
+          },
     }
    
 };
@@ -1069,7 +1295,8 @@ listarDetalle_producto_x(id,tipo_per_emp) {
                     let respuesta_total = respuesta.datoTexto_v2;
                     let respuesta_descuento_1 = respuesta.venta_con_descuento;
                     let resultado_descuento_2 = respuesta.resultado_descuento_2;
-                    console.log("---------------------------------");
+                    let facturas_dosi_2 = respuesta.facturas_dosi;
+                    console.log("------------8--------8-------------");
                     console.log(resultado_descuento_2.resultado);
                     if(resultado_descuento_2.resultado===null){
                       me.decuento_sin_venta="0.00";
@@ -1081,25 +1308,64 @@ listarDetalle_producto_x(id,tipo_per_emp) {
                     let nit =respuesta_empresa[0].nit;  
                     let nom_empresa =respuesta_empresa[0].nom_empresa;   
                     let nro_celular =respuesta_empresa[0].nro_celular;  
-                    let actividad_economica =respuesta_empresa[0].actividad_economica;           
-                     me.arrayDetalle_venta = respuesta.detalle_venta;             
-                     me.venta_con_descuento = respuesta_descuento_1.venta_con_descuento;
-           
+                    let actividad_economica =respuesta_empresa[0].actividad_economica;  
+                    me.arrayDetalle_venta = respuesta.detalle_venta;             
+                    me.venta_con_descuento = respuesta_descuento_1.venta_con_descuento;
+                    //factura dosificacion-------------------------
+                   
+                    
+                    //let numero_factura_dosificacion= facturas_dosi_2[0].numero_factura;
+                    
+                    //---------------------------------------------
                     
                     //recibo normal tipo ticket
                      if (validor_12===1&&dosificacion_o_electronica===0) {
-                    
+                     
                           me.generarPDF(nom_empresa,direccion,razon_social,nro_comprobante_venta,fecha_formateada,
                      hora_formateada,num_documento,nom_a_facturar,me.arrayDetalle_venta,total_sin_des,descuento_venta,total_venta,
                     efectivo_venta,cambio_venta,fecha_mas_siete,numero_referencia,nombre_completo,anulado);  
                        }
                        //factura tipo ticket dosificacion 
                        if (validor_12===1&&dosificacion_o_electronica===2) {
-                        me.reimprecionFactura_dosificaicion(cod_cliente,id,respuesta_total,nom_empresa,direccion,razon_social,nro_comprobante_venta,fecha_formateada,
+                      
+                    if (facturas_dosi_2.length >0) { 
+                      console.log("*******************");
+                      let descuento_final = respuesta.descuento_final;
+                      //console.log(facturas_dosi_2);
+                      let codigo_control_dosifi=facturas_dosi_2[0].codigo_control;
+                      let estado_factura_dosifi=facturas_dosi_2[0].estado_factura;
+                      let fecha_e_dosifi=facturas_dosi_2[0].fecha_e;
+                      let nro_autorizacion_dosifi=facturas_dosi_2[0].nro_autorizacion;
+                      let numero_factura_dosifi=facturas_dosi_2[0].numero_factura;
+                      let total_literal=respuesta.total_literal;
+                      console.log(descuento_final);
+                    
+                    me.reimprecionFactura_dosificaicion(cod_cliente,id,respuesta_total,nom_empresa,direccion,razon_social,nro_comprobante_venta,fecha_formateada,
                      hora_formateada,num_documento,nom_a_facturar,me.arrayDetalle_venta,total_sin_des,descuento_venta,total_venta,
-                    efectivo_venta,cambio_venta,fecha_mas_siete,numero_referencia,nombre_completo,respuesta_descuento_1,me.decuento_sin_venta,anulado,actividad_economica,nro_celular,ciudad,departamento);
-                   
+                    efectivo_venta,cambio_venta,fecha_mas_siete,numero_referencia,nombre_completo,respuesta_descuento_1,me.decuento_sin_venta,anulado,actividad_economica,nro_celular,ciudad,departamento,
+                    codigo_control_dosifi,estado_factura_dosifi,fecha_e_dosifi,nro_autorizacion_dosifi,numero_factura_dosifi,nit,descuento_final,total_literal);
                     }
+                    }
+                    // plana tipo dosificacion
+                    if (validor_12===2&&dosificacion_o_electronica===2) {
+                      if (facturas_dosi_2.length >0) { 
+                        console.log("*******************");
+                      let descuento_final = respuesta.descuento_final;
+                      //console.log(facturas_dosi_2);
+                      let codigo_control_dosifi=facturas_dosi_2[0].codigo_control;
+                      let estado_factura_dosifi=facturas_dosi_2[0].estado_factura;
+                      let fecha_e_dosifi=facturas_dosi_2[0].fecha_e;
+                      let nro_autorizacion_dosifi=facturas_dosi_2[0].nro_autorizacion;
+                      let numero_factura_dosifi=facturas_dosi_2[0].numero_factura;
+                      let total_literal=respuesta.total_literal;
+                      console.log(descuento_final);
+                      me.reimprecionFactura_dosificaicion_plana(cod_cliente,id,respuesta_total,nom_empresa,direccion,razon_social,nro_comprobante_venta,fecha_formateada,
+                     hora_formateada,num_documento,nom_a_facturar,me.arrayDetalle_venta,total_sin_des,descuento_venta,total_venta,
+                    efectivo_venta,cambio_venta,fecha_mas_siete,numero_referencia,nombre_completo,respuesta_descuento_1,me.decuento_sin_venta,anulado,actividad_economica,nro_celular,ciudad,departamento,
+                    codigo_control_dosifi,estado_factura_dosifi,fecha_e_dosifi,nro_autorizacion_dosifi,numero_factura_dosifi,nit,descuento_final,total_literal);
+                  
+                      }
+                     }
                      //recibo normal tipo plana
                      if (validor_12===2&&dosificacion_o_electronica===0) {
                       me.generarFacPlana(cod_cliente,id,respuesta_total,nom_empresa,direccion,razon_social,nro_comprobante_venta,fecha_formateada,
@@ -1222,6 +1488,14 @@ listarDetalle_producto_x(id,tipo_per_emp) {
                     data.numero_referencia,data.nombre_completo_empleado,data.anulado,data.dosificacion_o_electronica,data.ciudad,data.departamento
                     );              
                   } 
+                  if (data.tipo_venta_reci_fac==="FACTURA") {         
+                          me.detalleVenta(data.id_cliente,me.recibo_ticket_plana,data.id,data.tipo_venta_reci_fac,data.direccion,data.razon_social,data.nro_comprobante_venta,
+                    data.fecha_formateada,data.hora_formateada,data.num_documento,data.nom_a_facturar,data.total_sin_des,
+                    data.descuento_venta,data.total_venta,data.efectivo_venta,data.cambio_venta,data.fecha_mas_siete,
+                    data.numero_referencia,data.nombre_completo_empleado,data.anulado,data.dosificacion_o_electronica,data.ciudad,data.departamento
+                    );
+                        
+                    } 
 
                  
                   break;

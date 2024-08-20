@@ -54,12 +54,13 @@ class VenGestorVentaController extends Controller
     ->value('contador');
 
     $credencial = DB::table('adm__credecial_correos')
-    ->select('nro_celular', 'nom_empresa', 'actividad_economica')
+    ->select('nro_celular', 'nom_empresa', 'actividad_economica','nit')
     ->get();
     
 $nombre_e = $credencial[0]->nom_empresa;
 $num_e = $credencial[0]->nro_celular;       
 $actividad_economica = strtoupper($credencial[0]->actividad_economica);
+$nit_2=$credencial[0]->nit;
     $currentDateTime = Carbon::now();
 if (is_null($ultimoComprobante)) {
     // La tabla está vacía, iniciar con 1    
@@ -302,7 +303,8 @@ $nombre_empresa = strtoupper($nombre_e);
             'ciudad_su_1' => $ciudad_su_1, 
             'departamento_su_1' => $departamento_su_1,
             'descuento_final_2' => $descuento_final_2,
-
+            
+            'nit_2' =>$nit_2,
             'actividad_economica' => $actividad_economica,
             'num_auto' => $num_auto,
             'cod_autorizacion' => $cod_autorizacion,

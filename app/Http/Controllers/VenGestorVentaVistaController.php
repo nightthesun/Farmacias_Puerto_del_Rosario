@@ -222,10 +222,15 @@ $endDate = $request->endDate;
             $total_sin_des=$request->total_sin_des;
             $facturas_dosi = DB::table('ven__factura_dosi as vfd')
     ->join('dos__dosificacion as dd', 'vfd.id_dosificacion', '=', 'dd.id')
-    ->where('vfd.id_venta', $request->id)
-    ->select('vfd.*', 'dd.*') // Ajusta los campos que necesitas
-    ->get();
-           
+    ->where('vfd.id_venta', '=' ,$request->id_venta)  
+    ->select(
+        'vfd.numero_factura',
+        'vfd.codigo_control',
+        'vfd.estado_factura',
+        'dd.nro_autorizacion',
+        DB::raw("DATE_FORMAT(dd.fecha_e, '%d-%m-%Y') as fecha_e") // Formato dd-mm-yyyy
+    ) ->get();
+     
                 $idVenta = $request->id_venta;
                 $datos_empresa = DB::table('adm__credecial_correos')
             ->select('nit', 'nom_empresa','actividad_economica','nro_celular')
@@ -242,11 +247,15 @@ $endDate = $request->endDate;
     ->where('vdd.tipo', 2)
     ->first();
     
-             
+    $descuento_final = DB::table('ven__detalle_descuentos')
+    ->where('id_venta', $idVenta)
+    ->where('id_detalle_descuento', 0)
+    ->sum('cantidad_descuento');
+
             $sumaDescuento = $result ? number_format($result->suma_descuento, 2) : '0.00';
 
             $resultado_sumatoria=($total_sin_des-$sumaDescuento);
-        
+            $total_literal = converso_numero_a_texto::convertirNumeroATexto($request->venta);
         $detalle_venta = DB::table('ven__detalle_ventas as vd')
             ->select(
                 'vd.id_venta as id',
@@ -274,6 +283,14 @@ $endDate = $request->endDate;
                         ELSE NULL 
                     END AS leyenda
                 "),
+                DB::raw("
+             CASE 
+                    WHEN tip.envase = 'primario' THEN UPPER(CONCAT(COALESCE(ff_1.nombre, '')))
+                    WHEN tip.envase = 'secundario' THEN UPPER(CONCAT(COALESCE(ff_2.nombre, '')))
+                    WHEN tip.envase = 'terciario' THEN UPPER(CONCAT(COALESCE(ff_3.nombre, '')))
+                    ELSE NULL
+                END AS unidad_medida
+             "), 
                 'vd.precio_venta as precio_unitario',
                 DB::raw('(vd.cantidad_venta * vd.precio_venta) as tot'),
                 'pp.codigo as cod_prod',
@@ -298,16 +315,18 @@ $endDate = $request->endDate;
             ->where('vd.id_venta', $idVenta)
             ->get();
 
-
             $respuesta_v2 = [
                 'detalle_venta' => $detalle_venta,
                 'datos_empresa' => $datos_empresa,
                 'datoTexto_v2' => $datoTexto,
                 'venta_con_descuento' => $resultado_sumatoria,
                 'resultado_descuento_2' => $resultado_descuento_2,
+                'facturas_dosi' => $facturas_dosi,
+                'descuento_final' => $descuento_final,
+                'total_literal' => $total_literal
 
             ];
-        
+            
             // Devolver la respuesta JSON
             return response()->json($respuesta_v2);
             

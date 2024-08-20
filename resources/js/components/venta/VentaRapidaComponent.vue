@@ -957,7 +957,7 @@ watch: {
       });
     },
    /////////////////////////////////GENERAR PDF FACTURA DOSIFICACION/////////////////////////////////////////////////////////////////////////////
-   generarPDF_factura_dosificacion( direccionMayusculas,nomsucursal,nuevoComprobante,fecha,hora,num_documento,nom_a_facturar,array_recibo,total_sin_des,descuento_venta,total_venta,efectivo_venta,cambio_venta,fechaMas7Dias,numero_referencia,nombreCompleto_1,nombre_empresa,actividad_economica,num_auto,cod_autorizacion,fecha_e_2,ciudad_su_1,departamento_su_1,numero_factura,cliente_id,descuento_final_2,total_literal) {
+   generarPDF_factura_dosificacion( direccionMayusculas,nomsucursal,nuevoComprobante,fecha,hora,num_documento,nom_a_facturar,array_recibo,total_sin_des,descuento_venta,total_venta,efectivo_venta,cambio_venta,fechaMas7Dias,numero_referencia,nombreCompleto_1,nombre_empresa,actividad_economica,num_auto,cod_autorizacion,fecha_e_2,ciudad_su_1,departamento_su_1,numero_factura,cliente_id,descuento_final_2,total_literal,nit_2) {
  // Define el contenido del PDF
 
 
@@ -1085,7 +1085,7 @@ watch: {
         style: 'header'
       },
       {
-        text: num_documento,
+        text: nit_2,
     
         style: 'header'
       },
@@ -1212,7 +1212,7 @@ watch: {
         text: 'Ley N° 453: Está prohibido importar, distribuir o comercializar productos prohibidos o retirados en el país de origen por atentar a la integridad física y a la salud. Este documento es la Representación Gráfica de un Documento Fiscal Digital emitido en una modalidad de facturación en línea',   
         style: 'header' ,margin: [7, 1, 7, 3]
       },
-      { qr:  num_documento+'|'+numero_factura+'|'+num_auto+'|'+fecha+'|'+total_venta+'|'+cod_autorizacion+'|'+cliente_id+'|0|0|0|0.00',alignment: 'center',  fit: '85',margin: [0, 4, 0, 4] },
+      { qr:  nit_2+'|'+numero_factura+'|'+num_auto+'|'+fecha+'|'+total_venta+'|'+cod_autorizacion+'|'+cliente_id+'|0|0|0|0.00',alignment: 'center',  fit: '85',margin: [0, 4, 0, 4] },
       
         ],
         styles: {
@@ -1222,9 +1222,7 @@ watch: {
                  alignment: 'center',  
             },
             normal: {
-            fontSize: 7,
-           
-                   
+            fontSize: 7,                  
           },
           header: {
             fontSize: 7,
@@ -2758,6 +2756,7 @@ let fecha_e_2 = respuesta.fecha_e_2;
 let numero_factura = respuesta.numero_factura;
 let cliente_id = respuesta.cliente_id;
 let total_literal=respuesta.total_literal;
+let nit_2=respuesta.nit_2;
 
 // Mostrar la alerta de éxito
                 if (tipocom===1) {
@@ -2778,7 +2777,7 @@ total_sin_des,descuento_venta,total_venta,efectivo_venta,cambio_venta,fechaMas7D
                         })
                         ///falta modelo de factura ------------
                         me.generarPDF_factura_dosificacion(direccionMayusculas,nomsucursal,nuevoComprobante,fecha,hora,num_documento,nom_a_facturar,array_recibo,
-total_sin_des,descuento_venta,total_venta,efectivo_venta,cambio_venta,fechaMas7Dias,numero_referencia,nombreCompleto_1,nombre_empresa,actividad_economica,num_auto,cod_autorizacion,fecha_e_2,ciudad_su_1,departamento_su_1,numero_factura,cliente_id,descuento_final_2,total_literal
+total_sin_des,descuento_venta,total_venta,efectivo_venta,cambio_venta,fechaMas7Dias,numero_referencia,nombreCompleto_1,nombre_empresa,actividad_economica,num_auto,cod_autorizacion,fecha_e_2,ciudad_su_1,departamento_su_1,numero_factura,cliente_id,descuento_final_2,total_literal,nit_2
 ); 
                     } 
                 }
