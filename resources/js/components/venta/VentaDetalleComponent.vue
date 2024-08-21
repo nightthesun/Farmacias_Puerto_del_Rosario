@@ -118,7 +118,7 @@
     <a @click.prevent="abrirModal('pdf_plana', v);" class="dropdown-item" href="#"><i style="color: black;" class="fa fa-file-pdf-o" aria-hidden="true"></i> Re imprimir factura plana</a>
     <a @click.prevent="abrirModal('ver_detalle_venta',v)"  class="dropdown-item" href="#"><i style="color: black;" class="fa fa-eye" aria-hidden="true"></i> Ver estado</a>
     </div>
-         <a v-if="puedeActivar==1&&v.anulado===0" @click.prevent="eliminar(v.id,v.fecha_formateada,v.fecha_mas_tres);"  class="dropdown-item" href="#"><i style="color: black;" class="fa fa-trash" aria-hidden="true"></i> Anular venta</a>
+         <a v-if="puedeActivar==1&&v.anulado===0" @click.prevent="eliminar(v.id,v.fecha_formateada,v.fecha_mas_tres,v.dosificacion_o_electronica,v.tipo_venta_reci_fac);"  class="dropdown-item" href="#"><i style="color: black;" class="fa fa-trash" aria-hidden="true"></i> Anular venta</a>
          <a v-else  class="dropdown-item" href="#"><i class="fa fa-trash-o" aria-hidden="true"></i> Venta ya anulada</a>
          
      </div>
@@ -226,18 +226,43 @@
       </tbody>
     </table>
     <table class="table table-bordered table-striped table-sm table-responsive">
+     
+      <thead>
+        <tr>
+          <th class="col-md-2" style="font-size: 11px; text-align: center;">Tipo de venta</th>
+          <th class="col-md-2" style="font-size: 11px; text-align: center;">Tipo de dato</th>
+          <th class="col-md-2" style="font-size: 11px; text-align: center;">Nro. Factura</th>
+          <th class="col-md-2" style="font-size: 11px; text-align: center;">Cod. Autorización</th>
+          <th class="col-md-2" style="font-size: 11px; text-align: center;">Codigo de control</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="col-md-2" style="font-size: 11px; text-align: center;">
+            <span class="badge badge-pill badge-primary" style="font-size: 11px;">{{data_factura_tipo}}</span></td>
+          <td class="col-md-2" style="font-size: 11px; text-align: center;">{{data_factura_tipo_docuemnto}}</td>
+          <td class="col-md-2" style="font-size: 11px; text-align: center;">{{data_factura_nro_factura}}</td>
+          <td class="col-md-2" style="font-size: 11px; text-align: center;">{{data_factura_cod_control}}</td>
+          <td class="col-md-2" style="font-size: 11px; text-align: center;">{{data_factura_nro_auto}}</td>
+        </tr>
+      </tbody>   
+
+   
+    </table>    
+    
+      
+    <table class="table table-bordered table-striped table-sm table-responsive">
       <thead>
         <tr>
           <th class="col-md-2" style="font-size: 11px; text-align: center;">Numero de identificacion</th>
           <th class="col-md-2" style="font-size: 11px; text-align: center;">
-          <span v-if="tipo_per_emp===1">Numero recibo</span>
-          <span v-if="tipo_per_emp===2">Numero factura</span>
+          <span>Numero de venta</span>
+       
           </th>
           <th class="col-md-2" style="font-size: 11px; text-align: center;">Fecha</th>
           <th class="col-md-2" style="font-size: 11px; text-align: center;">Hora</th>
           <th class="col-md-2" style="font-size: 11px; text-align: center;">Vendedor</th>
-          <th class="col-md-2" style="font-size: 11px; text-align: center;">Estado</th>
-          
+          <th class="col-md-2" style="font-size: 11px; text-align: center;">Estado</th>          
         </tr>
       </thead>
       <tbody>
@@ -436,6 +461,15 @@ export default {
        cambio:'',
        nom_user:'',
        tipo_per_emp:'',
+       dosificacion_o_electronica:'',
+
+       data_factura_tipo:'',
+       data_factura_tipo_docuemnto:'',       
+       data_factura_nro_factura:'',
+       data_factura_cod_control:'',
+       data_factura_nro_auto:'',
+              
+      
        //---
        array_nombre_des:[],
        array_detalle_venta:[],
@@ -541,27 +575,144 @@ listarPerimsoxyz() {
         });
 },
 /////////facturacion plana x dosificacion /////////////////////////////////
-reimprecionFactura_dosificaicion_plana(cod_cliente,numero_identificacion,respuesta_total,nom_empresa,direccionMayusculas,nomsucursal,nuevoComprobante,fecha,hora,num_documento,nom_a_facturar,array_recibo,total_sin_des,descuento_venta,total_venta,efectivo_venta,cambio_venta,fechaMas7Dias,numero_referencia,nombreCompleto_1,venta_con_descuento,resultado_descuento_2,anulado,actividad_economica,nro_celular,ciudad_su_1,departamento_su_1,codigo_control_dosifi,estado_factura_dosifi,fecha_e_dosifi,nro_autorizacion_dosifi,numero_factura_dosifi,nit,descuento_final,total_literal){
-  const imgUrl = '/img/favicon.png'; // Ruta de la imagen en la carpeta pública
-        const img = new Image();
-     
+reimprecionFactura_dosificaicion_plana(cod_cliente,numero_identificacion,respuesta_total,nom_empresa,direccionMayusculas,nomsucursal,nuevoComprobante,fecha,hora,num_documento,nom_a_facturar,array_recibo,total_sin_des,descuento_venta,total_venta,efectivo_venta,cambio_venta,fechaMas7Dias,numero_referencia,nombreCompleto_1,venta_con_descuento,resultado_descuento_2,anulado,actividad_economica,nro_celular,ciudad_su_1,departamento_su_1,codigo_control_dosifi,estado_factura_dosifi,fecha_e_dosifi,nro_autorizacion_dosifi,numero_factura_dosifi,nit,descuento_final,total_literal,base64){
+
+ const tableBody = [
+    // Agrega los encabezados de la tabla
+    [
+      { text: 'Código Producto / Servicio.', style: 'tableHeader_2',alignment: 'center',fillColor: '#d3d3d3' }, 
+      { text: 'Descripción', style: 'tableHeader_2',alignment: 'center',fillColor: '#d3d3d3' }, 
+      { text: 'Vencimiento', style: 'tableHeader_2',alignment: 'center',fillColor: '#d3d3d3' }, 
+      { text: 'Lote', style: 'tableHeader_2',alignment: 'center',fillColor: '#d3d3d3' },
+      { text: 'Linea', style: 'tableHeader_2',alignment: 'center',fillColor: '#d3d3d3' },
+      { text: 'Cantidad', style: 'tableHeader_2',alignment: 'center',fillColor: '#d3d3d3' },
+      { text: 'Precio Unitario', style: 'tableHeader_2',alignment: 'center',fillColor: '#d3d3d3' },
+      { text: 'Venta Total', style: 'tableHeader_2',alignment: 'center',fillColor: '#d3d3d3' },
+      { text: 'Descuento', style: 'tableHeader_2',alignment: 'center',fillColor: '#d3d3d3' },
+      { text: 'SubTotal' , style: 'tableHeader_2',alignment: 'center',fillColor: '#d3d3d3' },
+    ]
+  ];
+// Itera sobre los datos y agrega filas a la tabla
+console.log("++-+-+-+-----");
+console.log(array_recibo);
+array_recibo.forEach(item => {
+    tableBody.push([
+      { text: item.cod_prod, fontSize: 8, alignment: 'left' },
+      { text: item.leyenda, fontSize: 8, alignment: 'left' },
+      { text: item.fecha_vencimiento, fontSize: 8, alignment: 'left' },
+      { text: item.lote, fontSize: 8, alignment: 'left' },
+      { text: item.linea_nombre, fontSize: 8, alignment: 'left' },
+      { text: item.cantidad_venta, fontSize: 8, alignment: 'right' },
+      { text: item.precio_unitario, fontSize: 8, alignment: 'right' },
+      { text: item.tot, fontSize: 8, alignment: 'right' },
+     { text: item.descuento, fontSize: 8, alignment: 'right' },
+      
+      { text: (item.tot - item.descuento).toFixed(2), fontSize: 7, alignment: 'right' } // Operación y formato
+   ]);
+  });
+   // Agrega las filas con colspan al final del tableBody
+tableBody.push(
+  [
+    { text: 'Suma Total', colSpan: 9, fontSize: 7, alignment: 'right', border: [false, true, true, false] },
+    {}, {}, {}, {}, {}, {}, {}, {},
+    { text: (venta_con_descuento).toFixed(2), fontSize: 7, alignment: 'right' }
+  ],
+  [
+    { text: 'Descuento', colSpan: 9, fontSize: 7, alignment: 'right', border: [false, false, true, false] },
+    {}, {}, {}, {}, {}, {}, {}, {},
+    { text: resultado_descuento_2, fontSize: 7, alignment: 'right' }
+  ],
+  [
+    { text: 'Total Bs', colSpan: 9, fontSize: 7, alignment: 'right', border: [false, false, true, false] },
+    {}, {}, {}, {}, {}, {}, {}, {},
+    { text: total_venta , fontSize: 7, alignment: 'right' }
+  ]
+);
+
   const docDefinition = {
     pageSize: 'LETTER', // Tamaño carta
     pageMargins: [25, 30, 25, 30], // Márgenes: [left, top, right, bottom]
     content: [
     {
   		table: {
-				widths: [40,90,'*',80, 90],
+				widths: [65,150,'*',80, 90],
 				body: [
-      	[{rowSpan: 3, image: '..public/img/favicon.png',fit: [100, 100]},{text: nom_empresa ,fontSize: 8},{ },{text: 'NIT: ',fontSize: 8},{text: numero_identificacion ,fontSize: 8}],
-					[{ },{text: nomsucursal,fontSize: 8},{ },{text: 'FACTURA Nº:',fontSize: 8},{text: nuevoComprobante,fontSize: 8}],
-          [{ },{text: direccionMayusculas+' \n'+'TELEFONO '+numero_referencia ,fontSize: 8},{ },{text: 'COD. AUTORIZACIÓN:',fontSize: 8},
-            {text: nuevoComprobante ,fontSize: 8}],
+      	[{rowSpan: 3,image: base64, fit: [65, 65]},{text: nom_empresa ,fontSize: 9,bold: true},{ },{text: 'NIT: ',fontSize: 8},{text: nit ,fontSize: 8}],
+					[{ },{text: nomsucursal,fontSize: 8},{ },{text: 'FACTURA Nº:',fontSize: 8},{text: numero_factura_dosifi,fontSize: 8}],
+          [{ },{text: direccionMayusculas+' \n'+ciudad_su_1+' - '+departamento_su_1+' \n'+'TELEFONO '+numero_referencia ,fontSize: 8},{ },{text: 'COD. AUTORIZACIÓN:',fontSize: 8},
+            {text: nro_autorizacion_dosifi ,fontSize: 8}],
+				]
+			},
+      layout: 'noBorders'
+		},
+    {text: 'FACTURA', style: 'header' },
+    {			
+			table: {
+				widths: [90,120,'*',60,105],
+				body: [
+					[{text: 'Fecha:',style:'negritas'},
+          {text: fecha+' '+ hora ,fontSize: 8},{ },
+          {text: 'NIT/CI/CEX:',style:'negritas'},
+          {text: num_documento,fontSize: 8},         
+          ],
+					[{text: 'Nombre/Razón Social:',style:'negritas'},
+          {text: nom_a_facturar,fontSize: 8},{ },
+          {text: 'Cod. Cliente:',style:'negritas'},
+          {text: cod_cliente,fontSize: 8},         
+          ],
+				]
+			},
+      layout: 'noBorders'
+		},
+   {
+        style: 'tableExample',
+        margin:[0,10,0,0],
+        table: {
+          headerRows: 1,
+          widths: [50,'*',55,34,32,37,40,40,43,40], // Ajusta los anchos de las columnas
+          body: tableBody         
+        },      
+		},
+    {
+      text: 'Son: '+respuesta_total ,fontSize: 8,bold: true,
+    },
+    {
+      text: 'Codigo de control: '+codigo_control_dosifi ,fontSize: 8,bold: true,
+    },
+    {
+      text: 'Fecha de emisiòn: '+fecha_e_dosifi ,fontSize: 8,bold: true, margin:[0,0,0,15]
+    },
+    {
+  		table: {
+				widths: [75,'*'],
+				body: [      
+					[{rowSpan: 4,qr:  nit+'|'+numero_factura_dosifi+'|'+nro_autorizacion_dosifi+'|'+fecha+'|'+total_venta+'|'+codigo_control_dosifi+'|'+cod_cliente+'|0|0|0|0.00', fit: '85'},{text:'Valido desde '+ fecha +' hasta '+fechaMas7Dias+',valor de vigencia para el cambio valido hasta '+ fecha+' en la misma tienda, términos y codiciones según politica de cambios y devoluiones.',fontSize: 7}],
+          [{ },{text:'"ESTA FACTURA CONTRIBUYE AL DESARROLLO DEL PAÍS, EL USO ILÍCITO SERÁ SANCIONADO PENALMENTE DE ACUERDO A LEY."',fontSize: 7}],
+          [{ },{text:'Ley N° 453: Cuando lo solicite el paciente, se debe informar los resultados de exámenes, diagnósticos y estudios de laboratorio.',fontSize: 7}],
+          [{ },{text:'Este documento es la Representación Gráfica de un Documento Fiscal Digital emitido en una modalidad de facturación en línea.',fontSize: 7}],
+        
 				]
 			},
       layout: 'noBorders'
 		},
   ],
+  styles: {
+      header: {
+        fontSize: 16,
+        bold: true,
+        color: 'black',
+        alignment: 'center',
+        margin:[0,10,0,10]
+      },
+      negritas:{
+        fontSize: 8,
+        bold: true,
+      },
+      tableExample:{
+        fontSize: 8,
+        bold: true,
+      },
+    }
   };
    // Genera el PDF y abre una nueva ventana con el documento
    pdfMake.createPdf(docDefinition).open();
@@ -634,6 +785,7 @@ reimprecionFactura_dosificaicion_plana(cod_cliente,numero_identificacion,respues
       { text: cambio_venta, fontSize: 7, alignment: 'right' }     
     ],
   ];
+  
     const documentDefinition = {
         pageMargins: [10, 12, 10, 8], // Configura los márgenes en cero
         pageSize: {
@@ -1129,8 +1281,7 @@ tableBody.push(
 		},
    
     {text: 'RECIBO', style: 'header' },
-    {
-			
+    {			
 			table: {
 				widths: [90,120,'*',60,105],
 				body: [
@@ -1155,8 +1306,7 @@ tableBody.push(
           headerRows: 1,
           widths: [50,'*',55,34,32,37,40,40,43,40], // Ajusta los anchos de las columnas
           body: tableBody         
-        },
-      
+        },      
 		},
     
     {
@@ -1249,6 +1399,39 @@ listarDetalle_producto_x(id,tipo_per_emp) {
                 });
     },    
 
+    factura_dosificacion(id) {
+            let me = this;
+           
+           var url = "/detalle_venta_2/factura_dosificacion?id="+id;
+            axios
+                .get(url)
+                .then(function (response) {
+                    var respuesta = response.data;                    
+                   
+                    if (respuesta.length===0) {
+                      me.data_factura_tipo="Recibo";
+                      me.data_factura_tipo_docuemnto="x";                             
+                      me.data_factura_nro_factura="x";
+                      me.data_factura_cod_control="x";
+                      me.data_factura_nro_auto="x";
+                    }else{
+                      if (respuesta[0].key_0===1) {
+                        me.data_factura_tipo="Factura";
+                      me.data_factura_tipo_docuemnto="Dosificación";                             
+                      me.data_factura_nro_factura=respuesta[0].numero_factura;
+                      me.data_factura_cod_control=respuesta[0].codigo_control;
+                      me.data_factura_nro_auto=respuesta[0].nro_autorizacion;
+                      }
+                    }
+                    
+                    
+                })
+                .catch(function (error) {
+                    error401(error);
+                    console.log(error);
+                });
+        },
+
         sucursalFiltro() {
             let me = this;
            // var url = "/traspaso/listarSucursal";
@@ -1286,7 +1469,7 @@ listarDetalle_producto_x(id,tipo_per_emp) {
         numero_referencia,nombre_completo,anulado,dosificacion_o_electronica,ciudad,departamento){
           let me=this;  
          console.log("------"+validor_12+"++++"+dosificacion_o_electronica);
-        var url = "/detalle_venta_2/re_imprecion?id_venta="+id+"&tipofactura="+tipo+"&venta="+total_venta+"&total_sin_des="+total_sin_des;
+        var url = "/detalle_venta_2/re_imprecion?id_venta="+id+"&tipofactura="+tipo+"&venta="+total_venta+"&total_sin_des="+total_sin_des+"&plana_ticket="+validor_12;
         axios
                 .get(url)
                 .then(function (response) {
@@ -1358,11 +1541,12 @@ listarDetalle_producto_x(id,tipo_per_emp) {
                       let nro_autorizacion_dosifi=facturas_dosi_2[0].nro_autorizacion;
                       let numero_factura_dosifi=facturas_dosi_2[0].numero_factura;
                       let total_literal=respuesta.total_literal;
-                      console.log(descuento_final);
+                      let base64=respuesta.base64;
+                
                       me.reimprecionFactura_dosificaicion_plana(cod_cliente,id,respuesta_total,nom_empresa,direccion,razon_social,nro_comprobante_venta,fecha_formateada,
                      hora_formateada,num_documento,nom_a_facturar,me.arrayDetalle_venta,total_sin_des,descuento_venta,total_venta,
                     efectivo_venta,cambio_venta,fecha_mas_siete,numero_referencia,nombre_completo,respuesta_descuento_1,me.decuento_sin_venta,anulado,actividad_economica,nro_celular,ciudad,departamento,
-                    codigo_control_dosifi,estado_factura_dosifi,fecha_e_dosifi,nro_autorizacion_dosifi,numero_factura_dosifi,nit,descuento_final,total_literal);
+                    codigo_control_dosifi,estado_factura_dosifi,fecha_e_dosifi,nro_autorizacion_dosifi,numero_factura_dosifi,nit,descuento_final,total_literal,base64);
                   
                       }
                      }
@@ -1424,7 +1608,8 @@ listarDetalle_producto_x(id,tipo_per_emp) {
                 }
                 case "ver_detalle_venta":{
                   me.tituloModal = "Detalle de venta de la sucursal "+data.razon_social+" codigo "+data.cod;
-         //         console.log(data);
+                  me.factura_dosificacion(data.id);
+             
                   me.cod_cliente=data.id_cliente;
                   me.nom_cliente=data.nombre_completo_cliente;
                   me.nom_facturar=data.nom_a_facturar;
@@ -1434,6 +1619,8 @@ listarDetalle_producto_x(id,tipo_per_emp) {
                   me.num_reci_fac=data.nro_comprobante_venta;
                   me.fecha_x=data.fecha_formateada;
                   me.hora_x=data.hora_formateada;
+                  me.recibo_ticket_plana=2;
+               
                   if(data.anulado===0){
                   me.anulado_x="ACTIVO";    
                   }else{
@@ -1446,6 +1633,7 @@ listarDetalle_producto_x(id,tipo_per_emp) {
                   me.cambio=data.cambio_venta;
                   me.nom_user=data.name;
                   me.tipo_per_emp=data.tipo_per_emp;
+                  me.dosificacion_o_electronica=data.dosificacion_o_electronica;
                   me.detalle_venta_vista(data.id,data.tipo_venta_reci_fac,me.total_1,data.total_sin_des);
                   me.listarDetalle_producto_x(data.id)
                   me.classModal.openModal("ver_detalle");
@@ -1478,7 +1666,7 @@ listarDetalle_producto_x(id,tipo_per_emp) {
                 }
 
                 case "pdf_plana":{
-                  me.recibo_ticket_plana=2;
+               
                //   console.log(data.id);
               //    console.log(data);
                   if (data.tipo_venta_reci_fac==="RECIBO") {
@@ -1525,9 +1713,11 @@ listarDetalle_producto_x(id,tipo_per_emp) {
     // Asignar la fecha actual al input de fecha final
     this.endDate = `${year}-${month}-${day}`;
         },
-
-        eliminar(id,fecha_i,fecha_f) {
+     
+        eliminar(id,fecha_i,fecha_f,dosificacion_o_electronica,tipo_venta_reci_fac) {
             let me = this;  
+            let validador_x_estado=0;
+          
     // Función para convertir una fecha en formato dd/mm/yyyy a un objeto Date
 function parseDate(dateString) {
     const [day, month, year] = dateString.split('/').map(Number);
@@ -1648,6 +1838,12 @@ const isInRange = today >= startDate && today <= endDate;
                   me.array_detalle_venta=[];
                   me.venta_con_descuento="";
                   me.decuento_sin_venta="";
+                  me.dosificacion_o_electronica="";
+                  me.data_factura_tipo="";
+                  me.data_factura_tipo_docuemnto="";       
+                  me.data_factura_nro_factura="";
+                  me.data_factura_cod_control="";
+                  me.data_factura_nro_auto="",
                   me.classModal.openModal("ver_detalle");
          },
 

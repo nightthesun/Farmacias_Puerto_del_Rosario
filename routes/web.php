@@ -608,4 +608,6 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/detalle_venta_2/re_imprecion',[VenGestorVentaVistaController::class, 're_imprecion']);
     Route::get('/detalle_venta_2/verCliente_x_venta', [VenGestorVentaVistaController::class, 'verCliente_x_venta']);
     Route::post('/detalle_venta_2/desactivar', [VenGestorVentaVistaController::class, 'desactivar']);
+    Route::get('/detalle_venta_2/factura_dosificacion', [VenGestorVentaVistaController::class, 'factura_dosificacion']);
+    
 });

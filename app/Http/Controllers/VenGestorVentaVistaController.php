@@ -216,6 +216,8 @@ $endDate = $request->endDate;
     public function re_imprecion(Request $request){
 
         try {
+         
+
             $datoTexto = converso_numero_a_texto::convertirNumeroATexto($request->venta);
           //  $datoTexto = $this->convertirNumeroATexto($request->venta);
 
@@ -314,18 +316,43 @@ $endDate = $request->endDate;
             ->leftJoin('prod__forma_farmaceuticas as ff_3', 'ff_3.id', '=', 'pp.idformafarmaceuticaterciario')
             ->where('vd.id_venta', $idVenta)
             ->get();
-
-            $respuesta_v2 = [
-                'detalle_venta' => $detalle_venta,
-                'datos_empresa' => $datos_empresa,
-                'datoTexto_v2' => $datoTexto,
-                'venta_con_descuento' => $resultado_sumatoria,
-                'resultado_descuento_2' => $resultado_descuento_2,
-                'facturas_dosi' => $facturas_dosi,
-                'descuento_final' => $descuento_final,
-                'total_literal' => $total_literal
-
-            ];
+            
+            if ($request->tipofactura=="FACTURA"&&$request->plana_ticket==2) {
+                 // Ruta de la imagen en la carpeta public
+                $path = public_path('img/favicon.png');    
+                // Codificar la imagen en base64
+                $imageData = base64_encode(file_get_contents($path));    
+                // Obtener el tipo MIME de la imagen
+                $mimeType = mime_content_type($path);
+                // Crear la cadena base64 con el prefijo data
+                $base64Image = 'data:' . $mimeType . ';base64,' . $imageData;
+                $respuesta_v2 = [
+                    'detalle_venta' => $detalle_venta,
+                    'datos_empresa' => $datos_empresa,
+                    'datoTexto_v2' => $datoTexto,
+                    'venta_con_descuento' => $resultado_sumatoria,
+                    'resultado_descuento_2' => $resultado_descuento_2,
+                    'facturas_dosi' => $facturas_dosi,
+                    'descuento_final' => $descuento_final,
+                    'total_literal' => $total_literal,
+                    'base64' => $base64Image    
+                ];
+            }else{
+                $respuesta_v2 = [
+                    'detalle_venta' => $detalle_venta,
+                    'datos_empresa' => $datos_empresa,
+                    'datoTexto_v2' => $datoTexto,
+                    'venta_con_descuento' => $resultado_sumatoria,
+                    'resultado_descuento_2' => $resultado_descuento_2,
+                    'facturas_dosi' => $facturas_dosi,
+                    'descuento_final' => $descuento_final,
+                    'total_literal' => $total_literal,
+               
+                ];
+            }
+            
+       
+           
             
             // Devolver la respuesta JSON
             return response()->json($respuesta_v2);
@@ -395,6 +422,15 @@ $endDate = $request->endDate;
            // DB::rollback();
             return response()->json(['error' => $th->getMessage()],500);
         }    
+    }
+
+    public function factura_dosificacion(Request $request){
+        $dosificacion_fac =  DB::table('ven__factura_dosi as vfd')
+        ->select('vfd.numero_factura', 'vfd.codigo_control', 'dd.nro_autorizacion', DB::raw('1 as key_0'))
+        ->join('dos__dosificacion as dd', 'vfd.id_dosificacion', '=', 'dd.id')
+        ->where('vfd.id_venta', $request->id)
+        ->get();
+    return $dosificacion_fac;
     }
    
 }
