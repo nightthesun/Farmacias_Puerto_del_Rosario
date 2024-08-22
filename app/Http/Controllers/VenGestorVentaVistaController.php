@@ -400,23 +400,54 @@ $endDate = $request->endDate;
         //1=add, 2=delete, 3=create, 4=edit, 5=show
     // Truncar la tabla para eliminar todo su contenido
         try {         
-           
-            $eliminar = Ven_GestorVentaVista::findOrFail($request->id);
-            $eliminar->anulado=1;
-            $eliminar->save(); 
-            $now = Carbon::now();
-        DB::table('par__asignacion_descuento')->truncate();
-        $datos = [
-            'id_modulo' => $request->id_modulo,
-            'id_sub_modulo' => $request->id_sub_modulo,
-            'accion' => 2,
-            'descripcion' => $request->des,          
-            'user_id' =>auth()->user()->id, 
-            'created_at'=>$now,
-            'id_movimiento'=>$request->id        
-        ];
+            //recibo---
+            if ($request->dosificacion_o_electronica==0&&$request->tipo_venta_reci_fac=="RECIBO") {
+                $eliminar = Ven_GestorVentaVista::findOrFail($request->id);
+                $eliminar->anulado=1;
+                $eliminar->save(); 
+                $now = Carbon::now();
+         //   DB::table('par__asignacion_descuento')->truncate();
+            $datos = [
+                'id_modulo' => $request->id_modulo,
+                'id_sub_modulo' => $request->id_sub_modulo,
+                'accion' => 2,
+                'descripcion' => $request->des,          
+                'user_id' =>auth()->user()->id, 
+                'created_at'=>$now,
+                'id_movimiento'=>$request->id        
+            ];
+        
+            DB::table('log__sistema')->insert($datos);   
+            } else {
+                    if ($request->dosificacion_o_electronica==1&&$request->tipo_venta_reci_fac=="FACTURA") {
+                       //*************************************************** */
+                        dd("factura electronica");
+                    } else {
+                        if ($request->dosificacion_o_electronica==2&&$request->tipo_venta_reci_fac=="FACTURA"){
+                            $eliminar = Ven_GestorVentaVista::findOrFail($request->id);
+                            $eliminar->anulado=1;
+                            $eliminar->save(); 
+
+                            $now = Carbon::now();
+                            DB::table('ven__factura_dosi')->where('id_venta', $request->id)->update(['estado_factura' => 1]);
     
-        DB::table('log__sistema')->insert($datos);         
+                        $datos = [
+                            'id_modulo' => $request->id_modulo,
+                            'id_sub_modulo' => $request->id_sub_modulo,
+                            'accion' => 2,
+                            'descripcion' => $request->des,          
+                            'user_id' =>auth()->user()->id, 
+                            'created_at'=>$now,
+                            'id_movimiento'=>$request->id        
+                        ];
+                    
+                        DB::table('log__sistema')->insert($datos);                          
+                        }else{
+                            dd("error... de ingreso de dosificacion_o_electronica,tipo_venta_reci_fac");
+                        }
+                    }
+                }
+                  
            
         } catch (\Throwable $th) {
            // DB::rollback();

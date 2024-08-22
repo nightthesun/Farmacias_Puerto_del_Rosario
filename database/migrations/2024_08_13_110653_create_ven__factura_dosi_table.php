@@ -18,7 +18,7 @@ return new class extends Migration
             $table->integer('numero_factura');
             $table->decimal('total',11,2);
             $table->string('codigo_control');
-            $table->tinyInteger('estado_factura')->default(1)->comment('0=anulado, 1=activo');            
+            $table->tinyInteger('estado_factura')->default(0)->comment('0=activo, 1=anulado');            
         });
     }
 

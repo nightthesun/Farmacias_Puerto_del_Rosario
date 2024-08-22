@@ -497,10 +497,6 @@ export default {
           this.cod_seleccionada_sucursal = sucursal.codigo;
         }
 
-        console.log(this.id_seleccionada_sucursal);
-        console.log(this.cod_seleccionada_sucursal);
-        console.log(this.startDate);
-        console.log(this.endDate);
       }
     }
   },
@@ -547,7 +543,7 @@ export default {
     methods: {
       //-----------------------------------permisos_R_W_S        
 listarPerimsoxyz() {
-                //console.log(this.codventana);
+          
     let me = this;
         
     var url = '/gestion_permiso_editar_eliminar?win='+me.codventana;
@@ -576,7 +572,10 @@ listarPerimsoxyz() {
 },
 /////////facturacion plana x dosificacion /////////////////////////////////
 reimprecionFactura_dosificaicion_plana(cod_cliente,numero_identificacion,respuesta_total,nom_empresa,direccionMayusculas,nomsucursal,nuevoComprobante,fecha,hora,num_documento,nom_a_facturar,array_recibo,total_sin_des,descuento_venta,total_venta,efectivo_venta,cambio_venta,fechaMas7Dias,numero_referencia,nombreCompleto_1,venta_con_descuento,resultado_descuento_2,anulado,actividad_economica,nro_celular,ciudad_su_1,departamento_su_1,codigo_control_dosifi,estado_factura_dosifi,fecha_e_dosifi,nro_autorizacion_dosifi,numero_factura_dosifi,nit,descuento_final,total_literal,base64){
-
+  let watermark = {};      
+      if (anulado===1) { // Aquí puedes poner tu condición
+  watermark = { text: 'ANULADO', color: 'red', angle: -45, opacity: 0.3, bold: true, italics: false, fontSize: 40 };
+}
  const tableBody = [
     // Agrega los encabezados de la tabla
     [
@@ -593,8 +592,7 @@ reimprecionFactura_dosificaicion_plana(cod_cliente,numero_identificacion,respues
     ]
   ];
 // Itera sobre los datos y agrega filas a la tabla
-console.log("++-+-+-+-----");
-console.log(array_recibo);
+
 array_recibo.forEach(item => {
     tableBody.push([
       { text: item.cod_prod, fontSize: 8, alignment: 'left' },
@@ -696,6 +694,7 @@ tableBody.push(
       layout: 'noBorders'
 		},
   ],
+  watermark: watermark, // Agrega la marca de agua condicionalmente
   styles: {
       header: {
         fontSize: 16,
@@ -719,7 +718,10 @@ tableBody.push(
 },
 ////////facturacion ticket x dosificacion/////////////////////////////////
   reimprecionFactura_dosificaicion(cod_cliente,numero_identificacion,respuesta_total,nom_empresa,direccionMayusculas,nomsucursal,nuevoComprobante,fecha,hora,num_documento,nom_a_facturar,array_recibo,total_sin_des,descuento_venta,total_venta,efectivo_venta,cambio_venta,fechaMas7Dias,numero_referencia,nombreCompleto_1,venta_con_descuento,resultado_descuento_2,anulado,actividad_economica,nro_celular,ciudad_su_1,departamento_su_1,codigo_control_dosifi,estado_factura_dosifi,fecha_e_dosifi,nro_autorizacion_dosifi,numero_factura_dosifi,nit,descuento_final,total_literal){
-
+    let watermark = {};      
+      if (anulado===1) { // Aquí puedes poner tu condición
+  watermark = { text: 'ANULADO', color: 'red', angle: -45, opacity: 0.3, bold: true, italics: false, fontSize: 40 };
+}
     // Itera sobre los datos y agrega filas a la tabla
   const tableBody_2=[];
   let sumador_subtotal=0;
@@ -962,6 +964,7 @@ tableBody.push(
       { qr:  nit+'|'+numero_factura_dosifi+'|'+nro_autorizacion_dosifi+'|'+fecha+'|'+total_venta+'|'+codigo_control_dosifi+'|'+cod_cliente+'|0|0|0|0.00',alignment: 'center',  fit: '85',margin: [0, 4, 0, 4] },
     
     ],
+    watermark: watermark, // Agrega la marca de agua condicionalmente
     styles: {
       header: {
             fontSize: 7,
@@ -1467,8 +1470,7 @@ listarDetalle_producto_x(id,tipo_per_emp) {
         detalleVenta(cod_cliente,validor_12,id,tipo,direccion,razon_social,nro_comprobante_venta,fecha_formateada,hora_formateada,
         num_documento,nom_a_facturar,total_sin_des,descuento_venta,total_venta,efectivo_venta,cambio_venta,fecha_mas_siete,
         numero_referencia,nombre_completo,anulado,dosificacion_o_electronica,ciudad,departamento){
-          let me=this;  
-         console.log("------"+validor_12+"++++"+dosificacion_o_electronica);
+          let me=this;      
         var url = "/detalle_venta_2/re_imprecion?id_venta="+id+"&tipofactura="+tipo+"&venta="+total_venta+"&total_sin_des="+total_sin_des+"&plana_ticket="+validor_12;
         axios
                 .get(url)
@@ -1478,9 +1480,7 @@ listarDetalle_producto_x(id,tipo_per_emp) {
                     let respuesta_total = respuesta.datoTexto_v2;
                     let respuesta_descuento_1 = respuesta.venta_con_descuento;
                     let resultado_descuento_2 = respuesta.resultado_descuento_2;
-                    let facturas_dosi_2 = respuesta.facturas_dosi;
-                    console.log("------------8--------8-------------");
-                    console.log(resultado_descuento_2.resultado);
+                    let facturas_dosi_2 = respuesta.facturas_dosi;               
                     if(resultado_descuento_2.resultado===null){
                       me.decuento_sin_venta="0.00";
                     }else{
@@ -1511,17 +1511,14 @@ listarDetalle_producto_x(id,tipo_per_emp) {
                        //factura tipo ticket dosificacion 
                        if (validor_12===1&&dosificacion_o_electronica===2) {
                       
-                    if (facturas_dosi_2.length >0) { 
-                      console.log("*******************");
-                      let descuento_final = respuesta.descuento_final;
-                      //console.log(facturas_dosi_2);
+                    if (facturas_dosi_2.length >0) {                 
+                      let descuento_final = respuesta.descuento_final;                
                       let codigo_control_dosifi=facturas_dosi_2[0].codigo_control;
                       let estado_factura_dosifi=facturas_dosi_2[0].estado_factura;
                       let fecha_e_dosifi=facturas_dosi_2[0].fecha_e;
                       let nro_autorizacion_dosifi=facturas_dosi_2[0].nro_autorizacion;
                       let numero_factura_dosifi=facturas_dosi_2[0].numero_factura;
-                      let total_literal=respuesta.total_literal;
-                      console.log(descuento_final);
+                      let total_literal=respuesta.total_literal;                
                     
                     me.reimprecionFactura_dosificaicion(cod_cliente,id,respuesta_total,nom_empresa,direccion,razon_social,nro_comprobante_venta,fecha_formateada,
                      hora_formateada,num_documento,nom_a_facturar,me.arrayDetalle_venta,total_sin_des,descuento_venta,total_venta,
@@ -1531,10 +1528,8 @@ listarDetalle_producto_x(id,tipo_per_emp) {
                     }
                     // plana tipo dosificacion
                     if (validor_12===2&&dosificacion_o_electronica===2) {
-                      if (facturas_dosi_2.length >0) { 
-                        console.log("*******************");
-                      let descuento_final = respuesta.descuento_final;
-                      //console.log(facturas_dosi_2);
+                      if (facturas_dosi_2.length >0) {                 
+                      let descuento_final = respuesta.descuento_final;             
                       let codigo_control_dosifi=facturas_dosi_2[0].codigo_control;
                       let estado_factura_dosifi=facturas_dosi_2[0].estado_factura;
                       let fecha_e_dosifi=facturas_dosi_2[0].fecha_e;
@@ -1642,9 +1637,7 @@ listarDetalle_producto_x(id,tipo_per_emp) {
 
                 case "recibo_r": {
                   me.recibo_ticket_plana=1;
-                  console.log("------------*------------");
-                    console.log(data);
-                    console.log("------------*------------");
+         
                     if (data.tipo_venta_reci_fac==="RECIBO") {
                       me.detalleVenta(data.id_cliente,me.recibo_ticket_plana,data.id,data.tipo_venta_reci_fac,data.direccion,data.razon_social,data.nro_comprobante_venta,
                     data.fecha_formateada,data.hora_formateada,data.num_documento,data.nom_a_facturar,data.total_sin_des,
@@ -1666,9 +1659,8 @@ listarDetalle_producto_x(id,tipo_per_emp) {
                 }
 
                 case "pdf_plana":{
-               
-               //   console.log(data.id);
-              //    console.log(data);
+                  me.recibo_ticket_plana=2;
+           
                   if (data.tipo_venta_reci_fac==="RECIBO") {
                     me.detalleVenta(data.id_cliente,me.recibo_ticket_plana,data.id,data.tipo_venta_reci_fac,data.direccion,data.razon_social,data.nro_comprobante_venta,
                     data.fecha_formateada,data.hora_formateada,data.num_documento,data.nom_a_facturar,data.total_sin_des,
@@ -1681,8 +1673,7 @@ listarDetalle_producto_x(id,tipo_per_emp) {
                     data.fecha_formateada,data.hora_formateada,data.num_documento,data.nom_a_facturar,data.total_sin_des,
                     data.descuento_venta,data.total_venta,data.efectivo_venta,data.cambio_venta,data.fecha_mas_siete,
                     data.numero_referencia,data.nombre_completo_empleado,data.anulado,data.dosificacion_o_electronica,data.ciudad,data.departamento
-                    );
-                        
+                    );                        
                     } 
 
                  
@@ -1715,9 +1706,8 @@ listarDetalle_producto_x(id,tipo_per_emp) {
         },
      
         eliminar(id,fecha_i,fecha_f,dosificacion_o_electronica,tipo_venta_reci_fac) {
-            let me = this;  
-            let validador_x_estado=0;
-          
+            let me = this;              
+         
     // Función para convertir una fecha en formato dd/mm/yyyy a un objeto Date
 function parseDate(dateString) {
     const [day, month, year] = dateString.split('/').map(Number);
@@ -1769,7 +1759,8 @@ const isInRange = today >= startDate && today <= endDate;
                                 id_sub_modulo:me.codventana, 
                                 des:"eliminacion_de_venta",  
                                 id: id,
-                                
+                                dosificacion_o_electronica:dosificacion_o_electronica,                       
+                                tipo_venta_reci_fac:tipo_venta_reci_fac,
                             })
                             .then(function (response) {
                                // me.listarAjusteNegativos();
