@@ -58,6 +58,7 @@ use App\Http\Controllers\ParDescuentoController;
 use App\Http\Controllers\ProdListaController;
 use App\Http\Controllers\ProdRegistroPreXListController;
 use App\Http\Controllers\TdaIngresoProducto2Controller;
+use App\Http\Controllers\VenCaducidadController;
 use App\Http\Controllers\VenGestorVentaController;
 use App\Http\Controllers\VenGestorVentaVistaController;
 use App\Models\Alm_IngresoProducto;
@@ -609,5 +610,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/detalle_venta_2/verCliente_x_venta', [VenGestorVentaVistaController::class, 'verCliente_x_venta']);
     Route::post('/detalle_venta_2/desactivar', [VenGestorVentaVistaController::class, 'desactivar']);
     Route::get('/detalle_venta_2/factura_dosificacion', [VenGestorVentaVistaController::class, 'factura_dosificacion']);
-    
+
+    //caducidad---
+    Route::get('/caducida/index', [VenCaducidadController::class, 'index']);
+    Route::put('/caducida/prioridad', [VenCaducidadController::class, 'prioridad']); 
+       
 });

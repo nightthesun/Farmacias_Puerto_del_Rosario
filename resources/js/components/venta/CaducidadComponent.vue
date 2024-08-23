@@ -10,18 +10,8 @@
         <div class="container-fluid">
             <div class="card">
                 <div class="card-header">
-                    <i class="fa fa-align-justify"></i> Traslados               
-                    <button
-                        type="button"
-                        class="btn btn-secondary"
-                        @click="abrirModal('registrar');"
-                        :disabled="selectAlmTienda == 0"
-                    >
-                        <i class="icon-plus"></i>&nbsp;Nuevo
-                    </button>
-                    <span v-if="selectAlmTienda == 0" class="error"
-                        >&nbsp; &nbsp;Debe Seleccionar un almacen o
-                        tienda.</span >
+                    <i class="fa fa-align-justify"></i> Caducidad               
+                    
                 </div>
         <div class="card-body">
             <div class="form-group row">
@@ -30,7 +20,7 @@
                 </div>
                         <div class="col-md-6">
                             <div class="input-group">
-                                <select class="form-control" v-model="sucursalSeleccionada">
+                                <select class="form-control" v-model="sucursalSeleccionada"  @change="listarIndex(0)">
                                     <option value="0" disabled selected>Seleccionar...</option>
                                     <option v-for="sucursal in arraySucursal" :key="sucursal.id"  :value="sucursal.codigo"
                                         v-text="
@@ -74,39 +64,70 @@
             </div>
              
 
-            <div class="row justify-content-center">
-    <div class="col-md-8">
-      <div class="row">
-        <div class="col-md-4" v-if="sucursalSeleccionada !== 0">
-          <label for="start-date">Fecha inicial:</label>
-          <input id="start-date" type="date" class="form-control" v-model="startDate">
-        </div>
-        <div class="col-md-4" v-if="sucursalSeleccionada !== 0">
-          <label for="end-date">Fecha final:</label>
-          <input id="end-date" type="date" class="form-control" v-model="endDate">
-        </div>
-      </div>
-    </div>
-  </div>
-  <br>
+       
             <!---inserte tabla-->
             <table class="table table-bordered table-striped table-sm table-responsive" >
                 <thead>
                     <tr>
-                        <th>Opciones</th>
-                        <th class="col-md-1">Cliente</th>
-                        <th class="col-md-5">Nro docuemnto</th>
-                        <th>Tipo de comprobante</th>
-                        <th>Numero de comprobante</th>
-                        <th class="col-md-1">Total</th>
-                        <th class="col-md-1">Destino</th>
-                        <th>Vehiculo</th>
-                        <th class="col-md-3">Observación</th>
-                        <th class="col-md-2">Per. Enviada</th>
-                        <th>Usuario</th>
-                        <th>Estado</th>       
+                        <th  style="text-align: center">Opciones</th>
+                        <th class="col-md-1" style="text-align: center">Codigo</th>
+                        <th class="col-md-1" style="text-align: center">Linea</th>
+                        <th class="col-md-4" style="text-align: center">Producto</th>
+                        <th class="col-md-1" style="text-align: center">Stock actual</th>
+                        <th class="col-md-1" style="text-align: center">Caducidad</th>
+                        <th class="col-md-1" style="text-align: center">Siglo</th>  
+                        <th class="col-md-1" style="text-align: center">Dias</th>                        
+                        <th class="col-md-1" style="text-align: center">Prioridad</th>    
+                        <th class="col-md-1" style="text-align: center">Estado</th>      
                     </tr>
                 </thead>
+                <tbody>
+                    <tr v-for="p in arrayPro" :key="p.id">
+                        <td >
+                            <div class="btn-group" >
+  <button type="button" style="color: white;" class="btn btn-warning dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    <i class="fa fa-bars" aria-hidden="true"></i>
+  </button>
+  <div class="dropdown-menu">  
+        <a @click.prevent="cambiarPrioridad(p.cod_tda_alm, p.id_ingreso, p.id_tda_alm,0);" class="dropdown-item" href="#"><i class="fa fa-angle-right" aria-hidden="true"></i> Ninguna</a>
+        <a @click.prevent="cambiarPrioridad(p.cod_tda_alm, p.id_ingreso, p.id_tda_alm,1);" class="dropdown-item" href="#"><i class="fa fa-angle-right" aria-hidden="true"></i> Bajo</a>
+        <a @click.prevent="cambiarPrioridad(p.cod_tda_alm, p.id_ingreso, p.id_tda_alm,2);" class="dropdown-item" href="#"><i class="fa fa-angle-right" aria-hidden="true"></i> Medio</a>
+        <a @click.prevent="cambiarPrioridad(p.cod_tda_alm, p.id_ingreso, p.id_tda_alm,3);"  class="dropdown-item" href="#"><i class="fa fa-angle-right" aria-hidden="true"></i> Alto</a>
+   </div>
+</div>
+                 
+                            <button  type="button" class="btn btn-danger btn-sm" style="margin-right: 5px;">
+                                <i class="icon-trash"></i></button>
+                        </td>
+                        <td class="col-md-1" style="text-align: center" v-text="p.codigo"></td>
+                        <td class="col-md-1" style="text-align: center" v-text="p.nombre"></td>
+                        <td class="col-md-4"  v-text="p.leyenda"></td>
+                        <td class="col-md-1" style="text-align: center" v-text="p.stock_ingreso"></td>
+                        <td class="col-md-1" style="text-align: center" v-text="p.fecha_vencimiento"></td>
+                        <td style="text-align: center" >
+                            <span v-if="p.siglo==='1'">Un mes</span>
+                            <span v-if="p.siglo==='3'">Tres meses</span>
+                            <span v-if="p.siglo==='6'">Seis meses</span>
+                            <span v-if="p.siglo==='12'">Doce meses</span>                            
+                        </td>
+                        <td class="col-md-1" style="text-align: center">                        
+                            <span v-if="p.diferencia_dias<0">0</span>
+                            <span v-else>{{p.diferencia_dias}}</span> 
+                        </td>
+                        <td class="col-md-1" style="text-align: center">
+                            <span class="badge badge-pill badge-light" v-if="p.prioridad_caducidad===0">Ninguna</span>
+                            <span class="badge badge-pill badge-secondary" v-if="p.prioridad_caducidad===1">Bajo</span>
+                            <span class="badge badge-pill badge-warning" v-if="p.prioridad_caducidad===2">Medio</span>
+                            <span class="badge badge-pill badge-danger" v-if="p.prioridad_caducidad===3">Alta</span>
+                        </td>
+                        <td class="col-md-2" style="text-align: center">  
+                            <span class="badge badge-pill badge-danger" v-if="p.diferencia_dias<=0">Caducado</span>
+                            <span class="badge badge-pill badge-warning" v-if="p.diferencia_dias>0&&p.diferencia_dias<=31">Por caducar</span>
+                            <span class="badge badge-pill badge-info" v-if="p.diferencia_dias>31&&p.diferencia_dias<=60">Intervalo de cuidado</span>
+                            <span class="badge badge-pill badge-success" v-if="p.diferencia_dias>61">En rago de movimiento</span>
+                        </td>
+                    </tr>
+                </tbody>
             </table>    
 
             <!-----fin de tabla------->
@@ -126,7 +147,7 @@
             aria-hidden="true"
             data-backdrop="static"
             data-key="false" >
-            <div class="modal-dialog modal-primary modal-lg" role="document">
+            <div class="modal-dialog modal-primary modal-sm" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h4 class="modal-title">{{ tituloModal }}</h4>
@@ -140,22 +161,14 @@
                         </button>
                     </div>
                     <div class="modal-body">
-                        <div class="alert alert-warning" role="alert">
-                            Todos los campos con (*) son requeridos
-                        </div>
-                        <form action="" class="form-horizontal">
-                        
+                        <span style="color:darkgray">Tipo de prioridad: {{prioridad}}</span>
+              
+                        <form action="" class="form-horizontal">                        
                             <!-- insertar datos -->
-                            <div class="container">
-                                
-                                <div class="form-group row">
+                            <div class="container">                                
+                                <div class="form-group row">                                 
                                    
-                                   
-        
                                 </div>
-                              
-                            
-                               
                             </div>
                         </form>
                     </div>
@@ -211,16 +224,34 @@ export default {
           
 
             tituloModal: "",
+            arrayPro:[],
+            buscar:"",
             sucursalSeleccionada:0,
             arraySucursal:[],
-            buscar:"",
+            id_seleccionada_sucursal:'',
+            
+            prioridad:'',
+
             tipoAccion:1,
             startDate: '',
-      endDate: '',
+            endDate: '',
         };
     },
 
-    
+    watch: {
+    sucursalSeleccionada(valor) {
+      if (valor !== 0) {
+        let sucursal = this.arraySucursal.find(element => element.codigo === valor);
+
+        if (sucursal) {
+          this.id_seleccionada_sucursal = sucursal.id_sucursal;
+        
+        }
+
+      }
+    }
+  },
+
 
     computed: {
       //  sicompleto() {
@@ -260,6 +291,25 @@ export default {
     },
 
     methods: {
+
+        listarIndex(page){
+        let me=this;       
+        var url = "/caducida/index?page="+page+"&buscar=" +me.buscar+"&id_sucursal="+me.id_seleccionada_sucursal+"&codigo_tienda_almacen="+me.sucursalSeleccionada;
+        axios
+                .get(url)
+                .then(function (response) {
+                    var respuesta = response.data;
+                    me.pagination = respuesta.pagination;
+                    me.arrayPro = respuesta.resultado.data;
+                    console.log(me.arrayPro);
+                 
+                })
+                .catch(function (error) {
+                    error401(error);
+                    console.log(error);
+                });
+    },  
+
         sucursalFiltro() {
             let me = this;
            // var url = "/traspaso/listarSucursal";
@@ -269,7 +319,7 @@ export default {
                 .then(function (response) {
                     var respuesta = response.data;
                     me.arraySucursal = respuesta;
-                 
+                    console.log(me.arraySucursal);
                 })
                 .catch(function (error) {
                     error401(error);
@@ -290,6 +340,36 @@ export default {
         //    me.listarAjusteNegativos(page);
         },
 
+        cambiarPrioridad(cod_tda_alm,id_ingreso,id_tda_alm,prioridad){
+            let me = this;
+            console.log(cod_tda_alm+" "+id_ingreso+" "+id_tda_alm+" "+prioridad);
+            axios
+                            .put("/caducida/prioridad", {
+                              cod_tda_alm:cod_tda_alm, 
+                              id_ingreso:id_ingreso, 
+                              id_tda_alm:id_tda_alm, 
+                              prioridad:prioridad, 
+                            })
+                            .then(function (response) {                        
+                               me.listarIndex();
+                               Swal.fire(
+                        "Cambio de prioridad!",
+                        "Correctamente...",
+                        "success",
+                    );                    
+                            })
+                    
+                       .catch(function (error) {                
+              
+                    Swal.fire(
+                    "Error",
+                    ""+error, // Muestra el mensaje de error en el alert
+                    "error"
+                );  
+                              
+            });           
+        },
+
         abrirModal(accion, data = []) {
             let me = this;
         //    let respuesta = me.arraySucursal.find(
@@ -298,54 +378,41 @@ export default {
            
          switch (accion) {
                 case "registrar": {
+                    console.log(data);
                     me.tipoAccion = 1;
-                    me.tituloModal = "Registro de traspaso origen ";
-            
-                    me.classModal.openModal("registrar");
-                    break;
-                }
-                case "actualizar": {
-                    me.tipoAccion = 2;
-                   
-          
-            
-                    me.classModal.openModal("registrar");
+                    me.tituloModal = "Prioridad"; 
 
+                    if (data.prioridad_caducidad===0) {
+                        me.prioridad="Ninguna"
+                    } else {
+                        if (data.prioridad_caducidad===1) {
+                            me.prioridad="Bajo"
+                        } else {
+                            if (data.prioridad_caducidad===2) {
+                                me.prioridad="Medio" 
+                            } else {
+                                if (data.prioridad_caducidad===3) {
+                                    me.prioridad="Alta"
+                                }
+                            }
+                        }
+                    }
+                        
+                    me.classModal.openModal("registrar");
                     break;
-                }
-            
+                }           
             }
         },
 
-        fecha_inicial(){
-            // Obtener la fecha actual
-    const today = new Date();
-    // Obtener el año, mes y día actual
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, '0'); // Meses en JavaScript son de 0 a 11
-    const day = String(today.getDate()).padStart(2, '0');
-
-    // Asignar la fecha del primer día del mes al input de fecha de inicio
-    this.startDate = `${year}-${month}-01`;
-    // Asignar la fecha actual al input de fecha final
-    this.endDate = `${year}-${month}-${day}`;
-        },
+      
         cerrarModal(accion) {
             let me = this;
             if (accion == "registrar") {
                 me.classModal.closeModal(accion);
                
                     me.tituloModal = " ";
-             
-                    setTimeout(me.tiempo, 200); 
-                    //me.ProductoLineaIngresoSeleccionado = 0;
-                    me.inputTextBuscarProductoIngreso = "";
-                        me.arrayRetornarProductosIngreso = "";
+
               
-            } else {
-                me.classModal.closeModal(accion);
-              
-                me.classModal.openModal("registrar");
             }
         },
 
@@ -361,7 +428,7 @@ export default {
     mounted() {
         this.classModal = new _pl.Modals();
         this.sucursalFiltro();
-        this.fecha_inicial();
+      
         this.classModal.addModal("registrar");
     
     
