@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Alm_IngresoProducto2;
+use App\Models\Inv_AjusteNegativo;
 use App\Models\Tda_ingresoProducto2;
 use App\Models\Tda_Tienda;
 use Carbon\Carbon;
@@ -30,16 +31,16 @@ class VenCaducidadController extends Controller
                 {
                     if(empty($sqls)){
                         $sqls="(
-                            u.name like '%".$valor."%' 
-                                or pp.codigo like '%".$valor."%' 
+                            
+                                pp.codigo like '%".$valor."%' 
                                 or pl.nombre like '%".$valor."%'                                                           
                               )" ;
                     }
                     else
                     {
                         $sqls.="and (
-                            u.name like '%".$valor."%' 
-                                or pp.codigo like '%".$valor."%' 
+                          
+                                 pp.codigo like '%".$valor."%' 
                                 or pl.nombre like '%".$valor."%'  
                           )" ;
                     }    
@@ -104,7 +105,7 @@ class VenCaducidadController extends Controller
                     'tip.stock_ingreso',
                     'tip.fecha_vencimiento',
                     DB::raw("DATEDIFF(tip.fecha_vencimiento, '{$fecha_actual}') AS diferencia_dias"),
-                    'tip.prioridad_caducidad','tip.idtienda as id_tda_alm','tt.codigo as cod_tda_alm'
+                    'tip.prioridad_caducidad','tip.idtienda as id_tda_alm','tt.codigo as cod_tda_alm','pp.id as id_producto','pp.nombre as nom_prod'
                 ])
                 ->unionAll(
                     DB::table('alm__ingreso_producto as aip')
@@ -166,7 +167,7 @@ class VenCaducidadController extends Controller
                             'aip.stock_ingreso',
                             'aip.fecha_vencimiento',
                             DB::raw("DATEDIFF(aip.fecha_vencimiento, '{$fecha_actual}') AS diferencia_dias"),
-                            'aip.prioridad_caducidad','aip.idalmacen as id_tda_alm','aa.codigo as cod_tda_alm'
+                            'aip.prioridad_caducidad','aip.idalmacen as id_tda_alm','aa.codigo as cod_tda_alm','pp.id as id_producto','pp.nombre as nom_prod'
                         ])
                 )
                 ->orderBy('diferencia_dias', 'asc')
@@ -245,7 +246,7 @@ class VenCaducidadController extends Controller
                 'tip.stock_ingreso',
                 'tip.fecha_vencimiento',
                 DB::raw("DATEDIFF(tip.fecha_vencimiento, '{$fecha_actual}') AS diferencia_dias"),
-                'tip.prioridad_caducidad','tip.idtienda as id_tda_alm','tt.codigo as cod_tda_alm'
+                'tip.prioridad_caducidad','tip.idtienda as id_tda_alm','tt.codigo as cod_tda_alm','pp.id as id_producto','pp.nombre as nom_prod'
             ])
             ->unionAll(
                 DB::table('alm__ingreso_producto as aip')
@@ -307,7 +308,7 @@ class VenCaducidadController extends Controller
                         'aip.stock_ingreso',
                         'aip.fecha_vencimiento',
                         DB::raw("DATEDIFF(aip.fecha_vencimiento, '{$fecha_actual}') AS diferencia_dias"),
-                        'aip.prioridad_caducidad','aip.idalmacen as id_tda_alm','aa.codigo as cod_tda_alm'
+                        'aip.prioridad_caducidad','aip.idalmacen as id_tda_alm','aa.codigo as cod_tda_alm','pp.id as id_producto','pp.nombre as nom_prod'
                     ])
             )
             ->orderBy('diferencia_dias', 'asc')
@@ -330,6 +331,7 @@ class VenCaducidadController extends Controller
     
     public function prioridad(Request $request){
          try {
+     
             $prefijo = substr($request->cod_tda_alm, 0, 3);
             if ($prefijo==='TDA') {
                 $tt = Tda_ingresoProducto2::findOrFail($request->id_ingreso);
@@ -349,5 +351,97 @@ class VenCaducidadController extends Controller
             return response()->json(['error' => $th]);
          }
        
+    }
+
+    public function darDeBaja(Request $request){
+        try {
+            DB::beginTransaction();
+            $bandera=0;
+            $prefijo = substr($request->cod_tda_alm, 0, 3);
+          
+            if ($prefijo==='TDA') {
+                
+                $tt = Tda_ingresoProducto2::findOrFail($request->id_ingreso);
+                
+                $now = Carbon::now();
+                $datos = [
+                    'id_modulo' => $request->id_modulo,
+                    'id_sub_modulo' => $request->id_sub_modulo,
+                    'accion' => 2,
+                    'descripcion' => $request->des,          
+                    'user_id' =>auth()->user()->id, 
+                    'created_at'=>$now,
+                    'id_movimiento'=>$request->id_pivote        
+                ];
+                
+                DB::table('log__sistema')->insert($datos);   
+                $tt->activo=0; 
+                $tt->cantidad=0; 
+                $tt->stock_ingreso=0; 
+                      
+                $tt->save();
+                $bandera=1;
+              
+            } else {
+                if ($prefijo==='ALM') {
+                    $aa = Alm_IngresoProducto2::findOrFail($request->id_ingreso);
+                    $now = Carbon::now();
+                    $datos = [
+                        'id_modulo' => $request->id_modulo,
+                        'id_sub_modulo' => $request->id_sub_modulo,
+                        'accion' => 2,
+                        'descripcion' => $request->des,          
+                        'user_id' =>auth()->user()->id, 
+                        'created_at'=>$now,
+                        'id_movimiento'=>$request->id_pivote        
+                    ];
+                
+                    DB::table('log__sistema')->insert($datos);   
+                    $aa->activo=0; 
+                    $aa->cantidad=0; 
+                    $aa->stock_ingreso=0;                          
+                    $aa->save();
+                    $bandera=1;
+                } else {
+                    dd("error de ingreso de TDA o ALM...");
+                }
+                
+            }
+            if ( $bandera==1) {
+               
+               
+                if (auth()->user()->id==1) {
+                    $iduserrolesuc=1;   
+                }else {
+                    $iduserrolesuc=session('iduserrolesuc');
+                }
+            
+                $ajusteNegativo = new Inv_AjusteNegativo();         
+                $ajusteNegativo->id_usuario = auth()->user()->id;
+                $ajusteNegativo->id_tipo = 14;  
+                $ajusteNegativo->id_producto_linea = $request->id_producto;                             
+                $ajusteNegativo->id_sucursal = $iduserrolesuc;
+                $ajusteNegativo->usuario = auth()->user()->name; 
+                $ajusteNegativo->codigo = $request->codigo;
+                $ajusteNegativo->linea = $request->linea;
+                $ajusteNegativo->producto = $request->nom_prod;
+                $ajusteNegativo->cantidad = $request->stock_ingreso;
+                $ajusteNegativo->descripcion = "dado de baja id de ingreso: "+$request->id_ingreso;
+                $ajusteNegativo->fecha = $now;
+                $ajusteNegativo->id_usuario_registra = auth()->user()->id; 
+                $ajusteNegativo->cod = $request->cod_tda_alm;
+                $ajusteNegativo->leyenda = $request->leyenda;  
+                $ajusteNegativo->id_ingreso = $request->id_ingreso;
+                   
+                $ajusteNegativo->save();
+                DB::commit();
+            }else{
+                dd("error...");
+            }
+            
+            
+        } catch (\Throwable $th) {
+            return response()->json(['error' => $th]);
+        }
     }
 }

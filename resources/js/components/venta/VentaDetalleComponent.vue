@@ -35,7 +35,7 @@
                             </div>
                         </div>
                         <div class="col-md-4">
-                            <div class="input-group">
+                            <div class="input-group">  
                                 <input
                                     type="text"
                                     id="texto"

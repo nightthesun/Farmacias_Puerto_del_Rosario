@@ -41,16 +41,16 @@
                                     id="texto"
                                     name="texto"
                                     class="form-control"
-                                    placeholder="Texto a buscar"
+                                    placeholder="Texto a buscar"  
                                     v-model="buscar"
-                               
+                                    @keyup.enter="listarIndex(1)" 
                                     :hidden="sucursalSeleccionada == 0"
                                     :disabled="sucursalSeleccionada == 0"
                                 />
                                 <button
                                     type="submit"
                                     class="btn btn-primary"
-                              
+                                    @click="listarIndex(1)"
                                     :hidden="sucursalSeleccionada == 0"
                                     :disabled="sucursalSeleccionada == 0"
                                 >
@@ -96,7 +96,7 @@
    </div>
 </div>
                  
-                            <button  type="button" class="btn btn-danger btn-sm" style="margin-right: 5px;">
+                            <button  type="button" @click="darDeBaja(p.id,p.cod_tda_alm, p.id_ingreso, p.id_tda_alm,p.stock_ingreso,p.id_producto,p.codigo,p.nombre,p.nom_prod,p.leyenda)" class="btn btn-danger btn-sm" data-toggle="tooltip" data-placement="right" title="Dar de baja producto" style="margin-right: 5px;">
                                 <i class="icon-trash"></i></button>
                         </td>
                         <td class="col-md-1" style="text-align: center" v-text="p.codigo"></td>
@@ -131,6 +131,19 @@
             </table>    
 
             <!-----fin de tabla------->
+            <nav>
+                <ul class="pagination">
+                    <li class="page-item" v-if="pagination.current_page > 1">
+                                <a class="page-link" href="#" @click.prevent="cambiarPagina(pagination.current_page - 1,)">Ant</a>
+                    </li>
+                    <li class="page-item" v-for="page in pagesNumber" :key="page" :class="[page == isActived ? 'active' : '']">
+                                <a class="page-link" href="#" @click.prevent="cambiarPagina(page)" v-text="page"></a>
+                    </li>
+                    <li class="page-item" v-if="pagination.current_page < pagination.last_page">
+                                <a class="page-link" href="#" @click.prevent="cambiarPagina(pagination.current_page + 1,)">Sig</a>
+                    </li>
+                </ul>
+            </nav>
         </div>
 
 
@@ -138,71 +151,7 @@
   
         <!-- fin de index -->
         </div>   
-           <!--Inicio del modal agregar/actualizar-->
-        <div class="modal fade"
-            tabindex="-1"
-            role="dialog"
-            arial-labelledby="myModalLabel"
-            id="registrar"
-            aria-hidden="true"
-            data-backdrop="static"
-            data-key="false" >
-            <div class="modal-dialog modal-primary modal-sm" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h4 class="modal-title">{{ tituloModal }}</h4>
-                        <button
-                            type="button"
-                            class="close"
-                            aria-label="Close"
-                            @click="cerrarModal('registrar')"
-                        >
-                            <span aria-hidden="true">x</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <span style="color:darkgray">Tipo de prioridad: {{prioridad}}</span>
-              
-                        <form action="" class="form-horizontal">                        
-                            <!-- insertar datos -->
-                            <div class="container">                                
-                                <div class="form-group row">                                 
-                                   
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                  
-                    <div class="modal-footer">
-                        <button
-                            type="button"
-                            class="btn btn-secondary"
-                            @click="cerrarModal('registrar')"
-                        >
-                            Cerrar
-                        </button>
-                        <button
-                            type="button"
-                            v-if="tipoAccion == 1"
-                            class="btn btn-primary"
-                           
-                            :disabled="!sicompleto"
-                        >
-                            Guardar
-                        </button>
-                        <button
-                            type="button"
-                            v-if="tipoAccion == 2"
-                            class="btn btn-primary"
-                          
-                        >
-                            Actualizar
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!--fin del modal-->
+    
     </main>
 </template>
 
@@ -211,6 +160,7 @@ import Swal from "sweetalert2";
 import { error401 } from "../../errores";
 //Vue.use(VeeValidate);
 export default {
+    props: ['codventana','idmodulo'],
     data() {
         return {
             pagination: {
@@ -222,7 +172,7 @@ export default {
                 to: 0,
             },
           
-
+            offset: 3,
             tituloModal: "",
             arrayPro:[],
             buscar:"",
@@ -233,9 +183,7 @@ export default {
             prioridad:'',
 
             tipoAccion:1,
-            startDate: '',
-            endDate: '',
-        };
+                 };
     },
 
     watch: {
@@ -337,18 +285,20 @@ export default {
         cambiarPagina(page) {
             let me = this;
             me.pagination.current_page = page;
-        //    me.listarAjusteNegativos(page);
+            me.listarIndex(page);
         },
 
         cambiarPrioridad(cod_tda_alm,id_ingreso,id_tda_alm,prioridad){
             let me = this;
-            console.log(cod_tda_alm+" "+id_ingreso+" "+id_tda_alm+" "+prioridad);
+           
+         
             axios
                             .put("/caducida/prioridad", {
                               cod_tda_alm:cod_tda_alm, 
                               id_ingreso:id_ingreso, 
                               id_tda_alm:id_tda_alm, 
-                              prioridad:prioridad, 
+                              prioridad:prioridad,
+
                             })
                             .then(function (response) {                        
                                me.listarIndex();
@@ -368,6 +318,71 @@ export default {
                 );  
                               
             });           
+        },
+       
+        darDeBaja(id_pivote,cod_tda_alm,id_ingreso,id_tda_alm,stock_ingreso,id_producto,codigo,linea,nom_prod,leyenda){
+            let me=this;
+            let cadena="Elimancion, id ingreso "+id_ingreso+", codigo "+cod_tda_alm+", cantidad "+stock_ingreso ;
+            console.log(me.idmodulo+" "+me.codventana+" "+cadena);
+                const swalWithBootstrapButtons = Swal.mixin({
+                customClass: {
+                    confirmButton: 'btn btn-success',
+                    cancelButton: 'btn btn-danger'
+                },
+                buttonsStyling: false
+                })
+
+                swalWithBootstrapButtons.fire({
+                title: '¿Esta Seguro de dar de baja el producto',
+                text: "Es una eliminacion logica",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Si, Desactivar',
+                cancelButtonText: 'No, Cancelar',
+                reverseButtons: true
+                }).then((result) => {
+                if (result.isConfirmed) {
+                     axios.post('/caducida/darDeBaja',{
+                        cod_tda_alm: cod_tda_alm,
+                        id_ingreso: id_ingreso,
+                        id_tda_alm: id_tda_alm,
+                        id_pivote: id_pivote,                        
+                            
+                        id_producto:id_producto,
+                        codigo:codigo,
+                        linea:linea,
+                        nom_prod:nom_prod,
+                        stock_ingreso:stock_ingreso,
+                        leyenda:leyenda,
+
+                        id_modulo: me.idmodulo,
+                                id_sub_modulo:me.codventana, 
+                                des:cadena,  
+                    }).then(function (response) {
+                        console.log("-------------------------");
+                        console.log(response.data);
+                        me.listarIndex();
+                        swalWithBootstrapButtons.fire(
+                            'Desactivado!',
+                            'El registro a sido desactivado Correctamente',
+                            'success'
+                        )                    
+                        
+                    }).catch(function (error) {
+                        error401(error);
+                        console.log(error);
+                    });
+                } else if (
+                    /* Read more about handling dismissals below */
+                    result.dismiss === Swal.DismissReason.cancel
+                ) {
+                    /* swalWithBootstrapButtons.fire(
+                    'Cancelado!',
+                    'El Registro no fue desactivado',
+                    'error'
+                    ) */
+                }
+                })
         },
 
         abrirModal(accion, data = []) {

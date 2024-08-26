@@ -614,5 +614,6 @@ Route::group(['middleware' => 'auth'], function () {
     //caducidad---
     Route::get('/caducida/index', [VenCaducidadController::class, 'index']);
     Route::put('/caducida/prioridad', [VenCaducidadController::class, 'prioridad']); 
-       
+    Route::post('/caducida/darDeBaja', [VenCaducidadController::class, 'darDeBaja']);
+
 });
