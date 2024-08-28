@@ -416,7 +416,7 @@ $nombre_empresa = strtoupper($nombre_e);
     'pd2.activo as descuento_activo',
     'pad2.id_sucursal as id_11','pppl.id as id_linea',
      'pd2.id as id_descuento',
-            'pd2.id_tipo_tabla as id_tabla'
+            'pd2.id_tipo_tabla as id_tabla','tip.prioridad_caducidad'
             )
             ->where('ass.id', $id_suc)
             ->where('gpv.listo_venta', 1)
@@ -424,6 +424,7 @@ $nombre_empresa = strtoupper($nombre_e);
             ->where('pp.activo', 1)
             ->where('tip.activo', 1)
             ->where('tip.fecha_vencimiento', '>=', DB::raw('CURDATE()'))
+            ->orderBy('tip.prioridad_caducidad', 'desc')
             ->get(); 
             return $resultados;
        
@@ -495,13 +496,14 @@ $nombre_empresa = strtoupper($nombre_e);
     'pd2.activo as descuento_activo',
     'pad2.id_sucursal as id_11','pppl.id as id_linea',
     'pd2.id as id_descuento',
-    'pd2.id_tipo_tabla as id_tabla'         
+    'pd2.id_tipo_tabla as id_tabla','tip.prioridad_caducidad'         
             )
             ->where('ass.id', $idsuc)
             ->where('gpv.listo_venta', 1)
             ->where('pp.activo', 1)
             ->where('tip.activo', 1)
             ->where('tip.fecha_vencimiento', '>=', DB::raw('CURDATE()'))
+            ->orderBy('tip.prioridad_caducidad', 'desc')
             ->get();
             return $resultados;    
         }

@@ -20,6 +20,7 @@ use App\Http\Controllers\AlmAlmacenController;
 use App\Http\Controllers\AlmCodificacionController;
 use App\Http\Controllers\AlmIngresoProducto2Controller;
 use App\Http\Controllers\AlmIngresoProductoController;
+use App\Http\Controllers\CajaMonedaController;
 use App\Http\Controllers\DirClienteController;
 use App\Http\Controllers\TdaTiendaController;
 use App\Http\Controllers\GesPreVentaController;
@@ -616,4 +617,11 @@ Route::group(['middleware' => 'auth'], function () {
     Route::put('/caducida/prioridad', [VenCaducidadController::class, 'prioridad']); 
     Route::post('/caducida/darDeBaja', [VenCaducidadController::class, 'darDeBaja']);
 
+    //////////////////////////////////////////////////CAJA/////////////////////////////////////////////////////////////////////
+    
+    //moneda--
+    Route::get('/moneda/listarNacionalidad', [CajaMonedaController::class, 'listarNacionalidad']);
+    Route::get('/moneda/index', [CajaMonedaController::class, 'index']);
+    Route::post('/moneda/store', [CajaMonedaController::class, 'store']);
+    
 });

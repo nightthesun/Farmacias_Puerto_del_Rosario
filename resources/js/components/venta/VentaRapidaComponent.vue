@@ -67,8 +67,6 @@
                                <hr> <!-- Línea horizontal -->                      
                                <div class="row" >
                              
-                                
-                                 
                                  <table class="table table-bordered table-striped table-sm table-responsive">
            <thead>
              <tr>
@@ -109,8 +107,8 @@
                                  No se encontraron elementos. Considere cambiar la consulta de búsqueda.
                                </template>
                                <template #option="{ option }">
-                                 <div :class="{'red-day': option.dias <= 10}">
-                                
+                                 <div :class="{'red-day': option.dias <= 20}">
+                                <i :style="{ color: getColorByPriority(option.prioridad_caducidad) }" class="fa fa-bell" aria-hidden="true"></i> 
                                 {{option.leyenda}} {{option.nombre_linea}} {{ "FV: "+option.fecha_vencimiento}} {{ "Dias: "+option.dias}}
                                  </div>
                          </template>
@@ -251,10 +249,8 @@
          
              <div class="card-body" >
                <strong >Detalle de cliente</strong> 
-               <hr> <!-- Línea horizontal -->       
-                              
-               <div class="row">
-             
+               <hr> <!-- Línea horizontal -->                               
+               <div class="row">            
                  <div class="form-group col-sm-3" style="display: flex; align-items: center;" v-if="contador_cliente===0">
                      <input type="text" class="form-control"  placeholder="Número de Documento" v-model="buscarCliente">
                      <button class="btn btn-primary" type="button" 
@@ -1837,6 +1833,22 @@ if(Number(me.efectivo) > 0){
             }           
           },
 
+
+          getColorByPriority(prioridad) {
+        switch (prioridad) {
+            case 0: // NingunagetColorByPriority
+                return '#AAB3AA'; // Negro
+            case 1: // Bajo
+                return '#00ff01'; // Verde
+            case 2: // Medio
+                return '#ccff00'; // Amarillo
+            case 3: // Alta
+                return '#FF0003'; // Rojo
+            default:
+                return '#AAB3AA'; // Color por defecto, negro
+        }
+    },
+
         agregarVenta(){
             try {
                             let me = this;      
@@ -2955,7 +2967,19 @@ if (!correoRegex.test(me.correo)) {
     font-size: 10px;
 }
 .red-day {
-  color: deeppink;
+  color: rgb(230, 21, 132);
+  /* Puedes ajustar otros estilos según tus preferencias */
+}
+.color-1 {
+  color: rgb(17, 68, 16);
+  /* Puedes ajustar otros estilos según tus preferencias */
+}
+.color-2 {
+  color: rgb(238, 241, 20);
+  /* Puedes ajustar otros estilos según tus preferencias */
+}
+.color-3 {
+  color: rgb(75, 19, 19);
   /* Puedes ajustar otros estilos según tus preferencias */
 }
 </style>

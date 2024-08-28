@@ -83,22 +83,36 @@
                 </thead>
                 <tbody>
                     <tr v-for="p in arrayPro" :key="p.id">
-                        <td >
-                            <div class="btn-group" >
-  <button type="button" style="color: white;" class="btn btn-warning dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-    <i class="fa fa-bars" aria-hidden="true"></i>
-  </button>
-  <div class="dropdown-menu">  
-        <a @click.prevent="cambiarPrioridad(p.cod_tda_alm, p.id_ingreso, p.id_tda_alm,0);" class="dropdown-item" href="#"><i class="fa fa-angle-right" aria-hidden="true"></i> Ninguna</a>
-        <a @click.prevent="cambiarPrioridad(p.cod_tda_alm, p.id_ingreso, p.id_tda_alm,1);" class="dropdown-item" href="#"><i class="fa fa-angle-right" aria-hidden="true"></i> Bajo</a>
-        <a @click.prevent="cambiarPrioridad(p.cod_tda_alm, p.id_ingreso, p.id_tda_alm,2);" class="dropdown-item" href="#"><i class="fa fa-angle-right" aria-hidden="true"></i> Medio</a>
-        <a @click.prevent="cambiarPrioridad(p.cod_tda_alm, p.id_ingreso, p.id_tda_alm,3);"  class="dropdown-item" href="#"><i class="fa fa-angle-right" aria-hidden="true"></i> Alto</a>
-   </div>
-</div>
-                 
-                            <button  type="button" @click="darDeBaja(p.id,p.cod_tda_alm, p.id_ingreso, p.id_tda_alm,p.stock_ingreso,p.id_producto,p.codigo,p.nombre,p.nom_prod,p.leyenda)" class="btn btn-danger btn-sm" data-toggle="tooltip" data-placement="right" title="Dar de baja producto" style="margin-right: 5px;">
-                                <i class="icon-trash"></i></button>
-                        </td>
+                        <td class="col-md-1">  
+    <div class="d-flex align-items-center">
+        <div class="btn-group mr-2" v-if="puedeEditar === 1 && puedeHacerOpciones_especiales === 1">
+            <button type="button" style="color: white;" class="btn btn-warning dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="fa fa-bars" aria-hidden="true"></i>
+            </button>
+            <div class="dropdown-menu">  
+                <a @click.prevent="cambiarPrioridad(p.cod_tda_alm, p.id_ingreso, p.id_tda_alm, 0);" class="dropdown-item" href="#"><i class="fa fa-angle-right" aria-hidden="true"></i> Ninguna</a>
+                <a @click.prevent="cambiarPrioridad(p.cod_tda_alm, p.id_ingreso, p.id_tda_alm, 1);" class="dropdown-item" href="#"><i class="fa fa-angle-right" aria-hidden="true"></i> Bajo</a>
+                <a @click.prevent="cambiarPrioridad(p.cod_tda_alm, p.id_ingreso, p.id_tda_alm, 2);" class="dropdown-item" href="#"><i class="fa fa-angle-right" aria-hidden="true"></i> Medio</a>
+                <a @click.prevent="cambiarPrioridad(p.cod_tda_alm, p.id_ingreso, p.id_tda_alm, 3);" class="dropdown-item" href="#"><i class="fa fa-angle-right" aria-hidden="true"></i> Alto</a>
+            </div>
+        </div>   
+        <div v-else class="mr-2">
+            <button type="button" style="color: white;" class="btn btn-light">
+                <i class="fa fa-bars" aria-hidden="true"></i>
+            </button>
+        </div>                                          
+        <div v-if="puedeActivar == 1">
+            <button type="button" @click="darDeBaja(p.id, p.cod_tda_alm, p.id_ingreso, p.id_tda_alm, p.stock_ingreso, p.id_producto, p.codigo, p.nombre, p.nom_prod, p.leyenda)" class="btn btn-danger btn-sm" data-toggle="tooltip" data-placement="right" title="Dar de baja producto">
+                <i class="icon-trash"></i>
+            </button>
+        </div>
+        <div v-else>
+            <button type="button" class="btn btn-light btn-sm" data-toggle="tooltip" data-placement="right" title="Dar de baja producto">
+                <i class="icon-trash"></i>
+            </button>
+        </div>
+    </div>
+</td>
                         <td class="col-md-1" style="text-align: center" v-text="p.codigo"></td>
                         <td class="col-md-1" style="text-align: center" v-text="p.nombre"></td>
                         <td class="col-md-4"  v-text="p.leyenda"></td>
@@ -180,6 +194,13 @@ export default {
             arraySucursal:[],
             id_seleccionada_sucursal:'',
             
+             //---permisos_R_W_S
+             puedeEditar:2,
+                puedeActivar:2,
+                puedeHacerOpciones_especiales:2,
+                puedeCrear:2,
+                //-----------
+
             prioridad:'',
 
             tipoAccion:1,
@@ -239,6 +260,37 @@ export default {
     },
 
     methods: {
+
+        //-----------------------------------permisos_R_W_S        
+listarPerimsoxyz() {
+                //console.log(this.codventana);
+    let me = this;
+        
+    var url = '/gestion_permiso_editar_eliminar?win='+me.codventana;
+  
+    axios.get(url)
+        .then(function(response) {
+            var respuesta = response.data;
+     
+            if(respuesta=="root"){
+            me.puedeEditar=1;
+            me.puedeActivar=1;
+            me.puedeHacerOpciones_especiales=1;
+            me.puedeCrear=1; 
+            }else{
+            me.puedeEditar=respuesta.edit;
+            me.puedeActivar=respuesta.activar;
+            me.puedeHacerOpciones_especiales=respuesta.especial;
+            me.puedeCrear=respuesta.crear;        
+            }
+           
+        })
+        .catch(function(error) {
+            error401(error);
+            console.log(error);
+        });
+},
+//-------------------------------------------------
 
         listarIndex(page){
         let me=this;       
@@ -443,7 +495,9 @@ export default {
     mounted() {
         this.classModal = new _pl.Modals();
         this.sucursalFiltro();
-      
+       //-------permiso E_W_S-----
+       this.listarPerimsoxyz(); 
+        //-----------------------
         this.classModal.addModal("registrar");
     
     

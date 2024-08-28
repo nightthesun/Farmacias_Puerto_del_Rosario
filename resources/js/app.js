@@ -86,6 +86,11 @@ createApp ({
     .component('venta-rapida-component', require('./components/venta/VentaRapidaComponent.vue').default)
     .component('venta-detalle-component', require('./components/venta/VentaDetalleComponent.vue').default)
     .component('caducidad-component', require('./components/venta/CaducidadComponent.vue').default)
+
+    //Cajas
+    .component('apertura_cierre-component', require('./components/caja/Apertura_cierreComponent.vue').default)
+    .component('moneda-component', require('./components/caja/MonedaComponent.vue').default)
+    
   
     .mount('#app');
  
