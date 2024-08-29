@@ -21,6 +21,9 @@
                 <li class="nav-item">
                     <a class="nav-link" id="pills-fa-tab" data-toggle="pill" href="#pills-fa" role="tab" aria-controls="pills-fa" aria-selected="false">Tipo de venta</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="pills-moneda-tab" data-toggle="pill" href="#pills-moneda" role="tab" aria-controls="pills-moneda" aria-selected="false">Tipo de moneda</a>
+                </li>
             </ul>
         </div>
         <div class="card-body">
@@ -181,6 +184,37 @@
                             </div>
                         </div>
                     </div>
+                <!-------------------------------------------------------------------------------------------------------------------->
+                <div class="tab-pane fade" id="pills-moneda" role="tabpanel" aria-labelledby="pills-moneda-tab">                    
+                    <div class="card">
+                        <div class="card-header">Tipo de moneda</div>
+                        <div class="card-body">
+                            <div class="form-group row">
+                                <label class="col-md-1 form-control-label" for="text-input" style="font-size: 12px;"><strong>Tipo:</strong> 
+                                </label>
+                                <div class="col-md-3">
+                                    <select class="form-control"  v-model="selectMoneda">
+                                        <option value="0" disabled selected>Seleccionar...</option>
+                                        <option v-for="t in arrayMoneda" :key="t.id_nacionalidad_pais" :value="t.id_nacionalidad_pais">
+                                            {{ t.pais+" "+t.simbolo }}
+                                        </option>
+                                    </select>
+                                 </div>
+                                 <div class="col-md-3">
+                                        <div v-if="selectMoneda===0" class="alert alert-danger" role="alert">
+                                           SIN TIPO DE MONEDA
+                                        </div>
+                                        <div v-else class="alert alert-primary" role="alert">
+                                            {{pais}}
+                                        </div>
+                                       
+                                     </div>
+                               
+          
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 </div>
             
         </div>
@@ -224,6 +258,10 @@ puedeEditar:2,
                 puedeCrear:2,
                 //-----------
                 validador_variables:0,
+
+                arrayMoneda:[],
+                selectMoneda:0,
+                pais:'',
         };
     },
 
@@ -256,6 +294,23 @@ puedeEditar:2,
         },
     },
 
+
+    
+    watch: {
+        selectMoneda: function (newValue) {
+            
+           
+                let p = this.arrayMoneda.find(
+                    (element) => element.id_nacionalidad_pais === newValue,
+                );
+
+                if (p) {
+                    this.pais =p.pais;
+                    
+                } 
+            
+        },
+    },
     methods: {
           //-----------------------------------permisos_R_W_S        
     listarPerimsoxyz() {
@@ -288,6 +343,8 @@ puedeEditar:2,
         });
 },
 //-------------------------------------------------------------- 
+
+
 
         update_tipo_venta(data){
             let me= this;
@@ -391,6 +448,22 @@ puedeEditar:2,
             }
 
         },
+        
+        listarTipomoneda(){
+            let me = this;        
+            var url = "/credenciales_correo/tipo_moneda";
+            axios.get(url)
+                .then(function (response) {
+                    var respuesta = response.data;
+                    me.arrayMoneda = respuesta;  
+                    console.log(me.arrayMoneda);           
+                })
+                .catch(function (error) {
+                    error401(error);
+                    console.log(error);
+                });
+        },
+
         update_credecial_correo() {
             let me = this;
             
@@ -461,6 +534,84 @@ puedeEditar:2,
             this.pestañaActiva = idPestana;
 
             // Agrega aquí la lógica adicional que necesites al cambiar la pestaña
+        },
+
+        cambioDeMoneda(id){
+            let me=this;
+            const swalWithBootstrapButtons = Swal.mixin({
+                customClass: {
+                    confirmButton: "btn btn-success",
+                    cancelButton: "btn btn-danger",
+                },
+                buttonsStyling: false,
+            });         
+                
+            swalWithBootstrapButtons
+                .fire({
+                    title: "¿Esta Seguro de cambiar el tipo de moneda?",
+                    text: "Tendra un cambio en tipo de moneda.",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Si, Desactivar",
+                    cancelButtonText: "No, Cancelar",
+                    reverseButtons: true,
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        axios.put("/credenciales_correo/tipomonedaUpdate", {
+                    id: me.id_credencial,                   
+                    id_moneda:id,    
+                    
+                    id_modulo: me.idmodulo,
+                id_sub_modulo:me.codventana, 
+                des:"cambio de tipo de venta",  
+                  
+                })
+                .then(function (response) {
+                    me.listarCredencial();
+                    me.selectTipoFac=0;
+                    Swal.fire(
+                        "Actualizado Correctamente!",
+                        "El registro a sido actualizado Correctamente",
+                        "success",
+                    );
+                })
+                //.catch(function (error) {
+                //    error401(error);
+                //});
+                .catch(function (error) {           
+                
+                if (error.response.status === 500) {
+                    me.errorMsg = error.response.data.error; // Asigna el mensaje de error a la variable errorMsg
+                Swal.fire(
+                    "Error",
+                    "500 (Internal Server Error)"+me.errorMsg, // Muestra el mensaje de error en el alert
+                    "error"
+                );
+                }else{
+                    Swal.fire(
+                    "Error",
+                    ""+error, // Muestra el mensaje de error en el alert
+                    "error"
+                );  
+                }
+
+               
+            });
+                      
+                    } else if (
+                        /* Read more about handling dismissals below */
+                       
+                        result.dismiss === Swal.DismissReason.cancel
+                    ) {
+                        me.selectTipoFac=0;
+                        /* swalWithBootstrapButtons.fire(
+                    'Cancelado!',
+                    'El Registro no fue desactivado',
+                    'error'
+                    ) */
+                    }
+                });
+            
         },
 
         cambioEstado(id){
@@ -638,7 +789,7 @@ puedeEditar:2,
         this.listarPerimsoxyz();
             //-----------------------
         this.listarCredencial();
-        
+        this.listarTipomoneda();
     
     
     },

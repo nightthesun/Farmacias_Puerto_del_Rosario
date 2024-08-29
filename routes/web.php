@@ -230,7 +230,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/credenciales_correo', [AdmCredecialCorreoController::class, 'credencia_correo']);
     Route::post('/credenciales_correo/update', [AdmCredecialCorreoController::class, 'update']);   
     Route::put('/credenciales_correo/tipo_venta_update', [AdmCredecialCorreoController::class, 'tipo_venta_update']); 
-    Route::post('/credenciales_correo/update_datos_empresa', [AdmCredecialCorreoController::class, 'update_datos_empresa']);     
+    Route::post('/credenciales_correo/update_datos_empresa', [AdmCredecialCorreoController::class, 'update_datos_empresa']);   
+    Route::get('/credenciales_correo/tipo_moneda', [AdmCredecialCorreoController::class, 'tipo_moneda']);  
+
 
     Route::get('/dosificacion/getDataSucursal', [AdmCredecialCorreoController::class, 'getDataSucursal']);
     Route::post('/dosificacion/store_dosificacion', [AdmCredecialCorreoController::class, 'store_dosificacion']);
@@ -240,8 +242,6 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/dosificacion/verifica_esta_activo_dosificacacion_x_sucursal', [AdmCredecialCorreoController::class, 'verifica_esta_activo_dosificacacion_x_sucursal']);  
     Route::put('/dosificacion/desactivar_dosificacion', [AdmCredecialCorreoController::class, 'desactivar_dosificacion']);  
     Route::put('/dosificacion/activar_dosificacion', [AdmCredecialCorreoController::class, 'activar_dosificacion']);  
-    
-
 
 
        //*******para listar si tiene permisos de edicion y activacion usar en todos los reporte o modulos*/
@@ -623,5 +623,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/moneda/listarNacionalidad', [CajaMonedaController::class, 'listarNacionalidad']);
     Route::get('/moneda/index', [CajaMonedaController::class, 'index']);
     Route::post('/moneda/store', [CajaMonedaController::class, 'store']);
+    Route::post('/moneda/actualizar', [CajaMonedaController::class, 'actualizar']); 
+    Route::post('/moneda/activar', [CajaMonedaController::class, 'activar']); 
+    Route::post('/moneda/desactivar', [CajaMonedaController::class, 'desactivar']);    
     
 });

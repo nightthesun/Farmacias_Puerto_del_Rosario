@@ -16,8 +16,10 @@ return new class extends Migration
             $table->string('tipo_corte');
             $table->decimal('valor',11,2);
             $table->string('unidad',50);
-            $table->integer('id_nacionalidad_pais');
+            $table->smallInteger('id_nacionalidad_pais');
             $table->tinyInteger('activo')->default(1);
+            $table->string('texto_unidad_entera',100)->nullable(); 
+            $table->integer('unidad_entera')->nullable();
           
             $table->timestamps();
         });

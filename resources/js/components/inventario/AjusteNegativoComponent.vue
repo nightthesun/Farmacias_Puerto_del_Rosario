@@ -531,8 +531,7 @@
                         >
                             Cerrar
                         </button>
-                        <button
-                            type="button"
+                        <button type="button"
                             v-if="tipoAccion == 1"
                             class="btn btn-primary"
                             @click="registrorAjusteNegativo()"

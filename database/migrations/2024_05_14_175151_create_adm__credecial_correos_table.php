@@ -26,7 +26,7 @@ return new class extends Migration
     $table->tinyInteger('factura_dosificacion')->nullable()->comment("1=factura 2=dosificacion");    
     $table->smallInteger('id_dosificacion_siat')->nullable()->comment("lleva la ide de modulo de dosificacio o siat");
     $table->string('actividad_economica',200)->nullable();
-    
+    $table->integer('moneda')->nullable();
         });
     }
 

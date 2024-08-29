@@ -106,6 +106,38 @@ class AdmCredecialCorreoController extends Controller
      
     }
 
+    public function tipomonedaUpdate(Request $request)
+    {
+        try {
+         
+            $id=$request->id;
+                
+            $update = adm_CredecialCorreo::find($id);            
+            $update->moneda=$request->id_moneda;           
+            $update->save();
+
+            $fechaActual = Carbon::now(); // Obtiene la fecha y hora actual
+            $datos = [
+                'id_modulo' => $request->id_modulo,
+                'id_sub_modulo' => $request->id_sub_modulo,
+                'accion' => 4,
+                'descripcion' => $request->des,          
+                'user_id' =>auth()->user()->id, 
+                'created_at'=>$fechaActual,
+                'id_movimiento'=>$request->id,   
+            ];
+        
+            DB::table('log__sistema')->insert($datos);   
+         
+
+        } catch (\Throwable $th) {
+            return response()->json(['error' => $th->getMessage()],500);
+        }
+        
+     
+    }
+    
+
     public function credencia_correo(Request $request){
         $datos = DB::table('adm__credecial_correos')->get();
         return $datos;
@@ -123,6 +155,15 @@ class AdmCredecialCorreoController extends Controller
         ->first();
 
         return response()->json(['sucursal' => $sucursal, 'credecion' => $credecion]);
+    }
+
+    public function tipo_moneda(Request $request){
+        $monedas = DB::table('caja__monedas as cm')
+    ->join('adm__nacionalidads as an', 'an.id', '=', 'cm.id_nacionalidad_pais')
+    ->select('cm.id_nacionalidad_pais', 'an.pais', 'an.simbolo')
+    ->distinct()
+    ->get();
+    return $monedas;
     }
 
     public function store_dosificacion(Request $request){
