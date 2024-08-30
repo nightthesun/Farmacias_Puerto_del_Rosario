@@ -20,6 +20,7 @@ use App\Http\Controllers\AlmAlmacenController;
 use App\Http\Controllers\AlmCodificacionController;
 use App\Http\Controllers\AlmIngresoProducto2Controller;
 use App\Http\Controllers\AlmIngresoProductoController;
+use App\Http\Controllers\CajaAperturaCierreController;
 use App\Http\Controllers\CajaMonedaController;
 use App\Http\Controllers\DirClienteController;
 use App\Http\Controllers\TdaTiendaController;
@@ -231,7 +232,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/credenciales_correo/update', [AdmCredecialCorreoController::class, 'update']);   
     Route::put('/credenciales_correo/tipo_venta_update', [AdmCredecialCorreoController::class, 'tipo_venta_update']); 
     Route::post('/credenciales_correo/update_datos_empresa', [AdmCredecialCorreoController::class, 'update_datos_empresa']);   
-    Route::get('/credenciales_correo/tipo_moneda', [AdmCredecialCorreoController::class, 'tipo_moneda']);  
+    Route::get('/credenciales_correo/tipo_moneda', [AdmCredecialCorreoController::class, 'tipo_moneda']); 
+    Route::post('/credenciales_correo/tipomonedaUpdate', [AdmCredecialCorreoController::class, 'tipomonedaUpdate']);    
 
 
     Route::get('/dosificacion/getDataSucursal', [AdmCredecialCorreoController::class, 'getDataSucursal']);
@@ -626,5 +628,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/moneda/actualizar', [CajaMonedaController::class, 'actualizar']); 
     Route::post('/moneda/activar', [CajaMonedaController::class, 'activar']); 
     Route::post('/moneda/desactivar', [CajaMonedaController::class, 'desactivar']);    
-    
+
+    //Apertura_cierre
+    Route::get('/apertura_cierre/verificador_moneda_sistemas', [CajaAperturaCierreController::class, 'verificador_moneda_sistemas']);    
+  
 });

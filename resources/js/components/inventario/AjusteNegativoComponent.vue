@@ -103,7 +103,6 @@
                             <tr v-for="AjusteNegativos in arrayAjusteNegativos" :key="AjusteNegativos.id">
     <td class="col-md-1">
     <div class="button-container">
-
         <div  class="d-flex justify-content-start">
             <div  v-if="puedeEditar==1">
                 <button type="button" class="btn btn-warning " @click="abrirModal('actualizar',AjusteNegativos);

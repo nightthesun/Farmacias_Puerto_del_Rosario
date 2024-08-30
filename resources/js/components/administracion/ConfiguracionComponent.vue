@@ -22,7 +22,7 @@
                     <a class="nav-link" id="pills-fa-tab" data-toggle="pill" href="#pills-fa" role="tab" aria-controls="pills-fa" aria-selected="false">Tipo de venta</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" id="pills-moneda-tab" data-toggle="pill" href="#pills-moneda" role="tab" aria-controls="pills-moneda" aria-selected="false">Tipo de moneda</a>
+                    <a class="nav-link" id="pills-moneda-tab" data-toggle="pill" href="#pills-moneda" role="tab" aria-controls="pills-moneda" @click="listarTipomoneda()" aria-selected="false">Tipo de moneda</a>
                 </li>
             </ul>
         </div>
@@ -193,7 +193,7 @@
                                 <label class="col-md-1 form-control-label" for="text-input" style="font-size: 12px;"><strong>Tipo:</strong> 
                                 </label>
                                 <div class="col-md-3">
-                                    <select class="form-control"  v-model="selectMoneda">
+                                    <select class="form-control"  v-model="selectMoneda" @change="cambioDeMoneda(selectMoneda)">
                                         <option value="0" disabled selected>Seleccionar...</option>
                                         <option v-for="t in arrayMoneda" :key="t.id_nacionalidad_pais" :value="t.id_nacionalidad_pais">
                                             {{ t.pais+" "+t.simbolo }}
@@ -201,11 +201,11 @@
                                     </select>
                                  </div>
                                  <div class="col-md-3">
-                                        <div v-if="selectMoneda===0" class="alert alert-danger" role="alert">
+                                        <div v-if="nombre_pais==='0'" class="alert alert-danger" role="alert">
                                            SIN TIPO DE MONEDA
                                         </div>
                                         <div v-else class="alert alert-primary" role="alert">
-                                            {{pais}}
+                                            {{nombre_pais}}
                                         </div>
                                        
                                      </div>
@@ -262,6 +262,8 @@ puedeEditar:2,
                 arrayMoneda:[],
                 selectMoneda:0,
                 pais:'',
+                estado_cambio_moneda:0,
+                nombre_pais:'',
         };
     },
 
@@ -391,7 +393,8 @@ puedeEditar:2,
                
             });
         },
-        update_datos_empresa(){
+
+    update_datos_empresa(){
             let me = this; 
             if (me.nit===""||me.nombre_empresa===""||me.celular===""||me.actividad_eco==="") {
                 Swal.fire({
@@ -455,8 +458,16 @@ puedeEditar:2,
             axios.get(url)
                 .then(function (response) {
                     var respuesta = response.data;
-                    me.arrayMoneda = respuesta;  
-                    console.log(me.arrayMoneda);           
+                    me.arrayMoneda = respuesta;
+                    console.log( me.arrayMoneda);
+                    let p = me.arrayMoneda.find(
+                    (element) => element.id_nacionalidad_pais === me.estado_cambio_moneda);
+                if (p) {
+                    me.nombre_pais =p.pais;                    
+                } else {
+                    me.nombre_pais ="0";  
+                }
+                    console.log(me.nombre_pais);           
                 })
                 .catch(function (error) {
                     error401(error);
@@ -557,18 +568,20 @@ puedeEditar:2,
                     reverseButtons: true,
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        axios.put("/credenciales_correo/tipomonedaUpdate", {
+                        axios.post("/credenciales_correo/tipomonedaUpdate", {
                     id: me.id_credencial,                   
                     id_moneda:id,    
                     
                     id_modulo: me.idmodulo,
                 id_sub_modulo:me.codventana, 
-                des:"cambio de tipo de venta",  
+                des:"cambio de tipo de venta id moneda"+id,  
                   
                 })
                 .then(function (response) {
                     me.listarCredencial();
-                    me.selectTipoFac=0;
+                    me.nombre_pais=me.pais;
+                    me.selectMoneda=0;
+                  //  me.estado_cambio_moneda=0;
                     Swal.fire(
                         "Actualizado Correctamente!",
                         "El registro a sido actualizado Correctamente",
@@ -711,6 +724,7 @@ puedeEditar:2,
                     me.celular=response.data[0].nro_celular;
                     me.validador_variables=response.data[0].factura_dosificacion === null ? 0:response.data[0].factura_dosificacion;
                     me.actividad_eco=response.data[0].actividad_economica;
+                    me.estado_cambio_moneda=response.data[0].moneda;
              
                 })
                 .catch(function (error) {
@@ -789,7 +803,7 @@ puedeEditar:2,
         this.listarPerimsoxyz();
             //-----------------------
         this.listarCredencial();
-        this.listarTipomoneda();
+
     
     
     },

@@ -94,28 +94,20 @@ class AdmCredecialCorreoController extends Controller
                 'user_id' =>auth()->user()->id, 
                 'created_at'=>$fechaActual,
                 'id_movimiento'=>$request->id,   
-            ];
-        
-            DB::table('log__sistema')->insert($datos);   
-         
-
-        } catch (\Throwable $th) {
+            ];        
+            DB::table('log__sistema')->insert($datos);
+            } catch (\Throwable $th) {
             return response()->json(['error' => $th->getMessage()],500);
-        }
-        
-     
+        }   
     }
 
     public function tipomonedaUpdate(Request $request)
     {
-        try {
-         
-            $id=$request->id;
-                
+        try {        
+            $id=$request->id;                
             $update = adm_CredecialCorreo::find($id);            
             $update->moneda=$request->id_moneda;           
             $update->save();
-
             $fechaActual = Carbon::now(); // Obtiene la fecha y hora actual
             $datos = [
                 'id_modulo' => $request->id_modulo,
@@ -125,11 +117,8 @@ class AdmCredecialCorreoController extends Controller
                 'user_id' =>auth()->user()->id, 
                 'created_at'=>$fechaActual,
                 'id_movimiento'=>$request->id,   
-            ];
-        
-            DB::table('log__sistema')->insert($datos);   
-         
-
+            ];        
+            DB::table('log__sistema')->insert($datos);
         } catch (\Throwable $th) {
             return response()->json(['error' => $th->getMessage()],500);
         }

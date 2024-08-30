@@ -1,25 +1,24 @@
 <template>
+    
     <main class="main">
-   <!-- Breadcrumb -->
+        <div  v-if="bloqueador>0">
+            <!-- Breadcrumb -->
         <ol class="breadcrumb">
             <li class="breadcrumb-item">Home</li>
             <li class="breadcrumb-item"><a href="#">Admin</a></li>
             <li class="breadcrumb-item active">Dashboard</li>
-        </ol>
-        <!-- inicio de index -->
+        </ol>      
+   
+    <!-- inicio de index -->
         <div class="container-fluid">
             <div class="card">
                 <div class="card-header">
                     <i class="fa fa-align-justify"></i> Apertura / Cierre de cajas               
-                    <button
-                        type="button"
-                        class="btn btn-secondary"
-                        @click="abrirModal('registrar');"
-                        :disabled="selectAlmTienda == 0"
-                    >
+                    <button type="button" class="btn btn-secondary" @click="abrirModal('registrar');"
+                        :disabled="sucursalSeleccionada == 0 || selectApertura_Cierre ==0">
                         <i class="icon-plus"></i>&nbsp;Nuevo
                     </button>
-                    <span v-if="selectAlmTienda == 0" class="error"
+                    <span v-if="sucursalSeleccionada ==0 ||  selectApertura_Cierre ==0" class="error"
                         >&nbsp; &nbsp;Debe Seleccionar una sucursal.</span >
                 </div>
         <div class="card-body">
@@ -29,7 +28,7 @@
                 </div>
                         <div class="col-md-6">
                             <div class="input-group">
-                                <select class="form-control" v-model="sucursalSeleccionada">
+                                <select class="form-control" v-model="sucursalSeleccionada"  @change="cambiarEstadoSucursal()">
                                     <option value="0" disabled selected>Seleccionar...</option>
                                     <option v-for="sucursal in arraySucursal" :key="sucursal.id"  :value="sucursal.codigo" :hidden="sucursal.id_tienda===null"
                                         v-text="
@@ -73,18 +72,22 @@
             </div>
              
 
-            <div class="row justify-content-center">
+            <div class="row justify-content-center" v-if="sucursalSeleccionada !== 0">
     <div class="col-md-8">
-      <div class="row">
-        <div class="col-md-4" v-if="sucursalSeleccionada !== 0">
-          <label for="start-date">Fecha inicial:</label>
-          <input id="start-date" type="date" class="form-control" v-model="startDate">
+        <div class="col-md-2" style="text-align: center">
+                     <label for="">Apertura/Cierre:</label>
         </div>
-        <div class="col-md-4" v-if="sucursalSeleccionada !== 0">
-          <label for="end-date">Fecha final:</label>
-          <input id="end-date" type="date" class="form-control" v-model="endDate">
+        <div class="col-md-6">
+            <div class="input-group">
+                <select class="form-control" v-model="selectApertura_Cierre">
+                    <option value="0" disabled selected>Seleccionar...</option>
+                    <option value="1" >Apertura</option>
+                    <option value="2" >Cierre</option>                 
+                </select>
+            </div>
         </div>
-      </div>
+
+      
     </div>
   </div>
   <br>
@@ -138,25 +141,28 @@
                             <span aria-hidden="true">x</span>
                         </button>
                     </div>
-                    <div class="modal-body">
-                        <div class="alert alert-warning" role="alert">
-                            Todos los campos con (*) son requeridos
-                        </div>
-                        <form action="" class="form-horizontal">
-                        
-                            <!-- insertar datos -->
-                            <div class="container">
-                                
-                                <div class="form-group row">
-                                   
-                                   
-        
-                                </div>
-                              
+                    <div class="modal-body">                      
+                        <table class="table table-bordered table-striped table-sm table-responsive">
+                            <thead>
+                                <tr>
+                                    <th>Monto</th>
+                                    <th>Tipo</th>
+                                    <th>Valor</th>
+                                    <th>Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="a in arrayMoneda" :key="a.id">
+                                    <td>{{a.unidad_entera + " " + a.unidad}}</td>
+                                    <td>{{a.tipo_corte}}</td>
+                                    <td>{{a.valor_default}}</td>
+                                    <td> <input type="text" class="form-control" placeholder="Solo valores enteros" v-model="a.valor_input"  @input="validateIntegerInput(a)" />
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>       
                             
-                               
-                            </div>
-                        </form>
+
                     </div>
                   
                     <div class="modal-footer">
@@ -189,6 +195,8 @@
             </div>
         </div>
         <!--fin del modal-->
+        </div>      
+     
     </main>
 </template>
 
@@ -207,10 +215,16 @@ export default {
                 from: 0,
                 to: 0,
             },
+            valor_entero:0,
           
+            bloqueador:0,
+            arrayMoneda:[],
 
+            arrayInput:[],
             tituloModal: "",
             sucursalSeleccionada:0,
+            selectApertura_Cierre:0,
+
             arraySucursal:[],
             buscar:"",
             tipoAccion:1,
@@ -259,6 +273,49 @@ export default {
     },
 
     methods: {
+        
+            
+        validateIntegerInput(item) {
+        item.valor_input = item.valor_input.replace(/\D/g, ''); // Reemplaza todo lo que no sea un dígito con una cadena vacía
+    },
+        
+        verificador_moneda_sistemas(){
+            let me=this;
+            var url = "/apertura_cierre/verificador_moneda_sistemas";
+            axios
+                .get(url)
+                .then(function (response) {
+                    var respuesta_lista = response.data.listaMoneda;
+                    var respuesta_moneda = response.data.moneda;
+
+                    console.log("---*-*-*-*-*-*------");
+                    console.log(respuesta_lista);
+                    console.log(respuesta_moneda);
+                  if (respuesta_moneda===0) {
+                    me.bloqueador=0;
+                    Swal.fire(
+                    "No se activo el tipo de moneda necesita activar algun tipo de moneda.",
+                    "Para activar necesita ir a configuracion y ver la pestaña de tipo de moneda.",
+                    "error",
+                );
+                  } else {
+                    me.bloqueador=1;
+                    me.arrayMoneda=respuesta_lista;
+                    console.log(me.arrayMoneda);
+                  }                                  
+                })
+                .catch(function (error) {
+                    error401(error);
+                    console.log(error);
+                });
+        },
+
+        cambiarEstadoSucursal(){
+            let me=this;
+            me.selectApertura_Cierre=0;
+        },
+
+               
         sucursalFiltro() {
             let me = this;
            // var url = "/traspaso/listarSucursal";
@@ -299,7 +356,12 @@ export default {
          switch (accion) {
                 case "registrar": {
                     me.tipoAccion = 1;
-                    me.tituloModal = "Registro de traspaso origen ";
+                    if (me.selectApertura_Cierre==="1") {
+                        me.tituloModal = "Registro de apertura de caja";
+                    } else {
+                        me.tituloModal = "Registro de cierre de caja"; 
+                    }
+                    
             
                     me.classModal.openModal("registrar");
                     break;
@@ -317,19 +379,7 @@ export default {
             }
         },
 
-        fecha_inicial(){
-            // Obtener la fecha actual
-    const today = new Date();
-    // Obtener el año, mes y día actual
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, '0'); // Meses en JavaScript son de 0 a 11
-    const day = String(today.getDate()).padStart(2, '0');
-
-    // Asignar la fecha del primer día del mes al input de fecha de inicio
-    this.startDate = `${year}-${month}-01`;
-    // Asignar la fecha actual al input de fecha final
-    this.endDate = `${year}-${month}-${day}`;
-        },
+       
         cerrarModal(accion) {
             let me = this;
             if (accion == "registrar") {
@@ -359,9 +409,11 @@ export default {
     },
 
     mounted() {
+        this.verificador_moneda_sistemas();
         this.classModal = new _pl.Modals();
         this.sucursalFiltro();
-        this.fecha_inicial();
+     
+        
         this.classModal.addModal("registrar");
     
     
