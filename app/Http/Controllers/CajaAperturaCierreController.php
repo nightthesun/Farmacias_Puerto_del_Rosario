@@ -81,7 +81,7 @@ $data_1 = $moneda;
         }else {
          
             $monedas_2 =  DB::table('caja__monedas')
-            ->select('id', 'tipo_corte', 'valor', 'unidad', 'unidad_entera', DB::raw('0.00 AS valor_default'))
+            ->select('id', 'tipo_corte', 'valor', 'unidad', 'unidad_entera', DB::raw('0.00 AS valor_default'),DB::raw('0 AS input'))
             ->where('id_nacionalidad_pais', 1)
             ->where('activo', 1)
             ->get();

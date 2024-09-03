@@ -145,26 +145,58 @@
                         <table class="table table-bordered table-striped table-sm table-responsive">
                             <thead>
                                 <tr>
-                                    <th>Monto</th>
-                                    <th>Tipo</th>
-                                    <th>Valor</th>
-                                    <th>Acción</th>
+                                    <th class="col-md-1">Monto</th>
+                                    <th class="col-md-1">Simbolo</th>
+                                    <th class="col-md-2">Tipo</th>
+                                    <th class="col-md-1">Valor</th>
+                                    <th class="col-md-3">Acción</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr v-for="a in arrayMoneda" :key="a.id">
-                                    <td>{{a.unidad_entera + " " + a.unidad}}</td>
-                                    <td>{{a.tipo_corte}}</td>
-                                    <td>{{a.valor_default}}</td>
-                                    <td> <input type="text" class="form-control" placeholder="Solo valores enteros" v-model="a.valor_input"  @input="validateIntegerInput(a)" />
+                                    <td  class="col-md-1" style="text-align: right;">{{a.unidad_entera}}</td>
+                                    <td class="col-md-1">{{a.unidad}}</td>
+                                    <td  class="col-md-2">{{a.tipo_corte}}</td>
+                                    <td  class="col-md-1" style="text-align: right;">{{a.valor_default}}</td>
+                                    <td  class="col-md-3"> <input type="text" style="text-align: right;" class="form-control" placeholder="Solo valores enteros" v-model="input[a.id]"  @input="validateIntegerInput(a.id,a)" />
+                                    
                                     </td>
                                 </tr>
                             </tbody>
-                        </table>       
-                            
+                        </table>
 
+            
                     </div>
                   
+                    <div class="modal-body">                      
+                        <table class="table table-bordered table-striped table-sm table-responsive">
+                            <thead>
+                                <tr>
+                                    <th class="col-md-2">Cant. Moneda</th>
+                                    <th class="col-md-2">Monto Moneda</th>
+                                    <th class="col-md-1">Simbolo</th>
+                                    <th class="col-md-2">Cant. Billete</th>
+                                    <th class="col-md-2">Monto Billete</th>
+                                    <th class="col-md-1">Simbolo</th>
+                                    <th class="col-md-2">Monto Total</th>
+                                    <th class="col-md-1">Simbolo</th>
+                                 </tr>
+                            </thead>  
+                            <tbody>
+                                <tr>
+                                    <td class="col-md-2" style="text-align: right;">{{cantidadMonedas}}</td>
+                                    <td class="col-md-2" style="text-align: right;">{{totalMonedas}}</td>
+                                    <td class="col-md-1">{{SimboloM}}</td>
+                                    <td class="col-md-2" style="text-align: right;">{{cantidadBilletes}}</td>
+                                    <td class="col-md-2" style="text-align: right;">{{ totalBilletas }}</td>
+                                    <td class="col-md-1">{{SimboloB}}</td>
+                                    <td class="col-md-2" style="text-align: right;">{{totalMonto}}</td>
+                                    <td class="col-md-1">{{SimboloB}}</td>
+                                    
+                                </tr>    
+                            </tbody>          
+                        </table>
+                    </div>            
                     <div class="modal-footer">
                         <button
                             type="button"
@@ -219,17 +251,23 @@ export default {
           
             bloqueador:0,
             arrayMoneda:[],
-
+            input:{},
             arrayInput:[],
             tituloModal: "",
             sucursalSeleccionada:0,
             selectApertura_Cierre:0,
-
+         
             arraySucursal:[],
             buscar:"",
             tipoAccion:1,
-            startDate: '',
-      endDate: '',
+     
+            totalMonedas:"0.00",
+            SimboloM:'S/N',
+            SimboloB:'S/N',            
+            totalBilletas:"0.00",
+            totalMonto:"0.00",
+            cantidadMonedas:0,
+            cantidadBilletes:0, 
         };
     },
 
@@ -275,9 +313,52 @@ export default {
     methods: {
         
             
-        validateIntegerInput(item) {
-        item.valor_input = item.valor_input.replace(/\D/g, ''); // Reemplaza todo lo que no sea un dígito con una cadena vacía
-    },
+        validateIntegerInput(id,index) {
+            let me = this;
+            me.cantidadMonedas=0;
+           me.cantidadBilletes=0;
+           me.totalMonedas=0;
+           me.totalBilletas=0;
+           me.totalMonto=0;
+    me.input[id] = this.input[id].replace(/[^0-9]/g, '');
+    if ( me.input[id]===""|| me.input[id]===null) {
+        me.input[id]=0; 
+        let aa=me.arrayMoneda[id-1];
+        aa.valor_default="0.00";       
+        aa.input=  me.input[id];
+         
+       
+    }else{     
+    
+        let aa=me.arrayMoneda[id-1]; 
+        aa.valor_default=Number(me.input[id] * aa.valor).toFixed(2);
+        aa.input=me.input[id];
+      
+    }
+    me.arrayMoneda.forEach(element => {
+            if (element.tipo_corte==="Moneda") {
+                me.cantidadMonedas=me.cantidadMonedas+  parseInt(element.input, 10);                
+                me.totalMonedas = Number(me.totalMonedas) + Number(element.valor_default);
+                // Si deseas que el resultado final esté formateado a dos decimales
+                me.totalMonedas = Number(me.totalMonedas).toFixed(2);
+                me.SimboloM=element.unidad;
+      
+            }
+            if (element.tipo_corte==="Billete") {
+                me.cantidadBilletes=me.cantidadBilletes+  parseInt(element.input, 10);             
+                me.totalBilletas = Number(me.totalBilletas) + Number(element.valor_default);
+                // Si deseas que el resultado final esté formateado a dos decimales
+                me.totalBilletas = Number(me.totalBilletas).toFixed(2);
+                me.SimboloB=element.unidad;
+    
+            }
+            me.totalMonto=Number(me.totalMonto)+ Number(element.valor_default);   
+            me.totalMonto=Number(me.totalMonto).toFixed(2);
+        });  
+       
+    console.log("-*----");
+    console.log(me.arrayMoneda);
+  },
         
         verificador_moneda_sistemas(){
             let me=this;
