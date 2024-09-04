@@ -14,8 +14,11 @@ return new class extends Migration
         Schema::create('caja__arqueo', function (Blueprint $table) {
             $table->id();
             $table->smallInteger('id_usuario');           
-            $table->decimal('total_arqueo',11,2);
-            $table->timestamp('created_at');
+            $table->decimal('total_arqueo',11,2);         
+            $table->decimal('cantidad_billete',11,2);
+            $table->smallInteger('total_billete');  
+            $table->decimal('cantidad_moneda',11,2);
+            $table->smallInteger('total_moneda');    
         });
     }
 

@@ -16,38 +16,23 @@ class CajaAperturaCierreController extends Controller
         //
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
+ 
 
     /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
     {
-        //
+        try {
+            DB::beginTransaction();
+            DB::commit();
+        
+        } catch (\Throwable $th) {
+            return response()->json(['error' => $th->getMessage()],500);
+        }
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Caja_AperturaCierre $caja_AperturaCierre)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Caja_AperturaCierre $caja_AperturaCierre)
-    {
-        //
-    }
-
+  
     /**
      * Update the specified resource in storage.
      */
@@ -56,13 +41,7 @@ class CajaAperturaCierreController extends Controller
         //
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Caja_AperturaCierre $caja_AperturaCierre)
-    {
-        //
-    }
+    
 
     public function verificador_moneda_sistemas(Request $request){
         
@@ -92,5 +71,16 @@ $data_1 = $moneda;
             ]);
         }
     }
-  
+
+    public function cajaAnteriror(Request $request){
+        $ultimoRegistro = DB::table('caja__apertura_cierres')
+        ->select('turno_caja', 'tipo_caja_c_a', 'total_caja', 'estado_caja')
+        ->where('id_sucursal', $request->id_sucursal)    
+        ->orderBy('created_at', 'desc')
+        ->first();
+        if($ultimoRegistro==null){
+          $ultimoRegistro=0;  
+        }     
+       return $ultimoRegistro;      
+    }  
 }

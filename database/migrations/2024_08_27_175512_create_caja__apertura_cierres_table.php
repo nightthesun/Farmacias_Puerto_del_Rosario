@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
             $table->smallInteger('id_sucursal');
             $table->smallInteger('id_arqueo');
-            $table->string('tuno_caja',90);
-            $table->string('tipo_caja_c_a',90);
+            $table->tinyInteger('turno_caja')->comment('1=MAÑANA (TURNO UNO), 2=TARDE (TURNO DOS) 3=TODO EL DIA (COMPLETO)');
+            $table->tinyInteger('tipo_caja_c_a')->comment('0 = APERTURA , 9 = CIERRE');
             $table->decimal('total_venta_caja',11,2);
             $table->decimal('total_inversion_caja',11,2);
             $table->decimal('total_gasto_caja',11,2);

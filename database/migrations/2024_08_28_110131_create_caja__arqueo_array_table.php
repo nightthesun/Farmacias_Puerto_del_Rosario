@@ -14,8 +14,7 @@ return new class extends Migration
         Schema::create('caja__arqueo_array', function (Blueprint $table) {
             $table->smallInteger('id_arqueo');
             $table->smallInteger('id_moneda');
-            $table->integer('cantidad');
-            $table->timestamps();
+            $table->integer('cantidad');       
         });
     }
 

@@ -14,7 +14,7 @@
             <div class="card">
                 <div class="card-header">
                     <i class="fa fa-align-justify"></i> Apertura / Cierre de cajas               
-                    <button type="button" class="btn btn-secondary" @click="abrirModal('registrar');"
+                    <button type="button" class="btn btn-secondary" @click="cajaAnteriror();verificador_moneda_sistemas();"
                         :disabled="sucursalSeleccionada == 0 || selectApertura_Cierre ==0">
                         <i class="icon-plus"></i>&nbsp;Nuevo
                     </button>
@@ -31,13 +31,7 @@
                                 <select class="form-control" v-model="sucursalSeleccionada"  @change="cambiarEstadoSucursal()">
                                     <option value="0" disabled selected>Seleccionar...</option>
                                     <option v-for="sucursal in arraySucursal" :key="sucursal.id"  :value="sucursal.codigo" :hidden="sucursal.id_tienda===null"
-                                        v-text="
-                                            sucursal.codigoS +
-                                            ' -> ' +
-                                            sucursal.codigo+
-                                            ' ' +
-                                            sucursal.razon_social
-                                        "
+                                        v-text="sucursal.codigoS +' -> ' +sucursal.codigo+' '+sucursal.razon_social"
                                     ></option>
                                 </select>
                             </div>
@@ -167,8 +161,36 @@
 
             
                     </div>
-                  
                     <div class="modal-body">                      
+                        <table class="table table-bordered table-striped table-sm table-responsive">
+                            <thead>
+                                <tr>
+                                    <th class="col-md-2">Tipo caja</th>
+                                    <th class="col-md-2">Monto</th>
+                                    <th class="col-md-2">Estado anterior</th>
+                                    <th class="col-md-2">Estado</th>   
+                                    <th class="col-md-4">Turno</th>                                
+                                 </tr>
+                            </thead>  
+                            <tbody>  
+                                <tr>                         
+                                    <td class="col-md-2">{{turno_caja}}</td>
+                                    <td class="col-md-2">{{total_caja}}</td>
+                                    <td class="col-md-2">Anterior</td>
+                                    <td class="col-md-2">{{estado_caja}}</td>                                    
+                                    <td class="col-md-4">
+                                        <select v-model="selectTurno" class="form-control">
+                                            <option value="0" disabled>Seleccionar...</option>
+                                            <option value="1">TURNO UNO</option>
+                                            <option value="2">TURNO DOS</option>
+                                            <option value="3">TURNO COMPLETO</option>
+                                        </select>
+                                    </td>                                    
+                                </tr>    
+                            </tbody>          
+                        </table>
+                    </div> 
+                    <div class="modal-body" >                      
                         <table class="table table-bordered table-striped table-sm table-responsive">
                             <thead>
                                 <tr>
@@ -190,13 +212,14 @@
                                     <td class="col-md-2" style="text-align: right;">{{cantidadBilletes}}</td>
                                     <td class="col-md-2" style="text-align: right;">{{ totalBilletas }}</td>
                                     <td class="col-md-1">{{SimboloB}}</td>
-                                    <td class="col-md-2" style="text-align: right;">{{totalMonto}}</td>
+                                    <td class="col-md-2" style="text-align: right; background-color:darkred; color: azure;">{{totalMonto}}</td>
                                     <td class="col-md-1">{{SimboloB}}</td>
                                     
                                 </tr>    
                             </tbody>          
                         </table>
-                    </div>            
+                    </div> 
+                             
                     <div class="modal-footer">
                         <button
                             type="button"
@@ -208,9 +231,8 @@
                         <button
                             type="button"
                             v-if="tipoAccion == 1"
-                            class="btn btn-primary"
-                           
-                            :disabled="!sicompleto"
+                            class="btn btn-primary"                           
+                            @click="registrarArqueo()"
                         >
                             Guardar
                         </button>
@@ -268,23 +290,40 @@ export default {
             totalMonto:"0.00",
             cantidadMonedas:0,
             cantidadBilletes:0, 
+            id_sucursal:0,
+            selectTurno:0,
+
+            turno_caja:'',
+            tipo_caja_c_a:'',
+            total_caja:'',
+            estado_caja:'',
         };
     },
 
     
+    watch: {
+        sucursalSeleccionada: function (newValue) {
+           
+        let s = this.arraySucursal.find(
+                    (element) => element.codigo === newValue);
+            if (s) {               
+                this.id_sucursal = s.id_sucursal;  
+            }        
+        }
+    },
 
     computed: {
-      //  sicompleto() {
-      //      let me = this;
-       //     if (
-          
-     //           me.glosa != "" &&
-     //           me.cantidadS != "" &&
-     //           me.ProductoLineaIngresoSeleccionado
-     //       )
-       //         return true;
-      //      else return false;
-      //  },
+        sicompleto() {
+            let me = this;
+            console.log("+++++++");
+            console.log(me.input);
+            if (
+                (me.input).length ==0
+             
+            )
+                return true;
+           else return false;
+        },
         isActived: function () {
             return this.pagination.current_page;
         },
@@ -312,6 +351,43 @@ export default {
 
     methods: {
         
+        cajaAnteriror(){
+            let me=this;
+            var url = "/apertura_cierre/cajaAnteriror?id_sucursal="+me.id_sucursal ;
+            axios.get(url)
+                .then(function (response) {
+                    var respuesta = response.data;
+                    console.log("--->"+me.selectApertura_Cierre);
+                    if (respuesta===0 ) {
+                        if (me.selectApertura_Cierre==="2") {
+                            Swal.fire(
+                    "Debe aperturar una caja",
+                    "Haga click en Ok",
+                    "warning",
+                );
+                        } else {
+                            me.turno_caja="Inicio";
+                            me.tipo_caja_c_a="Inicio";
+                            me.total_caja=0;
+                            me.estado_caja="Inicio";
+                            me.abrirModal('registrar');                            
+                        }
+                        
+                    } else {
+                        
+                    }
+                    
+                    console.log("*-*");
+                    console.log(respuesta);
+                   
+                 
+                })
+                .catch(function (error) {
+                    error401(error);
+                    console.log(error);
+                });
+            
+        },
             
         validateIntegerInput(id,index) {
             let me = this;
@@ -360,6 +436,65 @@ export default {
     console.log(me.arrayMoneda);
   },
         
+        registrarArqueo(){
+            let me = this;
+            console.log("================");
+            console.log(me.id_sucursal+" "+me.selectTurno+" "+me.selectApertura_Cierre+" "+me.total_caja+" "+me.cantidadMonedas+" "+me.totalMonedas+" "+me.cantidadBilletes+" "+me.totalBilletas+" "+me.totalMonto+" "+me.input+" "+me.arrayMoneda); 
+            if (me.selectTurno === "0") {
+                Swal.fire(
+                    "Debe seleccionar su tuno",
+                    "Haga click en Ok",
+                    "warning",
+                );
+            } else {
+                axios.post("/apertura_cierre/store", {
+                    	id_sucursal:me.id_sucursal,
+                        selectTurno:me.selectTurno,
+                        tipo_caja_c_a:me.selectApertura_Cierre,
+                        total_caja:me.total_caja,
+                        total_arqueo_caja:me.totalMonto,
+                        cantidadMonedas:me.cantidadMonedas,
+                        totalBilletas:me.totalBilletas,
+                        cantidadMonedas:me.totalBilletas,
+                        totalMonedas:me.totalBilletas,
+                        input:me.input,
+                        arrayMoneda:me.arrayMoneda
+                    })
+                    .then(function (response) {
+                        console.log(response.data);
+                        me.cerrarModal("registrar");
+                        Swal.fire(
+                            "Registrado exitosamente",
+                            "Haga click en Ok",
+                            "success",
+                        );
+
+                   //     me.listarAjusteNegativos();
+                   //     me.sucursalFiltro();
+                    })
+                    
+               
+                  .catch(function (error) {                 
+                if (error.response.status === 500) {
+                    me.errorMsg = error.response.data.error; // Asigna el mensaje de error a la variable errorMsg
+                Swal.fire(
+                    "Error",
+                    "500 (Internal Server Error)"+me.errorMsg, // Muestra el mensaje de error en el alert
+                    "error"
+                );
+                }else{
+                    Swal.fire(
+                    "Error",
+                    ""+error, // Muestra el mensaje de error en el alert
+                    "error"
+                );  
+                }
+
+               
+            });
+            }        
+        },
+
         verificador_moneda_sistemas(){
             let me=this;
             var url = "/apertura_cierre/verificador_moneda_sistemas";
@@ -405,6 +540,7 @@ export default {
                 .get(url)
                 .then(function (response) {
                     var respuesta = response.data;
+                    console.log("************************");
                     console.log(respuesta);
                     me.arraySucursal = respuesta;
                  
@@ -430,15 +566,22 @@ export default {
 
         abrirModal(accion, data = []) {
             let me = this;
-        //    let respuesta = me.arraySucursal.find(
-        //        (element) => element.codigo == me.sucursalSeleccionada,
-        //    );
-           
          switch (accion) {
+            
                 case "registrar": {
                     me.tipoAccion = 1;
                     if (me.selectApertura_Cierre==="1") {
                         me.tituloModal = "Registro de apertura de caja";
+                        me.selectTurno="0";
+                        me.totalMonedas="0.00";
+                        me.SimboloM="S/N";
+                        me.SimboloB="S/N";            
+                        me.totalBilletas="0.00";
+                        me.totalMonto="0.00";
+                        me.cantidadMonedas=0;
+                        me.cantidadBilletes=0; 
+                        me.input={};
+                       
                     } else {
                         me.tituloModal = "Registro de cierre de caja"; 
                     }
@@ -464,19 +607,17 @@ export default {
         cerrarModal(accion) {
             let me = this;
             if (accion == "registrar") {
-                me.classModal.closeModal(accion);
-               
-                    me.tituloModal = " ";
-             
-                    setTimeout(me.tiempo, 200); 
-                    //me.ProductoLineaIngresoSeleccionado = 0;
-                    me.inputTextBuscarProductoIngreso = "";
-                        me.arrayRetornarProductosIngreso = "";
-              
-            } else {
-                me.classModal.closeModal(accion);
-              
-                me.classModal.openModal("registrar");
+                
+                me.selectTurno="0";
+                        me.totalMonedas="0.00";
+                        me.SimboloM="S/N";
+                        me.SimboloB="S/N";            
+                        me.totalBilletas="0.00";
+                        me.totalMonto="0.00";
+                        me.cantidadMonedas=0;
+                        me.cantidadBilletes=0; 
+                        me.input={};
+                        me.classModal.closeModal(accion);
             }
         },
 

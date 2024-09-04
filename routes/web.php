@@ -630,6 +630,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/moneda/desactivar', [CajaMonedaController::class, 'desactivar']);    
 
     //Apertura_cierre
-    Route::get('/apertura_cierre/verificador_moneda_sistemas', [CajaAperturaCierreController::class, 'verificador_moneda_sistemas']);    
+    Route::get('/apertura_cierre/verificador_moneda_sistemas', [CajaAperturaCierreController::class, 'verificador_moneda_sistemas']);  
+    Route::get('/apertura_cierre/cajaAnteriror', [CajaAperturaCierreController::class, 'cajaAnteriror']); 
+    Route::post('/apertura_cierre/store', [CajaAperturaCierreController::class, 'store']);  
+      
   
 });
