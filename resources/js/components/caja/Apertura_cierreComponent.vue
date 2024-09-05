@@ -15,10 +15,10 @@
                 <div class="card-header">
                     <i class="fa fa-align-justify"></i> Apertura / Cierre de cajas               
                     <button type="button" class="btn btn-secondary" @click="cajaAnteriror();verificador_moneda_sistemas();"
-                        :disabled="sucursalSeleccionada == 0 || selectApertura_Cierre ==0">
+                        :disabled="sucursalSeleccionada === 0 || selectApertura_Cierre === 1">
                         <i class="icon-plus"></i>&nbsp;Nuevo
                     </button>
-                    <span v-if="sucursalSeleccionada ==0 ||  selectApertura_Cierre ==0" class="error"
+                    <span v-if="sucursalSeleccionada === 0 ||  selectApertura_Cierre === 1" class="error"
                         >&nbsp; &nbsp;Debe Seleccionar una sucursal.</span >
                 </div>
         <div class="card-body">
@@ -73,10 +73,10 @@
         </div>
         <div class="col-md-6">
             <div class="input-group">
-                <select class="form-control" v-model="selectApertura_Cierre">
-                    <option value="0" disabled selected>Seleccionar...</option>
-                    <option value="1" >Apertura</option>
-                    <option value="2" >Cierre</option>                 
+                <select class="form-control" v-model="selectApertura_Cierre" @change="listarIndex(0)">
+                    <option value="1" disabled selected>Seleccionar...</option>
+                    <option value="0" >Apertura</option> 
+                    <option value="9" >Cierre</option>                 
                 </select>
             </div>
         </div>
@@ -90,19 +90,44 @@
                 <thead>
                     <tr>
                         <th>Opciones</th>
-                        <th class="col-md-1">Cliente</th>
-                        <th class="col-md-5">Nro docuemnto</th>
-                        <th>Tipo de comprobante</th>
-                        <th>Numero de comprobante</th>
-                        <th class="col-md-1">Total</th>
-                        <th class="col-md-1">Destino</th>
-                        <th>Vehiculo</th>
-                        <th class="col-md-3">Observación</th>
-                        <th class="col-md-2">Per. Enviada</th>
-                        <th>Usuario</th>
-                        <th>Estado</th>       
+                        <th class="col-md-1">Fecha/Hora</th>
+                        <th class="col-md-1">Tipo</th>
+                        <th class="col-md-2">Turno</th>
+                        <th class="col-md-1">Total Ingreso</th>
+                        <th class="col-md-1">Total Egreso</th>
+                        <th class="col-md-1">Total Caja</th>
+                        <th class="col-md-1">Total Arqueo</th>
+                        <th class="col-md-1">Diferencia</th>                        
+                        <th class="col-md-1">Usuario</th>
+                        <th class="col-md-2">Estado</th>       
                     </tr>
                 </thead>
+                <tbody>
+                    <tr v-for="i in arrayIndex" :key="i.id">
+                    
+                        <td>
+                            <button type="button" class="btn btn-warning"  style="margin-right: 5px;">
+                                <i class="fa fa-eye" aria-hidden="true"></i></button>
+                        </td>
+                        <td>{{i.created_at}}</td>
+                        <td>
+                            <span v-if="turno_caja===1">TURNO UNO</span>
+                            <span v-if="turno_caja===2">TURNO DOS</span>
+                            <span v-if="turno_caja===3">TURNO COMPLETO</span>
+                        </td>
+                        <td>
+                            <span v-if="tipo_caja_c_a===0">Apertura</span>
+                            <span v-if="tipo_caja_c_a===9">Cierre</span>
+                        </td>
+                        <td>{{i.ingresos}}</td>
+                        <td>{{}}</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                </tbody>
             </table>    
 
             <!-----fin de tabla------->
@@ -181,7 +206,7 @@
                                     <td class="col-md-4">
                                         <select v-model="selectTurno" class="form-control">
                                             <option value="0" disabled>Seleccionar...</option>
-                                            <option value="1">TURNO UNO</option>
+                                            <option value="1">TURNO UNO</option> 
                                             <option value="2">TURNO DOS</option>
                                             <option value="3">TURNO COMPLETO</option>
                                         </select>
@@ -277,7 +302,7 @@ export default {
             arrayInput:[],
             tituloModal: "",
             sucursalSeleccionada:0,
-            selectApertura_Cierre:0,
+            selectApertura_Cierre:1,
          
             arraySucursal:[],
             buscar:"",
@@ -297,6 +322,8 @@ export default {
             tipo_caja_c_a:'',
             total_caja:'',
             estado_caja:'',
+
+            arrayIndex:[],
         };
     },
 
@@ -351,15 +378,30 @@ export default {
 
     methods: {
         
+        listarIndex(page) {
+            let me = this;    
+            console.log(me.selectApertura_Cierre+" "+me.id_sucursal);      
+            var url ="/apertura_cierre/index?page="+page+"&buscar=" +me.buscar+"&id_sucursal="+me.id_sucursal+"&a_e="+parseInt(me.selectApertura_Cierre);
+            axios.get(url)
+                .then(function (response) {
+                    var respuesta = response.data;
+                    me.pagination = respuesta.pagination;
+                    me.arrayIndex = respuesta.resultado.data;
+                    console.log(me.arrayIndex);
+                })
+                .catch(function (error) {
+                    error401(error);
+                });
+        },
+
         cajaAnteriror(){
             let me=this;
             var url = "/apertura_cierre/cajaAnteriror?id_sucursal="+me.id_sucursal ;
             axios.get(url)
                 .then(function (response) {
-                    var respuesta = response.data;
-                    console.log("--->"+me.selectApertura_Cierre);
+                    var respuesta = response.data;          
                     if (respuesta===0 ) {
-                        if (me.selectApertura_Cierre==="2") {
+                        if (me.selectApertura_Cierre==="9") {
                             Swal.fire(
                     "Debe aperturar una caja",
                     "Haga click en Ok",
@@ -368,13 +410,39 @@ export default {
                         } else {
                             me.turno_caja="Inicio";
                             me.tipo_caja_c_a="Inicio";
-                            me.total_caja=0;
+                            me.total_caja=Number(0).toFixed(2);
                             me.estado_caja="Inicio";
                             me.abrirModal('registrar');                            
                         }
                         
                     } else {
-                        
+                        if (respuesta.tipo_caja_c_a===Number(me.selectApertura_Cierre)) {
+                            Swal.fire("Ya se hizo una apertura",
+                                        "Haga click en Ok",
+                                        "warning");
+                        } else {
+                                if (respuesta.turno_caja===1) {
+                                me.turno_caja= "TURNO UNO";
+                                }
+                                if (respuesta.turno_caja===2) {
+                                me.turno_caja= "TURNO DOS";
+                                } 
+                                if (respuesta.turno_caja===3) {
+                                me.turno_caja= "TURNO COMPLETO ";
+                                } 
+                                  
+                                if(respuesta.tipo_caja_c_a===0){
+                                me.tipo_caja_c_a="Apertura";
+                                }    
+
+                                if(respuesta.tipo_caja_c_a===9){
+                                me.tipo_caja_c_a="Cierre";
+                                }                                  
+                            
+                            me.total_caja=respuesta.total_caja;
+                            me.estado_caja=respuesta.estado_caja;
+                            me.abrirModal('registrar');  
+                        }
                     }
                     
                     console.log("*-*");
@@ -447,6 +515,62 @@ export default {
                     "warning",
                 );
             } else {
+                //------------------algoritmo-------------------------
+                let a=me.totalMonto;
+                let b=me.total_caja;
+                let estado="";
+                //c ---- diferencia
+                  //  b=40.60;
+                let cero=Number(0).toFixed(2);
+                  console.log(a+"-"+b);  
+                let c=a-b;   
+                console.log(c);               
+                if (c===0) {
+                    if (a===cero && b===cero) {
+                        estado="Acción nula";
+                    } else {
+                        if (a>0 && b>0) {
+                            estado="OK";  
+                        } else {
+                            estado="Error de entrada"; 
+                        }
+                    }
+                } else {
+                    if (c>cero) {
+                        if (a>cero && b>cero) {
+                            estado="Sobrante";
+                        } else {
+                            if (a>cero && b===cero) {
+                                estado="Saldo inicial";
+                            } else {
+                                if (a>cero && b<cero) {
+                                    estado="Caja negativa";
+                                } else {
+                                    if (a===cero && b>cero) {
+                                        estado="Perdida";
+                                    } else {
+                                        estado="Error";
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        if (c<cero) {
+                            if (a>cero && b>cero) {
+                                estado="Faltante";
+                            } else {
+                                if (a===cero && b>cero) {
+                                    estado="Perdida";
+                                } else {
+                                    estado==="Error";
+                                }
+                            }
+                        } else {
+                            estado="Error"; 
+                        }
+                    }
+                }
+               
                 axios.post("/apertura_cierre/store", {
                     	id_sucursal:me.id_sucursal,
                         selectTurno:me.selectTurno,
@@ -454,11 +578,13 @@ export default {
                         total_caja:me.total_caja,
                         total_arqueo_caja:me.totalMonto,
                         cantidadMonedas:me.cantidadMonedas,
+                        totalMonedas:me.totalMonedas,
+                        cantidadBilletes:me.cantidadBilletes,
                         totalBilletas:me.totalBilletas,
-                        cantidadMonedas:me.totalBilletas,
-                        totalMonedas:me.totalBilletas,
                         input:me.input,
-                        arrayMoneda:me.arrayMoneda
+                        arrayMoneda:me.arrayMoneda,
+                        diferencia:c,
+                        estado:estado
                     })
                     .then(function (response) {
                         console.log(response.data);
@@ -475,22 +601,13 @@ export default {
                     
                
                   .catch(function (error) {                 
-                if (error.response.status === 500) {
-                    me.errorMsg = error.response.data.error; // Asigna el mensaje de error a la variable errorMsg
-                Swal.fire(
-                    "Error",
-                    "500 (Internal Server Error)"+me.errorMsg, // Muestra el mensaje de error en el alert
-                    "error"
-                );
-                }else{
+                if (error.response) {               
                     Swal.fire(
                     "Error",
                     ""+error, // Muestra el mensaje de error en el alert
                     "error"
                 );  
-                }
-
-               
+                }              
             });
             }        
         },
@@ -528,7 +645,7 @@ export default {
 
         cambiarEstadoSucursal(){
             let me=this;
-            me.selectApertura_Cierre=0;
+            me.selectApertura_Cierre=1;
         },
 
                
@@ -570,7 +687,7 @@ export default {
             
                 case "registrar": {
                     me.tipoAccion = 1;
-                    if (me.selectApertura_Cierre==="1") {
+                    if (me.selectApertura_Cierre==="0") {
                         me.tituloModal = "Registro de apertura de caja";
                         me.selectTurno="0";
                         me.totalMonedas="0.00";
@@ -634,7 +751,7 @@ export default {
         this.verificador_moneda_sistemas();
         this.classModal = new _pl.Modals();
         this.sucursalFiltro();
-     
+        
         
         this.classModal.addModal("registrar");
     
