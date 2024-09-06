@@ -38,6 +38,7 @@
                         </div>
                         <div class="col-md-4">
                             <div class="input-group">
+                             
                                 <input
                                     type="text"
                                     id="texto"
@@ -45,16 +46,16 @@
                                     class="form-control"
                                     placeholder="Texto a buscar"
                                     v-model="buscar"
-                               
-                                    :hidden="sucursalSeleccionada == 0"
-                                    :disabled="sucursalSeleccionada == 0"
+                                    @keyup.enter="listarIndex(1)" 
+                                    :hidden="sucursalSeleccionada === 0"
+                                    :disabled="sucursalSeleccionada === 0"
                                 />
                                 <button
                                     type="submit"
                                     class="btn btn-primary"
-                              
-                                    :hidden="sucursalSeleccionada == 0"
-                                    :disabled="sucursalSeleccionada == 0"
+                                    @click="listarIndex(1)"  
+                                    :hidden="sucursalSeleccionada === 0"
+                                    :disabled="sucursalSeleccionada === 0"
                                 >
                                     <i class="fa fa-search"></i> Buscar
                                 </button>
@@ -89,48 +90,54 @@
             <table class="table table-bordered table-striped table-sm table-responsive" >
                 <thead>
                     <tr>
-                        <th>Opciones</th>
-                        <th class="col-md-1">Fecha/Hora</th>
-                        <th class="col-md-1">Tipo</th>
+                        <th>Opciones</th>                                        
                         <th class="col-md-2">Turno</th>
                         <th class="col-md-1">Total Ingreso</th>
                         <th class="col-md-1">Total Egreso</th>
                         <th class="col-md-1">Total Caja</th>
                         <th class="col-md-1">Total Arqueo</th>
-                        <th class="col-md-1">Diferencia</th>                        
+                        <th class="col-md-1">Diferencia</th> 
+                        <th class="col-md-2">Fecha/Hora</th>                         
                         <th class="col-md-1">Usuario</th>
                         <th class="col-md-2">Estado</th>       
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="i in arrayIndex" :key="i.id">
-                    
+                    <tr v-for="i in arrayIndex" :key="i.id">                    
                         <td>
-                            <button type="button" class="btn btn-warning"  style="margin-right: 5px;">
+                            <button type="button" class="btn btn-warning" @click="abrirModal('ver',i);" style="margin-right: 5px;">
                                 <i class="fa fa-eye" aria-hidden="true"></i></button>
+                        </td>                                               
+                        <td class="col-md-2">
+                            <span v-if="i.turno_caja===1">Turno uno</span>
+                            <span v-if="i.turno_caja===2">Turno dos</span>
+                            <span v-if="i.turno_caja===3">Turno completo</span>
                         </td>
-                        <td>{{i.created_at}}</td>
-                        <td>
-                            <span v-if="turno_caja===1">TURNO UNO</span>
-                            <span v-if="turno_caja===2">TURNO DOS</span>
-                            <span v-if="turno_caja===3">TURNO COMPLETO</span>
-                        </td>
-                        <td>
-                            <span v-if="tipo_caja_c_a===0">Apertura</span>
-                            <span v-if="tipo_caja_c_a===9">Cierre</span>
-                        </td>
-                        <td>{{i.ingresos}}</td>
-                        <td>{{}}</td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
+                        <td class="col-md-1" style="text-align: right;">{{i.ingresos}}</td>
+                        <td class="col-md-1" style="text-align: right;">{{i.egresos}}</td>
+                        <td class="col-md-1" style="text-align: right;">{{i.total_caja}}</td>
+                        <td class="col-md-1" style="text-align: right;">{{i.total_arqueo_caja}}</td>
+                        <td class="col-md-1" style="text-align: right;">{{i.diferencia_caja}}</td>
+                        <td class="col-md-2">{{i.created_at}}</td> 
+                        <td class="col-md-1">{{i.name}}</td>
+                        <td class="col-md-2">{{i.estado_caja}}</td>
                     </tr>
                 </tbody>
-            </table>    
-
-            <!-----fin de tabla------->
+            </table>  
+             <!-----fin de tabla------->
+             <nav>
+                    <ul class="pagination">
+                            <li class="page-item" v-if="pagination.current_page > 1">
+                                <a class="page-link" href="#" @click.prevent=" cambiarPagina(pagination.current_page - 1)">Ant</a>
+                            </li>
+                            <li class="page-item" v-for="page in pagesNumber" :key="page" :class="[page == isActived ? 'active' : '']">
+                                <a class="page-link" href="#" @click.prevent="cambiarPagina(page)" v-text="page"></a>
+                            </li>
+                            <li class="page-item" v-if="pagination.current_page < pagination.last_page">
+                                <a class="page-link" href="#" @click.prevent="cambiarPagina(pagination.current_page + 1)">Sig</a>
+                            </li>
+                        </ul>
+                    </nav>
         </div>
 
 
@@ -274,6 +281,121 @@
             </div>
         </div>
         <!--fin del modal-->
+        <!--Inicio del modal VER-->
+        <div class="modal fade" tabindex="-1" role="dialog" arial-labelledby="myModalLabel" id="ver" aria-hidden="true" data-backdrop="static" data-key="false">
+            <div class="modal-dialog modal-primary modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">{{ tituloModal }}</h4>
+                        <button type="button" class="close" aria-label="Close" @click="cerrarModal('ver')">
+                            <span aria-hidden="true">x</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">                      
+                        <table class="table table-bordered table-striped table-sm table-responsive">
+                            <thead>
+                                <tr>
+                                    <th class="col-md-2" style="font-size: 11px; text-align: center">Fecha/Hora</th>
+                                    <th class="col-md-2" style="font-size: 11px; text-align: center">Codigo caja</th>
+                                    <th class="col-md-2" style="font-size: 11px; text-align: center">Codigo arqueo</th>                                    
+                                    <th class="col-md-2" style="font-size: 11px; text-align: center">Turno</th>
+                                    <th class="col-md-1" style="font-size: 11px; text-align: center">Tipo</th>
+                                    <th class="col-md-1" style="font-size: 11px; text-align: center">Usuario</th>
+                                    <th class="col-md-2" style="font-size: 11px; text-align: center">Estado</th>                                  
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    
+                                    <td class="col-md-2" style="font-size: 11px; text-align: center">{{fecha_modal}}</td>
+                                    <td class="col-md-2" style="font-size: 11px; text-align: center">{{id_modal}}</td>
+                                    <td class="col-md-2" style="font-size: 11px; text-align: center">{{id_arqueo_modal}}</td>
+                                    <td class="col-md-2" style="font-size: 11px; text-align: center">{{turno_modal}}</td>
+                                    <td class="col-md-1" style="font-size: 11px; text-align: center">{{tipo_modal}}</td>
+                                    <td class="col-md-1" style="font-size: 11px; text-align: center">{{usuario_modal}}</td>
+                                    <td class="col-md-2" style="font-size: 11px; text-align: center">{{estado_modal}}</td>
+                                </tr>
+                            </tbody> 
+                        </table> 
+                        <table class="table table-bordered table-striped table-sm table-responsive">
+                            <thead>
+                                <tr>
+                                    <th class="col-md-1" style="font-size: 11px; text-align: center">Total ventas</th>
+                                    <th class="col-md-1" style="font-size: 11px; text-align: center">Total entradas</th>
+                                    <th class="col-md-1" style="font-size: 11px; text-align: center; background-color: gainsboro">Total ingresos</th>
+                                    <th class="col-md-1" style="font-size: 11px; text-align: center">Total gastos</th>
+                                    <th class="col-md-1" style="font-size: 11px; text-align: center">Total inversiones</th>
+                                    <th class="col-md-1" style="font-size: 11px; text-align: center">Total salidas</th>
+                                    <th class="col-md-1" style="font-size: 11px; text-align: center; background-color: gainsboro">Total egresos</th>
+                                    <th class="col-md-1" style="font-size: 11px; text-align: center">Total caja</th>                                    
+                                    <th class="col-md-1" style="font-size: 11px; text-align: center">Total arqueo</th>
+                                    <th class="col-md-1" style="font-size: 11px; text-align: center">Total diferencia</th>                                   
+                                 </tr>
+                            </thead> 
+                            <tbody>
+                                <tr>
+                                    <td class="col-md-1" style="font-size: 11px; text-align: center">{{total_venta_modal}}</td>
+                                    <td class="col-md-1" style="font-size: 11px; text-align: center">{{total_entrada_modal}}</td>
+                                    <td class="col-md-1" style="font-size: 11px; text-align: center;background-color: gainsboro">{{total_ingreso_modal}}</td>
+                                    <td class="col-md-1" style="font-size: 11px; text-align: center">{{total_gasto_modal}}</td>
+                                    <td class="col-md-1" style="font-size: 11px; text-align: center">{{total_inversione_modal}}</td>
+                                    <td class="col-md-1" style="font-size: 11px; text-align: center">{{total_salida_modal}}</td>
+                                    <td class="col-md-1" style="font-size: 11px; text-align: center; background-color: gainsboro">{{total_egreso_modal}}</td>
+                                    <td class="col-md-1" style="font-size: 11px; text-align: center">{{total_caja_modal}}</td>
+                                    <td class="col-md-1" style="font-size: 11px; text-align: center">{{total_arqueo_modal}}</td>
+                                    <td class="col-md-1" style="font-size: 11px; text-align: center">{{total_diferencia_modal}}</td>
+                                </tr>
+                            </tbody>
+                        </table>  
+                        <table class="table table-bordered table-striped table-sm table-responsive">
+                            <thead>
+                                <tr>
+                                    <th class="col-md-3" style="font-size: 11px; text-align: center">Cantidad monedas</th>
+                                    <th class="col-md-3" style="font-size: 11px; text-align: center">Monto en monedas</th>
+                                    <th class="col-md-3" style="font-size: 11px; text-align: center">Cantidad Billetes</th>
+                                    <th class="col-md-3" style="font-size: 11px; text-align: center">Monto en Billetes</th>                                    
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="col-md-3" style="font-size: 11px; text-align: center">{{cantidad_moneda_modal}}</td>
+                                    <td class="col-md-3" style="font-size: 11px; text-align: center">{{monto_moneda_modal}}</td>
+                                    <td class="col-md-3" style="font-size: 11px; text-align: center">{{cantidad_billete_modal}}</td>
+                                    <td class="col-md-3" style="font-size: 11px; text-align: center">{{monto_billete_modal}}</td>
+                                </tr>
+                            </tbody>   
+                        </table> 
+                        <table class="table table-bordered table-striped table-sm table-responsive">
+                            <thead>
+                                <tr>
+                                    <th class="col-md-3" style="font-size: 11px; text-align: center">Unidad</th>
+                                    <th class="col-md-3" style="font-size: 11px; text-align: center">Simbolo</th>
+                                    <th class="col-md-3" style="font-size: 11px; text-align: center">Tipo</th>
+                                    <th class="col-md-3" style="font-size: 11px; text-align: center">Valor</th>
+                                    <th class="col-md-3" style="font-size: 11px; text-align: center">Cantidad</th>                                    
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="m in arrayMonedaModal" :key="m.id">   
+                                    <td class="col-md-3" style="font-size: 11px; text-align: center">{{m.unidad_entera}}</td>
+                                    <td class="col-md-3" style="font-size: 11px; text-align: center">{{m.unidad}}</td>
+                                    <td class="col-md-3" style="font-size: 11px; text-align: center">{{m.tipo_corte}}</td>
+                                    <td class="col-md-3" style="font-size: 11px; text-align: center">{{(m.valor * m.cantidad).toFixed(2)}}</td>
+                                    <td class="col-md-3" style="font-size: 11px; text-align: center">{{m.cantidad}}</td>
+                                </tr>
+                            </tbody>   
+                        </table> 
+                        
+                    </div>                   
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" @click="cerrarModal('ver')">
+                            Cerrar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--fin del modal-->
         </div>      
      
     </main>
@@ -294,6 +416,7 @@ export default {
                 from: 0,
                 to: 0,
             },
+            offset:3,
             valor_entero:0,
           
             bloqueador:0,
@@ -318,12 +441,41 @@ export default {
             id_sucursal:0,
             selectTurno:0,
 
+            moneda_s1:'',
+
             turno_caja:'',
             tipo_caja_c_a:'',
             total_caja:'',
             estado_caja:'',
 
             arrayIndex:[],
+
+            //modal---
+            id_modal:'',
+            id_arqueo_modal:'',
+            turno_modal:'',
+            tipo_modal:'',
+            usuario_modal:'',
+            fecha_modal:'',
+            estado_modal:'',
+
+            total_venta_modal:'',
+            total_entrada_modal:'',
+            total_ingreso_modal:'',
+            total_gasto_modal:'',
+            total_inversione_modal:'',
+            total_salida_modal:'',       
+            total_egreso_modal:'',
+            total_caja_modal:'',
+            total_arqueo_modal:'',
+            total_diferencia_modal:'',
+
+            cantidad_moneda_modal:'',
+            cantidad_billete_modal:'',
+            monto_moneda_modal:'',
+            monto_billete_modal:'',
+
+            arrayMonedaModal:[],
         };
     },
 
@@ -377,7 +529,23 @@ export default {
     },
 
     methods: {
-        
+               
+        modalMoneda(id) {
+            let me = this;    
+          
+            var url ="/apertura_cierre/monedaModal?id_arqueo="+id;
+            axios.get(url)
+                .then(function (response) {
+                    var respuesta = response.data;
+                    me.arrayMonedaModal=respuesta;
+                    console.log(me.arrayMonedaModal);
+                
+                })
+                .catch(function (error) {
+                    error401(error);
+                });
+        },
+
         listarIndex(page) {
             let me = this;    
             console.log(me.selectApertura_Cierre+" "+me.id_sucursal);      
@@ -584,10 +752,11 @@ export default {
                         input:me.input,
                         arrayMoneda:me.arrayMoneda,
                         diferencia:c,
-                        estado:estado
+                        estado:estado,
+                        moneda_s1:me.moneda_s1
                     })
                     .then(function (response) {
-                        console.log(response.data);
+                        me.listarIndex();
                         me.cerrarModal("registrar");
                         Swal.fire(
                             "Registrado exitosamente",
@@ -634,6 +803,7 @@ export default {
                   } else {
                     me.bloqueador=1;
                     me.arrayMoneda=respuesta_lista;
+                    me.moneda_s1=respuesta_moneda;
                     console.log(me.arrayMoneda);
                   }                                  
                 })
@@ -678,7 +848,7 @@ export default {
         cambiarPagina(page) {
             let me = this;
             me.pagination.current_page = page;
-        //    me.listarAjusteNegativos(page);
+            me.listarIndex(page);
         },
 
         abrirModal(accion, data = []) {
@@ -716,6 +886,58 @@ export default {
 
                     break;
                 }
+
+                case "ver": {
+                    console.log("---------------------");
+                    console.log(data);
+                    if (data.tipo_caja_c_a===0) {
+                        me.tituloModal = "Apertura de caja vista";  
+                    } else {
+                        if (data.tipo_caja_c_a===9) {
+                            me.tituloModal = "Cierre de caja vista";
+                        } else {
+                            me.tituloModal = "Error";
+                        }                       
+                    }
+                    me.id_modal="000"+data.id;
+                    me.id_arqueo_modal="000"+data.id_arqueo;
+                    if (data.turno_caja===1) {
+                        me.turno_modal="Uno";
+                    } else {
+                        if (data.turno_caja===2) {
+                         me.turno_modal="Dos"; 
+                        } else {
+                            me.turno_modal="Completo";   
+                        }
+                    }
+                    if (data.tipo_caja_c_a===0) {
+                        me.tipo_modal="Apertura";
+                    } else {
+                        me.tipo_modal="Cierre";
+                    }        
+                    me.usuario_modal=data.name;
+                    me.fecha_modal=data.created_at;
+                    me.estado_modal=data.estado_caja;
+
+                    me.total_venta_modal=data.total_venta_caja;
+                    me.total_entrada_modal=data.total_ingreso_caja;
+                    me.total_ingreso_modal=data.ingresos;
+                    me.total_gasto_modal=data.total_gasto_caja;
+                    me.total_inversione_modal=data.total_inversion_caja;
+                    me.total_salida_modal=data.total_salida_caja;               
+                    me.total_egreso_modal=data.egresos;
+                    me.total_caja_modal=data.total_caja;
+                    me.total_arqueo_modal=data.total_arqueo_caja;
+                    me.total_diferencia_modal=data.diferencia_caja;
+                    
+                    me.cantidad_moneda_modal=data.cantidad_moneda;
+                    me.cantidad_billete_modal=data.cantidad_billete;
+                    me.monto_moneda_modal=data.total_moneda;
+                    me.monto_billete_modal=data.total_billete
+                    me.modalMoneda(data.id_arqueo);
+                    me.classModal.openModal("ver");
+                    break;
+                }
             
             }
         },
@@ -736,6 +958,31 @@ export default {
                         me.input={};
                         me.classModal.closeModal(accion);
             }
+            if(accion=== "ver"){
+            me.id_modal="";
+            me.id_arqueo_modal="";
+            me.turno_modal="";
+            me.tipo_modal="";
+            me.usuario_modal="";
+            me.fecha_modal="";
+            me.estado_modal="";
+            me.total_venta_modal="";
+            me.total_entrada_modal="";
+            me.total_ingreso_modal="";
+            me.total_gasto_modal="";
+            me.total_inversione_modal="";
+            me.total_salida_modal="";   
+            me.total_egreso_modal="";
+            me.total_caja_modal="";
+            me.total_arqueo_modal="";
+            me.total_diferencia_modal="";
+            me.cantidad_moneda_modal="";
+            me.cantidad_billete_modal="";
+            me.monto_moneda_modal="";
+            me.monto_billete_modal="";
+            me.arrayMonedaModal=[];
+                me.classModal.closeModal(accion);
+            }
         },
 
      
@@ -754,7 +1001,7 @@ export default {
         
         
         this.classModal.addModal("registrar");
-    
+        this.classModal.addModal("ver");
     
     },
 };

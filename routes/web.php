@@ -634,6 +634,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/apertura_cierre/cajaAnteriror', [CajaAperturaCierreController::class, 'cajaAnteriror']); 
     Route::post('/apertura_cierre/store', [CajaAperturaCierreController::class, 'store']);  
     Route::get('/apertura_cierre/index', [CajaAperturaCierreController::class, 'index']);  
-      
+    Route::get('/apertura_cierre/monedaModal', [CajaAperturaCierreController::class, 'monedaModal']);  
+    
+    
   
 });

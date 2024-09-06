@@ -41,7 +41,7 @@ class CajaAperturaCierreController extends Controller
                         'cac.total_inversion_caja','cac.total_gasto_caja','cac.total_ingreso_caja','cac.total_salida_caja','cac.total_caja',
                         'cac.total_arqueo_caja','cac.diferencia_caja','cac.estado_caja','cac.created_at','u.name',
                         DB::raw('(cac.total_venta_caja + cac.total_ingreso_caja) as ingresos'),
-                        DB::raw('(cac.total_gasto_caja + cac.total_inversion_caja + cac.total_salida_caja) as egresos')
+                        DB::raw('(cac.total_gasto_caja + cac.total_inversion_caja + cac.total_salida_caja) as egresos'),'ca.cantidad_billete','ca.total_billete','ca.cantidad_moneda','ca.total_moneda','ca.tipo_moneda'
                         )
                         ->where('cac.id_sucursal','=',$request->id_sucursal)
                         ->where('cac.tipo_caja_c_a','=',$request->a_e)          
@@ -71,7 +71,7 @@ class CajaAperturaCierreController extends Controller
                         'cac.total_inversion_caja','cac.total_gasto_caja','cac.total_ingreso_caja','cac.total_salida_caja','cac.total_caja',
                         'cac.total_arqueo_caja','cac.diferencia_caja','cac.estado_caja','cac.created_at','u.name',
                         DB::raw('(cac.total_venta_caja + cac.total_ingreso_caja) as ingresos'),
-                        DB::raw('(cac.total_gasto_caja + cac.total_inversion_caja + cac.total_salida_caja) as egresos')
+                        DB::raw('(cac.total_gasto_caja + cac.total_inversion_caja + cac.total_salida_caja) as egresos'),'ca.cantidad_billete','ca.total_billete','ca.cantidad_moneda','ca.total_moneda','ca.tipo_moneda'
                         )
               //  ->where('cac.id_sucursal', $request->id_sucursal)
               //  ->where('cac.tipo_caja_c_a','=',$request->turno)
@@ -112,7 +112,8 @@ class CajaAperturaCierreController extends Controller
                         'cantidad_billete' => $request->cantidadBilletes,  
                         'total_billete' => $request->totalBilletas, 
                         'cantidad_moneda' => $request->cantidadMonedas, 
-                        'total_moneda' => $request->totalMonedas,                       
+                        'total_moneda' => $request->totalMonedas, 
+                        'tipo_moneda' => $request->moneda_s1                      
                     ];                
                     $id = DB::table('caja__arqueo')->insertGetId($datos);            
                     
@@ -196,8 +197,8 @@ $data_1 = $moneda;
         }else {
          
             $monedas_2 =  DB::table('caja__monedas')
-            ->select('id', 'tipo_corte', 'valor', 'unidad', 'unidad_entera', DB::raw('0.00 AS valor_default'),DB::raw('0 AS input'))
-            ->where('id_nacionalidad_pais', 1)
+            ->select('id', 'tipo_corte', 'valor', 'unidad', 'unidad_entera', DB::raw('0.00 AS valor_default'),DB::raw('0 AS input'),'id_nacionalidad_pais')
+            ->where('id_nacionalidad_pais', $moneda)
             ->where('activo', 1)
             ->get();
            
@@ -218,5 +219,17 @@ $data_1 = $moneda;
           $ultimoRegistro=0;  
         }     
        return $ultimoRegistro;      
-    }  
+    }
+    
+    public function monedaModal(Request $request){
+       
+        $resultado = DB::table('caja__arqueo_array as caa')
+    ->join('caja__monedas as cm', 'caa.id_moneda', '=', 'cm.id')
+    ->select('caa.id_moneda as id','cm.unidad_entera', 'cm.unidad', 'cm.tipo_corte', 'cm.valor', 'caa.cantidad')
+    ->where('caa.id_arqueo','=',$request->id_arqueo)
+    ->get();
+  
+    return $resultado;
+
+    }
 }

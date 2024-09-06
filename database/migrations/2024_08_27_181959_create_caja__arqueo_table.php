@@ -18,7 +18,8 @@ return new class extends Migration
             $table->decimal('cantidad_billete',11,2);
             $table->smallInteger('total_billete');  
             $table->decimal('cantidad_moneda',11,2);
-            $table->smallInteger('total_moneda');    
+            $table->smallInteger('total_moneda');
+            $table->smallInteger('tipo_moneda')->nullable();   
         });
     }
 

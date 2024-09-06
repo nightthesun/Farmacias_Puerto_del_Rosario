@@ -68,7 +68,7 @@
                                 <button
                                     type="submit"
                                     class="btn btn-primary"
-                                    @click="listarAjusteNegativos(1)"
+                                    @click="listarAjusteNegativos(1)" 
                                     :hidden="sucursalSeleccionada == 0"
                                     :disabled="sucursalSeleccionada == 0"
                                 >
