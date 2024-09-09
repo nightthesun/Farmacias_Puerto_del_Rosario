@@ -116,7 +116,7 @@ class CajaAperturaCierreController extends Controller
                         'tipo_moneda' => $request->moneda_s1                      
                     ];                
                     $id = DB::table('caja__arqueo')->insertGetId($datos);            
-                    
+                    return("error1"); 
                     foreach ($request->input as $key => $value) {                       
                         $datos_2 = [                            
                             'id_arqueo' => $id,                       

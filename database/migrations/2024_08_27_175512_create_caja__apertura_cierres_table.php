@@ -27,6 +27,7 @@ return new class extends Migration
             $table->decimal('diferencia_caja',11,2);
             $table->string('estado_caja',110);
             $table->timestamps();
+            $table->smallInteger('id_apertura_cierre')->default(0)->comment('valor 0 es para indicar cuando se tiene apertura abierta');
         });
     }
 

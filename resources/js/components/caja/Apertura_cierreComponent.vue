@@ -621,8 +621,7 @@ export default {
                 .catch(function (error) {
                     error401(error);
                     console.log(error);
-                });
-            
+                });            
         },
             
         validateIntegerInput(id,index) {
@@ -763,13 +762,7 @@ export default {
                             "Haga click en Ok",
                             "success",
                         );
-
-                   //     me.listarAjusteNegativos();
-                   //     me.sucursalFiltro();
-                    })
-                    
-               
-                  .catch(function (error) {                 
+                    }).catch(function (error) {                 
                 if (error.response) {               
                     Swal.fire(
                     "Error",

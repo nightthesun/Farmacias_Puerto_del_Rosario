@@ -21,6 +21,7 @@ use App\Http\Controllers\AlmCodificacionController;
 use App\Http\Controllers\AlmIngresoProducto2Controller;
 use App\Http\Controllers\AlmIngresoProductoController;
 use App\Http\Controllers\CajaAperturaCierreController;
+use App\Http\Controllers\CajaEntradaSalidaController;
 use App\Http\Controllers\CajaMonedaController;
 use App\Http\Controllers\DirClienteController;
 use App\Http\Controllers\TdaTiendaController;
@@ -150,8 +151,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/bloqueado', [GestionPerimsoController::class, 'bloqueado']);
     Route::get('/listar_alamcen_tienda_permisos', [GestionPerimsoController::class, 'listar_alamcen_tienda_permisos']);
     Route::get('/listar_tienda_alamce_generico_lista_x_rol_usuario', [GestionPerimsoController::class, 'listar_tienda_alamce_generico_lista_x_rol_usuario']);
-    
-    
+        
     /*****************tipo vista**************** */
     Route::get('/listarSucursal', [GetController::class, 'listarSucursal']);
     Route::get('/listarSucursalGet', [GetController::class, 'listarSucursalGet']);
@@ -161,6 +161,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/tiene_movimiento', [GetController::class, 'tiene_movimiento']);
     Route::get('/listarSucusal_TDA_ALM_sin_permiso', [GetController::class, 'listarSucusal_TDA_ALM_sin_permiso']);      
     
+    /**********************verificador de apertura cierre retornod e datos****************************** */
+    Route::get('/verificacionAperturaCierre', [GetController::class, 'listarAperturaCierre']);
+    Route::get('/verificador_moneda_sistemas', [GetController::class, 'listarMoneda_2']);
     
     //adm///////////////////////////////////////////////////////////////////////////////////
 
@@ -636,6 +639,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/apertura_cierre/index', [CajaAperturaCierreController::class, 'index']);  
     Route::get('/apertura_cierre/monedaModal', [CajaAperturaCierreController::class, 'monedaModal']);  
     
+    //entrada_salida
+    Route::post('/entrada_salida/store', [CajaEntradaSalidaController::class, 'store']);  
     
   
 });

@@ -249,4 +249,46 @@ DB::raw('"Almacen" as tipoCodigo'),
 $result = $tiendas->unionAll($almacenes)->get();
 return $result;    
     }
+
+    //********************APERTURA /CIERRE************************* */
+    public function listarAperturaCierre(Request $request){
+        $ultimoRegistro = DB::table('caja__apertura_cierres')
+        ->select('id','turno_caja', 'tipo_caja_c_a', 'total_caja', 'estado_caja', 'id_arqueo','id_apertura_cierre')
+        ->where('id_sucursal', $request->id_sucursal)
+  
+        ->orderBy('id', 'desc')
+        ->first();
+        if($ultimoRegistro==null){
+            $ultimoRegistro=0;  
+        }     
+     return $ultimoRegistro;    
+    }
+
+    public function listarMoneda_2(Request $request){
+        
+        $moneda = DB::table('adm__credecial_correos')
+        ->where('id', 1)
+        ->value('moneda');
+    // Asigna directamente el valor de $moneda a $data_1
+    $data_1 = $moneda;
+        if ($data_1==0||$data_1==null||$data_1=="") { 
+                      
+            return response()->json([                        
+                'moneda' => 0,
+                'listaMoneda' => null, 
+            ]);
+        }else {
+         
+            $monedas_2 =  DB::table('caja__monedas')
+            ->select('id', 'tipo_corte', 'valor', 'unidad', 'unidad_entera', DB::raw('0.00 AS valor_default'),DB::raw('0 AS input'),'id_nacionalidad_pais')
+            ->where('id_nacionalidad_pais', $moneda)
+            ->where('activo', 1)
+            ->get();
+           
+            return response()->json([                        
+                'moneda' => $moneda,
+                'listaMoneda' => $monedas_2, 
+            ]);
+        }
+    }
 }
