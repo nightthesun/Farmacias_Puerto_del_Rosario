@@ -640,7 +640,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/apertura_cierre/monedaModal', [CajaAperturaCierreController::class, 'monedaModal']);  
     
     //entrada_salida
-    Route::post('/entrada_salida/store', [CajaEntradaSalidaController::class, 'store']);  
-    
-  
+    Route::post('/entrada_salida/store', [CajaEntradaSalidaController::class, 'store']); 
+    Route::get('/entrada_salida/index', [CajaEntradaSalidaController::class, 'index']); 
+ 
 });

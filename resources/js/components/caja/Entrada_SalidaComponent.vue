@@ -20,10 +20,10 @@
                 </div>
         <div class="card-body">
             <div class="form-group row">
-                <div class="col-md-2" style="text-align: center">
-                     <label for="">Almacen o Tienda:</label>
+                <div class="col-md-3" style="text-align: center">
+                     <label for="">Almacen / Tienda:</label>
                 </div>
-                        <div class="col-md-6">
+                        <div class="col-md-5">
                             <div class="input-group">
                                 <select class="form-control" v-model="sucursalSeleccionada"  @change="cambiarEstadoSucursal()">
                                     <option value="0" disabled selected>Seleccionar...</option>
@@ -62,13 +62,13 @@
 
             </div>             
             <div class="form-group row" v-if="sucursalSeleccionada !== 0">
-                <div class="col-md-2" style="text-align: center">
+                <div class="col-md-3" style="text-align: center">
                     <label for="">Entrada / Salida  :</label>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-5">
             <div class="input-group">
-                <select class="form-control" v-model="selectEntradaSalida" >
-                    <option value="0" disabled selected>Seleccionar...</option>
+                <select class="form-control" v-model="selectEntradaSalida" @change="listarIndex(0)">
+                    <option value="0" disabled selected >Seleccionar...</option>
                     <option value="1" >Entrada</option> 
                     <option value="2" >Salida</option>                 
                 </select>
@@ -92,6 +92,17 @@
                     </tr>
                 </thead>
             </table>    
+            <tr v-for="i in arrayIndex" :key="i.id">                    
+                <td>
+                    <button type="button" class="btn btn-info" style="margin-right: 5px;">
+                        <i class="fa fa-book" aria-hidden="true"></i></button>
+                    
+                    <button type="button" class="btn btn-warning" style="margin-right: 5px;">
+                        <i class="fa fa-eye" aria-hidden="true"></i></button>
+                </td>
+                <td>{{ i.id }}</td>
+                <td>{{ i.id }}</td> 
+            </tr>            
 
             <!-----fin de tabla------->
         </div>
@@ -270,6 +281,7 @@ export default {
             titulo_:'',
 
             id_apertura_cierre:'',
+            arrayIndex:[],
 
         };
     },
@@ -323,6 +335,23 @@ export default {
         }
     },
     methods: {
+
+        listarIndex(page) {
+            let me = this;    
+            console.log("------------***");
+            var url ="/entrada_salida/index?page="+page+"&buscar="+me.buscar+"&id_sucursal="+me.id_sucursal+"&entrada_salida="+parseInt(me.selectEntradaSalida);
+            axios.get(url)
+                .then(function (response) {
+                    var respuesta = response.data;
+                    me.pagination = respuesta.pagination;
+                    me.arrayIndex = respuesta.respuesta.data;
+                 
+                    console.log(me.arrayIndex);
+                })
+                .catch(function (error) {
+                    error401(error);
+                });
+        },
 
         registro(){
             let me = this;
