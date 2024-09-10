@@ -68,7 +68,7 @@
                                 <button
                                     type="submit"
                                     class="btn btn-primary"
-                                    @click="listarAjusteNegativos(1)"
+                                    @click="listarAjusteNegativos(1)" 
                                     :hidden="sucursalSeleccionada == 0"
                                     :disabled="sucursalSeleccionada == 0"
                                 >
@@ -81,9 +81,7 @@
                     <!---codigo antiguo-->
 
                     <!---------------------------------------------------------------->
-                    <table
-                        class="table table-bordered table-striped table-sm table-responsive"
-                    >
+                    <table class="table table-bordered table-striped table-sm table-responsive">
                         <thead>
                             <tr>
                                 <th class="col-md-1">Opciones</th>
@@ -105,7 +103,6 @@
                             <tr v-for="AjusteNegativos in arrayAjusteNegativos" :key="AjusteNegativos.id">
     <td class="col-md-1">
     <div class="button-container">
-
         <div  class="d-flex justify-content-start">
             <div  v-if="puedeEditar==1">
                 <button type="button" class="btn btn-warning " @click="abrirModal('actualizar',AjusteNegativos);
@@ -533,8 +530,7 @@
                         >
                             Cerrar
                         </button>
-                        <button
-                            type="button"
+                        <button type="button"
                             v-if="tipoAccion == 1"
                             class="btn btn-primary"
                             @click="registrorAjusteNegativo()"
@@ -738,9 +734,6 @@ export default {
             arrayRetornarProductosIngreso: [],
             leyenda: "",
 
-            //cargarpermisos
-            e_1:"",
-            a_1:"",
             //---permisos_R_W_S
             puedeEditar:2,
                 puedeActivar:2,

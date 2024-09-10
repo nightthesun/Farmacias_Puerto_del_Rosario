@@ -31,8 +31,8 @@
                                 <th>Codigo</th>
                                 <th>Tipo</th>
                                 <th>Nit</th>
-                                <th>Razon Social</th>
-                                <th>Nombre Comercial</th>
+                                <th>Razòn social</th>
+                                <th>Codigo ALM y TDA</th>
                                 <!-- <th>Rubro</th> -->
                                 <th>Direccion</th>
                                 <th>Departamento</th>
@@ -92,16 +92,10 @@
                                 <td v-text="sucursal.tipo == 'Casa_Matriz'? (sucursal.tipo + (sucursal.codalamcen==null?'':' -> '+sucursal.codalamcen)):(sucursal.tipo + ' - ' +sucursal.correlativo)+(sucursal.codalamcen==null?'':' -> '+sucursal.codalamcen)"></td>
                                 <td v-text="sucursal.nit"></td>
                                 <td v-text="sucursal.razon_social"></td>
-                                <td v-text="sucursal.nombre_comercial"></td>
+                                <td>{{'['+sucursal.codalmacen+']'+'['+sucursal.codigo_tienda+']'}}</td>
                                 <!-- <td v-text="sucursal.nomrubro"></td> -->
                                 <td v-text="sucursal.direccion"></td>
-                                <td>
-                                    <div v-for="dpta in arrayDepartamentos">
-                                        <div v-if="dpta.id == sucursal.departamento">
-                                            {{ dpta.nombre }}
-                                        </div>
-                                    </div>
-                                </td>
+                                <td v-text="sucursal.nom_departamento"></td>
                                 <td v-text="sucursal.ciudad"></td>
                                     <!-- <div v-for="ciudad in arrayciudad">
                                         <div v-if="ciudad.id == sucursal.ciudad">
@@ -151,11 +145,12 @@
                         </button>
                     </div>
                     <div class="modal-body">
+                    
                         <form action=""  class="form-horizontal">
                             <div class="form-group row">
                                 <label class="col-md-2 form-control-label" for="text-input">Tipo <span  v-if="tipo==0" class="error">(*)</span></label>
-                                <div class="col-md-4">
-                                    <select name="" id="" v-model="tipo" class="form-control">
+                                <div class="col-md-4"> 
+                                    <select name="" id="" v-model="tipo" class="form-control" :disabled="activador_2===1 && tipoAccion===2">
                                         <option value="0" disabled>Seleccionar...</option>
                                         <option v-if="matriz!=1 || tipo=='Casa_Matriz'" value="Casa_Matriz">Casa Matriz</option>
                                         <option value="Sucursal">Sucursal</option>
@@ -163,7 +158,7 @@
                                 </div>
                                 <label class="col-md-2 form-control-label" for="text-input">Rubro <span  v-if="idrubro==0" class="error">(*)</span></label>
                                 <div class="col-md-4">
-                                    <select name="" id="" v-model="idrubro" class="form-control">
+                                    <select name="" id="" v-model="idrubro" class="form-control" :disabled="activador_2===1 && tipoAccion===2">
                                         <option value="0" disabled>Seleccionar...</option>
                                         <option v-for="rubros in arrayRubros" :key="rubros.id" :value="rubros.id" v-text="rubros.nombre" ></option>
                                     </select>
@@ -172,7 +167,7 @@
                             <div class="form-group row">
                                 <label class="col-md-3 form-control-label" for="text-input">Razon Social <span  v-if="razonsocial==''" class="error">(*)</span></label>
                                 <div class="col-md-9">
-                                    <input type="tex" id="" name="" class="form-control"  v-model="razonsocial" v-on:focus="selectAll"  >
+                                    <input type="tex" id="" name="" class="form-control"  v-model="razonsocial" v-on:focus="selectAll" :disabled="activador_2===1 && tipoAccion===2">
                                     <span  v-if="razonsocial==''" class="error">Debe Ingresar La Razon Social</span>
                                 </div>
                             </div>
@@ -180,7 +175,7 @@
                             <div class="form-group row">
                                 <label class="col-md-3 form-control-label" for="text-input">Nombre Comercial <span  v-if="nombrecomercial==''" class="error">(*)</span></label>
                                 <div class="col-md-9">
-                                    <input type="tex" id="nombrecomercial" name="nombrecomercial" class="form-control"  v-model="nombrecomercial" v-on:focus="selectAll"  >
+                                    <input type="tex" id="nombrecomercial" name="nombrecomercial" class="form-control"  v-model="nombrecomercial" v-on:focus="selectAll" :disabled="activador_2===1 && tipoAccion===2">
                                     <span  v-if="nombrecomercial==''" class="error">Debe Ingresar el Nombre Comercial</span>
                                 </div>
                             </div>
@@ -188,27 +183,27 @@
                             <div class="form-group row">
                                 <label class="col-md-3 form-control-label" for="text-input">Telefonos <span  v-if="telefono ==''" class="error">(*)</span></label>
                                 <div class="col-md-9">
-                                    <input type="text" id="telefono" name="telefono" class="form-control" placeholder="Ingrese Los numeros de Telefono" onkeypress="return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 45 || event.charCode == 32 || event.charCode == 43 )" v-model="telefono" v-on:focus="selectAll">
+                                    <input type="text" id="telefono" name="telefono" class="form-control" placeholder="Ingrese Los numeros de Telefono" onkeypress="return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 45 || event.charCode == 32 || event.charCode == 43 )" v-model="telefono" v-on:focus="selectAll" :disabled="activador_2===1 && tipoAccion===2">
                                     <span  v-if="telefono==''" class="error">Debe Ingresar La Razon Social</span>                                </div>
                             </div>
                             <div class="form-group row">
                                 <label class="col-md-3 form-control-label" for="text-input">Nit <span  v-if="nit ==''" class="error">(*)</span></label>
                                 <div class="col-md-9">
-                                    <input type="text" id="nit" name="nit" class="form-control" placeholder="Ingrese el numero de NIT" onkeypress="return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 48 && event.charCode <= 57))" v-model="nit" v-on:focus="selectAll">
+                                    <input type="text" id="nit" name="nit" class="form-control" placeholder="Ingrese el numero de NIT" onkeypress="return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 48 && event.charCode <= 57))" v-model="nit" v-on:focus="selectAll" :disabled="activador_2===1 && tipoAccion===2">
                                     <span  v-if="nit==''" class="error">Debe Ingresar el NIT</span>                                
                                 </div>
                             </div>
                             <div class="form-group row">
                                 <label class="col-md-3 form-control-label" for="text-input">Direccion <span  v-if="direccion ==''" class="error">(*)</span></label>
                                 <div class="col-md-9">
-                                    <input type="text" id="direccion" name="direccion" class="form-control" placeholder="Ingrese la Direccion" v-model="direccion" v-on:focus="selectAll">
+                                    <input type="text" id="direccion" name="direccion" class="form-control" placeholder="Ingrese la Direccion" v-model="direccion" v-on:focus="selectAll" :disabled="activador_2===1 && tipoAccion===2">
                                     <span  v-if="direccion==''" class="error">Debe Ingresar la Direccion</span>                                
                                 </div>
                             </div>
                             <div class="form-group row">
                                 <label class="col-md-3 form-control-label" for="text-input">Departamento <span  v-if="departamento==0" class="error">(*)</span></label>
                                 <div class="col-md-9">
-                                    <select name="" id="" v-model="departamento" class="form-control">
+                                    <select name="" id="" v-model="departamento" class="form-control" :disabled="activador_2===1 && tipoAccion===2">
                                         <option value="0" disabled>Seleccionar...</option>
                                         <option v-for="depto in arrayDepartamentos" :key="depto.id" :value="depto.id" v-text="depto.nombre"></option>
                                     </select>
@@ -228,7 +223,7 @@
                             <div class="form-group row">
                                 <label class="col-md-3 form-control-label" for="text-input">Ciudad <span  v-if="ciudad==''" class="error">(*)</span></label>
                                 <div class="col-md-9">
-                                    <input type="tex" id="ciudad" name="ciudad" class="form-control" placeholder="Ingrese la ciudad" v-model="ciudad" v-on:focus="selectAll">
+                                    <input type="tex" id="ciudad" name="ciudad" class="form-control" placeholder="Ingrese la ciudad" v-model="ciudad" v-on:focus="selectAll" :disabled="activador_2===1 && tipoAccion===2">
                                     <span  v-if="ciudad==''" class="error">Debe Ingresar la Ciudad</span>
                                 </div>
                             </div>
@@ -238,7 +233,7 @@
                         <button type="button" class="btn btn-secondary"  @click="cerrarModal('registrar')">Cerrar</button>
                         <button type="button" v-if="tipoAccion==1" class="btn btn-primary" @click="registrarSucursal()" :disabled="!sicompleto">Guardar</button>
                         <button type="button" v-if="tipoAccion==2" class="btn btn-primary" @click="actualizarSucursal()">Actualizar</button>
-                    </div>
+                    </div>  
                 </div>
                 <!-- /.modal-content -->
             </div>
@@ -259,7 +254,10 @@
                     </div>
                     <div class="modal-body">
                         <div class="alert alert-success" role="alert">
-                            Esta opcion solo es para el modulo de ventas caso gestor de ventas  y venta avanzada 
+                            Esta opcion solo es para el modulo de ventas caso gestor de ventas  y venta rapida 
+                        </div>
+                        <div class="alert alert-info" role="alert">
+                          {{ tituloModalSub }}
                         </div>
                         <form action=""  class="form-horizontal">
                             <div class="card">
@@ -417,6 +415,7 @@ import { error401 } from '../../errores';
                 nombre:'',
                 tipo:0,
                 nit:'',
+                tituloModalSub:'',
                 direccion:'',
                 arraySucursales:[],
                 arraySucursalesCopia:[],
@@ -467,7 +466,7 @@ import { error401 } from '../../errores';
                 puedeHacerOpciones_especiales:2,
                 puedeCrear:2,
                 //-----------
-                
+                activador_2:0
             }
 
         },
@@ -672,7 +671,7 @@ import { error401 } from '../../errores';
                 .then(function(response){
                     var respuesta=response.data;
                     me.pagination=respuesta.pagination;
-                    me.arraySucursales=respuesta.sucursales.data;
+                    me.arraySucursales=respuesta.sucursalesPaginated.data;
                     let resp=me.arraySucursales.find(element=>element.tipo=='Casa_Matriz');
                     if(resp!= undefined)
                     {
@@ -818,7 +817,14 @@ import { error401 } from '../../errores';
             },
             actualizarSucursal(){
                 let me =this;
-                axios.put('/sucursal/actualizar',{
+                if (me.activador_2===1) {
+                    Swal.fire(
+                    "Datos con movimiento",
+                    "No se puede realizar el proceso.",
+                    "error"
+                );
+                } else {
+                    axios.put('/sucursal/actualizar',{
                     'idrubro':me.idrubro,
                     'id':me.idsucursal,
                     'nombre':me.nombre,
@@ -843,15 +849,15 @@ import { error401 } from '../../errores';
                 }).catch(function (error) {
                     error401(error);
                 });
-                me.cerrarModal('registrar');
-
-
+                me.cerrarModal('registrar'); 
+                }
             },
             abrirModal(accion,data= []){
                 let me=this;
                 switch(accion){
                     case 'registrar':
                     {
+                       
                         me.tituloModal='Registar Sucursal'
                         me.tipoAccion=1;
                         me.tipo=0;
@@ -869,6 +875,12 @@ import { error401 } from '../../errores';
                     
                     case 'actualizar':
                     {
+                        console.log(data);
+                      if (data.max_id_sucursal===null) {
+                        me.activador_2=0;
+                      } else {
+                        me.activador_2=1;
+                      }
                         me.idsucursal=data.id;
                         me.tipoAccion=2;
                         me.tituloModal='Actualizar Sucursal'
@@ -887,7 +899,7 @@ import { error401 } from '../../errores';
                     }
                     case 'modal_listas':
                     {
-                
+                        me.tituloModalSub='Codigo de almacen: '+data.codalmacen+' Codigo tienda: '+data.codigo_tienda;
                         me.tituloModal='Añadir lista a '+data.razon_social
                         me.id_sucursal_z=data.id;
                         me.listarArrayRapido(data.id);
@@ -915,11 +927,11 @@ import { error401 } from '../../errores';
                 me.arrayLitasAv=[];
                 me.opcionSeleccionada=1; 
                 me.radioButtoRapido=0;
-                
+                me.tituloModalSub='';
                 me.opcionSeleccionadaAvanzada=1;
                 me.checkbox=[];
                 me.id_sucursal_z='';
-                
+                me.activador_2=0;
             },
 
             selectAll: function (event) {

@@ -329,17 +329,17 @@
   Todo prodcuto siempre debe tener un envase primario los envases segundario y terciario son opcionales. ya que se debe registrar si o si un envase primario, no se puede registrar un producto sin tener envase primario.
 </div>
                         <div class="row">
-                            <div class="form-group col-sm-6" v-if="tipoAccion == 2">
+                            <div class="form-group col-sm-6" >
                                 <strong>Rubro:</strong>
-                                <select v-model="idrubroselected" @change="listarLinea" class="form-control">
+                                <select v-model="idrubroselected" @change="listarLinea" class="form-control" :disabled="validador_2===1 && tipoAccion===2">
                                     <option value="0">Seleccionar</option>
-                                    <option v-for="rubro in rubros" :key="rubro.id" :value="rubro.id" v-text="rubro.nombre"></option>
+                                    <option v-for="rubro in rubros" :key="rubro.id"   :value="rubro.id" v-text="rubro.nombre"></option>
                                 </select>
                                 <span class="error" v-if="idrubroselected==0">Debe Seleccionar un rubro</span>
                             </div>
                             <div class="form-group col-sm-6">
                                 <strong>Linea:</strong>
-                                <select v-model="idlineaselected" @change="getCodigoLinea" class="form-control">
+                                <select v-model="idlineaselected" @change="getCodigoLinea" class="form-control" :disabled="validador_2===1 && tipoAccion===2">
                                     <option value="0">Seleccionar</option>
                                     <option v-for="linea in lineas" :key="linea.id" :value="linea.id" v-text="linea.cod"></option>
                                 </select>
@@ -349,9 +349,12 @@
                         <div class="row" style="margin-bottom: 30px;">
                             <div class="form-group col-sm-6">
                                 <strong>Producto:</strong>
-                                <input type="text" class="form-control" v-model="nombre" placeholder="Nombre del Producto">
+                           
+                              
+                                    <input :disabled="validador_2===1 && tipoAccion===2" type="text" class="form-control" v-model="nombre" placeholder="Nombre del Producto">
                                 <span class="error" v-if="nombre.length==0">Debe Ingresar Nombre del Producto</span>
-                            </div>
+                           
+                              </div>
                         </div>
 
                             <!-- tab para los envases del producto -->
@@ -371,7 +374,7 @@
                                         <div class="row">
                                             <div class="form-group col-sm-4">
                                                 <strong>Envase Primario:</strong>
-                                                <select v-model="iddispenserselectedprimario" class="form-control">
+                                                <select v-model="iddispenserselectedprimario" class="form-control" :disabled="validador_2===1 && tipoAccion===2">
                                                     <option value="0">Seleccionar</option>
                                                     <option v-for="dispenser in dispensers" :key="dispenser.id" :value="dispenser.id" v-text="dispenser.nombre"></option>
                                                 </select>
@@ -379,9 +382,11 @@
                                             </div>
                                             <div class="form-group col-sm-4">
                                                 <strong>Cantidad:</strong>
-                                                <input type="text" class="form-control" id="primario" v-model="cantidadprimario" style="text-align:right" placeholder="0" v-on:focus="selectAll" onkeypress="return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 48 && event.charCode <= 57) || (event.charCode >= 97 && event.charCode <= 122) || (event.charCode >= 65 && event.charCode <= 90))">
+                                               
+                                                    <input type="text" :disabled="validador_2===1 && tipoAccion===2" class="form-control" id="primario" v-model="cantidadprimario" style="text-align:right" placeholder="0" v-on:focus="selectAll" onkeypress="return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 48 && event.charCode <= 57) || (event.charCode >= 97 && event.charCode <= 122) || (event.charCode >= 65 && event.charCode <= 90))">
                                                 <span class="error" v-if="cantidadprimario==''">Debe ingresar Cantidad</span>
-                                            </div>
+                                            
+                                              </div>
                                             <div class="form-group col-sm-4">
                                                 <strong>Forma o Unid. de Medida:</strong>
                                        
@@ -390,7 +395,7 @@
                                                    
                                                     <div class="col-sm-2"><input type="checkbox" v-model="checkformafarmaceuticaprimario"></div>
                                                     <div class="col-sm-10" v-if="checkformafarmaceuticaprimario">
-                                                        <select v-model="idformafarmselectedprimario" class="form-control">
+                                                        <select v-model="idformafarmselectedprimario" class="form-control" :disabled="validador_2===1 && tipoAccion===2">
                                                             <option value="0">Seleccionar</option>
                                                             <option v-for="formafarm in formafarms" :key="formafarm.id" :value="formafarm.id" v-text="formafarm.nombre"></option>
                                                         </select>
@@ -445,7 +450,7 @@
                                         <div class="row">
                                             <div class="form-group col-sm-4">
                                                 <strong>Envase Secundario:</strong>
-                                                <select v-model="iddispenserselectedsecundario" class="form-control">
+                                                <select v-model="iddispenserselectedsecundario" class="form-control" :disabled="validador_2===1 && tipoAccion===2">
                                                     <option value="0">Seleccionar</option>
                                                     <option v-for="dispenser in dispensers" :key="dispenser.id" :value="dispenser.id" v-text="dispenser.nombre"></option>
                                                 </select>
@@ -453,8 +458,11 @@
                                             </div>
                                             <div class="form-group col-sm-4">
                                                 <strong>Cantidad:</strong>
-                                                <input type="text" class="form-control" id="secundario" v-model="cantidadsecundario" style="text-align:right" placeholder="0" v-on:focus="selectAll" onkeypress="return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 48 && event.charCode <= 57) || (event.charCode >= 97 && event.charCode <= 122) || (event.charCode >= 65 && event.charCode <= 90))">
-                                                <!-- <span class="error" v-if="cantidadsecundario==''">Debe ingresar Cantidad</span> -->
+                                             
+                                                    <input type="text" :disabled="validador_2===1 && tipoAccion===2" class="form-control" id="secundario" v-model="cantidadsecundario" style="text-align:right" placeholder="0" v-on:focus="selectAll" onkeypress="return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 48 && event.charCode <= 57) || (event.charCode >= 97 && event.charCode <= 122) || (event.charCode >= 65 && event.charCode <= 90))">
+                                               
+                                               
+                                               <!-- <span class="error" v-if="cantidadsecundario==''">Debe ingresar Cantidad</span> -->
                                             </div>
                                             <div class="form-group col-sm-4">
                                                 <strong>Forma o Unid. de Medida</strong>
@@ -464,7 +472,7 @@
                                                    
                                                     <div class="col-sm-2"><input type="checkbox" v-model="checkformafarmaceuticasecundario"></div>
                                                     <div class="col-sm-10" v-if="checkformafarmaceuticasecundario">
-                                                        <select v-model="idformafarmselectedsecundario" class="form-control">
+                                                        <select v-model="idformafarmselectedsecundario" class="form-control" :disabled="validador_2===1 && tipoAccion===2">
                                                             <option value="0">Seleccionar</option>
                                                             <option v-for="formafarm in formafarms" :key="formafarm.id" :value="formafarm.id" v-text="formafarm.nombre"></option>
                                                         </select>
@@ -519,7 +527,7 @@
                                         <div class="row">
                                             <div class="form-group col-sm-4">
                                                 <strong>Envase Terceario:</strong>
-                                                <select v-model="iddispenserselectedterciario" class="form-control">
+                                                <select v-model="iddispenserselectedterciario" class="form-control" :disabled="validador_2===1 && tipoAccion===2">
                                                     <option value="0">Seleccionar</option>
                                                     <option v-for="dispenser in dispensers" :key="dispenser.id" :value="dispenser.id" v-text="dispenser.nombre"></option>
                                                 </select>
@@ -527,7 +535,7 @@
                                             </div>
                                             <div class="form-group col-sm-4">
                                                 <strong>Cantidad:</strong>
-                                                <input type="text" class="form-control" id="terciario" v-model="cantidadterciario" style="text-align:right" placeholder="0" v-on:focus="selectAll" onkeypress="return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 48 && event.charCode <= 57) || (event.charCode >= 97 && event.charCode <= 122) || (event.charCode >= 65 && event.charCode <= 90))">
+                                                <input type="text"  :disabled="validador_2===1 && tipoAccion===2" class="form-control" id="terciario" v-model="cantidadterciario" style="text-align:right" placeholder="0" v-on:focus="selectAll" onkeypress="return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 48 && event.charCode <= 57) || (event.charCode >= 97 && event.charCode <= 122) || (event.charCode >= 65 && event.charCode <= 90))">
                                                 <!-- <span class="error" v-if="cantidadterciario==''">Debe ingresar Cantidad</span> -->
                                             </div>
                                             <div class="form-group col-sm-4">
@@ -535,9 +543,9 @@
                                                
                                                 <div class="row">
                                                     <span class="error" v-if="checkformafarmaceuticaterciario==0">Debe Seleccionar Forma o Unid. de Medid</span>
-                                                    <div class="col-sm-2"><input type="checkbox" v-model="checkformafarmaceuticaterciario"></div>
+                                                    <div class="col-sm-2"><input type="checkbox" v-model="checkformafarmaceuticaterciario" ></div>
                                                     <div class="col-sm-10" v-if="checkformafarmaceuticaterciario">
-                                                        <select v-model="idformafarmselectedterciario" class="form-control">
+                                                        <select v-model="idformafarmselectedterciario" class="form-control" :disabled="validador_2===1 && tipoAccion===2">
                                                             <option value="0">Seleccionar</option>
                                                             <option v-for="formafarm in formafarms" :key="formafarm.id" :value="formafarm.id" v-text="formafarm.nombre"></option>
                                                         </select>
@@ -594,7 +602,7 @@
                         <div class="row" style="margin-top: 50px;">
                             <div class="form-group col-sm-4">
                                 <strong>Categoria:</strong>
-                                <select v-model="idcategoriaselected" class="form-control">
+                                <select v-model="idcategoriaselected" class="form-control" :disabled="validador_2===1 && tipoAccion===2">
                                     <option value="0">Seleccionar</option>
                                     <option v-for="categoria in categorias" :key="categoria.id" :value="categoria.id" v-text="categoria.nombre"></option>
                                 </select>
@@ -794,6 +802,7 @@ import QrcodeVue from 'qrcode.vue';
                 puedeActivar:2,
                 puedeHacerOpciones_especiales:2,
                 puedeCrear:2,
+                validador_2:0,
                 //-----------
             }
 
@@ -1190,9 +1199,9 @@ import QrcodeVue from 'qrcode.vue';
                 let formData = new FormData();
 
                 var formaUno=0;                
-                
-                if (me.iddispenserselectedprimario==0||me.cantidadprimario>0||me.checkformafarmaceuticaprimario==0||me.idformafarmselectedprimario==0
-                || me.preciolistaprimario<=0 || me.precioventaprimario<=0 || me.tiempopedidoselectedprimario==0) {
+            
+                if (me.iddispenserselectedprimario===0||me.cantidadprimario<=0||me.checkformafarmaceuticaprimario===false||me.idformafarmselectedprimario===0
+                || me.preciolistaprimario<=0 || me.precioventaprimario<=0 || me.tiempopedidoselectedprimario===0) {
                     Swal.fire({
                         icon: "error",
                         title: "Envase primario.",
@@ -1487,6 +1496,11 @@ import QrcodeVue from 'qrcode.vue';
                     case 'actualizar':
                     {
                         me.tipoAccion=2;
+                        if (data.id_venta!==null) {
+                            me.validador_2=1;
+                        } else {
+                            me.validador_2=0
+                        }
                         me.tituloModal='Actualizar Producto: ' + data.codprod;
                         me.id = data.id;
                         //me.codigo = data.codprod;

@@ -11,9 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('ven_tipo_moneda', function (Blueprint $table) {
+        Schema::create('par__cliente_producto', function (Blueprint $table) {
             $table->id();
-            $table->string('tipo');
+            $table->smallInteger('id_cliente_p')->nullable();           
+            $table->string('num_documento')->nullable();   
+            $table->smallInteger('id_descuento');   
+            $table->string('nom_facturar'); 
+            
         });
     }
 
@@ -22,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('ven_tipo_moneda');
+        Schema::dropIfExists('par__cliente_producto');
     }
 };

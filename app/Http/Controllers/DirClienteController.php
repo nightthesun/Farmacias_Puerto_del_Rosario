@@ -15,6 +15,11 @@ class DirClienteController extends Controller
     public function index(Request $request)
     {
         $buscararray=array();
+        $limite_x=$request->limite;
+       
+        if ($limite_x==10) {
+            $limite_x=9999999999999;
+        }
         $bus = $request->query('buscarP_E');
         if(!empty($request->buscar)){
             $buscararray = explode(" ",$request->buscar);
@@ -46,77 +51,131 @@ class DirClienteController extends Controller
                 //------------------inicio query
       
             // Consulta para obtener los clientes personas
-$clientesPersonas = DB::table('dir__clientes as dc')
-->select(
-    'dc.id as id',
-    'dc.id_per_emp as id_persona_empresa',
-    'dp.nombres as nombre','dp.apellidos as apellido',
-    DB::raw("CONCAT(dp.nombres, ' ', dp.apellidos) AS nombre_completo"),
-    DB::raw("CONCAT(COALESCE(dp.documento_identidad, ''), ' ', COALESCE(dp.complemento, '')) AS documento_identidad"),
-    'dp.complemento as id_complemento',
-    'dc.correo as correo',
-    'dc.telefono as telefono',
-    'dc.direccion as direccion',
-    'dc.nom_a_facturar as nom_a_facturar',
-    'dc.pais as pais',
-    'dc.ciudad',
-    'u.name as name',
-    'u.id as id_user',
-    DB::raw('GREATEST(dc.created_at, dc.updated_at) AS fecha_mas_reciente'),
-    'dc.num_documento as num_documento',
-    'dc.tipo_per_emp as tipo_per_emp',
-    'dc.activo as activo',
-    'dt.id as id_tipo_doc',
+         if ($bus==1) {
+            $clientes = DB::table('dir__clientes as dc')
+            ->select(
+                'dc.id as id',
+                'dc.id_per_emp as id_persona_empresa',
+                'dp.nombres as nombre',
+                'dp.apellidos as apellido',
+                DB::raw("CONCAT(dp.nombres, ' ', dp.apellidos) AS nombre_completo"),
+                DB::raw("CONCAT(COALESCE(dp.documento_identidad, ''), ' ', COALESCE(dp.complemento, '')) AS documento_identidad"),
+                'dp.complemento as id_complemento',
+                'dc.correo as correo',
+                'dc.telefono as telefono',
+                'dc.direccion as direccion',
+                'dc.nom_a_facturar as nom_a_facturar',
+                'dc.pais as pais',
+                'dc.ciudad',
+                'u.name as name',
+                'u.id as id_user',
+                DB::raw('GREATEST(dc.created_at, dc.updated_at) AS fecha_mas_reciente'),
+                'dc.num_documento as num_documento',
+                'dc.tipo_per_emp as tipo_per_emp',
+                'dc.activo as activo',
+                'dt.id as id_tipo_doc',
+                'dt.nombre_doc as nom_documento',
+                'dt.datos as datos_tipo_documento',
+                DB::raw('MAX(vr.id_cliente) AS id_max')
+            )
+            ->join('dir__tipo_doc as dt', 'dc.id_tipo_doc', '=', 'dt.id')
+            ->join('users as u', 'dc.id_user', '=', 'u.id')
+            ->join('dir__personas as dp', 'dp.id', '=', 'dc.id_per_emp')
+            ->leftJoin('ven__recibos as vr', 'vr.id_cliente', '=', 'dc.id')
+            ->where('dc.tipo_per_emp', '=', 1)
+            ->whereRaw($sqls)
+            ->groupBy(
+                'dc.id',
+                'dc.id_per_emp',
+                'dp.nombres',
+                'dp.apellidos',
+                'dp.documento_identidad',
+                'dp.complemento',
+                'dc.correo',
+                'dc.telefono',
+                'dc.direccion',
+                'dc.nom_a_facturar',
+                'dc.pais',
+                'dc.ciudad',
+                'u.name',
+                'u.id',
+                'dt.id',
+                'dt.nombre_doc',
+                'dt.datos',
+                'dc.created_at',
+                'dc.updated_at',
+                'dc.num_documento',
+                'dc.tipo_per_emp',
+                'dc.activo'
+            )
+            ->orderBy('dc.id', 'desc')
+            ->limit($limite_x)
+            ->paginate(25);
 
-    'dt.nombre_doc as nom_documento',
-    'dt.datos as datos_tipo_documento'
-)
-->join('dir__tipo_doc as dt', 'dc.id_tipo_doc', '=', 'dt.id')
-->join('users as u', 'dc.id_user', '=', 'u.id')
-->join('dir__personas as dp', 'dp.id', '=', 'dc.id_per_emp')
+         } else {
+            if ($bus==2) {
+                $clientes = DB::table('dir__clientes as dc')
+                ->select(
+                    'dc.id as id',
+                    'dc.id_per_emp as id_persona_empresa',
+                    DB::raw('NULL as nombre'),
+                    DB::raw('NULL as apellido'),
+                    'de.razon_social as nombre_completo',
+                    'de.nit as documento_identidad',
+                    DB::raw('NULL as id_complemento'),
+                    'dc.correo as correo',
+                    'dc.telefono as telefono',
+                    'dc.direccion as direccion',
+                    'dc.nom_a_facturar as nom_a_facturar',
+                    'dc.pais as pais',
+                    'dc.ciudad',
+                    'u.name as name',
+                    'u.id as id_user',
+                    DB::raw('GREATEST(dc.created_at, dc.updated_at) AS fecha_mas_reciente'),
+                    'dc.num_documento as num_documento',
+                    'dc.tipo_per_emp as tipo_per_emp',
+                    'dc.activo as activo',
+                    'dt.id as id_tipo_doc',
+                    'dt.nombre_doc as nom_documento',
+                    'dt.datos as datos_tipo_documento',
+                    DB::raw('MAX(vr.id_cliente) AS id_max')
+                )
+                ->join('dir__tipo_doc as dt', 'dc.id_tipo_doc', '=', 'dt.id')
+                ->join('users as u', 'dc.id_user', '=', 'u.id')
+                ->join('dir__empresas as de', 'dc.id_per_emp', '=', 'de.id')
+                ->leftJoin('ven__recibos as vr', 'vr.id_cliente', '=', 'dc.id')
+                ->where('dc.tipo_per_emp', '=', 2)
+                ->groupBy(
+                    'dc.id',
+                    'dc.id_per_emp',
+                    'de.razon_social',
+                    'de.nit',
+                    'dc.correo',
+                    'dc.telefono',
+                    'dc.direccion',
+                    'dc.nom_a_facturar',
+                    'dc.pais',
+                    'dc.ciudad',
+                    'u.name',
+                    'u.id',
+                    'dc.created_at',
+                    'dc.updated_at',
+                    'dc.num_documento',
+                    'dc.tipo_per_emp',
+                    'dc.activo',
+                    'dt.id',
+                    'dt.nombre_doc',
+                    'dt.datos'
+                )
+                ->orderBy('dc.id', 'desc')
+                ->limit($limite_x)
+                ->paginate(25);
+            } else {
+               dd("error de ingreso");
+            }
+            
+         }
 
-->whereRaw($sqls)
-
-->where('dc.tipo_per_emp', '=', $bus);
-
-// Consulta para obtener los clientes empresas
-$clientesEmpresas = DB::table('dir__clientes as dc')
-->select(
-    'dc.id as id',
-    'dc.id_per_emp as id_persona_empresa',
-    DB::raw('null as nombre'),
-    DB::raw('null as apellido'), 
-    'de.razon_social as nombre_completo',
-    'de.nit as documento_identidad',
-    DB::raw('null as id_complemento'),
-    'dc.correo as correo',
-    'dc.telefono as telefono',
-    'dc.direccion as direccion',
-    'dc.nom_a_facturar as nom_a_facturar',
-    'dc.pais as pais',
-    'dc.ciudad',
-    'u.name as name',
-    'u.id as id_user',
-    DB::raw('GREATEST(dc.created_at, dc.updated_at) AS fecha_mas_reciente'),
-    'dc.num_documento as num_documento',
-    'dc.tipo_per_emp as tipo_per_emp',
-    'dc.activo as activo',
-    'dt.id as id_tipo_doc',
-    
-    'dt.nombre_doc as nom_documento',
-    'dt.datos as datos_tipo_documento'
-)
-->join('dir__tipo_doc as dt', 'dc.id_tipo_doc', '=', 'dt.id')
-->join('users as u', 'dc.id_user', '=', 'u.id')
-->join('dir__empresas as de','dc.id_per_emp', '=', 'de.id')
-
-->whereRaw($sqls)
-
-->where('dc.tipo_per_emp', '=', $bus);
-
-// Unir los resultados de ambas consultas
-$clientes = $clientesPersonas->unionAll($clientesEmpresas);
-$clientes = $clientes->orderByDesc('id')->paginate(10);
          }    
          return  
          [
@@ -133,75 +192,67 @@ $clientes = $clientes->orderByDesc('id')->paginate(10);
      ]; 
      }
      else{
-        $clientesPersonas = DB::table('dir__clientes as dc')
-        ->select(
-            'dc.id as id',
-            'dc.id_per_emp as id_persona_empresa',
-            'dp.nombres as nombre','dp.apellidos as apellido',
-            DB::raw("CONCAT(dp.nombres, ' ', dp.apellidos) AS nombre_completo"),
-            DB::raw("CONCAT(COALESCE(dp.documento_identidad, ''), ' ', COALESCE(dp.complemento, '')) AS documento_identidad"),
-            'dp.complemento as id_complemento',
-            'dc.correo as correo',
-            'dc.telefono as telefono',
-            'dc.direccion as direccion',
-            'dc.nom_a_facturar as nom_a_facturar',
-            'dc.pais as pais',
-            'dc.ciudad',
-            'u.name as name',
-            'u.id as id_user',
-            DB::raw('GREATEST(dc.created_at, dc.updated_at) AS fecha_mas_reciente'),
-            'dc.num_documento as num_documento',
-            'dc.tipo_per_emp as tipo_per_emp',
-            'dc.activo as activo',
-            'dt.id as id_tipo_doc',
-            
-            'dt.nombre_doc as nom_documento',
-            'dt.datos as datos_tipo_documento'
-        )
-        ->join('dir__tipo_doc as dt', 'dc.id_tipo_doc', '=', 'dt.id')
-        ->join('users as u', 'dc.id_user', '=', 'u.id')
-        ->join('dir__personas as dp', 'dp.id', '=', 'dc.id_per_emp')
-       
-      
-        ->where('dc.tipo_per_emp', '=', $bus);
-        
-        // Consulta para obtener los clientes empresas
-        $clientesEmpresas = DB::table('dir__clientes as dc')
-        ->select(
-            'dc.id as id',
-            'dc.id_per_emp as id_persona_empresa',
-            DB::raw('null as nombre'),
-            DB::raw('null as apellido'), 
-            'de.razon_social as nombre_completo',
-            'de.nit as documento_identidad',
-            DB::raw('null as id_complemento'),
-            'dc.correo as correo',
-            'dc.telefono as telefono',
-            'dc.direccion as direccion',
-            'dc.nom_a_facturar as nom_a_facturar',
-            'dc.pais as pais',
-            'dc.ciudad',
-            'u.name as name',
-            'u.id as id_user',
-            DB::raw('GREATEST(dc.created_at, dc.updated_at) AS fecha_mas_reciente'),
-            'dc.num_documento as num_documento',
-            'dc.tipo_per_emp as tipo_per_emp',
-            'dc.activo as activo',
-            'dt.id as id_tipo_doc',
-          
-            'dt.nombre_doc as nom_documento',
-            'dt.datos as datos_tipo_documento'
-        )
-        ->join('dir__tipo_doc as dt', 'dc.id_tipo_doc', '=', 'dt.id')
-        ->join('users as u', 'dc.id_user', '=', 'u.id')
-        ->join('dir__empresas as de', 'de.id', '=', 'dc.id_per_emp')
-       
-        ->where('dc.tipo_per_emp', '=', $bus);
-        
-        // Unir los resultados de ambas consultas
-        $clientes = $clientesPersonas->unionAll($clientesEmpresas);
-        $clientes = $clientes->orderByDesc('id')->paginate(10);
-        return  
+
+        if ($bus==1) {
+            $clientes = DB::table('dir__clientes as dc')
+    ->select(
+        'dc.id as id',
+        'dc.id_per_emp as id_persona_empresa',
+        'dp.nombres as nombre',
+        'dp.apellidos as apellido',
+        DB::raw("CONCAT(dp.nombres, ' ', dp.apellidos) AS nombre_completo"),
+        DB::raw("CONCAT(COALESCE(dp.documento_identidad, ''), ' ', COALESCE(dp.complemento, '')) AS documento_identidad"),
+        'dp.complemento as id_complemento',
+        'dc.correo as correo',
+        'dc.telefono as telefono',
+        'dc.direccion as direccion',
+        'dc.nom_a_facturar as nom_a_facturar',
+        'dc.pais as pais',
+        'dc.ciudad',
+        'u.name as name',
+        'u.id as id_user',
+        DB::raw('GREATEST(dc.created_at, dc.updated_at) AS fecha_mas_reciente'),
+        'dc.num_documento as num_documento',
+        'dc.tipo_per_emp as tipo_per_emp',
+        'dc.activo as activo',
+        'dt.id as id_tipo_doc',
+        'dt.nombre_doc as nom_documento',
+        'dt.datos as datos_tipo_documento',
+        DB::raw('MAX(vr.id_cliente) AS id_max')
+    )
+    ->join('dir__tipo_doc as dt', 'dc.id_tipo_doc', '=', 'dt.id')
+    ->join('users as u', 'dc.id_user', '=', 'u.id')
+    ->join('dir__personas as dp', 'dp.id', '=', 'dc.id_per_emp')
+    ->leftJoin('ven__recibos as vr', 'vr.id_cliente', '=', 'dc.id')
+    ->where('dc.tipo_per_emp', '=', 1)
+    ->groupBy(
+        'dc.id',
+        'dc.id_per_emp',
+        'dp.nombres',
+        'dp.apellidos',
+        'dp.documento_identidad',
+        'dp.complemento',
+        'dc.correo',
+        'dc.telefono',
+        'dc.direccion',
+        'dc.nom_a_facturar',
+        'dc.pais',
+        'dc.ciudad',
+        'u.name',
+        'u.id',
+        'dt.id',
+        'dt.nombre_doc',
+        'dt.datos',
+        'dc.created_at',
+        'dc.updated_at',
+        'dc.num_documento',
+        'dc.tipo_per_emp',
+        'dc.activo'
+    )
+    ->orderBy('dc.id', 'desc')
+    ->limit($limite_x)
+    ->paginate(25);
+    return  
         [ 'pagination'=>
                 [
                     'total'         =>    $clientes->total(),
@@ -213,6 +264,83 @@ $clientes = $clientes->orderByDesc('id')->paginate(10);
                 ] ,
           'clientes'=>$clientes,
      ];
+
+        }else {
+            if ($bus==2) {
+                $clientes = DB::table('dir__clientes as dc')
+                ->select(
+                    'dc.id as id',
+                    'dc.id_per_emp as id_persona_empresa',
+                    DB::raw('NULL as nombre'),
+                    DB::raw('NULL as apellido'),
+                    'de.razon_social as nombre_completo',
+                    'de.nit as documento_identidad',
+                    DB::raw('NULL as id_complemento'),
+                    'dc.correo as correo',
+                    'dc.telefono as telefono',
+                    'dc.direccion as direccion',
+                    'dc.nom_a_facturar as nom_a_facturar',
+                    'dc.pais as pais',
+                    'dc.ciudad',
+                    'u.name as name',
+                    'u.id as id_user',
+                    DB::raw('GREATEST(dc.created_at, dc.updated_at) AS fecha_mas_reciente'),
+                    'dc.num_documento as num_documento',
+                    'dc.tipo_per_emp as tipo_per_emp',
+                    'dc.activo as activo',
+                    'dt.id as id_tipo_doc',
+                    'dt.nombre_doc as nom_documento',
+                    'dt.datos as datos_tipo_documento',
+                    DB::raw('MAX(vr.id_cliente) AS id_max')
+                )
+                ->join('dir__tipo_doc as dt', 'dc.id_tipo_doc', '=', 'dt.id')
+                ->join('users as u', 'dc.id_user', '=', 'u.id')
+                ->join('dir__empresas as de', 'dc.id_per_emp', '=', 'de.id')
+                ->leftJoin('ven__recibos as vr', 'vr.id_cliente', '=', 'dc.id')
+                ->where('dc.tipo_per_emp', '=', 2)
+                ->groupBy(
+                    'dc.id',
+                    'dc.id_per_emp',
+                    'de.razon_social',
+                    'de.nit',
+                    'dc.correo',
+                    'dc.telefono',
+                    'dc.direccion',
+                    'dc.nom_a_facturar',
+                    'dc.pais',
+                    'dc.ciudad',
+                    'u.name',
+                    'u.id',
+                    'dc.created_at',
+                    'dc.updated_at',
+                    'dc.num_documento',
+                    'dc.tipo_per_emp',
+                    'dc.activo',
+                    'dt.id',
+                    'dt.nombre_doc',
+                    'dt.datos'
+                )
+                ->orderBy('dc.id', 'desc')
+                ->limit($limite_x)
+                ->paginate(25);
+                return  
+        [ 'pagination'=>
+                [
+                    'total'         =>    $clientes->total(),
+                    'current_page'  =>    $clientes->currentPage(),
+                    'per_page'      =>    $clientes->perPage(),
+                    'last_page'     =>    $clientes->lastPage(),
+                    'from'          =>    $clientes->firstItem(),
+                    'to'            =>    $clientes->lastItem(),
+                ] ,
+          'clientes'=>$clientes,
+     ];
+            }
+            else{
+                dd("error de entrada");
+            }
+        }
+      
      }    
  }
 
@@ -233,10 +361,9 @@ $clientes = $clientes->orderByDesc('id')->paginate(10);
         $primerGuardadoExitoso = false;
         
         try {
-
+            $nombre_empresa="";
                // Iniciar una transacción
-               DB::beginTransaction();
-             
+               DB::beginTransaction();             
                if ($request->correo=="farmacia_pueto_del_rosarioxwass1234887458888@gmail.com") {
                 $correo_query = DB::table('adm__credecial_correos')
                 ->select('correo')
@@ -258,18 +385,23 @@ $clientes = $clientes->orderByDesc('id')->paginate(10);
             // El numero de docuemnto no está registrado tipo_per_emp=1 es persona  y tipo_per_emp=2 es empresa 
             if ($request->tipo_per_emp==1) {
                 $persona_empresa=new dir_Persona();               
-                $persona_empresa->nombres=$request->nombre;
-                $persona_empresa->apellidos=$request->apellido;
-                $persona_empresa->documento_identidad=$request->num_documento;
-                $persona_empresa->complemento=$request->ex;
+                $persona_empresa->nombres=strtoupper($request->nombre);
+                $persona_empresa->apellidos=strtoupper($request->apellido);
+                $persona_empresa->documento_identidad=strtoupper($request->num_documento);
+                $persona_empresa->complemento=strtoupper($request->ex);
                 $persona_empresa->save();
                 }
                 else {
                     //empresa
                     if ($request->tipo_per_emp==2) {
+                        if ($request->nombre==null||$request->nombre=="") {
+                            $nombre_empresa="S/N";
+                        }else{
+                            $nombre_empresa=$request->nombre; 
+                        }
                 $persona_empresa=new dir_Empresa();
-                $persona_empresa->razon_social=$request->nom_a_facturar;      
-                $persona_empresa->nit=$request->num_documento;   
+                $persona_empresa->razon_social=strtoupper($nombre_empresa);      
+                $persona_empresa->nit=strtoupper($request->num_documento);   
                 $persona_empresa->save();
                     }
                     else{
@@ -282,10 +414,10 @@ $clientes = $clientes->orderByDesc('id')->paginate(10);
                 $cliente=new Dir_Cliente();
                 $cliente->correo=$dato_correo;
                 $cliente->telefono=$request->telefono;
-                $cliente->direccion=$request->direccion;
+                $cliente->direccion=strtoupper($request->direccion);
                 $cliente->id_tipo_doc=$request->id_tipo_doc;
-                $cliente->nom_a_facturar=$request->nom_a_facturar;
-                $cliente->pais=$request->pais;
+                $cliente->nom_a_facturar=strtoupper($request->nom_a_facturar);
+                $cliente->pais=strtoupper($request->pais);
                 $cliente->ciudad=$request->ciudad;
                 $cliente->id_user=auth()->user()->id;
                 $cliente->id_usuario_registra=auth()->user()->id;
@@ -369,7 +501,7 @@ $clientes = $clientes->orderByDesc('id')->paginate(10);
              else {
                  if ($request->tipo_per_emp==2) {
             $persona_empresa=dir_Empresa::find($request->id_per_emp);
-             $persona_empresa->razon_social=strtoupper($request->nom_a_facturar);      
+             $persona_empresa->razon_social=strtoupper($request->nombre);      
              $persona_empresa->nit=$request->num_documento;   
              $persona_empresa->save();
                  }

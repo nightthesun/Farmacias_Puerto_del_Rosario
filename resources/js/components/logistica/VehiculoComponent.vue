@@ -705,9 +705,9 @@ import { resolveTransitionHooks } from 'vue';
                 });
                 me.cerrarModal('registrar');
             },
+
             asignarSucursal(){
-                let me =this;
-               
+                let me =this;               
                let cadena=[];
                for (const selectedOption of this.selectAlmTda2) {
                 let elemento = {
@@ -792,8 +792,7 @@ import { resolveTransitionHooks } from 'vue';
                     }
                     case 'asignar':
                     {  
-                      
-                     
+                                          
                          me.tituloModal='Asignar sucursal';
   
 
@@ -851,8 +850,7 @@ import { resolveTransitionHooks } from 'vue';
 
         mounted() {
           //-------permiso E_W_S-----
-            this.listarPerimsoxyz();
-            //  this.listarAlmacenes_tiendas_con_permisos();
+            this.listarPerimsoxyz();        
             //-----------------------
        
             this.classModal = new _pl.Modals();

@@ -2,9 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\operacionDosificacion;
+use App\Models\Tda_ingresoProducto2;
 use App\Models\Ven_GestorVenta;
+use Barryvdh\DomPDF\Facade\Pdf;
+
+use Carbon\Carbon;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Helpers\converso_numero_a_texto;
+
 
 class VenGestorVentaController extends Controller
 {
@@ -13,14 +22,316 @@ class VenGestorVentaController extends Controller
      */
     public function index()
     {
-        //
+        
     }
+
+    public function venta(Request $request){
+      
+        try {
+
+          
+               // Iniciar una transacción
+               $num_factura="";
+               $fechaHoy = Carbon::now()->format('Y-m-d');
+               DB::beginTransaction();
+               $user_1 = auth()->user()->id;
+               $nomsucursal="";
+               $iduserrolesuc = "";
+               $idsuc = "";
+               $name_user = ""; 
+               if ($user_1==1) {
+                $valor = '1';
+                return response()->json(['data' => $valor]);
+               }else{
+                $nomsucursal= session('nomsucursal');
+                $iduserrolesuc = session('iduserrolesuc');
+                $idsuc = session('idsuc');
+                $id_user2 = session('id_user2'); 
+               } 
+                
+               $ultimoComprobante = DB::table('ven__recibos')
+    ->orderBy('contador', 'desc')
+    ->value('contador');
+
+    $credencial = DB::table('adm__credecial_correos')
+    ->select('nro_celular', 'nom_empresa', 'actividad_economica','nit')
+    ->get();
+    
+$nombre_e = $credencial[0]->nom_empresa;
+$num_e = $credencial[0]->nro_celular;       
+$actividad_economica = strtoupper($credencial[0]->actividad_economica);
+$nit_2=$credencial[0]->nit;
+    $currentDateTime = Carbon::now();
+if (is_null($ultimoComprobante)) {
+    // La tabla está vacía, iniciar con 1    
+    $contador_2 = 1;
+} else {
+    // Incrementar el último número de comprobante
+    $contador_2 = $ultimoComprobante + 1;
+}
+
+$year = strval($currentDateTime->year); 
+$contadorCadena=strval($contador_2);
+$controlador_2_1=$year.$contadorCadena;
+
+$num_documento = $request->input('num_documento');
+$nom_a_facturar = strtoupper($request->input('nom_a_facturar'));
+$numero_referencia = $num_e;
+$nombre_empresa = strtoupper($nombre_e); 
+
+ //-------------- facturacion dosificacion
+ if ($request->TipoComprobate==1) {
+    $estado_dosificacion_facctura=0;
+ }else{
+    if ($request->TipoComprobate==2) {
+        $estado_dosificacion_facctura=$request->estado_dosificacion_facctura;
+    }else{
+        dd("error... de entrada de tipod e factura recibo");
+    }
+ }
+
+
+    // datos para cargar 
+        $total_venta=$request->total_venta;
+        $efectivo_venta=$request->efectivo_venta;
+        $cambio_venta=$request->cambio_venta;
+        $descuento_venta=$request->descuento_venta;
+        $total_sin_des= $total_venta+$descuento_venta;
+        $dato_tipo=intval($request->TipoComprobate);
+        $codigo_tienda_almacen_0=$request->codigo_tienda_almacen_0;
+        $id_lista_v2=$request->id_lista_v2;
+        $cliente_id=$request->cliente_id;
+    $data_recibo = [
+        'id_sucursal' => $idsuc,
+        'id_cliente' => $cliente_id,
+        'id_usuario'=>$id_user2,
+        'nro_comprobante_venta' => $controlador_2_1,
+        'total_venta' => $total_venta,
+        'efectivo_venta' => $efectivo_venta, 
+        'cambio_venta' => $cambio_venta,       
+        'descuento_venta' => $descuento_venta,
+        'created_at' => $currentDateTime,
+        'updated_at' => $currentDateTime,
+        'total_sin_des' => $total_sin_des,
+        'tipo_venta_reci_fac' => $dato_tipo,
+        'contador'=> $contador_2,
+        'cod'=> $codigo_tienda_almacen_0,
+        'id_lista'=>$id_lista_v2,
+        'nro_ref'=>$numero_referencia,
+        'nro_doc'=> $num_documento,
+        'razon_social'=>$nom_a_facturar,
+        'dosificacion_o_electronica'=>$estado_dosificacion_facctura,
+       ];   
+      
+       $id_recibo = DB::table('ven__recibos')->insertGetId($data_recibo);
+      
+    
+    
+     $num_auto="";
+     $cod_autorizacion="";
+     $fecha_e_1="";
+     $fecha_e_2="";
+     
+       if ($estado_dosificacion_facctura==2&&$request->TipoComprobate==2) {
+
+        $id_dosificacaion_1=$request->id_dosificacaion_1;
+        $num_auto=$request->nro_autorizacion_1;  
+        $Llave_Dosificacion=$request->dosificacion_1;               
+        $fecha_e_1=$request->fecha_e_1;            
+        $n_ini_facturacion_1=$request->n_ini_facturacion_1;     
+        $n_fin_facturacion_1=$request->n_fin_facturacion_1;  
+        $n_act_facturacion_1=$request->n_act_facturacion_1;  
+        $fecha_e_2 = Carbon::createFromFormat('Y-m-d', $fecha_e_1)->format('d-m-Y');
+        $ultimo_factura_dosi = DB::table('ven__factura_dosi')
+        ->orderBy('numero_factura', 'desc')
+        ->value('numero_factura');
+        if (is_null($ultimo_factura_dosi)) {
+            // La tabla está vacía, iniciar con 1    
+            $num_factura = $n_ini_facturacion_1;
+        } else {
+            // Incrementar el último número de comprobante
+            $num_factura = $ultimo_factura_dosi + 1;
+            if($num_factura>999999999999){
+                $error_logitud=12;
+                return $error_logitud;
+            }
+        }
+        
+        $fecha_transaccion = Carbon::createFromFormat('Y-m-d', $fechaHoy)->format('Ymd');
+        //return "*-----*".$Llave_Dosificacion." ".$num_auto." ".$num_factura." ".$num_documento." ".$fecha_transaccion." ".$total_venta; 
+        $cod_autorizacion= operacionDosificacion::operacion($Llave_Dosificacion, $num_auto,$num_factura,$num_documento,$fecha_transaccion,$total_venta); 
+        
+        $data_fac_dosi = [
+            'id_venta' => $id_recibo,         
+            'id_dosificacion'=>$id_dosificacaion_1,
+            'numero_factura' => $num_factura,
+            'total' => $total_venta,
+            'codigo_control' => $cod_autorizacion,             
+           ];  
+           
+            DB::table('ven__factura_dosi')->insert($data_fac_dosi);
+     
+    }
+    
+       /////// detalle_descuento
+       $descuento_final_2=0;
+       $bloque_descuento = $request->arrayDescuentoOperacion;
+       foreach ($bloque_descuento as $item) {
+        $id_tabla = $item['id_tabla'];
+        $id_descuento = $item['id_descuento'];
+        $cantidad_descuento = $item['cantidad_descuento'];
+        $tipo_num_des =$item['id_contador'];
+        $tipo_2=$item['tipo'];
+        $data_descuento = [
+            'id_venta' => $id_recibo,
+            'id_tabla' => $id_tabla,  
+            'id_descuento' => $id_descuento,
+            'cantidad_descuento' => $cantidad_descuento, 
+            'id_detalle_descuento'=> $tipo_num_des,
+            'tipo' => $tipo_2      
+           ];    
+           DB::table('ven__detalle_descuentos')->insert($data_descuento);
+           if($tipo_2==2&&$tipo_num_des==0){
+            $descuento_final_2=$descuento_final_2+$cantidad_descuento;
+           }
+          
+       }  
+        /////// detalle_venta
+        //$es_lista si es lita esta por default 0 pero si es lista es 1
+        $bloque_venta_detalle=$request->arrayDesatlleVenta;
+        foreach ($bloque_venta_detalle as $item) {
+            $id_contador=$item['id_contador'];
+            $es_lista=$item['es_lista'];
+            $id_ges_pre=$item['id_ges_pre'];
+            $id_ingreso=$item['id_ingreso'];
+            $id_producto=$item['id_producto'];
+            $id_linea=$item['id_linea'];
+            $precio_venta=$item['precio_venta'];
+            $cantidad_venta=$item['cantidad_venta'];
+            $codigo_tienda_almacen=$item['codigo_tienda_almacen'];
+            $descuento=$item['descuento'];
+            $data_det_venta = [
+                'id_detalle_descuento'=>$id_contador,
+                'id_venta' => $id_recibo,          
+                'es_lista' => $es_lista,
+                'id_ges_pre' => $id_ges_pre,
+                'id_ingreso' => $id_ingreso, 
+                'id_producto' => $id_producto,       
+                'id_linea' => $id_linea,    
+                'precio_venta' => $precio_venta,
+                'cantidad_venta' => $cantidad_venta,
+                'codigo_tienda_almacen'=>$codigo_tienda_almacen,
+                 'descuento'=>$descuento,
+               ];  
+            DB::table('ven__detalle_ventas')->insert($data_det_venta);
+
+           // Si todo sale bien, confirmar la transacción
+           $update = Tda_ingresoProducto2::find($id_ingreso);
+           $cantidad_v3=$update->stock_ingreso;
+           $update->stock_ingreso = $cantidad_v3-$cantidad_venta;
+           $update->save();    
+        }       
+            
+    DB::commit();
+        // Llamar a create_recibo
+        //$reciboData = $this->create_recibo($idsuc,$id_user2,$nuevoComprobante,$nomsucursal,$num_documento,$currentDateTime,$nom_a_facturar,$numero_referencia,$request->arrayProRecibo,$total_sin_des,$descuento_venta, $total_venta,$efectivo_venta,$cambio_venta);
+            // Devolver una respuesta JSON con un mensaje de éxito
+          $array_recibo = $request->arrayProRecibo;
+          
+
+        $sucursal_0 =  DB::table('adm__sucursals as ass')
+    ->join('adm__departamentos as ad', 'ass.departamento', '=', 'ad.id')
+    ->select('ass.razon_social', 'ass.telefonos', 'ass.nit', 'ass.direccion', 'ass.ciudad', 'ad.nombre as departamento')
+    ->where('ass.id', $idsuc)
+    ->first();
+    $razonSocial_su = $sucursal_0->razon_social;
+    $telefonos_su = $sucursal_0->telefonos;
+    $nit_su = $sucursal_0->nit;
+    $direccion_su = $sucursal_0->direccion;
+    $ciudad_su = $sucursal_0->ciudad;
+    $departamento_su = $sucursal_0->departamento;
+        //  $direccion = DB::table('adm__sucursals')
+        //  ->where('id', $idsuc)
+        //  ->value('direccion'); 
+  
+      $nombreCompletoObj = DB::table('rrh__empleados as re')
+          ->join('users as u', 're.id', '=', 'u.idempleado')
+          ->where('u.id', $id_user2)
+          ->select(DB::raw("CONCAT(
+              COALESCE(re.nombre, ''), ' ',
+              COALESCE(re.papellido, ''), ' ',
+              COALESCE(re.sapellido, '')
+          ) as nombre_completo"))
+          ->first();
+          $nombreCompleto = $nombreCompletoObj ? $nombreCompletoObj->nombre_completo : '';
+              //datos para hacer factura vista
+              $ciudad_su_1 = strtoupper($ciudad_su);
+              $departamento_su_1 = strtoupper($departamento_su);       
+        $nombre_negocio = strtoupper($nomsucursal);      
+        $direccionMayusculas=strtoupper($direccion_su);     
+        $fecha = $currentDateTime->format('d/m/Y');
+       // $hora = $currentDateTime->format('H:i:s'); 
+       $hora = $currentDateTime->format('h:i:s A');
+       $fecha_7 = $currentDateTime->addDays(7);     
+        $fechaMas7Dias = $fecha_7->format('d/m/Y');
+        $nombreCompleto_1=strtoupper($nombreCompleto);
+        
+        
+        $total_literal = converso_numero_a_texto::convertirNumeroATexto($total_venta);
+        return response()->json([
+           // 'idsuc' => $idsuc,
+           // 'id_user2' => $id_user2,           
+           'nomsucursal' => $nombre_negocio,
+           'direccionMayusculas' => $direccionMayusculas, 
+           'nuevoComprobante' => $controlador_2_1,          
+            'fecha' => $fecha,
+            'hora' => $hora, 
+            'num_documento' => $num_documento,
+            'nom_a_facturar' => $nom_a_facturar,
+            //'currentDateTime' => $currentDateTime,
+           'array_recibo' => $array_recibo,
+           'total_sin_des' => $total_sin_des,                
+            'efectivo_venta' => $efectivo_venta,
+            'total_venta' =>$total_venta,
+            'descuento_venta' => $descuento_venta,
+            'cambio_venta' => $cambio_venta,
+            'fechaMas7Dias' => $fechaMas7Dias,
+            'numero_referencia' => $numero_referencia,
+            'nombreCompleto_1' => $nombreCompleto_1,
+            'tipocom'=> $dato_tipo,
+            'nombre_empresa' => $nombre_empresa,  
+            'ciudad_su_1' => $ciudad_su_1, 
+            'departamento_su_1' => $departamento_su_1,
+            'descuento_final_2' => $descuento_final_2,
+            
+            'nit_2' =>$nit_2,
+            'actividad_economica' => $actividad_economica,
+            'num_auto' => $num_auto,
+            'cod_autorizacion' => $cod_autorizacion,
+            'fecha_e_2' => $fecha_e_2,
+            'numero_factura' => $num_factura,
+            'cliente_id' => $cliente_id,
+            'total_literal' => $total_literal
+        ]);
+
+
+    } catch (\Throwable $th) {
+            // Revertir la transacción en caso de error
+        DB::rollback();
+ 
+              return response()->json(['error' => $th->getMessage()],500);
+        }
+      
+    }
+
+
+    
 
     public function get_sucusal(){
         
         $user_1 = auth()->user()->id;
         $user_2 = auth()->user()->name;
-
+        //dd(session()->all());
         if ($user_1==1) {
             $idsuc=1;
         }else{
@@ -53,6 +364,12 @@ class VenGestorVentaController extends Controller
             ->join('prod__registro_pre_x_lists as prp', 'prp.id', '=', 'gpv.id_lista')
             ->join('prod__listas as pl', 'pl.id', '=', 'prp.id_lista')
             ->join('prod__lineas as pppl','pppl.id','=','pp.idlinea')
+            ->leftJoin('par__producto_desc as ppd', 'ppd.id_prod', '=', 'pp.id')
+            ->leftJoin('par__descuentos as pd2', 'ppd.id_descuento', '=', 'pd2.id')
+            ->leftJoin('par__asignacion_descuento as pad2', function($join) {
+                $join->on('pad2.id_descuento', '=', 'pd2.id')
+                     ->where('pad2.id_sucursal', '=', 1);
+            })
             ->select(
                 'gpv.id as id',
                 'gpv.precio_lista_gespreventa',
@@ -63,26 +380,51 @@ class VenGestorVentaController extends Controller
                 'gpv.margen_30p_gespreventa',
                 'gpv.utilidad_bruta_gespreventa',
                 'gpv.utilidad_neto_gespreventa',
+                'tt.codigo as codigo_tienda_almacen' ,
                 'tip.envase',
                 'tip.cantidad',
                 'tip.stock_ingreso',
                 'tip.fecha_vencimiento',
                 'tip.lote',
                 'pp.codigo as codigo_prod',
+             
                 'tip.id as id_ingreso',
                 DB::raw("
-                    CASE 
-                        WHEN tip.envase = 'primario' THEN CONCAT(COALESCE(pp.nombre, ''), ' ', COALESCE(pd_1.nombre, ''), ' x ', COALESCE(pp.cantidadprimario, ''), ' ', COALESCE(ff_1.nombre, ''))
-                        WHEN tip.envase = 'secundario' THEN CONCAT(COALESCE(pp.nombre, ''), ' ', COALESCE(pd_2.nombre, ''), ' x ', COALESCE(pp.cantidadsecundario, ''), ' ', COALESCE(ff_2.nombre, ''))
-                        WHEN tip.envase = 'terciario' THEN CONCAT(COALESCE(pp.nombre, ''), ' ', COALESCE(pd_3.nombre, ''), ' x ', COALESCE(pp.cantidadterciario, ''), ' ', COALESCE(ff_3.nombre, ''))
-                        ELSE NULL
-                    END AS leyenda
-                "),
-                'gpv.id_lista','pppl.nombre as nombre_linea','pp.id as id_prod'
+                CASE 
+                    WHEN tip.envase = 'primario' THEN UPPER(CONCAT(COALESCE(pp.nombre, ''), ' ', COALESCE(pd_1.nombre, ''), ' X ', COALESCE(pp.cantidadprimario, ''), ' ', COALESCE(ff_1.nombre, '')))
+                    WHEN tip.envase = 'secundario' THEN UPPER(CONCAT(COALESCE(pp.nombre, ''), ' ', COALESCE(pd_2.nombre, ''), ' X ', COALESCE(pp.cantidadsecundario, ''), ' ', COALESCE(ff_2.nombre, '')))
+                    WHEN tip.envase = 'terciario' THEN UPPER(CONCAT(COALESCE(pp.nombre, ''), ' ', COALESCE(pd_3.nombre, ''), ' X ', COALESCE(pp.cantidadterciario, ''), ' ', COALESCE(ff_3.nombre, '')))
+                    ELSE NULL
+                END AS leyenda
+            "),
+             DB::raw("
+             CASE 
+                    WHEN tip.envase = 'primario' THEN UPPER(CONCAT(COALESCE(ff_1.nombre, '')))
+                    WHEN tip.envase = 'secundario' THEN UPPER(CONCAT(COALESCE(ff_2.nombre, '')))
+                    WHEN tip.envase = 'terciario' THEN UPPER(CONCAT(COALESCE(ff_3.nombre, '')))
+                    ELSE NULL
+                END AS unidad_medida
+             "),   
+                'gpv.id_lista','pppl.nombre as nombre_linea','pp.id as id_prod',
+                DB::raw('DATEDIFF(fecha_vencimiento, NOW()) AS dias'),
+                DB::raw("CASE 
+                WHEN pd2.desc_num = 1 THEN '#'
+                WHEN pd2.desc_num = 2 THEN '%'
+                ELSE NULL
+            END as tipo_num_des"),
+    'pd2.monto_descuento',
+    'pd2.activo as descuento_activo',
+    'pad2.id_sucursal as id_11','pppl.id as id_linea',
+     'pd2.id as id_descuento',
+            'pd2.id_tipo_tabla as id_tabla','tip.prioridad_caducidad'
             )
             ->where('ass.id', $id_suc)
             ->where('gpv.listo_venta', 1)
             ->where('pl.id', $id_lista)
+            ->where('pp.activo', 1)
+            ->where('tip.activo', 1)
+            ->where('tip.fecha_vencimiento', '>=', DB::raw('CURDATE()'))
+            ->orderBy('tip.prioridad_caducidad', 'desc')
             ->get(); 
             return $resultados;
        
@@ -101,7 +443,13 @@ class VenGestorVentaController extends Controller
             ->leftJoin('prod__forma_farmaceuticas as ff_2', 'ff_2.id', '=', 'pp.idformafarmaceuticasecundario')
             ->leftJoin('prod__forma_farmaceuticas as ff_3', 'ff_3.id', '=', 'pp.idformafarmaceuticaterciario')
             ->join('prod__lineas as pppl','pppl.id','=','pp.idlinea')
-          
+            ->leftJoin('par__producto_desc as ppd', 'ppd.id_prod', '=', 'pp.id')
+            ->leftJoin('par__descuentos as pd2', 'ppd.id_descuento', '=', 'pd2.id')
+            ->leftJoin('par__asignacion_descuento as pad2', function($join) {
+                $join->on('pad2.id_descuento', '=', 'pd2.id')
+                     ->where('pad2.id_sucursal', '=', 1);
+            })
+   
             ->select(
                 'gpv.id as id',
                 'gpv.precio_lista_gespreventa',
@@ -112,204 +460,502 @@ class VenGestorVentaController extends Controller
                 'gpv.margen_30p_gespreventa',
                 'gpv.utilidad_bruta_gespreventa',
                 'gpv.utilidad_neto_gespreventa',
+                'tt.codigo as codigo_tienda_almacen' ,
                 'tip.envase',
                 'tip.cantidad',
                 'tip.stock_ingreso',
                 'tip.fecha_vencimiento',
                 'tip.lote',
                 'pp.codigo as codigo_prod',
+              
                 'tip.id as id_ingreso',
                 DB::raw("
-                    CASE 
-                        WHEN tip.envase = 'primario' THEN CONCAT(COALESCE(pp.nombre, ''), ' ', COALESCE(pd_1.nombre, ''), ' x ', COALESCE(pp.cantidadprimario, ''), ' ', COALESCE(ff_1.nombre, ''))
-                        WHEN tip.envase = 'secundario' THEN CONCAT(COALESCE(pp.nombre, ''), ' ', COALESCE(pd_2.nombre, ''), ' x ', COALESCE(pp.cantidadsecundario, ''), ' ', COALESCE(ff_2.nombre, ''))
-                        WHEN tip.envase = 'terciario' THEN CONCAT(COALESCE(pp.nombre, ''), ' ', COALESCE(pd_3.nombre, ''), ' x ', COALESCE(pp.cantidadterciario, ''), ' ', COALESCE(ff_3.nombre, ''))
-                        ELSE NULL
-                    END AS leyenda
-                "),
-                'gpv.id_lista','pppl.nombre as nombre_linea','pp.id as id_prod'
+                CASE 
+                    WHEN tip.envase = 'primario' THEN UPPER(CONCAT(COALESCE(pp.nombre, ''), ' ', COALESCE(pd_1.nombre, ''), ' X ', COALESCE(pp.cantidadprimario, ''), ' ', COALESCE(ff_1.nombre, '')))
+                    WHEN tip.envase = 'secundario' THEN UPPER(CONCAT(COALESCE(pp.nombre, ''), ' ', COALESCE(pd_2.nombre, ''), ' X ', COALESCE(pp.cantidadsecundario, ''), ' ', COALESCE(ff_2.nombre, '')))
+                    WHEN tip.envase = 'terciario' THEN UPPER(CONCAT(COALESCE(pp.nombre, ''), ' ', COALESCE(pd_3.nombre, ''), ' X ', COALESCE(pp.cantidadterciario, ''), ' ', COALESCE(ff_3.nombre, '')))
+                    ELSE NULL
+                END AS leyenda
+            "),
+            DB::raw("
+             CASE 
+                    WHEN tip.envase = 'primario' THEN UPPER(CONCAT(COALESCE(ff_1.nombre, '')))
+                    WHEN tip.envase = 'secundario' THEN UPPER(CONCAT(COALESCE(ff_2.nombre, '')))
+                    WHEN tip.envase = 'terciario' THEN UPPER(CONCAT(COALESCE(ff_3.nombre, '')))
+                    ELSE NULL
+                END AS unidad_medida
+             "),  
+                'gpv.id_lista','pppl.nombre as nombre_linea','pp.id as id_prod',
+                DB::raw('DATEDIFF(fecha_vencimiento, NOW()) AS dias'),
+                DB::raw("CASE 
+                WHEN pd2.desc_num = 1 THEN '#'
+                WHEN pd2.desc_num = 2 THEN '%'
+                ELSE NULL
+            END as tipo_num_des"),
+    'pd2.monto_descuento',
+    'pd2.activo as descuento_activo',
+    'pad2.id_sucursal as id_11','pppl.id as id_linea',
+    'pd2.id as id_descuento',
+    'pd2.id_tipo_tabla as id_tabla','tip.prioridad_caducidad'         
             )
-            ->where('ass.id', 1)
-            ->where('gpv.listo_venta', $idsuc)
+            ->where('ass.id', $idsuc)
+            ->where('gpv.listo_venta', 1)
+            ->where('pp.activo', 1)
+            ->where('tip.activo', 1)
+            ->where('tip.fecha_vencimiento', '>=', DB::raw('CURDATE()'))
+            ->orderBy('tip.prioridad_caducidad', 'desc')
             ->get();
             return $resultados;    
         }
 
        
     }
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Ven_GestorVenta $ven_GestorVenta)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Ven_GestorVenta $ven_GestorVenta)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Ven_GestorVenta $ven_GestorVenta)
-    {
-        //
-    }
+   
+ 
+   
     public function listarUsuario(Request $request){
-        $resultado = DB::table('dir__clientes as dc')
-        ->select('dc.id', 
-                 'dc.nom_a_facturar', 
-                 'dc.id_per_emp', 
-                 'dc.num_documento', 
-                 'dtd.id as id_tipo_doc',
-                 'dtd.nombre_doc as tipo_doc_nombre',
-                 'dtd.datos as tipo_doc_datos',
-                 DB::raw("CONCAT(dp.nombres, ' ', dp.apellidos) AS nombre_completo"))
+        $clientes = DB::table('dir__clientes as dc')
         ->join('dir__tipo_doc as dtd', 'dc.id_tipo_doc', '=', 'dtd.id')
-        ->join('dir__personas as dp', 'dc.id_per_emp', '=', 'dp.id')
-        ->where('dc.tipo_per_emp', 1)
+        ->leftJoin('dir__personas as dp', function ($join) {
+            $join->on('dp.id', '=', 'dc.id_per_emp')
+                 ->where('dc.tipo_per_emp', '=', 1);
+        })
+        ->leftJoin('dir__empresas as de', function ($join) {
+            $join->on('de.id', '=', 'dc.id_per_emp')
+                 ->where('dc.tipo_per_emp', '=', 2);
+        })
+        ->leftJoin('par__cliente_producto as pcp', 'pcp.id_cliente_p', '=', 'dc.id')
+        ->leftJoin('par__descuentos as pd2', 'pd2.id', '=', 'pcp.id_descuento')
+        ->leftJoin('par__asignacion_descuento as pad2', function($join) {
+            $join->on('pad2.id_descuento', '=', 'pd2.id')
+                 ->where('pad2.id_sucursal', '=', 1);
+        })
         ->where('dc.activo', 1)
-        ->where('dc.num_documento',  $request->num_doc)
-        ->unionAll(DB::table('dir__clientes as dc')
-            ->select('dc.id', 
-                     'dc.nom_a_facturar', 
-                     'dc.id_per_emp', 
-                     'dc.num_documento', 
-                     'dtd.id as id_tipo_doc',
-                     'dtd.nombre_doc as tipo_doc_nombre',
-                     'dtd.datos as tipo_doc_datos',
-                     'de.razon_social AS nombre_completo')
-            ->join('dir__empresas as de', 'dc.id_per_emp', '=', 'de.id')
-            ->join('dir__tipo_doc as dtd', 'dc.id_tipo_doc', '=', 'dtd.id')
-            ->where('dc.tipo_per_emp', 2)
-            ->where('dc.activo', 1)
-            ->where('dc.num_documento', $request->num_doc))
+        ->where('dc.num_documento', $request->num_doc)
+ 
+        ->select([
+            'dc.id',
+            'dc.nom_a_facturar',
+            'dc.id_per_emp',
+            'dc.num_documento',
+            'dtd.id as id_tipo_doc',
+            'dtd.nombre_doc as tipo_doc_nombre',
+            'dtd.datos as tipo_doc_datos',
+            DB::raw('CASE 
+                        WHEN dp.id IS NOT NULL THEN CONCAT(dp.nombres, " ", dp.apellidos)
+                        WHEN de.id IS NOT NULL THEN de.razon_social
+                        ELSE NULL
+                    END as nombre_completo'),
+            'dc.created_at as fecha',
+            DB::raw('CASE 
+                        WHEN pd2.desc_num = 1 THEN "#"
+                        WHEN pd2.desc_num = 2 THEN "%"
+                        ELSE NULL
+                    END as tipo_num_des'),
+            'pd2.monto_descuento',
+            'pd2.activo as descuento_activo',
+            'pad2.id_sucursal as id_11',
+            'pd2.id as id_descuento',
+            'pd2.id_tipo_tabla as id_tabla'
+        ])        
        
         ->first();
   
-        return $resultado;
+        return $clientes;
     }
-    public function listarUsuarioRetorno(Request $request){
-        $buscararray = array();
-    
-        if (!empty($request->buscar)) {
-            $buscararray = explode(" ", $request->buscar);
-            $valor = sizeof($buscararray);
-            if ($valor > 0) {
-                $sqls = '';
 
-                foreach ($buscararray as $valor) {
-                    if (empty($sqls)) {
-                        $sqls = "(
-                            
-                            or dc.nom_a_facturar like '%" . $valor . "%' 
-                            or dc.num_documento like '%" . $valor . "%' 
-                         
-                               )";
-                    } else {
-                        $sqls .= "and 
+    public function listarUsuarioRetorno(Request $request)
+{
+    $buscararray = array();
+    if (!empty($request->buscar)) {
+        $buscararray = explode(" ", $request->buscar);
+        $valor = sizeof($buscararray);
+        if ($valor > 0) {
+            $sqls = '';
+            foreach ($buscararray as $key => $valor) {
+                // Corrección: Se verifica si $sqls está vacío antes de añadir la primera condición
+                if (empty($sqls)) {
+                    $sqls = "(
                         dc.nom_a_facturar like '%" . $valor . "%' 
-                        or dc.num_documento like '%" . $valor . "%' 
-                       
-                       
-                       )";
-                    }
+                        or dc.num_documento like '%" . $valor . "%'
+                    )";
+                } else {
+                    // Corrección: Se añade un paréntesis de apertura y se corrige la concatenación
+                    $sqls .= " and (
+                        dc.nom_a_facturar like '%" . $valor . "%' 
+                        or dc.num_documento like '%" . $valor . "%'
+                    )";
                 }
-                //consulta---------------------------------------------------
-                $subconsulta = DB::table('dir__clientes as dc')
-                ->select('dc.id', 
-                         'dc.nom_a_facturar', 
-                         'dc.id_per_emp', 
-                         'dc.num_documento', 
-                         'dtd.id as id_tipo_doc',
-                         'dtd.nombre_doc as tipo_doc_nombre',
-                         'dtd.datos as tipo_doc_datos',
-                         DB::raw("CONCAT(dp.nombres, ' ', dp.apellidos) AS nombre_completo"),
-                         'dc.created_at as fecha')
-                ->join('dir__tipo_doc as dtd', 'dc.id_tipo_doc', '=', 'dtd.id')
-                ->join('dir__personas as dp', 'dc.id_per_emp', '=', 'dp.id')
-                ->where('dc.tipo_per_emp', 1)
-                ->where('dc.activo', 1);
+            }
             
-            $subconsultaEmpresas = DB::table('dir__clientes as dc')
-                ->select('dc.id', 
-                         'dc.nom_a_facturar', 
-                         'dc.id_per_emp', 
-                         'dc.num_documento', 
-                         'dtd.id as id_tipo_doc',
-                         'dtd.nombre_doc as tipo_doc_nombre',
-                         'dtd.datos as tipo_doc_datos',
-                         'de.razon_social AS nombre_completo',
-                         'dc.created_at as fecha')
-                ->join('dir__empresas as de', 'dc.id_per_emp', '=', 'de.id')
+            $clientes = DB::table('dir__clientes as dc')
                 ->join('dir__tipo_doc as dtd', 'dc.id_tipo_doc', '=', 'dtd.id')
-                ->where('dc.tipo_per_emp', 2)
-                ->where('dc.activo', 1);
-            
-            $resultado = $subconsulta->unionAll($subconsultaEmpresas)
-                ->orderBy('id', 'desc') // Ordenar por id de forma descendente
-                ->take(30) // Limitar a 100 registros
-                ->get();       
-            }    
-            return $resultado;
-        } else{
-            $subconsulta = DB::table('dir__clientes as dc')
-    ->select('dc.id', 
-             'dc.nom_a_facturar', 
-             'dc.id_per_emp', 
-             'dc.num_documento', 
-             'dtd.id as id_tipo_doc',
-             'dtd.nombre_doc as tipo_doc_nombre',
-             'dtd.datos as tipo_doc_datos',
-             DB::raw("CONCAT(dp.nombres, ' ', dp.apellidos) AS nombre_completo"),
-             'dc.created_at as fecha')
-    ->join('dir__tipo_doc as dtd', 'dc.id_tipo_doc', '=', 'dtd.id')
-    ->join('dir__personas as dp', 'dc.id_per_emp', '=', 'dp.id')
-    ->where('dc.tipo_per_emp', 1)
-    ->where('dc.activo', 1);
+                ->leftJoin('dir__personas as dp', function ($join) {
+                    $join->on('dp.id', '=', 'dc.id_per_emp')
+                         ->where('dc.tipo_per_emp', '=', 1);
+                })
+                ->leftJoin('dir__empresas as de', function ($join) {
+                    $join->on('de.id', '=', 'dc.id_per_emp')
+                         ->where('dc.tipo_per_emp', '=', 2);
+                })
+                ->leftJoin('par__cliente_producto as pcp', 'pcp.id_cliente_p', '=', 'dc.id')
+                ->leftJoin('par__descuentos as pd2', 'pd2.id', '=', 'pcp.id_descuento')
+                ->leftJoin('par__asignacion_descuento as pad2', function($join) {
+                    $join->on('pad2.id_descuento', '=', 'pd2.id')
+                         ->where('pad2.id_sucursal', '=', 1);
+                })
+                ->where('dc.activo', 1)
+                ->whereRaw($sqls)
+                ->take(10)
+                ->orderBy('id', 'desc')
+                ->select([
+                    'dc.id',
+                    'dc.nom_a_facturar',
+                    'dc.id_per_emp',
+                    'dc.num_documento',
+                    'dtd.id as id_tipo_doc',
+                    'dtd.nombre_doc as tipo_doc_nombre',
+                    'dtd.datos as tipo_doc_datos',
+                    DB::raw('CASE 
+                                WHEN dp.id IS NOT NULL THEN CONCAT(dp.nombres, " ", dp.apellidos)
+                                WHEN de.id IS NOT NULL THEN de.razon_social
+                                ELSE NULL
+                            END as nombre_completo'),
+                    'dc.created_at as fecha',
+                    DB::raw('CASE 
+                                WHEN pd2.desc_num = 1 THEN "#"
+                                WHEN pd2.desc_num = 2 THEN "%"
+                                ELSE NULL
+                            END as tipo_num_des'),
+                    'pd2.monto_descuento',
+                    'pd2.activo as descuento_activo',
+            'pad2.id_sucursal as id_11',
+            'pd2.id as id_descuento',
+            'pd2.id_tipo_tabla as id_tabla'
+                ])
+                ->get();
 
-$subconsultaEmpresas = DB::table('dir__clientes as dc')
-    ->select('dc.id', 
-             'dc.nom_a_facturar', 
-             'dc.id_per_emp', 
-             'dc.num_documento', 
-             'dtd.id as id_tipo_doc',
-             'dtd.nombre_doc as tipo_doc_nombre',
-             'dtd.datos as tipo_doc_datos',
-             'de.razon_social AS nombre_completo',
-             'dc.created_at as fecha')
-    ->join('dir__empresas as de', 'dc.id_per_emp', '=', 'de.id')
-    ->join('dir__tipo_doc as dtd', 'dc.id_tipo_doc', '=', 'dtd.id')
-    ->where('dc.tipo_per_emp', 2)
-    ->where('dc.activo', 1);
+            return $clientes;
+        }
+    } else {
+        // Si no hay parámetro de búsqueda, se ejecuta esta parte del código
+        $clientes = DB::table('dir__clientes as dc')
+            ->join('dir__tipo_doc as dtd', 'dc.id_tipo_doc', '=', 'dtd.id')
+            ->leftJoin('dir__personas as dp', function ($join) {
+                $join->on('dp.id', '=', 'dc.id_per_emp')
+                     ->where('dc.tipo_per_emp', '=', 1);
+            })
+            ->leftJoin('dir__empresas as de', function ($join) {
+                $join->on('de.id', '=', 'dc.id_per_emp')
+                     ->where('dc.tipo_per_emp', '=', 2);
+            })
+            ->leftJoin('par__cliente_producto as pcp', 'pcp.id_cliente_p', '=', 'dc.id')
+            ->leftJoin('par__descuentos as pd2', 'pd2.id', '=', 'pcp.id_descuento')
+            ->leftJoin('par__asignacion_descuento as pad2', function($join) {
+                $join->on('pad2.id_descuento', '=', 'pd2.id')
+                     ->where('pad2.id_sucursal', '=', 1);
+            })
+            ->where('dc.activo', 1)
+            ->orderBy('id', 'desc')
+            ->take(40)
+            ->select([
+                'dc.id',
+                'dc.nom_a_facturar',
+                'dc.id_per_emp',
+                'dc.num_documento',
+                'dtd.id as id_tipo_doc',
+                'dtd.nombre_doc as tipo_doc_nombre',
+                'dtd.datos as tipo_doc_datos',
+                DB::raw('CASE 
+                            WHEN dp.id IS NOT NULL THEN CONCAT(dp.nombres, " ", dp.apellidos)
+                            WHEN de.id IS NOT NULL THEN de.razon_social
+                            ELSE NULL
+                        END as nombre_completo'),
+                'dc.created_at as fecha',
+                DB::raw('CASE 
+                            WHEN pd2.desc_num = 1 THEN "#"
+                            WHEN pd2.desc_num = 2 THEN "%"
+                            ELSE NULL
+                        END as tipo_num_des'),
+                'pd2.monto_descuento',
+                'pd2.activo as descuento_activo',
+            'pad2.id_sucursal as id_11',
+            'pd2.id as id_descuento',
+            'pd2.id_tipo_tabla as id_tabla'
+            ])
+            ->get();
 
-$resultado = $subconsulta->unionAll($subconsultaEmpresas)
-    ->orderBy('id', 'desc') // Ordenar por id de forma descendente
-    ->take(100) // Limitar a 100 registros
+        return $clientes;
+    }
+}
+
+    
+
+    public function listarDescuentos_listas(Request $request){
+
+        $user_1 = auth()->user()->id;   
+
+        if ($user_1==1) {
+            $idsuc=1;
+        }else{
+            $iduserrolesuc = session('iduserrolesuc');
+            $idsuc = session('idsuc');
+            $id_user2 = session('id_user2'); 
+        }
+       // Consulta optimizada
+        $validador = DB::table('par__asignacion_descuento')
+        ->where('id_sucursal', $idsuc)
+        ->where(DB::raw('LEFT(cod, 3)'), 'TDA')
+        ->where('personalizado', 1)
+        ->exists();
+
+        // Verificar el resultado
+        if ($validador) {
+            $descuento =  DB::table('par__asignacion_descuento as pad1')
+        ->join('par__descuentos as pd', 'pd.id', '=', 'pad1.id_descuento')
+        ->join('par_tipo_tabla as ptt', 'ptt.id', '=', 'pd.id_tipo_tabla')
+        ->select(
+            'pad1.id_descuento as id',
+            'pad1.cod',
+            'pd.nombre_descuento',
+            'ptt.id as id_tabla',
+            'ptt.nombre as nombre_tabla',
+            'pad1.personalizado as per'
+        )
+        ->where('pd.activo', 1)
+        ->where(DB::raw('LEFT(pad1.cod, 3)'), 'TDA')
+        ->where('pad1.id_sucursal', $idsuc)
+        ->where('pad1.personalizado','=',1)
+        ->get();  
+        
+            } else {
+                $descuento = DB::table('par__asignacion_descuento AS pad1')
+                ->join('par__descuentos AS pd', 'pd.id', '=', 'pad1.id_descuento')
+                ->join('par_tipo_tabla AS ptt', 'ptt.id', '=', 'pd.id_tipo_tabla')
+                ->select(
+                    'pad1.id_descuento as id',
+                    'pad1.cod',
+                    'pd.nombre_descuento',
+                    'ptt.id as id_tabla',
+                    'ptt.nombre as nombre_tabla',
+                    'pad1.personalizado as per'
+                )
+                ->where('pd.activo', 1)
+                ->where(DB::raw('LEFT(pad1.cod, 3)'), 'TDA')
+                ->where('pad1.id_sucursal', $idsuc)
+                ->where('pad1.personalizado', '=', 0)->get();       
+  
+            }
+
+            $lista = DB::table('adm__sucursal_listas as asl')
+            ->join('prod__listas as pl', 'asl.id_lista', '=', 'pl.id')
+            ->select('pl.id', 'pl.nombre_lista')
+            ->where('pl.activo', '=',1)
+            ->where('asl.id_sucursal','=',$idsuc)
+            ->first();
+          
+    return response()->json(['descuento' => $descuento, 'lista' => $lista,'id_descuento_x'=>$idsuc]);
+    }
+
+
+    public function listarDescuento_Tipo_tabla(){
+        $user_1 = auth()->user()->id;   
+
+        if ($user_1==1) {
+            $idsuc=1;
+        }else{
+            $iduserrolesuc = session('iduserrolesuc');
+            $idsuc = session('idsuc');
+            $id_user2 = session('id_user2'); 
+        }
+         // Consulta optimizada
+         $validador = DB::table('par__asignacion_descuento')
+         ->where('id_sucursal', $idsuc)
+         ->where(DB::raw('LEFT(cod, 3)'), 'TDA')
+         ->where('personalizado', 1)
+         ->exists();
+          // Verificar el resultado
+        if ($validador) {
+            $descuento = DB::table('par__asignacion_descuento as pad1')
+            ->join('par__descuentos as pd', 'pd.id', '=', 'pad1.id_descuento')
+            ->join('par_tipo_tabla as ptt', 'ptt.id', '=', 'pd.id_tipo_tabla')
+            ->leftJoin('par__cantidad_precio as pcp', 'pcp.id_descuento', '=', 'pd.id')
+            ->leftJoin('par__cliente_producto as pcli', 'pcli.id_descuento', '=', 'pd.id')
+            ->leftJoin('par__producto_desc as ppd', 'ppd.id_descuento', '=', 'pd.id')
+            ->leftJoin('par__personalizado as pp2','pp2.id_descuento','=','pd.id') 
+            ->select(
+                'pad1.id_descuento as id',
+                'pad1.cod',
+                'pd.nombre_descuento',
+                DB::raw("
+                    CASE
+                        WHEN pd.desc_num = 1 THEN '#'
+                        WHEN pd.desc_num = 2 THEN '%'
+                        ELSE NULL
+                    END AS tipo_num_des
+                "),
+                'pd.monto_descuento',
+                'ptt.id as id_nom_tabla',
+                'ptt.nombre as nombre_tabla',
+                DB::raw("
+                    CASE
+                        WHEN pcp.es_cantidad_es_monto = 1 THEN '#'
+                        WHEN pcp.es_cantidad_es_monto = 2 THEN 'BS'
+                        ELSE NULL
+                    END AS tipo_can_valor
+                "),
+                DB::raw("
+                    CASE
+                        WHEN pcp.regla = 1 THEN '<'
+                        WHEN pcp.regla = 2 THEN '>'
+                        WHEN pcp.regla = 3 THEN '='
+                        ELSE NULL
+                    END AS regla
+                "),
+                'pcp.cantidad_valor',
+                'pcli.id_cliente_p',
+                'ppd.id_prod',
+                'pcp.id as id_tabla_cant_valor',
+                'pcli.id as id_tabla_cliente',
+                'ppd.id as id_tabla_prod',
+                'pp2.id as id_perso',
+                DB::raw("
+                CASE
+                WHEN ptt.id=1 THEN '0'
+                WHEN ptt.id=2 THEN 	pcp.id
+                WHEN ptt.id=3 THEN 	pcli.id
+                WHEN ptt.id=4 THEN ppd.id
+                WHEN ptt.id=5 THEN pp2.id
+                WHEN ptt.id=6 THEN 'f' 
+            ELSE NULL
+              END as id_tablas_x
+                "),
+                'pad1.personalizado as per'
+            )
+            ->where('pd.activo', 1)
+            ->where(DB::raw('LEFT(pad1.cod, 3)'), 'TDA')
+            ->where('pad1.id_sucursal', $idsuc)
+            ->where('pad1.personalizado','=',1)
+            ->get();
+        
+           
+            return response()->json(['descuento' => $descuento, 'validador' => $validador]);
+        }else{
+            $descuento = DB::table('par__asignacion_descuento as pad1')
+            ->join('par__descuentos as pd', 'pd.id', '=', 'pad1.id_descuento')
+            ->join('par_tipo_tabla as ptt', 'ptt.id', '=', 'pd.id_tipo_tabla')
+            ->leftJoin('par__cantidad_precio as pcp', 'pcp.id_descuento', '=', 'pd.id')
+            ->leftJoin('par__cliente_producto as pcli', 'pcli.id_descuento', '=', 'pd.id')
+            ->leftJoin('par__producto_desc as ppd', 'ppd.id_descuento', '=', 'pd.id')
+            ->leftJoin('par__personalizado as pp2','pp2.id_descuento','=','pd.id') 
+            ->select(
+                'pad1.id_descuento as id',
+                'pad1.cod',
+                'pd.nombre_descuento',
+                DB::raw("
+                    CASE
+                        WHEN pd.desc_num = 1 THEN '#'
+                        WHEN pd.desc_num = 2 THEN '%'
+                        ELSE NULL
+                    END AS tipo_num_des
+                "),
+                'pd.monto_descuento',
+                'ptt.id as id_nom_tabla',
+                'ptt.nombre as nombre_tabla',
+                DB::raw("
+                    CASE
+                        WHEN pcp.es_cantidad_es_monto = 1 THEN '#'
+                        WHEN pcp.es_cantidad_es_monto = 2 THEN 'BS'
+                        ELSE NULL
+                    END AS tipo_can_valor
+                "),
+                DB::raw("
+                    CASE
+                        WHEN pcp.regla = 1 THEN '<'
+                        WHEN pcp.regla = 2 THEN '>'
+                        WHEN pcp.regla = 3 THEN '='
+                        ELSE NULL
+                    END AS regla
+                "),
+                'pcp.cantidad_valor',
+                'pcli.id_cliente_p',
+                'ppd.id_prod',
+                'pcp.id as id_tabla_cant_valor',
+                'pcli.id as id_tabla_cliente',
+                'ppd.id as id_tabla_prod',
+                'pp2.id as id_perso',
+                DB::raw("
+                CASE
+                WHEN ptt.id=1 THEN '0'
+                WHEN ptt.id=2 THEN 	pcp.id
+                WHEN ptt.id=3 THEN 	pcli.id
+                WHEN ptt.id=4 THEN ppd.id
+                WHEN ptt.id=5 THEN pp2.id
+                WHEN ptt.id=6 THEN 'f' 
+            ELSE NULL
+              END as id_tablas_x
+                "),
+                'pad1.personalizado as per'
+            )
+            ->where('pd.activo', 1)
+            ->where(DB::raw('LEFT(pad1.cod, 3)'), 'TDA')
+            ->where('pad1.id_sucursal', $idsuc)
+            ->get();
+        
+            return response()->json(['descuento' => $descuento, 'validador' => $validador]);
+        }
+       
+
+    }
+    public function verificador_dosificacion_o_facturacion(Request $request){
+        $credencialesCorreos = DB::table('adm__credecial_correos as acc')
+    ->select('acc.id', 'acc.factura_dosificacion')    
     ->get();
+    $data_return_estado="";
+    $fechaHoy = Carbon::now()->format('Y-m-d');  
+    if ($credencialesCorreos[0]->factura_dosificacion==null || $credencialesCorreos[0]->factura_dosificacion=="" || $credencialesCorreos[0]->factura_dosificacion==0) {
+        return response()->json(['estado' => 0, 'consulta' => null]);
+    } else{
+        if ($credencialesCorreos[0]->factura_dosificacion==1) {
+            $data_return_estado=1;     
+            ///---- falta datos de factura en linea siat
+            return response()->json(['estado' => $data_return_estado, 'consulta' => null]); 
+        }else{
+            if ($credencialesCorreos[0]->factura_dosificacion==2) {
+                $idsuc = session('idsuc');
+            $data_return_estado=2; 
+            $dosificaciones = DB::table('dos__dosificacion as dd')
+            ->select(
+                'dd.id',
+                'dd.nro_autorizacion',
+                'dd.dosificacion',
+                'dd.fecha_e',
+                'dd.n_ini_facturacion',
+                'dd.n_fin_facturacion',
+                'dd.n_act_facturacion',
+                'dd.nit',
+                DB::raw("DATEDIFF(dd.fecha_e, '$fechaHoy') as diferencia_dias")
+            )
+            ->where('dd.id_sucursal', $idsuc)
+            ->where('dd.estado', 1)
+            ->first();
+                if ( $dosificaciones) {
+                    return response()->json(['estado' => $data_return_estado, 'consulta' => $dosificaciones]);
+           
+                }
+                else {
+                    return response()->json(['estado' => "error", 'consulta' => null]);
+                }
+            }else{
+                dd("error de entrada");
+            }
+        }
+    }
+    
+   
 
-return $resultado;
-        }   
-    }    
+    
+
+    }
+    
 }

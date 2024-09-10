@@ -21,7 +21,7 @@
                         <div class="col-md-2" style="text-align: center">
                             <label for="">Persona o Empresa:</label>
                          </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <div class="input-group">
                                 <select class="form-control" @change="listarCliente(1)" v-model="selectTipo">
                                     <option value="0" disabled selected>Seleccionar...</option>
@@ -33,7 +33,10 @@
                                     </option>
                                 </select>
                           </div>
+                         
+                        
                         </div>
+                       
                         <div class="col-md-4">
                             <div class="input-group">
                                 <input
@@ -59,7 +62,32 @@
                             </div>
                         </div>
                     </div>
-              <table class="table table-bordered table-striped table-sm table-responsive">
+                    <div class="form-group row">
+                        <div class="col-md-2" style="text-align: center">
+                            <label for="" :hidden="selectTipo == 0">Rango de clientes:</label>
+                         </div>
+                         <div class="col-md-4">
+                            <div class="input-group">
+                          
+                    
+                    <select class="form-control"  @change="listarCliente(1)" v-model="limite_X" :hidden="selectTipo == 0"
+                    :disabled="selectTipo == 0">
+                        <option value="0" disabled selected>Seleccionar...</option>
+                        <option v-for="l in arrayLimite" :key="l.id" :value="l.limite">
+                            <span v-if="l.limite === 10">Todos</span>
+                            <span v-else>{{ l.limite }}</span>
+                        </option>
+                    </select>
+              
+         
+                             </div>
+                        </div>        
+                    </div>   
+                    <div v-if="selectTipo===0" class="alert alert-secondary" role="alert">
+  Debe seleccionar una opcion.
+</div>
+                   <div v-else>
+                    <table class="table table-bordered table-striped table-sm table-responsive">
                         <thead>
                             <tr>
                                 <th>Opciones</th>                             
@@ -68,7 +96,14 @@
                                 <th class="col-md-1">Tipo de documentos</th>
                                 <th class="col-md-2">Correo</th>
                                 <th class="col-md-2">Nombre cliente</th>
-                                <th class="col-md-2">Numero de identidad</th>                              
+                                <th class="col-md-2">
+                                    <span v-if="selectTipo===1">
+                                        Numero de identidad
+                                    </span>
+                                    <span v-if="selectTipo===2">
+                                       Nit
+                                    </span>
+                                    </th>                              
                                 <th class="col-md-1">Fecha/Hora</th>
                                 <th class="col-md-1">Usuario</th>
                                 <th>Estado</th>
@@ -147,8 +182,7 @@
                                     v-text="page"
                                 ></a>
                             </li>
-                            <li
-                                class="page-item"
+                            <li class="page-item"
                                 v-if="
                                     pagination.current_page <
                                     pagination.last_page
@@ -167,6 +201,8 @@
                             </li>
                         </ul>
                     </nav>
+                   </div>
+              
                 </div>
             </div>
             <!-- Fin ejemplo de tabla Listado -->
@@ -186,6 +222,12 @@
                     <div class="alert alert-warning" role="alert">
                         Todos los campos con (*) son requeridos
                     </div>
+                    <div v-if="id_max_2===0 && tipoAccion===2" class="alert alert-primary" role="alert">
+                        <i class="fa fa-universal-access" aria-hidden="true"></i> Cliente sin movimiento  
+                    </div>
+                    <div v-if="id_max_2===1 && tipoAccion===2" class="alert alert-danger" role="alert">
+                        <i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Este cliente ya tiene movimiento  
+                    </div>
                     <form action="" class="form-horizontal">
                         <!-- insertar datos -->
                         <div class="container">
@@ -196,7 +238,7 @@
                                 </label>
                                 <div class="col-md-9">   
             
-                                    <select name="" id=""  class="form-control" v-model="selectTipoDoc" @change="estadoEX();" >
+                                    <select name="" id=""  class="form-control" v-model="selectTipoDoc" @change="estadoEX();">
                                         <option value="0" selected disabled>-Seleccione un dato </option>
                                         <option v-for="t in arrayTipoDocumento" :key="t.id"
                                             :value="t.id"
@@ -237,19 +279,19 @@
                                             </div>
                                             <div class="form-group col-sm-4">
                                                 <strong>Número Documento: <span  v-if="num_documento==''" class="error">(*)</span></strong>
-                                                <input type="text" @input="validateInput()" class="form-control" :placeholder="selectTipoDoc == 1 ? 'C.I.' : (selectTipoDoc == 2 ? 'C.I. Extranjero' : (selectTipoDoc == 3 ? 'Número pasaporte' : (selectTipoDoc == 4 ? 'Otro documento' : 'Nit')))" v-model="num_documento" v-on:focus="selectAll" >
+                                                <input type="text"  class="form-control" :placeholder="selectTipoDoc == 1 ? 'C.I.' : (selectTipoDoc == 2 ? 'C.I. Extranjero' : (selectTipoDoc == 3 ? 'Número pasaporte' : (selectTipoDoc == 4 ? 'Otro documento' : 'Nit')))" v-model="num_documento" maxlength="12" @input="validateNumber" pattern="[0-9]*" title="Solo se permiten números" v-on:focus="selectAll" >
                                                 <span  v-if="num_documento==''" class="error">Debe ingresar el documento de identidad</span>
                                             </div>
                                         </div> 
                                             <div class="row">
                                                 <div class="form-group col-sm-4" >
                                                     <strong>complemento de C.I.: </strong>
-                                                    <input type="text" class="form-control" placeholder="Solo si tiene C.I." :maxlength="4"  v-model="complemento_"  :disabled="selectTipoDoc != 1">
+                                                    <input :disabled="selectTipoDoc != 1" type="text" class="form-control" placeholder="Solo si tiene C.I." :maxlength="4"  v-model="complemento_">
                                   
                                                 </div>
                                                 <div class="form-group col-sm-4">
                                                     <strong>Correo: </strong>
-                                                    <input type="email" class="form-control" placeholder="Correo@correo.es"  v-model="correo" v-on:focus="selectAll" required>
+                                                    <input  type="email" class="form-control" placeholder="Correo@correo.es"  v-model="correo" v-on:focus="selectAll" required>
                                          
                                                 </div>
                                                 <div class="form-group col-sm-4">
@@ -265,6 +307,13 @@
                                     <div class="card-body">
                                         <div class="row">
                                             <div class="form-group col-sm-4">
+                                                <strong>Nombre de empresa: </strong>
+                                                <input type="text" class="form-control" v-model="nombres"  placeholder="Nombres.">                                              
+                                            </div>
+                                            
+                                        </div> 
+                                        <div class="row">
+                                            <div class="form-group col-sm-4">
                                                 <strong>Razon_social: <span  v-if="nombre_a_facturar==''" class="error">(*)</span></strong>
                                                 <input type="text" class="form-control" placeholder="Nombre a Facturar"  v-model="nombre_a_facturar" v-on:focus="selectAll">
                                                 <span  v-if="nombre_a_facturar==''" class="error">Debe ingresar un nombre del establecimiento</span>
@@ -276,7 +325,7 @@
                                             </div>
                                             <div class="form-group col-sm-4">
                                                 <strong>Número Documento: <span  v-if="num_documento==''" class="error">(*)</span></strong>
-                                                <input type="text" @input="validateInput()" class="form-control" :placeholder="selectTipoDoc == 1 ? 'C.I.' : (selectTipoDoc == 2 ? 'C.I. Extranjero' : (selectTipoDoc == 3 ? 'Número pasaporte' : (selectTipoDoc == 4 ? 'Otro documento' : 'Nit')))" v-model="num_documento" v-on:focus="selectAll">
+                                                <input type="text"  class="form-control" :placeholder="selectTipoDoc == 1 ? 'C.I.' : (selectTipoDoc == 2 ? 'C.I. Extranjero' : (selectTipoDoc == 3 ? 'Número pasaporte' : (selectTipoDoc == 4 ? 'Otro documento' : 'Nit')))" v-model="num_documento" maxlength="12" @input="validateNumber" pattern="[0-9]*" title="Solo se permiten números" v-on:focus="selectAll">
                                                 <span  v-if="num_documento==''" class="error">Debe ingresar el documento de identidad</span>
                                             </div>
                                         </div> 
@@ -370,6 +419,14 @@
                 buscar:'',
                 tituloModal:'',    
                 tipoAccion:1, 
+                arrayLimite:[{id:1,limite:50},
+                {id:2,limite:100},
+                {id:3,limite:200},
+                {id:4,limite:400},
+                {id:5,limite:800},
+                {id:6,limite:10},
+                ],
+                limite_X:50,
                 arrayTipo:[{id:1,tipo:'Persona'},
                             {id:2,tipo:'Empresa'}],
                 selectTipo:0,  
@@ -405,6 +462,7 @@
                 puedeHacerOpciones_especiales:2,
                 puedeCrear:2,
                 //-----------
+                id_max_2:0,
                 
             }
         },
@@ -477,8 +535,9 @@
 
         listarCliente(page){
                 let me=this;
+                
                 if (me.selectTipo!=0) {
-                    var url='/directorio?page='+page+'&buscar='+me.buscar+'&buscarP_E='+me.selectTipo;
+                    var url='/directorio?page='+page+'&buscar='+me.buscar+'&buscarP_E='+me.selectTipo+'&limite='+me.limite_X;
                 axios.get(url)
                 .then(function(response){
                     var respuesta = response.data;
@@ -535,7 +594,7 @@
               switch(accion){
                     case 'registrar':
                     {
-                        me.tituloModal='Registro de cliente'
+                        me.tituloModal='Registro de cliente';
                         me.tipoAccion=1;
                         me.selectTipoDoc=0;              
                         me.complemento_='';
@@ -544,7 +603,7 @@
                         me.num_documento="";
                         me.razon_social="";
                         me.nom_local="",  
-                //datos de cliente
+                        //datos de cliente
                         me.cod_cliente="";                
                         me.correo="";
                         me.telefono="";
@@ -559,12 +618,23 @@
                     }
                     case 'actualizar':
                         {
-                    me.tituloModal='Registro de cliente'
+                    console.log(data);          
+                    me.tituloModal='Registro de cliente';
                         me.tipoAccion=2;
+                        if (data.id_max===null) {
+                            me.id_max_2=0;
+                        } else {
+                            me.id_max_2=1;
+                        }
+                        if (data.selectTipo===1) {
+                            me.nombres=data.nombre;
+                            me.apellidos=data.apellido;
+                        } else {
+                            me.nombres=data.nombre_completo; 
+                            me.apellidos=data.apellido;                           
+                        }
                         me.selectTipoDoc=data.id_tipo_doc === null ? 0:data.id_tipo_doc;              
-            
-                        me.nombres=data.nombre;
-                        me.apellidos=data.apellido;
+                   
                         me.num_documento=data.num_documento;
                         me.complemento_=data.complemento;
                         me.razon_social="";
@@ -584,7 +654,11 @@
                 }
                 
             },
-
+     
+    validateNumber() {
+      // Permite solo números y corta a 15 caracteres si es necesario
+      this.num_documento = this.num_documento.replace(/[^0-9]/g, '').slice(0, 12);
+    },
             cerrarModal(accion){
                 let me = this;
                 me.tipoAccion=1;
@@ -603,6 +677,7 @@
                         me.direccion="";
                         me.nombre_a_facturar="";
                         me.pais="";
+                        me.id_max_2=0;
                         me.ciudad="";
                 me.classModal.closeModal(accion);
                            
@@ -639,7 +714,7 @@
                 );
             } else {
                 
-                if (me.num_documento!=99001&&me.num_documento!=99002&&me.num_documento!=99003) {
+                if (me.num_documento!=99001&&me.num_documento!=99002&&me.num_documento!=99003&&me.num_documento!=0&&me.num_documento!="000") {
                     axios
                     .post("/directorio/registrar", {
                         tipo_per_emp: me.selectTipo,
@@ -685,7 +760,7 @@
             });
                 }   else {
                     Swal.fire(
-                    "Los numeros 99001, 99002, 99003. Esta ocupado para actividades especiales",
+                    "Los numeros 99001, 99002, 99003, 0, 000. Esta ocupado para actividades especiales",
                     "Haga click en Ok",
                     "warning",
                 ); 
@@ -723,7 +798,7 @@
                 );
             }
             else{
-                if (me.num_documento!=99001&&me.num_documento!=99002&&me.num_documento!=99003) {
+                if (me.num_documento!=99001&&me.num_documento!=99002&&me.num_documento!=99003&&me.num_documento!=0&&me.num_documento!="000") {
                     axios 
             .put("/directorio/actualizar", {
                         id:me.id,
@@ -775,7 +850,7 @@
             me.cerrarModal("registrar"); 
                 }else{
                     Swal.fire(
-                    "Los numeros 99001, 99002, 99003. Esta ocupado para actividades especiales",
+                    "Los numeros 99001, 99002, 99003, 0, 000. Esta ocupado para actividades especiales",
                     "Haga click en Ok",
                     "warning",
                 ); 

@@ -22,7 +22,7 @@ createApp ({
     .component('rolpermiso-component',require('./components/administracion/RolPermisoComponent.vue').default)
     .component('usuario-component',require('./components/administracion/UsuariosComponent.vue').default)
     .component('configuracion-component',require('./components/administracion/ConfiguracionComponent.vue').default)
-
+    .component('dofisicacion-component',require('./components/administracion/DosificacionComponent.vue').default)
     //rrhh
     .component('rrhempleados-component',require('./components/recursos_humanos/EmpleadosComponent.vue').default)
     .component('rrhnivel-component',require('./components/recursos_humanos/NivelComponent.vue').default)
@@ -40,7 +40,8 @@ createApp ({
     //Parametros
     .component('descuentos-component',require('./components/parametros/ServiciosDescuentoscomponent.vue').default)
     .component('descproductos-component', require('./components/parametros/DescProductosComponent.vue').default)
-
+    .component('descuentosx-component', require('./components/parametros/DescuentosxComponent.vue').default)
+    
     //Productos
     .component('linea-component', require('./components/productos/LineaComponent.vue').default)
     .component('producto-component', require('./components/productos/ProductoComponent.vue').default)
@@ -83,8 +84,13 @@ createApp ({
     //Ventas
     .component('gestor-venta-component', require('./components/venta/GestorVentaComponent.vue').default)
     .component('venta-rapida-component', require('./components/venta/VentaRapidaComponent.vue').default)
+    .component('venta-detalle-component', require('./components/venta/VentaDetalleComponent.vue').default)
+    .component('caducidad-component', require('./components/venta/CaducidadComponent.vue').default)
 
-    
+    //Cajas
+    .component('apertura_cierre-component', require('./components/caja/Apertura_cierreComponent.vue').default)
+    .component('moneda-component', require('./components/caja/MonedaComponent.vue').default)
+    .component('entrada_salida-component', require('./components/caja/Entrada_SalidaComponent.vue').default)
   
     .mount('#app');
  

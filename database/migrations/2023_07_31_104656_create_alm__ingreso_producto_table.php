@@ -26,7 +26,7 @@ return new class extends Migration
             $table->smallInteger('id_usuario_modifica')->unsigned()->nullable()->comment('identificador del usuario que esta modificando el producto');
             $table->smallInteger('id_usuario_registra')->unsigned()->nullable()->comment('identificador del usuario que esta registrando el producto');
             $table->string('num_traspaso')->nullable()->comment('identifica el numero de traspaso');
-            
+            $table->tinyInteger('prioridad_caducidad')->nullable()->default(0)->comment('0=sin prioridad, 1=baja,2=media,3=alta');
             $table->foreign('idalmacen')->references('id')->on('alm__almacens');
         });
     }

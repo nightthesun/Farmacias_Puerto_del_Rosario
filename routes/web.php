@@ -20,6 +20,9 @@ use App\Http\Controllers\AlmAlmacenController;
 use App\Http\Controllers\AlmCodificacionController;
 use App\Http\Controllers\AlmIngresoProducto2Controller;
 use App\Http\Controllers\AlmIngresoProductoController;
+use App\Http\Controllers\CajaAperturaCierreController;
+use App\Http\Controllers\CajaEntradaSalidaController;
+use App\Http\Controllers\CajaMonedaController;
 use App\Http\Controllers\DirClienteController;
 use App\Http\Controllers\TdaTiendaController;
 use App\Http\Controllers\GesPreVentaController;
@@ -54,10 +57,13 @@ use App\Http\Controllers\LogVehiculoController;
 use App\Http\Controllers\GesPreVenta2Controller;
 use App\Http\Controllers\GestionPerimsoController;
 use App\Http\Controllers\GetController;
+use App\Http\Controllers\ParDescuentoController;
 use App\Http\Controllers\ProdListaController;
 use App\Http\Controllers\ProdRegistroPreXListController;
 use App\Http\Controllers\TdaIngresoProducto2Controller;
+use App\Http\Controllers\VenCaducidadController;
 use App\Http\Controllers\VenGestorVentaController;
+use App\Http\Controllers\VenGestorVentaVistaController;
 use App\Models\Alm_IngresoProducto;
 use App\Models\Tda_Tienda;
 
@@ -145,17 +151,20 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/bloqueado', [GestionPerimsoController::class, 'bloqueado']);
     Route::get('/listar_alamcen_tienda_permisos', [GestionPerimsoController::class, 'listar_alamcen_tienda_permisos']);
     Route::get('/listar_tienda_alamce_generico_lista_x_rol_usuario', [GestionPerimsoController::class, 'listar_tienda_alamce_generico_lista_x_rol_usuario']);
-    
-    
+        
     /*****************tipo vista**************** */
     Route::get('/listarSucursal', [GetController::class, 'listarSucursal']);
     Route::get('/listarSucursalGet', [GetController::class, 'listarSucursalGet']);
     Route::get('/listarTipoDoc', [GetController::class, 'listarTipoDoc']);  
     Route::get('/listarEx', [GetController::class, 'listarEx']);   
     Route::get('/listar_entradasXe', [GetController::class, 'listar_entradasXe']);   
-    Route::get('/tiene_movimiento', [GetController::class, 'tiene_movimiento']);   
+    Route::get('/tiene_movimiento', [GetController::class, 'tiene_movimiento']);
+    Route::get('/listarSucusal_TDA_ALM_sin_permiso', [GetController::class, 'listarSucusal_TDA_ALM_sin_permiso']);      
     
-   
+    /**********************verificador de apertura cierre retornod e datos****************************** */
+    Route::get('/verificacionAperturaCierre', [GetController::class, 'listarAperturaCierre']);
+    Route::get('/verificador_moneda_sistemas', [GetController::class, 'listarMoneda_2']);
+    
     //adm///////////////////////////////////////////////////////////////////////////////////
 
     Route::get('/rubro', [AdmRubroController::class, 'index']);
@@ -223,9 +232,24 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/userrolesuc/getUsersWithRolesAndSucursals', [AdmUserRoleSucursalController::class, 'getUsersWithRolesAndSucursals']);
 
     Route::get('/credenciales_correo', [AdmCredecialCorreoController::class, 'credencia_correo']);
-    Route::put('/credenciales_correo/update', [AdmCredecialCorreoController::class, 'update']);   
-    
-    //*******para listar si tiene permisos de edicion y activacion usar en todos los reporte o modulos*/
+    Route::post('/credenciales_correo/update', [AdmCredecialCorreoController::class, 'update']);   
+    Route::put('/credenciales_correo/tipo_venta_update', [AdmCredecialCorreoController::class, 'tipo_venta_update']); 
+    Route::post('/credenciales_correo/update_datos_empresa', [AdmCredecialCorreoController::class, 'update_datos_empresa']);   
+    Route::get('/credenciales_correo/tipo_moneda', [AdmCredecialCorreoController::class, 'tipo_moneda']); 
+    Route::post('/credenciales_correo/tipomonedaUpdate', [AdmCredecialCorreoController::class, 'tipomonedaUpdate']);    
+
+
+    Route::get('/dosificacion/getDataSucursal', [AdmCredecialCorreoController::class, 'getDataSucursal']);
+    Route::post('/dosificacion/store_dosificacion', [AdmCredecialCorreoController::class, 'store_dosificacion']);
+    Route::get('/dosificacion/index_dosificacion', [AdmCredecialCorreoController::class, 'index_dosificacion']);    
+    Route::post('/dosificacion/update_dosificacion', [AdmCredecialCorreoController::class, 'update_dosificacion']);
+    Route::get('/dosificacion/activar_verificar_dosificacion', [AdmCredecialCorreoController::class, 'activar_verificar_dosificacion']);  
+    Route::get('/dosificacion/verifica_esta_activo_dosificacacion_x_sucursal', [AdmCredecialCorreoController::class, 'verifica_esta_activo_dosificacacion_x_sucursal']);  
+    Route::put('/dosificacion/desactivar_dosificacion', [AdmCredecialCorreoController::class, 'desactivar_dosificacion']);  
+    Route::put('/dosificacion/activar_dosificacion', [AdmCredecialCorreoController::class, 'activar_dosificacion']);  
+
+
+       //*******para listar si tiene permisos de edicion y activacion usar en todos los reporte o modulos*/
     Route::get('/userrolesuc/listarPermiso_Activacion', [AdmUserRoleSucursalController::class, 'listarPermiso_Activacion']);
     //*******para listar si tiene permisos de ver esa sucursal, tienda , almacen....*/
     Route::get('/userrolesuc/listarMas_sucursales', [AdmUserRoleSucursalController::class, 'listarMas_sucursales']);
@@ -321,11 +345,28 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/descuento/selectdescuento', [ParDescServicioController::class, 'selectDescuento']);
     Route::get('/obtenerfecha', [ParDescServicioController::class, 'obtenerFecha']);
 
+
     Route::get('/clientes', [ParClienteController::class, 'index']);
     Route::get('/clientes/selectclientes', [ParClienteController::class, 'selectClientes']);
     Route::get('/clientes/selectcli', [ParClienteController::class, 'selectCli']);
     Route::post('/clientes/registrar', [ParClienteController::class, 'store']);
-
+    
+    //////---descuentos
+    Route::get('/descuento2/listarTipoDescuentos', [ParDescuentoController::class, 'listarTipoDescuentos']);
+    Route::get('/descuento2/listarTipoTabla', [ParDescuentoController::class, 'listarTipoTabla']);
+    Route::get('/descuento2/listarClienteX', [ParDescuentoController::class, 'listarClienteX']);
+    Route::get('/descuento2/listarProductoX', [ParDescuentoController::class, 'listarProductoX']);
+    Route::post('/descuento2/registrarDescuento', [ParDescuentoController::class, 'store']);
+    Route::get('/descuento2/index', [ParDescuentoController::class, 'index']);
+    Route::put('/descuento2/desactivar', [ParDescuentoController::class, 'desactivar']);
+    Route::put('/descuento2/activar', [ParDescuentoController::class, 'activar']);
+    Route::put('/descuento2/actualizar', [ParDescuentoController::class, 'update']);
+    Route::post('/descuento2/asignar', [ParDescuentoController::class, 'asignar']);
+    Route::get('/descuento2/listarAsignar', [ParDescuentoController::class, 'listarAsignar']);
+    Route::get('/descuento2/listarSucursalesX_descuentos', [ParDescuentoController::class, 'listarSucursalesX_descuentos']);
+    Route::post('/descuento2/quitarSucursal_z', [ParDescuentoController::class, 'quitarSucursal_z']);
+    Route::post('/descuento2/eliminacion_descuento', [ParDescuentoController::class, 'eliminacion_descuento']);    
+       
 
     ////////////////////////productos//////////////////////////////
     Route::get('/linea', [ProdLineaController::class, 'index']);
@@ -553,7 +594,7 @@ Route::group(['middleware' => 'auth'], function () {
     //////////////////////////////////////////////DIRECTORIO///////////////////////////////////////////////////   
    
     Route::post('/directorio/registrar', [DirClienteController::class, 'store']);
-    Route::get('/directorio', [DirClienteController::class, 'index']);  
+    Route::get('/directorio', [DirClienteController::class, 'index']); 
     Route::put('/directorio/desactivar', [DirClienteController::class, 'desactivar']);
     Route::put('/directorio/activar', [DirClienteController::class, 'activar']);
     Route::put('/directorio/actualizar', [DirClienteController::class, 'update']);
@@ -562,6 +603,44 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/gestor_ventas/listarUsuario', [VenGestorVentaController::class, 'listarUsuario']);
     Route::get('/gestor_ventas/listarUsuarioRetorno', [VenGestorVentaController::class, 'listarUsuarioRetorno']);
     Route::get('/gestor_ventas/get_sucusal', [VenGestorVentaController::class, 'get_sucusal']);
+    Route::get('/gestor_ventas/listarDescuentos_listas', [VenGestorVentaController::class, 'listarDescuentos_listas']);
+    Route::get('/gestor_ventas/listarDescuento_Tipo_tabla', [VenGestorVentaController::class, 'listarDescuento_Tipo_tabla']); 
+    Route::post('/gestor_ventas/venta', [VenGestorVentaController::class, 'venta']);
+    Route::get('/gestor_ventas/venta/pdf', [VenGestorVentaController::class, 'venta']);
+    Route::get('/gestor_ventas/venta/pdf2', [VenGestorVentaController::class, 'mostrarPDF']);
+    Route::get('/gestor_ventas/verificador_dosificacion_o_facturacion', [VenGestorVentaController::class, 'verificador_dosificacion_o_facturacion']);    
+
+    //mostrar venta,re-imprimir,anular
+    Route::get('/detalle_venta_2/index', [VenGestorVentaVistaController::class, 'index']);
+    Route::get('/detalle_venta_2/re_imprecion',[VenGestorVentaVistaController::class, 're_imprecion']);
+    Route::get('/detalle_venta_2/verCliente_x_venta', [VenGestorVentaVistaController::class, 'verCliente_x_venta']);
+    Route::post('/detalle_venta_2/desactivar', [VenGestorVentaVistaController::class, 'desactivar']);
+    Route::get('/detalle_venta_2/factura_dosificacion', [VenGestorVentaVistaController::class, 'factura_dosificacion']);
+
+    //caducidad---
+    Route::get('/caducida/index', [VenCaducidadController::class, 'index']);
+    Route::put('/caducida/prioridad', [VenCaducidadController::class, 'prioridad']); 
+    Route::post('/caducida/darDeBaja', [VenCaducidadController::class, 'darDeBaja']);
+
+    //////////////////////////////////////////////////CAJA/////////////////////////////////////////////////////////////////////
     
+    //moneda--
+    Route::get('/moneda/listarNacionalidad', [CajaMonedaController::class, 'listarNacionalidad']);
+    Route::get('/moneda/index', [CajaMonedaController::class, 'index']);
+    Route::post('/moneda/store', [CajaMonedaController::class, 'store']);
+    Route::post('/moneda/actualizar', [CajaMonedaController::class, 'actualizar']); 
+    Route::post('/moneda/activar', [CajaMonedaController::class, 'activar']); 
+    Route::post('/moneda/desactivar', [CajaMonedaController::class, 'desactivar']);    
+
+    //Apertura_cierre
+    Route::get('/apertura_cierre/verificador_moneda_sistemas', [CajaAperturaCierreController::class, 'verificador_moneda_sistemas']);  
+    Route::get('/apertura_cierre/cajaAnteriror', [CajaAperturaCierreController::class, 'cajaAnteriror']); 
+    Route::post('/apertura_cierre/store', [CajaAperturaCierreController::class, 'store']);  
+    Route::get('/apertura_cierre/index', [CajaAperturaCierreController::class, 'index']);  
+    Route::get('/apertura_cierre/monedaModal', [CajaAperturaCierreController::class, 'monedaModal']);  
     
+    //entrada_salida
+    Route::post('/entrada_salida/store', [CajaEntradaSalidaController::class, 'store']);  
+    
+  
 });

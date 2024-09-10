@@ -14,10 +14,13 @@ class AdmNacionalidadSeeder extends Seeder
      */
     public function run()
     {
-        DB::table('adm__nacionalidads')->insert(['nombre'=>'boliviano']);
-        DB::table('adm__nacionalidads')->insert(['nombre'=>'peruano']);
-        DB::table('adm__nacionalidads')->insert(['nombre'=>'argentino']);
-        DB::table('adm__nacionalidads')->insert(['nombre'=>'chileno']);
-        DB::table('adm__nacionalidads')->insert(['nombre'=>'brasileño']);
+        DB::table('adm__nacionalidads')->insert(['nombre'=>'boliviano','pais'=>'Bolivia','simbolo'=>'Bs']);
+        DB::table('adm__nacionalidads')->insert(['nombre'=>'peruano','pais'=>'Peru','simbolo'=>'S/']);
+        DB::table('adm__nacionalidads')->insert(['nombre'=>'argentino','pais'=>'Argentina','simbolo'=>'$']);
+        DB::table('adm__nacionalidads')->insert(['nombre'=>'chileno','pais'=>'Chile','simbolo'=>'$']);
+        DB::table('adm__nacionalidads')->insert(['nombre'=>'brasileño','pais'=>'Brasil','simbolo'=>'R$']);
+        DB::table('adm__nacionalidads')->insert(['nombre'=>'estadounidense','pais'=>'Estados unidos','simbolo'=>'$']);
+        DB::table('adm__nacionalidads')->insert(['nombre'=>'brasileño','pais'=>'Europa','simbolo'=>'€']);
+        DB::table('adm__nacionalidads')->insert(['nombre'=>'brasileño','pais'=>'China','simbolo'=>'¥']);
     }
 }

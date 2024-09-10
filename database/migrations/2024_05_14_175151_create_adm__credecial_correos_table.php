@@ -20,7 +20,13 @@ return new class extends Migration
     $table->string('contraseña'); // Cambiado de password_hash a string
     $table->tinyInteger('ssl');
     $table->timestamps();
-
+    $table->string('nit')->nullable();
+    $table->string('nro_celular',35)->nullable();
+    $table->string('nom_empresa',150)->nullable();
+    $table->tinyInteger('factura_dosificacion')->nullable()->comment("1=factura 2=dosificacion");    
+    $table->smallInteger('id_dosificacion_siat')->nullable()->comment("lleva la ide de modulo de dosificacio o siat");
+    $table->string('actividad_economica',200)->nullable();
+    $table->integer('moneda')->nullable();
         });
     }
 
