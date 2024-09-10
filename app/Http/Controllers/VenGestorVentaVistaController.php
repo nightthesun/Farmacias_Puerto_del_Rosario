@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use NumberToWords\NumberToWords;
+use App\Helpers\converso_numero_a_texto;
 
 class VenGestorVentaVistaController extends Controller
 {
@@ -50,6 +51,7 @@ $endDate = $request->endDate;
                 ->leftJoin('dir__clientes as dc', 'vr.id_cliente', '=', 'dc.id')
     ->join('users as u', 'u.id', '=', 'vr.id_usuario')
     ->join('adm__sucursals as ass','ass.id','=','vr.id_sucursal') 
+    ->join('adm__departamentos as ad', 'ass.departamento', '=', 'ad.id')
     ->join('rrh__empleados as re','re.id','=','u.idempleado')            
     ->leftJoin('dir__personas as dp', function ($join) {
         $join->on('dp.id', '=', 'dc.id_per_emp')
@@ -84,6 +86,9 @@ $endDate = $request->endDate;
         'nro_ref as numero_referencia',
         DB::raw('UPPER(ass.razon_social) as razon_social'),
         DB::raw('UPPER(ass.direccion) as direccion'),
+        DB::raw('UPPER(ass.ciudad) as ciudad'),
+        DB::raw('UPPER(ad.nombre) as departamento'),
+       
  
         DB::raw("DATE_FORMAT(vr.created_at, '%d/%m/%Y') as fecha_formateada"),
         DB::raw("DATE_FORMAT(vr.created_at, '%h:%i:%s %p') as hora_formateada"),
@@ -100,8 +105,7 @@ $endDate = $request->endDate;
         WHEN de.id IS NOT NULL THEN UPPER(de.razon_social)
         ELSE NULL
     END AS nombre_completo_cliente"),
-    'dc.correo'    
-
+    'dc.correo','vr.dosificacion_o_electronica' 
     )
     ->where('vr.id_sucursal', $sucursalId)
     ->where('vr.cod', $codigo)
@@ -128,7 +132,8 @@ $endDate = $request->endDate;
             $ventas_show = DB::table('ven__recibos as vr')
     ->leftJoin('dir__clientes as dc', 'vr.id_cliente', '=', 'dc.id')
     ->join('users as u', 'u.id', '=', 'vr.id_usuario')
-    ->join('adm__sucursals as ass','ass.id','=','vr.id_sucursal') 
+    ->join('adm__sucursals as ass','ass.id','=','vr.id_sucursal')
+    ->join('adm__departamentos as ad', 'ass.departamento', '=', 'ad.id') 
     ->join('rrh__empleados as re','re.id','=','u.idempleado') 
     ->leftJoin('dir__personas as dp', function ($join) {
         $join->on('dp.id', '=', 'dc.id_per_emp')
@@ -163,6 +168,8 @@ $endDate = $request->endDate;
         'nro_ref as numero_referencia',
         DB::raw('UPPER(ass.razon_social) as razon_social'),
         DB::raw('UPPER(ass.direccion) as direccion'),
+        DB::raw('UPPER(ass.ciudad) as ciudad'),
+        DB::raw('UPPER(ad.nombre) as departamento'),
         DB::raw("DATE_FORMAT(vr.created_at, '%d/%m/%Y') as fecha_formateada"),
         DB::raw("DATE_FORMAT(vr.created_at, '%h:%i:%s %p') as hora_formateada"),      
         DB::raw("DATE_FORMAT(DATE_ADD(vr.created_at, INTERVAL 7 DAY), '%d/%m/%Y') as fecha_mas_siete"),
@@ -178,7 +185,7 @@ $endDate = $request->endDate;
         WHEN de.id IS NOT NULL THEN UPPER(de.razon_social)
         ELSE NULL
     END AS nombre_completo_cliente"),
-    'dc.correo'   
+    'dc.correo','vr.dosificacion_o_electronica'   
     )
     ->where('vr.id_sucursal', $sucursalId)
     ->where('vr.cod', $codigo)
@@ -209,16 +216,28 @@ $endDate = $request->endDate;
     public function re_imprecion(Request $request){
 
         try {
-   
-            $datoTexto = $this->convertirNumeroATexto($request->venta);
+         
+
+            $datoTexto = converso_numero_a_texto::convertirNumeroATexto($request->venta);
+          //  $datoTexto = $this->convertirNumeroATexto($request->venta);
+
             $total_sin_des=$request->total_sin_des;
-            
-            if($request->tipofactura=="RECIBO"){
+            $facturas_dosi = DB::table('ven__factura_dosi as vfd')
+    ->join('dos__dosificacion as dd', 'vfd.id_dosificacion', '=', 'dd.id')
+    ->where('vfd.id_venta', '=' ,$request->id_venta)  
+    ->select(
+        'vfd.numero_factura',
+        'vfd.codigo_control',
+        'vfd.estado_factura',
+        'dd.nro_autorizacion',
+        DB::raw("DATE_FORMAT(dd.fecha_e, '%d-%m-%Y') as fecha_e") // Formato dd-mm-yyyy
+    ) ->get();
+     
                 $idVenta = $request->id_venta;
                 $datos_empresa = DB::table('adm__credecial_correos')
-            ->select('nit', 'nom_empresa')
-            ->get();
-          
+            ->select('nit', 'nom_empresa','actividad_economica','nro_celular')
+            ->get();           
+        
             $result = DB::table('ven__detalle_ventas as vdv')
             ->select(DB::raw('SUM(vdv.descuento) as suma_descuento'))
             ->where('vdv.id_venta', $idVenta)
@@ -229,12 +248,16 @@ $endDate = $request->endDate;
     ->where('vdd.id_venta', $idVenta)
     ->where('vdd.tipo', 2)
     ->first();
-        
-             
+    
+    $descuento_final = DB::table('ven__detalle_descuentos')
+    ->where('id_venta', $idVenta)
+    ->where('id_detalle_descuento', 0)
+    ->sum('cantidad_descuento');
+
             $sumaDescuento = $result ? number_format($result->suma_descuento, 2) : '0.00';
 
             $resultado_sumatoria=($total_sin_des-$sumaDescuento);
-        
+            $total_literal = converso_numero_a_texto::convertirNumeroATexto($request->venta);
         $detalle_venta = DB::table('ven__detalle_ventas as vd')
             ->select(
                 'vd.id_venta as id',
@@ -262,6 +285,14 @@ $endDate = $request->endDate;
                         ELSE NULL 
                     END AS leyenda
                 "),
+                DB::raw("
+             CASE 
+                    WHEN tip.envase = 'primario' THEN UPPER(CONCAT(COALESCE(ff_1.nombre, '')))
+                    WHEN tip.envase = 'secundario' THEN UPPER(CONCAT(COALESCE(ff_2.nombre, '')))
+                    WHEN tip.envase = 'terciario' THEN UPPER(CONCAT(COALESCE(ff_3.nombre, '')))
+                    ELSE NULL
+                END AS unidad_medida
+             "), 
                 'vd.precio_venta as precio_unitario',
                 DB::raw('(vd.cantidad_venta * vd.precio_venta) as tot'),
                 'pp.codigo as cod_prod',
@@ -285,34 +316,54 @@ $endDate = $request->endDate;
             ->leftJoin('prod__forma_farmaceuticas as ff_3', 'ff_3.id', '=', 'pp.idformafarmaceuticaterciario')
             ->where('vd.id_venta', $idVenta)
             ->get();
-
-                
-
-
-            $respuesta_v2 = [
-                'detalle_venta' => $detalle_venta,
-                'datos_empresa' => $datos_empresa,
-                'datoTexto_v2' => $datoTexto,
-                'venta_con_descuento' => $resultado_sumatoria,
-                'resultado_descuento_2' => $resultado_descuento_2
-            ];
-        
+            
+            if ($request->tipofactura=="FACTURA"&&$request->plana_ticket==2) {
+                 // Ruta de la imagen en la carpeta public
+                $path = public_path('img/favicon.png');    
+                // Codificar la imagen en base64
+                $imageData = base64_encode(file_get_contents($path));    
+                // Obtener el tipo MIME de la imagen
+                $mimeType = mime_content_type($path);
+                // Crear la cadena base64 con el prefijo data
+                $base64Image = 'data:' . $mimeType . ';base64,' . $imageData;
+                $respuesta_v2 = [
+                    'detalle_venta' => $detalle_venta,
+                    'datos_empresa' => $datos_empresa,
+                    'datoTexto_v2' => $datoTexto,
+                    'venta_con_descuento' => $resultado_sumatoria,
+                    'resultado_descuento_2' => $resultado_descuento_2,
+                    'facturas_dosi' => $facturas_dosi,
+                    'descuento_final' => $descuento_final,
+                    'total_literal' => $total_literal,
+                    'base64' => $base64Image    
+                ];
+            }else{
+                $respuesta_v2 = [
+                    'detalle_venta' => $detalle_venta,
+                    'datos_empresa' => $datos_empresa,
+                    'datoTexto_v2' => $datoTexto,
+                    'venta_con_descuento' => $resultado_sumatoria,
+                    'resultado_descuento_2' => $resultado_descuento_2,
+                    'facturas_dosi' => $facturas_dosi,
+                    'descuento_final' => $descuento_final,
+                    'total_literal' => $total_literal,
+               
+                ];
+            }
+            
+       
+           
+            
             // Devolver la respuesta JSON
             return response()->json($respuesta_v2);
-            }else{
-                if ($request->tipofactura=="FACTURA") {
-                   dd("datos en contrucion");
-                } else {
-                    dd("error no exite datos");
-                }
-                
-            }
+            
         } catch (\Throwable $th) {
            dd($th);
         }
 
     }
 
+  /* 
    private function convertirNumeroATexto($numero) {
         $numberToWords = new NumberToWords();
     
@@ -331,6 +382,8 @@ $endDate = $request->endDate;
         // Retorna la combinación de ambas partes
         return ucfirst($textoEntero) . ' ' . $textoDecimal;
     }
+  */
+   
 
     public function verCliente_x_venta(Request $request)
     {
@@ -347,28 +400,68 @@ $endDate = $request->endDate;
         //1=add, 2=delete, 3=create, 4=edit, 5=show
     // Truncar la tabla para eliminar todo su contenido
         try {         
-           
-            $eliminar = Ven_GestorVentaVista::findOrFail($request->id);
-            $eliminar->anulado=1;
-            $eliminar->save(); 
-            $now = Carbon::now();
-        DB::table('par__asignacion_descuento')->truncate();
-        $datos = [
-            'id_modulo' => $request->id_modulo,
-            'id_sub_modulo' => $request->id_sub_modulo,
-            'accion' => 2,
-            'descripcion' => $request->des,          
-            'user_id' =>auth()->user()->id, 
-            'created_at'=>$now,
-            'id_movimiento'=>$request->id        
-        ];
+            //recibo---
+            if ($request->dosificacion_o_electronica==0&&$request->tipo_venta_reci_fac=="RECIBO") {
+                $eliminar = Ven_GestorVentaVista::findOrFail($request->id);
+                $eliminar->anulado=1;
+                $eliminar->save(); 
+                $now = Carbon::now();
+         //   DB::table('par__asignacion_descuento')->truncate();
+            $datos = [
+                'id_modulo' => $request->id_modulo,
+                'id_sub_modulo' => $request->id_sub_modulo,
+                'accion' => 2,
+                'descripcion' => $request->des,          
+                'user_id' =>auth()->user()->id, 
+                'created_at'=>$now,
+                'id_movimiento'=>$request->id        
+            ];
+        
+            DB::table('log__sistema')->insert($datos);   
+            } else {
+                    if ($request->dosificacion_o_electronica==1&&$request->tipo_venta_reci_fac=="FACTURA") {
+                       //*************************************************** */
+                        dd("factura electronica");
+                    } else {
+                        if ($request->dosificacion_o_electronica==2&&$request->tipo_venta_reci_fac=="FACTURA"){
+                            $eliminar = Ven_GestorVentaVista::findOrFail($request->id);
+                            $eliminar->anulado=1;
+                            $eliminar->save(); 
+
+                            $now = Carbon::now();
+                            DB::table('ven__factura_dosi')->where('id_venta', $request->id)->update(['estado_factura' => 1]);
     
-        DB::table('log__sistema')->insert($datos);         
+                        $datos = [
+                            'id_modulo' => $request->id_modulo,
+                            'id_sub_modulo' => $request->id_sub_modulo,
+                            'accion' => 2,
+                            'descripcion' => $request->des,          
+                            'user_id' =>auth()->user()->id, 
+                            'created_at'=>$now,
+                            'id_movimiento'=>$request->id        
+                        ];
+                    
+                        DB::table('log__sistema')->insert($datos);                          
+                        }else{
+                            dd("error... de ingreso de dosificacion_o_electronica,tipo_venta_reci_fac");
+                        }
+                    }
+                }
+                  
            
         } catch (\Throwable $th) {
            // DB::rollback();
             return response()->json(['error' => $th->getMessage()],500);
         }    
+    }
+
+    public function factura_dosificacion(Request $request){
+        $dosificacion_fac =  DB::table('ven__factura_dosi as vfd')
+        ->select('vfd.numero_factura', 'vfd.codigo_control', 'dd.nro_autorizacion', DB::raw('1 as key_0'))
+        ->join('dos__dosificacion as dd', 'vfd.id_dosificacion', '=', 'dd.id')
+        ->where('vfd.id_venta', $request->id)
+        ->get();
+    return $dosificacion_fac;
     }
    
 }

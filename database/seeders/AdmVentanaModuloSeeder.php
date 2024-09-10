@@ -99,5 +99,7 @@ class AdmVentanaModuloSeeder extends Seeder
         DB::table('adm__ventana_modulos')->insert(['codventana'=>'1201','idmodulo'=>$ven->id,'nombre'=>'Gestor de Ventas','template'=>'gestor-venta-component']);
         DB::table('adm__ventana_modulos')->insert(['codventana'=>'1202','idmodulo'=>$ven->id,'nombre'=>'Detalle de Ventas','template'=>'venta-detalle-component']);       
         DB::table('adm__ventana_modulos')->insert(['codventana'=>'1203','idmodulo'=>$ven->id,'nombre'=>'Venta rapida','template'=>'venta-rapida-component']);
+        DB::table('adm__ventana_modulos')->insert(['codventana'=>'1204','idmodulo'=>$ven->id,'nombre'=>'Caducidad','template'=>'caducidad-component']);
+   
     }
 }

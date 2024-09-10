@@ -99,7 +99,9 @@
                                 <div v-if="d.estado===1">
                                 <button v-if="d.diferencia_dias>=0 && notificador_2===1" type="button"  @click="eliminar(d.id);" class="btn btn-danger btn-sm"  style="margin-right: 5px; color: white;">
                                     Desactivar
-                                </button>                             
+                                </button>
+                                <button v-else type="button"   class="btn btn-danger btn-sm"  @click="eliminar(d.id);" style="margin-right: 5px; ">
+                                    Desactivar</button>                               
                                </div>
 
                                <div v-else>
@@ -218,8 +220,8 @@
                                             </div>
                                             <div class="form-group col-sm-4">
                                                 <strong>Numero de autorización: <span  v-if="autorizacion==''" class="error">(*)</span></strong>
-                                                <input type="text" class="form-control" placeholder="Escribir el numero de autorización"  v-model="autorizacion">                                              
-                                                <span  v-if="autorizacion==''" class="error">Debe ingresar numero de autorización</span>
+                                                <input type="text" class="form-control" placeholder="Escribir el número de autorización" v-model="autorizacion" maxlength="15" @input="validateNumber" pattern="[0-9]*" title="Solo se permiten números" />
+                                               <span  v-if="autorizacion==''" class="error">Debe ingresar numero de autorización</span>
                                             </div>
                                             <div class="form-group col-sm-4">
                                                 <strong>Número identificación:</strong>
@@ -470,6 +472,10 @@ export default {
 },
 //--------------------------------------------------------------  
 
+validateNumber() {
+      // Permite solo números y corta a 15 caracteres si es necesario
+      this.autorizacion = this.autorizacion.replace(/[^0-9]/g, '').slice(0, 15);
+    },
         quitarDosificacion(id){
             let me=this;
             me.arrayCargar_dosificacion = me.arrayCargar_dosificacion.filter(ve => ve.id_contador !== id);

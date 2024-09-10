@@ -25,6 +25,8 @@ class ProdTipoEntradasSeeder extends Seeder
         DB::table('prod__tipo_entradas')->insert(['nombre'=>'Reintegro','id_usuario_registra'=>1,]);  
         DB::table('prod__tipo_entradas')->insert(['nombre'=>'Reposición','id_usuario_registra'=>1,]);  
         DB::table('prod__tipo_entradas')->insert(['nombre'=>'Sobrante','id_usuario_registra'=>1,]);  
-        DB::table('prod__tipo_entradas')->insert(['nombre'=>'Traspaso','id_usuario_registra'=>1,]);  
+        DB::table('prod__tipo_entradas')->insert(['nombre'=>'Traspaso','id_usuario_registra'=>1,]); 
+        DB::table('prod__tipo_entradas')->insert(['nombre'=>'Caducado','id_usuario_registra'=>1,]); 
+         
     }
 }

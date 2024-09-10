@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('ven_tipo_moneda', function (Blueprint $table) {
-            $table->id();
-            $table->string('tipo');
+        Schema::create('caja__entrada_salida_array', function (Blueprint $table) {
+            $table->smallInteger('id_entrada_salida');
+            $table->smallInteger('id_moneda');
+            $table->integer('cantidad');   
+
         });
     }
 
@@ -22,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('ven_tipo_moneda');
+        Schema::dropIfExists('caja__entrada_array');
     }
 };

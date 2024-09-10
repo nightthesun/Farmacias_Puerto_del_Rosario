@@ -36,7 +36,7 @@ class Verhoeff
         $numero = array_reverse(str_split($numero));
 
         foreach ($numero as $i => $digito) {
-            $c = self::$tablaMultiplicacion[$c][self::$tablaPermutacion[($i + 1) % 8][$digito]];
+            $c = self::$tablaMultiplicacion[$c][self::$tablaPermutacion[($i + 1) % 8][$digito]];      
         }
 
         return self::$tablaInversa[$c];

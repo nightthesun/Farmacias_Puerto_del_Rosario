@@ -7,7 +7,9 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Helpers\Verhoeff;
-use App\Helpers\AllegedRC4;
+use App\Helpers\AllegedRC4Helper;
+use App\Helpers\Base64SINHelper;
+use App\Helpers\operacionDosificacion;
 
 class AdmCredecialCorreoController extends Controller
 {
@@ -44,6 +46,35 @@ class AdmCredecialCorreoController extends Controller
      
     }
 
+    public function update_datos_empresa(Request $request)
+    {
+        try {
+            $fechaActual = Carbon::now(); // Obtiene la fecha y hora actual
+            $datos = [
+                'id_modulo' => $request->id_modulo,
+                'id_sub_modulo' => $request->id_sub_modulo,
+                'accion' => 4,
+                'descripcion' => $request->des,          
+                'user_id' =>auth()->user()->id, 
+                'created_at'=>$fechaActual,
+                'id_movimiento'=>$request->id,   
+            ];
+        
+            DB::table('log__sistema')->insert($datos);   
+            $update = adm_CredecialCorreo::find($request->id);
+            $update->nit=$request->nit;
+            $update->nom_empresa=$request->nombre_empresa;
+            $update->nro_celular=$request->celular;
+            $update->actividad_economica=$request->actividad_eco;
+       
+            $update->save();
+        } catch (\Throwable $th) {
+            return response()->json(['error' => $th->getMessage()],500);
+        }
+        
+     
+    }
+
     public function tipo_venta_update(Request $request)
     {
         try {
@@ -63,17 +94,38 @@ class AdmCredecialCorreoController extends Controller
                 'user_id' =>auth()->user()->id, 
                 'created_at'=>$fechaActual,
                 'id_movimiento'=>$request->id,   
-            ];
-        
-            DB::table('log__sistema')->insert($datos);   
-         
+            ];        
+            DB::table('log__sistema')->insert($datos);
+            } catch (\Throwable $th) {
+            return response()->json(['error' => $th->getMessage()],500);
+        }   
+    }
 
+    public function tipomonedaUpdate(Request $request)
+    {
+        try {        
+            $id=$request->id;                
+            $update = adm_CredecialCorreo::find($id);            
+            $update->moneda=$request->id_moneda;           
+            $update->save();
+            $fechaActual = Carbon::now(); // Obtiene la fecha y hora actual
+            $datos = [
+                'id_modulo' => $request->id_modulo,
+                'id_sub_modulo' => $request->id_sub_modulo,
+                'accion' => 4,
+                'descripcion' => $request->des,          
+                'user_id' =>auth()->user()->id, 
+                'created_at'=>$fechaActual,
+                'id_movimiento'=>$request->id,   
+            ];        
+            DB::table('log__sistema')->insert($datos);
         } catch (\Throwable $th) {
             return response()->json(['error' => $th->getMessage()],500);
         }
         
      
     }
+    
 
     public function credencia_correo(Request $request){
         $datos = DB::table('adm__credecial_correos')->get();
@@ -92,6 +144,15 @@ class AdmCredecialCorreoController extends Controller
         ->first();
 
         return response()->json(['sucursal' => $sucursal, 'credecion' => $credecion]);
+    }
+
+    public function tipo_moneda(Request $request){
+        $monedas = DB::table('caja__monedas as cm')
+    ->join('adm__nacionalidads as an', 'an.id', '=', 'cm.id_nacionalidad_pais')
+    ->select('cm.id_nacionalidad_pais', 'an.pais', 'an.simbolo')
+    ->distinct()
+    ->get();
+    return $monedas;
     }
 
     public function store_dosificacion(Request $request){
@@ -151,86 +212,16 @@ class AdmCredecialCorreoController extends Controller
     }
    
     public function index_dosificacion(Request $request){
-        //---------------------
-        $Llave_Dosificacion="9rCB7Sv4X29d)5k7N%3ab89p-3(5[A";
-                        //1 numfac
-            //paso uno --------------------------
-            $arrayBloique = [
-                0 => "29040011007",//num_auto
-                1 => "1503", //num_factura
-                2 => "4189179011", //num_documento
-                3 => "20070702", //fecha_transaccion
-                4 => "2500", //monto_transaccion
-            ];
-            $arrayoperacion=[];
-            foreach ($arrayBloique as $key => $value) {
-                if ($key!=0) {
-                    $valor=0;
-                    $valor_cadena_1="";
-                    $concatenador_1="";
-                    $concatenador_2="";
-                    $valor_cadena_2="";              
-                                         
-                        $valor_cadena_1 = Verhoeff::generar($value);
-                        $concatenador_1 = $value.$valor_cadena_1;
-                        $valor_cadena_2 = Verhoeff::generar($concatenador_1);
-                        $concatenador_2 = $concatenador_1.$valor_cadena_2;
-                      
-                        $arrayoperacion[] = $concatenador_2;                
-                }
-              
-           
-            }
-            $sumaTotal = 0;
-
-foreach ($arrayoperacion as $valor) {
-    $sumaTotal += (int)$valor; // Convertir a entero y sumar
-}
- 
-$paso_1="";
-$paso_2=$sumaTotal;
-$cinco_dig_verhoeff="";
-for ($i=0; $i <5 ; $i++) { 
-    $dato_2 = Verhoeff::generar($paso_2);
-    $cinco_dig_verhoeff=$cinco_dig_verhoeff.$dato_2;
-    $paso_1 = $paso_2.$dato_2;
-    $paso_2 = $paso_1;              
-}
-//paso dos
-$numeroComoCadena = (string)$cinco_dig_verhoeff;  // Convertir el número a cadena
-
-$digitos = str_split($numeroComoCadena);  // Dividir la cadena en un array de caracteres
-
-// Imprimir cada dígito por separado
-$arraySuma_uno_a_cada_digito_verhoeff=[];
-$anteriror=0;
-
-$array_cadenas=[];
-$i_2=0;
-foreach ($digitos as $digito) {
-    $arraySuma_uno_a_cada_digito_verhoeff[]=((int)$digito)+1;
-    $subcadena = substr($Llave_Dosificacion, $anteriror, $arraySuma_uno_a_cada_digito_verhoeff[$i_2]);
-    $array_cadenas[]=$subcadena;
-    $anteriror=$anteriror+$arraySuma_uno_a_cada_digito_verhoeff[$i_2];
-    $i_2++;
-
-}
-
-
-$cadena_concatenada="";
-    for ($i=0; $i <5 ; $i++) { 
-        $cadena_concatenada=$cadena_concatenada.$arrayBloique[$i].$array_cadenas[$i];       
-    }
-$llave_cifrado=$Llave_Dosificacion.$cinco_dig_verhoeff;
- // Cifrar los datos
- // Criptografar dados
-$encrypted = AllegedRC4::encrypt($llave_cifrado, $cadena_concatenada);
-
-// Descriptografar dados
-$decrypted = AllegedRC4::decrypt($llave_cifrado, $encrypted);
-    dd($decrypted); 
-        //--------------------
-        $sucursalId = $request->id_sucursal;
+       // $Llave_Dosificacion="A3Fs4s$)2cvD(eY667A5C4A2rsdf53kw9654E2B23s24df35F5";
+       // $num_auto="79040011859";
+      //  $num_factura="152";
+      //  $num_documento="1026469026";
+      //  $fecha_transaccion="20070728";
+      //  $monto_transaccion="135";
+   
+     //  $dos= operacionDosificacion::operacion($Llave_Dosificacion, $num_auto,$num_factura,$num_documento,$fecha_transaccion,$monto_transaccion); 
+     //  dd($dos);
+       $sucursalId = $request->id_sucursal;
         $buscararray=array();  
         $fechaHoy = Carbon::now()->format('Y-m-d');      
         if(!empty($request->buscar))
@@ -390,9 +381,9 @@ $decrypted = AllegedRC4::decrypt($llave_cifrado, $encrypted);
     }
 
     public function verifica_esta_activo_dosificacacion_x_sucursal(Request $request){
-       
+      
         $existe = DB::table('dos__dosificacion')
-                      ->where('id_sucursal', 1)
+                      ->where('id_sucursal', $request->id_sucursal)
                       ->where('estado', 1)
                       ->exists();
 

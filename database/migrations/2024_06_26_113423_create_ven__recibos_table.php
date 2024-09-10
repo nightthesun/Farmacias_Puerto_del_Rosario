@@ -31,7 +31,8 @@ return new class extends Migration
             $table->smallInteger('id_lista')->nullable();
             $table->string('nro_ref',15)->nullable();
             $table->string('nro_doc',100)->nullable();
-            $table->string('razon_social',100)->nullable();        
+            $table->string('razon_social',100)->nullable(); 
+            $table->tinyInteger('dosificacion_o_electronica')->nullable()->comment('1=electronica 2=dosificacion');           
         });
     }
 
