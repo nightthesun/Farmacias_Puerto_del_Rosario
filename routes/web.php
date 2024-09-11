@@ -642,5 +642,6 @@ Route::group(['middleware' => 'auth'], function () {
     //entrada_salida
     Route::post('/entrada_salida/store', [CajaEntradaSalidaController::class, 'store']); 
     Route::get('/entrada_salida/index', [CajaEntradaSalidaController::class, 'index']); 
+    Route::post('/entrada_salida/validate-password', [CajaEntradaSalidaController::class, 'validatePassword']);
  
 });

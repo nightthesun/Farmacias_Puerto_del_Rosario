@@ -42,14 +42,14 @@
                                     class="form-control"
                                     placeholder="Texto a buscar"
                                     v-model="buscar"
-                               
+                                    @keyup.enter="listarIndex(1)" 
                                     :hidden="sucursalSeleccionada == 0"
                                     :disabled="sucursalSeleccionada == 0"
                                 />
                                 <button
                                     type="submit"
                                     class="btn btn-primary"
-                              
+                                    @click="listarIndex(1)"  
                                     :hidden="sucursalSeleccionada == 0"
                                     :disabled="sucursalSeleccionada == 0"
                                 >
@@ -77,34 +77,58 @@
             </div>    
         
   <br>
-            <!---inserte tabla-->
-            <table class="table table-bordered table-striped table-sm table-responsive" >
+  <div v-if="selectEntradaSalida ===0" class="alert alert-warning" role="alert">
+  Debe seleccionar una entrada o salida
+</div>
+<div v-else>
+  <!---inserte tabla-->
+  <table class="table table-bordered table-striped table-sm table-responsive" >
                 <thead>
                     <tr>
-                        <th class="col-md-1">Opciones</th>
+                        <th class="col-md-2">Opciones</th>
                         <th class="col-md-1">Nro.</th>
                         <th class="col-md-2">Fecha / Hora</th>
                         <th class="col-md-1">Valor total</th>
-                        <th class="col-md-3">Receptor / Emisor</th>
+                        <th class="col-md-2">Receptor / Emisor</th>
                         <th class="col-md-3">Observación</th>                        
                         <th class="col-md-1">Usuario</th>
                         
                     </tr>
-                </thead>
-            </table>    
-            <tr v-for="i in arrayIndex" :key="i.id">                    
-                <td>
-                    <button type="button" class="btn btn-info" style="margin-right: 5px;">
-                        <i class="fa fa-book" aria-hidden="true"></i></button>
+                </thead>  
+            <tbody>
+                <tr v-for="i in arrayIndex" :key="i.id">                    
+                <td class="col-md-2">
+                    <button type="button" class="btn btn-info" style="margin-right: 5px; color: whitesmoke;">
+                        <i class="fa fa-print" aria-hidden="true"></i></button>
                     
-                    <button type="button" class="btn btn-warning" style="margin-right: 5px;">
+                    <button type="button" class="btn btn-warning" style="margin-right: 5px; color: whitesmoke;">
                         <i class="fa fa-eye" aria-hidden="true"></i></button>
                 </td>
-                <td>{{ i.id }}</td>
-                <td>{{ i.id }}</td> 
-            </tr>            
-
+                <td class="col-md-1" style="text-align: right;">{{ i.id }}</td>
+                <td class="col-md-2">{{ i.created_at }}</td> 
+                <td class="col-md-1" style="text-align: right;">{{ i.valor }}</td>
+                <td class="col-md-2">{{ i.mensaje }}</td>
+                <td class="col-md-3">{{ i.observacion }}</td>
+                <td class="col-md-1">{{ i.name }}</td>
+            </tr> 
+            </tbody>           
+        </table>  
             <!-----fin de tabla------->
+            <nav>
+                    <ul class="pagination">
+                            <li class="page-item" v-if="pagination.current_page > 1">
+                                <a class="page-link" href="#" @click.prevent=" cambiarPagina(pagination.current_page - 1)">Ant</a>
+                            </li>
+                            <li class="page-item" v-for="page in pagesNumber" :key="page" :class="[page == isActived ? 'active' : '']">
+                                <a class="page-link" href="#" @click.prevent="cambiarPagina(page)" v-text="page"></a>
+                            </li>
+                            <li class="page-item" v-if="pagination.current_page < pagination.last_page">
+                                <a class="page-link" href="#" @click.prevent="cambiarPagina(pagination.current_page + 1)">Sig</a>
+                            </li>
+                        </ul>
+                    </nav>
+</div>
+          
         </div>
 
 
@@ -184,7 +208,8 @@
                                 <tr>
                                     <th class="col-md-4">{{ titulo_ }}</th>
                                     <th class="col-md-4">Observación</th> 
-                                    <th class="col-md-4">Código</th>                               
+                                    <th class="col-md-3">Código</th> 
+                                    <th class="col-md-1">Estado</th>                              
                                  </tr>
                             </thead>  
                             <tbody>
@@ -195,7 +220,7 @@
                                     <td class="col-md-4" style="text-align: right;">
                                         <input type="text" class="form-control" v-model="Obs"/>   
                                     </td> 
-                                    <td class="col-md-4">
+                                    <td class="col-md-3">
                                         <div class="d-flex align-items-center" v-if="selectEntradaSalida==='1'">
                                             <button type="button" class="btn btn-light me-2" disabled>
                                                 <i class="fa fa-repeat" aria-hidden="true"></i>
@@ -204,12 +229,17 @@
                                         </div>
                                       
                                         <div v-else class="d-flex align-items-center">
-                                            <button type="button" class="btn btn-primary me-2">
+                                            <button type="button" class="btn btn-primary me-2" :disabled="password===''" @click="validatePassword()">
                                                 <i class="fa fa-repeat" aria-hidden="true"></i>
                                             </button>
-                                            <input type="text" class="form-control" v-model="codigo"/>
+                                            <input type="password" class="form-control" v-model="password"/>
                                        
                                         </div>                                        
+                                    </td>
+                                    <td class="col-md-1" style="text-align: center; vertical-align: middle;">
+                                        <i v-if="foco===0" class="fa fa-lightbulb-o" aria-hidden="true" style="color: dimgray; font-size: 30px;"></i>
+                                        <i v-else-if="foco===1" class="fa fa-lightbulb-o" aria-hidden="true" style="color: green; font-size: 30px;"></i>
+                                        <i v-else class="fa fa-lightbulb-o" aria-hidden="true" style="color: red; font-size: 30px;"></i>                                     
                                     </td> 
                                 </tr>    
                             </tbody>          
@@ -249,7 +279,7 @@ export default {
                 from: 0,
                 to: 0,
             },
-          
+            offset:3,
 
             tituloModal: "",
             sucursalSeleccionada:0,
@@ -276,12 +306,13 @@ export default {
 
             emisor:'',
             Obs:'',
-            codigo:'',
+            password:'',
 
             titulo_:'',
 
             id_apertura_cierre:'',
             arrayIndex:[],
+            foco:0,
 
         };
     },
@@ -289,17 +320,16 @@ export default {
     
 
     computed: {
-      //  sicompleto() {
-      //      let me = this;
-       //     if (
-          
-     //           me.glosa != "" &&
-     //           me.cantidadS != "" &&
-     //           me.ProductoLineaIngresoSeleccionado
-     //       )
-       //         return true;
-      //      else return false;
-      //  },
+        sicompleto() {
+           let me = this;
+           console.log(me.input);
+            if (
+                (me.input).length ==0
+             
+            )
+             return true;
+          else return false;
+      },
         isActived: function () {
             return this.pagination.current_page;
         },
@@ -335,6 +365,26 @@ export default {
         }
     },
     methods: {
+
+    validatePassword() {
+            let me = this;           
+            var url ="/entrada_salida/validate-password?password="+me.password;
+            axios.post(url)
+                .then(function (response) {
+                    var respuesta = response.data;
+                    if (respuesta===1) {
+                       me.foco=1; 
+                    } else {
+                       me.foco=2; 
+                    }
+                    console.log("*--*--*");
+                    console.log(respuesta);
+                })
+                .catch(function (error) {
+                    error401(error);
+                });
+        },
+
 
         listarIndex(page) {
             let me = this;    
@@ -575,7 +625,7 @@ export default {
         cambiarPagina(page) {
             let me = this;
             me.pagination.current_page = page;
-        //    me.listarAjusteNegativos(page);
+            me.listarIndex(page);
         },
 
         abrirModal(accion, data = []) {

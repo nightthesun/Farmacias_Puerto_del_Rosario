@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Caja_EntradaSalida;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class CajaEntradaSalidaController extends Controller
 {
@@ -23,12 +25,12 @@ class CajaEntradaSalidaController extends Controller
                     if (empty($sqls)) {
                         $sqls = "(
                                 u.name like '%" . $valor . "%' 
-                                ces.mensaje like '%" . $valor . "%' 
+                               or ces.mensaje like '%" . $valor . "%' 
                             or ces.id like '%" . $valor . "%'                                 
                                )";
                     } else {
                         $sqls .= "and (u.name like '%" . $valor . "%' 
-                       ces.mensaje like '%" . $valor . "%' 
+                       or ces.mensaje like '%" . $valor . "%' 
                        or ces.id like '%" . $valor . "%' 
                        )";
                     }
@@ -156,5 +158,25 @@ class CajaEntradaSalidaController extends Controller
         } catch (\Throwable $th) {
             return $th;
         }
+    }
+
+    public function validatePassword(Request $request)
+    {
+        try {
+         // Validar que el campo 'password' esté presente
+        $pass=$request->password;
+      
+        // Obtener al usuario autenticado
+        $user = auth()->user()->password;
+        // Comparar la contraseña ingresada con la almacenada en la base de datos
+    if (Hash::check($pass, $user)) {
+        return 1;
+    } else {
+        return 2;
+    }
+        } catch (\Throwable $th) {
+            return $th;
+        }
+    
     }
 }
