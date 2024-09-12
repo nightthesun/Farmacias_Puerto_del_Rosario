@@ -237,9 +237,10 @@
                                         </div>                                        
                                     </td>
                                     <td class="col-md-1" style="text-align: center; vertical-align: middle;">
-                                        <i v-if="foco===0" class="fa fa-lightbulb-o" aria-hidden="true" style="color: dimgray; font-size: 30px;"></i>
-                                        <i v-else-if="foco===1" class="fa fa-lightbulb-o" aria-hidden="true" style="color: green; font-size: 30px;"></i>
-                                        <i v-else class="fa fa-lightbulb-o" aria-hidden="true" style="color: red; font-size: 30px;"></i>                                     
+                                        <i v-if="foco===0" class="fa fa-bell-slash" aria-hidden="true" style="color: dimgray; font-size: 20px;"></i>
+                                        <i v-else-if="foco===1" class="fa fa-bell" aria-hidden="true" style="color: green; font-size: 20px;"></i>
+                                        <i v-else class="fa fa-bell" aria-hidden="true" style="color: red; font-size: 20px;"></i>
+                                                                     
                                     </td> 
                                 </tr>    
                             </tbody>          
@@ -267,6 +268,8 @@
 <script>
 import Swal from "sweetalert2";
 import { error401 } from "../../errores";
+import pdfMake from 'pdfmake/build/pdfmake';
+import pdfFonts from 'pdfmake/build/vfs_fonts';
 //Vue.use(VeeValidate);
 export default {
     data() {
@@ -366,6 +369,79 @@ export default {
     },
     methods: {
 
+////////--------------------- STAR PDF--------------------///////////////
+general_pdf(razon_social,direccion,lugar,cadena_A,id,soloFecha,soloHora,mensaje,observacion,valor,simbolo,user){
+    const documentDefinition = {
+        pageMargins: [5, 8, 5, 4], // Configura los márgenes en cero
+        pageSize: {
+    width: 80 * 2.83465, // Ancho en puntos (conversión a puntos desde mm)
+    height: 'auto',
+    columnGap: 2,
+  },
+  content: [
+    { text: razon_social, style: 'header'},
+    { text: direccion, style: 'header_2'},
+    { text: lugar, style: 'header_2'},
+    {
+       text: '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -',    
+       style:'linea_2' 
+    },
+    { text: 'CAJA '+cadena_A, style: 'header_2'},
+    {
+       text: '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -',    
+       style:'linea_2' 
+    },
+    {style: 'datos_f',
+		table: {
+				body: [
+					['NUMERO DE '+cadena_A+':',id],
+					['FECHA: ', soloFecha+' HORA: '+soloHora],
+                    ['RESPONSABLE: ', mensaje],
+				]
+			}
+		},
+        {
+       text: '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -',    
+       style:'linea_2' 
+    },
+    {style: 'datos_f',
+		table: {
+				body: [
+					['DESCRIPCIÓN: ',observacion],
+					['MONTO: ', valor+' '+simbolo]                 
+				]
+			}
+		},
+        { text: 'USUARIO: '+user, style: 'datos_f'},
+  ],
+  styles: {
+          header: {
+            fontSize: 7,
+            bold: true,
+            alignment: 'center',         
+          },
+          header_2: {
+            fontSize: 7,            
+            alignment: 'center',         
+          },
+          linea_2: {
+            fontSize: 9,
+            margin: [1, 1, 1, 1],
+            alignment: 'center',  
+            },
+        datos_f: {
+            fontSize: 7,         
+            alignment: 'left',         
+          },  
+    }    
+   }; 
+   // Genera el PDF y abre una nueva ventana con el documento
+      pdfMake.createPdf(documentDefinition).open(); 
+},
+/////////////////////////////END PDF/////////////////////////////////////
+
+
+
     validatePassword() {
             let me = this;           
             var url ="/entrada_salida/validate-password?password="+me.password;
@@ -406,6 +482,7 @@ export default {
         registro(){
             let me = this;
             let bandera=0;
+            let cadena_A="";
             console.log(me.totalMonto);
             if ((me.SimboloM==="S/N"&&me.SimboloB==="S/N")||me.totalMonto==="0.00") {
                 Swal.fire(
@@ -424,11 +501,12 @@ export default {
                     );
                     } else {
                         //// datos de registro
+                        cadena_A="ENTRADA";
                         bandera=1;
                     }   
                 } else {
                     if (me.selectEntradaSalida==="2") {
-                        if (me.emisor===""||me.Obs===""||me.codigo==="") {
+                        if (me.emisor===""||me.Obs===""||me.password==="") {
                         Swal.fire(
                     "Emisor o la observacion esta nula, puede revisar el codigo tambien si es el correcto",
                     "Haga click en Ok",
@@ -436,7 +514,17 @@ export default {
                     );
                     } else {
                     //// datos de registro
-                    bandera=1;
+                        if (me.foco===1) {
+                            cadena_A="SALIDA";
+                            bandera=1; 
+                        } else {
+                            Swal.fire(
+                    "Codigo de salida erroneo.",
+                    "Haga click en Ok",
+                    "warning",
+                    );
+                        }
+                    
                     }
                             } else {
                               Swal.fire(
@@ -458,7 +546,7 @@ export default {
                         cantidadMonedas:me.cantidadMonedas,
                         totalMonedas:me.totalMonedas,
                         moneda_s1:me.moneda_s1,
-
+                        simbolo:me.SimboloB,
                                                 
                     	id_sucursal:me.id_sucursal,
                         obs:me.Obs,
@@ -472,14 +560,26 @@ export default {
                        
                     })
                     .then(function (response) {
-                       // me.listarIndex();
-                       console.log(response.data);
-                        me.cerrarModal("registrar");
-                        Swal.fire(
-                            "Registrado exitosamente",
-                            "Haga click en Ok",
-                            "success",
-                        );
+                        me.listarIndex();
+                        console.log("************************");
+                        let respuesta = response.data;
+                        console.log(respuesta);
+                        console.log(respuesta.titulo.ciudad);
+                        console.log(respuesta.mensaje);
+                        let lugar=respuesta.titulo.nombre+" - "+respuesta.titulo.ciudad;
+                       me.cerrarModal('registrar'); 
+                       Swal.fire(
+                        "Registrado exitosamente",
+                        "Haga click en Ok",
+                        "success"
+                        ).then((result) => {
+                            if (result.isConfirmed) {  // Verifica si el usuario presionó "Ok"
+                                general_pdf(respuesta.titulo.razon_social,respuesta.titulo.direccion,lugar,
+                                cadena_A,respuesta.id,respuesta.soloFecha,respuesta.soloHora,respuesta.mensaje,
+                                respuesta.observacion,respuesta.valor,respuesta.simbolo,respuesta.user
+                                );  // Ejecuta la función cuando el usuario presiona "Ok"
+                            }
+                        });
                     }).catch(function (error) {                 
                 if (error.response) {               
                     Swal.fire(
@@ -658,7 +758,7 @@ export default {
                         me.emisor=""; 
                         me.Obs="Sin Observación";
                         me.codigo="";
-                                     
+                        me.foco=0;               
                     me.classModal.openModal("registrar");
                     break;
                 }
@@ -696,6 +796,7 @@ export default {
             me.Obs="";
             me.codigo="";
             me.classModal.closeModal(accion);
+            me.foco=0;
             }
         },
 

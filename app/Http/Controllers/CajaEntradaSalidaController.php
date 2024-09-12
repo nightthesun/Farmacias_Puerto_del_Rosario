@@ -143,7 +143,6 @@ class CajaEntradaSalidaController extends Controller
                 ];  
                 DB::table('caja__entrada_salida_array')->insert($datos_2);
             } 
-
                 $entrada_salida=new Caja_EntradaSalida();             
                 $entrada_salida->id_sucursal= $request->id_sucursal;
                 $entrada_salida->id_arqueo= $id;
@@ -153,8 +152,31 @@ class CajaEntradaSalidaController extends Controller
                 $entrada_salida->entrada_salida= $request->entrada_salida;                
                 $entrada_salida->id_apertura_cierre= $request->id_apertura_cierre;
                 $entrada_salida->save();
+
+                $fechaCreacion = $entrada_salida->created_at;
+// Separar la fecha y la hora
+$soloFecha = $fechaCreacion->format('Y-m-d'); 
+$soloHora = $fechaCreacion->format('H:i:s');  
+$sucu = DB::table('adm__sucursals as ass')
+    ->join('adm__departamentos as ad', 'ad.id', '=', 'ass.departamento')
+    ->select('ass.id', 'ass.tipo', 'ass.direccion', 'ass.ciudad', 'ad.nombre','ass.razon_social')
+    ->where('ass.id', 1)
+    ->first();
             DB::commit();
-            return DB::commit();
+            return response()->json([
+                      
+                'id' => $id,               
+                'soloFecha' => $soloFecha, 
+                'soloHora' => $soloHora,   
+                'mensaje' => strtoupper($request->mensaje),
+                'observacion' => strtoupper($request->obs),
+                'valor' =>$request->total_arqueo_caja,
+                'simbolo' => $request->simbolo,
+                'titulo' => $sucu,
+                'user' => auth()->user()->name
+
+             ]);
+     
         } catch (\Throwable $th) {
             return $th;
         }
