@@ -105,7 +105,7 @@ class CajaAperturaCierreController extends Controller
     {
         try {
             DB::beginTransaction();
-            $now = Carbon::now();
+        
                     $datos = [
                         'id_usuario' => auth()->user()->id,
                         'total_arqueo' => $request->total_arqueo_caja,                       
@@ -116,7 +116,7 @@ class CajaAperturaCierreController extends Controller
                         'tipo_moneda' => $request->moneda_s1                      
                     ];                
                     $id = DB::table('caja__arqueo')->insertGetId($datos);            
-                    return("error1"); 
+                
                     foreach ($request->input as $key => $value) {                       
                         $datos_2 = [                            
                             'id_arqueo' => $id,                       
@@ -231,5 +231,15 @@ $data_1 = $moneda;
   
     return $resultado;
 
+    }
+
+    public function getmoneda(Request $request){
+    $resultado=  DB::table('caja__entrada_salida_array as cesa')
+    ->join('caja__monedas as cm', 'cm.id', '=', 'cesa.id_moneda')
+    ->select('cesa.id_arqueo', 'cesa.cantidad', 'cm.id', 'cm.tipo_corte', 'cm.valor', 'cm.unidad', 'cm.unidad_entera')
+    ->where('cesa.id_arqueo', $request->id_arqueo)
+    ->get();
+    
+    return $resultado;
     }
 }

@@ -150,7 +150,7 @@ class CajaEntradaSalidaController extends Controller
 
             foreach ($request->input as $key => $value) {                       
                 $datos_2 = [                            
-                    'id_entrada_salida' => $id,                       
+                    'id_arqueo' => $id,                       
                     'id_moneda' => $key,  
                     'cantidad' => $value                                              
                 ];  
@@ -165,7 +165,7 @@ class CajaEntradaSalidaController extends Controller
                 $entrada_salida->entrada_salida= $request->entrada_salida;                
                 $entrada_salida->id_apertura_cierre= $request->id_apertura_cierre;
                 $entrada_salida->save();
-
+                $id_ss =$entrada_salida->id;
                 $fechaCreacion = $entrada_salida->created_at;
 // Separar la fecha y la hora
 $soloFecha = $fechaCreacion->format('Y-m-d'); 
@@ -178,7 +178,8 @@ $sucu = DB::table('adm__sucursals as ass')
             DB::commit();
             return response()->json([
                       
-                'id' => $id,               
+                'id' => $id_ss,   
+                'id_arqueo' => $id,            
                 'soloFecha' => $soloFecha, 
                 'soloHora' => $soloHora,   
                 'mensaje' => strtoupper($request->mensaje),

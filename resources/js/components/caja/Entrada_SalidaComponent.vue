@@ -100,7 +100,7 @@
                     <button type="button" class="btn btn-info" style="margin-right: 5px; color: whitesmoke;" @click="abrirModal('re_imprecion',i);">
                         <i class="fa fa-print" aria-hidden="true"></i></button>
                     
-                    <button type="button" class="btn btn-warning" style="margin-right: 5px; color: whitesmoke;">
+                    <button type="button" class="btn btn-warning" style="margin-right: 5px; color: whitesmoke;" @click="abrirModal('ver',i);">
                         <i class="fa fa-eye" aria-hidden="true"></i></button>
                 </td>
                 <td class="col-md-1" style="text-align: right;">{{ i.id }}</td>
@@ -430,6 +430,8 @@ export default {
             id_apertura_cierre:'',
             arrayIndex:[],
             foco:0,
+
+            arrayMonedaVentana:[],
 
         };
     },
@@ -825,6 +827,22 @@ general_pdf(razon_social,direccion,lugar,cadena_A,id,soloFecha,soloHora,mensaje,
                 });
         },
 
+        listarVentanaEntradaSalida(id_arqueo){
+
+           var url = "/entrada_salida/getmoneda?id_arqueo"+id_arqueo;
+            axios
+                .get(url)
+                .then(function (response) {
+                    var respuesta = response.data;
+                    me.arrayMonedaVentana = respuesta;
+                 
+                })
+                .catch(function (error) {
+                    error401(error);
+                    console.log(error);
+                });
+        },
+
         sucursalFiltro() {
             let me = this;
            // var url = "/traspaso/listarSucursal";
@@ -890,9 +908,7 @@ general_pdf(razon_social,direccion,lugar,cadena_A,id,soloFecha,soloHora,mensaje,
                     break;
                 }
                 case "actualizar": {
-                    me.tipoAccion = 2;
-                   
-          
+                    me.tipoAccion = 2;       
             
                     me.classModal.openModal("registrar");
 
@@ -919,6 +935,22 @@ general_pdf(razon_social,direccion,lugar,cadena_A,id,soloFecha,soloHora,mensaje,
                     console.log(data);   
                     }                
                    break;
+                }
+                case "ver": {
+                    console.log(data);
+                    if (data.cadena_A===1) {
+                        cadena_A="ENTRADA";
+                    } else {
+                        if (data.cadena_A===2) {
+                            cadena_A="SALIDA";
+                        } else {
+                            cadena_A="Error";
+                        }                        
+                    }
+                    me.tituloModal=cadena_A;
+                    me.listarVentanaEntradaSalida(data.num_arqueo);
+                   // me.classModal.openModal("ver");
+                break;
                 }
             
             }

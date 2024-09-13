@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('caja__entrada_salida_array', function (Blueprint $table) {
-            $table->smallInteger('id_entrada_salida');
+            $table->smallInteger('id_arqueo');
             $table->smallInteger('id_moneda');
             $table->integer('cantidad');   
 

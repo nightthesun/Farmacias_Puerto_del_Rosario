@@ -643,5 +643,6 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/entrada_salida/store', [CajaEntradaSalidaController::class, 'store']); 
     Route::get('/entrada_salida/index', [CajaEntradaSalidaController::class, 'index']); 
     Route::post('/entrada_salida/validate-password', [CajaEntradaSalidaController::class, 'validatePassword']);
+    Route::get('/entrada_salida/getmoneda', [CajaEntradaSalidaController::class, 'getmoneda']); 
  
 });
