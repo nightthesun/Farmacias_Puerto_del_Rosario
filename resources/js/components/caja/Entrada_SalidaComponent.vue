@@ -11,8 +11,7 @@
             <div class="card">                
                 <div class="card-header">
                     <i class="fa fa-align-justify"></i> Apertura / Cierre de cajas               
-                    <button type="button" class="btn btn-secondary" @click="verificadorAperturaCierre()"
-                        :disabled="sucursalSeleccionada === 0 || selectEntradaSalida === 0 || bloqueador ===0">
+                    <button type="button" class="btn btn-secondary" @click="verificadorAperturaCierre()"  :disabled="sucursalSeleccionada === 0 || selectEntradaSalida === 0 || bloqueador ===0">
                         <i class="icon-plus"></i>&nbsp;Nuevo
                     </button>
                     <span v-if="sucursalSeleccionada === 0 ||  selectEntradaSalida === 0" class="error"
@@ -98,7 +97,7 @@
             <tbody>
                 <tr v-for="i in arrayIndex" :key="i.id">                    
                 <td class="col-md-2">
-                    <button type="button" class="btn btn-info" style="margin-right: 5px; color: whitesmoke;">
+                    <button type="button" class="btn btn-info" style="margin-right: 5px; color: whitesmoke;" @click="abrirModal('re_imprecion',i);">
                         <i class="fa fa-print" aria-hidden="true"></i></button>
                     
                     <button type="button" class="btn btn-warning" style="margin-right: 5px; color: whitesmoke;">
@@ -262,6 +261,121 @@
             </div>
         </div>
         <!--fin del modal-->
+         <!--Inicio del modal VER-->
+         <div class="modal fade" tabindex="-1" role="dialog" arial-labelledby="myModalLabel" id="ver" aria-hidden="true" data-backdrop="static" data-key="false">
+            <div class="modal-dialog modal-primary modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">{{ tituloModal }}</h4>
+                        <button type="button" class="close" aria-label="Close" @click="cerrarModal('ver')">
+                            <span aria-hidden="true">x</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">                      
+                        <table class="table table-bordered table-striped table-sm table-responsive">
+                            <thead>
+                                <tr>
+                                    <th class="col-md-2" style="font-size: 11px; text-align: center">Fecha/Hora</th>
+                                    <th class="col-md-2" style="font-size: 11px; text-align: center">Codigo caja</th>
+                                    <th class="col-md-2" style="font-size: 11px; text-align: center">Codigo arqueo</th>                                    
+                                    <th class="col-md-2" style="font-size: 11px; text-align: center">Turno</th>
+                                    <th class="col-md-1" style="font-size: 11px; text-align: center">Tipo</th>
+                                    <th class="col-md-1" style="font-size: 11px; text-align: center">Usuario</th>
+                                    <th class="col-md-2" style="font-size: 11px; text-align: center">Estado</th>                                  
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    
+                                    <td class="col-md-2" style="font-size: 11px; text-align: center">{{fecha_modal}}</td>
+                                    <td class="col-md-2" style="font-size: 11px; text-align: center">{{id_modal}}</td>
+                                    <td class="col-md-2" style="font-size: 11px; text-align: center">{{id_arqueo_modal}}</td>
+                                    <td class="col-md-2" style="font-size: 11px; text-align: center">{{turno_modal}}</td>
+                                    <td class="col-md-1" style="font-size: 11px; text-align: center">{{tipo_modal}}</td>
+                                    <td class="col-md-1" style="font-size: 11px; text-align: center">{{usuario_modal}}</td>
+                                    <td class="col-md-2" style="font-size: 11px; text-align: center">{{estado_modal}}</td>
+                                </tr>
+                            </tbody> 
+                        </table> 
+                        <table class="table table-bordered table-striped table-sm table-responsive">
+                            <thead>
+                                <tr>
+                                    <th class="col-md-1" style="font-size: 11px; text-align: center">Total ventas</th>
+                                    <th class="col-md-1" style="font-size: 11px; text-align: center">Total entradas</th>
+                                    <th class="col-md-1" style="font-size: 11px; text-align: center; background-color: gainsboro">Total ingresos</th>
+                                    <th class="col-md-1" style="font-size: 11px; text-align: center">Total gastos</th>
+                                    <th class="col-md-1" style="font-size: 11px; text-align: center">Total inversiones</th>
+                                    <th class="col-md-1" style="font-size: 11px; text-align: center">Total salidas</th>
+                                    <th class="col-md-1" style="font-size: 11px; text-align: center; background-color: gainsboro">Total egresos</th>
+                                    <th class="col-md-1" style="font-size: 11px; text-align: center">Total caja</th>                                    
+                                    <th class="col-md-1" style="font-size: 11px; text-align: center">Total arqueo</th>
+                                    <th class="col-md-1" style="font-size: 11px; text-align: center">Total diferencia</th>                                   
+                                 </tr>
+                            </thead> 
+                            <tbody>
+                                <tr>
+                                    <td class="col-md-1" style="font-size: 11px; text-align: center">{{total_venta_modal}}</td>
+                                    <td class="col-md-1" style="font-size: 11px; text-align: center">{{total_entrada_modal}}</td>
+                                    <td class="col-md-1" style="font-size: 11px; text-align: center;background-color: gainsboro">{{total_ingreso_modal}}</td>
+                                    <td class="col-md-1" style="font-size: 11px; text-align: center">{{total_gasto_modal}}</td>
+                                    <td class="col-md-1" style="font-size: 11px; text-align: center">{{total_inversione_modal}}</td>
+                                    <td class="col-md-1" style="font-size: 11px; text-align: center">{{total_salida_modal}}</td>
+                                    <td class="col-md-1" style="font-size: 11px; text-align: center; background-color: gainsboro">{{total_egreso_modal}}</td>
+                                    <td class="col-md-1" style="font-size: 11px; text-align: center">{{total_caja_modal}}</td>
+                                    <td class="col-md-1" style="font-size: 11px; text-align: center">{{total_arqueo_modal}}</td>
+                                    <td class="col-md-1" style="font-size: 11px; text-align: center">{{total_diferencia_modal}}</td>
+                                </tr>
+                            </tbody>
+                        </table>  
+                        <table class="table table-bordered table-striped table-sm table-responsive">
+                            <thead>
+                                <tr>
+                                    <th class="col-md-3" style="font-size: 11px; text-align: center">Cantidad monedas</th>
+                                    <th class="col-md-3" style="font-size: 11px; text-align: center">Monto en monedas</th>
+                                    <th class="col-md-3" style="font-size: 11px; text-align: center">Cantidad Billetes</th>
+                                    <th class="col-md-3" style="font-size: 11px; text-align: center">Monto en Billetes</th>                                    
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="col-md-3" style="font-size: 11px; text-align: center">{{cantidad_moneda_modal}}</td>
+                                    <td class="col-md-3" style="font-size: 11px; text-align: center">{{monto_moneda_modal}}</td>
+                                    <td class="col-md-3" style="font-size: 11px; text-align: center">{{cantidad_billete_modal}}</td>
+                                    <td class="col-md-3" style="font-size: 11px; text-align: center">{{monto_billete_modal}}</td>
+                                </tr>
+                            </tbody>   
+                        </table> 
+                        <table class="table table-bordered table-striped table-sm table-responsive">
+                            <thead>
+                                <tr>
+                                    <th class="col-md-3" style="font-size: 11px; text-align: center">Unidad</th>
+                                    <th class="col-md-3" style="font-size: 11px; text-align: center">Simbolo</th>
+                                    <th class="col-md-3" style="font-size: 11px; text-align: center">Tipo</th>
+                                    <th class="col-md-3" style="font-size: 11px; text-align: center">Valor</th>
+                                    <th class="col-md-3" style="font-size: 11px; text-align: center">Cantidad</th>                                    
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="m in arrayMonedaModal" :key="m.id">   
+                                    <td class="col-md-3" style="font-size: 11px; text-align: center">{{m.unidad_entera}}</td>
+                                    <td class="col-md-3" style="font-size: 11px; text-align: center">{{m.unidad}}</td>
+                                    <td class="col-md-3" style="font-size: 11px; text-align: center">{{m.tipo_corte}}</td>
+                                    <td class="col-md-3" style="font-size: 11px; text-align: center">{{(m.valor * m.cantidad).toFixed(2)}}</td>
+                                    <td class="col-md-3" style="font-size: 11px; text-align: center">{{m.cantidad}}</td>
+                                </tr>
+                            </tbody>   
+                        </table> 
+                        
+                    </div>                   
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" @click="cerrarModal('ver')">
+                            Cerrar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--fin del modal-->
     </main>
 </template>
 
@@ -372,23 +486,23 @@ export default {
 ////////--------------------- STAR PDF--------------------///////////////
 general_pdf(razon_social,direccion,lugar,cadena_A,id,soloFecha,soloHora,mensaje,observacion,valor,simbolo,user){
     const documentDefinition = {
-        pageMargins: [5, 8, 5, 4], // Configura los márgenes en cero
+        pageMargins: [6, 8, 6, 4], // Configura los márgenes en cero
         pageSize: {
     width: 80 * 2.83465, // Ancho en puntos (conversión a puntos desde mm)
     height: 'auto',
     columnGap: 2,
   },
   content: [
-    { text: razon_social, style: 'header'},
-    { text: direccion, style: 'header_2'},
-    { text: lugar, style: 'header_2'},
+    { text: razon_social.toUpperCase(), style: 'header'},
+    { text: direccion.toUpperCase(), style: 'header_2'},
+    { text: lugar.toUpperCase(), style: 'header_2'},
     {
-       text: '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -',    
+       text: '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -',    
        style:'linea_2' 
     },
     { text: 'CAJA '+cadena_A, style: 'header_2'},
     {
-       text: '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -',    
+       text: '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -',    
        style:'linea_2' 
     },
     {style: 'datos_f',
@@ -396,23 +510,27 @@ general_pdf(razon_social,direccion,lugar,cadena_A,id,soloFecha,soloHora,mensaje,
 				body: [
 					['NUMERO DE '+cadena_A+':',id],
 					['FECHA: ', soloFecha+' HORA: '+soloHora],
-                    ['RESPONSABLE: ', mensaje],
+                    ['RESPONSABLE: ', mensaje.toUpperCase()],
 				]
-			}
+			},
+            	layout: 'noBorders'
 		},
+        
         {
-       text: '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -',    
+       text: '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -',    
        style:'linea_2' 
     },
     {style: 'datos_f',
 		table: {
 				body: [
-					['DESCRIPCIÓN: ',observacion],
-					['MONTO: ', valor+' '+simbolo]                 
+					['DESCRIPCIÓN: ',observacion.toUpperCase()],
+					['MONTO: ', valor+' '+simbolo],  
+                    ['USUARIO: ', user.toUpperCase()]               
 				]
-			}
+			},
+            	layout: 'noBorders'
 		},
-        { text: 'USUARIO: '+user, style: 'datos_f'},
+      
   ],
   styles: {
           header: {
@@ -441,6 +559,10 @@ general_pdf(razon_social,direccion,lugar,cadena_A,id,soloFecha,soloHora,mensaje,
 /////////////////////////////END PDF/////////////////////////////////////
 
 
+    re_imprecion(){
+        let me =this;
+
+    },
 
     validatePassword() {
             let me = this;           
@@ -563,23 +685,27 @@ general_pdf(razon_social,direccion,lugar,cadena_A,id,soloFecha,soloHora,mensaje,
                         me.listarIndex();
                         console.log("************************");
                         let respuesta = response.data;
-                        console.log(respuesta);
-                        console.log(respuesta.titulo.ciudad);
-                        console.log(respuesta.mensaje);
+                        console.log(respuesta);                     
+                        let razon_social=respuesta.titulo.razon_social;                        
+                        let direccion=respuesta.titulo.direccion;
                         let lugar=respuesta.titulo.nombre+" - "+respuesta.titulo.ciudad;
-                       me.cerrarModal('registrar'); 
-                       Swal.fire(
+                        let id=respuesta.id;
+                        let soloFecha=respuesta.soloFecha;
+                        let soloHora=respuesta.soloHora;
+                        let mensaje=respuesta.mensaje;
+                        let observacion=respuesta.observacion;
+                        let valor=respuesta.valor;
+                        let simbolo=respuesta.simbolo;
+                        let user=respuesta.user;                           
+                       console.log("--->"+razon_social+" "+direccion+" "+lugar+" "+id+" "+soloFecha+" "+soloHora+" "+mensaje+" "+observacion+" "+valor+" "+simbolo+" "+user); 
+                       me.cerrarModal('registrar');                        
+                        Swal.fire(
                         "Registrado exitosamente",
                         "Haga click en Ok",
                         "success"
-                        ).then((result) => {
-                            if (result.isConfirmed) {  // Verifica si el usuario presionó "Ok"
-                                general_pdf(respuesta.titulo.razon_social,respuesta.titulo.direccion,lugar,
-                                cadena_A,respuesta.id,respuesta.soloFecha,respuesta.soloHora,respuesta.mensaje,
-                                respuesta.observacion,respuesta.valor,respuesta.simbolo,respuesta.user
-                                );  // Ejecuta la función cuando el usuario presiona "Ok"
-                            }
-                        });
+                        );
+                        me.general_pdf(razon_social,direccion,lugar,cadena_A,id,soloFecha,soloHora,mensaje,observacion,valor,simbolo,user);
+
                     }).catch(function (error) {                 
                 if (error.response) {               
                     Swal.fire(
@@ -589,6 +715,7 @@ general_pdf(razon_social,direccion,lugar,cadena_A,id,soloFecha,soloHora,mensaje,
                 );  
                 }              
             });
+            me.cerrarModal('registrar');
             } 
         },
 
@@ -771,6 +898,28 @@ general_pdf(razon_social,direccion,lugar,cadena_A,id,soloFecha,soloHora,mensaje,
 
                     break;
                 }
+                case "re_imprecion":{
+                    me.tipoAccion = 2;
+                    let cadena_A="";
+                    if (data.cadena_A===1) {
+                        cadena_A="ENTRADA";
+                    } else {
+                        if (data.cadena_A===2) {
+                            cadena_A="SALIDA";
+                        } else {
+                            cadena_A="E";
+                        }                        
+                    }
+                    if (cadena_A==="E") {
+                        console.log("error de entrada");
+                    } else {      
+                        let createdAt = data.created_at;
+                        let [date, time] = createdAt.split(' ');               
+                    me.general_pdf(data.razon_social,data.direccion,data.dir,cadena_A,data.id,date,time,data.mensaje,data.observacion,data.valor,data.simbolo,data.name)
+                    console.log(data);   
+                    }                
+                   break;
+                }
             
             }
         },
@@ -815,7 +964,7 @@ general_pdf(razon_social,direccion,lugar,cadena_A,id,soloFecha,soloHora,mensaje,
         this.sucursalFiltro();
       
         this.classModal.addModal("registrar");
-    
+        this.classModal.addModal("ver");
     
     },
 };

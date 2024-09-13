@@ -40,6 +40,8 @@ class CajaEntradaSalidaController extends Controller
                ->join('caja__arqueo as ca', 'ca.id', '=', 'ces.id_arqueo')
                ->join('adm__nacionalidads as aa', 'aa.id', '=', 'ca.tipo_moneda')
                ->join('users as u', 'u.id', '=', 'ca.id_usuario')
+               ->join('adm__sucursals AS ass', 'ass.id', '=', 'ces.id_sucursal')
+               ->join('adm__departamentos AS ad', 'ad.id', '=', 'ass.departamento')
                ->select(
                    'ces.id',
                    'ces.id_arqueo as num_arqueo',
@@ -54,7 +56,12 @@ class CajaEntradaSalidaController extends Controller
                    'ca.tipo_moneda',
                    'ca.total_moneda',
                    'aa.pais as nombre_moneda',
-                   'aa.simbolo'
+                   'aa.simbolo',
+                   'ass.razon_social',
+                   'ass.direccion',
+                   'ces.entrada_salida as cadena_A',
+                   DB::raw('CONCAT(ad.nombre, " - ", ass.ciudad) AS dir')
+
                )
                ->where('ces.id_sucursal', $request->id_sucursal)
                ->where('ces.entrada_salida', $request->entrada_salida)
@@ -80,6 +87,8 @@ class CajaEntradaSalidaController extends Controller
                ->join('caja__arqueo as ca', 'ca.id', '=', 'ces.id_arqueo')
                ->join('adm__nacionalidads as aa', 'aa.id', '=', 'ca.tipo_moneda')
                ->join('users as u', 'u.id', '=', 'ca.id_usuario')
+               ->join('adm__sucursals AS ass', 'ass.id', '=', 'ces.id_sucursal')
+                ->join('adm__departamentos AS ad', 'ad.id', '=', 'ass.departamento')
                ->select(
                    'ces.id',
                    'ces.id_arqueo as num_arqueo',
@@ -94,7 +103,11 @@ class CajaEntradaSalidaController extends Controller
                    'ca.tipo_moneda',
                    'ca.total_moneda',
                    'aa.pais as nombre_moneda',
-                   'aa.simbolo'
+                   'aa.simbolo',
+                   'ass.razon_social',
+                   'ass.direccion',
+                   'ces.entrada_salida as cadena_A',
+                   DB::raw('CONCAT(ad.nombre, " - ", ass.ciudad) AS dir')
                )
                ->where('ces.id_sucursal', $request->id_sucursal)
                ->where('ces.entrada_salida', $request->entrada_salida)            
