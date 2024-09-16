@@ -276,72 +276,44 @@
                             <thead>
                                 <tr>
                                     <th class="col-md-2" style="font-size: 11px; text-align: center">Fecha/Hora</th>
-                                    <th class="col-md-2" style="font-size: 11px; text-align: center">Codigo caja</th>
-                                    <th class="col-md-2" style="font-size: 11px; text-align: center">Codigo arqueo</th>                                    
-                                    <th class="col-md-2" style="font-size: 11px; text-align: center">Turno</th>
-                                    <th class="col-md-1" style="font-size: 11px; text-align: center">Tipo</th>
-                                    <th class="col-md-1" style="font-size: 11px; text-align: center">Usuario</th>
-                                    <th class="col-md-2" style="font-size: 11px; text-align: center">Estado</th>                                  
+                                    <th class="col-md-1" style="font-size: 11px; text-align: center">Codigo Entrada/Salida</th>
+                                    <th class="col-md-1" style="font-size: 11px; text-align: center">Codigo Arqueo</th>                                    
+                                    <th class="col-md-2" style="font-size: 11px; text-align: center">Responsable</th>  
+                                    <th class="col-md-4" style="font-size: 11px; text-align: center">Observación</th>                       
+                                    <th class="col-md-2" style="font-size: 11px; text-align: center">Usuario</th>
+                                                            
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
-                                    
-                                    <td class="col-md-2" style="font-size: 11px; text-align: center">{{fecha_modal}}</td>
-                                    <td class="col-md-2" style="font-size: 11px; text-align: center">{{id_modal}}</td>
-                                    <td class="col-md-2" style="font-size: 11px; text-align: center">{{id_arqueo_modal}}</td>
-                                    <td class="col-md-2" style="font-size: 11px; text-align: center">{{turno_modal}}</td>
-                                    <td class="col-md-1" style="font-size: 11px; text-align: center">{{tipo_modal}}</td>
-                                    <td class="col-md-1" style="font-size: 11px; text-align: center">{{usuario_modal}}</td>
-                                    <td class="col-md-2" style="font-size: 11px; text-align: center">{{estado_modal}}</td>
+                                    <td class="col-md-2" style="font-size: 11px; text-align: center">{{ver_created_at}}</td>
+                                    <td class="col-md-1" style="font-size: 11px; text-align: center">{{ver_codigo_E_S}}</td>
+                                    <td class="col-md-1" style="font-size: 11px; text-align: center">{{ver_codigo_arqueo}}</td>
+                                    <td class="col-md-2" style="font-size: 11px; text-align: center">{{ver_responsable}}</td>
+                                    <td class="col-md-4" style="font-size: 11px; text-align: center">{{ver_observacion}}</td>
+                                    <td class="col-md-2" style="font-size: 11px; text-align: center">{{ver_usuario}}</td>
+                                 
                                 </tr>
                             </tbody> 
                         </table> 
                         <table class="table table-bordered table-striped table-sm table-responsive">
                             <thead>
                                 <tr>
-                                    <th class="col-md-1" style="font-size: 11px; text-align: center">Total ventas</th>
-                                    <th class="col-md-1" style="font-size: 11px; text-align: center">Total entradas</th>
-                                    <th class="col-md-1" style="font-size: 11px; text-align: center; background-color: gainsboro">Total ingresos</th>
-                                    <th class="col-md-1" style="font-size: 11px; text-align: center">Total gastos</th>
-                                    <th class="col-md-1" style="font-size: 11px; text-align: center">Total inversiones</th>
-                                    <th class="col-md-1" style="font-size: 11px; text-align: center">Total salidas</th>
-                                    <th class="col-md-1" style="font-size: 11px; text-align: center; background-color: gainsboro">Total egresos</th>
-                                    <th class="col-md-1" style="font-size: 11px; text-align: center">Total caja</th>                                    
-                                    <th class="col-md-1" style="font-size: 11px; text-align: center">Total arqueo</th>
-                                    <th class="col-md-1" style="font-size: 11px; text-align: center">Total diferencia</th>                                   
-                                 </tr>
-                            </thead> 
-                            <tbody>
-                                <tr>
-                                    <td class="col-md-1" style="font-size: 11px; text-align: center">{{total_venta_modal}}</td>
-                                    <td class="col-md-1" style="font-size: 11px; text-align: center">{{total_entrada_modal}}</td>
-                                    <td class="col-md-1" style="font-size: 11px; text-align: center;background-color: gainsboro">{{total_ingreso_modal}}</td>
-                                    <td class="col-md-1" style="font-size: 11px; text-align: center">{{total_gasto_modal}}</td>
-                                    <td class="col-md-1" style="font-size: 11px; text-align: center">{{total_inversione_modal}}</td>
-                                    <td class="col-md-1" style="font-size: 11px; text-align: center">{{total_salida_modal}}</td>
-                                    <td class="col-md-1" style="font-size: 11px; text-align: center; background-color: gainsboro">{{total_egreso_modal}}</td>
-                                    <td class="col-md-1" style="font-size: 11px; text-align: center">{{total_caja_modal}}</td>
-                                    <td class="col-md-1" style="font-size: 11px; text-align: center">{{total_arqueo_modal}}</td>
-                                    <td class="col-md-1" style="font-size: 11px; text-align: center">{{total_diferencia_modal}}</td>
-                                </tr>
-                            </tbody>
-                        </table>  
-                        <table class="table table-bordered table-striped table-sm table-responsive">
-                            <thead>
-                                <tr>
-                                    <th class="col-md-3" style="font-size: 11px; text-align: center">Cantidad monedas</th>
-                                    <th class="col-md-3" style="font-size: 11px; text-align: center">Monto en monedas</th>
-                                    <th class="col-md-3" style="font-size: 11px; text-align: center">Cantidad Billetes</th>
-                                    <th class="col-md-3" style="font-size: 11px; text-align: center">Monto en Billetes</th>                                    
+                                    <th class="col-md-2" style="font-size: 11px; text-align: center">Cantidad monedas</th>
+                                    <th class="col-md-2" style="font-size: 11px; text-align: center">Monto en monedas</th>
+                                    <th class="col-md-2" style="font-size: 11px; text-align: center">Cantidad Billetes</th>
+                                    <th class="col-md-2" style="font-size: 11px; text-align: center">Monto en Billetes</th>
+                                    <th class="col-md-4" style="font-size: 11px; text-align: center">Monto Total</th>                                    
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td class="col-md-3" style="font-size: 11px; text-align: center">{{cantidad_moneda_modal}}</td>
-                                    <td class="col-md-3" style="font-size: 11px; text-align: center">{{monto_moneda_modal}}</td>
-                                    <td class="col-md-3" style="font-size: 11px; text-align: center">{{cantidad_billete_modal}}</td>
-                                    <td class="col-md-3" style="font-size: 11px; text-align: center">{{monto_billete_modal}}</td>
+                                <tr> 
+                                 
+                                    <td class="col-md-2" style="font-size: 11px; text-align: center">{{ver_cantidad_moenda}}</td>
+                                    <td class="col-md-2" style="font-size: 11px; text-align: center">{{ver_monto_moneda+" "+ver_simbolo }}</td>
+                                    <td class="col-md-2" style="font-size: 11px; text-align: center">{{ver_cantidad_billete}}</td>
+                                    <td class="col-md-2" style="font-size: 11px; text-align: center">{{ver_monto_billete+" "+ver_simbolo}}</td>
+                                    <td class="col-md-4" style="font-size: 11px; text-align: center">{{ver_monto_total+" "+ver_simbolo}}</td>
                                 </tr>
                             </tbody>   
                         </table> 
@@ -364,8 +336,7 @@
                                     <td class="col-md-3" style="font-size: 11px; text-align: center">{{m.cantidad}}</td>
                                 </tr>
                             </tbody>   
-                        </table> 
-                        
+                        </table>                       
                     </div>                   
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" @click="cerrarModal('ver')">
@@ -433,6 +404,20 @@ export default {
 
             arrayMonedaVentana:[],
 
+            ver_created_at:'',
+            ver_codigo_E_S:'',
+            ver_codigo_arqueo:'',
+            ver_responsable:'',
+            ver_observacion:'',   
+            ver_usuario:'',
+
+            ver_cantidad_moenda:'',
+            ver_monto_moneda:'',
+            ver_cantidad_billete:'',
+            ver_monto_billete:'',
+            ver_monto_total:'',
+            ver_simbolo:'',
+            arrayMonedaModal:[],
         };
     },
 
@@ -560,11 +545,20 @@ general_pdf(razon_social,direccion,lugar,cadena_A,id,soloFecha,soloHora,mensaje,
 },
 /////////////////////////////END PDF/////////////////////////////////////
 
-
-    re_imprecion(){
-        let me =this;
-
-    },
+        modalMoneda(id) {
+            let me = this;           
+            var url ="/entrada_salida/monedaModal_vista?id_arqueo="+id;
+            axios.get(url)
+                .then(function (response) {
+                    var respuesta = response.data;
+                    me.arrayMonedaModal=respuesta;
+                   console.log(me.arrayMonedaModal);
+                
+                })
+                .catch(function (error) {
+                    error401(error);
+                });
+        },
 
     validatePassword() {
             let me = this;           
@@ -938,6 +932,7 @@ general_pdf(razon_social,direccion,lugar,cadena_A,id,soloFecha,soloHora,mensaje,
                 }
                 case "ver": {
                     console.log(data);
+                    let cadena_A="";
                     if (data.cadena_A===1) {
                         cadena_A="ENTRADA";
                     } else {
@@ -946,10 +941,22 @@ general_pdf(razon_social,direccion,lugar,cadena_A,id,soloFecha,soloHora,mensaje,
                         } else {
                             cadena_A="Error";
                         }                        
-                    }
-                    me.tituloModal=cadena_A;
-                    me.listarVentanaEntradaSalida(data.num_arqueo);
-                   // me.classModal.openModal("ver");
+                    }                    
+                    me.tituloModal="TIPO DE VISTA "+cadena_A+" EN "+data.razon_social.toUpperCase();
+                    me.ver_created_at=data.created_at;
+                    me.ver_codigo_E_S="000"+data.id;
+                    me.ver_codigo_arqueo="000"+data.num_arqueo;
+                    me.ver_responsable=(data.mensaje).toUpperCase();
+                    me.ver_observacion=(data.observacion).toUpperCase();                                    
+                    me.ver_usuario=(data.name).toUpperCase();  
+                    me.ver_cantidad_moenda=data.cantidad_moneda;
+                    me.ver_monto_moneda=data.total_moneda;
+                    me.ver_cantidad_billete=data.cantidad_billete;
+                    me.ver_monto_billete=data.total_billete;
+                    me.ver_monto_total=data.valor; 
+                    me.ver_simbolo=data.simbolo;  
+                    me.modalMoneda(data.num_arqueo);      
+                    me.classModal.openModal("ver");
                 break;
                 }
             
@@ -978,6 +985,25 @@ general_pdf(razon_social,direccion,lugar,cadena_A,id,soloFecha,soloHora,mensaje,
             me.codigo="";
             me.classModal.closeModal(accion);
             me.foco=0;
+
+            }
+            if (accion == "ver") {
+
+                me.ver_created_at="";
+            me.ver_codigo_E_S="";
+            me.ver_codigo_arqueo="";
+            me.ver_responsable="";
+            me.ver_observacion="";
+            me.ver_tipo="";
+            me.ver_usuario="";
+            me.ver_cantidad_moenda="";
+            me.ver_monto_moneda="";
+            me.ver_cantidad_billete="";
+            me.ver_monto_billete="";
+            me.ver_monto_total="";
+            me.ver_simbolo="";
+            me.arrayMonedaModal=[];
+            me.classModal.closeModal(accion);
             }
         },
 

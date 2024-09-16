@@ -159,7 +159,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/listarEx', [GetController::class, 'listarEx']);   
     Route::get('/listar_entradasXe', [GetController::class, 'listar_entradasXe']);   
     Route::get('/tiene_movimiento', [GetController::class, 'tiene_movimiento']);
-    Route::get('/listarSucusal_TDA_ALM_sin_permiso', [GetController::class, 'listarSucusal_TDA_ALM_sin_permiso']);      
+    Route::get('/listarSucusal_TDA_ALM_sin_permiso', [GetController::class, 'listarSucusal_TDA_ALM_sin_permiso']);   
+    Route::get('/getBancos', [GetController::class, 'getBancos']);     
     
     /**********************verificador de apertura cierre retornod e datos****************************** */
     Route::get('/verificacionAperturaCierre', [GetController::class, 'listarAperturaCierre']);
@@ -237,7 +238,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/credenciales_correo/update_datos_empresa', [AdmCredecialCorreoController::class, 'update_datos_empresa']);   
     Route::get('/credenciales_correo/tipo_moneda', [AdmCredecialCorreoController::class, 'tipo_moneda']); 
     Route::post('/credenciales_correo/tipomonedaUpdate', [AdmCredecialCorreoController::class, 'tipomonedaUpdate']);    
-
+    Route::post('/credenciales_correo/crear_banco', [AdmCredecialCorreoController::class, 'crear_banco']);   
 
     Route::get('/dosificacion/getDataSucursal', [AdmCredecialCorreoController::class, 'getDataSucursal']);
     Route::post('/dosificacion/store_dosificacion', [AdmCredecialCorreoController::class, 'store_dosificacion']);
@@ -609,14 +610,15 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/gestor_ventas/venta/pdf', [VenGestorVentaController::class, 'venta']);
     Route::get('/gestor_ventas/venta/pdf2', [VenGestorVentaController::class, 'mostrarPDF']);
     Route::get('/gestor_ventas/verificador_dosificacion_o_facturacion', [VenGestorVentaController::class, 'verificador_dosificacion_o_facturacion']);    
+    Route::get('/gestor_ventas/tieneApertura', [VenGestorVentaController::class, 'tieneApertura']);
 
     //mostrar venta,re-imprimir,anular
     Route::get('/detalle_venta_2/index', [VenGestorVentaVistaController::class, 'index']);
     Route::get('/detalle_venta_2/re_imprecion',[VenGestorVentaVistaController::class, 're_imprecion']);
     Route::get('/detalle_venta_2/verCliente_x_venta', [VenGestorVentaVistaController::class, 'verCliente_x_venta']);
     Route::post('/detalle_venta_2/desactivar', [VenGestorVentaVistaController::class, 'desactivar']);
-    Route::get('/detalle_venta_2/factura_dosificacion', [VenGestorVentaVistaController::class, 'factura_dosificacion']);
-
+    Route::get('/detalle_venta_2/factura_dosificacion', [VenGestorVentaVistaController::class, 'factura_dosificacion']); 
+    
     //caducidad---
     Route::get('/caducida/index', [VenCaducidadController::class, 'index']);
     Route::put('/caducida/prioridad', [VenCaducidadController::class, 'prioridad']); 
@@ -644,5 +646,6 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/entrada_salida/index', [CajaEntradaSalidaController::class, 'index']); 
     Route::post('/entrada_salida/validate-password', [CajaEntradaSalidaController::class, 'validatePassword']);
     Route::get('/entrada_salida/getmoneda', [CajaEntradaSalidaController::class, 'getmoneda']); 
+    Route::get('/entrada_salida/monedaModal_vista', [CajaEntradaSalidaController::class, 'monedaModal_vista']);     
  
 });

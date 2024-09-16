@@ -456,4 +456,19 @@ class AdmCredecialCorreoController extends Controller
         DB::table('log__sistema')->insert($datos);   
     }
 
+    public function crear_banco(Request $request){
+        try {
+            $fechaActual = Carbon::now(); // Obtiene la fecha y hora actual
+            $datos = [
+                'nombre' => $request->nombre,
+                'id_usuario_registra' => auth()->user()->id,
+                'created_at'=>$fechaActual,
+            ]; 
+            DB::table('adm__bancos')->insert($datos);    
+                
+        }
+         catch (\Throwable $th) {
+            return $th;
+        }      
+        }
 }

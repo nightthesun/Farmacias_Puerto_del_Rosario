@@ -215,4 +215,16 @@ $sucu = DB::table('adm__sucursals as ass')
         }
     
     }
+
+    public function monedaModal_vista(Request $request){
+       
+        $resultado = DB::table('caja__entrada_salida_array as caa')
+    ->join('caja__monedas as cm', 'caa.id_moneda', '=', 'cm.id')
+    ->select('caa.id_moneda as id','cm.unidad_entera', 'cm.unidad', 'cm.tipo_corte', 'cm.valor', 'caa.cantidad')
+    ->where('caa.id_arqueo','=',$request->id_arqueo)
+    ->get();
+  
+    return $resultado;
+
+    }
 }

@@ -291,4 +291,14 @@ return $result;
             ]);
         }
     }
+
+
+    ///--------------
+    public function getBancos(){
+        $bancos = DB::table('adm__bancos')
+    ->select('id', 'nombre', 'activo')
+    ->orderBy('id', 'desc')
+    ->get();
+    return $bancos;
+    }
 }

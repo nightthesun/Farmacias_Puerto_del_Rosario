@@ -6,6 +6,12 @@
           <!-- También puedes agregar un spinner en lugar de una imagen -->
         </div>
         <div v-else>
+          <div v-if="tieneApertura_0===0">
+            <main class="main">           
+                  Sin apertura. debe realizar una apartura primero.                            
+             </main>              
+          </div>
+          <div v-else>            
           <!-- Contenido de tu aplicación que se mostrará después de cargar -->
           <main class="main">
             <!-- Breadcrumb -->
@@ -685,6 +691,8 @@
              <!--fin del modal-->
              </main>
 
+          </div>
+
         </div>
       </div>
   
@@ -824,6 +832,9 @@ export default {
      n_ini_facturacion_1:'',
      n_fin_facturacion_1:'',
      n_act_facturacion_1:'',
+
+
+     tieneApertura_0:'',
         };
     },
     created() {
@@ -2817,7 +2828,30 @@ total_sin_des,descuento_venta,total_venta,efectivo_venta,cambio_venta,fechaMas7D
               }
           });
     },
+    
+    tieneApertura() {
+            let me = this;     
+           var url = "/gestor_ventas/tieneApertura";           
+            axios.get(url)
+                .then(function (response) {
+                    var respuesta = response.data;             
+                    if(respuesta.length>0){
+                      me.tieneApertura_0=1;
+                    }else{
+                      me.tieneApertura_0=0;
+                      Swal.fire(
+                      "Error",
+                      "No existe apertura", 
+                      "error"
+                  );
+                    }                   
 
+                })
+                .catch(function (error) {
+                    error401(error);
+                    console.log(error);
+                });
+        },
 
         registrar_cliente_modal() {
       
@@ -2933,6 +2967,7 @@ if (!correoRegex.test(me.correo)) {
         this.listarDescuentos_listas();
         this.listarSucursalGet();
         this.listarPermisoFacturacion();
+        this.tieneApertura();
         this.classModal.addModal("registrar");
         this.classModal.addModal("cliente_modal");
         this.classModal.addModal("lote_cliete"); 

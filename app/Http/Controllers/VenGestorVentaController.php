@@ -908,6 +908,7 @@ $nombre_empresa = strtoupper($nombre_e);
 
     }
     public function verificador_dosificacion_o_facturacion(Request $request){
+        
         $credencialesCorreos = DB::table('adm__credecial_correos as acc')
     ->select('acc.id', 'acc.factura_dosificacion')    
     ->get();
@@ -922,7 +923,11 @@ $nombre_empresa = strtoupper($nombre_e);
             return response()->json(['estado' => $data_return_estado, 'consulta' => null]); 
         }else{
             if ($credencialesCorreos[0]->factura_dosificacion==2) {
-                $idsuc = session('idsuc');
+                if (auth()->user()->id===1) {                 
+                $idsuc = 1;
+                } else {                
+                    $idsuc = session('idsuc');
+                }
             $data_return_estado=2; 
             $dosificaciones = DB::table('dos__dosificacion as dd')
             ->select(
@@ -939,6 +944,7 @@ $nombre_empresa = strtoupper($nombre_e);
             ->where('dd.id_sucursal', $idsuc)
             ->where('dd.estado', 1)
             ->first();
+
                 if ( $dosificaciones) {
                     return response()->json(['estado' => $data_return_estado, 'consulta' => $dosificaciones]);
            
@@ -952,10 +958,21 @@ $nombre_empresa = strtoupper($nombre_e);
         }
     }
     
-   
+    }
 
-    
-
+    public function tieneApertura(){
+        $id_user=auth()->user()->id; 
+        if ($id_user==1) {
+            $idsuc = 1;
+        } else {
+            $idsuc = session('idsuc');
+        }
+    $apertura = DB::table('caja__apertura_cierres')
+    ->select('id')
+    ->where('id_sucursal', '=',$idsuc)
+    ->where('id_apertura_cierre', '=',0)
+    ->get();
+    return $apertura;
     }
     
 }

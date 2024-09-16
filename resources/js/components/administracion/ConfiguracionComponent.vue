@@ -24,6 +24,9 @@
                 <li class="nav-item">
                     <a class="nav-link" id="pills-moneda-tab" data-toggle="pill" href="#pills-moneda" role="tab" aria-controls="pills-moneda" @click="listarTipomoneda()" aria-selected="false">Tipo de moneda</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="pills-cuenta-tab" data-toggle="pill" href="#pills-cuenta" role="tab" aria-controls="pills-cuenta" @click="listarBanco()" aria-selected="false">Tipo de cuenta</a>
+                </li>
             </ul>
         </div>
         <div class="card-body">
@@ -215,12 +218,125 @@
                         </div>
                     </div>
                 </div>
+                
+            <!-------------------------------------------------------------------------------------------------------------------------->
+            <div class="tab-pane fade" id="pills-cuenta" role="tabpanel" aria-labelledby="pills-cuenta-tab">
+                <div id="accordion">
+  <div class="card">
+    <div class="card-header" id="headingOne">
+      <h5 class="mb-0">
+        <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+          Cuenta bancaria
+        </button>
+      </h5>
+    </div>
+
+    <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
+      <div class="card-body">
+        Anim pariatur cliche reprehenderit, enim eiusmod high life accusamus terry richardson ad squid. 3 wolf moon officia aute, non cupidatat skateboard dolor brunch. Food truck quinoa nesciunt laborum eiusmod. Brunch 3 wolf moon tempor, sunt aliqua put a bird on it squid single-origin coffee nulla assumenda shoreditch et. Nihil anim keffiyeh helvetica, craft beer labore wes anderson cred nesciunt sapiente ea proident. Ad vegan excepteur butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus labore sustainable VHS.
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header" id="headingTwo">
+      <h5 class="mb-0">
+        <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+         Bancos
+        </button>
+      </h5>
+    </div>
+    <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion">
+      <div class="card-body">
+        <div class="form-group row">
+            <label class="col-md-1 form-control-label" for="text-input" style="font-size: 12px;"><strong>Nombre del banco:</strong></label>
+                <div class="col-md-4">
+                    <input type="text" v-model="banco_nombre" class="form-control" placeholder="Escriba el nombre del banco"/>                  
+                </div>
+                <div class="col-md-1">
+                    <button type="button" class="btn btn-outline-secondary" @click="crearBanco()">Añadir</button>
+                </div>                         
+                               
+          </div> 
+          <div class="form-group row">
+            <table class="table table-bordered table-striped table-sm table-responsive">
+                            <thead>
+                                <tr>
+                                    <th class="col-md-2" style="font-size: 13px; text-align: center">Opciones</th>
+                                    <th class="col-md-8" style="font-size: 13px; text-align: center">Nombre</th>
+                                    <th class="col-md-2" style="font-size: 13px; text-align: center">Estado</th>
+                                                       
+                                </tr>
+                            </thead>
+                            <tbody>                                
+                                <tr v-for="b in arrayBanco" :key="b.id">                                 
+                                    <td class="col-md-2" style="font-size: 13px; text-align: center">
+                                        <button type="button" class="btn btn-warning" style="margin-right: 5px;" @click="abrirModal('regbanco',b)">
+                                            <i class="icon-pencil"></i></button>
+                                    <button v-if="b.activo == 1" type="button" class="btn btn-danger" style="margin-right: 5px;">
+                                             <i class="icon-trash"></i> </button>
+                                    <button v-else type="button" class="btn btn-info" style="margin-right: 5px;">
+                                            <i class="icon-check"></i>
+                                    </button>    
+                                    </td>
+                                    <td class="col-md-8" style="font-size: 13px; text-align: center">{{(b.nombre).toUpperCase()}}</td>
+                                    <td class="col-md-2" style="font-size: 13px; text-align: center">
+                                        <span v-if="b.activo===1" class="badge badge-pill badge-success">Activo</span>
+                                        <span v-else class="badge badge-pill badge-danger">Desactivado</span>
+                                    </td>
+                       
+                                </tr>
+                            </tbody>   
+                        </table> 
+          </div>
+
+        </div>
+    </div>
+  </div>
+
+</div>
+
+
+
+
+
+
+
+                    </div>
+            <!-------------------------------------------------------------------------------------------------------------------------->
                 </div>
             
         </div>
     </div>
 </div>
-  
+  <!-- modal registro bancos -->
+  <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" id="regbanco" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+            <div class="modal-dialog modal-primary" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Registrar Banco</h4>
+                        <button type="button" class="close"  aria-label="Close" @click="cerrarModal('regbanco')">
+                            <span aria-hidden="true">×</span>
+                        </button>
+                    </div>
+                    <div class="modal-body" style="background-color: whitesmoke">
+                        <div class="form-group">
+                            <label>Nombre Banco:</label>
+                            <input type="text" id="nombrebanco" name="nombrebanco" class="form-control rounded" placeholder="Nombre Banco" v-model="nombrebanco_0">
+                 
+                        </div>
+                    </div>    
+                    
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary rounded"  @click="cerrarModal('regbanco')">Cerrar</button>
+                        <button type="button" class="btn btn-primary rounded" @click="registrarBanco()" :disabled="nombrebanco==''">Guardar</button>
+                        
+                    </div>
+                </div>
+                <!-- /.modal-content -->
+            </div>
+            <!-- /.modal-dialog -->
+        </div>
          
         <!--fin del modal-->
     </main>
@@ -264,6 +380,11 @@ puedeEditar:2,
                 pais:'',
                 estado_cambio_moneda:0,
                 nombre_pais:'',
+
+                arrayBanco:[],
+                banco_nombre:'',
+                nombrebanco_0:'',
+                id_banco:'',
         };
     },
 
@@ -512,9 +633,7 @@ puedeEditar:2,
                         "success",
                     );
                 })
-                //.catch(function (error) {
-                //    error401(error);
-                //});
+               
                 .catch(function (error) {           
                 
                 if (error.response.status === 500) {
@@ -702,13 +821,86 @@ puedeEditar:2,
             }
         },
 
+         listarBanco(){
+            let me = this;
+            var url = "/getBancos";
+            axios.get(url)
+                .then(function (response) {
+                    var respuesta = response.data;
+                    me.arrayBanco=respuesta;
+                })
+                .catch(function (error) {
+                    error401(error);
+                    console.log(error);
+                });  
+         },   
 
+         crearBanco(){
+            let me = this;
+            if (me.banco_nombre===""||me.banco_nombre===null) {
+                Swal.fire(
+                    "Error",
+                    "Campo nulo o vacío", 
+                    "error"
+                );
+            } else {
+                axios.post("/credenciales_correo/crear_banco", {
+                    nombre: me.banco_nombre,                 
+                })
+                .then(function (response) {
+                    me.listarBanco(); 
+                    me.banco_nombre=""; 
+                    Swal.fire(
+                        "Registro creado!",
+                        "Correctamente",
+                        "success",
+                    );              
+                })               
+                .catch(function (error) {                
+                    Swal.fire(
+                    "Error",
+                    ""+error.response.data, // Muestra el mensaje de error en el alert
+                    "error" );                
+            });
+            }
+         },
+
+         editarBanco(){
+            let me = this;
+            if (me.banco_nombre===""||me.banco_nombre===null) {
+                Swal.fire(
+                    "Error",
+                    "Campo nulo o vacío", 
+                    "error"
+                );
+            } else {
+                axios.put("/credenciales_correo/editar_banco", {
+                    id:me.id_banco,
+                    nombre: me.nombrebanco_0,                 
+                })
+                .then(function (response) {
+                    me.listarBanco(); 
+                    me.banco_nombre=""; 
+                    Swal.fire(
+                        "Registro editado!",
+                        "Correctamente",
+                        "success",
+                    );
+                    me.cerrarModal("regbanco");             
+                })               
+                .catch(function (error) {                
+                    Swal.fire(
+                    "Error",
+                    ""+error.response.data, // Muestra el mensaje de error en el alert
+                    "error" );                
+            });
+            }
+         },
 
  listarCredencial() {
             let me = this;
             var url = "/credenciales_correo";
-            axios
-                .get(url)
+            axios.get(url)
                 .then(function (response) {
                     var respuesta = response.data;
                   
@@ -751,41 +943,25 @@ puedeEditar:2,
         //    );
            
          switch (accion) {
-                case "registrar": {
+                case "regbanco": {
                     me.tipoAccion = 1;
-                    me.tituloModal = "Registro de traspaso origen ";
-            
-                    me.classModal.openModal("registrar");
+                    me.tituloModal = "Edicion de nombre de banco";
+                    me.nombrebanco_0= (data.nombre).toUpperCase();
+                    me.id_banco=data.id;
+                    me.classModal.openModal("regbanco");
                     break;
-                }
-                case "actualizar": {
-                    me.tipoAccion = 2;
-                   
-          
-            
-                    me.classModal.openModal("registrar");
-
-                    break;
-                }
-            
+                }           
             }
         },
         cerrarModal(accion) {
             let me = this;
-            if (accion == "registrar") {
+            if (accion == "regbanco") {
+                me.tituloModal = "";
+                me.nombrebanco_0="";
+                me.id_banco="";
                 me.classModal.closeModal(accion);
                
-                    me.tituloModal = " ";
-             
-                    setTimeout(me.tiempo, 200); 
-                    //me.ProductoLineaIngresoSeleccionado = 0;
-                    me.inputTextBuscarProductoIngreso = "";
-                        me.arrayRetornarProductosIngreso = "";
-              
-            } else {
-                me.classModal.closeModal(accion);
-              
-                me.classModal.openModal("registrar");
+           
             }
         },
 
@@ -799,11 +975,12 @@ puedeEditar:2,
     },
 
     mounted() {
+        this.classModal = new _pl.Modals();
         //-------permiso E_W_S-----
         this.listarPerimsoxyz();
             //-----------------------
         this.listarCredencial();
-
+        this.classModal.addModal("regbanco");
     
     
     },
