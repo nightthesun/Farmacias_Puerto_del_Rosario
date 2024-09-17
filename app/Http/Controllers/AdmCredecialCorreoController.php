@@ -470,5 +470,72 @@ class AdmCredecialCorreoController extends Controller
          catch (\Throwable $th) {
             return $th;
         }      
+    }
+
+    public function editar_banco(Request $request){
+        try {
+            $fechaActual = Carbon::now();
+            $datos =[
+                'nombre' => $request->nombre,
+                'id_usuario_modifica' => auth()->user()->id,
+                'updated_at'=>$fechaActual,
+            ];
+            DB::table('adm__bancos')->where('id','=',$request->id)->update($datos);
+        } catch (\Throwable $th) {
+            return $th;
         }
+    }
+    
+    public function desactivar(Request $request)
+    {  
+        $fechaActual = Carbon::now();
+        $datos =[
+            'activo' => 0,
+            'id_usuario_modifica' => auth()->user()->id,
+            'updated_at'=>$fechaActual,
+        ];
+        DB::table('adm__bancos')->where('id','=',$request->id)->update($datos);
+    }
+
+    public function activar(Request $request)
+    {  
+        $fechaActual = Carbon::now();
+        $datos =[
+            'activo' => 1,
+            'id_usuario_modifica' => auth()->user()->id,
+            'updated_at'=>$fechaActual,
+        ];
+        DB::table('adm__bancos')->where('id','=',$request->id)->update($datos);
+    }
+
+
+    public function get_cuenta(){
+        $cuentas = DB::table('adm__cuenta_banco as acb')
+        ->join('adm__bancos as ab', 'ab.id', '=', 'acb.id_banco')
+        ->select('acb.id','ab.nombre','acb.id_banco','acb.nombre as nombre_cuenta','acb.nro_cuenta','acb.titular','acb.estado')
+        ->get();
+        return $cuentas;
+    }
+
+    public function crear_cuenta(Request $request){
+        try {
+            $fechaActual = Carbon::now(); // Obtiene la fecha y hora actual
+            $datos = [
+                'id_banco' => $request->id_banco,                
+                'nombre' => $request->nombre,                
+                'nro_cuenta' => $request->nro_cuenta,                
+                'titular' => $request->titular,
+                'id_usuario_registra' => auth()->user()->id,
+                'created_at'=>$fechaActual,
+            ]; 
+            DB::table('adm__cuenta_banco')->insert($datos);    
+                
+        }
+         catch (\Throwable $th) {
+            return $th;
+        }      
+    }
+
+
+
 }

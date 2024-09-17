@@ -239,7 +239,13 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/credenciales_correo/tipo_moneda', [AdmCredecialCorreoController::class, 'tipo_moneda']); 
     Route::post('/credenciales_correo/tipomonedaUpdate', [AdmCredecialCorreoController::class, 'tipomonedaUpdate']);    
     Route::post('/credenciales_correo/crear_banco', [AdmCredecialCorreoController::class, 'crear_banco']);   
+    Route::put('/credenciales_correo/editar_banco', [AdmCredecialCorreoController::class, 'editar_banco']); 
+    Route::put('/credenciales_correo/banco_desactivar', [AdmCredecialCorreoController::class, 'desactivar']); 
+    Route::put('/credenciales_correo/banco_activar', [AdmCredecialCorreoController::class, 'activar']); 
+    Route::get('/cuenta/listar_cuenta', [AdmCredecialCorreoController::class, 'get_cuenta']); 
+    Route::post('/cuenta/crear_cuenta', [AdmCredecialCorreoController::class, 'crear_cuenta']);  
 
+    
     Route::get('/dosificacion/getDataSucursal', [AdmCredecialCorreoController::class, 'getDataSucursal']);
     Route::post('/dosificacion/store_dosificacion', [AdmCredecialCorreoController::class, 'store_dosificacion']);
     Route::get('/dosificacion/index_dosificacion', [AdmCredecialCorreoController::class, 'index_dosificacion']);    
