@@ -536,6 +536,51 @@ class AdmCredecialCorreoController extends Controller
         }      
     }
 
+    public function editar_cuenta(Request $request){
+        try {
+            $fechaActual = Carbon::now();
+            $datos =[
+                'id_banco' => $request->id_banco,                
+                'nombre' => $request->nombre,                
+                'nro_cuenta' => $request->nro_cuenta,                
+                'titular' => $request->titular,
+                'id_usuario_registra' => auth()->user()->id,
+                'created_at'=>$fechaActual,
+            ];
+            DB::table('adm__cuenta_banco')->where('id','=',$request->id)->update($datos);
+        } catch (\Throwable $th) {
+            return $th;
+        }
+    }
+    
+    public function desactivar_cuenta(Request $request)
+    {  
+        try {
+            $fechaActual = Carbon::now();
+        $datos =[
+            'estado' => 0,
+            'id_usuario_modifica' => auth()->user()->id,
+            'updated_at'=>$fechaActual,
+        ];
+        DB::table('adm__cuenta_banco')->where('id','=',$request->id)->update($datos);
+        } catch (\Throwable $th) {
+          return $th;
+        }
+      
+    }
 
+    public function activar_cuenta(Request $request)
+    { try {
+        $fechaActual = Carbon::now();
+        $datos =[
+            'estado' => 1,
+            'id_usuario_modifica' => auth()->user()->id,
+            'updated_at'=>$fechaActual,
+        ];
+        DB::table('adm__cuenta_banco')->where('id','=',$request->id)->update($datos);
+    } catch (\Throwable $th) {
+        return $th;
+    }      
+    }
 
 }

@@ -236,7 +236,9 @@
         <div class="form-group row">
             
                 <div class="col-md-2">
-                    <button type="button" class="btn btn-primary" @click="abrirModal('regcuenta')">Añadir cuenta</button>
+                    <button v-if="puedeCrear===1" type="button" class="btn btn-primary" @click="abrirModal('regcuenta')">Añadir cuenta</button>
+                    <button v-else type="button" class="btn btn-light">Añadir cuenta</button>
+                    
                 </div>                         
                                
           </div> 
@@ -255,11 +257,11 @@
                 <tbody>
                     <tr  v-for="c in arrayCuenta" :key="c.id">
                         <td class="col-md-2" style="font-size: 13px; text-align: center">
-                            <button type="button" class="btn btn-warning" style="margin-right: 5px;" >
-                                <i class="icon-pencil"></i></button>
-                            <button v-if="c.activo == 1" type="button" class="btn btn-danger" style="margin-right: 5px;">
+                            <button type="button" @click="abrirModal('regcuenta_edit',c);" class="btn btn-warning" style="margin-right: 5px;" >
+                                <i class="icon-pencil"></i></button>       
+                            <button v-if="c.estado == 1" type="button" @click="eliminar_cuenta(c.id)"  class="btn btn-danger" style="margin-right: 5px;">
                                 <i class="icon-trash"></i></button>
-                            <button v-else type="button" class="btn btn-info" style="margin-right: 5px;">
+                            <button v-else type="button" class="btn btn-info" @click="activar_cuenta(c.id)" style="margin-right: 5px;">
                                 <i class="icon-check"></i></button> 
                         </td>
                         <td class="col-md-2" style="font-size: 13px; text-align: center">{{ c.nombre }}</td>
@@ -267,7 +269,7 @@
                         <td class="col-md-2" style="font-size: 13px; text-align: center">{{ c.nro_cuenta }}</td>
                         <td class="col-md-2" style="font-size: 13px; text-align: center">{{ c.titular }}</td>
                         <td class="col-md-2" style="font-size: 13px; text-align: center">
-                            <span v-if="c.activo===1" class="badge badge-pill badge-success">Activo</span>
+                            <span v-if="c.estado===1" class="badge badge-pill badge-success">Activo</span>
                             <span v-else class="badge badge-pill badge-danger">Desactivado</span>
                         </td>
                     </tr>
@@ -287,15 +289,18 @@
     </div>
     <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion">
       <div class="card-body">
-        <div class="form-group row">
+        <div v-if="puedeCrear===1" class="form-group row">
             <label class="col-md-3 form-control-label" for="text-input" style="font-size: 12px;"><strong>Nombre del banco:</strong></label>
-                <div class="col-md-5">
+               <div class="col-md-5">
                     <input type="text" v-model="banco_nombre" class="form-control" placeholder="Escriba el nombre del banco"/>                  
                 </div>
                 <div class="col-md-2">
                     <button type="button" class="btn btn-outline-secondary" @click="crearBanco()">Añadir</button>
-                </div>                         
-                               
+                </div>                    
+          </div> 
+          <div v-else class="form-group row">
+            <label class="col-md-3 form-control-label" for="text-input" style="font-size: 12px;"><strong>Sin permiso</strong></label>
+                                 
           </div> 
           <div class="form-group row">
             <table class="table table-bordered table-striped table-sm table-responsive">
@@ -308,15 +313,35 @@
                                 </tr>
                             </thead>
                             <tbody>                                  
-                                <tr v-for="b in arrayBanco" :key="b.id">                                 
+                                <tr v-for="b in arrayBanco" :key="b.id">    
+                                                
                                     <td class="col-md-2" style="font-size: 13px; text-align: center">
-                                        <button type="button" class="btn btn-warning" style="margin-right: 5px;" @click="abrirModal('regbanco',b)">
-                                            <i class="icon-pencil"></i></button>
-                                    <button v-if="b.activo == 1" @click="eliminar_banco(b.id)" type="button" class="btn btn-danger" style="margin-right: 5px;">
+                                        <div  class="d-flex justify-content-start">
+                                            <div  v-if="puedeEditar==1">
+                                                <button type="button" class="btn btn-warning" style="margin-right: 5px;" @click="abrirModal('regbanco',b)">
+                                                    <i class="icon-pencil"></i></button>
+                                            </div>
+                                            <div v-else>
+                                                <button type="button" class="btn btn-light" style="margin-right: 5px;">
+                                                    <i class="icon-pencil"></i></button>
+                                            </div>
+                                            <div v-if="puedeActivar==1">
+                                                <button v-if="b.activo == 1" @click="eliminar_banco(b.id)" type="button" class="btn btn-danger" style="margin-right: 5px;">
                                              <i class="icon-trash"></i> </button>
                                     <button v-else type="button" @click="activar_banco(b.id)" class="btn btn-info" style="margin-right: 5px;">
                                             <i class="icon-check"></i>
-                                    </button>    
+                                    </button>   
+                                            </div>
+                                            <div v-else>
+                                                <button v-if="b.activo == 1"  type="button" class="btn btn-light" style="margin-right: 5px;">
+                                             <i class="icon-trash"></i> </button>
+                                    <button v-else type="button"  class="btn btn-light" style="margin-right: 5px;">
+                                            <i class="icon-check"></i>
+                                    </button>   
+                                            </div>
+                                        </div>        
+                                       
+                                
                                     </td>
                                     <td class="col-md-8" style="font-size: 13px; text-align: center">{{(b.nombre).toUpperCase()}}</td>
                                     <td class="col-md-2" style="font-size: 13px; text-align: center">
@@ -422,11 +447,11 @@
   </div>
                     </div>    
                     
-                    {{ tipoAccion+"ddd" }}
+              
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary rounded"  @click="cerrarModal('regcuenta')">Cerrar</button>
                         <button v-if="tipoAccion===1" @click="crearCuenta()" type="button" class="btn btn-primary rounded">Guardar</button>
-                        <button v-else type="button" class="btn btn-primary rounded">Actualizar</button>                         
+                        <button v-else type="button" @click="editarCuenta()" class="btn btn-primary rounded">Actualizar</button>                         
                     </div>
                 </div>
                 <!-- /.modal-content -->
@@ -485,7 +510,7 @@ puedeEditar:2,
                 num_cuenta:'',
                 nom_cuenta:'',
                 selectBanco_cuenta:0,
-
+                id_cuenta:'',
                 arrayCuenta:[],
         };
     },
@@ -550,7 +575,7 @@ puedeEditar:2,
             var respuesta = response.data;
             console.log(respuesta);
             if(respuesta=="root"){
-            me.puedeEditar=1;
+            me.puedeEditar=1; 
             me.puedeActivar=1;
             me.puedeHacerOpciones_especiales=1;
             me.puedeCrear=1; 
@@ -975,6 +1000,135 @@ puedeEditar:2,
             }
         },
 
+        editarCuenta(id){ 
+            let me = this;
+            if (me.titular_cuenta===""||me.num_cuenta===""||me.nom_cuenta===""||me.selectBanco_cuenta===0) {
+                Swal.fire(
+                    "Error",
+                    "Campo nulo o vacío", 
+                    "error"
+                );
+            } else {
+                axios.put("/cuenta/editar_cuenta", {
+                    id:me.id_cuenta,
+                    id_banco: me.selectBanco_cuenta,   
+                    nombre: me.nom_cuenta,   
+                    nro_cuenta: me.num_cuenta,   
+                    titular: me.titular_cuenta,                
+                })
+                .then(function (response) {
+                    me.listarCuenta(); 
+                    me.selectBanco_cuenta=0; 
+                    me.nom_cuenta=""; 
+                    me.num_cuenta=""; 
+                    me.titular_cuenta=""; 
+                    me.id_cuenta="";
+                    me.cerrarModal('regcuenta');
+                    Swal.fire(
+                        "Registro editado!",
+                        "Correctamente",
+                        "success",
+                    );                           
+                })               
+                .catch(function (error) {    
+                    console.log(error);           
+                    me.cerrarModal('regcuenta');                
+            });
+            }
+        },
+      
+        eliminar_cuenta(id){
+                let me=this;
+                const swalWithBootstrapButtons = Swal.mixin({
+                customClass: {
+                    confirmButton: 'btn btn-success',
+                    cancelButton: 'btn btn-danger'
+                },
+                buttonsStyling: false
+                })
+                swalWithBootstrapButtons.fire({
+                title: 'Esta Seguro de Desactivar?',
+                text: "Es una eliminacion logica",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Si, Desactivar',
+                cancelButtonText: 'No, Cancelar',
+                reverseButtons: true
+                }).then((result) => {                
+                if (result.isConfirmed) {
+                     axios.put('/cuenta/desactivar_cuenta',{
+                        'id': id
+                    }).then(function (response) {
+                        swalWithBootstrapButtons.fire(
+                            'Desactivado!',
+                            'El registro a sido desactivado Correctamente',
+                            'success'
+                        )
+                        me.listarCuenta(); 
+                    }).catch(function (error) {
+                        error401(error);
+                        console.log(error);
+                    });
+                        
+                } else if (
+                    /* Read more about handling dismissals below */
+                    result.dismiss === Swal.DismissReason.cancel
+                ) {
+                    /* swalWithBootstrapButtons.fire(
+                    'Cancelado!',
+                    'El Registro no fue desactivado',
+                    'error'
+                    ) */
+                }
+                })
+            },
+
+            activar_cuenta(id){
+                let me=this;
+                const swalWithBootstrapButtons = Swal.mixin({
+                customClass: {
+                    confirmButton: 'btn btn-success',
+                    cancelButton: 'btn btn-danger'
+                },
+                buttonsStyling: false
+                })
+
+                swalWithBootstrapButtons.fire({
+                title: 'Esta Seguro de Activar?',
+                text: "Es una Activacion logica",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Si, Activar',
+                cancelButtonText: 'No, Cancelar',
+                reverseButtons: true
+                }).then((result) => {
+                if (result.isConfirmed) {
+                     axios.put('/cuenta/activar_cuenta',{
+                        'id': id
+                    }).then(function (response) {                        
+                        swalWithBootstrapButtons.fire(
+                            'Activado!',
+                            'El registro a sido Activado Correctamente',
+                            'success'
+                        )
+                        me.listarCuenta(); 
+                    }).catch(function (error) {
+                        error401(error);
+                        console.log(error);
+                    });       
+                } else if (
+                    /* Read more about handling dismissals below */
+                    result.dismiss === Swal.DismissReason.cancel
+                ) {
+                    /* swalWithBootstrapButtons.fire(
+                    'Cancelado!',
+                    'El Registro no fue Activado',
+                    'error'
+                    ) */
+                }
+                })
+            },
+
          listarBanco(){
             let me = this;
             var url = "/getBancos";
@@ -1201,7 +1355,18 @@ puedeEditar:2,
                     me.selectBanco_cuenta=0;
                     me.classModal.openModal("regcuenta");
                     break;
-                }            
+                }
+                case "regcuenta_edit":{
+                    me.tipoAccion = 2;
+                    console.log(data);
+                    me.id_cuenta=data.id;
+                    me.selectBanco_cuenta=data.id_banco=== null ? 0 :data.id_banco;
+                    me.nom_cuenta=data.nombre_cuenta;
+                    me.num_cuenta=data.nro_cuenta;
+                    me.titular_cuenta=data.titular;
+                    me.classModal.openModal("regcuenta");
+                    break;
+                }                           
             }
         },
         cerrarModal(accion) {
@@ -1220,6 +1385,7 @@ puedeEditar:2,
                 me.num_cuenta="";
                 me.nom_cuenta="";
                 me.selectBanco_cuenta=0;
+                me.id_cuenta="";
                 me.classModal.closeModal(accion);         
             }
         },
