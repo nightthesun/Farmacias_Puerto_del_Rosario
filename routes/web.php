@@ -23,6 +23,7 @@ use App\Http\Controllers\AlmIngresoProductoController;
 use App\Http\Controllers\CajaAperturaCierreController;
 use App\Http\Controllers\CajaEntradaSalidaController;
 use App\Http\Controllers\CajaMonedaController;
+use App\Http\Controllers\CajaTransaccionController;
 use App\Http\Controllers\DirClienteController;
 use App\Http\Controllers\TdaTiendaController;
 use App\Http\Controllers\GesPreVentaController;
@@ -655,6 +656,10 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/entrada_salida/index', [CajaEntradaSalidaController::class, 'index']); 
     Route::post('/entrada_salida/validate-password', [CajaEntradaSalidaController::class, 'validatePassword']);
     Route::get('/entrada_salida/getmoneda', [CajaEntradaSalidaController::class, 'getmoneda']); 
-    Route::get('/entrada_salida/monedaModal_vista', [CajaEntradaSalidaController::class, 'monedaModal_vista']);     
+    Route::get('/entrada_salida/monedaModal_vista', [CajaEntradaSalidaController::class, 'monedaModal_vista']);   
+    
+    //transaccion-----
+    Route::get('/transaccion/cuenta_salida', [CajaTransaccionController::class, 'get_cuenta_salida']); 
+
  
 });

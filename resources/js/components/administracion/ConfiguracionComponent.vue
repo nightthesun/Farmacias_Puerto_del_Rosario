@@ -163,11 +163,15 @@
                                     <label class="col-md-1 form-control-label" for="text-input" style="font-size: 12px;"><strong>Tipo:</strong> 
                                     </label>
                                     <div class="col-md-3">
-                                        <select class="form-control"  v-model="selectTipoFac" @change="cambioEstado(selectTipoFac)">
+                                        <select v-if="puedeHacerOpciones_especiales===1" class="form-control"  v-model="selectTipoFac" @change="cambioEstado(selectTipoFac)" >
                                             <option value="0" disabled selected>Seleccionar...</option>
                                             <option v-for="t in arrayTipofac" :key="t.id" :value="t.id">
                                                 {{ t.tipo }}
                                             </option>
+                                        </select>
+                                        <select v-else class="form-control">
+                                            <option value="0" disabled selected>Sin permiso...</option>
+                                        
                                         </select>
                                      </div>
                                    
@@ -196,11 +200,15 @@
                                 <label class="col-md-1 form-control-label" for="text-input" style="font-size: 12px;"><strong>Tipo:</strong> 
                                 </label>
                                 <div class="col-md-3">
-                                    <select class="form-control"  v-model="selectMoneda" @change="cambioDeMoneda(selectMoneda)">
+                                    <select v-if="puedeHacerOpciones_especiales===1" class="form-control"  v-model="selectMoneda" @change="cambioDeMoneda(selectMoneda)">
                                         <option value="0" disabled selected>Seleccionar...</option>
                                         <option v-for="t in arrayMoneda" :key="t.id_nacionalidad_pais" :value="t.id_nacionalidad_pais">
                                             {{ t.pais+" "+t.simbolo }}
                                         </option>
+                                    </select>
+                                    <select v-else class="form-control">
+                                        <option value="0" disabled selected>Sin permiso...</option>
+                                    
                                     </select>
                                  </div>
                                  <div class="col-md-3">
@@ -257,12 +265,29 @@
                 <tbody>
                     <tr  v-for="c in arrayCuenta" :key="c.id">
                         <td class="col-md-2" style="font-size: 13px; text-align: center">
-                            <button type="button" @click="abrirModal('regcuenta_edit',c);" class="btn btn-warning" style="margin-right: 5px;" >
-                                <i class="icon-pencil"></i></button>       
-                            <button v-if="c.estado == 1" type="button" @click="eliminar_cuenta(c.id)"  class="btn btn-danger" style="margin-right: 5px;">
+                            <div  class="d-flex justify-content-start">
+                                <div  v-if="puedeEditar==1">
+                                    <button type="button" @click="abrirModal('regcuenta_edit',c);" class="btn btn-warning" style="margin-right: 5px;" >
+                                        <i class="icon-pencil"></i></button>    
+                                </div>
+                                <div v-else>
+                                    <button type="button"  class="btn btn-light" style="margin-right: 5px;" >
+                                        <i class="icon-pencil"></i></button>    
+                                </div>
+                                <div v-if="puedeActivar==1">
+                                <button v-if="c.estado == 1" type="button" @click="eliminar_cuenta(c.id)"  class="btn btn-danger" style="margin-right: 5px;">
+                                    <i class="icon-trash"></i></button>
+                                <button v-else type="button" class="btn btn-info" @click="activar_cuenta(c.id)" style="margin-right: 5px;">
+                                    <i class="icon-check"></i></button>        
+                                </div>
+                                <div v-else>
+                                <button v-if="c.estado == 1" type="button"  class="btn btn-light" style="margin-right: 5px;">
                                 <i class="icon-trash"></i></button>
-                            <button v-else type="button" class="btn btn-info" @click="activar_cuenta(c.id)" style="margin-right: 5px;">
+                                <button v-else type="button" class="btn btn-light"  style="margin-right: 5px;">
                                 <i class="icon-check"></i></button> 
+                                </div>
+
+                            </div>                            
                         </td>
                         <td class="col-md-2" style="font-size: 13px; text-align: center">{{ c.nombre }}</td>
                         <td class="col-md-2" style="font-size: 13px; text-align: center">{{ c.nombre_cuenta }}</td>

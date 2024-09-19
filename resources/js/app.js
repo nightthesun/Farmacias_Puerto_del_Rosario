@@ -91,6 +91,7 @@ createApp ({
     .component('apertura_cierre-component', require('./components/caja/Apertura_cierreComponent.vue').default)
     .component('moneda-component', require('./components/caja/MonedaComponent.vue').default)
     .component('entrada_salida-component', require('./components/caja/Entrada_SalidaComponent.vue').default)
+    .component('transaccion-component', require('./components/caja/TransaccionComponent.vue').default)
   
     .mount('#app');
  

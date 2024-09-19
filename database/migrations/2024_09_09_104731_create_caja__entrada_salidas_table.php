@@ -21,6 +21,7 @@ return new class extends Migration
             $table->tinyInteger('entrada_salida')->comment('1=emisor, 2=receptor');
             $table->timestamps();
             $table->smallInteger('id_apertura_cierre');
+            $table->tinyInteger('transaccion')->default(0)->nullable()->comment('0= es sin accion 1=ya se hizo la transaccion');
         });
     }
 
