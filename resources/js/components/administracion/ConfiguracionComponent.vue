@@ -25,7 +25,7 @@
                     <a class="nav-link" id="pills-moneda-tab" data-toggle="pill" href="#pills-moneda" role="tab" aria-controls="pills-moneda" @click="listarTipomoneda()" aria-selected="false">Tipo de moneda</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" id="pills-cuenta-tab" data-toggle="pill" href="#pills-cuenta" role="tab" aria-controls="pills-cuenta" @click="listarBanco();listarCuenta()" aria-selected="false">Tipo de cuenta</a>
+                    <a class="nav-link" id="pills-cuenta-tab" data-toggle="pill" href="#pills-cuenta" role="tab" aria-controls="pills-cuenta" @click="listarBanco();listarCuenta();listarUser()" aria-selected="false">Tipo de cuenta</a>
                 </li>
             </ul>
         </div>
@@ -382,6 +382,78 @@
         </div>
     </div>
   </div>
+  <div class="card">
+    <div class="card-header" id="headingTree">
+      <h5 class="mb-0">
+        <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseTree" aria-expanded="false" aria-controls="collapseTree">
+            Agente personal
+        </button>
+      </h5>
+    </div>
+    <div id="collapseTree" class="collapse" aria-labelledby="headingTree" data-parent="#accordion">
+      <div class="card-body">
+        <!-- insertar datos -->    
+        <div class="container">
+                                
+                                <div class="form-group row">
+                                    <div class="col-md-2 input-group mb-3">
+                                        Usuario:
+                                    </div>
+                                <div class="col-md-7 input-group mb-3">
+                                    
+                    <VueMultiselect
+                        v-model="selectedUser"
+                        :options="arrayUser_2"
+                        :max-height="120"                   
+                        :block-keys="['Tab', 'Enter']"                       
+                        placeholder="Seleccione una opción"
+                        label="nom_completo" 
+                        :custom-label="nameWithLang"                     
+                        track-by="id"
+                        class="w-250"
+                        selectLabel="Añadir a seleccion"
+                        deselectLabel="Quitar seleccion"
+                        selectedLabel="Seleccionado"
+                       >
+                       <template #noResult>
+                        No se encontraron elementos. Considere cambiar la consulta de búsqueda.
+                      </template>
+                    </VueMultiselect>           
+                     </div>
+                        <div class="col-md-2 input-group mb-3">
+                            <div v-if="puedeActivar===1">
+                            <button   v-if="selectedUser==null" type="button" class="btn btn-light">Añadir</button>
+                            <button   v-else-if="selectedUser.responsable===0" @click="añadirOquitar_Responsable(0)" type="button" class="btn btn-primary">Añadir</button>
+                            <button   v-else="selectedUser.responsable===1" @click="añadirOquitar_Responsable(1)"  type="button" class="btn btn-danger">Quitar</button>                            
+                            </div>
+                            <div v-else>
+                            <button   type="button" class="btn btn-light">Sin permiso</button>                       
+                            </div>
+                                          
+                        </div>        
+                    </div>
+                    
+                    <div class="form-group row">
+                        <table class="table table-bordered table-striped table-sm table-responsive">
+                            <thead>
+                                 <tr>    
+                                    <th class="col-md-2" style="font-size: 13px; text-align: center">User</th>
+                                    <th class="col-md-10" style="font-size: 13px; text-align: center">Nombre</th>                                                      
+                                </tr>
+                            </thead>
+                            <tbody>                                  
+                                <tr v-for="u in arrayUser_2" :key="u.id" :hidden="u.responsable===0"> 
+                                    <td class="col-md-2" style="font-size: 13px; text-align: center">{{ u.name }}</td>
+                                    <td class="col-md-10" style="font-size: 13px; text-align: center">{{ u.nom_completo }}</td>
+                                </tr>
+                            </tbody>   
+                        </table> 
+                    </div>   
+                  </div>
+        </div>
+    </div>
+  </div>
+
 
 </div>
 
@@ -489,8 +561,11 @@
 <script>
 import Swal from "sweetalert2";
 import { error401 } from "../../errores";
+import VueMultiselect from 'vue-multiselect';
 //Vue.use(VeeValidate);
+
 export default {
+    components: { VueMultiselect},
      //---permisos_R_W_S
      props: ['codventana','idmodulo'],
         //-------------------
@@ -537,6 +612,10 @@ puedeEditar:2,
                 selectBanco_cuenta:0,
                 id_cuenta:'',
                 arrayCuenta:[],
+
+                arrayUser_2:[],
+                selectedUser:null,
+                arrayUserResponsable:[],
         };
     },
 
@@ -621,9 +700,64 @@ puedeEditar:2,
 
 
 
+        añadirOquitar_Responsable(data){
+            let me = this;
+            console.log((me.selectedUser).id+" "+(me.selectedUser).responsable);
+            axios.put("/responsable/añadir_quitar", {
+                    id:(me.selectedUser).id,
+                    data:data                   
+                }).then(function (response) {
+                    me.listarUser();  
+                    me.selectedUser=null;                
+                    Swal.fire(
+                        "Accion!",
+                        "Realizada correctamente",
+                        "success",
+                    );
+                })
+                .catch(function (error) {                    
+                    console.log(error401(error));
+                });             
+        },
+
+        listarUser(){
+            let me = this;        
+            var url = "/listarUser";
+            axios.get(url).then(function (response) {
+                    var respuesta = response.data;
+                    me.arrayUser_2=respuesta;
+                    // me.arrayUser_2 = respuesta.filter(user => user.responsable === 0);
+                   // me.arrayUserResponsable = respuesta.filter(user => user.responsable === 1);
+                   console.log(me.arrayUser_2);          
+                })
+                .catch(function (error) {
+                    error401(error);
+                    console.log(error);
+                });
+        },
+
+        nameWithLang ({name, nom_completo,}) {
+            
+            return `${name} (${nom_completo}) `
+          },
+
+        toggle () {
+      this.$refs.multiselect.$el.focus()
+
+      setTimeout(() => {
+        this.$refs.multiselect.$refs.search.blur()
+      }, 1000)
+    },
+    open () {
+      this.$refs.multiselect.activate()
+    },
+    close () {
+      this.$refs.multiselect.deactivate()
+    },
+
+
         update_tipo_venta(data){
-            let me= this;
-            console.log(me.id_credencial+"  "+data);
+            let me= this;         
             axios
                 .put("/credenciales_correo/tipo_venta_update", {
                     id: me.id_credencial,                   

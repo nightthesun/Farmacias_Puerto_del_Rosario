@@ -15,6 +15,7 @@ class CajaEntradaSalidaController extends Controller
      */
     public function index(Request $request)
     {
+        $user=auth()->user()->id;
         $buscararray = array();       
         if (!empty($request->buscar)) {
             $buscararray = explode(" ", $request->buscar);
@@ -65,8 +66,10 @@ class CajaEntradaSalidaController extends Controller
                )
                ->where('ces.id_sucursal', $request->id_sucursal)
                ->where('ces.entrada_salida', $request->entrada_salida)
+               ->where('ca.id_usuario', $user)              
                ->whereRaw($sqls)
                ->orderByDesc('ces.id')
+               ->limit(500) // Limita el número de registros a 500
                 ->paginate(15);
             }
             return     
@@ -110,8 +113,10 @@ class CajaEntradaSalidaController extends Controller
                    DB::raw('CONCAT(ad.nombre, " - ", ass.ciudad) AS dir')
                )
                ->where('ces.id_sucursal', $request->id_sucursal)
-               ->where('ces.entrada_salida', $request->entrada_salida)            
+               ->where('ces.entrada_salida', $request->entrada_salida) 
+               ->where('ca.id_usuario', $user)               
                ->orderByDesc('ces.id')
+               ->limit(500) // Limita el número de registros a 500
                 ->paginate(15);
                 return     
                 [

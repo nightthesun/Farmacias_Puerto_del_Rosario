@@ -292,7 +292,6 @@ return $result;
         }
     }
 
-
     ///--------------
     public function getBancos(){
         $bancos = DB::table('adm__bancos')
@@ -300,5 +299,16 @@ return $result;
     ->orderBy('id', 'desc')
     ->get();
     return $bancos;
+    }
+
+    ////////////////////////////USUARIOS///////////////////////////////
+    public function getUser(){
+        $usuario = DB::table('users as u')
+            ->join('rrh__empleados as re', 're.id', '=', 'u.idempleado')
+            ->select('u.id','u.name','u.responsable','u.monto',DB::raw("CONCAT(COALESCE(re.nombre, ''), ' ', COALESCE(re.papellido, ''), ' ', COALESCE(re.sapellido, '')) AS nom_completo"),'re.ci','u.responsable')
+            ->where('u.activo', 1)
+            ->get();
+        return $usuario;     
+
     }
 }

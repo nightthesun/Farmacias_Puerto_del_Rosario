@@ -583,4 +583,26 @@ class AdmCredecialCorreoController extends Controller
     }      
     }
 
+    public function añadir_quitar_Encargado(Request $request)
+    {   
+        //data 1= adicion de cargo 0= sin cargo
+        try {
+            $data=$request->data;
+            if ($data==0) {
+                $datos=['responsable' => 1];
+            }else{
+                if ($data==1) {
+                $datos=['responsable' => 0];
+                } else {
+                    dd("error...");
+                }               
+            }           
+            DB::table('users')->where('id','=',$request->id)->update($datos);
+        
+        } catch (\Throwable $th) {
+            
+            return $th;
+        }
+    }
+
 }

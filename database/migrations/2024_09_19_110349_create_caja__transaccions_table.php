@@ -20,7 +20,8 @@ return new class extends Migration
             $table->string('observacion')->nullable();
             $table->smallInteger('id_usuario_registra')->nullable();
             $table->smallInteger('id_usuario_modifica')->nullable();
-            $table->tinyInteger('estado')->default(1);            
+            $table->tinyInteger('estado')->default(1);
+            $table->tinyInteger('tipo_deposito')->nullable()->comment('1=persona, 2=banco');              
             $table->timestamps();
         });
     }

@@ -162,6 +162,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/tiene_movimiento', [GetController::class, 'tiene_movimiento']);
     Route::get('/listarSucusal_TDA_ALM_sin_permiso', [GetController::class, 'listarSucusal_TDA_ALM_sin_permiso']);   
     Route::get('/getBancos', [GetController::class, 'getBancos']);     
+    Route::get('/listarUser', [GetController::class, 'getUser']);   
     
     /**********************verificador de apertura cierre retornod e datos****************************** */
     Route::get('/verificacionAperturaCierre', [GetController::class, 'listarAperturaCierre']);
@@ -248,7 +249,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::put('/cuenta/editar_cuenta', [AdmCredecialCorreoController::class, 'editar_cuenta']); 
     Route::put('/cuenta/desactivar_cuenta', [AdmCredecialCorreoController::class, 'desactivar_cuenta']); 
     Route::put('/cuenta/activar_cuenta', [AdmCredecialCorreoController::class, 'activar_cuenta']); 
-
+    Route::put('/responsable/añadir_quitar', [AdmCredecialCorreoController::class, 'añadir_quitar_Encargado']); 
+    
       
     Route::get('/dosificacion/getDataSucursal', [AdmCredecialCorreoController::class, 'getDataSucursal']);
     Route::post('/dosificacion/store_dosificacion', [AdmCredecialCorreoController::class, 'store_dosificacion']);

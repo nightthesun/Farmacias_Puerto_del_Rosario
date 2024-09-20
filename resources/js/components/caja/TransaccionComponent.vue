@@ -15,22 +15,20 @@
                     <button
                         type="button"
                         class="btn btn-secondary"
-                        @click="abrirModal('registrar');getModal()"
-                        :disabled="selectAlmTienda == 0">
+                        @click="abrirModal('registrar');getModal();listarUser()"
+                        :disabled="selectPersona_banco===0">
                         <i class="icon-plus"></i>&nbsp;Nuevo
                     </button>
-                    <span v-if="selectAlmTienda == 0" class="error"
-                        >&nbsp; &nbsp;Debe Seleccionar un almacen o
-                        tienda.</span >
+                    
                 </div>
         <div class="card-body">
             <div class="form-group row">
-                <div class="col-md-2" style="text-align: center">
-                     <label for="">Almacen o Tienda:</label>
+                <div class="col-md-2" style="text-align: right">
+                     <label for="">Sucursal:</label>
                 </div>
                         <div class="col-md-6">
                             <div class="input-group">
-                                <select class="form-control" v-model="sucursalSeleccionada">
+                                <select class="form-control" v-model="sucursalSeleccionada" @change="cambioDeSucursal()">
                                     <option value="0" disabled selected>Seleccionar...</option>
                                     <option v-for="sucursal in arraySucursal" :key="sucursal.id"  :value="sucursal.codigo" :hidden="sucursal.tipoCodigo==='Almacen'"
                                         v-text="sucursal.codigoS +' -> '+sucursal.codigo+' '+sucursal.razon_social"></option>
@@ -61,26 +59,22 @@
                                 </button>
                             </div>
                         </div>
-                        
-                       
-
             </div>
-             
-
-            <div class="row justify-content-center">
-    <div class="col-md-8">
-      <div class="row">
-        <div class="col-md-4" v-if="sucursalSeleccionada !== 0">
-          <label for="start-date">Fecha inicial:</label>
-          <input id="start-date" type="date" class="form-control" v-model="startDate">
-        </div>
-        <div class="col-md-4" v-if="sucursalSeleccionada !== 0">
-          <label for="end-date">Fecha final:</label>
-          <input id="end-date" type="date" class="form-control" v-model="endDate">
-        </div>
-      </div>
-    </div>
-  </div>
+            <div class="form-group row">
+                <div class="col-md-2" style="text-align: right">
+                     <label for="">Tipo de deposito:</label>
+                </div>
+                        <div class="col-md-6">
+                            <div class="input-group">
+                                <select class="form-control" v-model="selectPersona_banco">
+                                    <option value=0 disabled selected>Seleccionar...</option>
+                                    <option value=1>Persona</option>
+                                    <option value=2>Banco</option>
+                                </select>
+                            </div>
+                        </div>                     
+            </div>
+     
   <br>
             <!---inserte tabla-->
             <table class="table table-bordered table-striped table-sm table-responsive" >
@@ -140,7 +134,17 @@
                             <div class="container">                                
                                 <div class="form-group row">                                   
                                     <div class="row">
-                                    <div class="form-group col-sm-9">
+                              
+                                    <div v-if="selectPersona_banco==='1'" class="form-group col-sm-7">
+                                        <label>Persona:</label>
+                                        <select class="form-control"  v-model="selectUser_2">
+                                        <option value=0 disabled selected>Seleccionar...</option>
+                                        <option v-for="b in arrayUser_2" :key="b.id" :value="b.id" :hidden="b.responsable===0">                                 
+                                            {{ b.name +" ( "+b.nom_completo+" )"}}
+                                        </option>
+                                    </select>  
+                                    </div>
+                                    <div v-if="selectPersona_banco==='2'" class="form-group col-sm-7">
                                         <label>Banco:</label>
                                         <select class="form-control"  v-model="selectCuentasBancos">
                                         <option value=0 disabled selected>Seleccionar...</option>
@@ -150,7 +154,8 @@
                                         </option>
                                     </select>  
                                     </div>
-                                    <div class="form-group col-sm-3">
+                                    
+                                    <div class="form-group col-sm-5">
                                         <label>Comprobante:</label>
                                         <input type="text" class="form-control rounded" placeholder="Nro de comprobante" v-model="comprobante">
                                     </div>                                  
@@ -246,8 +251,10 @@
 <script>
 import Swal from "sweetalert2";
 import { error401 } from "../../errores";
+
 //Vue.use(VeeValidate);
 export default {
+   
     data() {
         return {
             pagination: {
@@ -276,6 +283,10 @@ export default {
             valor_total:0,
 
             id_sucursal:0,
+
+            selectPersona_banco:0,
+            arrayUser_2:[],
+            selectUser_2:0,
 
         };
     },
@@ -329,6 +340,26 @@ export default {
         }
     },
     methods: {
+
+        cambioDeSucursal(){
+            this.selectPersona_banco=0;
+        },
+
+        listarUser(){
+            let me = this;        
+            var url = "/listarUser";
+            axios.get(url).then(function (response) {
+                    var respuesta = response.data;
+                    me.arrayUser_2=respuesta;
+                    // me.arrayUser_2 = respuesta.filter(user => user.responsable === 0);
+                   // me.arrayUserResponsable = respuesta.filter(user => user.responsable === 1);
+                   console.log(me.arrayUser_2);          
+                })
+                .catch(function (error) {
+                    error401(error);
+                    console.log(error);
+                });
+        },
 
         añadir(newValue){
             let me=this;

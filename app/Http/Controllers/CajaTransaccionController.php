@@ -33,7 +33,7 @@ class CajaTransaccionController extends Controller
     }
 
     public function get_cuenta_salida(Request $request){
-
+        $user=auth()->user()->id;
         $cuentasBancos = DB::table('adm__cuenta_banco as acb')
         ->join('adm__bancos as ab', 'ab.id', '=', 'acb.id_banco')
         ->select('acb.id', 'acb.nombre as nom_cuenta', 'acb.nro_cuenta', 'ab.nombre as nom_banco')
@@ -46,6 +46,7 @@ class CajaTransaccionController extends Controller
     ->join('adm__nacionalidads as na', 'na.id', '=', 'ca.tipo_moneda')
     ->select('ces.id', 'ces.id_arqueo', 'ces.valor', 'ces.observacion', 'ces.mensaje', 'na.simbolo')
     ->where('ces.entrada_salida', 2)
+    ->where('ca.id_usuario', $user)
     ->where('ces.transaccion', 0)
     ->where('ces.id_sucursal', $request->id_sucursal)
     ->get();
