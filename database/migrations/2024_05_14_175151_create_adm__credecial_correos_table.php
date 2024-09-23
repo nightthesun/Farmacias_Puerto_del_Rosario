@@ -27,6 +27,8 @@ return new class extends Migration
     $table->smallInteger('id_dosificacion_siat')->nullable()->comment("lleva la ide de modulo de dosificacio o siat");
     $table->string('actividad_economica',200)->nullable();
     $table->integer('moneda')->nullable();
+    $table->integer('tiempo_limite')->default(0)->nullable();
+    $table->decimal('monto_limite',11,2)->default(0)->nullable();
         });
     }
 

@@ -7,7 +7,11 @@
             <li class="breadcrumb-item active">Dashboard</li>
         </ol>
         <!-- inicio de index -->
-        <div class="container-fluid">
+ 
+        <div v-if="limite_meseje===0">
+
+        </div>  
+        <div v-else class="container-fluid" >
             <div class="card">                
                 <div class="card-header">
                     <i class="fa fa-align-justify"></i> Apertura / Cierre de cajas               
@@ -134,7 +138,8 @@
             </div>   
   
         <!-- fin de index -->
-        </div>   
+        </div> 
+        
              <!--Inicio del modal agregar/actualizar-->
         <div class="modal fade"
             tabindex="-1"
@@ -418,6 +423,8 @@ export default {
             ver_monto_total:'',
             ver_simbolo:'',
             arrayMonedaModal:[],
+
+            limite_meseje:0,
         };
     },
 
@@ -545,6 +552,35 @@ general_pdf(razon_social,direccion,lugar,cadena_A,id,soloFecha,soloHora,mensaje,
 },
 /////////////////////////////END PDF/////////////////////////////////////
 
+        listarLimite(){
+            let me = this;            
+            var url ="/entrada_salida/getlimite";
+            axios.get(url)
+                .then(function (response) {
+                    var respuesta = response.data;
+                    console.log("999999999999999999");
+                    console.log(respuesta.monto_limite);
+                    console.log(respuesta.tiempo_limite);
+                    console.log(respuesta);
+                    let respues_1=respuesta.monto_limite;
+                    let respues_2=respuesta.tiempo_limite;
+                    
+                    if (respues_1==="0.00" || respues_1===null || respues_1===""||respues_2<=0||respues_2==="") {
+                        me.limite_meseje=0
+                        Swal.fire("No se tiene limite de salida",
+                    "Para configurar esta parte, entrea Administracion/Configuración en la pestaña de limite de transacción.",
+                    "warning",
+                    );
+                    }else{
+                        me.limite_meseje=1;
+                    }        
+                
+                })
+                .catch(function (error) {
+                    error401(error);
+                });
+        },
+
         modalMoneda(id) {
             let me = this;           
             var url ="/entrada_salida/monedaModal_vista?id_arqueo="+id;
@@ -633,6 +669,7 @@ general_pdf(razon_social,direccion,lugar,cadena_A,id,soloFecha,soloHora,mensaje,
                     } else {
                     //// datos de registro
                         if (me.foco===1) {
+                        
                             cadena_A="SALIDA";
                             bandera=1; 
                         } else {
@@ -1020,7 +1057,7 @@ general_pdf(razon_social,direccion,lugar,cadena_A,id,soloFecha,soloHora,mensaje,
         this.classModal = new _pl.Modals();
         this.verificador_moneda_sistemas();
         this.sucursalFiltro();
-      
+        this.listarLimite();
         this.classModal.addModal("registrar");
         this.classModal.addModal("ver");
     

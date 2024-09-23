@@ -250,7 +250,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::put('/cuenta/desactivar_cuenta', [AdmCredecialCorreoController::class, 'desactivar_cuenta']); 
     Route::put('/cuenta/activar_cuenta', [AdmCredecialCorreoController::class, 'activar_cuenta']); 
     Route::put('/responsable/añadir_quitar', [AdmCredecialCorreoController::class, 'añadir_quitar_Encargado']); 
-    
+    Route::post('/credenciales_correo/limite_2', [AdmCredecialCorreoController::class, 'añadirLimite']);
       
     Route::get('/dosificacion/getDataSucursal', [AdmCredecialCorreoController::class, 'getDataSucursal']);
     Route::post('/dosificacion/store_dosificacion', [AdmCredecialCorreoController::class, 'store_dosificacion']);
@@ -659,6 +659,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/entrada_salida/validate-password', [CajaEntradaSalidaController::class, 'validatePassword']);
     Route::get('/entrada_salida/getmoneda', [CajaEntradaSalidaController::class, 'getmoneda']); 
     Route::get('/entrada_salida/monedaModal_vista', [CajaEntradaSalidaController::class, 'monedaModal_vista']);   
+    Route::get('/entrada_salida/getlimite', [CajaEntradaSalidaController::class, 'listar_limite']);  
     
     //transaccion-----
     Route::get('/transaccion/cuenta_salida', [CajaTransaccionController::class, 'get_cuenta_salida']); 

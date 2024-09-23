@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('caja__transaccions', function (Blueprint $table) {
             $table->id();
+            $table->smallInteger('id_sucursal');
             $table->smallInteger('id_cuenta');
             $table->string('Comprobante',90);
             $table->string('id_salida',300)->comment('separados por comas las salidas');

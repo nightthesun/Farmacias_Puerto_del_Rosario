@@ -232,4 +232,11 @@ $sucu = DB::table('adm__sucursals as ass')
     return $resultado;
 
     }
+
+    public function listar_limite(){
+        $resultado = DB::table('adm__credecial_correos')
+    ->select('tiempo_limite', 'monto_limite')
+    ->first(); // Para obtener solo una fila
+    return $resultado;
+    }
 }

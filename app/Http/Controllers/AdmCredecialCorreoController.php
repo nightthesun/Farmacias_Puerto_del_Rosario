@@ -599,8 +599,30 @@ class AdmCredecialCorreoController extends Controller
             }           
             DB::table('users')->where('id','=',$request->id)->update($datos);
         
+        } catch (\Throwable $th) {            
+            return $th;
+        }
+    }
+
+    public function añadirLimite(Request $request){
+        try {        
+            $id=$request->id;                
+            $update = adm_CredecialCorreo::find($id);            
+            $update->tiempo_limite=$request->limite_horas;           
+            $update->monto_limite=$request->limite_monto;   
+            $update->save();
+            $fechaActual = Carbon::now(); // Obtiene la fecha y hora actual
+            $datos = [
+                'id_modulo' => $request->id_modulo,
+                'id_sub_modulo' => $request->id_sub_modulo,
+                'accion' => 4,
+                'descripcion' => $request->des,          
+                'user_id' =>auth()->user()->id, 
+                'created_at'=>$fechaActual,
+                'id_movimiento'=>$request->id,   
+            ];        
+            DB::table('log__sistema')->insert($datos);
         } catch (\Throwable $th) {
-            
             return $th;
         }
     }

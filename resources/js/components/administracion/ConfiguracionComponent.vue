@@ -27,6 +27,9 @@
                 <li class="nav-item">
                     <a class="nav-link" id="pills-cuenta-tab" data-toggle="pill" href="#pills-cuenta" role="tab" aria-controls="pills-cuenta" @click="listarBanco();listarCuenta();listarUser()" aria-selected="false">Tipo de cuenta</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="pills-limite-tab" data-toggle="pill" href="#pills-limite" role="tab" aria-controls="pills-limite" aria-selected="false">Limite de transacción</a>
+                </li>                
             </ul>
         </div>
         <div class="card-body">
@@ -88,8 +91,7 @@
 </div>
                             </div>
                             <div class="form-group row justify-content-center">
-    <div class="col-md-3 d-flex justify-content-center">
-       
+                                <div class="col-md-3 d-flex justify-content-center">       
         <button v-if="puedeEditar==1" type="button" class="btn btn-warning" style="color: white;"  @click="update_credecial_correo();">Actualizar configuracion correro</button>
         <button v-else type="button" class="btn btn-light"  >Actualizar configuracion correro</button>
    
@@ -457,14 +459,35 @@
 
 </div>
 
-
-
-
-
-
-
                     </div>
             <!-------------------------------------------------------------------------------------------------------------------------->
+
+                    <div class="tab-pane fade" id="pills-limite" role="tabpanel" aria-labelledby="pills-limite-tab">
+                        <div class="card">
+                            <div class="card-header">Datos de limite de salidas</div>
+                            <div class="card-body">
+                                <div class="form-group row">
+                                    <label class="col-md-2 form-control-label" for="text-input" style="font-size: 12px;"><strong>Limite de monto:</strong></label>
+                                    <div class="col-md-4">
+                                        <input type="number" min="0" v-model="limite_monto"  class="form-control" placeholder="limite monto"/>                                      
+                                    </div>
+                                      
+                                    <label class="col-md-2 form-control-label" for="text-input" style="font-size: 12px;"><strong>Limite en horas:</strong></label>
+                                    <div class="col-md-4">
+                                        <input type="number" min="0" v-model="limite_horas" class="form-control" placeholder="limite en horas "/>                                        
+                                    </div>                              
+                                </div>                               
+                            </div>
+                            <div class="form-group row justify-content-center">
+                                <div class="col-md-3 d-flex justify-content-center">       
+                                    <button v-if="puedeEditar==1" type="button" class="btn btn-warning" style="color: white;"  @click="añadirlimite();">Actualizar datos de limite</button>
+                                    <button v-else type="button" class="btn btn-light">Actualizar datos de limite</button>   
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+<!------------------------------------------------------------------------------------------------------------------------->
+
                 </div>
             
         </div>
@@ -616,6 +639,10 @@ puedeEditar:2,
                 arrayUser_2:[],
                 selectedUser:null,
                 arrayUserResponsable:[],
+
+                limite_monto:0,
+                limite_horas:0,  
+
         };
     },
 
@@ -699,10 +726,46 @@ puedeEditar:2,
 //-------------------------------------------------------------- 
 
 
+        añadirlimite(){
+            let me = this;            
+            if (me.limite_monto===null || me.limite_monto==="" || me.limite_horas===null || me.limite_horas==="") {
+                Swal.fire({
+                    icon: "error",
+                    title: "Oops...",
+                    text: "datos nulos",
+                });
+            } else {
+                console.log("*id"+me.id_credencial+" "+me.limite_monto+" "+me.limite_horas);
+                axios
+                .post("/credenciales_correo/limite_2", {
+                    id: me.id_credencial,                   
+                    limite_monto:me.limite_monto,
+                    limite_horas:me.limite_horas,                                   
+
+                    id_modulo: me.idmodulo,
+                    id_sub_modulo:me.codventana, 
+                    des:"actualziacion datos de limite",  
+                  
+                })
+                .then(function (response) {
+                    me.listarCredencial();
+                
+                    Swal.fire(
+                        "Actualizado Correctamente!",
+                        "El registro a sido actualizado Correctamente",
+                        "success",
+                    );
+                })
+                .catch(function (error) {
+                error401(error);
+                });
+            }
+        },
+
 
         añadirOquitar_Responsable(data){
             let me = this;
-            console.log((me.selectedUser).id+" "+(me.selectedUser).responsable);
+      
             axios.put("/responsable/añadir_quitar", {
                     id:(me.selectedUser).id,
                     data:data                   
@@ -1476,6 +1539,9 @@ puedeEditar:2,
                     me.validador_variables=response.data[0].factura_dosificacion === null ? 0:response.data[0].factura_dosificacion;
                     me.actividad_eco=response.data[0].actividad_economica;
                     me.estado_cambio_moneda=response.data[0].moneda;
+                    
+                    me.limite_monto=response.data[0].monto_limite;
+                    me.limite_horas=response.data[0].tiempo_limite;  
              
                 })
                 .catch(function (error) {
