@@ -366,11 +366,13 @@ class RrhEmpleadoController extends Controller
         $empleado->idcargo=$request->idcargo;
         $empleado->nit=$request->nit;
         $empleado->fechaingreso=$request->fechaingreso;
-        
+
+        $data="";
         if($request->fecharetiro=='null')
-            $request->fecharetiro=NULL;
-        
-        $empleado->fecharetiro=$request->fecharetiro;
+            $data=null;
+        else
+            $data=$request->fecharetiro;
+        $empleado->fecharetiro=$data;
         
         $empleado->idbanco=$request->idbanco;
         $empleado->nrcuenta=$request->nrcuenta;

@@ -68,6 +68,8 @@
                         Ver Perfil
                     </button> -->
                </div>
+              
+               <a class="dropdown-item"  href="#" ><i class="fa fa-suitcase" aria-hidden="true"></i> Ven saldo</a>
                
                <a class="dropdown-item" id="logoutUser" href="#" @click="logout"><i class="fa fa-lock"></i> Cerrar sesión</a>
                
