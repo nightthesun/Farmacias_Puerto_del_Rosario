@@ -292,6 +292,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::put('/empleado/activar', [RrhEmpleadoController::class, 'activar']);
     Route::get('/empleado/selectempleado', [RrhEmpleadoController::class, 'selectEmpleado']);
     Route::get('/empleado/selectnouser', [RrhEmpleadoController::class, 'selectNoUser']);
+    Route::get('/empleado/getsaldo', [RrhEmpleadoController::class, 'getsaldo']);    
 
     Route::get('/formacion', [RrhFormacionController::class, 'index']);
     Route::post('/formacion/registrar', [RrhFormacionController::class, 'store']);

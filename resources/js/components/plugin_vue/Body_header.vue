@@ -68,12 +68,12 @@
                         Ver Perfil
                     </button> -->
                </div>
-              
-               <a class="dropdown-item"  href="#" ><i class="fa fa-suitcase" aria-hidden="true"></i> Ven saldo</a>
-               
-               <a class="dropdown-item" id="logoutUser" href="#" @click="logout"><i class="fa fa-lock"></i> Cerrar sesión</a>
-               
-           </div>
+               <div style="text-align:center">
+                <input type="button" @click="listarSaldo()" value="Ver Saldo" data-toggle="modal" data-target="#exampleModalCenter" style=" width:100% ;padding-top: 8px;padding-bottom: 8px; background-color: white;border:none">
+              </div>
+
+              <a class="dropdown-item" id="logoutUser" href="#" @click="logout"><i class="fa fa-lock"></i> Cerrar sesión</a>
+             </div>
        </li>
         
     </ul>
@@ -162,6 +162,29 @@
             </div>
         </div>
     </div>
+<!------------------------modal saldo-------------------------->
+  <!-- Modal -->
+<div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLongTitle">Saldo</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        ...
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        
+      </div>
+    </div>
+  </div>
+</div>
+
+
   </main>
 </template>
 
@@ -179,9 +202,25 @@ import {error401} from '../../errores';
                 nomrol:this.nomrol,
                 arrayEmpleado:[],
                 tiempoSession:0,
+
+                arraySaldo:[],
             }
         },  
-        methods : {  
+        methods : {
+                        
+            listarSaldo(){
+                let me=this;
+                var url='/empleado/getsaldo';
+                axios.get(url).then(function(response){
+                    var respuesta=response.data;
+                    me.arraySaldo=respuesta;    
+                })
+                .catch(function(error){
+                    error401(error);
+                    console.log(error);
+                });            
+            },
+
             listarEmpleado(){
                 let me=this;
                 var url='/empleado/perfil';
@@ -196,6 +235,23 @@ import {error401} from '../../errores';
                     console.log(error);
                 });
             },
+
+            abrirModal(accion, data = []) {
+            let me = this;
+            switch (accion) {                
+                case 'saldo':
+                    {
+                       
+                        me.classModal.openModal('saldo');                           
+                        break;
+                    }
+                }
+            },
+
+        cerrarModal(accion) {
+            let me = this;          
+            me.classModal.closeModal(accion);            
+        },
 
             logout(event){
                 //console.log('entralogout');
@@ -231,9 +287,12 @@ import {error401} from '../../errores';
                 })
             }
             
-        }  ,
+        },
+
         mounted(){
             this.listarEmpleado();
+                       
+           // this.classModal.addModal('saldo');
             //this.actualizarTiempoSessionUsuario();         
             //console.log(this.menu);
         }
