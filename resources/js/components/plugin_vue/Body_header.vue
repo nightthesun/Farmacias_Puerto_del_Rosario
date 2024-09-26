@@ -174,10 +174,50 @@
         </button>
       </div>
       <div class="modal-body">
-        ...
+       <!---inserte tabla-->
+       <table class="table table-bordered table-striped table-sm table-responsive" >
+                <thead>
+                    <tr>
+                        <th class="col-md-3" style="text-align: center">Rol</th>                     
+                        <th class="col-md-3" style="text-align: center">total</th>
+                        <th class="col-md-3" style="text-align: center">Monto limite</th>
+                        <th class="col-md-3" style="text-align: center">Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="col-md-3" style="text-align: center">{{ nomrol_S }}</td>
+                        <td class="col-md-3" style="text-align: center">{{ suma_valor+" "+simbolo_S }}</td>
+                        <td class="col-md-3" style="text-align: center">{{ montoLimite_S+" "+simbolo_S }}</td>
+                        <td class="col-md-3" style="text-align: center">
+                            <span v-if="estado_S===1" class="badge badge-pill badge-success">OK</span>
+                            <span v-else class="badge badge-pill badge-danger">En Mora</span>
+                            
+                        </td>                       
+                    </tr>
+                </tbody>
+        </table> 
+        <table class="table table-bordered table-striped table-sm table-responsive" >
+                <thead>
+                    <tr>                      
+                        <th class="col-md-4" style="text-align: center">Fecha inicial</th>
+                        <th class="col-md-4" style="text-align: center">Fecha limite</th>
+                        <th class="col-md-2" style="text-align: center">Dia</th>
+                        <th class="col-md-2" style="text-align: center">Hora/minutos</th>                   
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="col-md-4" style="text-align: center">{{ created_at_S }}</td>
+                        <td class="col-md-4" style="text-align: center">{{ fecha_modificada_S }}</td>
+                        <td class="col-md-2" style="text-align: center">{{ dias_faltantes_S }}</td>   
+                        <td class="col-md-2" style="text-align: center">{{ horas_faltantes_S+" : "+ minutos_faltantes_S }}</td>                   
+                    </tr>
+                </tbody>
+        </table>      
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
         
       </div>
     </div>
@@ -203,7 +243,20 @@ import {error401} from '../../errores';
                 arrayEmpleado:[],
                 tiempoSession:0,
 
-                arraySaldo:[],
+               
+                montoLimite_S:0,
+                nomrol_S:'',
+                created_at_S:'',
+                dias_faltantes_S:0,
+                fecha_modificada_S:'',
+                horas_faltantes_S:0,
+                minutos_faltantes_S:0,
+                suma_valor:"",
+       
+                estado_S:0,
+                simbolo_S:"",
+            
+
             }
         },  
         methods : {
@@ -213,7 +266,38 @@ import {error401} from '../../errores';
                 var url='/empleado/getsaldo';
                 axios.get(url).then(function(response){
                     var respuesta=response.data;
-                    me.arraySaldo=respuesta;    
+                    var respuesta_2=response.data.registro;
+            
+                   me.montoLimite_S=respuesta.montoLimite;
+                    me.nomrol_S=respuesta.nomrol;     
+                   
+                   if (respuesta_2===null) {
+                    me.created_at_S="Sin fecha";
+                    me.dias_faltantes_S=0;
+                    me.fecha_modificada_S="Sin fecha";
+                    me.horas_faltantes_S="00";
+                    me.minutos_faltantes_S="00";
+                    me.suma_valor="0.00";  
+                 
+                    me.estado_S=1;
+                    me.simbolo_S = "";
+                    
+                   }else{
+                    me.created_at_S=respuesta_2.created_at;
+                    me.dias_faltantes_S=respuesta_2.dias_faltantes;
+                    me.fecha_modificada_S=respuesta_2.fecha_modificada;
+                    me.horas_faltantes_S=respuesta_2.horas_faltantes;
+                    me.minutos_faltantes_S=respuesta_2.minutos_faltantes;
+                    me.suma_valor= respuesta_2.suma_valor;                 
+                    me.simbolo_S = respuesta.simbolo;
+
+                    if ((parseFloat(me.suma_valor)>=parseFloat(me.montoLimite_S)) || (parseFloat(me.horas_faltantes_S) < 0 && parseFloat(me.dias_faltantes_S) < 0) ) {
+                        me.estado_S=9;
+                    } else {
+                        me.estado_S=1;
+                    }
+                   }
+                   
                 })
                 .catch(function(error){
                     error401(error);
@@ -226,8 +310,7 @@ import {error401} from '../../errores';
                 var url='/empleado/perfil';
                 axios.get(url).then(function(response){
                     var respuesta=response.data;
-                    me.arrayEmpleado=respuesta[0];
-                 
+                    me.arrayEmpleado=respuesta[0];               
                     
                 })
                 .catch(function(error){
@@ -236,25 +319,10 @@ import {error401} from '../../errores';
                 });
             },
 
-            abrirModal(accion, data = []) {
-            let me = this;
-            switch (accion) {                
-                case 'saldo':
-                    {
-                       
-                        me.classModal.openModal('saldo');                           
-                        break;
-                    }
-                }
-            },
-
-        cerrarModal(accion) {
-            let me = this;          
-            me.classModal.closeModal(accion);            
-        },
+          
 
             logout(event){
-                //console.log('entralogout');
+         
                 const swalWithBootstrapButtons = Swal.mixin({
                 customClass: {
                     confirmButton: 'btn btn-success',
@@ -294,7 +362,7 @@ import {error401} from '../../errores';
                        
            // this.classModal.addModal('saldo');
             //this.actualizarTiempoSessionUsuario();         
-            //console.log(this.menu);
+      
         }
        
     }

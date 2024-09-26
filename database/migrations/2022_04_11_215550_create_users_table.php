@@ -26,8 +26,7 @@ class CreateUsersTable extends Migration
             $table->smallInteger('id_usuario_modifica')->unsigned()->nullable()->comment('null->viene del seeder');
             $table->timestamps();
             $table->tinyInteger('responsable')->default(0)->nullable()->comment('0=no es responsable, 1=marca como responsable');
-            $table->decimal('monto',11,2)->default(0)->nullable();
-            $table->datetime('monto_fecha_ini')->nullable(); 
+       
         });
     }
 

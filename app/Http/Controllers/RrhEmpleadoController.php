@@ -465,7 +465,17 @@ if ($user === 1) {
 }
 
 //dd(session()->all());
-$horas = 72;
+$credencial = DB::table('adm__credecial_correos as acc')
+->join('adm__nacionalidads as an', 'an.id', '=', 'acc.moneda')
+->select('acc.tiempo_limite', 'acc.monto_limite', 'an.simbolo')
+->first();
+
+  
+
+// Acceder a los valores
+$tiempoLimite = $credencial->tiempo_limite;
+$montoLimite = $credencial->monto_limite;
+$simbolo = $credencial->simbolo;
 
 $registro = DB::table('caja__entrada_salidas as ces')
     ->join('caja__arqueo as ca', 'ca.id', '=', 'ces.id_arqueo')
@@ -475,23 +485,31 @@ $registro = DB::table('caja__entrada_salidas as ces')
         DB::raw('DATE_ADD(ces.created_at, INTERVAL 72 HOUR) AS fecha_modificada'),
         DB::raw("(SELECT SUM(c.valor)
                   FROM caja__entrada_salidas c
+                  JOIN caja__arqueo ca2 ON ca2.id = c.id_arqueo
                   WHERE c.entrada_salida = 2
-                    AND c.id_sucursal = $idsuc
-                    AND c.transaccion = 0) AS suma_valor"),
-        // Aquí concatenamos la variable $horas correctamente
-        DB::raw("TIMESTAMPDIFF(DAY, NOW(), DATE_ADD(ces.created_at, INTERVAL $horas HOUR)) AS dias_faltantes"),
-        DB::raw("TIMESTAMPDIFF(HOUR, NOW(), DATE_ADD(ces.created_at, INTERVAL $horas HOUR)) % 24 AS horas_faltantes"),
-        DB::raw("TIMESTAMPDIFF(MINUTE, NOW(), DATE_ADD(ces.created_at, INTERVAL $horas HOUR)) % 60 AS minutos_faltantes")
+                    AND c.id_sucursal = ces.id_sucursal
+                    AND c.transaccion = 0
+                    AND ca2.id_usuario = $id_user2) AS suma_valor"),
+        DB::raw("TIMESTAMPDIFF(DAY, NOW(), DATE_ADD(ces.created_at, INTERVAL $tiempoLimite HOUR)) AS dias_faltantes"),
+        DB::raw("TIMESTAMPDIFF(HOUR, NOW(), DATE_ADD(ces.created_at, INTERVAL $tiempoLimite HOUR)) % 24 AS horas_faltantes"),
+        DB::raw("TIMESTAMPDIFF(MINUTE, NOW(), DATE_ADD(ces.created_at, INTERVAL $tiempoLimite HOUR)) % 60 AS minutos_faltantes")
     )
     ->where('ces.entrada_salida', 2)
     ->where('ces.id_sucursal', $idsuc)
     ->where('ces.transaccion', 0)
     ->where('ca.id_usuario', $id_user2)
-    ->orderBy('ces.created_at', 'DESC')
+    ->orderBy('ces.created_at', 'ASC')
     ->limit(1)
     ->first();
-dd($registro);
-return $registro;
+
+
+
+return response()->json([
+    'registro' => $registro,
+    'nomrol' => $nomrol,
+    'montoLimite' => $montoLimite,
+    'simbolo' => $simbolo   
+ ]);
 
     
     }

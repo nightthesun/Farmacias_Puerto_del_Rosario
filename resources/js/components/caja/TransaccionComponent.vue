@@ -125,9 +125,8 @@
                         </button>
                     </div>
                     <div class="modal-body">
-                        <div class="alert alert-warning" role="alert">
-                            Todos los campos con (*) son requeridos
-                        </div>
+                     
+                        
                         <form action="" class="form-horizontal">
                         
                             <!-- insertar datos -->
@@ -161,8 +160,12 @@
                                     </div>                                  
                                 </div>
                               
-                                            <div class="row">                                               
-                                                <div class="form-group col-sm-9">                                                                         
+                                            <div class="row">    
+                                                <div class="form-group col-sm-4">
+                                                    <input type="text" class="form-control rounded" placeholder="Escriba la observación." v-model="observacion">                                                  
+                                              
+                                                </div>                                               
+                                                <div class="form-group col-sm-7">                                                                         
                                                     <select class="form-control"  v-model="selectEntradasSalidas">
                                                         <option value=0 disabled selected>Cuenta...</option>
                                                         <option v-for="c in arrayCajaEntradasSalidas" :key="c.id" :value="c.id">                                 
@@ -170,10 +173,11 @@
                                                         </option>
                                                     </select>                                                  
                                                 </div>
-                                                <div class="form-group col-sm-3">
+                                                <div class="form-group col-sm-1">
                                                     <a  v-if="selectEntradasSalidas===0" href="#" class="btn btn-light">Añadir</a>
                                                     <a  v-else href="#" class="btn btn-primary" @click="añadir(selectEntradasSalidas)" >Añadir</a>
-                                                </div>                                                
+                                                </div>
+
                                             </div>
                                             
                                  
@@ -197,7 +201,7 @@
                                                     <tbody>                                       
                                                             <tr v-for="a in arrayAñadir" :key="a.id">                                                            
                                                             <td  style="font-size: 11px; text-align: center">
-                                                                <button @click="quitar(a.id)" type="button" class="btn btn-danger" style="font-size: 12px; padding: 2px 5px;">
+                                                                <button @click="quitar(a.id,a.valor)" type="button" class="btn btn-danger" style="font-size: 12px; padding: 2px 5px;">
                                                                     <i class="fa fa-minus" aria-hidden="true"></i></button>
                                                             </td>
                                                             <td  class="col-md-2" style="font-size: 11px; text-align: right">{{a.id}}</td>
@@ -205,10 +209,17 @@
                                                             <td  class="col-md-3" style="font-size: 11px; ">{{ a.mensaje }}</td>
                                                             <td  class="col-md-3" style="font-size: 11px;">{{ a.observacion }}</td>                                                        
                                                             <td  class="col-md-2" style="font-size: 11px; text-align: right">{{ a.valor+" "+a.simbolo }}</td>
+                                                            
+                                                        </tr>
+                                                        <tr>
+                                                            <th style="font-size: 11px; text-align: right;" colspan="5">Total:</th>
+                                                            <th style="font-size: 11px; text-align: right;">{{ valor_total+" "+simbolo_s }}</th>
                                                         </tr>
                                                     </tbody>
-                                                </table>  
-                                            </div>    
+                                                </table>                                                                                
+                                               
+               
+                              </div>    
                             
                                
                             </div>
@@ -228,7 +239,7 @@
                             v-if="tipoAccion == 1"
                             class="btn btn-primary"
                            
-                            :disabled="!sicompleto"
+                      
                         >
                             Guardar
                         </button>
@@ -287,6 +298,9 @@ export default {
             selectPersona_banco:0,
             arrayUser_2:[],
             selectUser_2:0,
+
+            observacion:"",
+            simbolo_s:"",
 
         };
     },
@@ -361,18 +375,48 @@ export default {
                 });
         },
 
-        añadir(newValue){
-            let me=this;
-            let busca=me.arrayCajaEntradasSalidas.find((element)=>element.id===newValue);
-            if (busca) {
-                me.arrayAñadir.push({id:busca.id,id_arqueo:busca.id_arqueo,mensaje:busca.mensaje,observacion:busca.observacion,valor:busca.valor,simbolo:busca.simbolo});
-                me.valor_total=me.valor_total+busca.valor;
-            }
-        },
-        quitar(newValue){
+        añadir(newValue) {
+    let me = this; // Contexto de `this` para acceder a las propiedades del componente
+    // Busca en el array `arrayCajaEntradasSalidas` si hay un elemento con el mismo `id`
+    let busca = me.arrayCajaEntradasSalidas.find((element) => element.id === newValue);
+    
+    if (busca) {
+        let busca_2 = me.arrayAñadir.find((element) => element.id === newValue);
+        if (busca_2) {
+            Swal.fire(
+                            "El registro ya existe en la lista.",
+                            "Haga click en Ok",
+                            "error",
+                        );  
+        } else {
+            // Si no existe, lo añade al array
+            me.arrayAñadir.push({
+                id: busca.id,
+                id_arqueo: busca.id_arqueo,
+                mensaje: busca.mensaje,
+                observacion: busca.observacion,
+                valor: busca.valor,
+                simbolo: busca.simbolo
+            });
+            me.simbolo_s=busca.simbolo;
+            let var_1 = parseFloat(me.valor_total); // Convertir a número
+            let var_2 = parseFloat(busca.valor);     // Convertir a número
+            me.valor_total = (var_1 + var_2).toFixed(2); // Sumar y formatear a dos decimales
+         
+            me.selectEntradasSalidas = 0; // Resetea el selector
+         
+        }
+    } else {
+        console.log(`No se encontró el ID ${newValue} en arrayCajaEntradasSalidas.`);
+    }
+},
+
+        quitar(newValue,valor){
             let me=this;         
             me.arrayAñadir =me.arrayAñadir.filter(element => element.id !== newValue); 
-          
+            let var_1 = parseFloat(me.valor_total); // Convertir a número
+            let var_2 = parseFloat(valor);     // Convertir a número
+            me.valor_total = (var_1 - var_2).toFixed(2); // Sumar y formatear a dos decimales
         },
 
         getModal(){
@@ -435,8 +479,13 @@ export default {
                 case "registrar": {
                     me.tipoAccion = 1;
                     me.tituloModal = "Registro de transacción";
+                    me.observacion="Sin Observación";
                     me.comprobante="";
                     me.selectCuentasBancos=0;
+                    me.selectEntradasSalidas=0;
+                    me.selectUser_2=0;
+                    me.arrayAñadir=[];
+                    me.valor_total=0;
                     me.classModal.openModal("registrar");
                     break;
                 }
@@ -453,35 +502,20 @@ export default {
             }
         },
 
-        fecha_inicial(){
-            // Obtener la fecha actual
-    const today = new Date();
-    // Obtener el año, mes y día actual
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, '0'); // Meses en JavaScript son de 0 a 11
-    const day = String(today.getDate()).padStart(2, '0');
+       
 
-    // Asignar la fecha del primer día del mes al input de fecha de inicio
-    this.startDate = `${year}-${month}-01`;
-    // Asignar la fecha actual al input de fecha final
-    this.endDate = `${year}-${month}-${day}`;
-        },
+
         cerrarModal(accion) {
             let me = this;
             if (accion == "registrar") {
                 me.classModal.closeModal(accion);
-               
-                    me.tituloModal = " ";
-             
-                    setTimeout(me.tiempo, 200); 
-                    //me.ProductoLineaIngresoSeleccionado = 0;
-                    me.inputTextBuscarProductoIngreso = "";
-                        me.arrayRetornarProductosIngreso = "";
-              
-            } else {
-                me.classModal.closeModal(accion);
-              
-                me.classModal.openModal("registrar");
+                me.selectUser_2=0;
+                me.selectUser_2=0;
+                me.comprobante="";
+                me.selectEntradasSalidas="";
+                me.arrayAñadir=[];
+                me.valor_total=0;
+                me.observacion="";
             }
         },
 
@@ -497,7 +531,7 @@ export default {
     mounted() {
         this.classModal = new _pl.Modals();
         this.sucursalFiltro();
-        this.fecha_inicial();
+ 
         this.classModal.addModal("registrar");
     
     
