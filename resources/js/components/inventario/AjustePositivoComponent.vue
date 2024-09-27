@@ -104,10 +104,7 @@
                         <tbody v-if="sucursalSeleccionada == 0"></tbody>
                         <tbody v-if="sucursalSeleccionada != 0">
                             <!--botones de opciones-->
-                            <tr
-                                v-for="AjusteNegativos in arrayAjusteNegativos"
-                                :key="AjusteNegativos.id"
-                            >
+                            <tr v-for="AjusteNegativos in arrayAjusteNegativos" :key="AjusteNegativos.id">
                                 <td class="col-md-1">
                                     <div  class="d-flex justify-content-start">
                                         <div  v-if="puedeEditar==1">

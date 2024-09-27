@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->smallInteger('id_sucursal');
             $table->smallInteger('id_cuenta');
-            $table->string('Comprobante',90);
+            $table->string('comprobante',90);
             $table->string('id_salida',300)->comment('separados por comas las salidas');
             $table->decimal('monto_total',11,2);
             $table->string('observacion')->nullable();

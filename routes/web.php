@@ -664,6 +664,6 @@ Route::group(['middleware' => 'auth'], function () {
     
     //transaccion-----
     Route::get('/transaccion/cuenta_salida', [CajaTransaccionController::class, 'get_cuenta_salida']); 
-
- 
+    Route::post('/transaccion/registrar', [CajaTransaccionController::class, 'store']);  
+    Route::get('/transaccion/listar_', [CajaTransaccionController::class, 'index']); 
 });

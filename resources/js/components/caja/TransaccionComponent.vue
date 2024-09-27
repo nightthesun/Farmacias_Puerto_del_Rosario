@@ -66,7 +66,7 @@
                 </div>
                         <div class="col-md-6">
                             <div class="input-group">
-                                <select class="form-control" v-model="selectPersona_banco">
+                                <select class="form-control" v-model="selectPersona_banco" @change="listarIndex(1)">
                                     <option value=0 disabled selected>Seleccionar...</option>
                                     <option value=1>Persona</option>
                                     <option value=2>Banco</option>
@@ -76,25 +76,54 @@
             </div>
      
   <br>
-            <!---inserte tabla-->
-            <table class="table table-bordered table-striped table-sm table-responsive" >
+  <div class="alert alert-warning" v-if="selectPersona_banco===0" role="alert">
+  Debe seleccionar una opcion de tipo de deposito
+</div>
+<div v-else>
+ <!---inserte tabla-->
+ <table class="table table-bordered table-striped table-sm table-responsive" >
                 <thead>
                     <tr>
-                        <th>Opcion</th>
-                        <th class="col-md-2">Banco</th>
-                        <th class="col-md-1">Nombre cuenta</th>
-                        <th class="col-md-1">Comprobante</th>
+                        <th class="col-md-1">Opcion</th>
+                        <th class="col-md-3">
+                            <span v-if="selectPersona_banco==='1'">Responsable</span>
+                            <span v-else-if="selectPersona_banco==='2'">Banco</span>                            
+                        </th>
+                        
+                        <th class="col-md-2">Comprobante</th>
                         <th class="col-md-2">Fecha/Hora</th>
-                        <th class="col-md-2">Nro de salida</th>
+                        
                         <th class="col-md-1">Monto total</th>
                         <th class="col-md-2">Observación</th>                                               
                         <th class="col-md-1">Usuario</th>
                         <th >Estado</th>       
                     </tr>
                 </thead>
+                <tbody>
+                    <tr v-for="i in arrayIndex" :key="i.id">
+                        <td class="col-md-1">
+                            <button type="button"  v-if="i.horas_restantes>0"  class="btn btn-warning btn-sm"  style="margin-right: 5px;"><i class="icon-pencil"></i></button>
+                            <button type="button"  v-else  class="btn btn-light btn-sm"  style="margin-right: 5px;"><i class="icon-pencil"></i></button>
+                            <button type="button" class="btn btn-warning btn-sm" style="margin-right: 5px; color: whitesmoke;" >
+                                <i class="fa fa-eye" aria-hidden="true"></i></button>
+                        </td>
+                        <td class="col-md-3">{{i.name_all}}</td>
+                        <td class="col-md-2">{{i.comprobante}}</td>
+                        <td class="col-md-2">{{i.created_at}}</td>
+                        <td class="col-md-1">{{i.monto_total}}</td>
+                        <td class="col-md-2">{{i.observacion}}</td>
+                        <td class="col-md-1">{{i.name}}</td>
+                        <td>
+                            <span v-if="i.horas_restantes>0"  class="badge badge-pill badge-success">En rango</span>
+                            <span  v-else class="badge badge-pill badge-secondary">Fuera de rango</span>
+                        </td>
+                    </tr>
+                </tbody>
             </table>    
 
             <!-----fin de tabla------->
+</div>
+           
         </div>
 
 
@@ -190,11 +219,11 @@
                                                     <thead>
                                                         <tr>
                                                             <th></th>
-                                                            <th class="col-md-1" style="font-size: 11px; text-align: center">Nro Salida</th>
-                                                            <th class="col-md-1" style="font-size: 11px; text-align: center">Nro arqueo</th>
+                                                            <th class="col-md-2" style="font-size: 11px; text-align: center">Nro Salida</th>
+                                                            <th class="col-md-2" style="font-size: 11px; text-align: center">Nro arqueo</th>
                                                             <th class="col-md-3" style="font-size: 11px; text-align: center">Responsable</th>
                                                          
-                                                            <th class="col-md-4" style="font-size: 11px; text-align: center">Observación</th>
+                                                            <th class="col-md-3" style="font-size: 11px; text-align: center">Observación</th>
                                                             <th class="col-md-2" style="font-size: 11px; text-align: center">Monto</th>
                                                         </tr>
                                                     </thead>
@@ -212,8 +241,8 @@
                                                             
                                                         </tr>
                                                         <tr>
-                                                            <th style="font-size: 11px; text-align: right;" colspan="5">Total:</th>
-                                                            <th style="font-size: 11px; text-align: right;">{{ valor_total+" "+simbolo_s }}</th>
+                                                            <th class="col-md-10" style="font-size: 11px; text-align: right;" colspan="5">Total:</th>
+                                                            <th class="col-md-2" style="font-size: 11px; text-align: right;">{{ valor_total+" "+simbolo_s }}</th>
                                                         </tr>
                                                     </tbody>
                                                 </table>                                                                                
@@ -227,30 +256,9 @@
                     </div>
                   
                     <div class="modal-footer">
-                        <button
-                            type="button"
-                            class="btn btn-secondary"
-                            @click="cerrarModal('registrar')"
-                        >
-                            Cerrar
-                        </button>
-                        <button
-                            type="button"
-                            v-if="tipoAccion == 1"
-                            class="btn btn-primary"
-                           
-                      
-                        >
-                            Guardar
-                        </button>
-                        <button
-                            type="button"
-                            v-if="tipoAccion == 2"
-                            class="btn btn-primary"
-                          
-                        >
-                            Actualizar
-                        </button>
+                        <button type="button" class="btn btn-secondary" @click="cerrarModal('registrar')">Cerrar</button>
+                        <button type="button" @click="registrar_2()" v-if="tipoAccion == 1" class="btn btn-primary" :disabled="arrayAñadir.length<=0">Guardar</button>
+                        <button type="button" v-if="tipoAccion == 2" class="btn btn-primary">Actualizar</button>
                     </div>
                 </div>
             </div>
@@ -298,9 +306,12 @@ export default {
             selectPersona_banco:0,
             arrayUser_2:[],
             selectUser_2:0,
+            array_salida:[],
 
             observacion:"",
             simbolo_s:"",
+
+            arrayIndex:[],
 
         };
     },
@@ -358,6 +369,91 @@ export default {
         cambioDeSucursal(){
             this.selectPersona_banco=0;
         },
+
+        listarIndex(page){
+         //   /transaccion/listar_   
+                let me=this;
+                var url='/transaccion/listar_?page='+page+'&buscar='+me.buscar+'&id_sucursal='+me.id_sucursal+'&tipo_deposito='+me.selectPersona_banco;
+                axios.get(url).then(function(response){
+                    var respuesta=response.data;
+                    me.pagination = respuesta.pagination;
+                    me.arrayIndex = respuesta.resultado.data;               
+                    console.log(me.arrayIndex);
+                })
+                .catch(function(error){
+                    error401(error);
+                    console.log(error);
+                });
+        },
+
+
+        registrar_2() {
+            let me = this;
+            let activador_S=0;  
+            let id_cuenta_S=0;       
+            if (me.selectPersona_banco==="1") {
+                if (me.selectUser_2===0 || me.comprobante==="" || me.observacion==="" || me.arrayAñadir.length<=0) {
+                    Swal.fire("Datos nulos","Se encotro datos vacios","error");  
+                } else {
+                    activador_S=1;
+                    id_cuenta_S=me.selectUser_2;
+                }
+            } else {
+                if (me.selectPersona_banco==="2") {
+                    if (me.selectCuentasBancos===0 || me.comprobante==="" || me.observacion==="" || me.arrayAñadir.length<=0) {
+                        Swal.fire("Datos nulos","Se encotro datos vacios","error");   
+                    } else {
+                        activador_S=1; 
+                        id_cuenta_S=me.selectCuentasBancos;
+                    }
+                } else {
+                    Swal.fire("Selección","No valida","error");  
+                }
+            }
+
+            if (activador_S===1) {
+                let cadena=""; 
+                console.log(me.arrayAñadir);
+                me.arrayAñadir.forEach((item, index) => {
+    // Agrega una coma antes de cada ID excepto el primero
+    cadena += (index === 0 ? '' : ',') + item.id;
+});
+              
+                console.log(cadena); 
+                axios.post("/transaccion/registrar", {
+                    id_sucursal: me.id_sucursal,              
+                    id_cuenta: id_cuenta_S,
+                    comprobante: me.comprobante,
+                    id_salida:cadena,
+                    monto_total:me.valor_total,
+                    observacion:me.observacion,
+                    tipo_deposito:me.selectPersona_banco,
+                    array:me.arrayAñadir                     
+                    })       
+                    .then(function (response) {
+                        me.cerrarModal("registrar");
+                        console.log("-***************************-");
+                        console.log(response.data);
+                        Swal.fire(
+                            "Se registro exitosamente",
+                            "Haga click en Ok",
+                            "success",
+                        );
+
+                    //    me.listarAjusteNegativos();
+                     //   me.sucursalFiltro();
+                    })                
+                  .catch(function (error) {           
+                  //  this.errorMessage = error.response.data; // Aquí guardamos el error
+                  //  Swal.fire("Error comunicarse con el administrador",""+errorMessage,"error");               
+            });
+       
+            } else {
+                Swal.fire("Error","Acción sospechosa","error");
+            }
+
+        },
+
 
         listarUser(){
             let me = this;        
@@ -509,8 +605,7 @@ export default {
             let me = this;
             if (accion == "registrar") {
                 me.classModal.closeModal(accion);
-                me.selectUser_2=0;
-                me.selectUser_2=0;
+                me.selectUser_2=0;        
                 me.comprobante="";
                 me.selectEntradasSalidas="";
                 me.arrayAñadir=[];
