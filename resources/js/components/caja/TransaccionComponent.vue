@@ -102,9 +102,9 @@
                 <tbody>
                     <tr v-for="i in arrayIndex" :key="i.id">
                         <td class="col-md-1">
-                            <button type="button"  v-if="i.horas_restantes>0"  class="btn btn-warning btn-sm"  style="margin-right: 5px;"><i class="icon-pencil"></i></button>
+                            <button type="button"  v-if="i.horas_restantes>0"  @click="abrirModal('actualizar',i);;getModal();listarUser()" class="btn btn-warning btn-sm"  style="margin-right: 5px;"><i class="icon-pencil"></i></button>
                             <button type="button"  v-else  class="btn btn-light btn-sm"  style="margin-right: 5px;"><i class="icon-pencil"></i></button>
-                            <button type="button" class="btn btn-warning btn-sm" style="margin-right: 5px; color: whitesmoke;" >
+                            <button type="button" @click="abrirModal('show',i)" class="btn btn-warning btn-sm" style="margin-right: 5px; color: whitesmoke;" >
                                 <i class="fa fa-eye" aria-hidden="true"></i></button>
                         </td>
                         <td class="col-md-3">{{i.name_all}}</td>
@@ -144,25 +144,18 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <h4 class="modal-title">{{ tituloModal }}</h4>
-                        <button
-                            type="button"
-                            class="close"
-                            aria-label="Close"
-                            @click="cerrarModal('registrar')"
-                        >
+                        <button type="button" class="close" aria-label="Close" @click="cerrarModal('registrar')">
                             <span aria-hidden="true">x</span>
                         </button>
                     </div>
-                    <div class="modal-body">
-                     
+                    <div class="modal-body">                   
                         
-                        <form action="" class="form-horizontal">
-                        
+                        <form action="" class="form-horizontal">                        
                             <!-- insertar datos -->
                             <div class="container">                                
                                 <div class="form-group row">                                   
                                     <div class="row">
-                              
+                             
                                     <div v-if="selectPersona_banco==='1'" class="form-group col-sm-7">
                                         <label>Persona:</label>
                                         <select class="form-control"  v-model="selectUser_2">
@@ -208,9 +201,10 @@
                                                 </div>
 
                                             </div>
-                                            
-                                 
+
+                                          
                                 </div>
+                                
                                 <div v-if="arrayAñadir.length<=0" class="alert alert-info" role="alert">
                                                     Sin datos en la tabla de salida.
                                             </div>
@@ -245,25 +239,106 @@
                                                             <th class="col-md-2" style="font-size: 11px; text-align: right;">{{ valor_total+" "+simbolo_s }}</th>
                                                         </tr>
                                                     </tbody>
-                                                </table>                                                                                
-                                               
-               
+                                                </table>                                                  
+                                                    
                               </div>    
                             
                                
                             </div>
+                            <div class="modal-body d-flex justify-content-center align-items-center" style="height: 100%;" v-if="tipoAccion===2">
+    <div class="row">
+        <table class="table table-bordered table-striped table-sm table-responsive" style="width: 300px;">
+            <thead>
+                <tr>
+                    <th style="font-size: 11px; text-align: center">Numero de salida</th>
+                    <th style="font-size: 11px; text-align: center">Total</th>
+                    <th style="font-size: 11px; text-align: center">Sub total</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td style="font-size: 11px; text-align: center">{{ id_salida_SS }}</td>
+                    <td style="font-size: 11px; text-align: center">{{ monto_total_SS }}</td>
+                    <td style="font-size: 11px; text-align: center">{{ sub_total }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+  
                         </form>
                     </div>
                   
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" @click="cerrarModal('registrar')">Cerrar</button>
                         <button type="button" @click="registrar_2()" v-if="tipoAccion == 1" class="btn btn-primary" :disabled="arrayAñadir.length<=0">Guardar</button>
-                        <button type="button" v-if="tipoAccion == 2" class="btn btn-primary">Actualizar</button>
+                        <button type="button" @click="editar_2()" v-if="tipoAccion == 2"  class="btn btn-primary">Actualizar</button>
                     </div>
                 </div>
             </div>
         </div>
         <!--fin del modal-->
+
+         <!--Inicio del modal show-->
+         <div class="modal fade" tabindex="-1" role="dialog" arial-labelledby="myModalLabel" id="show" aria-hidden="true" data-backdrop="static" data-key="false" >
+            <div class="modal-dialog modal-primary modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">{{ tituloModal }}</h4>
+                        <button type="button" class="close" aria-label="Close" @click="cerrarModal('show')">
+                            <span aria-hidden="true">x</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">                   
+                        
+                        <form action="" class="form-horizontal">                        
+                            <!-- insertar datos -->
+                            <div class="container">                                
+                                                            
+                                    <div class="row">
+                                        <table class="table table-bordered table-striped table-sm table-responsive">
+                                         <thead>
+                                            <tr>
+                                                <th class="col-md-1" style="font-size: 11px; text-align: center">ID</th>
+                                                <th class="col-md-2" style="font-size: 11px; text-align: center">Comprobante</th>
+                                                <th class="col-md-2" style="font-size: 11px; text-align: center">Tipo cuenta</th>
+                                                <th class="col-md-2" style="font-size: 11px; text-align: center">Descripción</th>
+                                                <th class="col-md-2" style="font-size: 11px; text-align: center">Observación</th>
+                                                <th class="col-md-2" style="font-size: 11px; text-align: center">Fecha/Hora</th>
+                                                <th class="col-md-1" style="font-size: 11px; text-align: center">Total</th>                      
+                                            </tr>
+                                        </thead>
+                                    <tbody>
+                <tr>
+                    <td class="col-md-1" style="font-size: 11px; text-align: center">{{ e_id }}</td>
+                    <td class="col-md-2" style="font-size: 11px; text-align: center">{{ e_comprobante }}</td>
+                    <td class="col-md-2" style="font-size: 11px; text-align: center">
+                        <span v-if="e_tipo_deposito===1">Persona</span>
+                        <span v-else-if="e_tipo_deposito===2">Bancario</span>
+                        <span v-else>Error</span>                        
+                    </td>
+                    <td class="col-md-2" style="font-size: 11px; text-align: center">{{ e_name_all }}</td>
+                    <td class="col-md-2" style="font-size: 11px; text-align: center">{{ e_observacion }}</td>
+                    <td class="col-md-2" style="font-size: 11px; text-align: center">{{ e_created_at }}</td>
+                    <td class="col-md-1" style="font-size: 11px; text-align: center">{{ e_monto_total }}</td>
+                </tr>
+            </tbody>
+        </table>   
+                                    </div>
+                              
+                            </div>                    
+                        </form>
+                    </div>
+                  
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" @click="cerrarModal('show')">Cerrar</button>
+                   
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--fin del modal-->
+
     </main>
 </template>
 
@@ -273,7 +348,7 @@ import { error401 } from "../../errores";
 
 //Vue.use(VeeValidate);
 export default {
-   
+    props: ['codventana','idmodulo'],
     data() {
         return {
             pagination: {
@@ -300,6 +375,10 @@ export default {
             comprobante:'',
             arrayAñadir:[],
             valor_total:0,
+            
+            id_salida_SS:"",
+            monto_total_SS:"",
+            sub_total:"",
 
             id_sucursal:0,
 
@@ -312,6 +391,15 @@ export default {
             simbolo_s:"",
 
             arrayIndex:[],
+            id_transaccion:"",
+
+            e_id:"",       
+            e_comprobante:"",  
+            e_tipo_deposito:"",  
+            e_name_all:"",
+            e_observacion:"",   
+            e_created_at:"", 
+            e_monto_total:"", 
 
         };
     },
@@ -354,6 +442,7 @@ export default {
             return pagesArray;
         },
     },
+
     watch: {
         sucursalSeleccionada: function (newValue) {
            
@@ -364,6 +453,7 @@ export default {
             }        
         }
     },
+
     methods: {
 
         cambioDeSucursal(){
@@ -378,7 +468,7 @@ export default {
                     var respuesta=response.data;
                     me.pagination = respuesta.pagination;
                     me.arrayIndex = respuesta.resultado.data;               
-                    console.log(me.arrayIndex);
+
                 })
                 .catch(function(error){
                     error401(error);
@@ -413,13 +503,13 @@ export default {
 
             if (activador_S===1) {
                 let cadena=""; 
-                console.log(me.arrayAñadir);
+        
                 me.arrayAñadir.forEach((item, index) => {
     // Agrega una coma antes de cada ID excepto el primero
     cadena += (index === 0 ? '' : ',') + item.id;
 });
               
-                console.log(cadena); 
+  
                 axios.post("/transaccion/registrar", {
                     id_sucursal: me.id_sucursal,              
                     id_cuenta: id_cuenta_S,
@@ -432,16 +522,12 @@ export default {
                     })       
                     .then(function (response) {
                         me.cerrarModal("registrar");
-                        console.log("-***************************-");
-                        console.log(response.data);
+                        me.listarIndex();                  
                         Swal.fire(
                             "Se registro exitosamente",
                             "Haga click en Ok",
                             "success",
                         );
-
-                    //    me.listarAjusteNegativos();
-                     //   me.sucursalFiltro();
                     })                
                   .catch(function (error) {           
                   //  this.errorMessage = error.response.data; // Aquí guardamos el error
@@ -454,6 +540,85 @@ export default {
 
         },
 
+        editar_2(){
+
+            let me = this;
+            let activador_S=0;  
+            let id_cuenta_S=0;  
+            let tipo_S="";   
+       
+
+            if (parseInt(me.selectPersona_banco)===1) {
+                id_cuenta_S=me.selectUser_2;
+                tipo_S="persona";
+            } else {
+                if (parseInt(me.selectPersona_banco)===2) {
+                    id_cuenta_S=me.selectCuentasBancos;
+                    tipo_S="banco";
+                } else {
+                    Swal.fire("Error"," de entrada.","error");   
+                }
+            }
+
+            if (id_cuenta_S===0 || me.comprobante==="" || me.observacion==="") {
+                 Swal.fire("Datos nulos","Se encotro datos vacios","error");  
+            } else {
+                activador_S=1;  
+            }
+
+            if (activador_S===1) {
+                let cadena=""; 
+        
+                me.arrayAñadir.forEach((item, index) => {
+    // Agrega una coma antes de cada ID excepto el primero
+    cadena += (index === 0 ? '' : ',') + item.id;
+});
+let sumador="";
+if (me.arrayAñadir.length>0) {
+    me.id_salida_SS=me.id_salida_SS+","+cadena;
+    sumador=me.sub_total;
+    }else{
+    sumador=me.monto_total_SS;    
+    }
+
+
+     let permiso_e ="id datos";
+                axios.post("/transaccion/editar", {
+                    id_transaccion:me.id_transaccion,
+                    id_sucursal: me.id_sucursal,              
+                    id_cuenta: id_cuenta_S,
+                    comprobante: me.comprobante,
+                    id_salida:me.id_salida_SS,
+                    monto_total:sumador,
+                    observacion:me.observacion,
+                    tipo_deposito:me.selectPersona_banco,
+                    array:me.arrayAñadir,
+                    
+                    id_modulo: me.idmodulo,
+                    id_sub_modulo:me.codventana, 
+                    des:permiso_e,  
+                    })       
+                    .then(function (response) {
+                        me.cerrarModal("registrar");
+                        me.listarIndex(); 
+                        let va=response.data;
+                              
+                        Swal.fire(
+                            "Se registro exitosamente",
+                            "Haga click en Ok",
+                            "success",
+                        );
+                    })                
+                  .catch(function (error) {           
+                  //  this.errorMessage = error.response.data; // Aquí guardamos el error
+                  //  Swal.fire("Error comunicarse con el administrador",""+errorMessage,"error");               
+            });
+       
+            } else {
+                Swal.fire("Error","Acción sospechosa","error");
+            }
+
+        },
 
         listarUser(){
             let me = this;        
@@ -463,7 +628,7 @@ export default {
                     me.arrayUser_2=respuesta;
                     // me.arrayUser_2 = respuesta.filter(user => user.responsable === 0);
                    // me.arrayUserResponsable = respuesta.filter(user => user.responsable === 1);
-                   console.log(me.arrayUser_2);          
+       
                 })
                 .catch(function (error) {
                     error401(error);
@@ -499,6 +664,14 @@ export default {
             let var_2 = parseFloat(busca.valor);     // Convertir a número
             me.valor_total = (var_1 + var_2).toFixed(2); // Sumar y formatear a dos decimales
          
+            if (me.tipoAccion===2) {
+                let var_11 = parseFloat(me.monto_total_SS); // Convertir a número
+                let var_22 =  parseFloat(me.valor_total);     // Convertir a número
+            me.sub_total = (var_11 + var_22).toFixed(2); // Sumar y formatear a dos decimales
+            } else {
+                me.sub_total = (0).toFixed(2);
+            }
+
             me.selectEntradasSalidas = 0; // Resetea el selector
          
         }
@@ -513,6 +686,13 @@ export default {
             let var_1 = parseFloat(me.valor_total); // Convertir a número
             let var_2 = parseFloat(valor);     // Convertir a número
             me.valor_total = (var_1 - var_2).toFixed(2); // Sumar y formatear a dos decimales
+            if (me.tipoAccion===2) {
+                let var_11 = parseFloat(me.monto_total_SS); // Convertir a número
+                let var_22 =  parseFloat(me.valor_total);     // Convertir a número
+            me.sub_total = (var_11 + var_22).toFixed(2); // Sumar y formatear a dos decimales
+            } else {
+                me.sub_total = (0).toFixed(2);
+            }
         },
 
         getModal(){
@@ -524,9 +704,7 @@ export default {
                 .then(function (response) {
                     var respuesta = response.data;
                     me.arrayCuentasBancos = respuesta.cuentasBancos;
-                    me.arrayCajaEntradasSalidas = respuesta.cajaEntradasSalidas;                    
-                    console.log(respuesta);
-                 
+                    me.arrayCajaEntradasSalidas = respuesta.cajaEntradasSalidas;      
                 })
                 .catch(function (error) {
                     error401(error);
@@ -542,9 +720,7 @@ export default {
                 .get(url)
                 .then(function (response) {
                     var respuesta = response.data;
-                    me.arraySucursal = respuesta;
-                    console.log(me.arraySucursal);
-                 
+                    me.arraySucursal = respuesta;                  
                 })
                 .catch(function (error) {
                     error401(error);
@@ -566,11 +742,7 @@ export default {
         },
 
         abrirModal(accion, data = []) {
-            let me = this;
-        //    let respuesta = me.arraySucursal.find(
-        //        (element) => element.codigo == me.sucursalSeleccionada,
-        //    );
-           
+            let me = this;           
          switch (accion) {
                 case "registrar": {
                     me.tipoAccion = 1;
@@ -582,18 +754,54 @@ export default {
                     me.selectUser_2=0;
                     me.arrayAñadir=[];
                     me.valor_total=0;
+                    me.id_salida_SS="";
+                    me.monto_total_SS="";
                     me.classModal.openModal("registrar");
                     break;
                 }
                 case "actualizar": {
+                
                     me.tipoAccion = 2;
+                    if(data.tipo_deposito===1){
+                        me.selectUser_2=data.id_cuenta;
+                        me.selectCuentasBancos=0;
+                    }else{
+                        if (data.tipo_deposito===2) {
+                            me.selectUser_2=0;
+                            me.selectCuentasBancos=data.id_cuenta;
+                        } else {
+                            me.selectCuentasBancos=0;
+                            me.selectUser_2=0; 
+                        }
+                       
+                    }  
                    
-          
-            
+                    me.id_salida_SS=data.id_salida;
+                    me.monto_total_SS=data.monto_total;  
+                    me.tituloModal = "Registro de transacción";
+                    me.observacion=data.observacion;
+                    me.comprobante=data.comprobante;                   
+                    me.selectEntradasSalidas=0;                  
+                    me.arrayAñadir=[];
+                    me.valor_total=0;
+                    me.sub_total="0.00";
+                    me.id_transaccion=data.id;
                     me.classModal.openModal("registrar");
-
                     break;
                 }
+                case "show":{
+                    console.log(data);
+                    me.tituloModal = "Vista";
+                    me.e_id=data.id;       
+                    me.e_comprobante=data.comprobante;  
+                    me.e_tipo_deposito=data.tipo_deposito;  
+                    me.e_name_all=data.name_all;
+                    me.e_observacion=data.observacion;   
+                    me.e_created_at=data.created_at; 
+                    me.e_monto_total=data.monto_total;
+                    me.classModal.openModal("show");
+                    break;
+                }    
             
             }
         },
@@ -611,6 +819,19 @@ export default {
                 me.arrayAñadir=[];
                 me.valor_total=0;
                 me.observacion="";
+                me.id_salida_SS="";
+                me.monto_total_SS="";
+                me.sub_total="";
+            }
+            if (accion === "show") {
+                me.classModal.closeModal(accion);  
+                me.e_id="";       
+                me.e_comprobante="";  
+                me.e_tipo_deposito="";  
+                me.e_name_all="";
+                me.e_observacion="";   
+                me.e_created_at=""; 
+                me.e_monto_total="";
             }
         },
 
@@ -628,8 +849,7 @@ export default {
         this.sucursalFiltro();
  
         this.classModal.addModal("registrar");
-    
-    
+        this.classModal.addModal("show");           
     },
 };
 </script>

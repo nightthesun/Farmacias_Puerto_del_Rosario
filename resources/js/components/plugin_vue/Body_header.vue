@@ -232,16 +232,17 @@
 import Swal from 'sweetalert2';
 import {error401} from '../../errores';
     export default {
-        props : ['user','nomsucursal','nomrol','tiempoSession'],
-
+      //  props : ['user','nomsucursal','nomrol','tiempoSession'],
+      props : ['user','nomsucursal','nomrol'],
          
         data (){
             return {
                 usuario:this.user,
-                nomsucursal:this.nomsucursal,
-                nomrol:this.nomrol,
+               // nomsucursal:this.nomsucursal,
+              // nomsucursal:'',
+              // nomrol:this.nomrol,
                 arrayEmpleado:[],
-                tiempoSession:0,
+               // tiempoSession:0,
 
                
                 montoLimite_S:0,

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Caja_EntradaSalida;
 use App\Models\Caja_Transaccion;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -15,15 +16,12 @@ class CajaTransaccionController extends Controller
     public function index(Request $request)
     {
         $buscararray = array();
-
-        if ($request->tipo_deposito==1) {
-           
+        if ($request->tipo_deposito==1) {           
             if (!empty($request->buscar)) {
                 $buscararray = explode(" ", $request->buscar);
                 $valor = sizeof($buscararray);
                 if ($valor > 0) {
-                    $sqls = '';
-    
+                    $sqls = '';    
                     foreach ($buscararray as $valor) {
                         if (empty($sqls)) {
                             $sqls = "(                                
@@ -42,6 +40,7 @@ class CajaTransaccionController extends Controller
         ->join('users as u_2', 'u_2.id', '=', 'ct.id_usuario_registra')
         ->select(
             'ct.id',
+            'ct.id_cuenta',
             'u_2.name',
             'ct.comprobante',
             'ct.id_salida',
@@ -97,6 +96,7 @@ class CajaTransaccionController extends Controller
                 ->join('rrh__empleados as re', 're.id', '=', 'u.idempleado')
                 ->select(
                     'ct.id',
+                    'ct.id_cuenta',
                     'u_2.name',
                     'ct.comprobante',
                     'ct.id_salida',
@@ -173,6 +173,7 @@ class CajaTransaccionController extends Controller
     ->join('users as u_2', 'u_2.id', '=', 'ct.id_usuario_registra')
     ->select(
         'ct.id',
+        'ct.id_cuenta',
         'u_2.name',
         'ct.comprobante',
         'ct.id_salida',
@@ -225,6 +226,7 @@ class CajaTransaccionController extends Controller
     ->join('users as u_2', 'u_2.id', '=', 'ct.id_usuario_registra')
     ->select(
         'ct.id',
+        'ct.id_cuenta',
         'u_2.name',
         'ct.comprobante',
         'ct.id_salida',
@@ -316,7 +318,52 @@ class CajaTransaccionController extends Controller
      */
     public function update(Request $request, Caja_Transaccion $caja_Transaccion)
     {
-        //
+        try {
+           
+            DB::beginTransaction();   
+            $now = Carbon::now();
+            $array=$request->array;
+            $e = Caja_Transaccion::find($request->id_transaccion);
+           
+          
+             $e->id_sucursal=$request->id_sucursal;
+             $e->id_cuenta=$request->id_cuenta;
+             $e->comprobante=$request->comprobante;
+             $e->id_salida=$request->id_salida;
+             $e->monto_total=$request->monto_total;
+             $e->observacion=$request->observacion;
+             $e->id_usuario_modifica=auth()->user()->id;
+             $e->tipo_deposito=$request->tipo_deposito;
+             $e->save();
+             
+             if (count($array)>0) {
+                foreach ($array as $value) {                         
+                    $entrada_salida = Caja_EntradaSalida::find($value['id']);  
+                    if ($entrada_salida) {
+                        $entrada_salida->transaccion=1;
+                        $entrada_salida->save();
+                    }                   
+                }  
+                
+            }
+
+                $palabra= $request->des." ".$request->id_salida;
+                $datos = [
+                    'id_modulo' => $request->id_modulo,
+                    'id_sub_modulo' => $request->id_sub_modulo,
+                    'accion' => 2,
+                    'descripcion' => $palabra,          
+                    'user_id' =>auth()->user()->id, 
+                    'created_at'=>$now,
+                    'id_movimiento'=>$request->id_transaccion        
+                ];
+            
+                DB::table('log__sistema')->insert($datos);       
+               return DB::commit(); 
+             DB::commit();
+            } catch (\Throwable $th) {
+                return $th;
+            }    
     }
 
     public function get_cuenta_salida(Request $request){
