@@ -388,6 +388,24 @@ class CajaTransaccionController extends Controller
             'cajaEntradasSalidas' => $cajaEntradasSalidas
          ]);
     }
+
+    public function show(Request $request){
+
+        $idsString = $request->bloque;
+        $idsArray = array_map('intval', explode(',', $idsString));
+       // dd($idsArray);
+$resultado = DB::table('caja__entrada_salidas as ces')
+    ->join('caja__arqueo as ca', 'ca.id', '=', 'ces.id_arqueo')
+    ->join('caja__entrada_salida_array as cesa', 'cesa.id_arqueo', '=', 'ces.id_arqueo')
+    ->join('caja__monedas as cm', 'cm.id', '=', 'cesa.id_moneda')
+    ->select('ces.id','ces.id_arqueo','ces.valor','ces.observacion','ces.mensaje','ca.cantidad_billete','ca.total_billete','ca.cantidad_moneda','ca.total_moneda','cm.tipo_corte')
+    ->whereIn('ces.id', $idsArray)
+    ->distinct()
+    ->get();
+    
+
+    return $resultado;
+    }
     
     
 }

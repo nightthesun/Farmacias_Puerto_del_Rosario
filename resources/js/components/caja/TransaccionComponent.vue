@@ -12,7 +12,7 @@
             <div class="card">
                 <div class="card-header">
                     <i class="fa fa-align-justify"></i> Transacciónes               
-                    <button
+                    <button v-if="puedeCrear==1" 
                         type="button"
                         class="btn btn-secondary"
                         @click="abrirModal('registrar');getModal();listarUser()"
@@ -37,24 +37,10 @@
                         </div>
                         <div class="col-md-4">
                             <div class="input-group">
-                                <input
-                                    type="text"
-                                    id="texto"
-                                    name="texto"
-                                    class="form-control"
-                                    placeholder="Texto a buscar"
-                                    v-model="buscar"
-                               
+                                <input type="text" id="texto" name="texto" class="form-control" placeholder="Comprobante a buscar..." v-model="buscar" @keyup.enter="listarIndex(1)" 
                                     :hidden="sucursalSeleccionada == 0"
-                                    :disabled="sucursalSeleccionada == 0"
-                                />
-                                <button
-                                    type="submit"
-                                    class="btn btn-primary"
-                              
-                                    :hidden="sucursalSeleccionada == 0"
-                                    :disabled="sucursalSeleccionada == 0"
-                                >
+                                    :disabled="sucursalSeleccionada == 0"/>
+                                <button type="submit" class="btn btn-primary" @click="listarIndex(1)" :hidden="sucursalSeleccionada == 0" :disabled="sucursalSeleccionada == 0">
                                     <i class="fa fa-search"></i> Buscar
                                 </button>
                             </div>
@@ -102,10 +88,26 @@
                 <tbody>
                     <tr v-for="i in arrayIndex" :key="i.id">
                         <td class="col-md-1">
-                            <button type="button"  v-if="i.horas_restantes>0"  @click="abrirModal('actualizar',i);;getModal();listarUser()" class="btn btn-warning btn-sm"  style="margin-right: 5px;"><i class="icon-pencil"></i></button>
-                            <button type="button"  v-else  class="btn btn-light btn-sm"  style="margin-right: 5px;"><i class="icon-pencil"></i></button>
-                            <button type="button" @click="abrirModal('show',i)" class="btn btn-warning btn-sm" style="margin-right: 5px; color: whitesmoke;" >
-                                <i class="fa fa-eye" aria-hidden="true"></i></button>
+                            <div class="button-container">
+                                <div  class="d-flex justify-content-start">
+                                    <div  v-if="puedeEditar==1">
+                                        <button type="button"  v-if="i.horas_restantes>0"  @click="abrirModal('actualizar',i);getModal();listarUser()" class="btn btn-warning btn-sm"  style="margin-right: 5px;"><i class="icon-pencil"></i></button>
+                                        <button type="button"  v-else  class="btn btn-light btn-sm"  style="margin-right: 5px;"><i class="icon-pencil"></i></button>    
+                                    </div>   
+                                    <div v-else>
+                                        <button type="button" class="btn btn-light btn-sm"  style="margin-right: 5px;"><i class="icon-pencil"></i></button> 
+                                    </div>
+                                    <div  v-if="puedeHacerOpciones_especiales==1">
+                                        <button type="button" @click="abrirModal('show',i)" class="btn btn-warning btn-sm" style="margin-right: 5px; color: whitesmoke;" >
+                                            <i class="fa fa-eye" aria-hidden="true"></i></button>
+                                    </div>
+                                    <div v-else>
+                                        <button type="button" class="btn btn-light btn-sm" style="margin-right: 5px; color: whitesmoke;"><i class="fa fa-eye" aria-hidden="true"></i></button>
+                                    </div>
+                           
+                                </div>
+                            </div>        
+                          
                         </td>
                         <td class="col-md-3">{{i.name_all}}</td>
                         <td class="col-md-2">{{i.comprobante}}</td>
@@ -120,7 +122,19 @@
                     </tr>
                 </tbody>
             </table>    
-
+            <nav>
+                <ul class="pagination">
+                    <li class="page-item" v-if="pagination.current_page > 1">
+                        <a class="page-link" href="#" @click.prevent="cambiarPagina(pagination.current_page - 1,)">Ant</a>
+                    </li>
+                    <li class="page-item" v-for="page in pagesNumber" :key="page" :class="[page == isActived ? 'active' : '']">
+                        <a class="page-link" href="#" @click.prevent="cambiarPagina(page)" v-text="page"></a>
+                    </li>
+                    <li class="page-item" v-if="pagination.current_page < pagination.last_page">
+                        <a class="page-link" href="#" @click.prevent="cambiarPagina(pagination.current_page + 1,)">Sig</a>
+                    </li>
+                </ul>
+            </nav>
             <!-----fin de tabla------->
 </div>
            
@@ -299,7 +313,7 @@
                                         <table class="table table-bordered table-striped table-sm table-responsive">
                                          <thead>
                                             <tr>
-                                                <th class="col-md-1" style="font-size: 11px; text-align: center">ID</th>
+                                                <th class="col-md-1" style="font-size: 11px; text-align: center">Nro</th>
                                                 <th class="col-md-2" style="font-size: 11px; text-align: center">Comprobante</th>
                                                 <th class="col-md-2" style="font-size: 11px; text-align: center">Tipo cuenta</th>
                                                 <th class="col-md-2" style="font-size: 11px; text-align: center">Descripción</th>
@@ -325,11 +339,40 @@
             </tbody>
         </table>   
                                     </div>
-                              
+                                    <div class="row">
+                                        <table class="table table-bordered table-striped table-sm table-responsive">
+                                         <thead>
+                                            <tr>        
+                                                <th class="col-md-1" style="font-size: 11px; text-align: center">Nro</th>
+                                                <th class="col-md-1" style="font-size: 11px; text-align: center">Nro arqueo</th>
+                                                <th class="col-md-2" style="font-size: 11px; text-align: center">Observación</th>
+                                                <th class="col-md-2" style="font-size: 11px; text-align: center">Responsable</th>
+                                                <th class="col-md-1" style="font-size: 11px; text-align: center">Cant billete</th>
+                                                <th class="col-md-1" style="font-size: 11px; text-align: center">Total billete</th>                                                
+                                                <th class="col-md-1" style="font-size: 11px; text-align: center">Cant moneda</th>
+                                                <th class="col-md-1" style="font-size: 11px; text-align: center">Total moneda</th>
+                                                <th class="col-md-2" style="font-size: 11px; text-align: center">Tipo de corte</th>        
+                                            </tr>
+                                        </thead>
+                                    <tbody>
+                <tr v-for="a in e2_array_show" :key="a.id"> 
+                    <td class="col-md-1" style="font-size: 11px; text-align: center">{{ a.id }}</td>
+                    <td class="col-md-1" style="font-size: 11px; text-align: center">{{ a.id_arqueo }}</td>
+                    <td class="col-md-2" style="font-size: 11px; text-align: center">{{ a.observacion }}</td>
+                    <td class="col-md-2" style="font-size: 11px; text-align: center">{{ a.mensaje }}</td>
+                    <td class="col-md-1" style="font-size: 11px; text-align: center">{{ a.cantidad_billete }}</td>
+                    <td class="col-md-1" style="font-size: 11px; text-align: center">{{ a.total_billete }}</td>
+                    <td class="col-md-1" style="font-size: 11px; text-align: center">{{ a.cantidad_moneda }}</td>
+                    <td class="col-md-1" style="font-size: 11px; text-align: center">{{ a.total_moneda }}</td>
+                    <td class="col-md-2" style="font-size: 11px; text-align: center">{{ a.tipo_corte }}</td>
+                </tr>
+            </tbody>
+        </table>   
+                                    </div>
                             </div>                    
                         </form>
                     </div>
-                  
+                    
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" @click="cerrarModal('show')">Cerrar</button>
                    
@@ -359,7 +402,7 @@ export default {
                 from: 0,
                 to: 0,
             },          
-
+            offset: 3,
             tituloModal: '',
             sucursalSeleccionada:0,
             arraySucursal:[],
@@ -400,7 +443,14 @@ export default {
             e_observacion:"",   
             e_created_at:"", 
             e_monto_total:"", 
+            e2_array_show:[],
 
+            //---permisos_R_W_S
+            puedeEditar:2,
+                puedeActivar:2,
+                puedeHacerOpciones_especiales:2,
+                puedeCrear:2,
+                //-----------
         };
     },
 
@@ -456,6 +506,34 @@ export default {
 
     methods: {
 
+        //-----------------------------------permisos_R_W_S        
+listarPerimsoxyz() {
+                //console.log(this.codventana);
+    let me = this;        
+    var url = '/gestion_permiso_editar_eliminar?win='+me.codventana;  
+    axios.get(url)
+        .then(function(response) {
+            var respuesta = response.data;
+     
+            if(respuesta=="root"){
+            me.puedeEditar=1;
+            me.puedeActivar=1;
+            me.puedeHacerOpciones_especiales=1;
+            me.puedeCrear=1; 
+            }else{
+            me.puedeEditar=respuesta.edit;
+            me.puedeActivar=respuesta.activar;
+            me.puedeHacerOpciones_especiales=respuesta.especial;
+            me.puedeCrear=respuesta.crear;        
+            }           
+        })
+        .catch(function(error) {
+            error401(error);
+            console.log(error);
+        });
+},
+//--------------------------------------
+
         cambioDeSucursal(){
             this.selectPersona_banco=0;
         },
@@ -476,6 +554,20 @@ export default {
                 });
         },
 
+        verArray(bloque){
+            let me=this;
+            var url='/transaccion/show?bloque='+bloque;
+            axios.get(url).then(function(response){
+                    var respuesta=response.data;   
+                    me.e2_array_show=respuesta;              
+                            
+
+                })
+                .catch(function(error){
+                    error401(error);
+                    console.log(error);
+                });
+        },
 
         registrar_2() {
             let me = this;
@@ -738,7 +830,7 @@ if (me.arrayAñadir.length>0) {
         cambiarPagina(page) {
             let me = this;
             me.pagination.current_page = page;
-        //    me.listarAjusteNegativos(page);
+            me.listarIndex(page);
         },
 
         abrirModal(accion, data = []) {
@@ -800,6 +892,7 @@ if (me.arrayAñadir.length>0) {
                     me.e_created_at=data.created_at; 
                     me.e_monto_total=data.monto_total;
                     me.classModal.openModal("show");
+                    me.verArray(data.id_salida);
                     break;
                 }    
             
@@ -832,6 +925,7 @@ if (me.arrayAñadir.length>0) {
                 me.e_observacion="";   
                 me.e_created_at=""; 
                 me.e_monto_total="";
+                me.e2_array_show=[];
             }
         },
 
@@ -845,6 +939,9 @@ if (me.arrayAñadir.length>0) {
     },
 
     mounted() {
+         //-------permiso E_W_S-----
+         this.listarPerimsoxyz();      
+        //-----------------------
         this.classModal = new _pl.Modals();
         this.sucursalFiltro();
  

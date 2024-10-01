@@ -25,6 +25,7 @@ use App\Http\Controllers\CajaEntradaSalidaController;
 use App\Http\Controllers\CajaMonedaController;
 use App\Http\Controllers\CajaTransaccionController;
 use App\Http\Controllers\DirClienteController;
+use App\Http\Controllers\DirProveedorController;
 use App\Http\Controllers\TdaTiendaController;
 use App\Http\Controllers\GesPreVentaController;
 use App\Http\Controllers\ParClienteController;
@@ -606,12 +607,15 @@ Route::group(['middleware' => 'auth'], function () {
     Route::put('/traslado/actualizar', [LogTrasladoController::class, 'update']);
 
     //////////////////////////////////////////////DIRECTORIO///////////////////////////////////////////////////   
-   
+    //---------cliente
     Route::post('/directorio/registrar', [DirClienteController::class, 'store']);
     Route::get('/directorio', [DirClienteController::class, 'index']); 
     Route::put('/directorio/desactivar', [DirClienteController::class, 'desactivar']);
     Route::put('/directorio/activar', [DirClienteController::class, 'activar']);
     Route::put('/directorio/actualizar', [DirClienteController::class, 'update']);
+    //---------proveedor
+    Route::get('/proveedor/get', [DirProveedorController::class, 'cliente']);
+    Route::post('/proveedor/registrar', [DirProveedorController::class, 'store']);    
 
     /////////////////////////////////////////////////VENTAS_PRODCUTOS///////////////////////////////////////////////////////    
     Route::get('/gestor_ventas/listarUsuario', [VenGestorVentaController::class, 'listarUsuario']);
@@ -667,5 +671,6 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/transaccion/registrar', [CajaTransaccionController::class, 'store']);  
     Route::get('/transaccion/listar_', [CajaTransaccionController::class, 'index']); 
     Route::post('/transaccion/editar', [CajaTransaccionController::class, 'update']);  
+    Route::get('/transaccion/show', [CajaTransaccionController::class, 'show']);    
     
 });

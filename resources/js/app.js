@@ -81,6 +81,8 @@ createApp ({
     .component('traslado-component', require('./components/logistica/TrasladosComponent.vue').default)
     //Directorio
     .component('cliente-component', require('./components/directorio/ClienteComponent.vue').default)
+    .component('proveedor-component', require('./components/directorio/ProveedorComponent.vue').default)
+   
     //Ventas
     .component('gestor-venta-component', require('./components/venta/GestorVentaComponent.vue').default)
     .component('venta-rapida-component', require('./components/venta/VentaRapidaComponent.vue').default)
