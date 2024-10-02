@@ -11,9 +11,234 @@ class DirProveedorController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $buscararray = array();
+        ///persona
+        if ($request->tipo==1) {
+            if (!empty($request->buscar)) {
+                $buscararray = explode(" ", $request->buscar);
+                $valor = sizeof($buscararray);
+                if ($valor > 0) {
+                    $sqls = '';
+                    foreach ($buscararray as $valor) {
+                        if (empty($sqls)) {
+                            $sqls = "(                                
+                                    dc.nom_a_facturar like '%" . $valor . "%' 
+                                    or dc.num_documento     like '%" . $valor . "%'                                                               
+                                   )";
+                        } else {
+                            $sqls .= "and (
+                            dc.nom_a_facturar like '%" . $valor . "%' 
+                            or dc.num_documento     like '%" . $valor . "%'     
+                           )";
+                        }
+                    }
+                    //consulta
+                    $proveedores = DB::table('dir__proveedors as dp')
+    ->join('dir__clientes as dc', 'dc.id', '=', 'dp.id_cliente')
+    ->join('dir__personas as dpe', 'dpe.id', '=', 'dc.id_per_emp')
+    ->join('users as u', function($join) {
+        $join->on('u.id', '=', DB::raw('COALESCE(dp.id_usuario_modifica, dp.id_usuario_registra)'));
+    })
+    ->select(
+        'dp.id',
+        'dc.id as id_cliente',
+        'dc.num_documento',
+        'dp.datos_adicionales',
+        'dp.estado',
+        DB::raw('GREATEST(dp.created_at, dp.updated_at) as fecha_mas_reciente'),
+        'dc.correo',
+        'dc.nom_a_facturar',
+        DB::raw("CONCAT(
+            COALESCE(dc.pais, ''),
+            ' ',
+            COALESCE(dc.ciudad, ''),
+            ' ',
+            COALESCE(dc.direccion, '')
+        ) as ubicacion"),
+        'dc.telefono',
+        DB::raw("CONCAT(COALESCE(dpe.nombres, ''), ' ', COALESCE(dpe.apellidos, '')) as name_all"),
+        'u.name'
+    )
+    ->where('dp.tipo_persona_empresa', 1)
+    ->whereRaw($sqls)
+        ->orderByDesc('dp.id')
+        ->limit(100)
+        ->paginate(50);  
+                }  
+                return 
+                    ['pagination' =>
+                        [
+                            'total'         =>    $proveedores->total(),
+                            'current_page'  =>    $proveedores->currentPage(),
+                            'per_page'      =>    $proveedores->perPage(),
+                            'last_page'     =>    $proveedores->lastPage(),
+                            'from'          =>    $proveedores->firstItem(),
+                            'to'            =>    $proveedores->lastItem(),
+                        ],
+                        'proveedores' => $proveedores,
+                    ];    
+            }  else{
+                $proveedores = DB::table('dir__proveedors as dp')
+    ->join('dir__clientes as dc', 'dc.id', '=', 'dp.id_cliente')
+    ->join('dir__personas as dpe', 'dpe.id', '=', 'dc.id_per_emp')
+    ->join('users as u', function($join) {
+        $join->on('u.id', '=', DB::raw('COALESCE(dp.id_usuario_modifica, dp.id_usuario_registra)'));
+    })
+    ->select(
+        'dp.id',
+        'dc.id as id_cliente',
+        'dc.num_documento',
+        'dp.datos_adicionales',
+        'dp.estado',
+        DB::raw('GREATEST(dp.created_at, dp.updated_at) as fecha_mas_reciente'),
+        'dc.correo',
+        'dc.nom_a_facturar',
+        DB::raw("CONCAT(
+            COALESCE(dc.pais, ''),
+            ' ',
+            COALESCE(dc.ciudad, ''),
+            ' ',
+            COALESCE(dc.direccion, '')
+        ) as ubicacion"),
+        'dc.telefono',
+        DB::raw("CONCAT(COALESCE(dpe.nombres, ''), ' ', COALESCE(dpe.apellidos, '')) as name_all"),
+        'u.name'
+    )
+    ->where('dp.tipo_persona_empresa', 1) 
+        ->orderByDesc('dp.id')
+        ->limit(100)
+        ->paginate(50);
+        return 
+        ['pagination' =>
+            [
+                'total'         =>    $proveedores->total(),
+                'current_page'  =>    $proveedores->currentPage(),
+                'per_page'      =>    $proveedores->perPage(),
+                'last_page'     =>    $proveedores->lastPage(),
+                'from'          =>    $proveedores->firstItem(),
+                'to'            =>    $proveedores->lastItem(),
+            ],
+            'proveedores' => $proveedores,
+        ];    
+            }
+        } else {
+            /// empresa
+            if ($request->tipo==2) {
+                if (!empty($request->buscar)) {
+                    $buscararray = explode(" ", $request->buscar);
+                    $valor = sizeof($buscararray);
+                    if ($valor > 0) {
+                        $sqls = '';
+                        foreach ($buscararray as $valor) {
+                            if (empty($sqls)) {
+                                $sqls = "(                                
+                                        dc.nom_a_facturar like '%" . $valor . "%'  
+                                            or dc.num_documento     like '%" . $valor . "%'                                
+                                       )";
+                            } else {
+                                $sqls .= "and (
+                                dc.nom_a_facturar like '%" . $valor . "%' 
+                                    or dc.num_documento     like '%" . $valor . "%'   
+                               )";
+                            }
+                        }
+                        //consulta
+                        $proveedores =  DB::table('dir__proveedors as dp')
+                        ->join('dir__clientes as dc', 'dc.id', '=', 'dp.id_cliente')
+                        ->join('dir__empresas as de', 'de.id', '=', 'dc.id_per_emp')
+                        ->join('users as u', function($join) {
+                            $join->on('u.id', '=', DB::raw('COALESCE(dp.id_usuario_modifica, dp.id_usuario_registra)'));
+                        })
+                        ->select(
+                            'dp.id',
+                            'dc.id as id_cliente',
+                            'dc.num_documento',
+                            'dp.datos_adicionales',
+                            'dp.estado',
+                            DB::raw('GREATEST(dp.created_at, dp.updated_at) as fecha_mas_reciente'),
+                            'dc.correo',
+                            'dc.nom_a_facturar',
+                            DB::raw("CONCAT(
+                                COALESCE(dc.pais, ''),
+                                ' ',
+                                COALESCE(dc.ciudad, ''),
+                                ' ',
+                                COALESCE(dc.direccion, '')
+                            ) as ubicacion"),
+                            'dc.telefono',
+                            'de.razon_social as name_all',
+                            'u.name'
+                        )
+                        ->where('dp.tipo_persona_empresa', 2)
+        ->whereRaw($sqls)
+            ->orderByDesc('dp.id')
+            ->limit(100)
+            ->paginate(50);  
+                    }  
+                    return 
+                        ['pagination' =>
+                            [
+                                'total'         =>    $proveedores->total(),
+                                'current_page'  =>    $proveedores->currentPage(),
+                                'per_page'      =>    $proveedores->perPage(),
+                                'last_page'     =>    $proveedores->lastPage(),
+                                'from'          =>    $proveedores->firstItem(),
+                                'to'            =>    $proveedores->lastItem(),
+                            ],
+                            'proveedores' => $proveedores,
+                        ];    
+                }  else{
+                    $proveedores =  DB::table('dir__proveedors as dp')
+                    ->join('dir__clientes as dc', 'dc.id', '=', 'dp.id_cliente')
+                    ->join('dir__empresas as de', 'de.id', '=', 'dc.id_per_emp')
+                    ->join('users as u', function($join) {
+                        $join->on('u.id', '=', DB::raw('COALESCE(dp.id_usuario_modifica, dp.id_usuario_registra)'));
+                    })
+                    ->select(
+                        'dp.id',
+                        'dc.id as id_cliente',
+                        'dc.num_documento',
+                        'dp.datos_adicionales',
+                        'dp.estado',
+                        DB::raw('GREATEST(dp.created_at, dp.updated_at) as fecha_mas_reciente'),
+                        'dc.correo',
+                        'dc.nom_a_facturar',
+                        DB::raw("CONCAT(
+                            COALESCE(dc.pais, ''),
+                            ' ',
+                            COALESCE(dc.ciudad, ''),
+                            ' ',
+                            COALESCE(dc.direccion, '')
+                        ) as ubicacion"),
+                        'dc.telefono',
+                        'de.razon_social as name_all',
+                        'u.name'
+                    )
+                    ->where('dp.tipo_persona_empresa', 2)
+   
+        ->orderByDesc('dp.id')
+        ->limit(100)
+        ->paginate(50); 
+            return 
+            ['pagination' =>
+                [
+                    'total'         =>    $proveedores->total(),
+                    'current_page'  =>    $proveedores->currentPage(),
+                    'per_page'      =>    $proveedores->perPage(),
+                    'last_page'     =>    $proveedores->lastPage(),
+                    'from'          =>    $proveedores->firstItem(),
+                    'to'            =>    $proveedores->lastItem(),
+                ],
+                'proveedores' => $proveedores,
+            ];    
+                }
+            }else{
+                dd("error...");
+            }
+
+        }           
     }
 
     
@@ -26,7 +251,7 @@ class DirProveedorController extends Controller
         DB::beginTransaction();
         $crear = new Dir_Proveedor();
         $crear->datos_adicionales=$request->datos_adicionales;
-        $crear->id_persona=$request->id_persona;
+        $crear->id_cliente=$request->id_cliente;
         $crear->tipo_persona_empresa=$request->selectTipo;      
         $crear->id_usuario_registra=auth()->user()->id;      
         $crear->save();
@@ -38,20 +263,23 @@ class DirProveedorController extends Controller
     }
 
     /**
-     * Display the specified resource.
-     */
-    public function show(Dir_Proveedor $dir_Proveedor)
-    {
-        //
-    }
-
-    
-    /**
      * Update the specified resource in storage.
      */
     public function update(Request $request, Dir_Proveedor $dir_Proveedor)
     {
-        //
+        try {
+            DB::beginTransaction();
+            $e =Dir_Proveedor::find($request->id_transaccion);
+            $e->datos_adicionales=$request->datos_adicionales;
+            $e->id_cliente=$request->id_cliente;
+            $e->tipo_persona_empresa=$request->selectTipo;      
+            $e->id_usuario_modifica=auth()->user()->id;      
+            $e->save();
+          //  return DB::commit();
+            DB::commit();    
+           } catch (\Throwable $th) {
+            return $th;
+           }
     }
 
     public function cliente(Request $request){
@@ -73,6 +301,7 @@ class DirProveedorController extends Controller
             )
             ->where('dc.tipo_per_emp', 1)
             ->where('dc.activo', 1)
+            ->orderByDesc('dc.id')
             ->get();
             return $clientes;
         }
@@ -94,6 +323,7 @@ class DirProveedorController extends Controller
                 )
                 ->where('dc.tipo_per_emp', 2)
                 ->where('dc.activo', 1)
+                ->orderByDesc('dc.id')
                 ->get();
                 return $clientes;
             }else{
@@ -102,5 +332,19 @@ class DirProveedorController extends Controller
         }
     }
 
-    
+    public function desactivar(Request $request)
+    {
+        $update = Dir_Proveedor::findOrFail($request->id);
+        $update->estado = 0;       
+        $update->id_usuario_modifica=auth()->user()->id;
+        $update->save();
+    }
+
+    public function activar(Request $request)
+    {   
+        $update = Dir_Proveedor::findOrFail($request->id);
+        $update->estado = 1;    
+        $update->id_usuario_modifica=auth()->user()->id;
+        $update->save();
+    }
 }

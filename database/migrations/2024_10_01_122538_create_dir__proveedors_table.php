@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('dir__proveedors', function (Blueprint $table) {
             $table->id();
             $table->string('datos_adicionales')->default("Sin datos");
-            $table->smallInteger('id_persona');
+            $table->smallInteger('id_cliente');
             $table->tinyInteger('tipo_persona_empresa')->nullable();
             $table->smallInteger('id_usuario_registra')->nullable();
             $table->smallInteger('id_usuario_modifica')->nullable();

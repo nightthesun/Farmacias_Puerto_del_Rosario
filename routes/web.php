@@ -616,7 +616,11 @@ Route::group(['middleware' => 'auth'], function () {
     //---------proveedor
     Route::get('/proveedor/get', [DirProveedorController::class, 'cliente']);
     Route::post('/proveedor/registrar', [DirProveedorController::class, 'store']);    
-
+    Route::get('/proveedor/listarProveedor', [DirProveedorController::class, 'index']);
+    Route::post('/proveedor/editar', [DirProveedorController::class, 'update']);  
+    Route::put('/proveedor/desactivar', [DirProveedorController::class, 'desactivar']);  
+    Route::put('/proveedor/activar', [DirProveedorController::class, 'activar']);  
+     
     /////////////////////////////////////////////////VENTAS_PRODCUTOS///////////////////////////////////////////////////////    
     Route::get('/gestor_ventas/listarUsuario', [VenGestorVentaController::class, 'listarUsuario']);
     Route::get('/gestor_ventas/listarUsuarioRetorno', [VenGestorVentaController::class, 'listarUsuarioRetorno']);
