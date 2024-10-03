@@ -10,7 +10,7 @@
         <div class="container-fluid">
             <div class="card">
                 <div class="card-header">
-                    <i class="fa fa-align-justify"></i> Proveedor               
+                    <i class="fa fa-align-justify"></i>Distribuidor                
                     <button
                         type="button"
                         class="btn btn-secondary"
@@ -24,11 +24,11 @@
         <div class="card-body">
             <div class="form-group row">
                 <div class="col-md-2" style="text-align: center">
-                     <label for="">Almacen o Tienda:</label>
+                     <label for="">Tipo:</label>
                 </div>
                 <div class="col-md-4">
                             <div class="input-group">
-                                <select class="form-control" v-model="selectTipo" @change="listarProveedor()">
+                                <select class="form-control" v-model="selectTipo" @change="changeRango();listarDistribuidor()">
                                     <option value="0" disabled selected>Seleccionar...</option>
                                     <option v-for="t in arrayTipo" :key="t.id" :value="t.id" v-text="t.tipo"></option>
                                 </select>
@@ -44,14 +44,14 @@
                                     class="form-control"
                                     placeholder="Buscar nombre a facturar / numero de documento "
                                     v-model="buscar"
-                                    @keyup.enter="listarProveedor(1)"
+                                    @keyup.enter="listarDistribuidor(1)"
                                     :hidden="selectTipo == 0"
                                     :disabled="selectTipo == 0"
                                 />
                                 <button
                                     type="submit"
                                     class="btn btn-primary"
-                                    @click="listarProveedor(1)"
+                                    @click="listarDistribuidor(1)"
                                     :hidden="selectTipo == 0"
                                     :disabled="selectTipo == 0"
                                 >
@@ -60,9 +60,29 @@
                             </div>
                         </div>
           
-            </div>
-   
+            </div>   
   <br>
+  <div class="form-group row">
+                        <div class="col-md-2" style="text-align: center">
+                            <label for="" :hidden="selectTipo == 0">Rango :</label>
+                         </div>
+                         <div class="col-md-4">
+                            <div class="input-group">
+                          
+                    
+                    <select class="form-control"  @change="listarDistribuidor(1)" v-model="limite_X" :hidden="selectTipo == 0"
+                    :disabled="selectTipo == 0">
+                        <option value="0" disabled selected>Seleccionar...</option>
+                        <option v-for="l in arrayLimite" :key="l.id" :value="l.limite">
+                            <span v-if="l.limite === 0">Todos</span>
+                            <span v-else>{{ l.limite }}</span>
+                        </option>
+                    </select>
+              
+         
+                             </div>
+                        </div>        
+                    </div>   
             <!---inserte tabla-->
             <div v-if="selectTipo===0" class="alert alert-warning" role="alert">
   Debe seleccionar una opcion!
@@ -70,16 +90,16 @@
             <table v-else class="table table-bordered table-striped table-sm table-responsive" >
                 <thead>
                     <tr>
-                        <th class="col-md-1">Opciones</th>
-                        <th class="col-md-1">Nombre</th>
+                        <th class="col-md-1">Opciones</th>                       
                         <th class="col-md-2">Nombre a facturar</th>
                         <th class="col-md-1">Nro documento </th>
-                        <th class="col-md-1">Datos adiciones</th>
+                        <th class="col-md-1">Contacto</th>
                         <th class="col-md-1">Correo</th>
-                        <th class="col-md-2">Ubicación</th>
+                        <th class="col-md-1">Telefono</th>
+                        <th class="col-md-2">Linea</th>
                         <th class="col-md-2">Fecha/Hora</th>
                         <th class="col-md-1">Usuario</th>
-                        <th>Estado</th>       
+                        <th>Estado</th>         
                     </tr>
                 </thead>
                 <tbody>
@@ -100,29 +120,26 @@
                                 <button v-if="i.estado==1" type="button" class="btn btn-light btn-sm" style="margin-right: 5px;"><i class="icon-trash"></i></button>
                                 <button v-else type="button"  class="btn btn-light btn-sm" style="margin-right: 5px;"><i class="icon-check"></i></button>
                             </div>   
-                            </div>   
-                             
-                          
+                            </div>
                         </td>
-                        <td class="col-md-1">{{i.name_all}}</td>
-                        <td class="col-md-2">{{i.nom_a_facturar}}</td> 
-                        <td class="col-md-1">{{ i.num_documento }}</td>   
-                        <td class="col-md-1">{{i.datos_adicionales}}</td>  
-                        <td class="col-md-1">{{i.correo}}</td> 
-                        <td class="col-md-2">{{i.ubicacion}}</td>
-                        <td class="col-md-2">{{i.fecha_mas_reciente}}</td> 
-                        <td class="col-md-1">{{i.name}}</td> 
+                        <td class="col-md-1">{{ i.nom_a_facturar }}</td> 
+                        <td class="col-md-2">{{ i.num_documento }}</td> 
+                        <td class="col-md-1">{{ i.contacto }}</td> 
+                        <td class="col-md-1">{{ i.correo }}</td> 
+                        <td class="col-md-1">{{ i.telefono }}</td> 
+                        <td class="col-md-2">{{ i.nom_linea_array }}</td> 
+                        <td class="col-md-2">{{ i.fecha_mas_reciente }}</td> 
+                        <td class="col-md-1">{{ i.name }}</td> 
                         <td>
                             <span v-if="i.estado===1" class="badge badge-pill badge-success">Activo</span>
-                            <span v-else class="badge badge-pill badge-danger">Desactivado</span>
-                            
+                            <span v-else class="badge badge-pill badge-danger">Desactivado</span>                            
                         </td>
                     </tr>
                 </tbody>
+               
             </table>    
-
-            <!-----fin de tabla------->
-            <nav>
+ <!-----fin de tabla------->
+ <nav>
                         <ul class="pagination">
                             <li class="page-item" v-if="pagination.current_page > 1">
                                 <a class="page-link" href="#" @click.prevent="cambiarPagina(pagination.current_page - 1)">Ant</a>
@@ -135,6 +152,7 @@
                             </li>
                         </ul>
                     </nav>
+          
         </div>
 
 
@@ -168,7 +186,7 @@
                             <!-- insertar datos -->
                             <div class="container">                                
                                 <div class="form-group row"  >
-                                <strong  class="col-md-3 form-control-label" for="text-input">Producto: <span v-if="selected == null" class="error" >(*)</span></strong>
+                                <strong  class="col-md-3 form-control-label" for="text-input">Cliente: <span v-if="selected == null" class="error" >(*)</span></strong>
                                 <div class="col-md-7 input-group mb-3">
                                     
                     <VueMultiselect
@@ -226,12 +244,63 @@
                                                 </table>                                                  
                                                 <div class="container">                                
                                 <div class="form-group row"  >
-                                    <strong  class="col-md-3 form-control-label" for="text-input">Datos adicionales: <span v-if="dato_1 == ''" class="error" >(*)</span></strong>
+                                    <strong  class="col-md-3 form-control-label" for="text-input">Conctaco: <span v-if="contacto == ''" class="error" >(*)</span></strong>
                                         <div class="col-md-7 input-group mb-3">
-                                            <input type="text" class="form-control rounded" placeholder="Datos adicionales" v-model="dato_1">
+                                            <input type="text" class="form-control rounded" placeholder="Datos adicionales" v-model="contacto">
                                         </div>
                                 </div>
-                             </div>              
+                             </div>  
+                             <!-------------------------------------------------------->     
+                             <div class="container">                                
+                                <div class="form-group row"  >
+                                    <strong  class="col-md-3 form-control-label" for="text-input">Linea: <span v-if="options == null" class="error" >(*)</span></strong>
+                                        <div class="col-md-7 input-group mb-3">
+                                            <multiselect v-model="value"
+             :options="options" 
+             :multiple="true" 
+             :close-on-select="false" 
+             :clear-on-select="false"
+            :preserve-search="true" 
+            placeholder="Seleccione ona opción" 
+            label="nombre" 
+            track-by="id" 
+            :preselect-first="false"
+            selectLabel="Añadir a seleccion"
+            deselectLabel="Quitar seleccion"
+            selectedLabel="Seleccionado"
+            >
+                <template #selection="{ values, search, isOpen }">
+                    <span class="multiselect__single" v-if="values.length>1" v-show="!isOpen">{{ values.length }} opciones seleccionadas</span>
+                    <span class="multiselect__single" v-else v-show="!isOpen">{{ values.length }} opcion seleccionada</span>
+                </template>
+            </multiselect>
+                                        </div>
+                                </div>
+                            </div>               
+                            <div v-if="value.length===0" class="alert alert-info" role="alert">
+                                    Debe seleccionar una linea.
+                            </div>
+                                <table v-else class="table table-bordered table-striped table-sm table-responsive">
+                                    <thead>
+                                        <tr>
+                                            <th class="col-md-2" style="font-size: 11px; text-align: center">Nro</th>
+                                            <th class="col-md-3" style="font-size: 11px; text-align: center">Codigo</th>
+                                            <th class="col-md-7" style="font-size: 11px; text-align: center">Nombre</th>                                                         
+                                        </tr>
+                                    </thead>
+                                    <tbody>                                       
+                                        <tr v-for="o in value" :key="o.id">
+                                            <td  class="col-md-2" style="font-size: 11px; text-align: center">{{o.id}}</td>
+                                            <td  class="col-md-3" style="font-size: 11px; text-align: center">{{ o.codigo }}</td>
+                                            <td  class="col-md-7" style="font-size: 11px; text-align: center">{{ o.nombre }}</td>                                                           
+                                        </tr>                                                        
+                                    </tbody>
+                                </table>  
+                             <div>
+       <!--<pre class="language-json"><code>{{ value }}</code></pre>--> 
+
+  </div>
+  <!---------------------------------------------------------------->   
                               </div>   
                                            
                                  
@@ -268,7 +337,7 @@
                 </div>
             </div>
         </div>
-        <!--fin del modal-->
+         
     </main>
 </template>
 
@@ -276,12 +345,15 @@
 import Swal from "sweetalert2";
 import { error401 } from "../../errores";
 import VueMultiselect from 'vue-multiselect';
+import Multiselect from 'vue-multiselect'
+
 //Vue.use(VeeValidate);
 export default {
      //---permisos_R_W_S
      props: ['codventana'],
         //-------------------
-    components: { VueMultiselect },
+    components: { VueMultiselect ,Multiselect},
+   
     data() {
         return {
             pagination: {
@@ -296,11 +368,21 @@ export default {
             selected:null,
             arrayTipo:[{id:1,tipo:'Persona'},
                             {id:2,tipo:'Empresa'}],
+
+            arrayLimite:[{id:1,limite:10},
+                {id:2,limite:20},
+                {id:3,limite:50},
+                {id:4,limite:100},
+                {id:5,limite:200},
+                {id:6,limite:0},
+                ],
+            limite_X:10,
+
             selectTipo:0,  
             arrayCliente:[],
 
             tituloModal:'',
-           dato_1:'',
+            contacto:'',
            
             buscar:'',
             tipoAccion:1,
@@ -313,6 +395,13 @@ export default {
                 puedeHacerOpciones_especiales:2,
                 puedeCrear:2,
                 //-----------  
+
+
+            arraylinea:[],    
+         //----selector multiple   
+        value: [],
+        options: [],       
+      //------------------------
         };
     },
 
@@ -321,7 +410,7 @@ export default {
     computed: {
        sicompleto() {
            let me = this;
-           if ( me.dato_1 != "" && me.selected != null)
+           if ( me.contacto != "" && me.selected != null && me.value.length != 0)
             return true;
             else return false;
         },
@@ -377,18 +466,39 @@ export default {
         });
 },
 //--------------------------------------------------------------  
-        listarProveedor(page){
+    
+         changeRango(){
+            this.limite_X=10;
+         },   
+
+        listarDistribuidor(page){
               //   /transaccion/listar_   
               let me=this;
-                var url='/proveedor/listarProveedor?page='+page+'&buscar='+me.buscar+'&tipo='+me.selectTipo;
+             
+                var url='/distribuidor/listarDistribuidor?page='+page+'&buscar='+me.buscar+'&tipo='+me.selectTipo+'&limite='+me.limite_X;
                 axios.get(url).then(function(response){
                     var respuesta=response.data;
                     me.pagination = respuesta.pagination;
-                    me.arrayIndex = respuesta.proveedores.data;
+                    me.arrayIndex = respuesta.distribuidor.data;
                     console.log(me.arrayIndex);               
 
                 })
                 .catch(function(error){
+                    error401(error);
+                    console.log(error);
+                });
+        },
+
+        listarLinea() {
+        let me = this;           
+        var url = "/distribuidor/getLinea";
+            axios.get(url)
+                .then(function (response) {
+                    var respuesta = response.data;
+                    me.options = respuesta;
+                    console.log(me.options);                              
+                })
+                .catch(function (error) {
                     error401(error);
                     console.log(error);
                 });
@@ -415,7 +525,7 @@ export default {
         editar(){
             let me = this;
             axios.post("/proveedor/editar", {
-                datos_adicionales: me.dato_1,              
+                datos_adicionales: me.contacto,              
                 id_cliente: me.selected.id,
                 selectTipo:me.selectTipo,
                 id_transaccion:me.id_transaccion                               
@@ -423,7 +533,7 @@ export default {
                     .then(function (response) {
                        // console.log(response.data);
                         me.cerrarModal("registrar");
-                          me.listarProveedor();                  
+                        me.listarDistribuidor();                  
                         Swal.fire(
                             "Se registro exitosamente",
                             "Haga click en Ok",
@@ -441,16 +551,20 @@ export default {
 
         crear(){
             let me = this;
-            axios.post("/proveedor/registrar", {
-                datos_adicionales: me.dato_1,              
+            const ids = me.value.map(item => item.id).join(',');
+            const nom = me.value.map(item => item.nombre).join(',');
+                axios.post("/distribuidor/registrar", {
+                contacto: me.contacto,              
                 id_cliente: me.selected.id,
-                selectTipo:me.selectTipo
+                selectTipo:me.selectTipo,
+                linea_nom:nom,
+                ids_linea:ids
                                
                     })       
                     .then(function (response) {
-                       // console.log(response.data);
+                       console.log(response.data);
                         me.cerrarModal("registrar");
-                            me.listarProveedor();                  
+                           me.listarDistribuidor();                  
                         Swal.fire(
                             "Se registro exitosamente",
                             "Haga click en Ok",
@@ -475,7 +589,7 @@ export default {
         cambiarPagina(page) {
             let me = this;
             me.pagination.current_page = page;
-            me.listarProveedor(page); 
+            me.listarDistribuidor(page); 
         },
 
         abrirModal(accion, data = []) {
@@ -497,7 +611,8 @@ export default {
                         }                       
                     }                   
                     me.selected =null;
-                    me.dato_1="Sin datos adicionales...";
+                    me.contacto="Sin contacto...";
+                    me.value=[];
                     me.classModal.openModal("registrar");
                     break;
                 }
@@ -522,7 +637,7 @@ export default {
                 me.selected = null;
             }
                           
-                    me.dato_1=data.datos_adicionales;
+                    me.contacto=data.datos_adicionales;
                     me.id_transaccion=data.id;
                     me.classModal.openModal("registrar");
 
@@ -538,9 +653,10 @@ export default {
             if (accion == "registrar") {
                 me.classModal.closeModal(accion);
                 me.selected =null;
-                me.dato_1="";
+                me.contacto="";
                 me.id_transaccion="";
-                me.tituloModal = "";         
+                me.tituloModal = "";
+                me.value=[];         
             }
         },
 
@@ -567,7 +683,7 @@ export default {
                      axios.put('/proveedor/desactivar',{
                         'id': id
                     }).then(function (response) {
-                        me.listarProveedor();  
+                       // me.listarProveedor();  
                         swalWithBootstrapButtons.fire(
                             'Desactivado!',
                             'El registro a sido desactivado Correctamente',
@@ -612,7 +728,7 @@ export default {
                      axios.put('/proveedor/activar',{
                         'id': id
                     }).then(function (response) {
-                        me.listarProveedor();  
+                    //    me.listarProveedor();  
                         swalWithBootstrapButtons.fire(
                             'Activado!',
                             'El registro a sido Activado Correctamente',
@@ -668,7 +784,7 @@ export default {
    //-------permiso E_W_S-----
    this.listarPerimsoxyz();        
             //-----------------------
-       
+            this.listarLinea();
         this.classModal.addModal("registrar");
     
     

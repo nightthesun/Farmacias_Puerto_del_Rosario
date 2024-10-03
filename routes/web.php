@@ -25,6 +25,8 @@ use App\Http\Controllers\CajaEntradaSalidaController;
 use App\Http\Controllers\CajaMonedaController;
 use App\Http\Controllers\CajaTransaccionController;
 use App\Http\Controllers\DirClienteController;
+use App\Http\Controllers\DirDistribuidorController;
+use App\Http\Controllers\DirDistriuidorController;
 use App\Http\Controllers\DirProveedorController;
 use App\Http\Controllers\TdaTiendaController;
 use App\Http\Controllers\GesPreVentaController;
@@ -620,7 +622,10 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/proveedor/editar', [DirProveedorController::class, 'update']);  
     Route::put('/proveedor/desactivar', [DirProveedorController::class, 'desactivar']);  
     Route::put('/proveedor/activar', [DirProveedorController::class, 'activar']);  
-     
+    //---------distribuidor
+    Route::get('/distribuidor/getLinea', [DirDistribuidorController::class, 'listarLinea']); 
+    Route::post('/distribuidor/registrar', [DirDistribuidorController::class, 'store']);   
+    Route::get('/distribuidor/listarDistribuidor', [DirDistribuidorController::class, 'index']);
     /////////////////////////////////////////////////VENTAS_PRODCUTOS///////////////////////////////////////////////////////    
     Route::get('/gestor_ventas/listarUsuario', [VenGestorVentaController::class, 'listarUsuario']);
     Route::get('/gestor_ventas/listarUsuarioRetorno', [VenGestorVentaController::class, 'listarUsuarioRetorno']);

@@ -24,7 +24,7 @@
         <div class="card-body">
             <div class="form-group row">
                 <div class="col-md-2" style="text-align: center">
-                     <label for="">Almacen o Tienda:</label>
+                     <label for="">Tipo:</label>
                 </div>
                 <div class="col-md-4">
                             <div class="input-group">
@@ -70,12 +70,12 @@
             <table v-else class="table table-bordered table-striped table-sm table-responsive" >
                 <thead>
                     <tr>
-                        <th class="col-md-1">Opciones</th>
-                        <th class="col-md-1">Nombre</th>
+                        <th class="col-md-1">Opciones</th>                       
                         <th class="col-md-2">Nombre a facturar</th>
                         <th class="col-md-1">Nro documento </th>
                         <th class="col-md-1">Datos adiciones</th>
                         <th class="col-md-1">Correo</th>
+                        <th class="col-md-1">Telefono</th>
                         <th class="col-md-2">Ubicación</th>
                         <th class="col-md-2">Fecha/Hora</th>
                         <th class="col-md-1">Usuario</th>
@@ -103,12 +103,12 @@
                             </div>   
                              
                           
-                        </td>
-                        <td class="col-md-1">{{i.name_all}}</td>
+                        </td>   
                         <td class="col-md-2">{{i.nom_a_facturar}}</td> 
                         <td class="col-md-1">{{ i.num_documento }}</td>   
                         <td class="col-md-1">{{i.datos_adicionales}}</td>  
                         <td class="col-md-1">{{i.correo}}</td> 
+                        <td class="col-md-1">{{i.telefono}}</td>
                         <td class="col-md-2">{{i.ubicacion}}</td>
                         <td class="col-md-2">{{i.fecha_mas_reciente}}</td> 
                         <td class="col-md-1">{{i.name}}</td> 
@@ -168,7 +168,7 @@
                             <!-- insertar datos -->
                             <div class="container">                                
                                 <div class="form-group row"  >
-                                <strong  class="col-md-3 form-control-label" for="text-input">Producto: <span v-if="selected == null" class="error" >(*)</span></strong>
+                                <strong  class="col-md-3 form-control-label" for="text-input">Cliente: <span v-if="selected == null" class="error" >(*)</span></strong>
                                 <div class="col-md-7 input-group mb-3">
                                     
                     <VueMultiselect
