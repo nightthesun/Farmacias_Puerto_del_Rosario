@@ -14,6 +14,10 @@ class DirProveedorController extends Controller
     public function index(Request $request)
     {
         $buscararray = array();
+        $limite=$request->limite;
+        if ($limite==0) {
+            $limite=999999999;
+        }
         ///persona
         if ($request->tipo==1) {
             if (!empty($request->buscar)) {
@@ -64,8 +68,8 @@ class DirProveedorController extends Controller
     ->where('dp.tipo_persona_empresa', 1)
     ->whereRaw($sqls)
         ->orderByDesc('dp.id')
-        ->limit(100)
-        ->paginate(50);  
+        ->limit($limite)
+        ->paginate(20);  
                 }  
                 return 
                     ['pagination' =>
@@ -108,8 +112,8 @@ class DirProveedorController extends Controller
     )
     ->where('dp.tipo_persona_empresa', 1) 
         ->orderByDesc('dp.id')
-        ->limit(100)
-        ->paginate(50);
+        ->limit($limite)
+        ->paginate(20);
         return 
         ['pagination' =>
             [
@@ -174,8 +178,8 @@ class DirProveedorController extends Controller
                         ->where('dp.tipo_persona_empresa', 2)
         ->whereRaw($sqls)
             ->orderByDesc('dp.id')
-            ->limit(100)
-            ->paginate(50);  
+            ->limit($limite)
+            ->paginate(20);  
                     }  
                     return 
                         ['pagination' =>
@@ -219,8 +223,8 @@ class DirProveedorController extends Controller
                     ->where('dp.tipo_persona_empresa', 2)
    
         ->orderByDesc('dp.id')
-        ->limit(100)
-        ->paginate(50); 
+        ->limit($limite)
+        ->paginate(20); 
             return 
             ['pagination' =>
                 [

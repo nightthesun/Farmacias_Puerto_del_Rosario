@@ -626,6 +626,10 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/distribuidor/getLinea', [DirDistribuidorController::class, 'listarLinea']); 
     Route::post('/distribuidor/registrar', [DirDistribuidorController::class, 'store']);   
     Route::get('/distribuidor/listarDistribuidor', [DirDistribuidorController::class, 'index']);
+    Route::post('/distribuidor/editar', [DirDistribuidorController::class, 'update']);  
+    Route::put('/distribuidor/desactivar', [DirDistribuidorController::class, 'desactivar']);  
+    Route::put('/distribuidor/activar', [DirDistribuidorController::class, 'activar']); 
+     
     /////////////////////////////////////////////////VENTAS_PRODCUTOS///////////////////////////////////////////////////////    
     Route::get('/gestor_ventas/listarUsuario', [VenGestorVentaController::class, 'listarUsuario']);
     Route::get('/gestor_ventas/listarUsuarioRetorno', [VenGestorVentaController::class, 'listarUsuarioRetorno']);

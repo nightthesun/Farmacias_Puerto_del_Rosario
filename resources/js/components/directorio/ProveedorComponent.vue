@@ -28,7 +28,7 @@
                 </div>
                 <div class="col-md-4">
                             <div class="input-group">
-                                <select class="form-control" v-model="selectTipo" @change="listarProveedor()">
+                                <select class="form-control" v-model="selectTipo" @change="changeRango();listarProveedor()">
                                     <option value="0" disabled selected>Seleccionar...</option>
                                     <option v-for="t in arrayTipo" :key="t.id" :value="t.id" v-text="t.tipo"></option>
                                 </select>
@@ -63,6 +63,27 @@
             </div>
    
   <br>
+  <div class="form-group row">
+                        <div class="col-md-2" style="text-align: center">
+                            <label for="" :hidden="selectTipo == 0">Rango :</label>
+                         </div>
+                         <div class="col-md-4">
+                            <div class="input-group">
+                          
+                    
+                    <select class="form-control"  @change="listarProveedor(1)" v-model="limite_X" :hidden="selectTipo == 0"
+                    :disabled="selectTipo == 0">
+                        <option value="0" disabled selected>Seleccionar...</option>
+                        <option v-for="l in arrayLimite" :key="l.id" :value="l.limite">
+                            <span v-if="l.limite === 0">Todos</span>
+                            <span v-else>{{ l.limite }}</span>
+                        </option>
+                    </select>
+              
+         
+                             </div>
+                        </div>        
+                    </div>  
             <!---inserte tabla-->
             <div v-if="selectTipo===0" class="alert alert-warning" role="alert">
   Debe seleccionar una opcion!
@@ -307,6 +328,16 @@ export default {
 
             arrayIndex:[],
             id_transaccion:'',
+
+            arrayLimite:[{id:1,limite:10},
+                {id:2,limite:20},
+                {id:3,limite:50},
+                {id:4,limite:100},
+                {id:5,limite:200},
+                {id:6,limite:0},
+                ],
+            limite_X:10,
+
               //---permisos_R_W_S
               puedeEditar:2,
                 puedeActivar:2,
@@ -377,10 +408,15 @@ export default {
         });
 },
 //--------------------------------------------------------------  
+        
+changeRango(){
+            this.limite_X=10;
+         },   
+        
         listarProveedor(page){
               //   /transaccion/listar_   
               let me=this;
-                var url='/proveedor/listarProveedor?page='+page+'&buscar='+me.buscar+'&tipo='+me.selectTipo;
+                var url='/proveedor/listarProveedor?page='+page+'&buscar='+me.buscar+'&tipo='+me.selectTipo+'&limite='+me.limite_X;
                 axios.get(url).then(function(response){
                     var respuesta=response.data;
                     me.pagination = respuesta.pagination;

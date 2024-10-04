@@ -30,9 +30,9 @@
                 </div>
                         <div class="col-md-6">
                             <div class="input-group">
-                                <select class="form-control" v-model="sucursalSeleccionada">
+                                <select class="form-control" v-model="sucursalSeleccionada" @change="changeRango()">
                                     <option value="0" disabled selected>Seleccionar...</option>
-                                    <option v-for="sucursal in arraySucursal" :key="sucursal.id"  :value="sucursal.codigo"
+                                    <option v-for="sucursal in arraySucursal" :key="sucursal.id"  :value="sucursal.codigo" :hidden="sucursal.id_tienda === null"
                                         v-text="
                                             sucursal.codigoS +
                                             ' -> ' +
@@ -68,43 +68,42 @@
                                 </button>
                             </div>
                         </div>
-                        
-                       
-
+                    
             </div>
-             
-
-            <div class="row justify-content-center">
-    <div class="col-md-8">
-      <div class="row">
-        <div class="col-md-4" v-if="sucursalSeleccionada !== 0">
-          <label for="start-date">Fecha inicial:</label>
-          <input id="start-date" type="date" class="form-control" v-model="startDate">
-        </div>
-        <div class="col-md-4" v-if="sucursalSeleccionada !== 0">
-          <label for="end-date">Fecha final:</label>
-          <input id="end-date" type="date" class="form-control" v-model="endDate">
-        </div>
-      </div>
-    </div>
-  </div>
+         
   <br>
+  <div class="form-group row">
+                        <div class="col-md-2" style="text-align: center">
+                            <label for="" :hidden="sucursalSeleccionada == 0">Rango :</label>
+                         </div>
+                         <div class="col-md-6">
+                            <div class="input-group">
+                          
+                    
+                    <select class="form-control"   v-model="limite_X" :hidden="sucursalSeleccionada == 0" :disabled="sucursalSeleccionada == 0">
+                        <option value="0" disabled selected>Seleccionar...</option>
+                        <option v-for="l in arrayLimite" :key="l.id" :value="l.limite">
+                            <span v-if="l.limite === 0">Todos</span>
+                            <span v-else>{{ l.limite }}</span>
+                        </option>
+                    </select>
+              
+         
+                             </div>
+                        </div>        
+                    </div>  
             <!---inserte tabla-->
             <table class="table table-bordered table-striped table-sm table-responsive" >
                 <thead>
                     <tr>
-                        <th>Opciones</th>
-                        <th class="col-md-1">Cliente</th>
-                        <th class="col-md-5">Nro docuemnto</th>
-                        <th>Tipo de comprobante</th>
-                        <th>Numero de comprobante</th>
-                        <th class="col-md-1">Total</th>
-                        <th class="col-md-1">Destino</th>
-                        <th>Vehiculo</th>
-                        <th class="col-md-3">Observación</th>
-                        <th class="col-md-2">Per. Enviada</th>
-                        <th>Usuario</th>
-                        <th>Estado</th>       
+                        <th class="col-md-1">Opciones</th>
+                        <th class="col-md-2">Distribuidor</th>
+                        <th class="col-md-1">Tipo comprobante</th>
+                        <th class="col-md-1">Numero comprobante</th>
+                        <th class="col-md-2">Contacto</th>
+                        <th class="col-md-2">Total</th>                        
+                        <th class="col-md-2">Usuario</th>
+                        <th class="col-md-1">Estado</th>       
                     </tr>
                 </thead>
             </table>    
@@ -209,14 +208,21 @@ export default {
                 to: 0,
             },
           
+            arrayLimite:[{id:1,limite:10},
+                {id:2,limite:20},
+                {id:3,limite:50},
+                {id:4,limite:100},
+                {id:5,limite:200},
+                {id:6,limite:0},
+                ],
+            limite_X:10,
 
             tituloModal: "",
             sucursalSeleccionada:0,
             arraySucursal:[],
             buscar:"",
             tipoAccion:1,
-            startDate: '',
-      endDate: '',
+            id_sucursal:0,
         };
     },
 
@@ -258,8 +264,21 @@ export default {
             return pagesArray;
         },
     },
-
+    watch: {
+        sucursalSeleccionada: function (newValue) {           
+        let s = this.arraySucursal.find(
+                    (element) => element.codigo === newValue);
+            if (s) {               
+                this.id_sucursal = s.id_sucursal;  
+            }        
+        }
+    },
     methods: {
+
+        changeRango(){
+            this.limite_X=10;
+         },   
+
         sucursalFiltro() {
             let me = this;
            // var url = "/traspaso/listarSucursal";
@@ -269,7 +288,7 @@ export default {
                 .then(function (response) {
                     var respuesta = response.data;
                     me.arraySucursal = respuesta;
-                 
+                    console.log(me.arraySucursal);
                 })
                 .catch(function (error) {
                     error401(error);
@@ -317,19 +336,7 @@ export default {
             }
         },
 
-        fecha_inicial(){
-            // Obtener la fecha actual
-    const today = new Date();
-    // Obtener el año, mes y día actual
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, '0'); // Meses en JavaScript son de 0 a 11
-    const day = String(today.getDate()).padStart(2, '0');
-
-    // Asignar la fecha del primer día del mes al input de fecha de inicio
-    this.startDate = `${year}-${month}-01`;
-    // Asignar la fecha actual al input de fecha final
-    this.endDate = `${year}-${month}-${day}`;
-        },
+      
         cerrarModal(accion) {
             let me = this;
             if (accion == "registrar") {
@@ -361,7 +368,7 @@ export default {
     mounted() {
         this.classModal = new _pl.Modals();
         this.sucursalFiltro();
-        this.fecha_inicial();
+   
         this.classModal.addModal("registrar");
     
     

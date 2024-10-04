@@ -240,8 +240,24 @@ class DirDistribuidorController extends Controller
      */
     public function update(Request $request, Dir_Distribuidor $dir_Distribuidor)
     {
-        //
+   
+        try {
+            DB::beginTransaction();
+            $e =Dir_Distribuidor::find($request->id_distribuidor);
+            $e->contacto=$request->contacto;
+            $e->id_cliente=$request->id_cliente;
+            $e->id_linea_array=$request->ids_linea;
+            $e->nom_linea_array=$request->linea_nom;     
+            $e->tipo_persona_empresa=$request->selectTipo;      
+            $e->id_usuario_modifica=auth()->user()->id;      
+            $e->save();
+           //return DB::commit();
+            DB::commit();    
+           } catch (\Throwable $th) {
+            return $th;
+           }
     }
+
 
     public function listarLinea(){
         $lineas = DB::table('prod__lineas')
@@ -251,5 +267,21 @@ class DirDistribuidorController extends Controller
             ->orderBy('id', 'desc')
             ->get();
         return $lineas;
+    }
+
+    public function desactivar(Request $request)
+    {
+        $update = Dir_Distribuidor::findOrFail($request->id);
+        $update->estado = 0;       
+        $update->id_usuario_modifica=auth()->user()->id;
+        $update->save();
+    }
+
+    public function activar(Request $request)
+    {   
+        $update = Dir_Distribuidor::findOrFail($request->id);
+        $update->estado = 1;    
+        $update->id_usuario_modifica=auth()->user()->id;
+        $update->save();
     }
 }

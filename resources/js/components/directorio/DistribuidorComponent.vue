@@ -181,6 +181,8 @@
                         <div class="alert alert-warning" role="alert">
                             Todos los campos con (*) son requeridos
                         </div>
+                      
+                        
                         <form action="" class="form-horizontal">
                         
                             <!-- insertar datos -->
@@ -201,7 +203,8 @@
                         class="w-350"
                         selectLabel="Añadir a seleccion"
                         deselectLabel="Quitar seleccion"
-                        selectedLabel="Seleccionado"
+                        selectedLabel="Seleccionado"                      
+                        @input="changeLinea()"
                        >
                        <template #noResult>
                         No se encontraron elementos. Considere cambiar la consulta de búsqueda.
@@ -253,6 +256,7 @@
                              <!-------------------------------------------------------->     
                              <div class="container">                                
                                 <div class="form-group row"  >
+                                  
                                     <strong  class="col-md-3 form-control-label" for="text-input">Linea: <span v-if="options == null" class="error" >(*)</span></strong>
                                         <div class="col-md-7 input-group mb-3">
                                             <multiselect v-model="value"
@@ -261,19 +265,25 @@
              :close-on-select="false" 
              :clear-on-select="false"
             :preserve-search="true" 
-            placeholder="Seleccione ona opción" 
+            placeholder="Seleccione una opción" 
             label="nombre" 
             track-by="id" 
             :preselect-first="false"
             selectLabel="Añadir a seleccion"
             deselectLabel="Quitar seleccion"
             selectedLabel="Seleccionado"
+        
             >
+          
                 <template #selection="{ values, search, isOpen }">
                     <span class="multiselect__single" v-if="values.length>1" v-show="!isOpen">{{ values.length }} opciones seleccionadas</span>
                     <span class="multiselect__single" v-else v-show="!isOpen">{{ values.length }} opcion seleccionada</span>
                 </template>
             </multiselect>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <button v-if="value.length>0" type="button" class="btn btn-primary" @click="clearAll()"><i class="fa fa-exclamation" aria-hidden="true"></i>Limpiar</button>
+                                            <button v-else type="button" class="btn btn-light" ><i class="fa fa-exclamation" aria-hidden="true"></i>Limpiar</button>
                                         </div>
                                 </div>
                             </div>               
@@ -366,8 +376,7 @@ export default {
             },
             offset:3,
             selected:null,
-            arrayTipo:[{id:1,tipo:'Persona'},
-                            {id:2,tipo:'Empresa'}],
+            arrayTipo:[{id:1,tipo:'Persona'},{id:2,tipo:'Empresa'}],
 
             arrayLimite:[{id:1,limite:10},
                 {id:2,limite:20},
@@ -388,7 +397,7 @@ export default {
             tipoAccion:1,
 
             arrayIndex:[],
-            id_transaccion:'',
+            id_distribuidor:'',
               //---permisos_R_W_S
               puedeEditar:2,
                 puedeActivar:2,
@@ -442,7 +451,7 @@ export default {
     methods: {
               //-----------------------------------permisos_R_W_S        
  listarPerimsoxyz() {
-                //console.log(this.codventana);
+           
     let me = this;        
     var url = '/gestion_permiso_editar_eliminar?win='+me.codventana;  
     axios.get(url)
@@ -471,6 +480,10 @@ export default {
             this.limite_X=10;
          },   
 
+         clearAll () {
+      this.value = [];
+    },
+
         listarDistribuidor(page){
               //   /transaccion/listar_   
               let me=this;
@@ -479,8 +492,7 @@ export default {
                 axios.get(url).then(function(response){
                     var respuesta=response.data;
                     me.pagination = respuesta.pagination;
-                    me.arrayIndex = respuesta.distribuidor.data;
-                    console.log(me.arrayIndex);               
+                    me.arrayIndex = respuesta.distribuidor.data;           
 
                 })
                 .catch(function(error){
@@ -496,7 +508,7 @@ export default {
                 .then(function (response) {
                     var respuesta = response.data;
                     me.options = respuesta;
-                    console.log(me.options);                              
+                               
                 })
                 .catch(function (error) {
                     error401(error);
@@ -521,17 +533,23 @@ export default {
                     console.log(error);
                 });
         },
-      //  me.id_transaccion
+     
         editar(){
             let me = this;
-            axios.post("/proveedor/editar", {
-                datos_adicionales: me.contacto,              
+            const ids = me.value.map(item => item.id).join(',');
+            const nom = me.value.map(item => item.nombre).join(',');
+            axios.post("/distribuidor/editar", {
+                contacto: me.contacto,              
                 id_cliente: me.selected.id,
                 selectTipo:me.selectTipo,
-                id_transaccion:me.id_transaccion                               
+                id_distribuidor:me.id_distribuidor,
+          
+                linea_nom:nom,
+                ids_linea:ids
+                                                              
                     })       
                     .then(function (response) {
-                       // console.log(response.data);
+                        console.log(response.data);
                         me.cerrarModal("registrar");
                         me.listarDistribuidor();                  
                         Swal.fire(
@@ -562,7 +580,7 @@ export default {
                                
                     })       
                     .then(function (response) {
-                       console.log(response.data);
+       
                         me.cerrarModal("registrar");
                            me.listarDistribuidor();                  
                         Swal.fire(
@@ -602,10 +620,10 @@ export default {
                 case "registrar": {
                     me.tipoAccion = 1;
                     if (me.selectTipo===1) {
-                        me.tituloModal = "Registrar proveedor tipo persona"; 
+                        me.tituloModal = "Registrar distribuidor tipo persona"; 
                     } else {
                         if (me.selectTipo===2) {
-                        me.tituloModal = "Registrar proveedor tipo empresa";    
+                        me.tituloModal = "Registrar distribuidor tipo empresa";    
                         } else {
                         me.tituloModal = "Error...";    
                         }                       
@@ -618,7 +636,7 @@ export default {
                 }
                 case "actualizar": {
                     me.tipoAccion = 2;
-                   
+   
                     if (me.selectTipo===1) {
                         me.tituloModal = "Registrar proveedor tipo persona"; 
                     } else {
@@ -630,15 +648,23 @@ export default {
                     }    
               
             let cliente = me.arrayCliente.find(c => c.id === data.id_cliente);
-
             if (cliente) {
                 me.selected = cliente;
             } else {
                 me.selected = null;
             }
-                          
-                    me.contacto=data.datos_adicionales;
-                    me.id_transaccion=data.id;
+       
+            let array = (data.id_linea_array).split(',').map(Number);
+            array.forEach(function(item, index) {
+            let linea = me.options.find(c => c.id === item);
+          
+             //  if (linea) {
+             me.value.push(linea);
+             //   me.value = cliente;
+              //  } 
+            });      
+                    me.contacto=data.contacto;
+                    me.id_distribuidor=data.id;
                     me.classModal.openModal("registrar");
 
                     break;
@@ -680,10 +706,11 @@ export default {
                 reverseButtons: true
                 }).then((result) => {
                 if (result.isConfirmed) {
-                     axios.put('/proveedor/desactivar',{
+                     axios.put('/distribuidor/desactivar',{
                         'id': id
                     }).then(function (response) {
-                       // me.listarProveedor();  
+                
+                        me.listarDistribuidor();   
                         swalWithBootstrapButtons.fire(
                             'Desactivado!',
                             'El registro a sido desactivado Correctamente',
@@ -725,10 +752,11 @@ export default {
                 reverseButtons: true
                 }).then((result) => {
                 if (result.isConfirmed) {
-                     axios.put('/proveedor/activar',{
+                     axios.put('/distribuidor/activar',{
                         'id': id
                     }).then(function (response) {
-                    //    me.listarProveedor();  
+                     
+                        me.listarDistribuidor();   
                         swalWithBootstrapButtons.fire(
                             'Activado!',
                             'El registro a sido Activado Correctamente',
