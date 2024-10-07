@@ -28,6 +28,7 @@ use App\Http\Controllers\DirClienteController;
 use App\Http\Controllers\DirDistribuidorController;
 use App\Http\Controllers\DirDistriuidorController;
 use App\Http\Controllers\DirProveedorController;
+use App\Http\Controllers\EgrInversionController;
 use App\Http\Controllers\TdaTiendaController;
 use App\Http\Controllers\GesPreVentaController;
 use App\Http\Controllers\ParClienteController;
@@ -685,5 +686,12 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/transaccion/listar_', [CajaTransaccionController::class, 'index']); 
     Route::post('/transaccion/editar', [CajaTransaccionController::class, 'update']);  
     Route::get('/transaccion/show', [CajaTransaccionController::class, 'show']);    
+
+    //////////////////////////////////////////////////EGRESOS///////////////////////////////////////////////////
     
+    //inversiones-----
+    Route::get('/inversion/getCliente', [EgrInversionController::class, 'listarDistribuidor']); 
+    Route::post('/inversion/crear', [EgrInversionController::class, 'store']);  
+    Route::get('/inversion/listarInicio', [EgrInversionController::class, 'index']); 
+   
 });

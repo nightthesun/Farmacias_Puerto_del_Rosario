@@ -11,9 +11,136 @@ class EgrInversionController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $buscararray = array();
+        ///persona
+        $limite=$request->limite;
+        if ($limite==0) {
+            $limite=999999999;
+        }
+        if (!empty($request->buscar)) {
+            $buscararray = explode(" ", $request->buscar);
+            $valor = sizeof($buscararray);
+            if ($valor > 0) {
+                $sqls = '';
+                foreach ($buscararray as $valor) {
+                    if (empty($sqls)) {
+                        $sqls = "(                                
+                                dc.nom_a_facturar like '%" . $valor . "%' 
+                                or dc.num_documento     like '%" . $valor . "%'
+                                 or ei.nro_comprobante     like '%" . $valor . "%'                                                                 
+                               )";
+                    } else {
+                        $sqls .= "and (
+                        dc.nom_a_facturar like '%" . $valor . "%' 
+                        or dc.num_documento     like '%" . $valor . "%'    
+                         or ei.nro_comprobante     like '%" . $valor . "%'  
+                       )";
+                    }
+                }
+                //----
+                $resultado = DB::table('egr__inversions as ei')
+                        ->select('ei.id','ei.id_distribuidor','ei.tipo_comprabante as id_tipo_comprabante','ei.estado',DB::raw("CASE 
+                        WHEN ei.tipo_comprabante = 1 THEN 'Recibo'
+                        WHEN ei.tipo_comprabante = 2 THEN 'Factura'
+                        ELSE NULL 
+                        END AS tipo_comprabante"),
+                        'ei.total','ei.simbolo','u.name',
+                        DB::raw('GREATEST(ei.created_at, ei.updated_at) AS fecha_mas_reciente'),
+                        'ei.descripcion',
+                        'dc.num_documento','ei.nro_comprobante','dc.nom_a_facturar',
+                        DB::raw("CASE 
+                        WHEN de.id IS NOT NULL THEN UPPER(COALESCE(de.razon_social, ''))
+                        WHEN dp.id IS NOT NULL THEN UPPER(COALESCE(CONCAT(
+                        COALESCE(dp.nombres, ''),
+                        ' ',
+                        COALESCE(dp.apellidos, '')
+                        ), ''))
+                        ELSE NULL 
+                        END AS nombre_1")
+                        )
+                    ->join('dir__distribuidors as dd', 'dd.id', '=', 'ei.id_distribuidor')
+                    ->join('dir__clientes as dc', 'dd.id_cliente', '=', 'dc.id')
+                    ->leftJoin('dir__empresas as de', function($join) {
+                    $join->on('de.id', '=', 'dc.id_per_emp')
+                    ->where('dd.tipo_persona_empresa', '=', 2);
+                    })
+                    ->leftJoin('dir__personas as dp', function($join) {
+                    $join->on('dp.id', '=', 'dc.id_per_emp')
+                    ->where('dd.tipo_persona_empresa', '=', 1);
+                    })
+                    ->join('users as u', DB::raw('COALESCE(ei.id_usuario_modifica, ei.id_usuario_registra)'), '=', 'u.id')
+                    ->where('ei.estado', '=', 1)
+                    ->where('ei.id_sucursal', '=', $request->id_sucursal)
+                    ->whereRaw($sqls)
+                    ->orderByDesc('ei.id')
+                    ->limit($limite)
+                    ->paginate(20);  
+            } 
+            return 
+                    ['pagination' =>
+                        [
+                            'total'         =>    $resultado->total(),
+                            'current_page'  =>    $resultado->currentPage(),
+                            'per_page'      =>    $resultado->perPage(),
+                            'last_page'     =>    $resultado->lastPage(),
+                            'from'          =>    $resultado->firstItem(),
+                            'to'            =>    $resultado->lastItem(),
+                        ],
+                        'resultado' => $resultado,
+                    ];                
+        } else {
+            $resultado = DB::table('egr__inversions as ei')
+            ->select('ei.id','ei.id_distribuidor','ei.tipo_comprabante as id_tipo_comprabante','ei.estado',DB::raw("CASE 
+            WHEN ei.tipo_comprabante = 1 THEN 'Recibo'
+            WHEN ei.tipo_comprabante = 2 THEN 'Factura'
+            ELSE NULL 
+            END AS tipo_comprabante"),
+            'ei.total','ei.simbolo','u.name',
+            DB::raw('GREATEST(ei.created_at, ei.updated_at) AS fecha_mas_reciente'),
+            'ei.descripcion',
+            'dc.num_documento','ei.nro_comprobante','dc.nom_a_facturar',
+            DB::raw("CASE 
+            WHEN de.id IS NOT NULL THEN UPPER(COALESCE(de.razon_social, ''))
+            WHEN dp.id IS NOT NULL THEN UPPER(COALESCE(CONCAT(
+            COALESCE(dp.nombres, ''),
+            ' ',
+            COALESCE(dp.apellidos, '')
+            ), ''))
+            ELSE NULL 
+            END AS nombre_1")
+            )
+        ->join('dir__distribuidors as dd', 'dd.id', '=', 'ei.id_distribuidor')
+        ->join('dir__clientes as dc', 'dd.id_cliente', '=', 'dc.id')
+        ->leftJoin('dir__empresas as de', function($join) {
+        $join->on('de.id', '=', 'dc.id_per_emp')
+        ->where('dd.tipo_persona_empresa', '=', 2);
+        })
+        ->leftJoin('dir__personas as dp', function($join) {
+        $join->on('dp.id', '=', 'dc.id_per_emp')
+        ->where('dd.tipo_persona_empresa', '=', 1);
+        })
+        ->join('users as u', DB::raw('COALESCE(ei.id_usuario_modifica, ei.id_usuario_registra)'), '=', 'u.id')
+        ->where('ei.estado', '=', 1)
+        ->where('ei.id_sucursal', '=', $request->id_sucursal)
+        ->orderByDesc('ei.id')
+        ->limit($limite)
+        ->paginate(20);
+        return 
+                    ['pagination' =>
+                        [
+                            'total'         =>    $resultado->total(),
+                            'current_page'  =>    $resultado->currentPage(),
+                            'per_page'      =>    $resultado->perPage(),
+                            'last_page'     =>    $resultado->lastPage(),
+                            'from'          =>    $resultado->firstItem(),
+                            'to'            =>    $resultado->lastItem(),
+                        ],
+                        'resultado' => $resultado,
+                    ];   
+        }
+
     }
 
 
@@ -22,7 +149,26 @@ class EgrInversionController extends Controller
      */
     public function store(Request $request)
     {
-        //
+       // 1= recibo, 2 = factura
+       try {
+        DB::beginTransaction();
+        $crear = new Egr_Inversion();
+        $crear->id_distribuidor=$request->id_dis;
+        $crear->tipo_persona_empresa=$request->tipo_persona_empresa;
+        $crear->tipo_comprabante=$request->tipo_comprabante;
+        $crear->nro_comprobante=$request->nro_comprobante;            
+        $crear->total=$request->total;     
+        $crear->simbolo=$request->simbolo;    
+        $crear->id_sucursal=$request->id_sucursal;    
+        $crear->total=$request->total;    
+        $crear->descripcion=$request->descripcion;
+        $crear->id_usuario_registra=auth()->user()->id;  
+        $crear->save();
+       // return DB::commit();   
+        DB::commit();    
+       } catch (\Throwable $th) {
+        return $th;
+       }
     }
 
   
@@ -36,6 +182,7 @@ class EgrInversionController extends Controller
     }
 
    public function listarDistribuidor(){
+
     $distriibuidor =  DB::table('dir__distribuidors as dd')
     ->join('dir__clientes as dc', 'dd.id_cliente', '=', 'dc.id')
     ->leftJoin('dir__empresas as de', function($join) {
@@ -55,6 +202,14 @@ class EgrInversionController extends Controller
             ELSE NULL 
         END AS nombre_1
     ")
+    ->selectRaw("
+       CASE 
+        WHEN dd.tipo_persona_empresa = 1 THEN 'Persona'
+        WHEN dd.tipo_persona_empresa = 2 THEN 'Empresa'
+        ELSE NULL 
+    END AS tipo
+    ")
+
     ->get();
 
     $moneda = DB::table('adm__credecial_correos as acc')
@@ -63,9 +218,11 @@ class EgrInversionController extends Controller
     ->get();
 
     return response()->json([
-         'distriibuidor' => $distriibuidor,
+         'distribuidor' => $distriibuidor,
          'moneda' => $moneda 
      ]);
  
    }
+
+   
 }

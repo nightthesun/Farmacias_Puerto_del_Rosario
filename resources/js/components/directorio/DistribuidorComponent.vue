@@ -611,11 +611,7 @@ export default {
         },
 
         abrirModal(accion, data = []) {
-            let me = this;
-        //    let respuesta = me.arraySucursal.find(
-        //        (element) => element.codigo == me.sucursalSeleccionada,
-        //    );
-           
+            let me = this;        
          switch (accion) {
                 case "registrar": {
                     me.tipoAccion = 1;

@@ -8,4 +8,5 @@ use Illuminate\Database\Eloquent\Model;
 class Egr_Inversion extends Model
 {
     use HasFactory;
+    protected $table='egr__inversions';    
 }

@@ -12,8 +12,19 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('egr__inversions', function (Blueprint $table) {
-            $table->id();
+            $table->id();           
+            $table->smallInteger('id_distribuidor');          
+            $table->tinyInteger('tipo_persona_empresa')->nullable();
+            $table->tinyInteger('tipo_comprabante')->comment('1= recibo, 2 = factura');
+            $table->smallInteger('nro_comprobante');
+            $table->decimal('total',11,2);
+            $table->tinyText('simbolo')->nullable();
+            $table->smallInteger('id_sucursal');
+            $table->smallInteger('id_usuario_registra')->nullable();
+            $table->smallInteger('id_usuario_modifica')->nullable();
+            $table->tinyInteger('estado')->default(1);
             $table->timestamps();
+            $table->string('descripcion');
         });
     }
 
