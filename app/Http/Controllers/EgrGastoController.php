@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Egr_Inversion;
+use App\Models\Egr_Gasto;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class EgrInversionController extends Controller
+class EgrGastoController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -140,19 +140,19 @@ class EgrInversionController extends Controller
                         'resultado' => $resultado,
                     ];   
         }
-
     }
 
+   
 
     /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
     {
-       // 1= recibo, 2 = factura
+        // 1= recibo, 2 = factura
        try {
         DB::beginTransaction();
-        $crear = new Egr_Inversion();
+        $crear = new Egr_Gasto();
         $crear->id_distribuidor=$request->id_dis;
         $crear->tipo_persona_empresa=$request->tipo_persona_empresa;
         $crear->tipo_comprabante=$request->tipo_comprabante;
@@ -171,16 +171,16 @@ class EgrInversionController extends Controller
        }
     }
 
-  
+   
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Egr_Inversion $egr_Inversion)
+    public function update(Request $request, Egr_Gasto $egr_Gasto)
     {
         try {
             DB::beginTransaction();
-            $e =Egr_Inversion::find($request->id);
+            $e =Egr_Gasto::find($request->id);
             $e->id_distribuidor=$request->id_dis;
             $e->tipo_persona_empresa=$request->tipo_persona_empresa;
             $e->tipo_comprabante=$request->tipo_comprabante;
@@ -199,20 +199,20 @@ class EgrInversionController extends Controller
            }
     }
 
-   public function listarDistribuidor(){
+    public function listarProveedor(){
 
-    $distriibuidor =  DB::table('dir__distribuidors as dd')
+        $proveedores = DB::table('dir__proveedors as dd')
     ->join('dir__clientes as dc', 'dd.id_cliente', '=', 'dc.id')
     ->leftJoin('dir__empresas as de', function($join) {
         $join->on('de.id', '=', 'dc.id_per_emp')
-             ->where('dd.tipo_persona_empresa', '=', 2);
+             ->where('dd.tipo_persona_empresa', 2);
     })
     ->leftJoin('dir__personas as dp', function($join) {
         $join->on('dp.id', '=', 'dc.id_per_emp')
-             ->where('dd.tipo_persona_empresa', '=', 1);
+             ->where('dd.tipo_persona_empresa', 1);
     })
     ->where('dd.estado', 1)  // Condición WHERE
-    ->select('dd.id', 'dd.contacto', 'dd.nom_linea_array', 'dc.nom_a_facturar', 'dc.num_documento', 'dd.tipo_persona_empresa')
+    ->select('dd.id', 'dd.datos_adicionales', 'dc.nom_a_facturar', 'dc.num_documento', 'dd.tipo_persona_empresa')
     ->selectRaw("
         CASE 
             WHEN de.id IS NOT NULL THEN UPPER(COALESCE(de.razon_social, ''))
@@ -227,35 +227,35 @@ class EgrInversionController extends Controller
         ELSE NULL 
     END AS tipo
     ")
-
     ->get();
 
-    $moneda = DB::table('adm__credecial_correos as acc')
-    ->join('adm__nacionalidads as an', 'acc.moneda', '=', 'an.id')
-    ->select('acc.moneda', 'an.simbolo')
-    ->get();
+        $moneda = DB::table('adm__credecial_correos as acc')
+        ->join('adm__nacionalidads as an', 'acc.moneda', '=', 'an.id')
+        ->select('acc.moneda', 'an.simbolo')
+        ->get();
+    
+        return response()->json([
+             'proveedores' => $proveedores,
+             'moneda' => $moneda 
+         ]);
+     
+       }
 
-    return response()->json([
-         'distribuidor' => $distriibuidor,
-         'moneda' => $moneda 
-     ]);
+    public function desactivar(Request $request)
+    {
+        $update = Egr_Gasto::findOrFail($request->id);
+        $update->estado = 0;       
+        $update->id_usuario_modifica=auth()->user()->id;
+        $update->save();
+    }
  
-   }
+    public function activar(Request $request)
+    {   
+        $update = Egr_Gasto::findOrFail($request->id);
+        $update->estado = 1;    
+        $update->id_usuario_modifica=auth()->user()->id;
+        $update->save();
+    }
 
-   public function desactivar(Request $request)
-   {
-       $update = Egr_Inversion::findOrFail($request->id);
-       $update->estado = 0;       
-       $update->id_usuario_modifica=auth()->user()->id;
-       $update->save();
-   }
-
-   public function activar(Request $request)
-   {   
-       $update = Egr_Inversion::findOrFail($request->id);
-       $update->estado = 1;    
-       $update->id_usuario_modifica=auth()->user()->id;
-       $update->save();
-   }
    
 }

@@ -486,8 +486,7 @@ export default {
 
         listarDistribuidor(page){
               //   /transaccion/listar_   
-              let me=this;
-             
+              let me=this;             
                 var url='/distribuidor/listarDistribuidor?page='+page+'&buscar='+me.buscar+'&tipo='+me.selectTipo+'&limite='+me.limite_X;
                 axios.get(url).then(function(response){
                     var respuesta=response.data;
@@ -564,7 +563,6 @@ export default {
                   //  this.errorMessage = error.response.data; // Aquí guardamos el error
                   //  Swal.fire("Error comunicarse con el administrador",""+errorMessage,"error");               
             });
-
         },
 
         crear(){

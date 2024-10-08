@@ -28,6 +28,7 @@ use App\Http\Controllers\DirClienteController;
 use App\Http\Controllers\DirDistribuidorController;
 use App\Http\Controllers\DirDistriuidorController;
 use App\Http\Controllers\DirProveedorController;
+use App\Http\Controllers\EgrGastoController;
 use App\Http\Controllers\EgrInversionController;
 use App\Http\Controllers\TdaTiendaController;
 use App\Http\Controllers\GesPreVentaController;
@@ -693,5 +694,15 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/inversion/getCliente', [EgrInversionController::class, 'listarDistribuidor']); 
     Route::post('/inversion/crear', [EgrInversionController::class, 'store']);  
     Route::get('/inversion/listarInicio', [EgrInversionController::class, 'index']); 
-   
+    Route::post('/inversion/editar', [EgrInversionController::class, 'update']); 
+    Route::put('/inversion/activar', [EgrInversionController::class, 'activar']); 
+    Route::put('/inversion/desactivar', [EgrInversionController::class, 'desactivar']);    
+
+    //gastos--------
+    Route::get('/gasto/getCliente', [EgrGastoController::class, 'listarProveedor']); 
+    Route::post('/gasto/crear', [EgrGastoController::class, 'store']);  
+    Route::get('/gasto/listarInicio', [EgrGastoController::class, 'index']); 
+    Route::post('/gasto/editar', [EgrGastoController::class, 'update']); 
+    Route::put('/gasto/activar', [EgrGastoController::class, 'activar']); 
+    Route::put('/gasto/desactivar', [EgrGastoController::class, 'desactivar']); 
 });

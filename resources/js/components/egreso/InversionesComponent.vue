@@ -106,9 +106,9 @@
                 <tbody>
                     <tr v-for="i in arrayIndex" :key="i.id">
                         <td class="col-md-1">
-                            <button type="button"  @click="abrirModal('actualizar',i);listarDistribuidor()" class="btn btn-warning btn-sm" style="margin-right: 5px;"><i class="icon-pencil"></i></button> 
-                            <button v-if="i.estado==1" type="button" class="btn btn-danger btn-sm" style="margin-right: 5px;"><i class="icon-trash"></i></button>
-                            <button v-else type="button"  class="btn btn-info btn-sm" style="margin-right: 5px;"><i class="icon-check"></i></button>                            
+                            <button type="button"  @click="abrirModal('actualizar',i);"  class="btn btn-warning btn-sm" style="margin-right: 5px;"><i class="icon-pencil"></i></button> 
+                            <button v-if="i.estado==1" @click="eliminar(i.id)" type="button" class="btn btn-danger btn-sm" style="margin-right: 5px;"><i class="icon-trash"></i></button>
+                            <button v-else type="button"  @click="activar (i.id)"  class="btn btn-info btn-sm" style="margin-right: 5px;"><i class="icon-check"></i></button>                            
                         </td>
                         <td class="col-md-2">{{ i.nombre_1 }}</td> 
                         <td class="col-md-2">{{ i.nom_a_facturar }}</td> 
@@ -289,7 +289,8 @@
                             type="button"
                             v-if="tipoAccion == 2"
                             class="btn btn-primary"
-                          
+                            @click="editar()"
+                            :disabled="!sicompleto"
                         >
                             Actualizar
                         </button>
@@ -345,6 +346,8 @@ export default {
             selectTipoDoc:0,
             comprobante:'',    
             descripcion:'',
+
+            id_inversion:'',
             
         };
     },
@@ -404,8 +407,8 @@ export default {
                 axios.get(url).then(function(response){
                     var respuesta=response.data;
                     me.pagination = respuesta.pagination;
-                    me.arrayIndex = respuesta.resultado.data;           
-                    console.log(me.arrayIndex);
+                    me.arrayIndex = respuesta.resultado.data;         
+             
                 })
                 .catch(function(error){
                     error401(error);
@@ -430,21 +433,139 @@ export default {
                                             
                         let a=response.data;
                         me.cerrarModal("registrar");
-                         //  me.listarDistribuidor();  
+                           me.listarInicio();  
                             if (a===null || a==="" ) {
                                 Swal.fire("Se registro exitosamente","Haga click en Ok", "success",);                             
                             } else {
                                 Swal.fire(""+a,"Haga click en Ok","error",); 
-                            }                
-                        
+                            } 
                     })                
-                  .catch(function (error) { 
-                 
-                    console.log(error.response.data);          
-                  //  this.errorMessage = error.response.data; // Aquí guardamos el error
-                  //  Swal.fire("Error comunicarse con el administrador",""+errorMessage,"error");               
+                  .catch(function (error) {                  
+                    console.log(error.response.data);
             });
         },
+
+        eliminar(id){
+                let me=this;
+                const swalWithBootstrapButtons = Swal.mixin({
+                customClass: {
+                    confirmButton: 'btn btn-success',
+                    cancelButton: 'btn btn-danger'
+                },
+                buttonsStyling: false
+                })
+
+                swalWithBootstrapButtons.fire({
+                title: '¿Esta Seguro de Desactivar?',
+                text: "Es una eliminacion logica",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Si, Desactivar',
+                cancelButtonText: 'No, Cancelar',
+                reverseButtons: true
+                }).then((result) => {
+                if (result.isConfirmed) {
+                     axios.put('/inversion/desactivar',{
+                        'id': id
+                    }).then(function (response) {
+                        me.listarInicio();  
+                        swalWithBootstrapButtons.fire(
+                            'Desactivado!',
+                            'El registro a sido desactivado Correctamente',
+                            'success'
+                        )                     
+                        
+                    }).catch(function (error) {
+                        error401(error);
+                        console.log(error);
+                    });
+                } else if (
+                    /* Read more about handling dismissals below */
+                    result.dismiss === Swal.DismissReason.cancel
+                ) {
+                    /* swalWithBootstrapButtons.fire(
+                    'Cancelado!',
+                    'El Registro no fue desactivado',
+                    'error'
+                    ) */
+                }
+                })
+            },
+            activar(id){
+                let me=this;
+                const swalWithBootstrapButtons = Swal.mixin({
+                customClass: {
+                    confirmButton: 'btn btn-success',
+                    cancelButton: 'btn btn-danger'
+                },
+                buttonsStyling: false
+                })
+                swalWithBootstrapButtons.fire({
+                title: 'Esta Seguro de Activar?',
+                text: "Es una Activacion logica",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Si, Activar',
+                cancelButtonText: 'No, Cancelar',
+                reverseButtons: true
+                }).then((result) => {
+                if (result.isConfirmed) {
+                     axios.put('/inversion/activar',{
+                        'id': id
+                    }).then(function (response) {
+                        me.listarInicio();  
+                        swalWithBootstrapButtons.fire(
+                            'Activado!',
+                            'El registro a sido Activado Correctamente',
+                            'success'
+                        )
+                    }).catch(function (error) {
+                        error401(error);
+                        console.log(error);
+                    });
+                    
+                    
+                } else if (
+                    /* Read more about handling dismissals below */
+                    result.dismiss === Swal.DismissReason.cancel
+                ) {
+                    /* swalWithBootstrapButtons.fire(
+                    'Cancelado!',
+                    'El Registro no fue Activado',
+                    'error'
+                    ) */
+                }
+                })
+            },
+
+        editar(){
+            let me = this;
+          
+            axios.post("/inversion/editar", {
+                id_dis: (me.selected).id, 
+                tipo_persona_empresa: (me.selected).tipo_persona_empresa,         
+                tipo_comprabante: me.selectTipoDoc,        
+                nro_comprobante: me.comprobante,    
+                total: me.total,           
+                id_sucursal:me.id_sucursal,
+                descripcion:me.descripcion,   
+                id:me.id_inversion                                                         
+                    })       
+                    .then(function (response) {
+                        let a=response.data;
+                        me.cerrarModal("registrar");
+                        me.listarInicio();  
+                            if (a===null || a==="" ) {
+                                Swal.fire("Se registro exitosamente","Haga click en Ok", "success",);                             
+                            } else {
+                                Swal.fire(""+a,"Haga click en Ok","error",); 
+                            }                          
+                    })                
+                  .catch(function (error) { 
+                    console.log(error.response.data);                           
+            });
+        },
+
 
          listarDistribuidor(){   
             let me = this;       
@@ -453,9 +574,8 @@ export default {
                 .then(function (response) {
                     var respuesta = (response.data).distribuidor;              
                     var respuesta_moneda = (response.data).moneda; 
-                     me.arrayDistribuidor =respuesta;
-                    me.simbolo = respuesta_moneda[0].simbolo;
-                 
+                     me.arrayDistribuidor = respuesta;
+                    me.simbolo = respuesta_moneda[0].simbolo;                 
                 })
                 .catch(function (error) {
                     error401(error);
@@ -463,20 +583,6 @@ export default {
                 });
          },
 
-         listarGetcliente(){   
-            let me = this;       
-           var url = "/inversion/getCliente";
-            axios.get(url)
-                .then(function (response) {
-                    var respuesta = response.data;
-                    me.arraySucursal = respuesta;
-                    console.log(me.arraySucursal);
-                })
-                .catch(function (error) {
-                    error401(error);
-                    console.log(error);
-                });
-         },
 
         sucursalFiltro() {
             let me = this;
@@ -487,7 +593,7 @@ export default {
                 .then(function (response) {
                     var respuesta = response.data;
                     me.arraySucursal = respuesta;
-                    console.log(me.arraySucursal);
+   
                 })
                 .catch(function (error) {
                     error401(error);
@@ -529,16 +635,19 @@ export default {
                 }
                 case "actualizar": {
                     me.tipoAccion = 2;
-                    console.log(data);
-                    let distribuidor = me.arrayDistribuidor.find(c => c.id_distribuidor === data.id_distribuidor);
+               
+                    let distribuidor = me.arrayDistribuidor.find(c => c.id === data.id_distribuidor);
             if (distribuidor) {
                 me.selected = distribuidor;
             } else {
                 me.selected = null;
-            }
-            
+            }            
+                    me.selectTipoDoc= null ? 0 : data.id_tipo_comprabante;                    
+                    me.comprobante=data.nro_comprobante;
+                    me.total=data.total;
+                    me.descripcion=data.descripcion;
+                    me.id_inversion=data.id;
                     me.classModal.openModal("registrar");
-
                     break;
                 }
             
@@ -557,6 +666,7 @@ export default {
                 me.comprobante="";
                 me.simbolo="";  
                 me.tituloModal = "";
+                me.id_inversion ="";
             
             }
         },
