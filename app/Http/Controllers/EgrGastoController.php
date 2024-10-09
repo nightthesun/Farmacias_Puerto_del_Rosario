@@ -40,39 +40,43 @@ class EgrGastoController extends Controller
                     }
                 }
                 //----
-                $resultado = DB::table('egr__inversions as ei')
-                        ->select('ei.id','ei.id_distribuidor','ei.tipo_comprabante as id_tipo_comprabante','ei.estado',DB::raw("CASE 
+                $resultado = DB::table('egr__gastos as ei')
+                ->select(
+                    'ei.id',
+                    'ei.id_proveedor',
+                    'ei.tipo_comprabante as id_tipo_comprabante',
+                    'ei.estado',
+                    DB::raw("CASE 
                         WHEN ei.tipo_comprabante = 1 THEN 'Recibo'
                         WHEN ei.tipo_comprabante = 2 THEN 'Factura'
                         ELSE NULL 
-                        END AS tipo_comprabante"),
-                        'ei.total','ei.simbolo','u.name',
-                        DB::raw('GREATEST(ei.created_at, ei.updated_at) AS fecha_mas_reciente'),
-                        'ei.descripcion',
-                        'dc.num_documento','ei.nro_comprobante','dc.nom_a_facturar',
-                        DB::raw("CASE 
+                    END AS tipo_comprabante"),
+                    'ei.total',
+                    'ei.simbolo',
+                    'u.name',
+                    DB::raw('GREATEST(ei.created_at, ei.updated_at) AS fecha_mas_reciente'),
+                    'ei.descripcion',
+                    'dc.num_documento',
+                    'ei.nro_comprobante',
+                    'dc.nom_a_facturar',
+                    DB::raw("CASE 
                         WHEN de.id IS NOT NULL THEN UPPER(COALESCE(de.razon_social, ''))
-                        WHEN dp.id IS NOT NULL THEN UPPER(COALESCE(CONCAT(
-                        COALESCE(dp.nombres, ''),
-                        ' ',
-                        COALESCE(dp.apellidos, '')
-                        ), ''))
+                        WHEN dp.id IS NOT NULL THEN UPPER(COALESCE(CONCAT(COALESCE(dp.nombres, ''), ' ', COALESCE(dp.apellidos, '')), ''))
                         ELSE NULL 
-                        END AS nombre_1")
-                        )
-                    ->join('dir__distribuidors as dd', 'dd.id', '=', 'ei.id_distribuidor')
-                    ->join('dir__clientes as dc', 'dd.id_cliente', '=', 'dc.id')
-                    ->leftJoin('dir__empresas as de', function($join) {
+                    END AS nombre_1")
+                )
+                ->join('dir__proveedors as dd', 'dd.id', '=', 'ei.id_proveedor')
+                ->join('dir__clientes as dc', 'dd.id_cliente', '=', 'dc.id')
+                ->leftJoin('dir__empresas as de', function ($join) {
                     $join->on('de.id', '=', 'dc.id_per_emp')
-                    ->where('dd.tipo_persona_empresa', '=', 2);
-                    })
-                    ->leftJoin('dir__personas as dp', function($join) {
+                         ->where('dd.tipo_persona_empresa', '=', 2);
+                })
+                ->leftJoin('dir__personas as dp', function ($join) {
                     $join->on('dp.id', '=', 'dc.id_per_emp')
-                    ->where('dd.tipo_persona_empresa', '=', 1);
-                    })
-                    ->join('users as u', DB::raw('COALESCE(ei.id_usuario_modifica, ei.id_usuario_registra)'), '=', 'u.id')
-                 
-                    ->where('ei.id_sucursal', '=', $request->id_sucursal)
+                         ->where('dd.tipo_persona_empresa', '=', 1);
+                })
+                ->join('users as u', DB::raw('COALESCE(ei.id_usuario_modifica, ei.id_usuario_registra)'), '=', 'u.id')          
+            ->where('ei.id_sucursal', '=', $request->id_sucursal)
                     ->whereRaw($sqls)
                     ->orderByDesc('ei.id')
                     ->limit($limite)
@@ -91,38 +95,42 @@ class EgrGastoController extends Controller
                         'resultado' => $resultado,
                     ];                
         } else {
-            $resultado = DB::table('egr__inversions as ei')
-            ->select('ei.id','ei.id_distribuidor','ei.tipo_comprabante as id_tipo_comprabante','ei.estado',DB::raw("CASE 
-            WHEN ei.tipo_comprabante = 1 THEN 'Recibo'
-            WHEN ei.tipo_comprabante = 2 THEN 'Factura'
-            ELSE NULL 
-            END AS tipo_comprabante"),
-            'ei.total','ei.simbolo','u.name',
-            DB::raw('GREATEST(ei.created_at, ei.updated_at) AS fecha_mas_reciente'),
-            'ei.descripcion',
-            'dc.num_documento','ei.nro_comprobante','dc.nom_a_facturar',
-            DB::raw("CASE 
-            WHEN de.id IS NOT NULL THEN UPPER(COALESCE(de.razon_social, ''))
-            WHEN dp.id IS NOT NULL THEN UPPER(COALESCE(CONCAT(
-            COALESCE(dp.nombres, ''),
-            ' ',
-            COALESCE(dp.apellidos, '')
-            ), ''))
-            ELSE NULL 
-            END AS nombre_1")
+            $resultado = DB::table('egr__gastos as ei')
+            ->select(
+                'ei.id',
+                'ei.id_proveedor',
+                'ei.tipo_comprabante as id_tipo_comprabante',
+                'ei.estado',
+                DB::raw("CASE 
+                    WHEN ei.tipo_comprabante = 1 THEN 'Recibo'
+                    WHEN ei.tipo_comprabante = 2 THEN 'Factura'
+                    ELSE NULL 
+                END AS tipo_comprabante"),
+                'ei.total',
+                'ei.simbolo',
+                'u.name',
+                DB::raw('GREATEST(ei.created_at, ei.updated_at) AS fecha_mas_reciente'),
+                'ei.descripcion',
+                'dc.num_documento',
+                'ei.nro_comprobante',
+                'dc.nom_a_facturar',
+                DB::raw("CASE 
+                    WHEN de.id IS NOT NULL THEN UPPER(COALESCE(de.razon_social, ''))
+                    WHEN dp.id IS NOT NULL THEN UPPER(COALESCE(CONCAT(COALESCE(dp.nombres, ''), ' ', COALESCE(dp.apellidos, '')), ''))
+                    ELSE NULL 
+                END AS nombre_1")
             )
-        ->join('dir__distribuidors as dd', 'dd.id', '=', 'ei.id_distribuidor')
-        ->join('dir__clientes as dc', 'dd.id_cliente', '=', 'dc.id')
-        ->leftJoin('dir__empresas as de', function($join) {
-        $join->on('de.id', '=', 'dc.id_per_emp')
-        ->where('dd.tipo_persona_empresa', '=', 2);
-        })
-        ->leftJoin('dir__personas as dp', function($join) {
-        $join->on('dp.id', '=', 'dc.id_per_emp')
-        ->where('dd.tipo_persona_empresa', '=', 1);
-        })
-        ->join('users as u', DB::raw('COALESCE(ei.id_usuario_modifica, ei.id_usuario_registra)'), '=', 'u.id')
-   
+            ->join('dir__proveedors as dd', 'dd.id', '=', 'ei.id_proveedor')
+            ->join('dir__clientes as dc', 'dd.id_cliente', '=', 'dc.id')
+            ->leftJoin('dir__empresas as de', function ($join) {
+                $join->on('de.id', '=', 'dc.id_per_emp')
+                     ->where('dd.tipo_persona_empresa', '=', 2);
+            })
+            ->leftJoin('dir__personas as dp', function ($join) {
+                $join->on('dp.id', '=', 'dc.id_per_emp')
+                     ->where('dd.tipo_persona_empresa', '=', 1);
+            })
+            ->join('users as u', DB::raw('COALESCE(ei.id_usuario_modifica, ei.id_usuario_registra)'), '=', 'u.id')          
         ->where('ei.id_sucursal', '=', $request->id_sucursal)
         ->orderByDesc('ei.id')
         ->limit($limite)
@@ -153,7 +161,7 @@ class EgrGastoController extends Controller
        try {
         DB::beginTransaction();
         $crear = new Egr_Gasto();
-        $crear->id_distribuidor=$request->id_dis;
+        $crear->id_proveedor=$request->id_dis;
         $crear->tipo_persona_empresa=$request->tipo_persona_empresa;
         $crear->tipo_comprabante=$request->tipo_comprabante;
         $crear->nro_comprobante=$request->nro_comprobante;            
@@ -163,6 +171,7 @@ class EgrGastoController extends Controller
         $crear->total=$request->total;    
         $crear->descripcion=$request->descripcion;
         $crear->id_usuario_registra=auth()->user()->id;  
+        $crear->id_apertura=$request->id_apertura_cierre;  
         $crear->save();
        // return DB::commit();   
         DB::commit();    
@@ -181,7 +190,7 @@ class EgrGastoController extends Controller
         try {
             DB::beginTransaction();
             $e =Egr_Gasto::find($request->id);
-            $e->id_distribuidor=$request->id_dis;
+            $e->id_proveedor=$request->id_dis;
             $e->tipo_persona_empresa=$request->tipo_persona_empresa;
             $e->tipo_comprabante=$request->tipo_comprabante;
             $e->nro_comprobante=$request->nro_comprobante;            
@@ -228,7 +237,7 @@ class EgrGastoController extends Controller
     END AS tipo
     ")
     ->get();
-
+  
         $moneda = DB::table('adm__credecial_correos as acc')
         ->join('adm__nacionalidads as an', 'acc.moneda', '=', 'an.id')
         ->select('acc.moneda', 'an.simbolo')

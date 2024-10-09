@@ -852,6 +852,13 @@ export default {
             sucursalSeleccionada: 0,
             sucuralName: "",
             sucursalId: 0,
+            //---permisos_R_W_S
+                puedeEditar:2,
+                puedeActivar:2,
+                puedeHacerOpciones_especiales:2,
+                puedeCrear:2,
+                //-----------
+
 
             inputTextBuscarProductoIngreso: "",
             arrayRetornarProductosIngreso: [],

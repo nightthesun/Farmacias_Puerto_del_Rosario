@@ -14,7 +14,7 @@
                     <button
                         type="button"
                         class="btn btn-secondary"
-                        @click="abrirModal('registrar');"
+                        @click="verificadorAperturaCierre();"
                         :disabled="sucursalSeleccionada == 0"
                     >
                         <i class="icon-plus"></i>&nbsp;Nuevo
@@ -23,6 +23,9 @@
                         >&nbsp; &nbsp;Debe Seleccionar un almacen o
                         tienda.</span >
                 </div>
+
+
+
         <div class="card-body">
             <div class="form-group row">
                 <div class="col-md-2" style="text-align: center">
@@ -30,11 +33,10 @@
                 </div>
                         <div class="col-md-6">
                             <div class="input-group">
-                                <select class="form-control" v-model="sucursalSeleccionada" @change="changeRango();">
+                                <select class="form-control" v-model="sucursalSeleccionada" @change="changeRango();listarInicio(1);">
                                     <option value="0" disabled selected>Seleccionar...</option>
-                                    <option v-for="sucursal in arraySucursal" :key="sucursal.id"  :value="sucursal.codigo" :hidden="sucursal.id_tienda === null"
-                                        v-text="sucursal.codigoS +' -> ' +sucursal.codigo+' ' +sucursal.razon_social">
-                                    </option>
+                                    <option v-for="sucursal in arraySucursal" :key="sucursal.id"  :value="sucursal.codigo"  :hidden="sucursal.id_tienda === null"
+                                        v-text="sucursal.codigoS + ' -> ' + sucursal.codigo+' ' + sucursal.razon_social"></option>
                                 </select>
                             </div>
                         </div>
@@ -47,7 +49,7 @@
                                     class="form-control"
                                     placeholder="Texto a buscar"
                                     v-model="buscar"
-                                 @keyup.enter="listarInicio(1)"
+                                @keyup.enter="listarInicio(1)"
                                     :hidden="sucursalSeleccionada == 0"
                                     :disabled="sucursalSeleccionada == 0"
                                 />
@@ -62,9 +64,11 @@
                                 </button>
                             </div>
                         </div>
-                    
+                        
+                       
+
             </div>
-         
+             
   <br>
   <div class="form-group row">
                         <div class="col-md-2" style="text-align: center">
@@ -106,10 +110,29 @@
                 <tbody>
                     <tr v-for="i in arrayIndex" :key="i.id">
                         <td class="col-md-1">
-                            <button type="button"  @click="abrirModal('actualizar',i);"  class="btn btn-warning btn-sm" style="margin-right: 5px;"><i class="icon-pencil"></i></button> 
+                            <div  class="d-flex justify-content-start">
+                                <div  v-if="puedeEditar==1">
+                                    <button type="button"  @click="abrirModal('actualizar',i);"  class="btn btn-warning btn-sm" style="margin-right: 5px;"><i class="icon-pencil"></i></button> 
+                                </div>
+                                <div v-else>
+                                    <button type="button" class="btn btn-light btn-sm"  style="margin-right: 5px;"><i class="icon-pencil"></i></button>
+                                </div>
+                                <div v-if="puedeActivar==1">
+                                        
                             <button v-if="i.estado==1" @click="eliminar(i.id)" type="button" class="btn btn-danger btn-sm" style="margin-right: 5px;"><i class="icon-trash"></i></button>
                             <button v-else type="button"  @click="activar (i.id)"  class="btn btn-info btn-sm" style="margin-right: 5px;"><i class="icon-check"></i></button>                            
-                        </td>
+                      
+                                </div>
+                                <div v-else>
+                                    <button v-if="i.estado == 1" type="button" class="btn btn-light btn-sm" tyle="margin-right: 5px;">
+                                    <i class="icon-trash"></i>
+                                    </button>
+                                    <button v-else type="button" class="btn btn-light btn-sm"  tyle="margin-right: 5px;">
+                                    <i class="icon-check"></i>
+                                    </button>
+                                </div>
+                            </div>     
+                         </td>
                         <td class="col-md-2">{{ i.nombre_1 }}</td> 
                         <td class="col-md-2">{{ i.nom_a_facturar }}</td> 
                         <td class="col-md-1">{{ i.num_documento }}</td> 
@@ -125,9 +148,8 @@
                         </td>
                     </tr>
                 </tbody>
-            </table>  
-                <!-----fin de tabla------->
-                    <nav>
+            </table>    
+            <nav>
                         <ul class="pagination">
                             <li class="page-item" v-if="pagination.current_page > 1">
                                 <a class="page-link" href="#" @click.prevent="cambiarPagina(pagination.current_page - 1)">Ant</a>
@@ -140,6 +162,7 @@
                             </li>
                         </ul>
                     </nav>
+            <!-----fin de tabla------->
         </div>
 
 
@@ -174,15 +197,16 @@
                             Todos los campos con (*) son requeridos
                         </div>
                         <form action="" class="form-horizontal">
-                              <!-- insertar datos -->
-                              <div class="container">                                
+                        
+                          <!-- insertar datos -->
+                          <div class="container">                                
                                 <div class="form-group row"  >
-                                <strong  class="col-md-3 form-control-label" for="text-input">Distribuidor: <span v-if="selected == null" class="error" >(*)</span></strong>
+                                <strong  class="col-md-3 form-control-label" for="text-input">Proveedor: <span v-if="selected == null" class="error" >(*)</span></strong>
                                 <div class="col-md-7 input-group mb-3">
                                     
                     <VueMultiselect
                         v-model="selected"
-                        :options="arrayProveedor"
+                        :options="arrayProveedores"
                         :max-height="190"                   
                         :block-keys="['Tab', 'Enter']"                       
                         placeholder="Seleccione una opción"
@@ -202,22 +226,20 @@
 
                                     <!-- <option value="0" disabled>Seleccionar...</option>
                                     <option v-if="producto.almacenprimario == 1" :key="producto.idproduc" :value="producto.idproduc" v-text="producto.cod"></option> -->
-                                </div>
-                           
+                                </div>                             
                                 <span v-if="selected==null" class="error">Debe Ingresar el Nombre del producto</span>
                             </div>                          
                         </div>
                         <div v-if="selected===null" class="alert alert-info" role="alert">Debe seleccionar.</div>
-                        <div v-else class="modal-body">                      
-                            <table class="table table-bordered table-striped table-sm table-responsive">
+                            <div v-else class="modal-body"> 
+                                <table class="table table-bordered table-striped table-sm table-responsive">
                                 <thead>
                                     <tr>
                                         <th class="col-md-1" style="font-size: 11px; text-align: center">Nro</th>
                                         <th class="col-md-2" style="font-size: 11px; text-align: center">Nombre</th>
                                         <th class="col-md-2" style="font-size: 11px; text-align: center">Razon social</th>
                                         <th class="col-md-1" style="font-size: 11px; text-align: center">Nro documento</th>
-                                        <th class="col-md-2" style="font-size: 11px; text-align: center">Contacto</th>
-                                        <th class="col-md-3" style="font-size: 11px; text-align: center">Linea</th>
+                                        <th class="col-md-2" style="font-size: 11px; text-align: center">Datos adicionales</th>                                   
                                         <th class="col-md-1" style="font-size: 11px; text-align: center">Tipo</th>                                        
                                     </tr>
                                 </thead>
@@ -227,8 +249,7 @@
                                         <td class="col-md-2" style="font-size: 11px; text-align: center">{{selected.nombre_1}}</td>
                                         <td class="col-md-2" style="font-size: 11px; text-align: center">{{selected.nom_a_facturar}}</td>
                                         <td class="col-md-1" style="font-size: 11px; text-align: center">{{selected.num_documento}}</td>
-                                        <td class="col-md-2" style="font-size: 11px; text-align: center">{{selected.contacto}}</td>
-                                        <td class="col-md-3" style="font-size: 11px; text-align: center">{{selected.nom_linea_array}}</td>
+                                        <td class="col-md-2" style="font-size: 11px; text-align: center">{{selected.datos_adicionales}}</td>                                    
                                         <td class="col-md-1" style="font-size: 11px; text-align: center">{{selected.tipo}}</td>                                    
                                     </tr>
                                 </tbody>    
@@ -246,15 +267,15 @@
                                             </div>  
                                             <div class="form-group col-sm-5">
                                                 <strong>Nro comprobante:</strong>
-                                                <input type="text" class="form-control" placeholder="Debe ingresar numero de comprobante"  style="text-align: right;" v-model="comprobante" v-on:focus="selectAll">
+                                                <input type="number" @input="checkInput_entero" class="form-control" placeholder="Debe ingresar numero de comprobante"  style="text-align: right;" v-model="comprobante" v-on:focus="selectAll">
                                                 <span  v-if="comprobante==''" class="error">Debe ingresar los datos</span> 
                                             </div>
                                             <div class="form-group col-sm-4">
                                                 <strong>Total:</strong>
-                                                <input type="number" class="form-control" placeholder="Debe ingresar el total" style="text-align: right;"  v-model="total" v-on:focus="selectAll">
-                                                <span  v-if="total==''" class="error">Debe ingresar los datos</span> 
+                                                <input type="number" @input="checkInput_decimal" class="form-control" placeholder="Debe ingresar el total" style="text-align: right;"  v-model="total_s" v-on:focus="selectAll">
+                                                <span  v-if="total_s==''" class="error">Debe ingresar los datos</span> 
                                             </div>
-                                        </div> 
+                            </div> 
                                         <div class="container">                                
                                             <div class="form-group row"  >
                                             <strong  class="col-md-3 form-control-label" for="text-input">Descripción: <span v-if="descripcion == ''" class="error" >(*)</span></strong>
@@ -263,10 +284,10 @@
                                                     <span  v-if="descripcion==''" class="error">Debe descripción</span> 
                                                 </div>
                                             </div>
-                                        </div>            
-                     </div>        
-                    </form>
-                </div>
+                                        </div>  
+                            </div>                                
+                        </form>
+                    </div>
                   
                     <div class="modal-footer">
                         <button
@@ -289,7 +310,7 @@
                             type="button"
                             v-if="tipoAccion == 2"
                             class="btn btn-primary"
-                            @click="editar()"
+                           @click="editar()"
                             :disabled="!sicompleto"
                         >
                             Actualizar
@@ -308,6 +329,9 @@ import { error401 } from "../../errores";
 import VueMultiselect from 'vue-multiselect';
 //Vue.use(VeeValidate);
 export default {
+        //---permisos_R_W_S
+        props: ['codventana'],
+        //-------------------
     components: { VueMultiselect},
     data() {
         return {
@@ -320,6 +344,21 @@ export default {
                 to: 0,
             },
           
+            offset:3,
+
+            selected:null,
+            selectTipoDoc:0,      
+            comprobante:'',    
+            descripcion:'',
+            id_gasto:'',
+            total_s:0,
+
+            tituloModal: '',
+            sucursalSeleccionada:0,
+            arraySucursal:[],
+            buscar:'',
+            tipoAccion:1,
+            
             arrayLimite:[{id:1,limite:10},
                 {id:2,limite:20},
                 {id:3,limite:50},
@@ -328,27 +367,16 @@ export default {
                 {id:6,limite:0},
                 ],
             limite_X:10,
-
-            tituloModal: "",
-            sucursalSeleccionada:0,
-            arraySucursal:[],
-            buscar:"",
-            tipoAccion:1,
-            id_sucursal:0,
-
+            arrayProveedores:[],
+            id_apertura_cierre:'',
             arrayIndex:[],
 
-            offset:3,
-            selected:null,
-            arrayProveedor:[],
-            simbolo:"",
-            total:0.00,
-            selectTipoDoc:0,
-            comprobante:'',    
-            descripcion:'',
-
-            id_inversion:'',
-            
+            //---permisos_R_W_S
+            puedeEditar:2,
+                puedeActivar:2,
+                puedeHacerOpciones_especiales:2,
+                puedeCrear:2,
+                //-----------
         };
     },
 
@@ -357,11 +385,10 @@ export default {
     computed: {
         sicompleto() {
             let me = this;
-            if (me.comprobante!="" && me.selected !=null &&  me.total!="" &&me.selectTipoDoc!=0 && me.comprobante)
-              return true;
-           else return false;
+            if ( me.selected != null && me.selectTipoDoc != 0 && me.comprobante != '' && me.descripcion!='')
+                return true;
+            else return false;
         },
-
         isActived: function () {
             return this.pagination.current_page;
         },
@@ -397,53 +424,94 @@ export default {
     },
     methods: {
 
-        changeRango(){
-            this.limite_X=10;
-         },   
+           //-----------------------------------permisos_R_W_S        
+ listarPerimsoxyz() {
+                //console.log(this.codventana);
+    let me = this;        
+    var url = '/gestion_permiso_editar_eliminar?win='+me.codventana;  
+    axios.get(url)
+        .then(function(response) {
+            var respuesta = response.data;
+     
+            if(respuesta=="root"){
+            me.puedeEditar=1;
+            me.puedeActivar=1;
+            me.puedeHacerOpciones_especiales=1;
+            me.puedeCrear=1; 
+            }else{
+            me.puedeEditar=respuesta.edit;
+            me.puedeActivar=respuesta.activar;
+            me.puedeHacerOpciones_especiales=respuesta.especial;
+            me.puedeCrear=respuesta.crear;        
+            }
+           
+        })
+        .catch(function(error) {
+            error401(error);
+            console.log(error);
+        });
+},
+//--------------------------------------------------------------  
 
-         listarInicio(page){           
+        checkInput_entero(event) {
+      const value = event.target.value;
+      // Make sure it's a valid number
+      if (!/^\d*$/.test(value)) {
+        event.target.value = this.numericValue; // Revert to previous valid value
+      }
+    },
+
+
+    checkInput_decimal(event) {
+      const value = event.target.value;
+      // Allow numbers with more than one decimal point (for typing purposes)
+      if (/^[\d.]*$/.test(value)) {
+        this.numericValue = value;
+      } else {
+        event.target.value = this.numericValue; // Revert to last valid value
+      }
+    },
+
+    verificadorAperturaCierre(){
+            let me=this;
+            var url = "/verificacionAperturaCierre?id_sucursal="+me.id_sucursal;
+            axios.get(url)
+                .then(function (response) {
+                    var respuesta = response.data;   
+                    console.log(respuesta);       
+                    if (respuesta===0||respuesta.tipo_caja_c_a===9||respuesta.id_apertura_cierre!=0) {
+                        Swal.fire(
+                    "Debe aperturar una caja",
+                    "Haga click en Ok",
+                    "warning",
+                    );    
+                    } else {
+                        me.abrirModal('registrar'); 
+           
+                        me.id_apertura_cierre=respuesta.id;
+                  
+                    } 
+                })
+                .catch(function (error) {
+                    error401(error);
+                    console.log(error);
+                });
+        },
+
+        listarInicio(page){           
               let me=this;             
-                var url='/inversion/listarInicio?page='+page+'&buscar='+me.buscar+'&id_sucursal='+me.id_sucursal+'&limite='+me.limite_X;
+                var url='/gasto/listarInicio?page='+page+'&buscar='+me.buscar+'&id_sucursal='+me.id_sucursal+'&limite='+me.limite_X;
                 axios.get(url).then(function(response){
                     var respuesta=response.data;
                     me.pagination = respuesta.pagination;
                     me.arrayIndex = respuesta.resultado.data;         
-             
+                    console.log(me.arrayIndex);
                 })
                 .catch(function(error){
                     error401(error);
                     console.log(error);
                 });
         }, 
-
-         crear(){
-            let me = this;     
-                axios.post("/inversion/crear", {
-                id_dis: (me.selected).id, 
-                tipo_persona_empresa: (me.selected).tipo_persona_empresa,         
-                tipo_comprabante: me.selectTipoDoc,        
-                nro_comprobante: me.comprobante,    
-                total: me.total,    
-                simbolo: me.simbolo,
-                id_sucursal:me.id_sucursal,
-                descripcion:me.descripcion,
-
-                    })       
-                    .then(function (response) {
-                                            
-                        let a=response.data;
-                        me.cerrarModal("registrar");
-                           me.listarInicio();  
-                            if (a===null || a==="" ) {
-                                Swal.fire("Se registro exitosamente","Haga click en Ok", "success",);                             
-                            } else {
-                                Swal.fire(""+a,"Haga click en Ok","error",); 
-                            } 
-                    })                
-                  .catch(function (error) {                  
-                    console.log(error.response.data);
-            });
-        },
 
         eliminar(id){
                 let me=this;
@@ -465,7 +533,7 @@ export default {
                 reverseButtons: true
                 }).then((result) => {
                 if (result.isConfirmed) {
-                     axios.put('/inversion/desactivar',{
+                     axios.put('/gasto/desactivar',{
                         'id': id
                     }).then(function (response) {
                         me.listarInicio();  
@@ -510,7 +578,7 @@ export default {
                 reverseButtons: true
                 }).then((result) => {
                 if (result.isConfirmed) {
-                     axios.put('/inversion/activar',{
+                     axios.put('/gasto/activar',{
                         'id': id
                     }).then(function (response) {
                         me.listarInicio();  
@@ -539,17 +607,16 @@ export default {
             },
 
         editar(){
-            let me = this;
-          
-            axios.post("/inversion/editar", {
+            let me = this;          
+            axios.post("/gasto/editar", {
                 id_dis: (me.selected).id, 
                 tipo_persona_empresa: (me.selected).tipo_persona_empresa,         
                 tipo_comprabante: me.selectTipoDoc,        
                 nro_comprobante: me.comprobante,    
-                total: me.total,           
+                total: me.total_s,           
                 id_sucursal:me.id_sucursal,
                 descripcion:me.descripcion,   
-                id:me.id_inversion                                                         
+                id:me.id_gasto                                                         
                     })       
                     .then(function (response) {
                         let a=response.data;
@@ -566,17 +633,48 @@ export default {
             });
         },
 
+        crear(){
+            let me = this;     
+                axios.post("/gasto/crear", {
+                id_dis: (me.selected).id, 
+                tipo_persona_empresa: (me.selected).tipo_persona_empresa,         
+                tipo_comprabante: me.selectTipoDoc,        
+                nro_comprobante: me.comprobante,    
+                total: me.total_s,    
+                simbolo: me.simbolo,
+                id_sucursal:me.id_sucursal,
+                descripcion:me.descripcion,
+                id_apertura_cierre:me.id_apertura_cierre,
 
-         listarProveedor(){   
+                    })       
+                    .then(function (response) {
+                                            
+                        let a=response.data;
+                        me.cerrarModal("registrar");
+                           me.listarInicio();  
+                            if (a===null || a==="" ) {
+                                Swal.fire("Se registro exitosamente","Haga click en Ok", "success",);                             
+                            } else {
+                                Swal.fire(""+a,"Haga click en Ok","error",); 
+                            } 
+                    })                
+                  .catch(function (error) {                  
+                    error401(error);
+                    console.log(error);
+            });
+        },
+
+        listarProveedor(){   
             let me = this;       
             var url = "/gasto/getCliente";
             axios.get(url)
                 .then(function (response) {
-                    var respuesta = (response.data).listarProveedor;              
+                    var respuesta = (response.data).proveedores;              
                     var respuesta_moneda = (response.data).moneda; 
-                     me.arrayProveedor = respuesta;
-                    me.simbolo = respuesta_moneda[0].simbolo; 
-                    console.log(response.data);                
+                     me.arrayProveedores = respuesta;
+                    me.simbolo = respuesta_moneda[0].simbolo;   
+                    console.log(respuesta);
+                    console.log(respuesta_moneda);              
                 })
                 .catch(function (error) {
                     error401(error);
@@ -584,7 +682,9 @@ export default {
                 });
          },
 
-     
+        changeRango(){
+            this.limite_X=10;
+         },  
 
         sucursalFiltro() {
             let me = this;
@@ -595,7 +695,7 @@ export default {
                 .then(function (response) {
                     var respuesta = response.data;
                     me.arraySucursal = respuesta;
-   
+                 
                 })
                 .catch(function (error) {
                     error401(error);
@@ -625,30 +725,30 @@ export default {
          switch (accion) {
                 case "registrar": {
                     me.tipoAccion = 1;
-                    me.tituloModal = "Registro de inversion";
+                    me.tituloModal = "Registro de gasto";
                     me.selected=null;
+                    me.selectTipoDoc=0;      
+                    me.comprobante="";    
                     me.descripcion="";
-                    me.total=0.00;
-                    me.selectTipoDoc=0;
-                    me.comprobante="";  
-            
+                    me.id_gasto="";   
+
                     me.classModal.openModal("registrar");
                     break;
                 }
                 case "actualizar": {
                     me.tipoAccion = 2;
-               
-                    let distribuidor = me.arrayProveedor.find(c => c.id === data.id_distribuidor);
-            if (distribuidor) {
-                me.selected = distribuidor;
-            } else {
-                me.selected = null;
-            }            
+                    me.tituloModal = "Edición de gasto";
+                    let provee = me.arrayProveedores.find(c => c.id === data.id_proveedor);
+                        if (provee) {
+                            me.selected = provee;
+                        } else {
+                            me.selected = null;
+                        }            
                     me.selectTipoDoc= null ? 0 : data.id_tipo_comprabante;                    
                     me.comprobante=data.nro_comprobante;
-                    me.total=data.total;
+                    me.total_s=data.total;
                     me.descripcion=data.descripcion;
-                    me.id_inversion=data.id;
+                    me.id_gasto=data.id;
                     me.classModal.openModal("registrar");
                     break;
                 }
@@ -660,21 +760,19 @@ export default {
         cerrarModal(accion) {
             let me = this;
             if (accion == "registrar") {
-                me.classModal.closeModal(accion);
-                me.selected=null;                    
-                me.total=0.00;
-                me.descripcion="";
-                me.selectTipoDoc=0;
-                me.comprobante="";
-                me.simbolo="";  
-                me.tituloModal = "";
-                me.id_inversion ="";
-            
+                me.classModal.closeModal(accion);               
+                    me.tituloModal = " ";
+                    me.selected=null;
+                    me.selectTipoDoc=0;      
+                    me.comprobante="";    
+                    me.descripcion="";
+                    me.id_gasto="";   
+                me.classModal.openModal("registrar");
             }
         },
 
-        //--------------
-        nameWithLang ({nombre_1,nom_a_facturar, num_documento,tipo}) {
+     //--------------
+     nameWithLang ({nombre_1,nom_a_facturar, num_documento,tipo}) {
             
             return `${nombre_1} - ${nom_a_facturar} - ${num_documento} - ${tipo}`
           },
@@ -693,7 +791,6 @@ export default {
       this.$refs.multiselect.deactivate()
     },
         //--------------
-     
 
         selectAll: function (event) {
             setTimeout(function () {
@@ -704,6 +801,9 @@ export default {
 
     mounted() {
         this.classModal = new _pl.Modals();
+         //-------permiso E_W_S-----
+         this.listarPerimsoxyz();       
+        //-----------------------
         this.sucursalFiltro();
         this.listarProveedor();
         this.classModal.addModal("registrar");

@@ -16,7 +16,7 @@ return new class extends Migration
             $table->smallInteger('id_distribuidor');          
             $table->tinyInteger('tipo_persona_empresa')->nullable();
             $table->tinyInteger('tipo_comprabante')->comment('1= recibo, 2 = factura');
-            $table->smallInteger('nro_comprobante');
+            $table->bigInteger('nro_comprobante');
             $table->decimal('total',11,2);
             $table->tinyText('simbolo')->nullable();
             $table->smallInteger('id_sucursal');
@@ -25,6 +25,7 @@ return new class extends Migration
             $table->tinyInteger('estado')->default(1);
             $table->timestamps();
             $table->string('descripcion');
+            $table->smallInteger('id_apertura')->default(0); 
         });
     }
 

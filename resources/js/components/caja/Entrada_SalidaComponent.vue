@@ -15,7 +15,7 @@
             <div class="card">                
                 <div class="card-header">
                     <i class="fa fa-align-justify"></i> Apertura / Cierre de cajas               
-                    <button type="button" class="btn btn-secondary" @click="verificadorAperturaCierre()"  :disabled="sucursalSeleccionada === 0 || selectEntradaSalida === 0 || bloqueador ===0">
+                    <button type="button" class="btn btn-secondary" @click="verificadorAperturaCierre();verificador_moneda_sistemas();"  :disabled="sucursalSeleccionada === 0 || selectEntradaSalida === 0 || bloqueador ===0">
                         <i class="icon-plus"></i>&nbsp;Nuevo
                     </button>
                     <span v-if="sucursalSeleccionada === 0 ||  selectEntradaSalida === 0" class="error"
@@ -169,6 +169,7 @@
                                 </tr>
                             </thead>
                             <tbody>
+                              
                                 <tr v-for="a in arrayMoneda" :key="a.id">
                                     <td  class="col-md-1" style="text-align: right;">{{a.unidad_entera}}</td>
                                     <td class="col-md-1">{{a.unidad}}</td>
@@ -333,6 +334,7 @@
                                 </tr>
                             </thead>
                             <tbody>
+                              
                                 <tr v-for="m in arrayMonedaModal" :key="m.id">   
                                     <td class="col-md-3" style="font-size: 11px; text-align: center">{{m.unidad_entera}}</td>
                                     <td class="col-md-3" style="font-size: 11px; text-align: center">{{m.unidad}}</td>
@@ -923,6 +925,7 @@ general_pdf(razon_social,direccion,lugar,cadena_A,id,soloFecha,soloHora,mensaje,
                         } else { Swal.fire("ERROR...","Haga click en Ok","warning",);  
                         }
                     }
+                    me.password="";
                         me.totalMonedas="0.00";
                         me.SimboloM="S/N";
                         me.SimboloB="S/N";            
@@ -1016,7 +1019,7 @@ general_pdf(razon_social,direccion,lugar,cadena_A,id,soloFecha,soloHora,mensaje,
             me.cantidadBilletes=0;           
             me.selectTurno=0;
             me.input={};
-
+            me.password="";
             me.emisor="";
             me.Obs="";
             me.codigo="";

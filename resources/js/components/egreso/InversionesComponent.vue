@@ -14,7 +14,7 @@
                     <button
                         type="button"
                         class="btn btn-secondary"
-                        @click="abrirModal('registrar');"
+                        @click="verificadorAperturaCierre();"
                         :disabled="sucursalSeleccionada == 0"
                     >
                         <i class="icon-plus"></i>&nbsp;Nuevo
@@ -30,7 +30,7 @@
                 </div>
                         <div class="col-md-6">
                             <div class="input-group">
-                                <select class="form-control" v-model="sucursalSeleccionada" @change="changeRango();listarInicio(1)">
+                                <select class="form-control" v-model="sucursalSeleccionada" @change="changeRango();listarInicio(1);">
                                     <option value="0" disabled selected>Seleccionar...</option>
                                     <option v-for="sucursal in arraySucursal" :key="sucursal.id"  :value="sucursal.codigo" :hidden="sucursal.id_tienda === null"
                                         v-text="sucursal.codigoS +' -> ' +sucursal.codigo+' ' +sucursal.razon_social">
@@ -106,9 +106,29 @@
                 <tbody>
                     <tr v-for="i in arrayIndex" :key="i.id">
                         <td class="col-md-1">
-                            <button type="button"  @click="abrirModal('actualizar',i);"  class="btn btn-warning btn-sm" style="margin-right: 5px;"><i class="icon-pencil"></i></button> 
-                            <button v-if="i.estado==1" @click="eliminar(i.id)" type="button" class="btn btn-danger btn-sm" style="margin-right: 5px;"><i class="icon-trash"></i></button>
-                            <button v-else type="button"  @click="activar (i.id)"  class="btn btn-info btn-sm" style="margin-right: 5px;"><i class="icon-check"></i></button>                            
+                            <div  class="d-flex justify-content-start">
+                                <div  v-if="puedeEditar==1">
+                                    <button type="button"  @click="abrirModal('actualizar',i);"  class="btn btn-warning btn-sm" style="margin-right: 5px;"><i class="icon-pencil"></i></button>                             
+                                </div>
+                                <div v-else>
+                                     <button type="button" class="btn btn-light btn-sm"  style="margin-right: 5px;"><i class="icon-pencil"></i></button>
+                                </div>
+                                <div v-if="puedeActivar==1">
+                                    <button v-if="i.estado==1" @click="eliminar(i.id)" type="button" class="btn btn-danger btn-sm" style="margin-right: 5px;"><i class="icon-trash"></i></button>
+                                    <button v-else type="button"  @click="activar (i.id)"  class="btn btn-info btn-sm" style="margin-right: 5px;"><i class="icon-check"></i></button>                            
+                        
+                                </div>
+                                <div v-else>
+                                    <button v-if="i.estado == 1" type="button" class="btn btn-light btn-sm"
+                                             tyle="margin-right: 5px;">
+                                            <i class="icon-trash"></i>
+                                            </button>
+                                            <button v-else type="button" class="btn btn-light btn-sm"  tyle="margin-right: 5px;">
+                                            <i class="icon-check"></i>
+                                            </button>
+                                </div>
+
+                            </div>       
                         </td>
                         <td class="col-md-2">{{ i.nombre_1 }}</td> 
                         <td class="col-md-2">{{ i.nom_a_facturar }}</td> 
@@ -246,15 +266,15 @@
                                             </div>  
                                             <div class="form-group col-sm-5">
                                                 <strong>Nro comprobante:</strong>
-                                                <input type="text" class="form-control" placeholder="Debe ingresar numero de comprobante"  style="text-align: right;" v-model="comprobante" v-on:focus="selectAll">
+                                                <input type="number" @input="checkInput_entero" class="form-control" placeholder="Debe ingresar numero de comprobante"  style="text-align: right;" v-model="comprobante" v-on:focus="selectAll">
                                                 <span  v-if="comprobante==''" class="error">Debe ingresar los datos</span> 
                                             </div>
                                             <div class="form-group col-sm-4">
                                                 <strong>Total:</strong>
-                                                <input type="number" class="form-control" placeholder="Debe ingresar el total" style="text-align: right;"  v-model="total" v-on:focus="selectAll">
-                                                <span  v-if="total==''" class="error">Debe ingresar los datos</span> 
+                                                <input type="number"   @input="checkInput_decimal" class="form-control" placeholder="Debe ingresar el total" style="text-align: right;"  v-model="total_s" v-on:focus="selectAll">
+                                                <span  v-if="total_s==''" class="error">Debe ingresar los datos</span> 
                                             </div>
-                                        </div> 
+                            </div> 
                                         <div class="container">                                
                                             <div class="form-group row"  >
                                             <strong  class="col-md-3 form-control-label" for="text-input">Descripción: <span v-if="descripcion == ''" class="error" >(*)</span></strong>
@@ -308,6 +328,9 @@ import { error401 } from "../../errores";
 import VueMultiselect from 'vue-multiselect';
 //Vue.use(VeeValidate);
 export default {
+        //---permisos_R_W_S
+        props: ['codventana'],
+        //-------------------
     components: { VueMultiselect},
     data() {
         return {
@@ -342,12 +365,19 @@ export default {
             selected:null,
             arrayDistribuidor:[],
             simbolo:"",
-            total:0.00,
+            total_s:0.00,
             selectTipoDoc:0,
             comprobante:'',    
             descripcion:'',
-
+            id_apertura_cierre:'',
             id_inversion:'',
+
+            //---permisos_R_W_S
+            puedeEditar:2,
+                puedeActivar:2,
+                puedeHacerOpciones_especiales:2,
+                puedeCrear:2,
+                //-----------
             
         };
     },
@@ -357,7 +387,7 @@ export default {
     computed: {
         sicompleto() {
             let me = this;
-            if (me.comprobante!="" && me.selected !=null &&  me.total!="" &&me.selectTipoDoc!=0 && me.comprobante)
+            if (me.comprobante!="" && me.selected !=null &&  me.total_s!="" &&me.selectTipoDoc!=0 && me.comprobante)
               return true;
            else return false;
         },
@@ -397,10 +427,82 @@ export default {
     },
     methods: {
 
+           //-----------------------------------permisos_R_W_S        
+ listarPerimsoxyz() {
+                //console.log(this.codventana);
+    let me = this;        
+    var url = '/gestion_permiso_editar_eliminar?win='+me.codventana;  
+    axios.get(url)
+        .then(function(response) {
+            var respuesta = response.data;
+     
+            if(respuesta=="root"){
+            me.puedeEditar=1;
+            me.puedeActivar=1;
+            me.puedeHacerOpciones_especiales=1;
+            me.puedeCrear=1; 
+            }else{
+            me.puedeEditar=respuesta.edit;
+            me.puedeActivar=respuesta.activar;
+            me.puedeHacerOpciones_especiales=respuesta.especial;
+            me.puedeCrear=respuesta.crear;        
+            }
+           
+        })
+        .catch(function(error) {
+            error401(error);
+            console.log(error);
+        });
+},
+//--------------------------------------------------------------  
+
         changeRango(){
             this.limite_X=10;
          },   
 
+         verificadorAperturaCierre(){
+            let me=this;
+            var url = "/verificacionAperturaCierre?id_sucursal="+me.id_sucursal;
+            axios.get(url)
+                .then(function (response) {
+                    var respuesta = response.data;   
+                    console.log(respuesta);       
+                    if (respuesta===0||respuesta.tipo_caja_c_a===9||respuesta.id_apertura_cierre!=0) {
+                        Swal.fire(
+                    "Debe aperturar una caja",
+                    "Haga click en Ok",
+                    "warning",
+                    );    
+                    } else {
+                        me.abrirModal('registrar'); 
+                 
+                        me.id_apertura_cierre=respuesta.id;
+                
+                    } 
+                })
+                .catch(function (error) {
+                    error401(error);
+                    console.log(error);
+                });
+        },
+
+         checkInput_entero(event) {
+      const value = event.target.value;
+      // Make sure it's a valid number
+      if (!/^\d*$/.test(value)) {
+        event.target.value = this.numericValue; // Revert to previous valid value
+      }
+    },
+
+    checkInput_decimal(event) {
+      const value = event.target.value;
+      // Allow numbers with more than one decimal point (for typing purposes)
+      if (/^[\d.]*$/.test(value)) {
+        this.numericValue = value;
+      } else {
+        event.target.value = this.numericValue; // Revert to last valid value
+      }
+    },
          listarInicio(page){           
               let me=this;             
                 var url='/inversion/listarInicio?page='+page+'&buscar='+me.buscar+'&id_sucursal='+me.id_sucursal+'&limite='+me.limite_X;
@@ -423,10 +525,11 @@ export default {
                 tipo_persona_empresa: (me.selected).tipo_persona_empresa,         
                 tipo_comprabante: me.selectTipoDoc,        
                 nro_comprobante: me.comprobante,    
-                total: me.total,    
+                total: me.total_s,    
                 simbolo: me.simbolo,
                 id_sucursal:me.id_sucursal,
                 descripcion:me.descripcion,
+                id_apertura_cierre:me.id_apertura_cierre,
 
                     })       
                     .then(function (response) {
@@ -546,7 +649,7 @@ export default {
                 tipo_persona_empresa: (me.selected).tipo_persona_empresa,         
                 tipo_comprabante: me.selectTipoDoc,        
                 nro_comprobante: me.comprobante,    
-                total: me.total,           
+                total: me.total_s,           
                 id_sucursal:me.id_sucursal,
                 descripcion:me.descripcion,   
                 id:me.id_inversion                                                         
@@ -626,7 +729,7 @@ export default {
                     me.tituloModal = "Registro de inversion";
                     me.selected=null;
                     me.descripcion="";
-                    me.total=0.00;
+                    me.total_s=0.00;
                     me.selectTipoDoc=0;
                     me.comprobante="";  
             
@@ -644,7 +747,7 @@ export default {
             }            
                     me.selectTipoDoc= null ? 0 : data.id_tipo_comprabante;                    
                     me.comprobante=data.nro_comprobante;
-                    me.total=data.total;
+                    me.total_s=data.total;
                     me.descripcion=data.descripcion;
                     me.id_inversion=data.id;
                     me.classModal.openModal("registrar");
@@ -660,11 +763,11 @@ export default {
             if (accion == "registrar") {
                 me.classModal.closeModal(accion);
                 me.selected=null;                    
-                me.total=0.00;
+                me.total_s=0.00;
                 me.descripcion="";
                 me.selectTipoDoc=0;
                 me.comprobante="";
-                me.simbolo="";  
+              
                 me.tituloModal = "";
                 me.id_inversion ="";
             
@@ -702,6 +805,9 @@ export default {
 
     mounted() {
         this.classModal = new _pl.Modals();
+        //-------permiso E_W_S-----
+        this.listarPerimsoxyz();       
+        //-----------------------
         this.sucursalFiltro();
         this.listarDistribuidor();
         this.classModal.addModal("registrar");

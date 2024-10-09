@@ -163,6 +163,7 @@ class EgrInversionController extends Controller
         $crear->total=$request->total;    
         $crear->descripcion=$request->descripcion;
         $crear->id_usuario_registra=auth()->user()->id;  
+        $crear->id_apertura=$request->id_apertura_cierre;  
         $crear->save();
        // return DB::commit();   
         DB::commit();    

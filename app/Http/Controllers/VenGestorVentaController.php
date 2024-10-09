@@ -101,6 +101,7 @@ $nombre_empresa = strtoupper($nombre_e);
         $codigo_tienda_almacen_0=$request->codigo_tienda_almacen_0;
         $id_lista_v2=$request->id_lista_v2;
         $cliente_id=$request->cliente_id;
+        $id_apertura_cierre=$request->id_apertura_cierre;
     $data_recibo = [
         'id_sucursal' => $idsuc,
         'id_cliente' => $cliente_id,
@@ -121,6 +122,7 @@ $nombre_empresa = strtoupper($nombre_e);
         'nro_doc'=> $num_documento,
         'razon_social'=>$nom_a_facturar,
         'dosificacion_o_electronica'=>$estado_dosificacion_facctura,
+        'id_apertura'=>$id_apertura_cierre,
        ];   
       
        $id_recibo = DB::table('ven__recibos')->insertGetId($data_recibo);
@@ -967,12 +969,25 @@ $nombre_empresa = strtoupper($nombre_e);
         } else {
             $idsuc = session('idsuc');
         }
-    $apertura = DB::table('caja__apertura_cierres')
-    ->select('id')
-    ->where('id_sucursal', '=',$idsuc)
+    //$apertura = DB::table('caja__apertura_cierres')
+    //->select('id')
+    //->where('id_sucursal', '=',$idsuc)
+    //->where('id_apertura_cierre', '=',0)
+    //->get();
+    //return $apertura;
+
+
+    $ultimoRegistro = DB::table('caja__apertura_cierres')
+    ->select('id','turno_caja', 'tipo_caja_c_a', 'total_caja', 'estado_caja', 'id_arqueo','id_apertura_cierre')
+    ->where('id_sucursal', $idsuc)
     ->where('id_apertura_cierre', '=',0)
-    ->get();
-    return $apertura;
+    ->orderBy('id', 'desc')
+    ->first();
+    if($ultimoRegistro==null){
+        $ultimoRegistro=0;  
+    }     
+ return $ultimoRegistro;  
+
     }
     
 }

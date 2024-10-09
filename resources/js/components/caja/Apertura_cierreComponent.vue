@@ -860,6 +860,7 @@ export default {
                         me.totalMonto="0.00";
                         me.cantidadMonedas=0;
                         me.cantidadBilletes=0; 
+                        me.password="";
                         me.input={};
                        
                     } else {
@@ -948,6 +949,7 @@ export default {
                         me.totalMonto="0.00";
                         me.cantidadMonedas=0;
                         me.cantidadBilletes=0; 
+                        me.password="";
                         me.input={};
                         me.classModal.closeModal(accion);
             }

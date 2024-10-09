@@ -835,6 +835,9 @@ export default {
 
 
      tieneApertura_0:'',
+
+     //-apertura
+     id_apertura_cierre:'',
         };
     },
     created() {
@@ -2715,6 +2718,7 @@ me.descuento_1=totalDescuento+me.descuento_final;
           arrayDesatlleVenta: me.array_vetasQuery,
           codigo_tienda_almacen_0:me.codigo_tienda_almacen,
           id_lista_v2:me.id_lista_v2,
+          id_apertura_cierre:me.id_apertura_cierre,
 
           estado_dosificacion_facctura:me.estado_dosificacion_facctura,
           id_dosificacaion_1:me.id_dosificacaion_1,
@@ -2829,29 +2833,50 @@ total_sin_des,descuento_venta,total_venta,efectivo_venta,cambio_venta,fechaMas7D
           });
     },
     
-    tieneApertura() {
-            let me = this;     
-           var url = "/gestor_ventas/tieneApertura";           
+   // tieneApertura() {
+   //         let me = this;     
+   //        var url = "/gestor_ventas/tieneApertura";           
+   //         axios.get(url)
+   //             .then(function (response) {
+   //                 var respuesta = response.data;             
+   //                 if(respuesta.length>0){
+   //                   me.tieneApertura_0=1;
+   //                 }else{
+   //                   me.tieneApertura_0=0;
+   //                   Swal.fire(
+   //                   "Error", "No existe apertura", "error"); }                  
+   //             })
+   //             .catch(function (error) {
+   //                 error401(error);
+   //                 console.log(error);
+   //             });
+   //     },
+
+        verificadorAperturaCierre(){
+            let me=this;
+            var url = "/gestor_ventas/tieneApertura";
             axios.get(url)
                 .then(function (response) {
-                    var respuesta = response.data;             
-                    if(respuesta.length>0){
-                      me.tieneApertura_0=1;
-                    }else{
+                    var respuesta = response.data;   
+                        
+                    if (respuesta===0||respuesta.tipo_caja_c_a===9||respuesta.id_apertura_cierre!=0) {
                       me.tieneApertura_0=0;
-                      Swal.fire(
-                      "Error",
-                      "No existe apertura", 
-                      "error"
-                  );
-                    }                   
-
+                        Swal.fire(
+                    "Debe aperturar una caja",
+                    "Haga click en Ok",
+                    "warning",
+                    );    
+                    } else {
+                      me.tieneApertura_0=1;
+                         me.id_apertura_cierre=respuesta.id;
+                     } 
                 })
                 .catch(function (error) {
                     error401(error);
                     console.log(error);
                 });
         },
+
 
         registrar_cliente_modal() {
       
@@ -2967,7 +2992,7 @@ if (!correoRegex.test(me.correo)) {
         this.listarDescuentos_listas();
         this.listarSucursalGet();
         this.listarPermisoFacturacion();
-        this.tieneApertura();
+        this.verificadorAperturaCierre();
         this.classModal.addModal("registrar");
         this.classModal.addModal("cliente_modal");
         this.classModal.addModal("lote_cliete"); 
