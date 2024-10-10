@@ -559,30 +559,18 @@
                     </div>
                   
                     <div class="modal-footer">
-                        <button
-                            type="button"
-                            class="btn btn-secondary"
-                            @click="cerrarModal('registrar')"
-                        >
-                            Cerrar
-                        </button>
-                        <button
-                            type="button"
-                            v-if="tipoAccion == 1"
-                            class="btn btn-primary"
-                            @click="registrorAjusteNegativo()"
-                            :disabled="!sicompleto"
-                        >
-                            Guardar
-                        </button>
-                        <button
-                            type="button"
-                            v-if="tipoAccion == 2"
-                            class="btn btn-primary"
-                            @click="actualizarAjusteNegativo()"
-                        >
-                            Actualizar
-                        </button>
+                        <button type="button" class="btn btn-secondary" @click="cerrarModal('registrar')">Cerrar</button>
+                        <div  class="d-flex justify-content-start">
+                            <div  v-if="isSubmitting==false">
+                                <button type="button" v-if="tipoAccion == 1" class="btn btn-primary" @click="registrorAjusteNegativo()" :disabled="!sicompleto">Guardar</button>
+                                <button type="button" v-if="tipoAccion == 2" class="btn btn-primary" @click="actualizarAjusteNegativo()" :disabled="!sicompleto">Actualizar</button>
+                            </div>
+                            <div v-else>
+                                <button type="button" v-if="tipoAccion == 1" class="btn btn-light">Guardar</button>
+                                <button type="button" v-if="tipoAccion == 2" class="btn btn-light">Actualizar</button>
+                            </div>
+                        </div>
+                       
                     </div>
                 </div>
             </div>
@@ -803,6 +791,7 @@ export default {
             buscar: "",
             idAjusteNegativos: 0,
             offset: 3,
+            isSubmitting: false, // Controla el estado del botón de envío
             tipoAccion: 1,
             id_sucursal: "",
             arraySucursal: [],
@@ -880,9 +869,7 @@ export default {
                         " | FV:" +
                         productoSeleccionado.fecha_vencimiento;
                 } else {
-                    console.log(
-                        "no se encotro el producto.",
-                    );
+                    console.log("no se encotro el producto.");
                 }
             } else {
                 this.cantidadS = "";
@@ -1029,7 +1016,7 @@ sucursalSeleccionadaDestino: function (newValue) {
 
          //-----------------------------------permisos_R_W_S        
  listarPerimsoxyz() {
-                //console.log(this.codventana);
+    
     let me = this;
         
     var url = '/gestion_permiso_editar_eliminar?win='+me.codventana;
@@ -1181,6 +1168,7 @@ sucursalSeleccionadaDestino: function (newValue) {
             //console.log(data);
          switch (accion) {
                 case "registrar": {
+                    me.isSubmitting=false;
                     me.tipoAccion = 1;
                     me.tituloModal = "Registro de traspaso origen "+respuesta.razon_social;
                     me.ProductoLineaIngresoSeleccionado = 0;
@@ -1213,9 +1201,9 @@ sucursalSeleccionadaDestino: function (newValue) {
                     break;
                 }
                 case "actualizar": {
-                  console.log(data);
+                 
                     me.tipoAccion = 2;
-              
+                    me.isSubmitting=false;
                     me.id_producto = data.id_prod_producto;
                     me.ProductoLineaIngresoSeleccionado = data.id_ingreso === null ? 0 : data.id_ingreso;
                     me.sucursalSeleccionadaDestino=data.cod_2 === null ? 0 : data.cod_2;
@@ -1315,7 +1303,7 @@ sucursalSeleccionadaDestino: function (newValue) {
             let me = this;
             if (accion == "registrar") {
                 me.classModal.closeModal(accion);
-               
+                me.isSubmitting=false;
                     me.tituloModal = " ";
                     me.ProductoLineaIngresoSeleccionado = 0;
                     me.id_codigo ="";
@@ -1381,7 +1369,10 @@ sucursalSeleccionadaDestino: function (newValue) {
                 );
                 } else {
                     let suma = me.cantidadProductoLineaIngreso - me.cantidadS;
-        
+           // Si ya está enviando, no permitas otra solicitud
+      if (me.isSubmitting) return;
+
+me.isSubmitting = true; // Deshabilita el botón
                     axios
                     .post("/traspaso/registrar", {
                         'id_almacen_tienda': me.id_almacen_tienda,
@@ -1425,7 +1416,9 @@ sucursalSeleccionadaDestino: function (newValue) {
                     .catch(function (error) {
                         error401(error);
                         console.log(error);
-                    });
+                    }).finally(() => {
+          me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
+        });
                 }
                
             }
@@ -1458,7 +1451,7 @@ sucursalSeleccionadaDestino: function (newValue) {
                   
                 me.cantidadS2=0;  
                 }
-              console.log(me.cod_1 +" ingreso: "+me.id_ingreso+"cod: "+me.codigoDestino);
+           
                 axios
                 .put("/traspaso/actualizar", {
                     id: me.idAjusteNegativos,

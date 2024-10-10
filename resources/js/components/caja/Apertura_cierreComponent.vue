@@ -253,29 +253,17 @@
                     </div> 
                              
                     <div class="modal-footer">
-                        <button
-                            type="button"
-                            class="btn btn-secondary"
-                            @click="cerrarModal('registrar')"
-                        >
-                            Cerrar
-                        </button>
-                        <button
-                            type="button"
-                            v-if="tipoAccion == 1"
-                            class="btn btn-primary"                           
-                            @click="registrarArqueo()"
-                        >
-                            Guardar
-                        </button>
-                        <button
-                            type="button"
-                            v-if="tipoAccion == 2"
-                            class="btn btn-primary"
-                          
-                        >
-                            Actualizar
-                        </button>
+                        <button  type="button" class="btn btn-secondary" @click="cerrarModal('registrar')">Cerrar</button>
+                        <div  class="d-flex justify-content-start">
+                            <div  v-if="isSubmitting==false">
+                                <button type="button" v-if="tipoAccion == 1" class="btn btn-primary" @click="registrarArqueo()" >Guardar</button>
+                                <button type="button" v-if="tipoAccion == 2" class="btn btn-primary">Actualizar</button>
+                            </div>
+                            <div v-else>
+                                <button type="button" v-if="tipoAccion == 1" class="btn btn-light">Guardar</button>
+                                <button type="button" v-if="tipoAccion == 2" class="btn btn-light">Actualizar</button>
+                            </div>
+                        </div>                        
                     </div>
                 </div>
             </div>
@@ -417,6 +405,7 @@ export default {
                 to: 0,
             },
             offset:3,
+            isSubmitting: false, // Controla el estado del botón de envío
             valor_entero:0,
           
             bloqueador:0,
@@ -494,8 +483,6 @@ export default {
     computed: {
         sicompleto() {
             let me = this;
-            console.log("+++++++");
-            console.log(me.input);
             if (
                 (me.input).length ==0
              
@@ -538,8 +525,6 @@ export default {
                 .then(function (response) {
                     var respuesta = response.data;
                     me.arrayMonedaModal=respuesta;
-                    console.log(me.arrayMonedaModal);
-                
                 })
                 .catch(function (error) {
                     error401(error);
@@ -547,15 +532,14 @@ export default {
         },
 
         listarIndex(page) {
-            let me = this;    
-            console.log(me.selectApertura_Cierre+" "+me.id_sucursal);      
+            let me = this;        
             var url ="/apertura_cierre/index?page="+page+"&buscar=" +me.buscar+"&id_sucursal="+me.id_sucursal+"&a_e="+parseInt(me.selectApertura_Cierre);
             axios.get(url)
                 .then(function (response) {
                     var respuesta = response.data;
                     me.pagination = respuesta.pagination;
                     me.arrayIndex = respuesta.resultado.data;
-                    console.log(me.arrayIndex);
+            
                 })
                 .catch(function (error) {
                     error401(error);
@@ -612,11 +596,6 @@ export default {
                             me.abrirModal('registrar');  
                         }
                     }
-                    
-                    console.log("*-*");
-                    console.log(respuesta);
-                   
-                 
                 })
                 .catch(function (error) {
                     error401(error);
@@ -666,15 +645,14 @@ export default {
             me.totalMonto=Number(me.totalMonto)+ Number(element.valor_default);   
             me.totalMonto=Number(me.totalMonto).toFixed(2);
         });  
-       
-    console.log("-*----");
-    console.log(me.arrayMoneda);
+     
   },
         
         registrarArqueo(){
             let me = this;
-            console.log("================");
-            console.log(me.id_sucursal+" "+me.selectTurno+" "+me.selectApertura_Cierre+" "+me.total_caja+" "+me.cantidadMonedas+" "+me.totalMonedas+" "+me.cantidadBilletes+" "+me.totalBilletas+" "+me.totalMonto+" "+me.input+" "+me.arrayMoneda); 
+            // console.log(me.id_sucursal+" "+me.selectTurno+" "+me.selectApertura_Cierre+" "+me.total_caja+" "+me.cantidadMonedas+" "+me.totalMonedas+" "+me.cantidadBilletes+" "+me.totalBilletas+" "+me.totalMonto+" "+me.input+" "+me.arrayMoneda); 
+              // Si ya está enviando, no permitas otra solicitud
+     
             if (me.selectTurno === "0") {
                 Swal.fire(
                     "Debe seleccionar su tuno",
@@ -682,6 +660,9 @@ export default {
                     "warning",
                 );
             } else {
+                if (me.isSubmitting) return;
+
+me.isSubmitting = true; // Deshabilita el botón
                 //------------------algoritmo-------------------------
                 let a=me.totalMonto;
                 let b=me.total_caja;
@@ -689,9 +670,9 @@ export default {
                 //c ---- diferencia
                   //  b=40.60;
                 let cero=Number(0).toFixed(2);
-                  console.log(a+"-"+b);  
+            
                 let c=a-b;   
-                console.log(c);               
+                         
                 if (c===0) {
                     if (a===cero && b===cero) {
                         estado="Acción nula";
@@ -770,7 +751,10 @@ export default {
                     "error"
                 );  
                 }              
-            });
+            })
+        .finally(() => {
+          me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
+        });
             }        
         },
 
@@ -783,9 +767,6 @@ export default {
                     var respuesta_lista = response.data.listaMoneda;
                     var respuesta_moneda = response.data.moneda;
 
-                    console.log("---*-*-*-*-*-*------");
-                    console.log(respuesta_lista);
-                    console.log(respuesta_moneda);
                   if (respuesta_moneda===0) {
                     me.bloqueador=0;
                     Swal.fire(
@@ -796,8 +777,7 @@ export default {
                   } else {
                     me.bloqueador=1;
                     me.arrayMoneda=respuesta_lista;
-                    me.moneda_s1=respuesta_moneda;
-                    console.log(me.arrayMoneda);
+                    me.moneda_s1=respuesta_moneda;                 
                   }                                  
                 })
                 .catch(function (error) {
@@ -819,9 +799,7 @@ export default {
             axios
                 .get(url)
                 .then(function (response) {
-                    var respuesta = response.data;
-                    console.log("************************");
-                    console.log(respuesta);
+                    var respuesta = response.data;                  
                     me.arraySucursal = respuesta;
                  
                 })
@@ -850,6 +828,7 @@ export default {
             
                 case "registrar": {
                     me.tipoAccion = 1;
+                    me.isSubmitting=false;
                     if (me.selectApertura_Cierre==="0") {
                         me.tituloModal = "Registro de apertura de caja";
                         me.selectTurno="0";
@@ -874,7 +853,7 @@ export default {
                 case "actualizar": {
                     me.tipoAccion = 2;
                    
-          
+                    me.isSubmitting=false;
             
                     me.classModal.openModal("registrar");
 
@@ -882,8 +861,7 @@ export default {
                 }
 
                 case "ver": {
-                    console.log("---------------------");
-                    console.log(data);
+               
                     if (data.tipo_caja_c_a===0) {
                         me.tituloModal = "Apertura de caja vista";  
                     } else {
@@ -940,7 +918,7 @@ export default {
         cerrarModal(accion) {
             let me = this;
             if (accion == "registrar") {
-                
+                me.isSubmitting=false;
                 me.selectTurno="0";
                         me.totalMonedas="0.00";
                         me.SimboloM="S/N";

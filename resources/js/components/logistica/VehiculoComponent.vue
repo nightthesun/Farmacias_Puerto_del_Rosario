@@ -232,8 +232,16 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary"  @click="cerrarModal('registrar')">Cerrar</button>
-                        <button type="button" v-if="tipoAccion==1" class="btn btn-primary" @click="registrar()" :disabled="!sicompleto">Guardar</button>
-                        <button type="button" v-if="tipoAccion==2" class="btn btn-primary" @click="actualizar()">Actualizar</button>
+                        <div  class="d-flex justify-content-start">
+                            <div  v-if="isSubmitting==false">
+                                <button type="button" v-if="tipoAccion == 1" class="btn btn-primary" @click="registrar()" :disabled="!sicompleto">Guardar</button>
+                                <button type="button" v-if="tipoAccion == 2" class="btn btn-primary" @click="actualizar()" :disabled="!sicompleto">Actualizar</button>
+                            </div>
+                            <div v-else>
+                                <button type="button" v-if="tipoAccion == 1" class="btn btn-light">Guardar</button>
+                                <button type="button" v-if="tipoAccion == 2" class="btn btn-light">Actualizar</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <!-- /.modal-content -->
@@ -333,6 +341,7 @@ import { resolveTransitionHooks } from 'vue';
                     'to':0
                 },
                 offset:3,
+                isSubmitting: false, // Controla el estado del botón de envío
                 nombre:'',
                 tipo:0,
                 
@@ -433,7 +442,7 @@ import { resolveTransitionHooks } from 'vue';
           
              //-----------------------------------permisos_R_W_S        
  listarPerimsoxyz() {
-                //console.log(this.codventana);
+              
     let me = this;        
     var url = '/gestion_permiso_editar_eliminar?win='+me.codventana;  
     axios.get(url)
@@ -559,6 +568,10 @@ import { resolveTransitionHooks } from 'vue';
             
             registrar(){
                 let me = this;
+                  // Si ya está enviando, no permitas otra solicitud
+      if (me.isSubmitting) return;
+
+me.isSubmitting = true; // Deshabilita el botón
                axios.post('/vehiculo/registrar',{
                     'id_tienda_almacen':me.id_tienda_almacen,
                     'matricula':me.matricula,
@@ -583,7 +596,9 @@ import { resolveTransitionHooks } from 'vue';
                 }).catch(function(error){
                     error401(error);
                     console.log(error);
-                });
+                }).finally(() => {
+          me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
+        });
             },
 
             eliminar(id_vehiculo){
@@ -749,6 +764,7 @@ import { resolveTransitionHooks } from 'vue';
                     case 'registrar':
                     {
                         me.tituloModal='Registar Nuevo Vehiculo'
+                        me.isSubmitting=false;
                         me.tipoAccion=1;
                         me.tipo=0;
                 
@@ -772,6 +788,7 @@ import { resolveTransitionHooks } from 'vue';
                     case 'actualizar':
                     {
                         me.tituloModal='Registar Nuevo Vehiculo';
+                        me.isSubmitting=false;
                         me.tipoAccion=2;                        
                         me.tipo=0; 
                         me.telefono=data.telefono;
@@ -810,6 +827,7 @@ import { resolveTransitionHooks } from 'vue';
 
             cerrarModal(accion){
                 let me = this;
+                me.isSubmitting=false;
                 me.classModal.closeModal(accion);
                 me.tipoAccion=1;
                 me.tipo=0;  

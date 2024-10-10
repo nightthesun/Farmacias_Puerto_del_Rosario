@@ -213,30 +213,17 @@
                     </div>
                   
                     <div class="modal-footer">
-                        <button
-                            type="button"
-                            class="btn btn-secondary"
-                            @click="cerrarModal('registrar')"
-                        >
-                            Cerrar
-                        </button>
-                        <button  
-                            type="button"
-                            v-if="tipoAccion == 1"
-                            class="btn btn-primary"
-                            @click="registrar()"  
-                            :disabled="!sicompleto"
-                        >
-                            Guardar
-                        </button>
-                        <button
-                            type="button"
-                            v-if="tipoAccion == 2"
-                            class="btn btn-primary"
-                          @click="actualizar()"
-                        >
-                            Actualizar
-                        </button>
+                        <button type="button" class="btn btn-secondary" @click="cerrarModal('registrar')">Cerrar</button>
+                        <div  class="d-flex justify-content-start">
+                            <div  v-if="isSubmitting==false">
+                                <button type="button" v-if="tipoAccion == 1" class="btn btn-primary" @click="registrar()" :disabled="!sicompleto">Guardar</button>
+                                <button type="button" v-if="tipoAccion == 2" class="btn btn-primary" @click="actualizar()" :disabled="!sicompleto">Actualizar</button>
+                            </div>
+                            <div v-else>
+                                <button type="button" v-if="tipoAccion == 1" class="btn btn-light">Guardar</button>
+                                <button type="button" v-if="tipoAccion == 2" class="btn btn-light">Actualizar</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -263,6 +250,7 @@ export default {
             },
           
             offset: 3,
+            isSubmitting: false, // Controla el estado del botón de envío
             tituloModal:'',
             arrayPais:[],
             selectPais:0,
@@ -339,11 +327,9 @@ export default {
     methods: {
 //-----------------------------------permisos_R_W_S        
 listarPerimsoxyz() {
-                //console.log(this.codventana);
-    let me = this;
-        
-    var url = '/gestion_permiso_editar_eliminar?win='+me.codventana;
-  
+         
+    let me = this;        
+    var url = '/gestion_permiso_editar_eliminar?win='+me.codventana;  
     axios.get(url)
         .then(function(response) {
             var respuesta = response.data;
@@ -479,7 +465,7 @@ listarPerimsoxyz() {
         },
 
         registrar() {
-            let me = this;
+            let me = this;           
             if (
                 me.nombre === "" ||
                 me.valor === "" ||
@@ -492,6 +478,10 @@ listarPerimsoxyz() {
                     "warning",
                 );
             } else {
+                  // Si ya está enviando, no permitas otra solicitud
+      if (me.isSubmitting) return;
+
+me.isSubmitting = true; // Deshabilita el botón
                 let cadena="creacion de moneda "+me.nombre_pais;
                 axios.post("/moneda/store", {
                     nombre: me.tipoMoneda,
@@ -522,24 +512,12 @@ listarPerimsoxyz() {
                     })                    
                   
                   .catch(function (error) {           
-                
-                if (error.response.status === 500) {
-                    me.errorMsg = error.response.data.error; // Asigna el mensaje de error a la variable errorMsg
-                Swal.fire(
-                    "Error",
-                    "500 (Internal Server Error)"+me.errorMsg, // Muestra el mensaje de error en el alert
-                    "error"
-                );
-                }else{
-                    Swal.fire(
-                    "Error",
-                    ""+error, // Muestra el mensaje de error en el alert
-                    "error"
-                );  
-                }
-
-               
-            });
+                    error401(error);
+          console.log(error);
+        })
+        .finally(() => {
+          me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
+        });
             }
         },
     
@@ -566,6 +544,7 @@ listarPerimsoxyz() {
          switch (accion) {
                 case "registrar": {
                     me.tipoAccion = 1;
+                    me.isSubmitting=false;
                     me.tituloModal = "Registro de tipo de moneda";
                     me.tipoMoneda=0;
                     me.unidad=0;
@@ -576,6 +555,7 @@ listarPerimsoxyz() {
                 }
                 case "actualizar": {
                     me.tipoAccion = 2;
+                    me.isSubmitting=false;
                     me.tituloModal = "Registro de tipo de moneda";
                     me.id_=data.id;          
                     me.tipoMoneda=data.tipo_corte === null ? 0 : data.tipo_corte;
@@ -594,7 +574,7 @@ listarPerimsoxyz() {
             let me = this;
             if (accion == "registrar") {
                 me.classModal.closeModal(accion);
-               
+                me.isSubmitting=false;   
                     me.tituloModal = " ";
                     me.tipoMoneda=0;
                     me.valor="";

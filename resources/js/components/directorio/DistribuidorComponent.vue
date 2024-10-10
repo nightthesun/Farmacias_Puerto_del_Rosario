@@ -318,31 +318,17 @@
                     </div>
                   
                     <div class="modal-footer">
-                        <button
-                            type="button"
-                            class="btn btn-secondary"
-                            @click="cerrarModal('registrar')"
-                        >
-                            Cerrar
-                        </button>
-                        <button
-                            type="button"
-                            v-if="tipoAccion == 1"
-                            class="btn btn-primary"
-                            @click="crear()"
-                            :disabled="!sicompleto"
-                        >
-                            Guardar
-                        </button>
-                        <button
-                            type="button"
-                            v-if="tipoAccion == 2"
-                            class="btn btn-primary"                            
-                            @click="editar()"
-                            :disabled="!sicompleto"
-                        >
-                            Actualizar
-                        </button>
+                        <button type="button" class="btn btn-secondary" @click="cerrarModal('registrar')">Cerrar</button>
+                        <div  class="d-flex justify-content-start">
+                            <div  v-if="isSubmitting==false">
+                                <button type="button" v-if="tipoAccion == 1" class="btn btn-primary" @click="crear()" :disabled="!sicompleto">Guardar</button>
+                                <button type="button" v-if="tipoAccion == 2" class="btn btn-primary" @click="editar()" :disabled="!sicompleto">Actualizar</button>
+                            </div>
+                            <div v-else>
+                                <button type="button" v-if="tipoAccion == 1" class="btn btn-light">Guardar</button>
+                                <button type="button" v-if="tipoAccion == 2" class="btn btn-light">Actualizar</button>
+                            </div>
+                        </div>                     
                     </div>
                 </div>
             </div>
@@ -375,6 +361,7 @@ export default {
                 to: 0,
             },
             offset:3,
+            isSubmitting: false, // Controla el estado del botón de envío
             selected:null,
             arrayTipo:[{id:1,tipo:'Persona'},{id:2,tipo:'Empresa'}],
 
@@ -567,6 +554,10 @@ export default {
 
         crear(){
             let me = this;
+              // Si ya está enviando, no permitas otra solicitud
+      if (me.isSubmitting) return;
+
+me.isSubmitting = true; // Deshabilita el botón
             const ids = me.value.map(item => item.id).join(',');
             const nom = me.value.map(item => item.nombre).join(',');
                 axios.post("/distribuidor/registrar", {
@@ -588,10 +579,11 @@ export default {
                         );
                     })                
                   .catch(function (error) { 
-                    console.log(error.response.data);          
-                  //  this.errorMessage = error.response.data; // Aquí guardamos el error
-                  //  Swal.fire("Error comunicarse con el administrador",""+errorMessage,"error");               
-            });
+                    error401(error);
+                    console.log(error);
+        }).finally(() => {
+          me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
+        });
         },
 
         cambiarPestana(idPestana) {
@@ -613,6 +605,7 @@ export default {
          switch (accion) {
                 case "registrar": {
                     me.tipoAccion = 1;
+                    me.isSubmitting=false;
                     if (me.selectTipo===1) {
                         me.tituloModal = "Registrar distribuidor tipo persona"; 
                     } else {
@@ -630,7 +623,7 @@ export default {
                 }
                 case "actualizar": {
                     me.tipoAccion = 2;
-   
+                    me.isSubmitting=false;
                     if (me.selectTipo===1) {
                         me.tituloModal = "Registrar proveedor tipo persona"; 
                     } else {
@@ -671,6 +664,7 @@ export default {
         cerrarModal(accion) {
             let me = this;
             if (accion == "registrar") {
+                me.isSubmitting=false;
                 me.classModal.closeModal(accion);
                 me.selected =null;
                 me.contacto="";

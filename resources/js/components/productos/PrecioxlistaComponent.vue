@@ -188,6 +188,7 @@
                     <div class="alert alert-warning" role="alert">
                         Todos los campos con (*) son requeridos
                     </div>
+                   
                     <form action="" class="form-horizontal">
                         <!-- insertar datos accion 1-->
                         <div class="container" v-if="tipoAccion==1">
@@ -210,7 +211,7 @@
                                 </div>
                             </div>
                             <div class="form-group row" v-if="selectEnvase != 0">
-                                
+                                {{ arrayProducto }}
                                 <label class="col-md-3 form-control-label" for="text-input">
                                     Producto:
                                     <span  v-if="selectProducto == 0" class="error">(*)</span>
@@ -220,7 +221,7 @@
                                         <option v-bind:value="0" disabled>-Seleccionar... </option>
                                         <option
                                           v-for="prod in arrayProducto"
-                                          :key="prod.id"
+                                          :key="index"
                                           v-bind:value="prod.id"
                                           v-text="prod.prod_cod+' '+prod.leyenda+' C:'+prod.cantidad+' L:'+prod.lote"
                                       ></option>
@@ -393,9 +394,17 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" @click="cerrarModal('registrar');cerrarModal('registrar_retorno');">Cerrar</button>
+                    <div  class="d-flex justify-content-start">
+                            <div  v-if="isSubmitting==false">
+                                <button type="button" v-if="tipoAccion == 1" class="btn btn-primary" @click="registrarLisxPre()">Guardar</button>
+                                <button type="button" v-if="tipoAccion == 2" class="btn btn-primary" @click="actualizar()">Actualizar</button>
+                            </div>
+                            <div v-else>
+                                <button type="button" v-if="tipoAccion == 1" class="btn btn-light">Guardar</button>
+                                <button type="button" v-if="tipoAccion == 2" class="btn btn-light">Actualizar</button>
+                            </div>
+                        </div>
     
-                    <button type="button" v-if="tipoAccion==1"  class="btn btn-primary" @click="registrarLisxPre()">Guardar</button>
-                        <button type="button" v-if="tipoAccion==2" class="btn btn-primary" @click="actualizar()">Actualizar</button>
                    
                 </div>
                 </div>
@@ -482,6 +491,7 @@
                 to: 0,
             },
             offset:3,
+            isSubmitting: false, // Controla el estado del botón de envío
                 tituloModal:'',    
                 tipoAccion:1,   
                 
@@ -559,10 +569,10 @@
                     (element) => element.codigo  === codigo);
                     if (alm_tda_buscar) {  
                                           
-                       this.lista_id_almacen_id_tienda=alm_tda_buscar.lista_id_almacen_id_tienda;
+                       this.lista_id_almacen_id_tienda=alm_tda_buscar.id_tienda_almacen;
                        this.codigo_tda_alm=alm_tda_buscar.codigo;
                        this.tipoCodigo=alm_tda_buscar.tipoCodigo;
-                  
+               
                     }
         }
        }, 
@@ -709,7 +719,7 @@
 
             var url ="/producto/listarProducto?codigo="+parteCodigo+
                     "&envase=" + me.selectEnvase+"&alm_tda="+me.selectAlmTienda;
-                    console.log(url);
+             
                     axios
                 .get(url)
                 .then(function (response) {
@@ -746,7 +756,7 @@
                 .then(function (response) {
                     var respuesta = response.data;
                     me.arrayAlmTienda = respuesta;
-                 
+              
                 })
                 .catch(function (error) {
                     error401(error);
@@ -785,8 +795,11 @@
                     "warning",
                 );
             } else { 
-                   axios                   
-                     .post("/producto/registrarLista", {
+                 // Si ya está enviando, no permitas otra solicitud
+      if (me.isSubmitting) return;
+
+me.isSubmitting = true; // Deshabilita el botón
+                   axios.post("/producto/registrarLista", {
                         'id_ingreso':me.id_ingreso,
                         'envase': me.selectEnvase,
                         'id_producto':me.id_prod,  
@@ -824,7 +837,9 @@
                     "error"
                 );  
                 }              
-            });
+            }).finally(() => {
+          me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
+        });
              }
         },    
         actualizar() {
@@ -906,6 +921,7 @@
                     case 'registrar':
                     {   
                        me.tipoAccion=1;
+                       me.isSubmitting=false;
                         me.tituloModal='Lista de precios en '+me.selectAlmTienda;
                         me.selectEnvase=0;
                         me.selectProducto=0;
@@ -928,6 +944,7 @@
                     case 'actualizar':
                         {
                             me.tipoAccion=2;
+                            me.isSubmitting=false;
                             me.id_ingreso="";                       
                             me.tituloModal='Lista de precios en '+me.selectAlmTienda;                            
                            
@@ -1081,6 +1098,7 @@
             },
             cerrarModal(accion){
                 let me = this;
+                me.isSubmitting=false;
                 me.inputTextBuscar="";
                 me.selectEnvase=0;
                 me.tipoAccion=1;

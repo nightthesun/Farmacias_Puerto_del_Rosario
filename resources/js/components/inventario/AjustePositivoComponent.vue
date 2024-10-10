@@ -437,30 +437,18 @@
                         </form>
                     </div>
                     <div class="modal-footer">
-                        <button
-                            type="button"
-                            class="btn btn-secondary"
-                            @click="cerrarModal('registrar')"
-                        >
-                            Cerrar
-                        </button>
-                        <button
-                            type="button"
-                            v-if="tipoAccion == 1"
-                            class="btn btn-primary"
-                            @click="registrorAjusteNegativo()"
-                            :disabled="!sicompleto"
-                        >
-                            Guardar
-                        </button>
-                        <button
-                            type="button"
-                            v-if="tipoAccion == 2"
-                            class="btn btn-primary"
-                            @click="actualizarAjusteNegativo()"
-                        >
-                            Actualizar
-                        </button>
+                        <button type="button" class="btn btn-secondary" @click="cerrarModal('registrar')">Cerrar</button>
+                        <div  class="d-flex justify-content-start">
+                            <div  v-if="isSubmitting==false">
+                                <button type="button" v-if="tipoAccion == 1" class="btn btn-primary" @click="registrorAjusteNegativo()" :disabled="!sicompleto">Guardar</button>
+                                <button type="button" v-if="tipoAccion == 2" class="btn btn-primary" @click="actualizarAjusteNegativo()" :disabled="!sicompleto">Actualizar</button>
+                            </div>
+                            <div v-else>
+                                <button type="button" v-if="tipoAccion == 1" class="btn btn-light">Guardar</button>
+                                <button type="button" v-if="tipoAccion == 2" class="btn btn-light">Actualizar</button>
+                            </div>
+                        </div>
+                       
                     </div>
                 </div>
             </div>
@@ -846,6 +834,7 @@ export default {
             buscar: "",
             idAjusteNegativos: 0,
             offset: 3,
+            isSubmitting: false, // Controla el estado del botón de envío
             tipoAccion: 1,
             id_sucursal: "",
             arraySucursal: [],
@@ -1162,6 +1151,7 @@ export default {
             );
              switch (accion) {
                 case "registrar": {
+                    me.isSubmitting=false;
                     me.tipoAccion = 1;
                     me.tituloModal = "Registro para ajuste de positivo ";
                     me.ProductoLineaIngresoSeleccionado = 0;
@@ -1190,6 +1180,7 @@ export default {
                     break;
                 }
                 case "actualizar": {
+                    me.isSubmitting=false;
                     me.leyenda = data.leyenda;
                     me.id_codigo = data.cod;
                     me.tipoAccion = 2;
@@ -1343,6 +1334,7 @@ export default {
         cerrarModal(accion) {
             let me = this;
             if (accion == "registrar") {
+                me.isSubmitting=false;
                 me.classModal.closeModal(accion);
                 me.ProductoLineaIngresoSeleccionado = 0;
                 me.TiposSeleccionado = 0;
@@ -1413,8 +1405,11 @@ export default {
                     "warning",
                 );
             } else {
-                axios
-                    .post("/ajustes-positivo/registrar", {
+                // Si ya está enviando, no permitas otra solicitud
+      if (me.isSubmitting) return;
+
+me.isSubmitting = true; // Deshabilita el botón
+                axios.post("/ajustes-positivo/registrar", {
                         'id_tipo': me.TiposSeleccionado,
                         'id_producto_linea': me.ProductoLineaIngresoSeleccionado,
                         'codigo': me.codigo,
@@ -1462,7 +1457,9 @@ export default {
                     "error"
                 );  
                 }              
-            });
+            }).finally(() => {
+          me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
+        });
             }
         },
         actualizarAjusteNegativo() {
@@ -1471,21 +1468,7 @@ export default {
             axios
                 .put("/ajustes-positivo/actualizar", {
                     id: me.idAjusteNegativos,
-                    id_tipo: me.TiposSeleccionado,
-                    //id_producto_linea: me.ProductoLineaIngresoSeleccionado,
-                   // codigo: me.codigo,
-                   // linea: me.linea,
-                   // producto: me.producto,
-                   // cantidad: me.cantidadS,
-                   // cantidad_producto: suma,
-                  //  descripcion: me.descripcion,
-                   // fecha: me.fecha,
-                   // id_sucursal: me.id_sucursal,
-                  //  id_ingreso: me.id_ingreso,
-                  //  id_producto: me.id_producto,
-                  //  cod: me.sucursalSeleccionada,
-                  //  id_ingreso: me.id_ingreso,
-                   // leyenda: me.leyenda,
+                    id_tipo: me.TiposSeleccionado,                 
                 })
                 .then(function (response) {
                     me.listarAjusteNegativos();

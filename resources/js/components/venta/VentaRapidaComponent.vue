@@ -302,7 +302,7 @@
                         <option value="2" :disabled="estado_dosificacion_facctura==0">Factura</option>
                         
                       </select>
-                    <button v-if="(TipoComprobate!=0&& datos_cliete!=''&&id_tipo_doc!=''&&arrayVentas.length>0&&key_1===1)" type="button" class="btn btn-primary" @click="realizarVenta()">REALIZAR VENTA</button>  
+                    <button v-if="(TipoComprobate!=0&& datos_cliete!=''&&id_tipo_doc!=''&&arrayVentas.length>0&&key_1===1 || isSubmitting==false)" type="button" class="btn btn-primary" @click="realizarVenta()">REALIZAR VENTA</button>  
                       
                     <button v-else type="button" class="btn btn-light" >REALIZAR VENTA</button>
                 </div>          
@@ -722,6 +722,7 @@ export default {
             },
             loading: true,
             selected: null,
+            isSubmitting: false, // Controla el estado del botón de envío
       options: ['list', 'of', 'options'],
             tituloModal: "",
             name_moda:"",
@@ -2730,6 +2731,10 @@ me.descuento_1=totalDescuento+me.descuento_final;
           n_act_facturacion_1:me.n_act_facturacion_1,                        
         //  arrayEstado_dosificacion_facctura:me.arrayEstado_dosificacion_facctura,
       };
+       // Si ya está enviando, no permitas otra solicitud
+       if (me.isSubmitting) return;
+
+me.isSubmitting = true; // Deshabilita el botón
 
       // Realizar la solicitud POST con Axios
       axios.post("/gestor_ventas/venta", data)
@@ -2787,6 +2792,7 @@ let nit_2=respuesta.nit_2;
 
 // Mostrar la alerta de éxito
                 if (tipocom===1) {
+                  me.isSubmitting=false;
                     Swal.fire({
   title: "Venta realizada",
   text: "Haga click en Ok ",
@@ -2797,6 +2803,7 @@ total_sin_des,descuento_venta,total_venta,efectivo_venta,cambio_venta,fechaMas7D
 ); 
                 } else{
                     if (tipocom===2) {
+                      me.isSubmitting=false;
                         Swal.fire({
                         title: "Venta realizada",
                         text: "Haga click en Ok ",

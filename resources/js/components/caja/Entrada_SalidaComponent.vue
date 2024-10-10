@@ -255,12 +255,16 @@
                 
                              
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" @click="cerrarModal('registrar')">
-                            Cerrar
-                        </button>
-                        <button type="button" v-if="tipoAccion == 1" class="btn btn-primary" @click="registro();">
-                            Guardar
-                        </button>
+                        <button type="button" class="btn btn-secondary" @click="cerrarModal('registrar')">Cerrar</button>
+                        <div  class="d-flex justify-content-start">
+                            <div  v-if="isSubmitting==false">
+                                <button type="button" v-if="tipoAccion == 1" class="btn btn-primary" @click="registro()">Guardar</button>                         
+                            </div>
+                            <div v-else>
+                                <button type="button" v-if="tipoAccion == 1" class="btn btn-light">Guardar</button>                         
+                            </div>
+                        </div>
+                   
                   
                     </div>
                 </div>
@@ -375,7 +379,7 @@ export default {
                 to: 0,
             },
             offset:3,
-
+            isSubmitting: false, // Controla el estado del botón de envío
             tituloModal: "",
             sucursalSeleccionada:0,
             arraySucursal:[],
@@ -435,7 +439,7 @@ export default {
     computed: {
         sicompleto() {
            let me = this;
-           console.log(me.input);
+          
             if (
                 (me.input).length ==0
              
@@ -560,10 +564,7 @@ general_pdf(razon_social,direccion,lugar,cadena_A,id,soloFecha,soloHora,mensaje,
             axios.get(url)
                 .then(function (response) {
                     var respuesta = response.data;
-                    console.log("999999999999999999");
-                    console.log(respuesta.monto_limite);
-                    console.log(respuesta.tiempo_limite);
-                    console.log(respuesta);
+                  
                     let respues_1=respuesta.monto_limite;
                     let respues_2=respuesta.tiempo_limite;
                     
@@ -589,8 +590,7 @@ general_pdf(razon_social,direccion,lugar,cadena_A,id,soloFecha,soloHora,mensaje,
             axios.get(url)
                 .then(function (response) {
                     var respuesta = response.data;
-                    me.arrayMonedaModal=respuesta;
-                   console.log(me.arrayMonedaModal);
+                    me.arrayMonedaModal=respuesta;           
                 
                 })
                 .catch(function (error) {
@@ -609,8 +609,7 @@ general_pdf(razon_social,direccion,lugar,cadena_A,id,soloFecha,soloHora,mensaje,
                     } else {
                        me.foco=2; 
                     }
-                    console.log("*--*--*");
-                    console.log(respuesta);
+              
                 })
                 .catch(function (error) {
                     error401(error);
@@ -620,7 +619,7 @@ general_pdf(razon_social,direccion,lugar,cadena_A,id,soloFecha,soloHora,mensaje,
 
         listarIndex(page) {
             let me = this;    
-            console.log("------------***");
+       
             var url ="/entrada_salida/index?page="+page+"&buscar="+me.buscar+"&id_sucursal="+me.id_sucursal+"&entrada_salida="+parseInt(me.selectEntradaSalida);
             axios.get(url)
                 .then(function (response) {
@@ -628,7 +627,6 @@ general_pdf(razon_social,direccion,lugar,cadena_A,id,soloFecha,soloHora,mensaje,
                     me.pagination = respuesta.pagination;
                     me.arrayIndex = respuesta.respuesta.data;
                  
-                    console.log(me.arrayIndex);
                 })
                 .catch(function (error) {
                     error401(error);
@@ -637,9 +635,10 @@ general_pdf(razon_social,direccion,lugar,cadena_A,id,soloFecha,soloHora,mensaje,
 
         registro(){
             let me = this;
+              // Si ya está enviando, no permitas otra solicitud
+    
             let bandera=0;
             let cadena_A="";
-            console.log(me.totalMonto);
             if ((me.SimboloM==="S/N"&&me.SimboloB==="S/N")||me.totalMonto==="0.00") {
                 Swal.fire(
                     "Sector de monedas sin dados",
@@ -695,6 +694,9 @@ general_pdf(razon_social,direccion,lugar,cadena_A,id,soloFecha,soloHora,mensaje,
             }
             //---------------REGISTRO
             if (bandera===1) {
+                if (me.isSubmitting) return;
+
+me.isSubmitting = true; // Deshabilita el botón
                 axios.post("/entrada_salida/store", {
                   
                        total_arqueo_caja:me.totalMonto,
@@ -717,10 +719,8 @@ general_pdf(razon_social,direccion,lugar,cadena_A,id,soloFecha,soloHora,mensaje,
                        
                     })
                     .then(function (response) {
-                        me.listarIndex();
-                        console.log("************************");
-                        let respuesta = response.data;
-                        console.log(respuesta);                     
+                        me.listarIndex();                       
+                        let respuesta = response.data;                                      
                         let razon_social=respuesta.titulo.razon_social;                        
                         let direccion=respuesta.titulo.direccion;
                         let lugar=respuesta.titulo.nombre+" - "+respuesta.titulo.ciudad;
@@ -732,7 +732,7 @@ general_pdf(razon_social,direccion,lugar,cadena_A,id,soloFecha,soloHora,mensaje,
                         let valor=respuesta.valor;
                         let simbolo=respuesta.simbolo;
                         let user=respuesta.user;                           
-                       console.log("--->"+razon_social+" "+direccion+" "+lugar+" "+id+" "+soloFecha+" "+soloHora+" "+mensaje+" "+observacion+" "+valor+" "+simbolo+" "+user); 
+                       //console.log("--->"+razon_social+" "+direccion+" "+lugar+" "+id+" "+soloFecha+" "+soloHora+" "+mensaje+" "+observacion+" "+valor+" "+simbolo+" "+user); 
                        me.cerrarModal('registrar');                        
                         Swal.fire(
                         "Registrado exitosamente",
@@ -749,7 +749,11 @@ general_pdf(razon_social,direccion,lugar,cadena_A,id,soloFecha,soloHora,mensaje,
                     "error"
                 );  
                 }              
-            });
+            })
+        .finally(() => {
+          me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
+        });
+    
             me.cerrarModal('registrar');
             } 
         },
@@ -795,10 +799,7 @@ general_pdf(razon_social,direccion,lugar,cadena_A,id,soloFecha,soloHora,mensaje,
             }
             me.totalMonto=Number(me.totalMonto)+ Number(element.valor_default);   
             me.totalMonto=Number(me.totalMonto).toFixed(2);
-        });  
-       
-    console.log("-*----");
-    console.log(me.arrayMoneda);
+        });
   },
 
         verificador_moneda_sistemas(){
@@ -809,10 +810,6 @@ general_pdf(razon_social,direccion,lugar,cadena_A,id,soloFecha,soloHora,mensaje,
                 .then(function (response) {
                     var respuesta_lista = response.data.listaMoneda;
                     var respuesta_moneda = response.data.moneda;
-
-                    console.log("---*-*-*-*-*-*------");
-                    console.log(respuesta_lista);
-                    console.log(respuesta_moneda);
                   if (respuesta_moneda===0) {
                     me.bloqueador=0;
                     Swal.fire(
@@ -824,7 +821,7 @@ general_pdf(razon_social,direccion,lugar,cadena_A,id,soloFecha,soloHora,mensaje,
                     me.bloqueador=1;
                     me.arrayMoneda=respuesta_lista; 
                     me.moneda_s1=respuesta_moneda;
-                    console.log(me.arrayMoneda);
+             
                   }                                  
                 })
                 .catch(function (error) {
@@ -838,8 +835,7 @@ general_pdf(razon_social,direccion,lugar,cadena_A,id,soloFecha,soloHora,mensaje,
             var url = "/verificacionAperturaCierre?id_sucursal="+me.id_sucursal;
             axios.get(url)
                 .then(function (response) {
-                    var respuesta = response.data;   
-                    console.log(respuesta);       
+                    var respuesta = response.data;       
                     if (respuesta===0||respuesta.tipo_caja_c_a===9||respuesta.id_apertura_cierre!=0) {
                         Swal.fire(
                     "Debe aperturar una caja",
@@ -848,10 +844,7 @@ general_pdf(razon_social,direccion,lugar,cadena_A,id,soloFecha,soloHora,mensaje,
                     );    
                     } else {
                         me.abrirModal('registrar'); 
-                        console.log("*-------------------------------*");
-                        console.log(respuesta);
                         me.id_apertura_cierre=respuesta.id;
-                        console.log("***"+me.id_apertura_cierre);
                     } 
                 })
                 .catch(function (error) {
@@ -915,6 +908,7 @@ general_pdf(razon_social,direccion,lugar,cadena_A,id,soloFecha,soloHora,mensaje,
          switch (accion) {
                 case "registrar": {
                     me.tipoAccion = 1;  
+                    me.isSubmitting=false;
                     if (me.selectEntradaSalida==="1") {
                             me.titulo_ ="Emisor";
                             me.tituloModal = "Registro de entradas";
@@ -960,18 +954,17 @@ general_pdf(razon_social,direccion,lugar,cadena_A,id,soloFecha,soloHora,mensaje,
                             cadena_A="E";
                         }                        
                     }
-                    if (cadena_A==="E") {
-                        console.log("error de entrada");
+                    if (cadena_A==="E") {                  
                     } else {      
                         let createdAt = data.created_at;
                         let [date, time] = createdAt.split(' ');               
                     me.general_pdf(data.razon_social,data.direccion,data.dir,cadena_A,data.id,date,time,data.mensaje,data.observacion,data.valor,data.simbolo,data.name)
-                    console.log(data);   
+        
                     }                
                    break;
                 }
                 case "ver": {
-                    console.log(data);
+          
                     let cadena_A="";
                     if (data.cadena_A===1) {
                         cadena_A="ENTRADA";
@@ -1010,6 +1003,7 @@ general_pdf(razon_social,direccion,lugar,cadena_A,id,soloFecha,soloHora,mensaje,
         cerrarModal(accion) {
             let me = this;
             if (accion == "registrar") {
+                me.isSubmitting=false;
                 me.totalMonedas="0.00";
             me.SimboloM='S/N';
             me.SimboloB='S/N';            

@@ -14,8 +14,11 @@
             @else
             @foreach ($vent['modulos'] as $item)
                 <li class="nav-item nav-dropdown menudown ">
-                    <a class="nav-link nav-dropdown-toggle" href="#"><i class="{{ $item->nombre_icono}}" style="color:white;"></i> 
-                        <font color="turquoise" style="text-transform:capitalize">{{ $item->nombre }}</font>
+                    <a class="nav-link nav-dropdown-toggle" href="#"><i class="{{ $item->nombre_icono}}" style="color:white;"></i>   
+                        <span style="color: turquoise; text-transform: capitalize;">
+                            {{ $item->nombre }}
+                        </span>
+                      <!--  <font color="turquoise" style="text-transform:capitalize">{{ $item->nombre }}</font> -->
                     </a>
                     <ul class="nav-dropdown-items">
                         @foreach($item->ventanas as $ventana)

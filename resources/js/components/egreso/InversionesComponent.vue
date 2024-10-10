@@ -289,31 +289,17 @@
                 </div>
                   
                     <div class="modal-footer">
-                        <button
-                            type="button"
-                            class="btn btn-secondary"
-                            @click="cerrarModal('registrar')"
-                        >
-                            Cerrar
-                        </button>
-                        <button
-                            type="button"
-                            v-if="tipoAccion == 1"
-                            class="btn btn-primary"
-                            @click="crear()"
-                            :disabled="!sicompleto"
-                        >
-                            Guardar
-                        </button>
-                        <button
-                            type="button"
-                            v-if="tipoAccion == 2"
-                            class="btn btn-primary"
-                            @click="editar()"
-                            :disabled="!sicompleto"
-                        >
-                            Actualizar
-                        </button>
+                        <button type="button" class="btn btn-secondary" @click="cerrarModal('registrar')">Cerrar</button>
+                        <div  class="d-flex justify-content-start">
+                            <div  v-if="isSubmitting==false">
+                                <button type="button" v-if="tipoAccion == 1" class="btn btn-primary" @click="crear()" :disabled="!sicompleto">Guardar</button>
+                                <button type="button" v-if="tipoAccion == 2" class="btn btn-primary" @click="editar()" :disabled="!sicompleto">Actualizar</button>
+                            </div>
+                            <div v-else>
+                                <button type="button" v-if="tipoAccion == 1" class="btn btn-light">Guardar</button>
+                                <button type="button" v-if="tipoAccion == 2" class="btn btn-light">Actualizar</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -362,6 +348,7 @@ export default {
             arrayIndex:[],
 
             offset:3,
+            isSubmitting: false, // Controla el estado del botón de envío
             selected:null,
             arrayDistribuidor:[],
             simbolo:"",
@@ -429,7 +416,7 @@ export default {
 
            //-----------------------------------permisos_R_W_S        
  listarPerimsoxyz() {
-                //console.log(this.codventana);
+       
     let me = this;        
     var url = '/gestion_permiso_editar_eliminar?win='+me.codventana;  
     axios.get(url)
@@ -465,8 +452,7 @@ export default {
             var url = "/verificacionAperturaCierre?id_sucursal="+me.id_sucursal;
             axios.get(url)
                 .then(function (response) {
-                    var respuesta = response.data;   
-                    console.log(respuesta);       
+                    var respuesta = response.data;            
                     if (respuesta===0||respuesta.tipo_caja_c_a===9||respuesta.id_apertura_cierre!=0) {
                         Swal.fire(
                     "Debe aperturar una caja",
@@ -503,14 +489,14 @@ export default {
         event.target.value = this.numericValue; // Revert to last valid value
       }
     },
+
          listarInicio(page){           
               let me=this;             
                 var url='/inversion/listarInicio?page='+page+'&buscar='+me.buscar+'&id_sucursal='+me.id_sucursal+'&limite='+me.limite_X;
                 axios.get(url).then(function(response){
                     var respuesta=response.data;
                     me.pagination = respuesta.pagination;
-                    me.arrayIndex = respuesta.resultado.data;         
-             
+                    me.arrayIndex = respuesta.resultado.data;             
                 })
                 .catch(function(error){
                     error401(error);
@@ -520,6 +506,10 @@ export default {
 
          crear(){
             let me = this;     
+            // Si ya está enviando, no permitas otra solicitud
+        if (me.isSubmitting) return;
+        me.isSubmitting = true; // Deshabilita el botón
+
                 axios.post("/inversion/crear", {
                 id_dis: (me.selected).id, 
                 tipo_persona_empresa: (me.selected).tipo_persona_empresa,         
@@ -545,7 +535,9 @@ export default {
                     })                
                   .catch(function (error) {                  
                     console.log(error.response.data);
-            });
+            }).finally(() => {
+          me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
+        });
         },
 
         eliminar(id){
@@ -665,7 +657,8 @@ export default {
                             }                          
                     })                
                   .catch(function (error) { 
-                    console.log(error.response.data);                           
+                    error401(error);
+                    console.log(error);                         
             });
         },
 
@@ -726,6 +719,7 @@ export default {
          switch (accion) {
                 case "registrar": {
                     me.tipoAccion = 1;
+                    me.isSubmitting=false;
                     me.tituloModal = "Registro de inversion";
                     me.selected=null;
                     me.descripcion="";
@@ -738,7 +732,7 @@ export default {
                 }
                 case "actualizar": {
                     me.tipoAccion = 2;
-               
+                    me.isSubmitting=false;
                     let distribuidor = me.arrayDistribuidor.find(c => c.id === data.id_distribuidor);
             if (distribuidor) {
                 me.selected = distribuidor;
@@ -762,7 +756,8 @@ export default {
             let me = this;
             if (accion == "registrar") {
                 me.classModal.closeModal(accion);
-                me.selected=null;                    
+                me.selected=null; 
+                me.isSubmitting=false;                    
                 me.total_s=0.00;
                 me.descripcion="";
                 me.selectTipoDoc=0;

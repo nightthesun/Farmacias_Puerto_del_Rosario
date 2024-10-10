@@ -290,31 +290,17 @@
                     </div>
                   
                     <div class="modal-footer">
-                        <button
-                            type="button"
-                            class="btn btn-secondary"
-                            @click="cerrarModal('registrar')"
-                        >
-                            Cerrar
-                        </button>
-                        <button
-                            type="button"
-                            v-if="tipoAccion == 1"
-                            class="btn btn-primary"
-                            @click="crear()"
-                            :disabled="!sicompleto"
-                        >
-                            Guardar
-                        </button>
-                        <button
-                            type="button"
-                            v-if="tipoAccion == 2"
-                            class="btn btn-primary"
-                           @click="editar()"
-                            :disabled="!sicompleto"
-                        >
-                            Actualizar
-                        </button>
+                        <button type="button" class="btn btn-secondary" @click="cerrarModal('registrar')">Cerrar</button>
+                        <div  class="d-flex justify-content-start">
+                            <div  v-if="isSubmitting==false">
+                                <button type="button" v-if="tipoAccion == 1" class="btn btn-primary" @click="crear()" :disabled="!sicompleto">Guardar</button>
+                                <button type="button" v-if="tipoAccion == 2" class="btn btn-primary" @click="editar()" :disabled="!sicompleto">Actualizar</button>
+                            </div>
+                            <div v-else>
+                                <button type="button" v-if="tipoAccion == 1" class="btn btn-light">Guardar</button>
+                                <button type="button" v-if="tipoAccion == 2" class="btn btn-light">Actualizar</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -345,7 +331,7 @@ export default {
             },
           
             offset:3,
-
+            isSubmitting: false, // Controla el estado del botón de envío
             selected:null,
             selectTipoDoc:0,      
             comprobante:'',    
@@ -426,7 +412,6 @@ export default {
 
            //-----------------------------------permisos_R_W_S        
  listarPerimsoxyz() {
-                //console.log(this.codventana);
     let me = this;        
     var url = '/gestion_permiso_editar_eliminar?win='+me.codventana;  
     axios.get(url)
@@ -478,7 +463,7 @@ export default {
             axios.get(url)
                 .then(function (response) {
                     var respuesta = response.data;   
-                    console.log(respuesta);       
+   
                     if (respuesta===0||respuesta.tipo_caja_c_a===9||respuesta.id_apertura_cierre!=0) {
                         Swal.fire(
                     "Debe aperturar una caja",
@@ -486,10 +471,8 @@ export default {
                     "warning",
                     );    
                     } else {
-                        me.abrirModal('registrar'); 
-           
-                        me.id_apertura_cierre=respuesta.id;
-                  
+                        me.abrirModal('registrar');            
+                        me.id_apertura_cierre=respuesta.id;                  
                     } 
                 })
                 .catch(function (error) {
@@ -505,7 +488,7 @@ export default {
                     var respuesta=response.data;
                     me.pagination = respuesta.pagination;
                     me.arrayIndex = respuesta.resultado.data;         
-                    console.log(me.arrayIndex);
+           
                 })
                 .catch(function(error){
                     error401(error);
@@ -629,40 +612,50 @@ export default {
                             }                          
                     })                
                   .catch(function (error) { 
-                    console.log(error.response.data);                           
-            });
-        },
-
-        crear(){
-            let me = this;     
-                axios.post("/gasto/crear", {
-                id_dis: (me.selected).id, 
-                tipo_persona_empresa: (me.selected).tipo_persona_empresa,         
-                tipo_comprabante: me.selectTipoDoc,        
-                nro_comprobante: me.comprobante,    
-                total: me.total_s,    
-                simbolo: me.simbolo,
-                id_sucursal:me.id_sucursal,
-                descripcion:me.descripcion,
-                id_apertura_cierre:me.id_apertura_cierre,
-
-                    })       
-                    .then(function (response) {
-                                            
-                        let a=response.data;
-                        me.cerrarModal("registrar");
-                           me.listarInicio();  
-                            if (a===null || a==="" ) {
-                                Swal.fire("Se registro exitosamente","Haga click en Ok", "success",);                             
-                            } else {
-                                Swal.fire(""+a,"Haga click en Ok","error",); 
-                            } 
-                    })                
-                  .catch(function (error) {                  
                     error401(error);
-                    console.log(error);
+                    console.log(error);                         
             });
         },
+
+        crear() {
+      let me = this;
+
+      // Si ya está enviando, no permitas otra solicitud
+      if (me.isSubmitting) return;
+
+      me.isSubmitting = true; // Deshabilita el botón
+      let requestData = {
+        id_dis: me.selected.id,
+        tipo_persona_empresa: me.selected.tipo_persona_empresa,
+        tipo_comprabante: me.selectTipoDoc,
+        nro_comprobante: me.comprobante,
+        total: me.total_s,
+        simbolo: me.simbolo,
+        id_sucursal: me.id_sucursal,
+        descripcion: me.descripcion,
+        id_apertura_cierre: me.id_apertura_cierre,
+      };
+
+      axios.post("/gasto/crear", requestData)
+        .then(function (response) {
+          let a = response.data;
+          me.cerrarModal("registrar");
+          me.listarInicio();  
+          if (a === null || a === "") {
+            Swal.fire("Se registró exitosamente", "Haga clic en Ok", "success");
+          } else {
+            Swal.fire("" + a, "Haga clic en Ok", "error");
+          }
+        })
+        .catch(function (error) {
+          error401(error);
+          console.log(error);
+        })
+        .finally(() => {
+          me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
+        });
+    },
+  
 
         listarProveedor(){   
             let me = this;       
@@ -672,9 +665,7 @@ export default {
                     var respuesta = (response.data).proveedores;              
                     var respuesta_moneda = (response.data).moneda; 
                      me.arrayProveedores = respuesta;
-                    me.simbolo = respuesta_moneda[0].simbolo;   
-                    console.log(respuesta);
-                    console.log(respuesta_moneda);              
+                    me.simbolo = respuesta_moneda[0].simbolo;                             
                 })
                 .catch(function (error) {
                     error401(error);
@@ -694,8 +685,7 @@ export default {
                 .get(url)
                 .then(function (response) {
                     var respuesta = response.data;
-                    me.arraySucursal = respuesta;
-                 
+                    me.arraySucursal = respuesta;                 
                 })
                 .catch(function (error) {
                     error401(error);
@@ -724,18 +714,20 @@ export default {
            
          switch (accion) {
                 case "registrar": {
+                    me.isSubmitting=false;
                     me.tipoAccion = 1;
                     me.tituloModal = "Registro de gasto";
                     me.selected=null;
                     me.selectTipoDoc=0;      
                     me.comprobante="";    
                     me.descripcion="";
-                    me.id_gasto="";   
-
+                    me.id_gasto="";
+                    me.total_s=0;
                     me.classModal.openModal("registrar");
                     break;
                 }
                 case "actualizar": {
+                    me.isSubmitting=false;
                     me.tipoAccion = 2;
                     me.tituloModal = "Edición de gasto";
                     let provee = me.arrayProveedores.find(c => c.id === data.id_proveedor);
@@ -751,8 +743,7 @@ export default {
                     me.id_gasto=data.id;
                     me.classModal.openModal("registrar");
                     break;
-                }
-            
+                }  
             }
         },
 
@@ -760,13 +751,15 @@ export default {
         cerrarModal(accion) {
             let me = this;
             if (accion == "registrar") {
-                me.classModal.closeModal(accion);               
+                me.classModal.closeModal(accion); 
+                    me.isSubmitting=false;              
                     me.tituloModal = " ";
                     me.selected=null;
                     me.selectTipoDoc=0;      
                     me.comprobante="";    
                     me.descripcion="";
                     me.id_gasto="";   
+                    me.total_s="";
                 me.classModal.openModal("registrar");
             }
         },

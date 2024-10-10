@@ -283,10 +283,18 @@
                         </form>
                     </div>
                   
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" @click="cerrarModal('registrar')">Cerrar</button>
-                        <button type="button" @click="registrar_2()" v-if="tipoAccion == 1" class="btn btn-primary" :disabled="arrayAñadir.length<=0">Guardar</button>
-                        <button type="button" @click="editar_2()" v-if="tipoAccion == 2"  class="btn btn-primary">Actualizar</button>
+                    <div class="modal-footer">                        
+                        <button type="button" class="btn btn-secondary" @click="cerrarModal('registrar')">Cerrar</button>                        
+                        <div  class="d-flex justify-content-start">
+                            <div  v-if="isSubmitting==false">
+                                <button type="button" v-if="tipoAccion == 1" class="btn btn-primary" @click="registrar_2()" :disabled="arrayAñadir.length<=0">Guardar</button>
+                                <button type="button" v-if="tipoAccion == 2" class="btn btn-primary" @click="editar_2()">Actualizar</button>
+                            </div>
+                            <div v-else>
+                                <button type="button" v-if="tipoAccion == 1" class="btn btn-light">Guardar</button>
+                                <button type="button" v-if="tipoAccion == 2" class="btn btn-light">Actualizar</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -403,6 +411,7 @@ export default {
                 to: 0,
             },          
             offset: 3,
+            isSubmitting: false, // Controla el estado del botón de envío
             tituloModal: '',
             sucursalSeleccionada:0,
             arraySucursal:[],
@@ -508,7 +517,7 @@ export default {
 
         //-----------------------------------permisos_R_W_S        
 listarPerimsoxyz() {
-                //console.log(this.codventana);
+
     let me = this;        
     var url = '/gestion_permiso_editar_eliminar?win='+me.codventana;  
     axios.get(url)
@@ -571,6 +580,7 @@ listarPerimsoxyz() {
 
         registrar_2() {
             let me = this;
+        
             let activador_S=0;  
             let id_cuenta_S=0;       
             if (me.selectPersona_banco==="1") {
@@ -601,7 +611,10 @@ listarPerimsoxyz() {
     cadena += (index === 0 ? '' : ',') + item.id;
 });
               
-  
+      // Si ya está enviando, no permitas otra solicitud
+      if (me.isSubmitting) return;
+
+me.isSubmitting = true; // Deshabilita el botón
                 axios.post("/transaccion/registrar", {
                     id_sucursal: me.id_sucursal,              
                     id_cuenta: id_cuenta_S,
@@ -622,9 +635,11 @@ listarPerimsoxyz() {
                         );
                     })                
                   .catch(function (error) {           
-                  //  this.errorMessage = error.response.data; // Aquí guardamos el error
-                  //  Swal.fire("Error comunicarse con el administrador",""+errorMessage,"error");               
-            });
+                    error401(error);
+                    console.log(error);        
+            }).finally(() => {
+          me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
+        });
        
             } else {
                 Swal.fire("Error","Acción sospechosa","error");
@@ -838,6 +853,7 @@ if (me.arrayAñadir.length>0) {
          switch (accion) {
                 case "registrar": {
                     me.tipoAccion = 1;
+                    me.isSubmitting=false;
                     me.tituloModal = "Registro de transacción";
                     me.observacion="Sin Observación";
                     me.comprobante="";
@@ -854,6 +870,7 @@ if (me.arrayAñadir.length>0) {
                 case "actualizar": {
                 
                     me.tipoAccion = 2;
+                    me.isSubmitting=false;
                     if(data.tipo_deposito===1){
                         me.selectUser_2=data.id_cuenta;
                         me.selectCuentasBancos=0;
@@ -882,7 +899,7 @@ if (me.arrayAñadir.length>0) {
                     break;
                 }
                 case "show":{
-                    console.log(data);
+               
                     me.tituloModal = "Vista";
                     me.e_id=data.id;       
                     me.e_comprobante=data.comprobante;  
@@ -905,6 +922,7 @@ if (me.arrayAñadir.length>0) {
         cerrarModal(accion) {
             let me = this;
             if (accion == "registrar") {
+                me.isSubmitting=false;     
                 me.classModal.closeModal(accion);
                 me.selectUser_2=0;        
                 me.comprobante="";

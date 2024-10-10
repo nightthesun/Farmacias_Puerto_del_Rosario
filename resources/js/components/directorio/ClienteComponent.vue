@@ -384,9 +384,16 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" @click="cerrarModal('registrar')">Cerrar</button>
-                    <button type="button"  class="btn btn-primary" v-if="tipoAccion==1" @click="registrar()">Guardar</button>
-                        <button type="button" class="btn btn-primary" v-if="tipoAccion==2" @click="actualizar()">Actualizar</button>
-                   
+                    <div  class="d-flex justify-content-start">
+                            <div  v-if="isSubmitting==false">
+                                <button type="button" v-if="tipoAccion == 1" class="btn btn-primary" @click="registrar()">Guardar</button>
+                                <button type="button" v-if="tipoAccion == 2" class="btn btn-primary" @click="actualizar()">Actualizar</button>
+                            </div>
+                            <div v-else>
+                                <button type="button" v-if="tipoAccion == 1" class="btn btn-light">Guardar</button>
+                                <button type="button" v-if="tipoAccion == 2" class="btn btn-light">Actualizar</button>
+                            </div>
+                        </div>
                 </div>
                 </div>
                 
@@ -416,6 +423,7 @@
                     'to':0
                 },
                 offset:3,
+                isSubmitting: false, // Controla el estado del botón de envío
                 buscar:'',
                 tituloModal:'',    
                 tipoAccion:1, 
@@ -508,7 +516,7 @@
 
         //-----------------------------------permisos_R_W_S        
  listarPerimsoxyz() {
-                //console.log(this.codventana);
+    
     let me = this;        
     var url = '/gestion_permiso_editar_eliminar?win='+me.codventana;  
     axios.get(url)
@@ -590,11 +598,12 @@
 
         abrirModal(accion,data= []){
             let me=this;
-            console.log(data);   
+             
               switch(accion){
                     case 'registrar':
                     {
                         me.tituloModal='Registro de cliente';
+                        me.isSubmitting=false;
                         me.tipoAccion=1;
                         me.selectTipoDoc=0;              
                         me.complemento_='';
@@ -618,9 +627,10 @@
                     }
                     case 'actualizar':
                         {
-                    console.log(data);          
+                         
                     me.tituloModal='Registro de cliente';
                         me.tipoAccion=2;
+                        me.isSubmitting=false;
                         if (data.id_max===null) {
                             me.id_max_2=0;
                         } else {
@@ -647,7 +657,7 @@
                         me.nombre_a_facturar=data.nom_a_facturar;
                         me.pais=data.pais;
                         me.ciudad=data.ciudad;   
-                        me.id=data.id
+                        me.id=data.id;
                         me.classModal.openModal('registrar');
                         }           
 
@@ -662,6 +672,7 @@
             cerrarModal(accion){
                 let me = this;
                 me.tipoAccion=1;
+                me.isSubmitting=false;
                         me.selectTipoDoc=0;              
                         me.complemento_='';
                         me.nombres="";
@@ -715,8 +726,11 @@
             } else {
                 
                 if (me.num_documento!=99001&&me.num_documento!=99002&&me.num_documento!=99003&&me.num_documento!=0&&me.num_documento!="000") {
-                    axios
-                    .post("/directorio/registrar", {
+                    // Si ya está enviando, no permitas otra solicitud
+                    if (me.isSubmitting) return;
+
+                    me.isSubmitting = true; // Deshabilita el botón
+                    axios.post("/directorio/registrar", {
                         tipo_per_emp: me.selectTipo,
                         id_tipo_doc: me.selectTipoDoc,
                         nombre: me.nombres,
@@ -757,7 +771,9 @@
                 }
 
                
-            });
+            }).finally(() => {
+          me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
+        });
                 }   else {
                     Swal.fire(
                     "Los numeros 99001, 99002, 99003, 0, 000. Esta ocupado para actividades especiales",

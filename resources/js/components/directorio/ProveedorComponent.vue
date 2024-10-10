@@ -260,31 +260,17 @@
                     </div>
                   
                     <div class="modal-footer">
-                        <button
-                            type="button"
-                            class="btn btn-secondary"
-                            @click="cerrarModal('registrar')"
-                        >
-                            Cerrar
-                        </button>
-                        <button
-                            type="button"
-                            v-if="tipoAccion == 1"
-                            class="btn btn-primary"
-                            @click="crear()"
-                            :disabled="!sicompleto"
-                        >
-                            Guardar
-                        </button>
-                        <button
-                            type="button"
-                            v-if="tipoAccion == 2"
-                            class="btn btn-primary"                            
-                            @click="editar()"
-                            :disabled="!sicompleto"
-                        >
-                            Actualizar
-                        </button>
+                        <button type="button" class="btn btn-secondary" @click="cerrarModal('registrar')">Cerrar</button>
+                        <div  class="d-flex justify-content-start">
+                            <div  v-if="isSubmitting==false">
+                                <button type="button" v-if="tipoAccion == 1" class="btn btn-primary" @click="crear()" :disabled="!sicompleto">Guardar</button>
+                                <button type="button" v-if="tipoAccion == 2" class="btn btn-primary" @click="editar()" :disabled="!sicompleto">Actualizar</button>
+                            </div>
+                            <div v-else>
+                                <button type="button" v-if="tipoAccion == 1" class="btn btn-light">Guardar</button>
+                                <button type="button" v-if="tipoAccion == 2" class="btn btn-light">Actualizar</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -314,6 +300,7 @@ export default {
                 to: 0,
             },
             offset:3,
+            isSubmitting: false, // Controla el estado del botón de envío
             selected:null,
             arrayTipo:[{id:1,tipo:'Persona'},
                             {id:2,tipo:'Empresa'}],
@@ -384,7 +371,7 @@ export default {
     methods: {
               //-----------------------------------permisos_R_W_S        
  listarPerimsoxyz() {
-                //console.log(this.codventana);
+           
     let me = this;        
     var url = '/gestion_permiso_editar_eliminar?win='+me.codventana;  
     axios.get(url)
@@ -420,9 +407,7 @@ changeRango(){
                 axios.get(url).then(function(response){
                     var respuesta=response.data;
                     me.pagination = respuesta.pagination;
-                    me.arrayIndex = respuesta.proveedores.data;
-                    console.log(me.arrayIndex);               
-
+                    me.arrayIndex = respuesta.proveedores.data;              
                 })
                 .catch(function(error){
                     error401(error);
@@ -456,8 +441,7 @@ changeRango(){
                 selectTipo:me.selectTipo,
                 id_transaccion:me.id_transaccion                               
                     })       
-                    .then(function (response) {
-                       // console.log(response.data);
+                    .then(function (response) {                   
                         me.cerrarModal("registrar");
                           me.listarProveedor();                  
                         Swal.fire(
@@ -467,8 +451,7 @@ changeRango(){
                         );
                     })                
                   .catch(function (error) { 
-                   console.log(error);
-                    // console.log(error.response.data);          
+                   console.log(error);                      
                   //  this.errorMessage = error.response.data; // Aquí guardamos el error
                   //  Swal.fire("Error comunicarse con el administrador",""+errorMessage,"error");               
             });
@@ -477,14 +460,15 @@ changeRango(){
 
         crear(){
             let me = this;
+            // Si ya está enviando, no permitas otra solicitud
+      if (me.isSubmitting) return;
+        me.isSubmitting = true; // Deshabilita el botón
             axios.post("/proveedor/registrar", {
                 datos_adicionales: me.dato_1,              
                 id_cliente: me.selected.id,
-                selectTipo:me.selectTipo
-                               
+                selectTipo:me.selectTipo                               
                     })       
-                    .then(function (response) {
-                       // console.log(response.data);
+                    .then(function (response) {             
                         me.cerrarModal("registrar");
                             me.listarProveedor();                  
                         Swal.fire(
@@ -493,11 +477,14 @@ changeRango(){
                             "success",
                         );
                     })                
-                  .catch(function (error) { 
-                    console.log(error.response.data);          
-                  //  this.errorMessage = error.response.data; // Aquí guardamos el error
-                  //  Swal.fire("Error comunicarse con el administrador",""+errorMessage,"error");               
-            });
+                    .catch(function (error) {
+          error401(error);
+          console.log(error);
+        })
+        .finally(() => {
+          me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
+        });
+
         },
 
         cambiarPestana(idPestana) {
@@ -523,6 +510,7 @@ changeRango(){
          switch (accion) {
                 case "registrar": {
                     me.tipoAccion = 1;
+                    me.isSubmitting=false;
                     if (me.selectTipo===1) {
                         me.tituloModal = "Registrar proveedor tipo persona"; 
                     } else {
@@ -539,7 +527,7 @@ changeRango(){
                 }
                 case "actualizar": {
                     me.tipoAccion = 2;
-                   
+                    me.isSubmitting=false;
                     if (me.selectTipo===1) {
                         me.tituloModal = "Registrar proveedor tipo persona"; 
                     } else {
@@ -572,6 +560,7 @@ changeRango(){
         cerrarModal(accion) {
             let me = this;
             if (accion == "registrar") {
+                me.isSubmitting=false;
                 me.classModal.closeModal(accion);
                 me.selected =null;
                 me.dato_1="";

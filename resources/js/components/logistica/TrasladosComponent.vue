@@ -334,31 +334,17 @@
                     </div>
                   
                     <div class="modal-footer">
-                        <button
-                            type="button"
-                            class="btn btn-secondary"
-                            @click="cerrarModal('registrar')"
-                        >
-                            Cerrar
-                        </button>
-                        <button
-                            type="button"
-                            v-if="tipoAccion == 1"
-                            class="btn btn-primary"
-                            @click="registrar()"
-                            
-                            :disabled="!sicompleto"
-                        >
-                            Guardar
-                        </button>
-                        <button
-                            type="button"
-                            v-if="tipoAccion == 2"
-                            class="btn btn-primary"
-                            @click="actualizar()"
-                        >
-                            Actualizar
-                        </button>
+                        <button type="button" class="btn btn-secondary" @click="cerrarModal('registrar')">Cerrar</button>
+                        <div  class="d-flex justify-content-start">
+                            <div  v-if="isSubmitting==false">
+                                <button type="button" v-if="tipoAccion == 1" class="btn btn-primary" @click="registrar()" :disabled="!sicompleto">Guardar</button>
+                                <button type="button" v-if="tipoAccion == 2" class="btn btn-primary" @click="actualizar()" :disabled="!sicompleto">Actualizar</button>
+                            </div>
+                            <div v-else>
+                                <button type="button" v-if="tipoAccion == 1" class="btn btn-light">Guardar</button>
+                                <button type="button" v-if="tipoAccion == 2" class="btn btn-light">Actualizar</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -452,6 +438,7 @@ export default {
                 to: 0,
             },
             offset:3,
+            isSubmitting: false, // Controla el estado del botón de envío
             tipoAccion:1,
             tituloModal: "",
             selectAlmTienda:0,
@@ -554,7 +541,7 @@ export default {
    
       //-----------------------------------permisos_R_W_S        
  listarPerimsoxyz() {
-                //console.log(this.codventana);
+            
     let me = this;        
     var url = '/gestion_permiso_editar_eliminar?win='+me.codventana;  
     axios.get(url)
@@ -703,8 +690,12 @@ export default {
                     "warning",
                 );
             } else {
-                axios
-                    .post("/traslado/registrar", {
+                
+      // Si ya está enviando, no permitas otra solicitud
+      if (me.isSubmitting) return;
+
+me.isSubmitting = true; // Deshabilita el botón
+                axios.post("/traslado/registrar", {
                         'id_traspaso': me.selectTraspaso,
                         'id_empleado': me.selectUsuario,
                         'id_vehiculo': me.selectVehiculo,
@@ -749,10 +740,9 @@ export default {
                 }).catch(function(error){
                     error401(error);
                     console.log(error);
-                });
-
-                
-
+                }) .finally(() => {
+          me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
+        });
             }
         }, 
         actualizar() {
@@ -883,7 +873,7 @@ export default {
          
         switch (accion) {
                 case "registrar": {
-                  
+                    me.isSubmitting=false;
                     me.tipoAccion = 1;
                     me.tituloModal = "Nombre de traspaso origen: "+me.razon_socialAlmTienda;
                    if(this.tipoEvento==1){
@@ -908,6 +898,7 @@ export default {
                 }
                 
                 case "actualizar": {
+                    me.isSubmitting=false;
                     me.tipoAccion = 2;
                     me.tituloModal = "Nombre de traspaso origen: "+me.razon_socialAlmTienda;
                     me.selectTraspaso=data.id_traslado === null ? 0:data.id_traslado ;
@@ -939,6 +930,7 @@ export default {
         },
         cerrarModal(accion) {
             let me = this;
+            me.isSubmitting=false;
             if (accion == "registrar") {
                 me.classModal.closeModal(accion);
                 me.tipoEvento=1;

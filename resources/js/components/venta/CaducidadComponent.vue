@@ -185,8 +185,9 @@ export default {
                 from: 0,
                 to: 0,
             },
-          
-            offset: 3,
+            offset:0,
+            isSubmitting: false, // Controla el estado del botón de envío
+       
             tituloModal: "",
             arrayPro:[],
             buscar:"",
@@ -263,7 +264,7 @@ export default {
 
         //-----------------------------------permisos_R_W_S        
 listarPerimsoxyz() {
-                //console.log(this.codventana);
+        
     let me = this;
         
     var url = '/gestion_permiso_editar_eliminar?win='+me.codventana;
@@ -300,9 +301,7 @@ listarPerimsoxyz() {
                 .then(function (response) {
                     var respuesta = response.data;
                     me.pagination = respuesta.pagination;
-                    me.arrayPro = respuesta.resultado.data;
-                    console.log(me.arrayPro);
-                 
+                    me.arrayPro = respuesta.resultado.data;                
                 })
                 .catch(function (error) {
                     error401(error);
@@ -318,8 +317,7 @@ listarPerimsoxyz() {
                 .get(url)
                 .then(function (response) {
                     var respuesta = response.data;
-                    me.arraySucursal = respuesta;
-                    console.log(me.arraySucursal);
+                    me.arraySucursal = respuesta;         
                 })
                 .catch(function (error) {
                     error401(error);
@@ -375,7 +373,7 @@ listarPerimsoxyz() {
         darDeBaja(id_pivote,cod_tda_alm,id_ingreso,id_tda_alm,stock_ingreso,id_producto,codigo,linea,nom_prod,leyenda){
             let me=this;
             let cadena="Elimancion, id ingreso "+id_ingreso+", codigo "+cod_tda_alm+", cantidad "+stock_ingreso ;
-            console.log(me.idmodulo+" "+me.codventana+" "+cadena);
+
                 const swalWithBootstrapButtons = Swal.mixin({
                 customClass: {
                     confirmButton: 'btn btn-success',
@@ -410,9 +408,7 @@ listarPerimsoxyz() {
                         id_modulo: me.idmodulo,
                                 id_sub_modulo:me.codventana, 
                                 des:cadena,  
-                    }).then(function (response) {
-                        console.log("-------------------------");
-                        console.log(response.data);
+                    }).then(function (response) {                   
                         me.listarIndex();
                         swalWithBootstrapButtons.fire(
                             'Desactivado!',
@@ -445,7 +441,7 @@ listarPerimsoxyz() {
            
          switch (accion) {
                 case "registrar": {
-                    console.log(data);
+           
                     me.tipoAccion = 1;
                     me.tituloModal = "Prioridad"; 
 

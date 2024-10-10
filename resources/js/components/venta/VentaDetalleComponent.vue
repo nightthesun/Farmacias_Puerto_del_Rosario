@@ -430,7 +430,7 @@ export default {
                 to: 0,
             },
           
-
+            offset:3,
             tituloModal: "",
             sucursalSeleccionada:0,
             arraySucursal:[],
@@ -1392,9 +1392,7 @@ listarDetalle_producto_x(id,tipo_per_emp) {
                 .then(function (response) {
                     var respuesta = response.data;
                     me.pagination = respuesta.pagination;
-                    me.arrayVentas = respuesta.ventas_show.data;
-                    
-                    console.log(me.arrayVentas);
+                    me.arrayVentas = respuesta.ventas_show.data;                    
                 })
                 .catch(function (error) {
                     error401(error);

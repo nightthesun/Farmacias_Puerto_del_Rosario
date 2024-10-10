@@ -523,29 +523,17 @@
                         </form>
                     </div>
                     <div class="modal-footer">
-                        <button
-                            type="button"
-                            class="btn btn-secondary"
-                            @click="cerrarModal('registrar')"
-                        >
-                            Cerrar
-                        </button>
-                        <button type="button"
-                            v-if="tipoAccion == 1"
-                            class="btn btn-primary"
-                            @click="registrorAjusteNegativo()"
-                            :disabled="!sicompleto"
-                        >
-                            Guardar
-                        </button>
-                        <button
-                            type="button"
-                            v-if="tipoAccion == 2"
-                            class="btn btn-primary"
-                            @click="actualizarAjusteNegativo()"
-                        >
-                            Actualizar
-                        </button>
+                        <button type="button" class="btn btn-secondary" @click="cerrarModal('registrar')">Cerrar</button>
+                        <div  class="d-flex justify-content-start">
+                            <div  v-if="isSubmitting==false">
+                                <button type="button" v-if="tipoAccion == 1" class="btn btn-primary" @click="registrorAjusteNegativo()" :disabled="!sicompleto">Guardar</button>
+                                <button type="button" v-if="tipoAccion == 2" class="btn btn-primary" @click="actualizarAjusteNegativo()" :disabled="!sicompleto">Actualizar</button>
+                            </div>
+                            <div v-else>
+                                <button type="button" v-if="tipoAccion == 1" class="btn btn-light">Guardar</button>
+                                <button type="button" v-if="tipoAccion == 2" class="btn btn-light">Actualizar</button>
+                            </div>
+                        </div>                     
                     </div>
                 </div>
             </div>
@@ -723,6 +711,7 @@ export default {
             buscar: "",
             idAjusteNegativos: 0,
             offset: 3,
+            isSubmitting: false, // Controla el estado del botón de envío
             tipoAccion: 1,
             id_sucursal: "",
             arraySucursal: [],
@@ -989,6 +978,7 @@ listarPerimsoxyz() {
     
             switch (accion) {
                 case "registrar": {
+                    me.isSubmitting=false;
                     me.tipoAccion = 1;
                     me.tituloModal = "Registro para Ajuste de negativos ";
                     me.ProductoLineaIngresoSeleccionado = 0;
@@ -1011,6 +1001,7 @@ listarPerimsoxyz() {
                     break;
                 }
                 case "actualizar": {
+                    me.isSubmitting=false;
                     me.leyenda = data.leyenda;
                     me.id_codigo = data.cod;
                     me.tipoAccion = 2;
@@ -1125,6 +1116,7 @@ listarPerimsoxyz() {
         cerrarModal(accion) {
             let me = this;
             if (accion == "registrar") {
+                me.isSubmitting=false;
                 me.classModal.closeModal(accion);
                 me.ProductoLineaIngresoSeleccionado = 0;
                 me.TiposSeleccionado = 0;
@@ -1167,8 +1159,11 @@ listarPerimsoxyz() {
                     "warning",
                 );
             } else {
-                axios
-                    .post("/ajustes-negativo/registrar", {
+                // Si ya está enviando, no permitas otra solicitud
+      if (me.isSubmitting) return;
+
+me.isSubmitting = true; // Deshabilita el botón
+                axios.post("/ajustes-negativo/registrar", {
                         id_tipo: me.TiposSeleccionado,
                         id_producto_linea: me.ProductoLineaIngresoSeleccionado,
                         codigo: me.codigo,
@@ -1219,7 +1214,9 @@ listarPerimsoxyz() {
                 }
 
                
-            });
+            })  .finally(() => {
+          me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
+        });
             }
         },
         actualizarAjusteNegativo() {
