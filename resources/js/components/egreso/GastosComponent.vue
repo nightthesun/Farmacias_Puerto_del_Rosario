@@ -619,11 +619,10 @@ export default {
 
         crear() {
       let me = this;
-
       // Si ya está enviando, no permitas otra solicitud
       if (me.isSubmitting) return;
-
       me.isSubmitting = true; // Deshabilita el botón
+      
       let requestData = {
         id_dis: me.selected.id,
         tipo_persona_empresa: me.selected.tipo_persona_empresa,

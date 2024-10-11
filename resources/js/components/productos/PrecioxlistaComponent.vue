@@ -211,7 +211,7 @@
                                 </div>
                             </div>
                             <div class="form-group row" v-if="selectEnvase != 0">
-                                {{ arrayProducto }}
+                           
                                 <label class="col-md-3 form-control-label" for="text-input">
                                     Producto:
                                     <span  v-if="selectProducto == 0" class="error">(*)</span>
@@ -219,13 +219,10 @@
                                 <div class="col-md-9 input-group mb-3 ">
                                     <select name="" id="" v-model="selectProducto" @change="listarLista()"  class="form-control">
                                         <option v-bind:value="0" disabled>-Seleccionar... </option>
-                                        <option
-                                          v-for="prod in arrayProducto"
-                                          :key="index"
-                                          v-bind:value="prod.id"
-                                          v-text="prod.prod_cod+' '+prod.leyenda+' C:'+prod.cantidad+' L:'+prod.lote"
-                                      ></option>
-                                       
+                                        <option v-for="(prod, index) in arrayProducto" :key="index" :value="prod.id">
+                                        {{ index }} - {{ prod.prod_cod }} {{ prod.leyenda }} C:{{ prod.cantidad }} L:{{ prod.lote }}
+                                    </option>
+                                   <!--     <option v-for="prod in arrayProducto" :key="prod.id" v-bind:value="prod.id" v-text="prod.prod_cod+' '+prod.leyenda+' C:'+prod.cantidad+' L:'+prod.lote"></option>  -->                                     
                                     </select>
                                     <button class="btn btn-primary" 
                                   v-if="tipoAccion== 1 || tipoAccion== 0"
@@ -403,7 +400,7 @@
                                 <button type="button" v-if="tipoAccion == 1" class="btn btn-light">Guardar</button>
                                 <button type="button" v-if="tipoAccion == 2" class="btn btn-light">Actualizar</button>
                             </div>
-                        </div>
+                    </div>
     
                    
                 </div>
@@ -725,6 +722,7 @@
                 .then(function (response) {
                     var respuesta = response.data;
                     me.arrayProducto = respuesta;
+            
                     if(me.tipoAccion==1){
                         me.selectProducto=0;
                     me.id_prod="";

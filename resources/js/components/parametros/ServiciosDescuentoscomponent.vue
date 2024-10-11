@@ -155,8 +155,16 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary"  @click="cerrarModal('registrar')">Cerrar</button>
-                        <button type="button" v-if="tipoAccion==1" class="btn btn-primary" @click="registrarDescuento()" :disabled="!sicompleto">Guardar</button>
-                        <button type="button" v-if="tipoAccion==2" class="btn btn-primary" @click="actualizarDescuento()">Actualizar</button>
+                        <div  class="d-flex justify-content-start">
+                            <div  v-if="isSubmitting==false">
+                                <button type="button" v-if="tipoAccion == 1" class="btn btn-primary" @click="registrarDescuento()" :disabled="!sicompleto">Guardar</button>
+                                <button type="button" v-if="tipoAccion == 2" class="btn btn-primary" @click="actualizarDescuento()">Actualizar</button>
+                            </div>
+                            <div v-else>
+                                <button type="button" v-if="tipoAccion == 1" class="btn btn-light">Guardar</button>
+                                <button type="button" v-if="tipoAccion == 2" class="btn btn-light">Actualizar</button>
+                            </div>
+                        </div>                      
                     </div>
                 </div>
                 <!-- /.modal-content -->
@@ -187,6 +195,7 @@ import Swal from 'sweetalert2'
                     'to':0
                 },
                 offset:3,
+                isSubmitting: false, // Controla el estado del botón de envío
                 nombre:'',
                 descripcion:'',
                 codigo:'',
@@ -300,6 +309,9 @@ import Swal from 'sweetalert2'
             },
             registrarDescuento(){
                 let me = this;
+                 // Si ya está enviando, no permitas otra solicitud
+      if (me.isSubmitting) return;
+      me.isSubmitting = true; // Deshabilita el botón
                 axios.post('/descuento/registrar',{
                     'nombre':me.nombre,
                     'descripcion':me.descripcion,
@@ -311,7 +323,9 @@ import Swal from 'sweetalert2'
                 }).catch(function(error){
                     error401(error);
                     console.log(error);
-                });
+                }).finally(() => {
+          me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
+        });
 
             },
             eliminarDescuento(iddescuento){
@@ -447,6 +461,7 @@ import Swal from 'sweetalert2'
                     case 'registrar':
                     {
                         me.tituloModal='Registar Descuento'
+                        me.isSubmitting=false;
                         me.tipoAccion=1;
                         me.nombre='';
                         me.descripcion='';
@@ -459,6 +474,7 @@ import Swal from 'sweetalert2'
                     case 'actualizar':
                     {
                         me.iddescuento=data.id;
+                        me.isSubmitting=false;
                         me.tipoAccion=2;
                         me.tituloModal='Actualizar Descuento'
                         me.nombre=data.nombre;
@@ -474,6 +490,7 @@ import Swal from 'sweetalert2'
             },
             cerrarModal(accion){
                 let me = this;
+                me.isSubmitting=false;
                 me.classModal.closeModal(accion);
                 me.nombre='';
                 me.descripcion='';

@@ -666,8 +666,16 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" @click="cerrarModal('registrar')">Cerrar</button>
-                        <button type="button" v-if="tipoAccion==1" class="btn btn-primary" @click="registrarProducto()" :disabled="!sicompleto">Guardar</button>
-                        <button type="button" v-if="tipoAccion==2" class="btn btn-primary" @click="actualizarProducto()" :disabled="!sicompleto">Actualizar</button>
+                        <div  class="d-flex justify-content-start">
+                            <div  v-if="isSubmitting==false">
+                                <button type="button" v-if="tipoAccion == 1" class="btn btn-primary" @click="registrarProducto()" :disabled="!sicompleto">Guardar</button>
+                                <button type="button" v-if="tipoAccion == 2" class="btn btn-primary" @click="actualizarProducto()" :disabled="!sicompleto">Actualizar</button>
+                            </div>
+                            <div v-else>
+                                <button type="button" v-if="tipoAccion == 1" class="btn btn-light">Guardar</button>
+                                <button type="button" v-if="tipoAccion == 2" class="btn btn-light">Actualizar</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <!-- /.modal-content -->
@@ -702,7 +710,7 @@ import QrcodeVue from 'qrcode.vue';
                     'to':0
                 },
                 offset:3,
-                
+                isSubmitting: false, // Controla el estado del botón de envío
                 arrayProducto:[],
                 tituloModal:'',
                 tipoAccion:1,
@@ -1196,6 +1204,9 @@ import QrcodeVue from 'qrcode.vue';
 
             registrarProducto(){
                 let me = this;
+                    // Si ya está enviando, no permitas otra solicitud
+      if (me.isSubmitting) return;
+      me.isSubmitting = true; // Deshabilita el botón
                 let formData = new FormData();
 
                 var formaUno=0;                
@@ -1271,7 +1282,9 @@ import QrcodeVue from 'qrcode.vue';
                 }).catch(function(error){
                     error401(error);
                     console.log(error);
-                });
+                }).finally(() => {
+          me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
+        });
                 }
 
             },
@@ -1443,6 +1456,7 @@ import QrcodeVue from 'qrcode.vue';
                     case 'registrar':
                     {
                         me.tipoAccion = 1;
+                        me.isSubmitting=false;
                         me.removeImage;
                         me.tituloModal='Registar Producto'
                         me.nombre = '';
@@ -1496,6 +1510,7 @@ import QrcodeVue from 'qrcode.vue';
                     case 'actualizar':
                     {
                         me.tipoAccion=2;
+                        me.isSubmitting=false;
                         if (data.id_venta!==null) {
                             me.validador_2=1;
                         } else {
@@ -1558,6 +1573,7 @@ import QrcodeVue from 'qrcode.vue';
 
             cerrarModal(accion){
                 let me = this;
+                me.isSubmitting=false;
                 me.classModal.closeModal(accion);
                 me.nombre='';
                 me.cantidad='';

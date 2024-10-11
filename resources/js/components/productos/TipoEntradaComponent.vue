@@ -120,8 +120,16 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary"  @click="cerrarModal('registrar')">Cerrar</button>
-                        <button type="button" v-if="tipoAccion==1" class="btn btn-primary" @click="registrarTipoEntrada()" :disabled="!sicompleto">Guardar</button>
-                        <button type="button" v-if="tipoAccion==2" class="btn btn-primary" @click="actualizarTipoEntrada()" :disabled="!sicompleto">Actualizar</button>
+                        <div  class="d-flex justify-content-start">
+                            <div  v-if="isSubmitting==false">
+                                <button type="button" v-if="tipoAccion == 1" class="btn btn-primary" @click="registrarTipoEntrada()" :disabled="!sicompleto">Guardar</button>
+                                <button type="button" v-if="tipoAccion == 2" class="btn btn-primary" @click="actualizarTipoEntrada()" :disabled="!sicompleto">Actualizar</button>
+                            </div>
+                            <div v-else>
+                                <button type="button" v-if="tipoAccion == 1" class="btn btn-light">Guardar</button>
+                                <button type="button" v-if="tipoAccion == 2" class="btn btn-light">Actualizar</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <!-- /.modal-content -->
@@ -151,6 +159,7 @@ import { error401 } from '../../errores';
                     'to':0
                 },
                 offset:3,
+                isSubmitting: false, // Controla el estado del botón de envío
                 idtipoentrada:0,
                 nombre:'',
                 arrayTipoEntrada:[],
@@ -289,6 +298,9 @@ import { error401 } from '../../errores';
 
             registrarTipoEntrada(){
                 let me = this;
+                // Si ya está enviando, no permitas otra solicitud
+      if (me.isSubmitting) return;
+      me.isSubmitting = true; // Deshabilita el botón
                 axios.post('/tipoentrada/registrar',{'nombre':me.nombre})
                 .then(function(response){
                     Swal.fire('Tipo de Entrada almacenado Exitosamente!')
@@ -297,7 +309,9 @@ import { error401 } from '../../errores';
                 }).catch(function(error){
                     error401(error);
                     console.log(error);
-                });
+                }) .finally(() => {
+          me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
+        });
 
             },
 
@@ -422,6 +436,7 @@ import { error401 } from '../../errores';
                     case 'registrar':
                     {
                         me.tipoAccion=1;
+                        me.isSubmitting=false;
                         me.tituloModal='Actualizar Nombre de Tipo de Entrada';
                         me.nombre='';
                         me.classModal.openModal('registrar');
@@ -431,6 +446,7 @@ import { error401 } from '../../errores';
                     case 'actualizar':
                     {
                         me.tipoAccion=2;
+                        me.isSubmitting=false;
                         me.tituloModal='Actualizar Nombre de Tipo de Entrada';
                         me.idtipoentrada=data.id;
                         me.nombre=data.nombre;
@@ -442,6 +458,7 @@ import { error401 } from '../../errores';
 
             cerrarModal(accion){
                 let me = this;
+                me.isSubmitting=false;
                 me.classModal.closeModal(accion);
                 me.nombre='';
             },

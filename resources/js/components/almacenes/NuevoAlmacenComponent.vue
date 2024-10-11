@@ -197,8 +197,16 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary"  @click="cerrarModal('registrar')">Cerrar</button>
-                        <button type="button" v-if="tipoAccion==1" class="btn btn-primary" @click="registrarAlmacen()" :disabled="!sicompleto">Guardar</button>
-                        <button type="button" v-if="tipoAccion==2" class="btn btn-primary" @click="actualizarAlmacen()">Actualizar</button>
+                        <div  class="d-flex justify-content-start">
+                            <div  v-if="isSubmitting==false">
+                                <button type="button" v-if="tipoAccion == 1" class="btn btn-primary" @click="registrarAlmacen()" :disabled="!sicompleto">Guardar</button>
+                                <button type="button" v-if="tipoAccion == 2" class="btn btn-primary" @click="actualizarAlmacen()">Actualizar</button>
+                            </div>
+                            <div v-else>
+                                <button type="button" v-if="tipoAccion == 1" class="btn btn-light">Guardar</button>
+                                <button type="button" v-if="tipoAccion == 2" class="btn btn-light">Actualizar</button>
+                            </div>
+                        </div>                   
                     </div>
                 </div>
                 <!-- /.modal-content -->
@@ -230,6 +238,7 @@ import { error401 } from '../../errores';
                     'to':0
                 },
                 offset:3,
+                isSubmitting: false, // Controla el estado del botón de envío
                 nombre:'',
                 tipo:0,
                 nit:'',
@@ -319,7 +328,7 @@ import { error401 } from '../../errores';
     axios.get(url)
         .then(function(response) {
             var respuesta = response.data;
-            console.log(respuesta);
+      
             if(respuesta=="root"){
             me.puedeEditar=1;
             me.puedeActivar=1;
@@ -407,6 +416,9 @@ import { error401 } from '../../errores';
             
             registrarAlmacen(){
                 let me = this;
+                // Si ya está enviando, no permitas otra solicitud
+      if (me.isSubmitting) return;
+      me.isSubmitting = true; // Deshabilita el botón
                 axios.post('/almacen/registrar',{
                     'idsucursal':me.sucursalSeleccionado,
                     'nombre_almacen':me.nombrealmacen,
@@ -428,7 +440,9 @@ import { error401 } from '../../errores';
                 }).catch(function(error){
                     error401(error);
                     console.log(error);
-                });
+                }).finally(() => {
+          me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
+        });
             },
 
             eliminarAlmacen(idalmacen){
@@ -552,6 +566,7 @@ import { error401 } from '../../errores';
                 switch(accion){
                     case 'registrar':
                     {
+                        me.isSubmitting=false;
                         me.tituloModal='Registar Nuevo Almacen'
                         me.tipoAccion=1;
                         me.tipo=0;
@@ -569,6 +584,7 @@ import { error401 } from '../../errores';
                     
                     case 'actualizar':
                     {
+                        me.isSubmitting=false;
                         me.sucursalSeleccionado=data.idsucursal===null?0:data.idsucursal;
                         me.tipoAccion=2;
                         me.tituloModal='Actualizar Datos del Almacen';
@@ -589,6 +605,7 @@ import { error401 } from '../../errores';
 
             cerrarModal(accion){
                 let me = this;
+                me.isSubmitting=false;
                 me.classModal.closeModal(accion);
                 me.tipoAccion=1;
                 me.tipo=0;

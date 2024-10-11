@@ -130,8 +130,16 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary"  @click="cerrarModal('registrar')">Cerrar</button>
-                        <button type="button" v-if="tipoAccion==1" class="btn btn-primary" @click="registrarArea()" :disabled="!sicompleto">Guardar</button>
-                        <button type="button" v-if="tipoAccion==2" class="btn btn-primary" @click="actualizarArea()">Actualizar</button>
+                        <div  class="d-flex justify-content-start">
+                            <div  v-if="isSubmitting==false">
+                                <button type="button" v-if="tipoAccion == 1" class="btn btn-primary" @click="registrarArea()" :disabled="!sicompleto">Guardar</button>
+                                <button type="button" v-if="tipoAccion == 2" class="btn btn-primary" @click="actualizarArea()">Actualizar</button>
+                            </div>
+                            <div v-else>
+                                <button type="button" v-if="tipoAccion == 1" class="btn btn-light">Guardar</button>
+                                <button type="button" v-if="tipoAccion == 2" class="btn btn-light">Actualizar</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <!-- /.modal-content -->
@@ -164,6 +172,7 @@ import { error401 } from '../../errores';
                     'to':0
                 },
                 offset:3,
+                isSubmitting: false, // Controla el estado del botón de envío
                 nombre:'',
                 descripcion:'',
                 codigo:'',
@@ -271,6 +280,9 @@ import { error401 } from '../../errores';
             },
             registrarArea(){
                 let me = this;
+                // Si ya está enviando, no permitas otra solicitud
+      if (me.isSubmitting) return;
+      me.isSubmitting = true; // Deshabilita el botón
                 if(me.correlativo=='')
                     me.correlativo=1;
                 else
@@ -290,7 +302,9 @@ import { error401 } from '../../errores';
                 }).catch(function(error){
                     error401(error);
                     console.log(error);
-                });
+                }).finally(() => {
+          me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
+        });
 
             },
             eliminarArea(idarea){
@@ -422,6 +436,7 @@ import { error401 } from '../../errores';
                 switch(accion){
                     case 'registrar':
                     {
+                        me.isSubmitting=false;
                         me.tituloModal='Registar Area'
                         me.tipoAccion=1;
                         me.nombre='';
@@ -432,6 +447,7 @@ import { error401 } from '../../errores';
                     
                     case 'actualizar':
                     {
+                        me.isSubmitting=false;
                         me.idarea=data.id;
                         me.tipoAccion=2;
                         me.tituloModal='Actualizar Area'
@@ -446,6 +462,7 @@ import { error401 } from '../../errores';
             },
             cerrarModal(accion){
                 let me = this;
+                me.isSubmitting=false;
                 me.classModal.closeModal(accion);
                 me.nombre='';
                 me.descripcion='';

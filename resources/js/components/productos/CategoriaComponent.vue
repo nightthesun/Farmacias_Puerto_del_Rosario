@@ -169,6 +169,7 @@ import { error401 } from '../../errores';
                     'to':0
                 },
                 offset:3,
+                isSubmitting: false, // Controla el estado del botón de envío
                 nombre:'',
                 arrayCategoria:[],
                 tituloModal:'',
@@ -296,6 +297,9 @@ import { error401 } from '../../errores';
 
             registrarCategoria(){
                 let me = this;
+                      // Si ya está enviando, no permitas otra solicitud
+      if (me.isSubmitting) return;
+      me.isSubmitting = true; // Deshabilita el botón
                 axios.post('/categoria/registrar',{
                     'idrubro':me.idrubrofiltro,
                     'nombre':me.nombre,
@@ -312,7 +316,9 @@ import { error401 } from '../../errores';
                 }).catch(function(error){
                     error401(error);
                     console.log(error);
-                });
+                }).finally(() => {
+          me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
+        });
             },
 
             eliminarCategoria(idcategoria){
@@ -447,6 +453,7 @@ import { error401 } from '../../errores';
                     {
                         me.tituloModal='Registar Categoria';
                         me.tipoAccion=1;
+                        me.isSubmitting=false;
                         me.idrubroselected=0;
                         me.nombre='';
                         me.classModal.openModal('registrar');
@@ -455,8 +462,7 @@ import { error401 } from '../../errores';
                     
                     case 'actualizar':
                     {
-                        console.log("Actualizar el resgistro");
-                        console.log(data);
+                        me.isSubmitting=false;
                         me.idcategoria=data.id;
                         me.tipoAccion=2;
                         me.tituloModal='Actualizar Categoria'
@@ -470,6 +476,7 @@ import { error401 } from '../../errores';
 
             cerrarModal(accion){
                 let me = this;
+                me.isSubmitting=false;
                 me.classModal.closeModal(accion);
                 me.idrubroselected=0;
                 me.nombre='';

@@ -428,30 +428,17 @@
                     </div>
                   
                     <div class="modal-footer">
-                        <button
-                            type="button"
-                            class="btn btn-secondary"
-                            @click="cerrarModal('registrar')"
-                        >
-                            Cerrar
-                        </button>
-                        <button
-                            type="button"
-                            v-if="tipoAccion == 1"
-                            class="btn btn-primary"
-                           @click="registrarDescuento()"
-                            :disabled="!sicompleto"
-                        >
-                            Guardar
-                        </button>
-                        <button
-                            type="button"
-                            v-if="tipoAccion == 2"
-                            class="btn btn-primary"
-                          @click="actualizar()"
-                        >
-                            Actualizar
-                        </button>
+                        <button type="button" class="btn btn-secondary" @click="cerrarModal('registrar')">Cerrar</button>
+                        <div  class="d-flex justify-content-start">
+                            <div  v-if="isSubmitting==false">
+                                <button type="button" v-if="tipoAccion == 1" class="btn btn-primary" @click="registrarDescuento()" :disabled="!sicompleto">Guardar</button>
+                                <button type="button" v-if="tipoAccion == 2" class="btn btn-primary" @click="actualizar()">Actualizar</button>
+                            </div>
+                            <div v-else>
+                                <button type="button" v-if="tipoAccion == 1" class="btn btn-light">Guardar</button>
+                                <button type="button" v-if="tipoAccion == 2" class="btn btn-light">Actualizar</button>
+                            </div>
+                        </div>                       
                     </div>
                 </div>
             </div>
@@ -718,6 +705,7 @@ export default {
             },
           
             offset:3,
+            isSubmitting: false, // Controla el estado del botón de envío
             tituloModal: "",
             selectAlmTienda:0,
             arrayAlmTienda:[],
@@ -966,7 +954,9 @@ if (valor == 5) {
 
   };
 }
-
+// Si ya está enviando, no permitas otra solicitud
+if (me.isSubmitting) return;
+      me.isSubmitting = true; // Deshabilita el botón
 axios.post('/descuento2/registrarDescuento', data)
     .then(function(response) {
         if (response.data.message=="La persona ya existe") {
@@ -1001,7 +991,9 @@ axios.post('/descuento2/registrarDescuento', data)
                     "error"
                 );  
                 }              
-            });
+            }).finally(() => {
+          me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
+        });
 
             }
         },
@@ -1585,6 +1577,7 @@ axios.put('/descuento2/actualizar', data)
          switch (accion) {
                 case "registrar": {
                     me.tipoAccion = 1;
+                    me.isSubmitting=false;
                     if(me.selectTabla==1){
                         me.tituloModal = "Registro de descuento normal";
                         me.nombre_Des="";
@@ -1639,6 +1632,7 @@ axios.put('/descuento2/actualizar', data)
                 case "actualizar": {
                     
                     me.tipoAccion = 2;
+                    me.isSubmitting=false;
                     me.id_index=data.id;
                     if(data.id_tipo_tabla==1||data.id_tipo_tabla==6){
                         me.nombre_Des=data.nombre_descuento;
@@ -1744,7 +1738,7 @@ axios.put('/descuento2/actualizar', data)
         },
         cerrarModal(accion) {
             let me = this;
-          
+            me.isSubmitting=false;
                 me.classModal.closeModal(accion);               
                     me.tituloModal = " ";                        
                     me.nombre_Des="";

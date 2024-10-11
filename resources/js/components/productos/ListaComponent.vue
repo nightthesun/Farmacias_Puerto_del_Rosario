@@ -151,8 +151,17 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary"  @click="cerrarModal('registrar')">Cerrar</button>
-                        <button type="button" v-if="tipoAccion==1" class="btn btn-primary" @click="registrarLista()" :disabled="!sicompleto">Guardar</button>
-                        <button type="button" v-if="tipoAccion==2" class="btn btn-primary" @click="actualizar()">Actualizar</button>
+                        <div  class="d-flex justify-content-start">
+                            <div  v-if="isSubmitting==false">
+                                <button type="button" v-if="tipoAccion == 1" class="btn btn-primary" @click="registrarLista()" :disabled="!sicompleto">Guardar</button>
+                                <button type="button" v-if="tipoAccion == 2" class="btn btn-primary" @click="actualizar()" :disabled="!sicompleto">Actualizar</button>
+                            </div>
+                            <div v-else>
+                                <button type="button" v-if="tipoAccion == 1" class="btn btn-light">Guardar</button>
+                                <button type="button" v-if="tipoAccion == 2" class="btn btn-light">Actualizar</button>
+                            </div>
+                        </div>
+                     
                     </div>
                 </div>
                 <!-- /.modal-content -->
@@ -184,6 +193,7 @@ import { error401 } from '../../errores';
                     'to':0
                 },
                 offset:3,
+                isSubmitting: false, // Controla el estado del botón de envío
                 buscar:'',
                 tituloModal:'',    
                 tipoAccion:1,          
@@ -310,7 +320,7 @@ import { error401 } from '../../errores';
                 .then(function (response) {
                     var respuesta = response.data;
                     me.arrayAlmTienda = respuesta;
-                   console.log(me.arrayAlmTienda); 
+             
                 })
                 .catch(function (error) {
                     error401(error);
@@ -320,6 +330,10 @@ import { error401 } from '../../errores';
         registrarLista(){
                 let me = this;
                 
+      // Si ya está enviando, no permitas otra solicitud
+      if (me.isSubmitting) return;
+
+me.isSubmitting = true; // Deshabilita el botón
                 axios.post('/lista/registrar',{
                     'codigo':me.codigo,
                     'lista_id_almacen_id_tienda':me.lista_id_almacen_id_tienda,
@@ -350,7 +364,9 @@ import { error401 } from '../../errores';
                     "error"
                 );  
                 }              
-            });
+            }).finally(() => {
+          me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
+        });
             },
 
            cambiarPagina(page){
@@ -463,6 +479,7 @@ import { error401 } from '../../errores';
                     {
                         me.tituloModal='Registar Nueva Lista'
                         me.tipoAccion=1;
+                        me.isSubmitting=false;
                         me.codigo_tda_alm="";
                         me.selectAlmTienda=0;
                         me.nombreLista='';
@@ -477,6 +494,7 @@ import { error401 } from '../../errores';
                     {
                    
                         me.tipoAccion=2;
+                        me.isSubmitting=false;
                         me.selectAlmTienda=data.codigo_tda_alm==null?0:data.codigo_tda_alm;
                         me.nombreLista=data.nombre_lista;
                         me.id_o=data.id;          
@@ -530,6 +548,7 @@ import { error401 } from '../../errores';
                 let me = this;
                 me.classModal.closeModal(accion);
                 me.tipoAccion=1;
+                me.isSubmitting=false;
                         me.tipo=0;
                         me.selectAlmTienda=0;
                         me.nombreLista='';

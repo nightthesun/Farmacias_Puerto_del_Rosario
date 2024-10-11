@@ -285,8 +285,16 @@
                  
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary"  @click="cerrarModal('registrar')">Cerrar</button>
-                        <button type="button" v-if="tipoAccion==1 " class="btn btn-primary" @click="registrarProductoEnAlmacen()" :disabled="!sicompleto">Guardar</button>
-                        <button type="button" v-if="tipoAccion==2" class="btn btn-primary" @click="actualizarProductoEnAlmacen()" :disabled="!sicompleto">Actualizar</button>
+                        <div  class="d-flex justify-content-start">
+                            <div  v-if="isSubmitting==false">
+                                <button type="button" v-if="tipoAccion == 1" class="btn btn-primary" @click="registrarProductoEnAlmacen()" :disabled="!sicompleto">Guardar</button>
+                                <button type="button" v-if="tipoAccion == 2" class="btn btn-primary" @click="actualizarProductoEnAlmacen()" :disabled="!sicompleto">Actualizar</button>
+                            </div>
+                            <div v-else>
+                                <button type="button" v-if="tipoAccion == 1" class="btn btn-light">Guardar</button>
+                                <button type="button" v-if="tipoAccion == 2" class="btn btn-light">Actualizar</button>
+                            </div>
+                        </div>                     
                   
                     </div>
                 </div>
@@ -320,6 +328,7 @@ export default {
                 to: 0,
             },          
             offset: 0,
+            isSubmitting: false, // Controla el estado del botón de envío
             tituloModal: "",
             selectAlmTienda:0,
             arrayAlmTienda:[],
@@ -541,15 +550,13 @@ tiene_movimiento(id_almacen,id_index,ingresoProducto){
                 
                 if (me.selectAlmTienda!=0) {
                     var url='/tienda/index?page='+page+'&buscar='+me.buscar+'&id_tienda='+me.selectAlmTienda;        
-                    console.log(url);       
+                        
                 axios.get(url)
                 .then(function(response){
                     var respuesta = response.data;
                     me.pagination = respuesta.pagination;
                     me.arrayIndex = respuesta.tienda.data;
-                    console.log("------------------");
-                    console.log(arrayIndex);
-                   
+                    
                 })
                 .catch(function(error){
                     error401(error);
@@ -574,6 +581,7 @@ tiene_movimiento(id_almacen,id_index,ingresoProducto){
          switch (accion) {
                 case "registrar": {
                     me.tipoAccion = 1;
+                    me.isSubmitting=false;
                     me.tituloModal = "Ingreso de productos a almacen";
                     me.selectEntrada=0;
                     me.lote='';
@@ -591,7 +599,7 @@ tiene_movimiento(id_almacen,id_index,ingresoProducto){
                     break;
                 }
                 case "actualizar": {
-                    console.log(data);
+                    me.isSubmitting=false;
                     me.tipoAccion = 2;            
                     me.tituloModal = "Ingreso de productos a almacen";
                    // Find the product with the matching id_prod_producto in arrayProductos
@@ -625,7 +633,7 @@ tiene_movimiento(id_almacen,id_index,ingresoProducto){
             let me = this;
             if (accion == "registrar") {
                 me.classModal.closeModal(accion);
-               
+                me.isSubmitting=false;
                     me.tituloModal = " ";
                     me.selectEntrada=0;
                     me.lote='';
@@ -652,7 +660,11 @@ tiene_movimiento(id_almacen,id_index,ingresoProducto){
         },
 
         registrarProductoEnAlmacen(){
-                let me = this;          
+                let me = this;   
+                // Si ya está enviando, no permitas otra solicitud
+      if (me.isSubmitting) return;
+      me.isSubmitting = true; // Deshabilita el botón
+       
                 axios.post('/tienda/ingreso-producto2/registrar',{
                     'id_prod_producto':me.selected.id,
                     'envase':me.selected.envase,
@@ -684,7 +696,9 @@ tiene_movimiento(id_almacen,id_index,ingresoProducto){
                     "error"
                 );  
                 }              
-            });
+            }).finally(() => {
+          me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
+        });
             },
 
             actualizarProductoEnAlmacen(){

@@ -344,20 +344,26 @@
                         </div>
                       </form>
                     </div>    
-                    <div class="modal-footer justify-content-between"> 
-                        <div>
-                            <small style="color:darkmagenta" v-if="!sicompleto">Debe Registrar los Datos Obligatorios{{ mensajeError }}</small>
-                            <small style="color:darkmagenta" v-if="mensajeError != ''">{{ mensajeError }}</small>
-                        </div>
-                        <div>
-                            <button type="button" class="btn btn-secondary rounded"  @click="cerrarModal('registrar')" style="margin-right: 20px;">Cerrar</button>
-                            <button type="button" v-if="tipoAccion==1" class="btn btn-primary rounded" @click="registrarempleado()" :disabled="!sicompleto && mensajeError == ''">Guardar</button>
-                            <!-- <button type="button" v-if="tipoAccion==1" class="btn btn-primary rounded" @click="registrarempleado()" >Guardar</button> -->
-                            <button type="button" v-if="tipoAccion==2" class="btn btn-primary rounded" @click="actualizarempleado()" :disabled="!sicompleto">Actualizar</button>
-                        </div>
-                        
-                        
-                    </div>
+                    <div class="modal-footer d-flex justify-content-between align-items-center">
+    <div>
+        <small style="color:darkmagenta" v-if="!sicompleto">Debe Registrar los Datos Obligatorios{{ mensajeError }}</small>
+        <small style="color:darkmagenta" v-if="mensajeError != ''">{{ mensajeError }}</small>
+    </div>
+    <div class="d-flex">
+        <button type="button" class="btn btn-secondary rounded" @click="cerrarModal('registrar')" style="margin-right: 20px;">Cerrar</button>
+        
+        <div class="d-flex justify-content-start">
+            <div v-if="isSubmitting == false">
+                <button type="button" v-if="tipoAccion == 1" class="btn btn-primary" @click="registrarempleado()" :disabled="!sicompleto && mensajeError == ''">Guardar</button>
+                <button type="button" v-if="tipoAccion == 2" class="btn btn-primary" @click="actualizarempleado()" :disabled="!sicompleto">Actualizar</button>
+            </div>
+            <div v-else>
+                <button type="button" v-if="tipoAccion == 1" class="btn btn-light">Guardar</button>
+                <button type="button" v-if="tipoAccion == 2" class="btn btn-light">Actualizar</button>
+            </div>
+        </div>
+    </div>
+</div>
                 </div>
                 <!-- /.modal-content -->
             </div>
@@ -458,6 +464,7 @@ import { error401 } from '../../errores';
                     'to':0
                 },
                 offset:3,
+                isSubmitting: false, // Controla el estado del botón de envío
                 nombre:'',
                 descripcion:'',
                 arrayEmpleados:[],
@@ -567,7 +574,7 @@ import { error401 } from '../../errores';
     axios.get(url)
         .then(function(response) {
             var respuesta = response.data;
-            console.log(respuesta);
+   
             if(respuesta=="root"){
             me.puedeEditar=1;
             me.puedeActivar=1;
@@ -644,7 +651,9 @@ import { error401 } from '../../errores';
             },
             registrarempleado(){
                 let me = this;
-                
+                 // Si ya está enviando, no permitas otra solicitud
+      if (me.isSubmitting) return;
+      me.isSubmitting = true; // Deshabilita el botón
                 let formData = new FormData();
                 
                 formData.append('nombre',me.nombre);
@@ -687,7 +696,9 @@ import { error401 } from '../../errores';
                         me.mensajeError="El CI del Empleado ya registrardo";
                     }
                     console.log(error);
-                });
+                }).finally(() => {
+          me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
+        });
 
             },
             eliminarempleado(idempleado){
@@ -876,7 +887,7 @@ import { error401 } from '../../errores';
                 let me=this;
                 switch(accion){
                     case 'registrar':
-                    {
+                    {me.isSubmitting=false;
                         if(data[0]==1)
                             me.classModal.openModal('registrar');
                         if(data[0]==2)
@@ -920,6 +931,7 @@ import { error401 } from '../../errores';
                     
                     case 'actualizar':
                     {
+                        me.isSubmitting=false;
                         me.idempleado=data.id;
                         me.tipoAccion=2;
                         me.tituloModal='Actualizar empleado';
@@ -1026,6 +1038,7 @@ import { error401 } from '../../errores';
 
             cerrarModal(accion){
                 let me = this;
+                me.isSubmitting=false;
                 if(accion=='regmodal'){
                     me.classModal.closeModal(accion);
                     //me.bancoselected=0;
