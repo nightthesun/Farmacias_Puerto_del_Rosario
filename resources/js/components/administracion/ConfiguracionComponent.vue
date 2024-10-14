@@ -321,8 +321,9 @@
                <div class="col-md-5">
                     <input type="text" v-model="banco_nombre" class="form-control" placeholder="Escriba el nombre del banco"/>                  
                 </div>
-                <div class="col-md-2">
-                    <button type="button" class="btn btn-outline-secondary" @click="crearBanco()">Añadir</button>
+                <div class="col-md-2">                   
+                    <button type="button" v-if="isSubmitting_2==false" class="btn btn-outline-primary" @click="crearBanco()">Añadir</button>
+                    <button type="button" v-else class="btn btn-outline-light">Añadir</button>
                 </div>                    
           </div> 
           <div v-else class="form-group row">
@@ -570,8 +571,17 @@
               
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary rounded"  @click="cerrarModal('regcuenta')">Cerrar</button>
-                        <button v-if="tipoAccion===1" @click="crearCuenta()" type="button" class="btn btn-primary rounded">Guardar</button>
-                        <button v-else type="button" @click="editarCuenta()" class="btn btn-primary rounded">Actualizar</button>                         
+                        <div  class="d-flex justify-content-start">
+                            <div  v-if="isSubmitting==false">
+                                <button v-if="tipoAccion===1" @click="crearCuenta()" type="button" class="btn btn-primary rounded">Guardar</button>
+                                <button v-else type="button" @click="editarCuenta()" class="btn btn-primary rounded">Actualizar</button>
+                            </div>
+                            <div v-else>
+                                <button type="button" v-if="tipoAccion == 1" class="btn btn-light">Guardar</button>
+                                <button type="button" v-else class="btn btn-light">Actualizar</button>
+                            </div>
+                        </div>
+                                             
                     </div>
                 </div>
                 <!-- /.modal-content -->
@@ -602,6 +612,7 @@ export default {
             puerto:'',
             usuario:'',
             contraseña:'',
+            isSubmitting_2: false, // Controla el estado del botón de envío
             ssl:0, 
             credenciales_correo:[],
             nit:'',
@@ -642,6 +653,9 @@ puedeEditar:2,
 
                 limite_monto:0,
                 limite_horas:0,  
+
+                isSubmitting: false, // Controla el estado del botón de envío
+                isSubmitting_2:false,
 
         };
     },
@@ -1194,6 +1208,9 @@ puedeEditar:2,
                     "error"
                 );
             } else {
+                  // Si ya está enviando, no permitas otra solicitud
+      if (me.isSubmitting) return;
+      me.isSubmitting = true; // Deshabilita el botón
                 axios.post("/cuenta/crear_cuenta", {
                     id_banco: me.selectBanco_cuenta,   
                     nombre: me.nom_cuenta,   
@@ -1218,7 +1235,9 @@ puedeEditar:2,
                     "Error",
                     ""+error.response.data, // Muestra el mensaje de error en el alert
                     "error" );                
-            });
+            }).finally(() => {
+          me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
+        });
             }
         },
 
@@ -1374,12 +1393,16 @@ puedeEditar:2,
                     "error"
                 );
             } else {
+                 // Si ya está enviando, no permitas otra solicitud
+      if (me.isSubmitting_2) return;
+      me.isSubmitting_2 = true; // Deshabilita el botón
                 axios.post("/credenciales_correo/crear_banco", {
                     nombre: me.banco_nombre,                 
                 })
                 .then(function (response) {
                     me.listarBanco(); 
                     me.banco_nombre=""; 
+                    me.isSubmitting_2=false;
                     Swal.fire(
                         "Registro creado!",
                         "Correctamente",
@@ -1391,8 +1414,11 @@ puedeEditar:2,
                     "Error",
                     ""+error.response.data, // Muestra el mensaje de error en el alert
                     "error" );                
-            });
+            }).finally(() => {
+          me.isSubmitting_2 = false; // Habilita el botón nuevamente al finalizar
+        });
             }
+
          },
 
          editarBanco(){
@@ -1573,7 +1599,8 @@ puedeEditar:2,
                 }  
                 case "regcuenta": {
                     me.tipoAccion = 1;
-                  console.log(me.tipoAccion+"---");
+                    me.isSubmitting=false;
+   
                     me.titular_cuenta="";
                     me.num_cuenta="";
                     me.nom_cuenta="";
@@ -1583,7 +1610,7 @@ puedeEditar:2,
                 }
                 case "regcuenta_edit":{
                     me.tipoAccion = 2;
-                    console.log(data);
+                    me.isSubmitting=false;                  
                     me.id_cuenta=data.id;
                     me.selectBanco_cuenta=data.id_banco=== null ? 0 :data.id_banco;
                     me.nom_cuenta=data.nombre_cuenta;
@@ -1605,6 +1632,7 @@ puedeEditar:2,
             }
             if (accion == "regcuenta") {
                 me.tipoAccion=1;
+                me.isSubmitting=false;
                 me.tituloModal="";
                 me.titular_cuenta="";
                 me.num_cuenta="";

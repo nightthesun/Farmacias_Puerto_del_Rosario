@@ -154,17 +154,18 @@
                             <span aria-hidden="true">×</span>
                         </button>
                     </div>
-                   
+                  
+
                     <div class="modal-body" v-if="arrayEmpleado.length > 0 || tipoAccion == 2">
                         <form action=""  class="form-horizontal">
                             <div class="form-group row">
                                 <label class="col-md-3 form-control-label" for="text-input">Empleado: <span  v-if="idempleado==0" class="error">(*)</span></label>
                                 <div class="col-md-9" v-if="!siactualizar">
-                                    <select name="" id="" v-model="idempleado" class="form-control">
+                                    <select  v-model="idempleado" class="form-control">
                                         <option value="0" disabled>Seleccionar...</option>
                                         <option v-for="empleados in arrayEmpleado" :key="empleados.id" v-text="empleados.nomempleado" :value="empleados.id" ></option>
                                     </select>
-                                    <span  v-if="empleado==0" class="error">(*)</span>
+                                    <span  v-if="idempleado==0 " class="error">Debe seleccionar una opcion</span>
                                 </div>
                                 <div class="col-md-9" v-else>
                                     <strong>{{ nameempleado }}</strong>                                    
@@ -177,8 +178,30 @@
                                     <span  v-if="email==''" class="error">Debe Ingresar el email</span>
                                 </div>
                             </div>
-                            <div>
-
+                            <div v-if="tipoAccion == 2">
+                              
+                                <table class="table table-bordered table-striped table-sm table-responsive">
+                        <thead>
+                            <tr>
+                                <th class="col-md-5" style="font-size: 11px; text-align: center">Empelado</th>
+                                <th class="col-md-7" style="font-size: 11px; text-align: center">Rol/sucursal</th>                          
+                            </tr>
+                        </thead>
+                        <tbody>
+                
+                            <tr>
+                                <td class="col-md-5" style="font-size: 11px; text-align: center">{{nombre}}</td>
+                    
+                                    <td class="col-md-7" style="font-size: 11px; text-align: center">
+                                        <div v-for="(item, index) in arrayModal_2" :key="item.id">
+                                            <span>{{ item.rolsucursal }}</span>
+                                        </div>
+                                        
+                                    </td>
+                                              
+                            </tr>
+                        </tbody>
+                     </table> 
                             </div>
 
                             <div v-if="siactualizar" >
@@ -198,17 +221,19 @@
                             <div class="form-group row" v-if="!siactualizar">
                                 <label class="col-md-2 form-control-label" for="text-input">Seleccionar Rol: <span  v-if="rol==0" class="error">(*)</span></label>
                                 <div class="col-md-4">
-                                    <select name="" id="" v-model="rol" class="form-control">
+                                    <select  v-model="rol" class="form-control">
                                         <option value="0" disabled>Seleccionar...</option>
                                         <option v-for="roles in arrayRoles" :key="roles.id" :value="roles.id" v-text="roles.nombre" ></option>
                                     </select>
+                                    <span  v-if="rol==0 " class="error">Debe seleccionar una opcion</span>
                                 </div>
                                 <label class="col-md-2 form-control-label" for="text-input">Seleccionar Sucursal <span  v-if="sucursal==0" class="error">(*)</span></label>
                                 <div class="col-md-4">
-                                    <select name="" id="" v-model="sucursal" class="form-control">
+                                    <select v-model="sucursal" class="form-control">
                                         <option value="0" disabled>Seleccionar...</option>
                                         <option v-for="sucur in arraySucursal" :key="sucur.id" :value="sucur.id" v-text="sucur.nombre" ></option>
                                     </select>
+                                    <span  v-if="sucursal==0" class="error">Debe seleccionar una opcion</span>
                                 </div>
                             </div>
                             
@@ -216,6 +241,7 @@
                         </form>
                     </div>
                     <div class="modal-body" v-else>
+                          
                         <div class="alert alert-primary d-flex align-items-center" role="alert">
                             <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Info:"><use xlink:href="#info-fill"/></svg>
                             <div><i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
@@ -225,8 +251,16 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary"  @click="cerrarModal('registrar')">Cerrar</button>
-                        <button type="button" v-if="tipoAccion==1 && arrayEmpleado.length > 0 " class="btn btn-primary" @click="registrarUsuario()" :disabled="!sicompleto">Guardar</button>
-                        <button type="button" v-if="tipoAccion==2" class="btn btn-primary" @click="actualizarUsuario()">Actualizar</button>
+                        <div  class="d-flex justify-content-start">
+                            <div  v-if="isSubmitting==false">
+                                <button type="button" v-if="tipoAccion==1 && arrayEmpleado.length > 0 " class="btn btn-primary" @click="registrarUsuario()" :disabled="!sicompleto">Guardar</button>
+                                <button type="button" v-if="tipoAccion==2" class="btn btn-primary" @click="actualizarUsuario()">Actualizar</button>
+                            </div>
+                            <div v-else>
+                                <button type="button" v-if="tipoAccion == 1 && arrayEmpleado.length > 0 " class="btn btn-light">Guardar</button>
+                                <button type="button" v-if="tipoAccion == 2" class="btn btn-light">Actualizar</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <!-- /.modal-content -->
@@ -531,6 +565,7 @@ import { error401 } from '../../errores';
                     'to':0
                 },
                 offset:3,
+                isSubmitting: false, // Controla el estado del botón de envío
                 idempleado:0,
                 email:'',
                 arrayUsuarios:[],
@@ -549,7 +584,7 @@ import { error401 } from '../../errores';
                 arrayRoles:[],
                 arrayRolSucursal:[],
                 idrolsuc:'',
-
+                nombre:"",
                 id_sucursal:0,
                 //añadir permisos de editar y activar
                 arrayPermisoEditar_Activar:[],
@@ -567,6 +602,7 @@ import { error401 } from '../../errores';
                 //boton roles y sucursales
                 arrayRoles_Perimos:[],
 
+           
 
                 //---permisos_R_W_S
                 puedeEditar:2,
@@ -575,6 +611,7 @@ import { error401 } from '../../errores';
                 puedeCrear:2,
                 //-----------
                 
+                arrayModal_2:[],
             }
 
         },
@@ -599,7 +636,7 @@ import { error401 } from '../../errores';
             
             sicompleto(){
                 let me=this;
-                if (me.nombre!='' )
+                if (me.idempleado!=0 && me.email !="" && me.rol !=0 && me.sucursal!=0)
                     return true;
                 else
                     return false;
@@ -641,7 +678,7 @@ import { error401 } from '../../errores';
     axios.get(url)
         .then(function(response) {
             var respuesta = response.data;
-            console.log(respuesta);
+
             if(respuesta=="root"){
             me.puedeEditar=1;
             me.puedeActivar=1;
@@ -667,8 +704,7 @@ import { error401 } from '../../errores';
                 axios.get(url)
                 .then(function (response){
                     var respuesta=response.data;
-                    me.arrayRoles_Perimos = respuesta;
-                    console.log(me.arrayRoles_Perimos);
+                    me.arrayRoles_Perimos = respuesta;       
                 })
                 .catch(function (error) {
                     error401(error);
@@ -921,30 +957,55 @@ allKeys.forEach(key => {
                     console.log(error);
                 });
             },
+
             cambiarPagina(page){
                 let me =this;
                 me.pagination.current_page = page;
                 me.listarUsuarios(page);
             },
+
             registrarUsuario(){
-                let me = this;                
-                let resp=me.arrayEmpleado.find(element=>element.id==me.idempleado);
+                let me = this;   
+                if (me.password===null || me.password==="") {
+                    Swal.fire(
+                    "Error",
+                    "La contraseña esta vacia",
+                    "error");
+                } else {
+                    let resp=me.arrayEmpleado.find(element=>element.id==me.idempleado);
 
-                axios.post('/registro',{
-                    'name':resp.name,
-                    'idempleado':me.idempleado,
-                    'email':me.email,
-                    'password':me.password,
-                    'idrole':me.rol,
-                    'idsucursal':me.sucursal
-                }).then(function(response){
-                    me.cerrarModal('registrar');
-                    me.listarUsuarios();
-                }).catch(function(error){
-                    error401(error);
-                    console.log(error);
-                });
+// Si ya está enviando, no permitas otra solicitud
+if (me.isSubmitting) return;
+me.isSubmitting = true; // Deshabilita el botón
 
+axios.post('/registro',{
+   'name':resp.name,
+   'idempleado':me.idempleado,
+   'email':me.email,
+   'password':me.password,
+   'idrole':me.rol,
+   'idsucursal':me.sucursal
+}).then(function(response){
+   me.cerrarModal('registrar');
+   me.listarUsuarios();
+   if(response.data.length){
+                      
+                        Swal.fire(
+                    "Error",
+                    "Correo duplicado",
+                    "error");
+                     
+                    }else{
+                        Swal.fire("Se creo","Correctamente","success");
+                    }
+
+}).catch(function(error){
+   error401(error);
+   console.log(error);
+}).finally(() => {
+me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
+});
+                }
             },
 
             eliminarRolSuc(idrolsuc){
@@ -1150,38 +1211,50 @@ allKeys.forEach(key => {
                 }
                 })
             },
+
             actualizarUsuario(){
                // const Swal = require('sweetalert2')
                 let me =this;
-                                
-                axios.put('/usuario/actualizar',{
+           
+                if ((me.password===null || me.password==="")&& me.cambiarpass===true  ) {
+                    Swal.fire(
+                    "Error",
+                    "La contraseña esta vacia",
+                    "error");
+                } else {
+                    axios.put('/usuario/actualizar',{
                     'id':me.idusuario,
                     'cambiarpass':me.cambiarpass,
                     'email':me.email,
                     'password':me.password
                     
-                }).then(function (response) {
+                }).then(function (response) {         
+            
                     if(response.data.length){
-                    }
-      
-                    else{
-                            Swal.fire('Actualizado Correctamente')
-
                         me.listarUsuarios();
+                        Swal.fire(
+                    "Error",
+                    "Correo duplicado",
+                    "error");
+                     
+                    }else{
+                            Swal.fire('Actualizado Correctamente')                            
+                            me.listarUsuarios();
                     } 
                 }).catch(function (error) {
                     error401(error);
                 });
                 me.cerrarModal('registrar');
-
-
+                }  
             },
+
             abrirModal(accion,data= []){
                 let me=this;
                 switch(accion){
                     case 'registrar':
                     {
                         me.siactualizar=0;
+                        me.isSubmitting=false;
                         me.tituloModal='Registar Usuario'
                         me.tipoAccion=1;
                         me.nombre='';
@@ -1190,7 +1263,7 @@ allKeys.forEach(key => {
                         me.password='';
                         me.rol=0;
                         me.sucursal=0;
-                        
+                        me.cambiarpass=false;
                         me.classModal.openModal('registrar');
                         this.selectEmpleados();
                         break;
@@ -1198,7 +1271,10 @@ allKeys.forEach(key => {
                     
                     case 'actualizar':
                     {
+          
+                        me.cambiarpass=false;
                         me.siactualizar=1;
+                        me.isSubmitting=false;
                         me.idusuario=data.id;
                         me.nameempleado=data.name;
                         me.tipoAccion=2;
@@ -1206,9 +1282,10 @@ allKeys.forEach(key => {
                         me.nombre=data.nombre;
                         me.email=data.email;
                         me.password='';
-                        me.rol=0;
-                        me.sucursal=0;
-                       
+                        me.rol=999;
+                        me.sucursal=999;
+                        me.idempleado=999;
+                        me.arrayModal_2=data.rolsucursal;
                         //me.rol=data.rolsucursal[0].idrole;
                         //me.sucursal=data.rolsucursal[0].idsucursal;
                    
@@ -1293,6 +1370,7 @@ allKeys.forEach(key => {
             },
             cerrarModal(accion){
                 let me = this;
+                me.isSubmitting=false;
                 me.classModal.closeModal(accion);
                 me.nombre='';
                 me.email='';
@@ -1300,6 +1378,8 @@ allKeys.forEach(key => {
                 me.password=true;
                 me.siactualizar=0;
                 me.tituloModal='';
+                me.cambiarpass=false;
+                        me.idempleado=0;
                 me.rol=0;
                 me.sucursal=0;
                 me.permiso_Editar=0;                
@@ -1311,6 +1391,7 @@ allKeys.forEach(key => {
                 me.arrayFalso=[];
                 me.selectAlmTda2=[];
                 me.arrayMasSucursales=[];
+                me.arrayModal_2=[];
                 
             },
             selectAll: function (event) {

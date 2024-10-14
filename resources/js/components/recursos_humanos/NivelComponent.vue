@@ -224,7 +224,6 @@ import { error401 } from '../../errores';
         methods :{
                 //-----------------------------------permisos_R_W_S        
     listarPerimsoxyz() {
-                //console.log(this.codventana);
     let me = this;        
     var url = '/gestion_permiso_editar_eliminar?win='+me.codventana;
       axios.get(url)
@@ -290,7 +289,6 @@ import { error401 } from '../../errores';
             },
             eliminarNivelFormacion(idnivelformacion){
                 let me=this;
-                //console.log("prueba");
                 const swalWithBootstrapButtons = Swal.mixin({
                 customClass: {
                     confirmButton: 'btn btn-success',
@@ -340,7 +338,6 @@ import { error401 } from '../../errores';
             },
             activarNivelFormacion(idnivelformacion){
                 let me=this;
-                //console.log("prueba");
                 const swalWithBootstrapButtons = Swal.mixin({
                 customClass: {
                     confirmButton: 'btn btn-success',
@@ -398,7 +395,6 @@ import { error401 } from '../../errores';
                 }).then(function (response) {
                     if(response.data.length){
                     }
-                    // console.log(response)
                     else{
                             Swal.fire('Actualizado Correctamente')
 

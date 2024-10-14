@@ -38,34 +38,38 @@ class AdmRegistroController extends Controller
      */
     public function store(Request $request)
     {
-        $this->validate(request(),[
-            'name'=>'required',
-            'idempleado'=>'required',
-            'email'=>'required|email',
-            'password'=>'required',
-        ]);
-        
-        /* $user =new User();
-        $user->idempleado=$request->idempleado;
-        $user->email=$request->email;
-        $user->password=bcrypt($request->password);
-        $user->save(); */
-        
-        $user =User::create(request(['name','idempleado','email','password']));
-        
-        DB::table('users')->where('id',$user->id)->update(['id_usuario_registra'=>auth()->user()->id]);
-
-        $userrolesuc= new Adm_UserRoleSucursal();
-
-        $userrolesuc->idrole=$request->idrole;
-        $userrolesuc->iduser=$user->id;
-        $userrolesuc->idsucursal=$request->idsucursal;
-        $userrolesuc->id_usuario_registra=auth()->user()->id;
-        $userrolesuc->save();
-
-
-        //auth()->login($user);
-        //return redirect()->to('/');
+        try {
+            $this->validate(request(),[
+                'name'=>'required',
+                'idempleado'=>'required',
+                'email'=>'required|email',
+                'password'=>'required',
+            ]);
+            
+            /* $user =new User();
+            $user->idempleado=$request->idempleado;
+            $user->email=$request->email;
+            $user->password=bcrypt($request->password);
+            $user->save(); */
+            
+            $user =User::create(request(['name','idempleado','email','password']));
+            
+            DB::table('users')->where('id',$user->id)->update(['id_usuario_registra'=>auth()->user()->id]);
+    
+            $userrolesuc= new Adm_UserRoleSucursal();
+    
+            $userrolesuc->idrole=$request->idrole;
+            $userrolesuc->iduser=$user->id;
+            $userrolesuc->idsucursal=$request->idsucursal;
+            $userrolesuc->id_usuario_registra=auth()->user()->id;
+            $userrolesuc->save();
+    
+    
+            //auth()->login($user);
+            //return redirect()->to('/');
+        } catch (\Throwable $th) {
+            return $th;
+        }        
     }
 
     /**

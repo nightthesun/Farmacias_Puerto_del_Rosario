@@ -231,8 +231,17 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary"  @click="cerrarModal('registrar')">Cerrar</button>
-                        <button type="button" v-if="tipoAccion==1" class="btn btn-primary" @click="registrarSucursal()" :disabled="!sicompleto">Guardar</button>
-                        <button type="button" v-if="tipoAccion==2" class="btn btn-primary" @click="actualizarSucursal()">Actualizar</button>
+                        <div  class="d-flex justify-content-start">
+                            <div  v-if="isSubmitting==false">
+                                <button type="button" v-if="tipoAccion == 1" class="btn btn-primary" @click="registrarSucursal()" :disabled="!sicompleto">Guardar</button>
+                                <button type="button" v-if="tipoAccion == 2" class="btn btn-primary" @click="actualizarSucursal()">Actualizar</button>
+                            </div>
+                            <div v-else>
+                                <button type="button" v-if="tipoAccion == 1" class="btn btn-light">Guardar</button>
+                                <button type="button" v-if="tipoAccion == 2" class="btn btn-light">Actualizar</button>
+                            </div>
+                        </div>
+                      
                     </div>  
                 </div>
                 <!-- /.modal-content -->
@@ -412,6 +421,7 @@ import { error401 } from '../../errores';
                     'to':0
                 },
                 offset:3,
+                isSubmitting: false, // Controla el estado del botón de envío
                 nombre:'',
                 tipo:0,
                 nit:'',
@@ -530,7 +540,7 @@ import { error401 } from '../../errores';
             // },
             //-----------------------------------permisos_R_W_S        
     listarPerimsoxyz() {
-                //console.log(this.codventana);
+            
     let me = this;
    
         
@@ -538,8 +548,7 @@ import { error401 } from '../../errores';
   
     axios.get(url)
         .then(function(response) {
-            var respuesta = response.data;
-            console.log(respuesta);
+            var respuesta = response.data;        
             if(respuesta=="root"){
             me.puedeEditar=1;
             me.puedeActivar=1;
@@ -687,13 +696,18 @@ import { error401 } from '../../errores';
                     error401(error);
                 });
             },
+
             cambiarPagina(page){
                 let me =this;
                 me.pagination.current_page = page;
                 me.listarSucursales(page);
             },
+
             registrarSucursal(){
                 let me = this;
+                // Si ya está enviando, no permitas otra solicitud
+      if (me.isSubmitting) return;
+      me.isSubmitting = true; // Deshabilita el botón
                 me.controlEnvio = 0;
                 axios.post('/sucursal/registrar',{
                     'idrubro':me.idrubro,
@@ -713,7 +727,9 @@ import { error401 } from '../../errores';
                     error401(error);
                     console.log(error);
                     me.controlEnvio=1;
-                });
+                }).finally(() => {
+          me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
+        });
 
             },
             eliminarSucursal(idsucursal){
@@ -857,7 +873,7 @@ import { error401 } from '../../errores';
                 switch(accion){
                     case 'registrar':
                     {
-                       
+                        me.isSubmitting=false;
                         me.tituloModal='Registar Sucursal'
                         me.tipoAccion=1;
                         me.tipo=0;
@@ -875,12 +891,13 @@ import { error401 } from '../../errores';
                     
                     case 'actualizar':
                     {
-                        console.log(data);
+                     
                       if (data.max_id_sucursal===null) {
                         me.activador_2=0;
                       } else {
                         me.activador_2=1;
                       }
+                      me.isSubmitting=false;
                         me.idsucursal=data.id;
                         me.tipoAccion=2;
                         me.tituloModal='Actualizar Sucursal'
@@ -913,6 +930,7 @@ import { error401 } from '../../errores';
             },
             cerrarModal(accion){
                 let me = this;
+                me.isSubmitting=false;
                 me.classModal.closeModal(accion);
                 me.tipoAccion=1;
                 me.tipo=0;

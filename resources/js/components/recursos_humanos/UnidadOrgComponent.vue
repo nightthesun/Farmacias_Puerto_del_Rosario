@@ -243,7 +243,7 @@ import { error401 } from '../../errores';
     axios.get(url)
         .then(function(response) {
             var respuesta = response.data;
-            console.log(respuesta);
+    
             if(respuesta=="root"){
             me.puedeEditar=1;
             me.puedeActivar=1;

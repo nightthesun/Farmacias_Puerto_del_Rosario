@@ -239,17 +239,14 @@ import {error401} from '../../errores.js';
         },
         methods :{
              //-----------------------------------permisos_R_W_S        
-    listarPerimsoxyz() {
-                //console.log(this.codventana);
-    let me = this;
-   
+    listarPerimsoxyz() {     
+    let me = this;   
         
     var url = '/gestion_permiso_editar_eliminar?win='+me.codventana;
   
     axios.get(url)
         .then(function(response) {
-            var respuesta = response.data;
-            console.log(respuesta);
+            var respuesta = response.data;           
             if(respuesta=="root"){
             me.puedeEditar=1;
             me.puedeActivar=1;
@@ -309,7 +306,6 @@ import {error401} from '../../errores.js';
             },
             eliminarRubro(idrubro){
                 let me=this;
-                //console.log("prueba");
                 const swalWithBootstrapButtons = Swal.mixin({
                 customClass: {
                     confirmButton: 'btn btn-success',
@@ -358,7 +354,6 @@ import {error401} from '../../errores.js';
             },
             activarRubro(idrubro){
                 let me=this;
-                //console.log("prueba");
                 const swalWithBootstrapButtons = Swal.mixin({
                 customClass: {
                     confirmButton: 'btn btn-success',
@@ -431,8 +426,7 @@ import {error401} from '../../errores.js';
 
             },
             abrirModal(accion,data= []){
-                let me=this;
-                console.log(data.areamedica);
+                let me=this;             
                 switch(accion){
                     case 'registrar':
                     {

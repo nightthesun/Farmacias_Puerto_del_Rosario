@@ -142,8 +142,17 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary"  @click="cerrarModal('registrar')">Cerrar</button>
-                        <button type="button" v-if="tipoAccion==1" class="btn btn-primary" @click="registrarRole()" :disabled="!sicompleto">Guardar</button>
-                        <button type="button" v-if="tipoAccion==2" class="btn btn-primary" @click="actualizarRole()">Actualizar</button>
+                        <div  class="d-flex justify-content-start">
+                            <div  v-if="isSubmitting==false">
+                                <button type="button" v-if="tipoAccion==1" class="btn btn-primary" @click="registrarRole()" :disabled="!sicompleto">Guardar</button>
+                                <button type="button" v-if="tipoAccion==2" class="btn btn-primary" @click="actualizarRole()">Actualizar</button>
+                            </div>
+                            <div v-else>
+                                <button type="button" v-if="tipoAccion == 1" class="btn btn-light">Guardar</button>
+                                <button type="button" v-if="tipoAccion == 2" class="btn btn-light">Actualizar</button>
+                            </div>
+                        </div>
+                      
                     </div>
                 </div>
                 <!-- /.modal-content -->
@@ -176,6 +185,7 @@ import {error401} from '../../errores';
                     'to':0
                 },
                 offset:3,
+                isSubmitting: false, // Controla el estado del botón de envío
                 nombre:'',
                 descripcion:'',
                 arrayRoles:[],
@@ -242,16 +252,13 @@ import {error401} from '../../errores';
         methods :{
             //-----------------------------------permisos_R_W_S        
     listarPerimsoxyz() {
-                //console.log(this.codventana);
-    let me = this;
-   
-        
+               
+    let me = this; 
     var url = '/gestion_permiso_editar_eliminar?win='+me.codventana;
   
     axios.get(url)
         .then(function(response) {
-            var respuesta = response.data;
-            console.log(respuesta);
+            var respuesta = response.data;     
             if(respuesta=="root"){
             me.puedeEditar=1;
             me.puedeActivar=1;
@@ -295,8 +302,7 @@ import {error401} from '../../errores';
                 let me=this;
                 var url='/modulo';
                 axios.get(url).then(function(response){
-                    var respuesta=response.data;
-                    console.log(respuesta);
+                    var respuesta=response.data;            
                     me.arrayModulos=respuesta.modulos;
                 })
                 .catch(function(error){
@@ -326,6 +332,9 @@ import {error401} from '../../errores';
             },
             registrarRole(){
                 let me = this;
+                 // Si ya está enviando, no permitas otra solicitud
+      if (me.isSubmitting) return;
+      me.isSubmitting = true; // Deshabilita el botón
                 let ventanas=me.ventanaseleccionados.toString();
                 let modul=me.seleccionados.toString();                
                 axios.post('/role/registrar',{
@@ -339,12 +348,13 @@ import {error401} from '../../errores';
                 }).catch(function(error){
                     error401(error);
                     console.log(error);
-                });
+                }).finally(() => {
+          me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
+        });
 
             },
             eliminarRole(idrole){
                 let me=this;
-                //console.log("prueba");
                 const swalWithBootstrapButtons = Swal.mixin({
                 customClass: {
                     confirmButton: 'btn btn-success',
@@ -451,7 +461,7 @@ import {error401} from '../../errores';
                     'idmodulos':me.seleccionados.toString(),
                     'idventanas':me.ventanaseleccionados.toString(),
                 }).then(function (response) {
-                    console.log("//////////////////////////");
+                  
                     if(response.status == 200)
                     {  
                        me.listarRoles();
@@ -471,7 +481,8 @@ import {error401} from '../../errores';
                 switch(accion){
                     case 'registrar':
                     {
-                        me.tituloModal='Registar Role'
+                        me.tituloModal='Registar Role';
+                        me.isSubmitting=false;
                         me.tipoAccion=1;
                         me.nombre='';
                         me.descripcion='';
@@ -482,7 +493,7 @@ import {error401} from '../../errores';
                     
                     case 'actualizar':
                     {
-                   
+                        me.isSubmitting=false;
                         me.idrole=data.id;
                         me.tipoAccion=2;
                         me.tituloModal='Actualizar Role'
@@ -500,6 +511,7 @@ import {error401} from '../../errores';
             },
             cerrarModal(accion){
                 let me = this;
+                me.isSubmitting=false;
                 me.classModal.closeModal(accion);
                 me.nombre='';
                 me.descripcion='';

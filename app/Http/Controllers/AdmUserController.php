@@ -153,13 +153,20 @@ class AdmUserController extends Controller
      */
     public function update(Request $request, User $adm_Rubro)
     {
-        $user = User::findOrFail($request->id);
-
-        $user->email=$request->email;
-        if($request->cambiarpass)
-            $user->password=$request->password;
-        $user->id_usuario_modifica=auth()->user()->id;
-        $user->save();
+        try {
+            $user = User::findOrFail($request->id);
+            $user->email=$request->email;
+    
+            if($request->cambiarpass)
+                $user->password=$request->password;
+    
+            $user->id_usuario_modifica=auth()->user()->id;
+            $user->save();
+            
+        } catch (\Throwable $th) {
+            return $th;
+        }
+       
     }
 
     /**

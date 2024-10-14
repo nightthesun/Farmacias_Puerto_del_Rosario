@@ -198,8 +198,16 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary"  @click="cerrarModal('registrar')">Cerrar</button>
-                        <button type="button" v-if="tipoAccion==1" class="btn btn-primary" @click="registrarModulo()" :disabled="!sicompleto">Guardar</button>
-                        <button type="button" v-if="tipoAccion==2" class="btn btn-primary" @click="actualizarModulo()">Actualizar</button>
+                        <div  class="d-flex justify-content-start">
+                            <div  v-if="isSubmitting==false">
+                                <button type="button" v-if="tipoAccion==1" class="btn btn-primary" @click="registrarModulo()" :disabled="!sicompleto">Guardar</button>
+                                <button type="button" v-if="tipoAccion==2" class="btn btn-primary" @click="actualizarModulo()">Actualizar</button>
+                            </div>
+                            <div v-else>
+                                <button type="button" v-if="tipoAccion == 1" class="btn btn-light">Guardar</button>
+                                <button type="button" v-if="tipoAccion == 2" class="btn btn-light">Actualizar</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <!-- /.modal-content -->
@@ -223,6 +231,7 @@ import {error401} from '../../errores.js';
         //-------------------
         data(){
             return{
+                isSubmitting: false, // Controla el estado del botón de envío
                 modulo:'',
                 arrayModulos:[],
                 tituloModal:'',
@@ -388,8 +397,7 @@ import {error401} from '../../errores.js';
             },
             registrarModulo(){
                 let me = this;
-                console.log("//////////////////");
-                console.log(me)
+           
                 if(me.tipomodal=='modulo')
                 {
                     axios.post('/modulo/registrar',{
@@ -405,6 +413,9 @@ import {error401} from '../../errores.js';
                 }
                 if(me.tipomodal=='ventana')
                 {
+                     // Si ya está enviando, no permitas otra solicitud
+      if (me.isSubmitting) return;
+      me.isSubmitting = true; // Deshabilita el botón
                     axios.post('/ventana/registrar',{
                         'idmodulo':me.idmodulo,
                         'nombre':me.modulo,
@@ -415,7 +426,9 @@ import {error401} from '../../errores.js';
                     }).catch(function(error){
                         error401(error);
                         console.log(error);
-                    });
+                    }).finally(() => {
+          me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
+        });
                 }
                 if(me.tipomodal=='accion')
                 {
@@ -508,7 +521,7 @@ import {error401} from '../../errores.js';
             },
             activarModulo(accion,idmodulo){
                 let me=this;
-                //console.log("prueba");
+              
                 const swalWithBootstrapButtons = Swal.mixin({
                 customClass: {
                     confirmButton: 'btn btn-success',
@@ -648,7 +661,8 @@ import {error401} from '../../errores.js';
                 switch(accion){
                     case 'registrar':
                     {
-                        me.tituloModal='Registrar Modulo'
+                        me.tituloModal='Registrar Modulo';
+                        me.isSubmitting=false;
                         me.tipomodal='modulo';
                         me.tipoAccion=1;
                         me.modulo='';
@@ -658,9 +672,10 @@ import {error401} from '../../errores.js';
                     
                     case 'actualizar':
                     {
+                        me.isSubmitting=false;
                         me.idmodulo=data.id;
                         me.tipoAccion=2;
-                        me.tituloModal='Actualizar Modulo'
+                        me.tituloModal='Actualizar Modulo';
                         me.modulo=data.nombre;
                         me.classModal.openModal('registrar');
                         break;
@@ -724,6 +739,7 @@ import {error401} from '../../errores.js';
             },
             cerrarModal(accion){
                 let me = this;
+                me.isSubmitting=false;
                 me.classModal.closeModal(accion);
                 me.modulo='';
                 me.descripcion='';

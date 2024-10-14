@@ -304,17 +304,18 @@
                             </div>
                         </form>
                     </div>
-                    <div class="modal-footer">
-                        
-                        <button type="button" class="btn btn-secondary" @click="cerrarModal('registrar')">
-                            Cerrar
-                        </button>
-                        <button type="button" @click="registrar()" style="color: white;" v-if="tipoAccion === 1" :class="arrayCargar_dosificacion <= 0 ? 'btn btn-secondary' : 'btn btn-primary'" :disabled="arrayCargar_dosificacion<=0">
-                            Guardar
-                        </button>
-                        <button type="button" @click="actualizar()" style="color: white;" class="btn btn-primary" v-if="tipoAccion === 2" >
-                            Actualizar
-                        </button>
+                    <div class="modal-footer">                        
+                        <button type="button" class="btn btn-secondary" @click="cerrarModal('registrar')">Cerrar</button>
+                        <div  class="d-flex justify-content-start">
+                            <div  v-if="isSubmitting==false">
+                                <button type="button" @click="registrar()" style="color: white;" v-if="tipoAccion === 1" :class="arrayCargar_dosificacion <= 0 ? 'btn btn-secondary' : 'btn btn-primary'" :disabled="arrayCargar_dosificacion<=0">Guardar</button>
+                                <button type="button" @click="actualizar()" style="color: white;" class="btn btn-primary" v-if="tipoAccion === 2" >Actualizar</button>
+                            </div>
+                            <div v-else>
+                                <button type="button" v-if="tipoAccion == 1" class="btn btn-light">Guardar</button>
+                                <button type="button" v-if="tipoAccion == 2" class="btn btn-light">Actualizar</button>
+                            </div>
+                        </div>                  
                     </div>
                                
                                  
@@ -349,6 +350,7 @@ export default {
             },
           
             offset:3,
+            isSubmitting: false, // Controla el estado del botón de envío
             tituloModal: "",
     
             arraySucursal:[],
@@ -582,7 +584,9 @@ validateNumber() {
 
          registrar(){
             let me = this;   
- 
+            // Si ya está enviando, no permitas otra solicitud
+      if (me.isSubmitting) return;
+      me.isSubmitting = true; // Deshabilita el botón
             const data = {
                 nit_empresa:me.nit,          
                 nom_empresa:me.nom_empresa,            
@@ -619,7 +623,9 @@ validateNumber() {
               "error"
           );  
           }              
-      });
+      }).finally(() => {
+          me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
+        });
          },
 
         sucursalGet_data(){            
@@ -746,7 +752,7 @@ validateNumber() {
          switch (accion) {
                 case "registrar": {
                     me.tipoAccion = 1;
-                    
+                    me.isSubmitting=false;
                     me.tituloModal = "Registro de Dosificación";
                     me.sucursalSeleccionada=0;
                     me.autorizacion="";
@@ -762,6 +768,7 @@ validateNumber() {
                 }
                 case "actualizar": {
                     me.tipoAccion = 2;
+                    me.isSubmitting=false;
                     me.tituloModal = "Registro de Dosificación";
                     me.sucursalSeleccionada=data.id_sucursal === null ? 0 : data.id_sucursal;
                     me.autorizacion=data.nro_autorizacion;
@@ -799,7 +806,8 @@ validateNumber() {
         cerrarModal(accion) {
             let me = this;           
                 me.classModal.closeModal(accion);               
-                me.tituloModal = " ";             
+                me.tituloModal = " ";  
+                me.isSubmitting=false;           
                 me.contador=0;
                 me.sucursalSeleccionada=0;
                 me.autorizacion="";
