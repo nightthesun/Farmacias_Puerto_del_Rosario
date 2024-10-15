@@ -327,7 +327,195 @@ $nombre_empresa = strtoupper($nombre_e);
     }
 
 
+    public function get_producto_bloque(Request $request){
+
+        $user_1 = auth()->user()->id;
+        $user_2 = auth()->user()->name;
+        //dd(session()->all());
+        if ($user_1==1) {
+            $idsuc=1;
+        }else{
+            $iduserrolesuc = session('iduserrolesuc');
+            $idsuc = session('idsuc');
+            $id_user2 = session('id_user2'); 
+         }
+        // Obtener todos los registros donde id_sucursal es 1
+        // Obtener todos los registros donde id_sucursal es 1 usando el constructor de consultas
+        $sucursales = DB::table('adm__sucursal_listas')->where('id_sucursal', $idsuc)->first();
+        $pro=$request->producto;      
+
+        // Dividimos la cadena por el espacio
+        $a = explode(' ', $pro);  
+        $partes = $a[0];
+   
+        if ($sucursales) {
+            // si tiene  es con lista 
+            $id_suc=$sucursales->id_sucursal;
+            $id_lista=$sucursales->id_lista; 
+            $resultados = DB::table('ges_pre__venta_listas as gpv')
+            ->join('pivot__modulo_tienda_almacens as pivot', 'pivot.id', '=', 'gpv.id_table_ingreso_tienda_almacen')
+            ->join('tda__ingreso_productos as tip', 'pivot.id_ingreso', '=', 'tip.id')
+            ->join('tda__tiendas as tt', 'tt.id', '=', 'tip.idtienda')
+            ->join('prod__productos as pp', 'pp.id', '=', 'tip.id_prod_producto')
+            ->join('adm__sucursals as ass', 'ass.id', '=', 'tt.idsucursal')
+            ->leftJoin('prod__dispensers as pd_1', 'pd_1.id', '=', 'pp.iddispenserprimario')
+            ->leftJoin('prod__dispensers as pd_2', 'pd_2.id', '=', 'pp.iddispensersecundario')
+            ->leftJoin('prod__dispensers as pd_3', 'pd_3.id', '=', 'pp.iddispenserterciario')
+            ->leftJoin('prod__forma_farmaceuticas as ff_1', 'ff_1.id', '=', 'pp.idformafarmaceuticaprimario')
+            ->leftJoin('prod__forma_farmaceuticas as ff_2', 'ff_2.id', '=', 'pp.idformafarmaceuticasecundario')
+            ->leftJoin('prod__forma_farmaceuticas as ff_3', 'ff_3.id', '=', 'pp.idformafarmaceuticaterciario')
+            ->join('prod__registro_pre_x_lists as prp', 'prp.id', '=', 'gpv.id_lista')
+            ->join('prod__listas as pl', 'pl.id', '=', 'prp.id_lista')
+            ->join('prod__lineas as pppl','pppl.id','=','pp.idlinea')
+            ->leftJoin('par__producto_desc as ppd', 'ppd.id_prod', '=', 'pp.id')
+            ->leftJoin('par__descuentos as pd2', 'ppd.id_descuento', '=', 'pd2.id')
+            ->leftJoin('par__asignacion_descuento as pad2', function($join) {
+                $join->on('pad2.id_descuento', '=', 'pd2.id')
+                     ->where('pad2.id_sucursal', '=', 1);
+            })
+            ->select(
+                'gpv.id as id',
+                'gpv.precio_lista_gespreventa',
+                'gpv.precio_venta_gespreventa',
+                'gpv.cantidad_envase_gespreventa',
+                'gpv.costo_compra_gespreventa',
+                'gpv.margen_20p_gespreventa',
+                'gpv.margen_30p_gespreventa',
+                'gpv.utilidad_bruta_gespreventa',
+                'gpv.utilidad_neto_gespreventa',
+                'tt.codigo as codigo_tienda_almacen' ,
+                'tip.envase',
+                'tip.cantidad',
+                'tip.stock_ingreso',
+                'tip.fecha_vencimiento',
+                'tip.lote',
+                'pp.codigo as codigo_prod',
+                'pp.nombre as prod_name',
+                'tip.id as id_ingreso',
+                DB::raw("
+                CASE 
+                    WHEN tip.envase = 'primario' THEN UPPER(CONCAT(COALESCE(pp.nombre, ''), ' ', COALESCE(pd_1.nombre, ''), ' X ', COALESCE(pp.cantidadprimario, ''), ' ', COALESCE(ff_1.nombre, '')))
+                    WHEN tip.envase = 'secundario' THEN UPPER(CONCAT(COALESCE(pp.nombre, ''), ' ', COALESCE(pd_2.nombre, ''), ' X ', COALESCE(pp.cantidadsecundario, ''), ' ', COALESCE(ff_2.nombre, '')))
+                    WHEN tip.envase = 'terciario' THEN UPPER(CONCAT(COALESCE(pp.nombre, ''), ' ', COALESCE(pd_3.nombre, ''), ' X ', COALESCE(pp.cantidadterciario, ''), ' ', COALESCE(ff_3.nombre, '')))
+                    ELSE NULL
+                END AS leyenda
+            "),
+             DB::raw("
+             CASE 
+                    WHEN tip.envase = 'primario' THEN UPPER(CONCAT(COALESCE(ff_1.nombre, '')))
+                    WHEN tip.envase = 'secundario' THEN UPPER(CONCAT(COALESCE(ff_2.nombre, '')))
+                    WHEN tip.envase = 'terciario' THEN UPPER(CONCAT(COALESCE(ff_3.nombre, '')))
+                    ELSE NULL
+                END AS unidad_medida
+             "),   
+                'gpv.id_lista','pppl.nombre as nombre_linea','pp.id as id_prod',
+                DB::raw('DATEDIFF(fecha_vencimiento, NOW()) AS dias'),
+                DB::raw("CASE 
+                WHEN pd2.desc_num = 1 THEN '#'
+                WHEN pd2.desc_num = 2 THEN '%'
+                ELSE NULL
+            END as tipo_num_des"),
+    'pd2.monto_descuento',
+    'pd2.activo as descuento_activo',
+    'pad2.id_sucursal as id_11','pppl.id as id_linea',
+     'pd2.id as id_descuento',
+            'pd2.id_tipo_tabla as id_tabla','tip.prioridad_caducidad'
+            )
+            ->where('ass.id', $id_suc)
+            ->where('gpv.listo_venta', 1)
+            ->where('pl.id', $id_lista)
+            ->where('pp.activo', 1)
+            ->where('tip.activo', 1)
+            ->where('pp.nombre', 'like', '%' . $partes . '%')
+            ->where('tip.fecha_vencimiento', '>=', DB::raw('CURDATE()'))
+            ->orderBy('tip.prioridad_caducidad', 'desc')
+            ->get(); 
+            return $resultados;
+       
+        } else{
+            // lista por defecto 
+            $resultados = DB::table('ges_pre__venta2s as gpv')
+            ->join('pivot__modulo_tienda_almacens as pivot', 'pivot.id', '=', 'gpv.id_table_ingreso_tienda_almacen')
+            ->join('tda__ingreso_productos as tip', 'pivot.id_ingreso', '=', 'tip.id')
+            ->join('tda__tiendas as tt', 'tt.id', '=', 'tip.idtienda')
+            ->join('prod__productos as pp', 'pp.id', '=', 'tip.id_prod_producto')
+            ->join('adm__sucursals as ass', 'ass.id', '=', 'tt.idsucursal')
+            ->leftJoin('prod__dispensers as pd_1', 'pd_1.id', '=', 'pp.iddispenserprimario')
+            ->leftJoin('prod__dispensers as pd_2', 'pd_2.id', '=', 'pp.iddispensersecundario')
+            ->leftJoin('prod__dispensers as pd_3', 'pd_3.id', '=', 'pp.iddispenserterciario')
+            ->leftJoin('prod__forma_farmaceuticas as ff_1', 'ff_1.id', '=', 'pp.idformafarmaceuticaprimario')
+            ->leftJoin('prod__forma_farmaceuticas as ff_2', 'ff_2.id', '=', 'pp.idformafarmaceuticasecundario')
+            ->leftJoin('prod__forma_farmaceuticas as ff_3', 'ff_3.id', '=', 'pp.idformafarmaceuticaterciario')
+            ->join('prod__lineas as pppl','pppl.id','=','pp.idlinea')
+            ->leftJoin('par__producto_desc as ppd', 'ppd.id_prod', '=', 'pp.id')
+            ->leftJoin('par__descuentos as pd2', 'ppd.id_descuento', '=', 'pd2.id')
+            ->leftJoin('par__asignacion_descuento as pad2', function($join) {
+                $join->on('pad2.id_descuento', '=', 'pd2.id')
+                     ->where('pad2.id_sucursal', '=', 1);
+            })
+   
+            ->select(
+                'gpv.id as id',
+                'gpv.precio_lista_gespreventa',
+                'gpv.precio_venta_gespreventa',
+                'gpv.cantidad_envase_gespreventa',
+                'gpv.costo_compra_gespreventa',
+                'gpv.margen_20p_gespreventa',
+                'gpv.margen_30p_gespreventa',
+                'gpv.utilidad_bruta_gespreventa',
+                'gpv.utilidad_neto_gespreventa',
+                'tt.codigo as codigo_tienda_almacen' ,
+                'tip.envase',
+                'tip.cantidad',
+                'tip.stock_ingreso',
+                'tip.fecha_vencimiento',
+                'tip.lote',
+                'pp.codigo as codigo_prod',
+                'pp.nombre as prod_name',
+                'tip.id as id_ingreso',
+                DB::raw("
+                CASE 
+                    WHEN tip.envase = 'primario' THEN UPPER(CONCAT(COALESCE(pp.nombre, ''), ' ', COALESCE(pd_1.nombre, ''), ' X ', COALESCE(pp.cantidadprimario, ''), ' ', COALESCE(ff_1.nombre, '')))
+                    WHEN tip.envase = 'secundario' THEN UPPER(CONCAT(COALESCE(pp.nombre, ''), ' ', COALESCE(pd_2.nombre, ''), ' X ', COALESCE(pp.cantidadsecundario, ''), ' ', COALESCE(ff_2.nombre, '')))
+                    WHEN tip.envase = 'terciario' THEN UPPER(CONCAT(COALESCE(pp.nombre, ''), ' ', COALESCE(pd_3.nombre, ''), ' X ', COALESCE(pp.cantidadterciario, ''), ' ', COALESCE(ff_3.nombre, '')))
+                    ELSE NULL
+                END AS leyenda
+            "),
+            DB::raw("
+             CASE 
+                    WHEN tip.envase = 'primario' THEN UPPER(CONCAT(COALESCE(ff_1.nombre, '')))
+                    WHEN tip.envase = 'secundario' THEN UPPER(CONCAT(COALESCE(ff_2.nombre, '')))
+                    WHEN tip.envase = 'terciario' THEN UPPER(CONCAT(COALESCE(ff_3.nombre, '')))
+                    ELSE NULL
+                END AS unidad_medida
+             "),  
+                'gpv.id_lista','pppl.nombre as nombre_linea','pp.id as id_prod',
+                DB::raw('DATEDIFF(fecha_vencimiento, NOW()) AS dias'),
+                DB::raw("CASE 
+                WHEN pd2.desc_num = 1 THEN '#'
+                WHEN pd2.desc_num = 2 THEN '%'
+                ELSE NULL
+            END as tipo_num_des"),
+    'pd2.monto_descuento',
+    'pd2.activo as descuento_activo',
+    'pad2.id_sucursal as id_11','pppl.id as id_linea',
+    'pd2.id as id_descuento',
+    'pd2.id_tipo_tabla as id_tabla','tip.prioridad_caducidad'         
+            )
+            ->where('ass.id', $idsuc)
+            ->where('gpv.listo_venta', 1)
+            ->where('pp.activo', 1)
+            ->where('tip.activo', 1)
+            ->where('pp.nombre', 'like', '%' . $partes . '%')
+            ->where('tip.fecha_vencimiento', '>=', DB::raw('CURDATE()'))
+            ->orderBy('tip.prioridad_caducidad', 'desc')
+            ->get();
     
+            return $resultados;    
+        }
+
+    }    
+
 
     public function get_sucusal(){
         
@@ -389,7 +577,7 @@ $nombre_empresa = strtoupper($nombre_e);
                 'tip.fecha_vencimiento',
                 'tip.lote',
                 'pp.codigo as codigo_prod',
-             
+             'pp.nombre as prod_name',
                 'tip.id as id_ingreso',
                 DB::raw("
                 CASE 
@@ -469,7 +657,7 @@ $nombre_empresa = strtoupper($nombre_e);
                 'tip.fecha_vencimiento',
                 'tip.lote',
                 'pp.codigo as codigo_prod',
-              
+              'pp.nombre as prod_name',
                 'tip.id as id_ingreso',
                 DB::raw("
                 CASE 
@@ -983,6 +1171,7 @@ $nombre_empresa = strtoupper($nombre_e);
     ->where('id_apertura_cierre', '=',0)
     ->orderBy('id', 'desc')
     ->first();
+
     if($ultimoRegistro==null){
         $ultimoRegistro=0;  
     }     

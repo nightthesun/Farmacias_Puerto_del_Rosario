@@ -38,10 +38,10 @@ class CajaAperturaCierreController extends Controller
                 ->join('caja__arqueo as ca', 'cac.id_arqueo', '=', 'ca.id')
                 ->join('users as u', 'u.id', '=', 'ca.id_usuario')
                 ->select('cac.id','cac.id_arqueo','cac.turno_caja','cac.tipo_caja_c_a','cac.total_venta_caja',
-                        'cac.total_inversion_caja','cac.total_gasto_caja','cac.total_ingreso_caja','cac.total_salida_caja','cac.total_caja',
+                       'cac.total_ingreso_caja','cac.total_salida_caja','cac.total_caja',
                         'cac.total_arqueo_caja','cac.diferencia_caja','cac.estado_caja','cac.created_at','u.name',
                         DB::raw('(cac.total_venta_caja + cac.total_ingreso_caja) as ingresos'),
-                        DB::raw('(cac.total_gasto_caja + cac.total_inversion_caja + cac.total_salida_caja) as egresos'),'ca.cantidad_billete','ca.total_billete','ca.cantidad_moneda','ca.total_moneda','ca.tipo_moneda'
+                       'ca.cantidad_billete','ca.total_billete','ca.cantidad_moneda','ca.total_moneda','ca.tipo_moneda'
                         )
                         ->where('cac.id_sucursal','=',$request->id_sucursal)
                         ->where('cac.tipo_caja_c_a','=',$request->a_e)          
@@ -68,10 +68,10 @@ class CajaAperturaCierreController extends Controller
                 ->join('caja__arqueo as ca', 'cac.id_arqueo', '=', 'ca.id')
                 ->join('users as u', 'u.id', '=', 'ca.id_usuario')
                 ->select('cac.id','cac.id_arqueo','cac.turno_caja','cac.tipo_caja_c_a','cac.total_venta_caja',
-                        'cac.total_inversion_caja','cac.total_gasto_caja','cac.total_ingreso_caja','cac.total_salida_caja','cac.total_caja',
+                      'cac.total_ingreso_caja','cac.total_salida_caja','cac.total_caja',
                         'cac.total_arqueo_caja','cac.diferencia_caja','cac.estado_caja','cac.created_at','u.name',
                         DB::raw('(cac.total_venta_caja + cac.total_ingreso_caja) as ingresos'),
-                        DB::raw('(cac.total_gasto_caja + cac.total_inversion_caja + cac.total_salida_caja) as egresos'),'ca.cantidad_billete','ca.total_billete','ca.cantidad_moneda','ca.total_moneda','ca.tipo_moneda'
+                        'ca.cantidad_billete','ca.total_billete','ca.cantidad_moneda','ca.total_moneda','ca.tipo_moneda'
                         )
               //  ->where('cac.id_sucursal', $request->id_sucursal)
               //  ->where('cac.tipo_caja_c_a','=',$request->turno)
@@ -134,8 +134,8 @@ class CajaAperturaCierreController extends Controller
                   
                     if ($request->tipo_caja_c_a=="0") {
                         $total_venta_caja=0;
-                        $total_inversion_caja=0;
-                        $total_gasto_caja=0;
+                      
+                       
                         $total_ingreso_caja=0;
                         $total_salida_caja=0;
                     }else{
@@ -151,8 +151,8 @@ class CajaAperturaCierreController extends Controller
                     }
              
                     $apertura_cierre->total_venta_caja = $total_venta_caja;
-                    $apertura_cierre->total_inversion_caja = $total_inversion_caja;   
-                    $apertura_cierre->total_gasto_caja = $total_gasto_caja;   
+              
+                    
                     $apertura_cierre->total_ingreso_caja = $total_ingreso_caja;       
                     $apertura_cierre->total_salida_caja = $total_salida_caja;   
                     $apertura_cierre->total_caja = $request->total_caja; 

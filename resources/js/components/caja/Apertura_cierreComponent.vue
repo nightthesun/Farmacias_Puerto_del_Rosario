@@ -293,8 +293,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    
+                                <tr>                                    
                                     <td class="col-md-2" style="font-size: 11px; text-align: center">{{fecha_modal}}</td>
                                     <td class="col-md-2" style="font-size: 11px; text-align: center">{{id_modal}}</td>
                                     <td class="col-md-2" style="font-size: 11px; text-align: center">{{id_arqueo_modal}}</td>
@@ -310,11 +309,11 @@
                                 <tr>
                                     <th class="col-md-1" style="font-size: 11px; text-align: center">Total ventas</th>
                                     <th class="col-md-1" style="font-size: 11px; text-align: center">Total entradas</th>
-                                    <th class="col-md-1" style="font-size: 11px; text-align: center; background-color: gainsboro">Total ingresos</th>
-                                    <th class="col-md-1" style="font-size: 11px; text-align: center">Total gastos</th>
-                                    <th class="col-md-1" style="font-size: 11px; text-align: center">Total inversiones</th>
+                                 
+                                    
+                                   
                                     <th class="col-md-1" style="font-size: 11px; text-align: center">Total salidas</th>
-                                    <th class="col-md-1" style="font-size: 11px; text-align: center; background-color: gainsboro">Total egresos</th>
+                                   
                                     <th class="col-md-1" style="font-size: 11px; text-align: center">Total caja</th>                                    
                                     <th class="col-md-1" style="font-size: 11px; text-align: center">Total arqueo</th>
                                     <th class="col-md-1" style="font-size: 11px; text-align: center">Total diferencia</th>                                   
@@ -324,11 +323,11 @@
                                 <tr>
                                     <td class="col-md-1" style="font-size: 11px; text-align: center">{{total_venta_modal}}</td>
                                     <td class="col-md-1" style="font-size: 11px; text-align: center">{{total_entrada_modal}}</td>
-                                    <td class="col-md-1" style="font-size: 11px; text-align: center;background-color: gainsboro">{{total_ingreso_modal}}</td>
-                                    <td class="col-md-1" style="font-size: 11px; text-align: center">{{total_gasto_modal}}</td>
-                                    <td class="col-md-1" style="font-size: 11px; text-align: center">{{total_inversione_modal}}</td>
+                                   
+                            
+                                 
                                     <td class="col-md-1" style="font-size: 11px; text-align: center">{{total_salida_modal}}</td>
-                                    <td class="col-md-1" style="font-size: 11px; text-align: center; background-color: gainsboro">{{total_egreso_modal}}</td>
+                                
                                     <td class="col-md-1" style="font-size: 11px; text-align: center">{{total_caja_modal}}</td>
                                     <td class="col-md-1" style="font-size: 11px; text-align: center">{{total_arqueo_modal}}</td>
                                     <td class="col-md-1" style="font-size: 11px; text-align: center">{{total_diferencia_modal}}</td>
@@ -450,11 +449,11 @@ export default {
 
             total_venta_modal:'',
             total_entrada_modal:'',
-            total_ingreso_modal:'',
-            total_gasto_modal:'',
-            total_inversione_modal:'',
+            
+            
+          
             total_salida_modal:'',       
-            total_egreso_modal:'',
+        
             total_caja_modal:'',
             total_arqueo_modal:'',
             total_diferencia_modal:'',
@@ -893,11 +892,11 @@ me.isSubmitting = true; // Deshabilita el botón
 
                     me.total_venta_modal=data.total_venta_caja;
                     me.total_entrada_modal=data.total_ingreso_caja;
-                    me.total_ingreso_modal=data.ingresos;
-                    me.total_gasto_modal=data.total_gasto_caja;
-                    me.total_inversione_modal=data.total_inversion_caja;
+                   
+                    
+              
                     me.total_salida_modal=data.total_salida_caja;               
-                    me.total_egreso_modal=data.egresos;
+       
                     me.total_caja_modal=data.total_caja;
                     me.total_arqueo_modal=data.total_arqueo_caja;
                     me.total_diferencia_modal=data.diferencia_caja;
@@ -941,11 +940,11 @@ me.isSubmitting = true; // Deshabilita el botón
             me.estado_modal="";
             me.total_venta_modal="";
             me.total_entrada_modal="";
-            me.total_ingreso_modal="";
-            me.total_gasto_modal="";
-            me.total_inversione_modal="";
+            
+            
+         
             me.total_salida_modal="";   
-            me.total_egreso_modal="";
+    
             me.total_caja_modal="";
             me.total_arqueo_modal="";
             me.total_diferencia_modal="";

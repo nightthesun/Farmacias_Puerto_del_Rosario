@@ -619,8 +619,7 @@ pagesNumber: function () {
 methods: {
 
     //-----------------------------------permisos_R_W_S        
-listarPerimsoxyz() {
-                //console.log(this.codventana);
+listarPerimsoxyz() {               
     let me = this;
         
     var url = '/gestion_permiso_editar_eliminar?win='+me.codventana;
@@ -674,7 +673,7 @@ listarPerimsoxyz() {
         let me=this;
         if (page!=undefined&&+me.tiendaalmacenselected!=0&&me.selectLista!=0) {
             var url='/gestionprecioventa2?page='+page+'&buscar='+me.buscar+'&buscarAlmTdn='+me.tiendaalmacenselected+'&lista='+me.selectLista;
-             console.log(url);
+   
                 axios.get(url)
                 .then(function(response){
                     var respuesta = response.data;
@@ -699,10 +698,7 @@ listarPerimsoxyz() {
                 .then(function (response) {
                     var respuesta = response.data;
                     me.arrayLista = respuesta;
-                   
-                       
-                   
-                 
+                  
                 })
                 .catch(function (error) {
                     error401(error);
@@ -732,9 +728,6 @@ listarPerimsoxyz() {
                
                 case 'editarPrecioUtilidadProducto':
                     {
-             
-                        console.log("*************************************");
-                        console.log(data);
                         me.codigo=data.cod;                       
                         me.id_gespreventa=data.gpv_id;              
                         me.tituloModal = 'Modificar Utilidad del Producto2';
@@ -839,7 +832,6 @@ listarPerimsoxyz() {
         },
         actualizarRegistrarPrecioVenta() {
             let me = this;
-            console.log("id_gespreventa:"+me.id_gespreventa+"codigo"+me.codigo+" "+me.listaX);
             if (me.id_gespreventa==undefined || me.id_gespreventa==null  ) {
                 axios.post('/gestionprecioventa2/registrar', {
                // 'id':me.id_gespreventa,

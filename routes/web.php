@@ -643,6 +643,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/gestor_ventas/venta/pdf2', [VenGestorVentaController::class, 'mostrarPDF']);
     Route::get('/gestor_ventas/verificador_dosificacion_o_facturacion', [VenGestorVentaController::class, 'verificador_dosificacion_o_facturacion']);    
     Route::get('/gestor_ventas/tieneApertura', [VenGestorVentaController::class, 'tieneApertura']);
+    Route::get('/gestor_ventas/get_producto_bloque', [VenGestorVentaController::class, 'get_producto_bloque']);    
 
     //mostrar venta,re-imprimir,anular
     Route::get('/detalle_venta_2/index', [VenGestorVentaVistaController::class, 'index']);

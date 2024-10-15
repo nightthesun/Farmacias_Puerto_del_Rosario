@@ -123,7 +123,8 @@
                          
                          <span class="input-group-btn">
                              <a data-toggle="modal" href="#modal">
-                                 <button class="btn btn-warning" type="button"><i class="fa fa-eye"></i></button>
+                                 <button  v-if="selected===null" class="btn btn-secondary" type="button"><i class="fa fa-eye"></i></button>
+                                 <button  v-else  @click="abrirModal('vista_bloque');listarProducto_seleccionado()"  class="btn btn-warning" type="button"><i class="fa fa-eye"></i></button>                                 
                              </a>
                          </span>
                      </div>
@@ -689,6 +690,63 @@
                  </div>
              </div>
              <!--fin del modal-->
+            <!---------------------------inicio de vista modal bloque venta precio--------------------------->
+
+             <!--Inicio del modal de registro de-->
+             <div class="modal fade" tabindex="-1" role="dialog" arial-labelledby="myModalLabel" id="vista_bloque" aria-hidden="true" data-backdrop="static" data-key="false">
+                 <div class="modal-dialog modal-primary modal-lg" role="document">
+                     <div class="modal-content">
+                         <div class="modal-header">
+                         <h4 class="modal-title">{{ tituloModal }}</h4>
+                         <button  type="button" class="close" aria-label="Close" @click="cerrarModal('vista_bloque')">
+                             <span aria-hidden="true">x</span>
+                         </button>                         
+                        </div>
+                            <div class="modal-body">                         
+                              <form action="" class="form-horizontal">
+                                <div class="modal-body"> 
+                                  <div class="alert alert-secondary" v-if="arrayProducto_2.length<=0" role="alert">Sin datos</div>                     
+                                  <table v-else class="table table-bordered table-striped table-sm table-responsive">
+                                    <thead>
+                                      <tr>
+                                        <th class="col-md-1" style="font-size: 11px; text-align: center">Opcion</th>
+                                        <th class="col-md-4" style="font-size: 11px; text-align: center">Producto</th>
+                                        <th class="col-md-1" style="font-size: 11px; text-align: center">Lote</th>
+                                        <th class="col-md-1" style="font-size: 11px; text-align: center">Cantidad</th>
+                                        <th class="col-md-1" style="font-size: 11px; text-align: center">Precio</th>
+                                        <th class="col-md-1" style="font-size: 11px; text-align: center">Linea</th>
+                                        <th class="col-md-2" style="font-size: 11px; text-align: center">Fecha Vencimiento</th>
+                                        <th class="col-md-1" style="font-size: 11px; text-align: center">Dias faltantes</th>
+                                      </tr>                                                                         
+                                    </thead>
+                                    <tbody>
+                                      <tr v-for="p in arrayProducto_2 " :key="p.id">
+                                        <td class="col-md-1" style="font-size: 11px; text-align: center">
+                                          <button type="button" @click="volverLista(p)" class="btn btn-primary" style="font-size: 11px;">Seleccionar</button>
+                                        </td>
+                                        <td class="col-md-4" style="font-size: 11px; text-align: center">{{p.codigo_prod+" "+p.leyenda}}</td>
+                                        <td class="col-md-1" style="font-size: 11px; text-align: center">{{p.lote}}</td>
+                                        <td class="col-md-1" style="font-size: 11px; text-align: center">{{p.stock_ingreso}}</td>
+                                        <td class="col-md-1" style="font-size: 11px; text-align: center">{{p.precio_lista_gespreventa}}</td>
+                                        <td class="col-md-1" style="font-size: 11px; text-align: center">{{p.nombre_linea}}</td>
+                                        <td class="col-md-2" style="font-size: 11px; text-align: center">{{p.fecha_vencimiento}}</td>
+                                        <td class="col-md-1" style="font-size: 11px; text-align: center">{{p.dias}}</td>
+                                      </tr>
+                                    </tbody>
+                                  </table>
+                                </div>      
+                                                        
+                              </form>         
+                            </div>
+                            <div class="modal-footer">
+                              <button type="button" class="btn btn-secondary" @click="cerrarModal('vista_bloque')">Cerrar</button>                       
+                            </div>
+                     </div>
+                     
+                 </div>
+             </div>
+             <!--fin del modal-->
+            <!-------------------------fin de modal vista precio----------------------------->
              </main>
 
           </div>
@@ -834,6 +892,8 @@ export default {
      n_fin_facturacion_1:'',
      n_act_facturacion_1:'',
 
+     arrayProducto_2:[], 
+     cadenaProducto_2:'',      
 
      tieneApertura_0:'',
 
@@ -2499,6 +2559,32 @@ if(Number(me.efectivo) > 0){
                 });
         },
 
+
+        volverLista(data){          
+          let me =this;
+          me.cadenaProducto_2=data;
+          me.selected=data; 
+          me.cerrarModal('vista_bloque');
+        },
+
+        listarProducto_seleccionado() {
+            let me = this;
+           // var url = "/listarSucursalGet";
+           var url = "/gestor_ventas/get_producto_bloque?producto="+(me.selected).prod_name;
+           
+            axios
+                .get(url)
+                .then(function (response) {
+                    var respuesta = response.data;
+                    me.arrayProducto_2  = respuesta;
+                    console.log(me.arrayProducto_2);
+                })
+                .catch(function (error) {
+                    error401(error);
+                    console.log(error);
+                });
+        },
+
         cambiarPestana(idPestana) {
             this.pestañaActiva = idPestana;
 
@@ -2580,7 +2666,13 @@ if(Number(me.efectivo) > 0){
                     me.TipoComprobate=0;
                     me.classModal.openModal("registrar_cliente");
                     break;
-                }            
+                } 
+                case "vista_bloque":{
+                  me.tituloModal = "Vista por producto precio";
+                  me.cadenaProducto_2="";
+                  me.classModal.openModal("vista_bloque");
+                  break;
+                }           
             }
         },
 
@@ -2593,11 +2685,16 @@ if(Number(me.efectivo) > 0){
 
 
         cerrarModal(accion) {
-            let me = this;          
-            me.classModal.closeModal(accion);
-            me.tituloModal = "";
-            me.buscarCliente ="";
-                    me.pais='';
+            let me = this;   
+            if (accion == "vista_bloque") {
+                me.arrayProducto_2=[];
+                me.cadenaProducto_2="";
+                me.classModal.closeModal(accion);           
+            } else {
+              me.classModal.closeModal(accion);
+              me.tituloModal = "";
+              me.buscarCliente ="";
+              me.pais='';
                     me.ciudad='';
                     me.direccion='';
                     me.telefono='';
@@ -2612,8 +2709,8 @@ if(Number(me.efectivo) > 0){
                     //me.complemento_='';
                    // me.extencion_tipodocumento="";
                    // me.nombre_documento="";    
-            me.v99001="";               
-            
+            me.v99001="";
+            }                           
         },
 
         realizarVenta() {
@@ -2669,11 +2766,8 @@ if(Number(me.efectivo) > 0){
                     "error"
                 );
                     break;
-            }      
-
-                  
-      
-    },
+            } 
+      },
 
     EnviarRecibo(){
         let me = this;       
@@ -2864,8 +2958,7 @@ total_sin_des,descuento_venta,total_venta,efectivo_venta,cambio_venta,fechaMas7D
             var url = "/gestor_ventas/tieneApertura";
             axios.get(url)
                 .then(function (response) {
-                    var respuesta = response.data;   
-                        
+                    var respuesta = response.data;                           
                     if (respuesta===0||respuesta.tipo_caja_c_a===9||respuesta.id_apertura_cierre!=0) {
                       me.tieneApertura_0=0;
                         Swal.fire(
@@ -3003,7 +3096,8 @@ if (!correoRegex.test(me.correo)) {
         this.classModal.addModal("registrar");
         this.classModal.addModal("cliente_modal");
         this.classModal.addModal("lote_cliete"); 
-        this.classModal.addModal("registrar_cliente");   
+        this.classModal.addModal("registrar_cliente");
+        this.classModal.addModal("vista_bloque");   
     },
 };
 </script>
