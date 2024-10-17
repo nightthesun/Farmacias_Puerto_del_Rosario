@@ -14,7 +14,14 @@ class CajaAperturaCierreController extends Controller
      */
     public function index(Request $request)
     {
-        $buscararray = array();       
+        $buscararray = array();   
+        ///persona
+        $limite=$request->limite;
+        
+        if ($limite==0) {
+            $limite=999999999;
+        }  
+        $user= auth()->user()->id; 
         if (!empty($request->buscar)) {
             $buscararray = explode(" ", $request->buscar);
             $valor = sizeof($buscararray);
@@ -45,9 +52,10 @@ class CajaAperturaCierreController extends Controller
                         )
                         ->where('cac.id_sucursal','=',$request->id_sucursal)
                         ->where('cac.tipo_caja_c_a','=',$request->a_e)          
-              
-                ->whereRaw($sqls)
+                        ->where('ca.id_usuario','=',$user)   
+                ->whereRaw($sqls)               
                 ->orderByDesc('cac.id')
+                ->limit($limite)
                 ->paginate(15);               
             }   
             return 
@@ -77,8 +85,9 @@ class CajaAperturaCierreController extends Controller
               //  ->where('cac.tipo_caja_c_a','=',$request->turno)
               ->where('cac.id_sucursal','=',$request->id_sucursal)
               ->where('cac.tipo_caja_c_a','=',$request->a_e)
-                 
+              ->where('ca.id_usuario','=',$user)   
                 ->orderByDesc('cac.id')
+                ->limit($limite)
                 ->paginate(15);  
                 return 
                 [
@@ -114,7 +123,8 @@ class CajaAperturaCierreController extends Controller
                         'cantidad_moneda' => $request->cantidadMonedas, 
                         'total_moneda' => $request->totalMonedas, 
                         'tipo_moneda' => $request->moneda_s1                      
-                    ];                
+                    ];    
+
                     $id = DB::table('caja__arqueo')->insertGetId($datos);            
                 
                     foreach ($request->input as $key => $value) {                       
@@ -140,12 +150,11 @@ class CajaAperturaCierreController extends Controller
                         $total_salida_caja=0;
                     }else{
                         if ($request->tipo_caja_c_a=="9") {
-                            return "error 9";
-                            return $request->tipo_caja_c_a;
+
+                            return "error 9";                     
                        
                         }else {
-                            return "erro no entrada ";
-                            return $request->tipo_caja_c_a;
+                            return "erro no entrada ";        
                         
                         }                       
                     }
@@ -163,7 +172,7 @@ class CajaAperturaCierreController extends Controller
                               
             
             DB::commit();
-            return DB::commit();
+           
         } catch (\Throwable $th) {
             return $th;
         }
@@ -210,11 +219,23 @@ $data_1 = $moneda;
     }
 
     public function cajaAnteriror(Request $request){
-        $ultimoRegistro = DB::table('caja__apertura_cierres')
-        ->select('turno_caja', 'tipo_caja_c_a', 'total_caja', 'estado_caja')
-        ->where('id_sucursal', $request->id_sucursal)    
-        ->orderBy('created_at', 'desc')
-        ->first();
+      //  $ultimoRegistro = DB::table('caja__apertura_cierres')
+      //  ->select('turno_caja', 'tipo_caja_c_a', 'total_caja', 'estado_caja')
+      //  ->where('id_sucursal', $request->id_sucursal)    
+      //  ->orderBy('created_at', 'desc')
+      //  ->first();
+      $id_user = Auth()->user()->id;
+      $ultimoRegistro=DB::table('caja__apertura_cierres as cac')
+      ->join('caja__arqueo as ca', 'cac.id_arqueo', '=', 'ca.id')
+      ->join('users as u', 'u.id', '=', 'ca.id_usuario')
+      ->select('cac.turno_caja', 'cac.tipo_caja_c_a', 'cac.total_caja', 'cac.estado_caja')
+      ->where('cac.id_sucursal', $request->id_sucursal)
+      ->where('ca.id_usuario', $id_user)
+      ->where('cac.tipo_caja_c_a', 0)
+      ->where('cac.id_apertura_cierre', 0)
+      ->orderBy('cac.created_at', 'desc')
+      ->first();
+    
         if($ultimoRegistro==null){
           $ultimoRegistro=0;  
         }     

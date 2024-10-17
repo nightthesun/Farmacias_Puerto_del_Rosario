@@ -6,8 +6,7 @@
             </li>
 
             <?php use App\Http\Controllers\AdmSessionController;
-                $vent=AdmSessionController::listarPermisos();            
-           
+                $vent=AdmSessionController::listarPermisos();           
             ?>
             @if ($vent['modulos']=="baneado")
             <li>Cuenta sin acceso</li>

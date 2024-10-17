@@ -287,23 +287,33 @@ return view('auth.sucursal')->with('sucursales',$sucursales);
         }
         else
         {
+          
             if (auth()->user()->activo==1) {
                 $idrole=session('idrole');
-                // dd($idrole);
-                 $roles=Adm_Role::where('id',$idrole)
-                                 ->get();
-                 //dd($roles)       ;
-                 $idmodulos=explode(",",$roles[0]->idmodulos);
-                 $idventanas=explode(",",$roles[0]->idventanas);
-      
-                 $modulos=Adm_Modulo::wherein('id',$idmodulos)->get();
-     
-                 foreach ($modulos as $value) {
-                     $ventanas=Adm_VentanaModulo::wherein('id',$idventanas)->get();    
-                     $value->ventanas=$ventanas;
+          
+                 if ($idrole==null) {
+                   
+                   
+                    session()->forget('idsucursal');
+                    session()->forget('nomsucursal');
+                    session()->forget('nomrol');
+                    auth()->logout();               
+                    return ['modulos'=>'baneado'];
+                 }else{
+                    $roles=Adm_Role::where('id',$idrole)->get();                
+                    $idmodulos=explode(",",$roles[0]->idmodulos);             
+                    $idventanas=explode(",",$roles[0]->idventanas);     
+                    $modulos=Adm_Modulo::wherein('id',$idmodulos)->get();
+         
+                     foreach ($modulos as $value) {
+                         $ventanas=Adm_VentanaModulo::wherein('id',$idventanas)->get();    
+                         $value->ventanas=$ventanas;
+                     }            
+                     return ['modulos'=>$modulos];
                  }
-            
-                 return ['modulos'=>$modulos];
+                
+                 
+                 
             } else {
                 return ['modulos'=>'baneado'];
                

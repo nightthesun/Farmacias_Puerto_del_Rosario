@@ -1165,11 +1165,22 @@ $nombre_empresa = strtoupper($nombre_e);
     //return $apertura;
 
 
-    $ultimoRegistro = DB::table('caja__apertura_cierres')
-    ->select('id','turno_caja', 'tipo_caja_c_a', 'total_caja', 'estado_caja', 'id_arqueo','id_apertura_cierre')
-    ->where('id_sucursal', $idsuc)
-    ->where('id_apertura_cierre', '=',0)
-    ->orderBy('id', 'desc')
+   // $ultimoRegistro = DB::table('caja__apertura_cierres')
+   // ->select('id','turno_caja', 'tipo_caja_c_a', 'total_caja', 'estado_caja', 'id_arqueo','id_apertura_cierre')
+   // ->where('id_sucursal', $idsuc)
+   // ->where('id_apertura_cierre', '=',0)
+   // ->orderBy('id', 'desc')
+   // ->first();
+
+    $ultimoRegistro = DB::table('caja__apertura_cierres as cac')
+    ->join('caja__arqueo as ca', 'cac.id_arqueo', '=', 'ca.id')
+    ->join('users as u', 'u.id', '=', 'ca.id_usuario')
+    ->select('cac.id','cac.turno_caja', 'cac.tipo_caja_c_a', 'cac.total_caja', 'cac.estado_caja', 'cac.id_arqueo','cac.id_apertura_cierre')
+    ->where('cac.id_sucursal', $idsuc)
+    ->where('ca.id_usuario', $id_user)
+    ->where('cac.tipo_caja_c_a', 0)
+    ->where('cac.id_apertura_cierre', 0)
+    ->orderBy('cac.created_at', 'desc')
     ->first();
 
     if($ultimoRegistro==null){

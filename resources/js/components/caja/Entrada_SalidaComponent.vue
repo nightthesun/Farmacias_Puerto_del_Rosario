@@ -77,6 +77,15 @@
                 </select>
             </div>
         </div>
+        <div class="col-md-4">          
+                    <select class="form-control"   v-model="limite_X" @change="listarIndex(1)" :hidden="sucursalSeleccionada == 0" :disabled="sucursalSeleccionada == 0">
+                        <option value="0" disabled selected>Seleccione rango</option>
+                        <option v-for="l in arrayLimite" :key="l.id" :value="l.limite">
+                            <span v-if="l.limite === 0">Todos</span>
+                            <span v-else>{{ l.limite }}</span>
+                        </option>
+                    </select>           
+                </div>
             </div>    
         
   <br>
@@ -431,6 +440,18 @@ export default {
             arrayMonedaModal:[],
 
             limite_meseje:0,
+
+            //limitado 
+            arrayLimite:[{id:1,limite:10},
+                {id:2,limite:20},
+                {id:3,limite:50},
+                {id:4,limite:100},
+                {id:5,limite:200},
+                {id:6,limite:0},
+                ],
+            limite_X:10,
+            //apertura 
+            arrayExisteApertura:[],
         };
     },
 
@@ -620,7 +641,7 @@ general_pdf(razon_social,direccion,lugar,cadena_A,id,soloFecha,soloHora,mensaje,
         listarIndex(page) {
             let me = this;    
        
-            var url ="/entrada_salida/index?page="+page+"&buscar="+me.buscar+"&id_sucursal="+me.id_sucursal+"&entrada_salida="+parseInt(me.selectEntradaSalida);
+            var url ="/entrada_salida/index?page="+page+"&buscar="+me.buscar+"&id_sucursal="+me.id_sucursal+"&entrada_salida="+parseInt(me.selectEntradaSalida)+"&limite="+me.limite_X;
             axios.get(url)
                 .then(function (response) {
                     var respuesta = response.data;

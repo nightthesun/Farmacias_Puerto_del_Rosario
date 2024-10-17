@@ -65,35 +65,39 @@
                        
 
             </div>
-             
-
-            <div class="row justify-content-center" v-if="sucursalSeleccionada !== 0">
-    <div class="col-md-8">
-        <div class="col-md-2" style="text-align: center">
+            <div class="form-group row"  :hidden="sucursalSeleccionada == 0" :disabled="sucursalSeleccionada == 0">
+                <div class="col-md-2" style="text-align: center">
                      <label for="">Apertura/Cierre:</label>
-        </div>
-        <div class="col-md-6">
-            <div class="input-group">
-                <select class="form-control" v-model="selectApertura_Cierre" @change="listarIndex(0)">
-                    <option value="1" disabled selected>Seleccionar...</option>
-                    <option value="0" >Apertura</option> 
-                    <option value="9" >Cierre</option>                 
-                </select>
-            </div>
-        </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="input-group">
+                            <select class="form-control" v-model="selectApertura_Cierre" @change="listarIndex(0)">
+                                <option value="1" disabled selected>Seleccionar...</option>
+                                <option value="0" >Apertura</option> 
+                                <option value="9" >Cierre</option>                 
+                            </select>
+                    </div>
+                </div>
+                <div class="col-md-4">          
+                    <select class="form-control"   v-model="limite_X" @change="listarIndex(1)" :hidden="sucursalSeleccionada == 0" :disabled="sucursalSeleccionada == 0">
+                        <option value="0" disabled selected>Seleccione rango</option>
+                        <option v-for="l in arrayLimite" :key="l.id" :value="l.limite">
+                            <span v-if="l.limite === 0">Todos</span>
+                            <span v-else>{{ l.limite }}</span>
+                        </option>
+                    </select>           
+                </div>
+            </div>   
+              
 
-      
-    </div>
-  </div>
   <br>
             <!---inserte tabla-->
             <table class="table table-bordered table-striped table-sm table-responsive" >
                 <thead>
                     <tr>
-                        <th>Opciones</th>                                        
-                        <th class="col-md-2">Turno</th>
-                        <th class="col-md-1">Total Ingreso</th>
-                        <th class="col-md-1">Total Egreso</th>
+                        <th class="col-md-1">Opciones</th>   
+                        <th class="col-md-2">Codigo</th>                                                          
+                        <th class="col-md-2">Turno</th>                     
                         <th class="col-md-1">Total Caja</th>
                         <th class="col-md-1">Total Arqueo</th>
                         <th class="col-md-1">Diferencia</th> 
@@ -104,17 +108,17 @@
                 </thead>
                 <tbody>
                     <tr v-for="i in arrayIndex" :key="i.id">                    
-                        <td>
+                        <td class="col-md-1">
                             <button type="button" class="btn btn-warning" @click="abrirModal('ver',i);" style="margin-right: 5px;">
                                 <i class="fa fa-eye" aria-hidden="true"></i></button>
-                        </td>                                               
+                        </td>
+                        <td class="col-md-1" style="text-align: left;">{{i.id}}</td>                                               
                         <td class="col-md-2">
                             <span v-if="i.turno_caja===1">Turno uno</span>
                             <span v-if="i.turno_caja===2">Turno dos</span>
                             <span v-if="i.turno_caja===3">Turno completo</span>
                         </td>
-                        <td class="col-md-1" style="text-align: right;">{{i.ingresos}}</td>
-                        <td class="col-md-1" style="text-align: right;">{{i.egresos}}</td>
+                    
                         <td class="col-md-1" style="text-align: right;">{{i.total_caja}}</td>
                         <td class="col-md-1" style="text-align: right;">{{i.total_arqueo_caja}}</td>
                         <td class="col-md-1" style="text-align: right;">{{i.diferencia_caja}}</td>
@@ -464,6 +468,21 @@ export default {
             monto_billete_modal:'',
 
             arrayMonedaModal:[],
+
+            //limitado 
+            arrayLimite:[{id:1,limite:10},
+                {id:2,limite:20},
+                {id:3,limite:50},
+                {id:4,limite:100},
+                {id:5,limite:200},
+                {id:6,limite:0},
+                ],
+            limite_X:10,
+            //apertura 
+        
+
+            
+
         };
     },
 
@@ -517,8 +536,7 @@ export default {
     methods: {
                
         modalMoneda(id) {
-            let me = this;    
-          
+            let me = this;           
             var url ="/apertura_cierre/monedaModal?id_arqueo="+id;
             axios.get(url)
                 .then(function (response) {
@@ -532,7 +550,7 @@ export default {
 
         listarIndex(page) {
             let me = this;        
-            var url ="/apertura_cierre/index?page="+page+"&buscar=" +me.buscar+"&id_sucursal="+me.id_sucursal+"&a_e="+parseInt(me.selectApertura_Cierre);
+            var url ="/apertura_cierre/index?page="+page+"&buscar=" +me.buscar+"&id_sucursal="+me.id_sucursal+"&a_e="+parseInt(me.selectApertura_Cierre)+"&limite="+me.limite_X;
             axios.get(url)
                 .then(function (response) {
                     var respuesta = response.data;
@@ -785,6 +803,9 @@ me.isSubmitting = true; // Deshabilita el botón
                 });
         },
 
+       
+        
+
         cambiarEstadoSucursal(){
             let me=this;
             me.selectApertura_Cierre=1;
@@ -957,6 +978,28 @@ me.isSubmitting = true; // Deshabilita el botón
             }
         },
 
+       fecha_inicial() {
+    // Obtener la fecha actual
+    const today = new Date();
+    
+    // Obtener la fecha actual menos 5 días
+    const startDate = new Date();
+    startDate.setDate(today.getDate() - 5);
+
+    // Formatear el año, mes y día para la fecha de inicio
+    const startYear = startDate.getFullYear();
+    const startMonth = String(startDate.getMonth() + 1).padStart(2, '0'); // Meses en JavaScript son de 0 a 11
+    const startDay = String(startDate.getDate()).padStart(2, '0');
+
+    // Formatear el año, mes y día para la fecha final (hoy)
+    const endYear = today.getFullYear();
+    const endMonth = String(today.getMonth() + 1).padStart(2, '0');
+    const endDay = String(today.getDate()).padStart(2, '0');
+
+    // Asignar las fechas a los campos correspondientes
+    this.startDate = `${startYear}-${startMonth}-${startDay}`;  // Fecha de inicio (5 días antes)
+    this.endDate = `${endYear}-${endMonth}-${endDay}`;  // Fecha final (hoy)
+},
      
 
         selectAll: function (event) {
