@@ -17,7 +17,8 @@ class CajaEntradaSalidaController extends Controller
     {
         $user=auth()->user()->id;
         $buscararray = array();   
-        $limite=$request->limite;    
+        $ini=$request->ini;
+        $fini=$request->fini;  
         if (!empty($request->buscar)) {
             $buscararray = explode(" ", $request->buscar);
             $valor = sizeof($buscararray);
@@ -70,8 +71,8 @@ class CajaEntradaSalidaController extends Controller
                ->where('ca.id_usuario', $user)              
                ->whereRaw($sqls)
                ->orderByDesc('ces.id')
-               ->limit($limite) // Limita el número de registros a 500
-                ->paginate($limite);
+               ->whereBetween(DB::raw('DATE(ces.created_at)'), [$ini, $fini]) 
+                ->paginate(15);
             }
             return     
             [
@@ -117,8 +118,8 @@ class CajaEntradaSalidaController extends Controller
                ->where('ces.entrada_salida', $request->entrada_salida) 
                ->where('ca.id_usuario', $user)               
                ->orderByDesc('ces.id')          
-               ->limit(2) 
-               ->paginate(1);
+               ->whereBetween(DB::raw('DATE(ces.created_at)'), [$ini, $fini]) 
+               ->paginate(15);
                 
 
                 return     

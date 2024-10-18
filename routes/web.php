@@ -255,7 +255,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::put('/cuenta/desactivar_cuenta', [AdmCredecialCorreoController::class, 'desactivar_cuenta']); 
     Route::put('/cuenta/activar_cuenta', [AdmCredecialCorreoController::class, 'activar_cuenta']); 
     Route::put('/responsable/añadir_quitar', [AdmCredecialCorreoController::class, 'añadir_quitar_Encargado']); 
-    Route::post('/credenciales_correo/limite_2', [AdmCredecialCorreoController::class, 'añadirLimite']);
+    Route::post('/credenciales_correo/limite_2', [AdmCredecialCorreoController::class, 'añadirLimite']);   
+    Route::put('/super_usuario/añadir_quitar', [AdmCredecialCorreoController::class, 'añadir_quitar_superUsuario']);     
       
     Route::get('/dosificacion/getDataSucursal', [AdmCredecialCorreoController::class, 'getDataSucursal']);
     Route::post('/dosificacion/store_dosificacion', [AdmCredecialCorreoController::class, 'store_dosificacion']);

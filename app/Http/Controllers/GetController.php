@@ -315,7 +315,7 @@ return $result;
     public function getUser(){
         $usuario = DB::table('users as u')
             ->join('rrh__empleados as re', 're.id', '=', 'u.idempleado')
-            ->select('u.id','u.name','u.responsable',DB::raw("CONCAT(COALESCE(re.nombre, ''), ' ', COALESCE(re.papellido, ''), ' ', COALESCE(re.sapellido, '')) AS nom_completo"),'re.ci','u.responsable')
+            ->select('u.id','u.name','u.responsable',DB::raw("CONCAT(COALESCE(re.nombre, ''), ' ', COALESCE(re.papellido, ''), ' ', COALESCE(re.sapellido, '')) AS nom_completo"),'re.ci','u.super_usuario')
             ->where('u.activo', 1)
             ->get();
         return $usuario;     

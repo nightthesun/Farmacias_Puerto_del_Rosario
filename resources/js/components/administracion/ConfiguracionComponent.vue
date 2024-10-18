@@ -29,7 +29,10 @@
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" id="pills-limite-tab" data-toggle="pill" href="#pills-limite" role="tab" aria-controls="pills-limite" aria-selected="false">Limite de transacción</a>
-                </li>                
+                </li>   
+                <li class="nav-item">
+                    <a class="nav-link" id="pills-superUser-tab" data-toggle="pill" href="#pills-superUser" role="tab" aria-controls="pills-superUser" @click="listarUser()" aria-selected="false">Super usuario</a>
+                </li>              
             </ul>
         </div>
         <div class="card-body">
@@ -488,6 +491,68 @@
                         </div>
                     </div>
 <!------------------------------------------------------------------------------------------------------------------------->
+<div class="tab-pane fade" id="pills-superUser" role="tabpanel" aria-labelledby="pills-superUser-tab">
+    <div class="card-body">
+        <!-- insertar datos -->    
+        <div class="container">
+                                
+                                <div class="form-group row">
+                                    <div class="col-md-2 input-group mb-3">
+                                        Usuario:
+                                    </div>
+                                <div class="col-md-7 input-group mb-3">                                                   
+                                    <VueMultiselect
+                        v-model="selectedUser"
+                        :options="arrayUser_2"
+                        :max-height="120"                   
+                        :block-keys="['Tab', 'Enter']"                       
+                        placeholder="Seleccione una opción"
+                        label="nom_completo" 
+                        :custom-label="nameWithLang"                     
+                        track-by="id"
+                        class="w-250"
+                        selectLabel="Añadir a seleccion"
+                        deselectLabel="Quitar seleccion"
+                        selectedLabel="Seleccionado"
+                       >
+                       <template #noResult>
+                        No se encontraron elementos. Considere cambiar la consulta de búsqueda.
+                      </template>
+                    </VueMultiselect>            
+                     </div>
+                        <div class="col-md-2 input-group mb-3">
+                            <div v-if="puedeActivar===1">
+                                <button   v-if="selectedUser==null" type="button" class="btn btn-light">Añadir</button>
+                                <button   v-else-if="selectedUser.super_usuario===0" @click="añadirOquitar_superUsuario(0)" type="button" class="btn btn-primary">Añadir</button>
+                                <button   v-else="selectedUser.super_usuario===1" @click="añadirOquitar_superUsuario(1)"  type="button" class="btn btn-danger">Quitar</button>                              
+                            </div>
+                            <div v-else>
+                            <button   type="button" class="btn btn-light">Sin permiso</button>                       
+                            </div>
+                                          
+                        </div>        
+                    </div>
+                    
+                    <div class="form-group row">
+                        <table class="table table-bordered table-striped table-sm table-responsive">
+                            <thead>
+                                 <tr>                                  
+                                    <th class="col-md-2" style="font-size: 13px; text-align: center">User</th>
+                                    <th class="col-md-10" style="font-size: 13px; text-align: center">Nombre</th>                                                    
+                                </tr>
+                            </thead>
+                            <tbody>                                  
+                                <tr v-for="u in arrayUser_2" :key="u.id" :hidden="u.super_usuario===0">                                   
+                                    <td class="col-md-2" style="font-size: 13px; text-align: center">{{ u.name }}</td>
+                                    <td class="col-md-10" style="font-size: 13px; text-align: center">{{ u.nom_completo }}</td>
+                                </tr>
+                            </tbody>   
+                        </table> 
+                    </div>   
+                  </div>
+        </div>
+                    </div>
+    <!---------------------------------------------------------------------------------------------------------------------------->
 
                 </div>
             
@@ -656,6 +721,10 @@ puedeEditar:2,
 
                 isSubmitting: false, // Controla el estado del botón de envío
                 isSubmitting_2:false,
+                //------------------super usuario
+              
+                arryaSuper_user:[],
+                selectUser_super:null,
 
         };
     },
@@ -786,6 +855,25 @@ puedeEditar:2,
                 }).then(function (response) {
                     me.listarUser();  
                     me.selectedUser=null;                
+                    Swal.fire(
+                        "Accion!",
+                        "Realizada correctamente",
+                        "success",
+                    );
+                })
+                .catch(function (error) {                    
+                    console.log(error401(error));
+                });             
+        },
+
+        añadirOquitar_superUsuario(data){
+            let me = this;      
+            axios.put("/super_usuario/añadir_quitar", {
+                    id:(me.selectedUser).id,
+                    data:data                   
+                }).then(function (response) {
+                    me.listarUser();  
+                    me.selectUser_super=null;                
                     Swal.fire(
                         "Accion!",
                         "Realizada correctamente",
@@ -1643,7 +1731,6 @@ puedeEditar:2,
             }
         },
 
-     
 
         selectAll: function (event) {
             setTimeout(function () {

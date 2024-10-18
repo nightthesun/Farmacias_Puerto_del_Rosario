@@ -23,10 +23,10 @@
                 </div>
         <div class="card-body">
             <div class="form-group row">
-                <div class="col-md-2" style="text-align: center">
+                <div class="col-md-1" style="text-align: right">
                      <label for="">Sucursal:</label>
                 </div>
-                        <div class="col-md-6">
+                        <div class="col-md-5">
                             <div class="input-group">
                                 <select class="form-control" v-model="sucursalSeleccionada"  @change="cambiarEstadoSucursal()">
                                     <option value="0" disabled selected>Seleccionar...</option>
@@ -36,7 +36,7 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <div class="input-group">
                              
                                 <input
@@ -44,7 +44,7 @@
                                     id="texto"
                                     name="texto"
                                     class="form-control"
-                                    placeholder="Texto a buscar"
+                                    placeholder="Puede buscar por usuario, codigo o estado de caja"
                                     v-model="buscar"
                                     @keyup.enter="listarIndex(1)" 
                                     :hidden="sucursalSeleccionada === 0"
@@ -66,27 +66,26 @@
 
             </div>
             <div class="form-group row"  :hidden="sucursalSeleccionada == 0" :disabled="sucursalSeleccionada == 0">
-                <div class="col-md-2" style="text-align: center">
-                     <label for="">Apertura/Cierre:</label>
+                <div class="col-md-1">
+                     <label for=""></label>
                 </div>
-                <div class="col-md-6">
-                    <div class="input-group">
+                <div class="col-md-5">                    
+                        <label for="Apectura / Cierre:">Apectura / Cierre:</label>
                             <select class="form-control" v-model="selectApertura_Cierre" @change="listarIndex(0)">
                                 <option value="1" disabled selected>Seleccionar...</option>
                                 <option value="0" >Apertura</option> 
                                 <option value="9" >Cierre</option>                 
-                            </select>
-                    </div>
+                            </select>                   
                 </div>
-                <div class="col-md-4">          
-                    <select class="form-control"   v-model="limite_X" @change="listarIndex(1)" :hidden="sucursalSeleccionada == 0" :disabled="sucursalSeleccionada == 0">
-                        <option value="0" disabled selected>Seleccione rango</option>
-                        <option v-for="l in arrayLimite" :key="l.id" :value="l.limite">
-                            <span v-if="l.limite === 0">Todos</span>
-                            <span v-else>{{ l.limite }}</span>
-                        </option>
-                    </select>           
-                </div>
+        <div class="col-md-3">
+          <label for="start-date">Fecha inicial:</label>
+          <input id="start-date" type="date" class="form-control" v-model="startDate">
+        </div>
+        <div class="col-md-3">
+          <label for="end-date">Fecha final:</label>
+          <input id="end-date" type="date" class="form-control" v-model="endDate">
+        </div>
+        
             </div>   
               
 
@@ -469,20 +468,10 @@ export default {
 
             arrayMonedaModal:[],
 
-            //limitado 
-            arrayLimite:[{id:1,limite:10},
-                {id:2,limite:20},
-                {id:3,limite:50},
-                {id:4,limite:100},
-                {id:5,limite:200},
-                {id:6,limite:0},
-                ],
-            limite_X:10,
-            //apertura 
+            //limitado                    
+            startDate: '',
+            endDate: '',
         
-
-            
-
         };
     },
 
@@ -550,7 +539,7 @@ export default {
 
         listarIndex(page) {
             let me = this;        
-            var url ="/apertura_cierre/index?page="+page+"&buscar=" +me.buscar+"&id_sucursal="+me.id_sucursal+"&a_e="+parseInt(me.selectApertura_Cierre)+"&limite="+me.limite_X;
+            var url ="/apertura_cierre/index?page="+page+"&buscar=" +me.buscar+"&id_sucursal="+me.id_sucursal+"&a_e="+parseInt(me.selectApertura_Cierre)+"&ini="+me.startDate+"&fini="+me.endDate;
             axios.get(url)
                 .then(function (response) {
                     var respuesta = response.data;
@@ -980,22 +969,18 @@ me.isSubmitting = true; // Deshabilita el botón
 
        fecha_inicial() {
     // Obtener la fecha actual
-    const today = new Date();
-    
+    const today = new Date();    
     // Obtener la fecha actual menos 5 días
     const startDate = new Date();
     startDate.setDate(today.getDate() - 5);
-
     // Formatear el año, mes y día para la fecha de inicio
     const startYear = startDate.getFullYear();
     const startMonth = String(startDate.getMonth() + 1).padStart(2, '0'); // Meses en JavaScript son de 0 a 11
     const startDay = String(startDate.getDate()).padStart(2, '0');
-
     // Formatear el año, mes y día para la fecha final (hoy)
     const endYear = today.getFullYear();
     const endMonth = String(today.getMonth() + 1).padStart(2, '0');
     const endDay = String(today.getDate()).padStart(2, '0');
-
     // Asignar las fechas a los campos correspondientes
     this.startDate = `${startYear}-${startMonth}-${startDay}`;  // Fecha de inicio (5 días antes)
     this.endDate = `${endYear}-${endMonth}-${endDay}`;  // Fecha final (hoy)
@@ -1013,7 +998,7 @@ me.isSubmitting = true; // Deshabilita el botón
         this.verificador_moneda_sistemas();
         this.classModal = new _pl.Modals();
         this.sucursalFiltro();
-        
+        this.fecha_inicial();
         
         this.classModal.addModal("registrar");
         this.classModal.addModal("ver");

@@ -627,4 +627,27 @@ class AdmCredecialCorreoController extends Controller
         }
     }
 
+ 
+
+    public function añadir_quitar_superUsuario(Request $request)
+    {   
+        //data 1= tiene permiso   0= sin permisos
+        try {
+            $data=$request->data;
+            if ($data==0) {
+                $datos=['super_usuario' => 1];
+            }else{
+                if ($data==1) {
+                $datos=['super_usuario' => 0];
+                } else {
+                    dd("error...");
+                }               
+            }           
+            DB::table('users')->where('id','=',$request->id)->update($datos);
+        
+        } catch (\Throwable $th) {            
+            return $th;
+        }
+    }
+
 }

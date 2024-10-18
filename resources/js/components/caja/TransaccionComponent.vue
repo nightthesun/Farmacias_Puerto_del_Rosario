@@ -23,10 +23,10 @@
                 </div>
         <div class="card-body">
             <div class="form-group row">
-                <div class="col-md-2" style="text-align: right">
+                <div class="col-md-1" style="text-align: right">
                      <label for="">Sucursal:</label>
                 </div>
-                        <div class="col-md-6">
+                        <div class="col-md-5">
                             <div class="input-group">
                                 <select class="form-control" v-model="sucursalSeleccionada" @change="cambioDeSucursal()">
                                     <option value="0" disabled selected>Seleccionar...</option>
@@ -35,7 +35,7 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <div class="input-group">
                                 <input type="text" id="texto" name="texto" class="form-control" placeholder="Comprobante a buscar..." v-model="buscar" @keyup.enter="listarIndex(1)" 
                                     :hidden="sucursalSeleccionada == 0"
@@ -46,20 +46,29 @@
                             </div>
                         </div>
             </div>
-            <div class="form-group row">
-                <div class="col-md-2" style="text-align: right">
-                     <label for="">Tipo de deposito:</label>
+            <div class="form-group row"  :hidden="sucursalSeleccionada == 0" :disabled="sucursalSeleccionada == 0">
+                <div class="col-md-1">
+                     <label for=""></label>
                 </div>
-                        <div class="col-md-6">
-                            <div class="input-group">
-                                <select class="form-control" v-model="selectPersona_banco" @change="listarIndex(1)">
-                                    <option value=0 disabled selected>Seleccionar...</option>
+                <div class="col-md-5">                    
+                        <label for="Apectura / Cierre:">Tipo de deposito:</label>
+                        <select class="form-control" v-model="selectPersona_banco" @change="listarIndex(1)">
+                                <option value=0 disabled selected>Seleccionar...</option>
                                     <option value=1>Persona</option>
                                     <option value=2>Banco</option>
-                                </select>
-                            </div>
-                        </div>                     
-            </div>
+                        </select>                  
+                </div>
+        <div class="col-md-3">
+          <label for="start-date">Fecha inicial:</label>
+          <input id="start-date" type="date" class="form-control" v-model="startDate">
+        </div>
+        <div class="col-md-3">
+          <label for="end-date">Fecha final:</label>
+          <input id="end-date" type="date" class="form-control" v-model="endDate">
+        </div>
+        
+            </div>   
+         
      
   <br>
   <div class="alert alert-warning" v-if="selectPersona_banco===0" role="alert">
@@ -460,6 +469,10 @@ export default {
                 puedeHacerOpciones_especiales:2,
                 puedeCrear:2,
                 //-----------
+
+                //limitado                    
+            startDate: '',
+            endDate: '',
         };
     },
 
@@ -550,7 +563,7 @@ listarPerimsoxyz() {
         listarIndex(page){
          //   /transaccion/listar_   
                 let me=this;
-                var url='/transaccion/listar_?page='+page+'&buscar='+me.buscar+'&id_sucursal='+me.id_sucursal+'&tipo_deposito='+me.selectPersona_banco;
+                var url='/transaccion/listar_?page='+page+'&buscar='+me.buscar+'&id_sucursal='+me.id_sucursal+'&tipo_deposito='+me.selectPersona_banco+"&ini="+me.startDate+"&fini="+me.endDate;
                 axios.get(url).then(function(response){
                     var respuesta=response.data;
                     me.pagination = respuesta.pagination;
@@ -947,6 +960,25 @@ if (me.arrayAñadir.length>0) {
             }
         },
 
+        
+        fecha_inicial() {
+    // Obtener la fecha actual
+    const today = new Date();    
+    // Obtener la fecha actual menos 5 días
+    const startDate = new Date();
+    startDate.setDate(today.getDate() - 5);
+    // Formatear el año, mes y día para la fecha de inicio
+    const startYear = startDate.getFullYear();
+    const startMonth = String(startDate.getMonth() + 1).padStart(2, '0'); // Meses en JavaScript son de 0 a 11
+    const startDay = String(startDate.getDate()).padStart(2, '0');
+    // Formatear el año, mes y día para la fecha final (hoy)
+    const endYear = today.getFullYear();
+    const endMonth = String(today.getMonth() + 1).padStart(2, '0');
+    const endDay = String(today.getDate()).padStart(2, '0');
+    // Asignar las fechas a los campos correspondientes
+    this.startDate = `${startYear}-${startMonth}-${startDay}`;  // Fecha de inicio (5 días antes)
+    this.endDate = `${endYear}-${endMonth}-${endDay}`;  // Fecha final (hoy)
+},
      
 
         selectAll: function (event) {
@@ -955,6 +987,7 @@ if (me.arrayAñadir.length>0) {
             }, 0);
         },
     },
+    
 
     mounted() {
          //-------permiso E_W_S-----
@@ -962,7 +995,7 @@ if (me.arrayAñadir.length>0) {
         //-----------------------
         this.classModal = new _pl.Modals();
         this.sucursalFiltro();
- 
+        this.fecha_inicial();
         this.classModal.addModal("registrar");
         this.classModal.addModal("show");           
     },

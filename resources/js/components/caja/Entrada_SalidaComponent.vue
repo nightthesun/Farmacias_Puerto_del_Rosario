@@ -23,8 +23,8 @@
                 </div>
         <div class="card-body">
             <div class="form-group row">
-                <div class="col-md-3" style="text-align: center">
-                     <label for="">Almacen / Tienda:</label>
+                <div class="col-md-1" style="text-align: right">
+                     <label for="">Almacen/Tienda:</label>
                 </div>
                         <div class="col-md-5">
                             <div class="input-group">
@@ -36,14 +36,14 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <div class="input-group">
                                 <input
                                     type="text"
                                     id="texto"
                                     name="texto"
                                     class="form-control"
-                                    placeholder="Texto a buscar"
+                                    placeholder="Buscar por usuario, codigo,receptor o emisor"
                                     v-model="buscar"
                                     @keyup.enter="listarIndex(1)" 
                                     :hidden="sucursalSeleccionada == 0"
@@ -64,28 +64,27 @@
                        
 
             </div>             
-            <div class="form-group row" v-if="sucursalSeleccionada !== 0">
-                <div class="col-md-3" style="text-align: center">
-                    <label for="">Entrada / Salida  :</label>
+            <div class="form-group row" :hidden="sucursalSeleccionada === 0" :disabled="sucursalSeleccionada === 0">
+                <div class="col-md-1" style="text-align: center">
+                    <label for=""></label>
                 </div>
                 <div class="col-md-5">
-            <div class="input-group">
+                    <label for="Apectura / Cierre:">Entrada / Salida:</label>
                 <select class="form-control" v-model="selectEntradaSalida" @change="listarIndex(0)">
                     <option value="0" disabled selected >Seleccionar...</option>
                     <option value="1" >Entrada</option> 
                     <option value="2" >Salida</option>                 
                 </select>
-            </div>
-        </div>
-        <div class="col-md-4">          
-                    <select class="form-control"   v-model="limite_X" @change="listarIndex(1)" :hidden="sucursalSeleccionada == 0" :disabled="sucursalSeleccionada == 0">
-                        <option value="0" disabled selected>Seleccione rango</option>
-                        <option v-for="l in arrayLimite" :key="l.id" :value="l.limite">
-                            <span v-if="l.limite === 0">Todos</span>
-                            <span v-else>{{ l.limite }}</span>
-                        </option>
-                    </select>           
+           
                 </div>
+                <div class="col-md-3">
+          <label for="start-date">Fecha inicial:</label>
+          <input id="start-date" type="date" class="form-control" v-model="startDate">
+        </div>
+        <div class="col-md-3">
+          <label for="end-date">Fecha final:</label>
+          <input id="end-date" type="date" class="form-control" v-model="endDate">
+        </div>
             </div>    
         
   <br>
@@ -97,19 +96,19 @@
   <table class="table table-bordered table-striped table-sm table-responsive" >
                 <thead>
                     <tr>
-                        <th class="col-md-2">Opciones</th>
-                        <th class="col-md-1">Nro.</th>
+                        <th class="col-md-1">Opciones</th>
+                        <th class="col-md-1">Codigo.</th>
                         <th class="col-md-2">Fecha / Hora</th>
                         <th class="col-md-1">Valor total</th>
                         <th class="col-md-2">Receptor / Emisor</th>
                         <th class="col-md-3">Observación</th>                        
-                        <th class="col-md-1">Usuario</th>
+                        <th class="col-md-2">Usuario</th>
                         
                     </tr>
                 </thead>  
             <tbody>
                 <tr v-for="i in arrayIndex" :key="i.id">                    
-                <td class="col-md-2">
+                <td class="col-md-1">
                     <button type="button" class="btn btn-info" style="margin-right: 5px; color: whitesmoke;" @click="abrirModal('re_imprecion',i);">
                         <i class="fa fa-print" aria-hidden="true"></i></button>
                     
@@ -121,7 +120,7 @@
                 <td class="col-md-1" style="text-align: right;">{{ i.valor }}</td>
                 <td class="col-md-2">{{ i.mensaje }}</td>
                 <td class="col-md-3">{{ i.observacion }}</td>
-                <td class="col-md-1">{{ i.name }}</td>
+                <td class="col-md-2">{{ i.name }}</td>
             </tr> 
             </tbody>           
         </table>  
@@ -442,14 +441,8 @@ export default {
             limite_meseje:0,
 
             //limitado 
-            arrayLimite:[{id:1,limite:10},
-                {id:2,limite:20},
-                {id:3,limite:50},
-                {id:4,limite:100},
-                {id:5,limite:200},
-                {id:6,limite:0},
-                ],
-            limite_X:10,
+            startDate: '',
+            endDate: '',
             //apertura 
             arrayExisteApertura:[],
         };
@@ -641,7 +634,7 @@ general_pdf(razon_social,direccion,lugar,cadena_A,id,soloFecha,soloHora,mensaje,
         listarIndex(page) {
             let me = this;    
        
-            var url ="/entrada_salida/index?page="+page+"&buscar="+me.buscar+"&id_sucursal="+me.id_sucursal+"&entrada_salida="+parseInt(me.selectEntradaSalida)+"&limite="+me.limite_X;
+            var url ="/entrada_salida/index?page="+page+"&buscar="+me.buscar+"&id_sucursal="+me.id_sucursal+"&entrada_salida="+parseInt(me.selectEntradaSalida)+"&ini="+me.startDate+"&fini="+me.endDate;
             axios.get(url)
                 .then(function (response) {
                     var respuesta = response.data;
@@ -1062,7 +1055,24 @@ me.isSubmitting = true; // Deshabilita el botón
             }
         },
 
-     
+        fecha_inicial() {
+    // Obtener la fecha actual
+    const today = new Date();    
+    // Obtener la fecha actual menos 5 días
+    const startDate = new Date();
+    startDate.setDate(today.getDate() - 5);
+    // Formatear el año, mes y día para la fecha de inicio
+    const startYear = startDate.getFullYear();
+    const startMonth = String(startDate.getMonth() + 1).padStart(2, '0'); // Meses en JavaScript son de 0 a 11
+    const startDay = String(startDate.getDate()).padStart(2, '0');
+    // Formatear el año, mes y día para la fecha final (hoy)
+    const endYear = today.getFullYear();
+    const endMonth = String(today.getMonth() + 1).padStart(2, '0');
+    const endDay = String(today.getDate()).padStart(2, '0');
+    // Asignar las fechas a los campos correspondientes
+    this.startDate = `${startYear}-${startMonth}-${startDay}`;  // Fecha de inicio (5 días antes)
+    this.endDate = `${endYear}-${endMonth}-${endDay}`;  // Fecha final (hoy)
+},
 
         selectAll: function (event) {
             setTimeout(function () {
@@ -1076,6 +1086,7 @@ me.isSubmitting = true; // Deshabilita el botón
         this.verificador_moneda_sistemas();
         this.sucursalFiltro();
         this.listarLimite();
+        this.fecha_inicial(); 
         this.classModal.addModal("registrar");
         this.classModal.addModal("ver");
     

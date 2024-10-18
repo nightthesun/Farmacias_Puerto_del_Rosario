@@ -16,11 +16,10 @@ class CajaAperturaCierreController extends Controller
     {
         $buscararray = array();   
         ///persona
-        $limite=$request->limite;
+   
+        $ini=$request->ini;
+        $fini=$request->fini;
         
-        if ($limite==0) {
-            $limite=999999999;
-        }  
         $user= auth()->user()->id; 
         if (!empty($request->buscar)) {
             $buscararray = explode(" ", $request->buscar);
@@ -55,7 +54,7 @@ class CajaAperturaCierreController extends Controller
                         ->where('ca.id_usuario','=',$user)   
                 ->whereRaw($sqls)               
                 ->orderByDesc('cac.id')
-                ->limit($limite)
+                ->whereBetween(DB::raw('DATE(cac.created_at)'), [$ini, $fini]) 
                 ->paginate(15);               
             }   
             return 
@@ -85,9 +84,9 @@ class CajaAperturaCierreController extends Controller
               //  ->where('cac.tipo_caja_c_a','=',$request->turno)
               ->where('cac.id_sucursal','=',$request->id_sucursal)
               ->where('cac.tipo_caja_c_a','=',$request->a_e)
-              ->where('ca.id_usuario','=',$user)   
+              ->where('ca.id_usuario','=',$user)  
+              ->whereBetween(DB::raw('DATE(cac.created_at)'), [$ini, $fini]) 
                 ->orderByDesc('cac.id')
-                ->limit($limite)
                 ->paginate(15);  
                 return 
                 [

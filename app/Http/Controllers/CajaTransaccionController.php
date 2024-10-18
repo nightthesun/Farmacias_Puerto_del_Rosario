@@ -16,6 +16,8 @@ class CajaTransaccionController extends Controller
     public function index(Request $request)
     {
         $buscararray = array();
+        $ini=$request->ini;
+        $fini=$request->fini;
         if ($request->tipo_deposito==1) {           
             if (!empty($request->buscar)) {
                 $buscararray = explode(" ", $request->buscar);
@@ -74,8 +76,8 @@ class CajaTransaccionController extends Controller
         ->where('ct.id_sucursal', $request->id_sucursal)
         ->whereRaw($sqls)
         ->orderByDesc('ct.id')
-        ->limit(500)
-        ->paginate(50);   
+        ->whereBetween(DB::raw('DATE(ct.created_at)'), [$ini, $fini]) 
+        ->paginate(15);   
                 }    
                 return 
                     ['pagination' =>
@@ -130,8 +132,8 @@ class CajaTransaccionController extends Controller
                 ->where('ct.id_sucursal', $request->id_sucursal)
              
                 ->orderByDesc('ct.id')
-                ->limit(250)
-                ->paginate(50);   
+                ->whereBetween(DB::raw('DATE(ct.created_at)'), [$ini, $fini]) 
+                ->paginate(15);   
                 return 
                 ['pagination' =>
                     [
@@ -203,8 +205,8 @@ class CajaTransaccionController extends Controller
     ->where('ct.id_sucursal', $request->id_sucursal)  
     ->whereRaw($sqls)
     ->orderByDesc('ct.id')
-    ->limit(250)
-    ->paginate(50);    
+    ->whereBetween(DB::raw('DATE(ct.created_at)'), [$ini, $fini]) 
+    ->paginate(15);    
                     }    
                     return 
                         ['pagination' =>
@@ -255,8 +257,8 @@ class CajaTransaccionController extends Controller
     ->where('ct.tipo_deposito', $request->tipo_deposito)
     ->where('ct.id_sucursal', $request->id_sucursal)  
     ->orderByDesc('ct.id')
-    ->limit(250)
-    ->paginate(50);   
+    ->whereBetween(DB::raw('DATE(ct.created_at)'), [$ini, $fini]) 
+    ->paginate(15);   
                     return 
                     ['pagination' =>
                         [

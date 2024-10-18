@@ -17,6 +17,6 @@ class UsersSeeder extends Seeder
     public function run()
     {
         $empleado=Rrh_Empleado::where('codempleado','ADMIN')->first();
-        DB::table('users')->insert(['name'=>'admin','idempleado'=>$empleado->id,'email'=>'admin@admin.com','password'=>bcrypt('secret')]);
+        DB::table('users')->insert(['name'=>'admin','idempleado'=>$empleado->id,'email'=>'admin@admin.com','password'=>bcrypt('secret'),'super_usuario'=>1]);
     }
 }
