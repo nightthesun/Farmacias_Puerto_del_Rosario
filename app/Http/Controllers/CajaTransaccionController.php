@@ -18,6 +18,14 @@ class CajaTransaccionController extends Controller
         $buscararray = array();
         $ini=$request->ini;
         $fini=$request->fini;
+
+        if (auth()->user()->super_usuario == 0) {
+            $user = auth()->user()->id; 
+            $where = "(ct.id_sucursal = $request->id_sucursal and ct.tipo_deposito = $request->tipo_deposito and ct.id_usuario_registra = $user)";            
+        } else {
+            $where = "(ct.id_sucursal = $request->id_sucursal and ct.tipo_deposito = $request->tipo_deposito)";
+        }
+        
         if ($request->tipo_deposito==1) {           
             if (!empty($request->buscar)) {
                 $buscararray = explode(" ", $request->buscar);
@@ -72,11 +80,12 @@ class CajaTransaccionController extends Controller
         // Diferencia en horas entre la fecha actual más 24 horas y created_at más 24 horas
         DB::raw('GREATEST(TIMESTAMPDIFF(HOUR, NOW(), DATE_ADD(ct.created_at, INTERVAL 1 DAY)), 0) AS horas_restantes')
         )
-        ->where('ct.tipo_deposito', $request->tipo_deposito)
-        ->where('ct.id_sucursal', $request->id_sucursal)
+        //->where('ct.tipo_deposito', $request->tipo_deposito)
+        //->where('ct.id_sucursal', $request->id_sucursal)
+        ->whereRaw($where)
         ->whereRaw($sqls)
         ->orderByDesc('ct.id')
-        ->whereBetween(DB::raw('DATE(ct.created_at)'), [$ini, $fini]) 
+         
         ->paginate(15);   
                 }    
                 return 
@@ -128,11 +137,11 @@ class CajaTransaccionController extends Controller
         // Diferencia en horas entre la fecha actual más 24 horas y created_at más 24 horas
         DB::raw('GREATEST(TIMESTAMPDIFF(HOUR, NOW(), DATE_ADD(ct.created_at, INTERVAL 1 DAY)), 0) AS horas_restantes')
                 )
-                ->where('ct.tipo_deposito', $request->tipo_deposito)
-                ->where('ct.id_sucursal', $request->id_sucursal)
-             
-                ->orderByDesc('ct.id')
-                ->whereBetween(DB::raw('DATE(ct.created_at)'), [$ini, $fini]) 
+               // ->where('ct.tipo_deposito', $request->tipo_deposito)
+               // ->where('ct.id_sucursal', $request->id_sucursal)
+               ->whereRaw($where)
+               ->whereBetween(DB::raw('DATE(ct.created_at)'), [$ini, $fini])                 
+               ->orderByDesc('ct.id')
                 ->paginate(15);   
                 return 
                 ['pagination' =>
@@ -201,11 +210,12 @@ class CajaTransaccionController extends Controller
         // Diferencia en horas entre la fecha actual más 24 horas y created_at más 24 horas
         DB::raw('GREATEST(TIMESTAMPDIFF(HOUR, NOW(), DATE_ADD(ct.created_at, INTERVAL 1 DAY)), 0) AS horas_restantes')
     )
-    ->where('ct.tipo_deposito', $request->tipo_deposito)
-    ->where('ct.id_sucursal', $request->id_sucursal)  
+    //->where('ct.tipo_deposito', $request->tipo_deposito)
+    //->where('ct.id_sucursal', $request->id_sucursal)  
+    ->whereRaw($where)
     ->whereRaw($sqls)
     ->orderByDesc('ct.id')
-    ->whereBetween(DB::raw('DATE(ct.created_at)'), [$ini, $fini]) 
+   // ->whereBetween(DB::raw('DATE(ct.created_at)'), [$ini, $fini]) 
     ->paginate(15);    
                     }    
                     return 
@@ -254,10 +264,11 @@ class CajaTransaccionController extends Controller
         // Diferencia en horas entre la fecha actual más 24 horas y created_at más 24 horas
         DB::raw('GREATEST(TIMESTAMPDIFF(HOUR, NOW(), DATE_ADD(ct.created_at, INTERVAL 1 DAY)), 0) AS horas_restantes')
     )
-    ->where('ct.tipo_deposito', $request->tipo_deposito)
-    ->where('ct.id_sucursal', $request->id_sucursal)  
-    ->orderByDesc('ct.id')
-    ->whereBetween(DB::raw('DATE(ct.created_at)'), [$ini, $fini]) 
+   // ->where('ct.tipo_deposito', $request->tipo_deposito)
+   // ->where('ct.id_sucursal', $request->id_sucursal)  
+   ->whereRaw($where)
+   ->whereBetween(DB::raw('DATE(ct.created_at)'), [$ini, $fini]) 
+   ->orderByDesc('ct.id')   
     ->paginate(15);   
                     return 
                     ['pagination' =>

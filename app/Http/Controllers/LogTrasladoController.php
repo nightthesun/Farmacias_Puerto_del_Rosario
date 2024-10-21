@@ -15,6 +15,9 @@ class LogTrasladoController extends Controller
     public function index(Request $request)
     {
         $buscararray=array();
+        $ini=$request->ini;
+        $fini=$request->fini;
+       
         $bus = $request->query('buscarAlmTdn');
         if(!empty($request->buscar)){
             $buscararray = explode(" ",$request->buscar);
@@ -76,9 +79,9 @@ class LogTrasladoController extends Controller
                         DB::raw('GREATEST(lt.created_at, lt.updated_at) as fecha'),
                         'lv.tipo as tipo_vehi' )
                         ->whereRaw($sqls)
-                        ->where('it.cod_1', '=', $bus)
-                        
-                        ->whereDate('lt.created_at', '>=', now()->subDays(30)) ->orderBy('id', 'desc')->paginate(8);
+                        ->whereBetween(DB::raw('DATE(lt.created_at)'), [$ini, $fini]) 
+                        ->where('it.cod_1', '=', $bus)                        
+                        ->orderBy('id', 'desc')->paginate(15);
 
             }    
             return  
@@ -128,8 +131,8 @@ class LogTrasladoController extends Controller
         DB::raw('GREATEST(lt.created_at, lt.updated_at) as fecha'),
         'lv.tipo as tipo_vehi')
         ->where('it.cod_1', '=', $bus)
-        
-        ->whereDate('lt.created_at', '>=', now()->subDays(30))->orderBy('id', 'desc')->paginate(8);
+        ->whereBetween(DB::raw('DATE(lt.created_at)'), [$ini, $fini]) 
+        ->orderBy('id', 'desc')->paginate(8);
      return  
                 [ 'pagination'=>
                         [

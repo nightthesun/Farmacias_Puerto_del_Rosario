@@ -14,10 +14,20 @@ class DirDistribuidorController extends Controller
     public function index(Request $request)
     {
         $buscararray = array();
-        ///persona
-        $limite=$request->limite;
-        if ($limite==0) {
-            $limite=999999999;
+        $ini=$request->ini;
+        $fini=$request->fini;
+        $var=0;
+        if ($request->tipo==1) {
+            $var=1;
+        }else{
+            $var=2;
+        }
+        
+        if (auth()->user()->super_usuario == 0) {
+            $user = auth()->user()->id;       
+            $where = "(dd.tipo_persona_empresa = $var and dd.id_usuario_registra = $user)";            
+        } else {
+            $where = "(dd.tipo_persona_empresa = $var)"; 
         }
         if ($request->tipo==1) {
             if (!empty($request->buscar)) {
@@ -57,10 +67,11 @@ class DirDistribuidorController extends Controller
                     ->join('dir__clientes as dc', 'dc.id', '=', 'dd.id_cliente')
                     ->join('dir__personas as dpe', 'dpe.id', '=', 'dc.id_per_emp')
                     ->join('users as u', DB::raw('COALESCE(dd.id_usuario_modifica, dd.id_usuario_registra)'), '=', 'u.id')
-                    ->where('dd.tipo_persona_empresa', 1)
+                    //->where('dd.tipo_persona_empresa', 1)
+                    ->whereRaw($where)
                     ->whereRaw($sqls)
         ->orderByDesc('dd.id')
-        ->limit($limite)
+    
         ->paginate(20);  
                 }  
                 return 
@@ -94,9 +105,10 @@ class DirDistribuidorController extends Controller
                     ->join('dir__clientes as dc', 'dc.id', '=', 'dd.id_cliente')
                     ->join('dir__personas as dpe', 'dpe.id', '=', 'dc.id_per_emp')
                     ->join('users as u', DB::raw('COALESCE(dd.id_usuario_modifica, dd.id_usuario_registra)'), '=', 'u.id')
-                    ->where('dd.tipo_persona_empresa', 1)                    
+                    ->whereRaw($where)   
+                    ->whereBetween(DB::raw('DATE(dd.created_at)'), [$ini, $fini])               
         ->orderByDesc('dd.id')
-        ->limit($limite)
+     
         ->paginate(20);
         return 
         ['pagination' =>
@@ -151,10 +163,10 @@ class DirDistribuidorController extends Controller
                         ->join('dir__clientes as dc', 'dc.id', '=', 'dd.id_cliente')
                         ->join('dir__empresas as de', 'de.id', '=', 'dc.id_per_emp')
                         ->join('users as u', DB::raw('COALESCE(dd.id_usuario_modifica, dd.id_usuario_registra)'), '=', 'u.id')
-                        ->where('dd.tipo_persona_empresa', 2)
+                        ->whereRaw($where)
         ->whereRaw($sqls)
             ->orderByDesc('dd.id')
-            ->limit($limite)
+    
             ->paginate(20);  
                     }  
                     return 
@@ -188,11 +200,10 @@ class DirDistribuidorController extends Controller
                     ->join('dir__clientes as dc', 'dc.id', '=', 'dd.id_cliente')
                     ->join('dir__empresas as de', 'de.id', '=', 'dc.id_per_emp')
                     ->join('users as u', DB::raw('COALESCE(dd.id_usuario_modifica, dd.id_usuario_registra)'), '=', 'u.id')
-                    ->where('dd.tipo_persona_empresa', 2)
-   
-        ->orderByDesc('dd.id')
-        ->limit($limite)
-        ->paginate(20); 
+                    ->whereRaw($where)
+                    ->whereBetween(DB::raw('DATE(dd.created_at)'), [$ini, $fini])  
+        ->orderByDesc('dd.id')        
+        ->paginate(15); 
             return 
             ['pagination' =>
                 [

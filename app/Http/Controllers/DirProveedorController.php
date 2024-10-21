@@ -14,9 +14,21 @@ class DirProveedorController extends Controller
     public function index(Request $request)
     {
         $buscararray = array();
-        $limite=$request->limite;
-        if ($limite==0) {
-            $limite=999999999;
+        $ini=$request->ini;
+        $fini=$request->fini;
+        $var=0;
+
+        if ($request->tipo==1) {
+            $var=1;
+        }else{
+            $var=2;
+        }
+        
+        if (auth()->user()->super_usuario == 0) {
+            $user = auth()->user()->id; 
+            $where = "(dp.tipo_persona_empresa = $var and dp.id_usuario_registra = $user)";            
+        } else {
+            $where = "(dp.tipo_persona_empresa = $var)"; 
         }
         ///persona
         if ($request->tipo==1) {
@@ -65,11 +77,11 @@ class DirProveedorController extends Controller
         DB::raw("CONCAT(COALESCE(dpe.nombres, ''), ' ', COALESCE(dpe.apellidos, '')) as name_all"),
         'u.name'
     )
-    ->where('dp.tipo_persona_empresa', 1)
+    //->where('dp.tipo_persona_empresa', 1)
+    ->whereRaw($where)
     ->whereRaw($sqls)
-        ->orderByDesc('dp.id')
-        ->limit($limite)
-        ->paginate(20);  
+        ->orderByDesc('dp.id')       
+        ->paginate(15);  
                 }  
                 return 
                     ['pagination' =>
@@ -110,10 +122,11 @@ class DirProveedorController extends Controller
         DB::raw("CONCAT(COALESCE(dpe.nombres, ''), ' ', COALESCE(dpe.apellidos, '')) as name_all"),
         'u.name'
     )
-    ->where('dp.tipo_persona_empresa', 1) 
-        ->orderByDesc('dp.id')
-        ->limit($limite)
-        ->paginate(20);
+    //->where('dp.tipo_persona_empresa', 1) 
+    ->whereRaw($where)
+    ->whereBetween(DB::raw('DATE(dp.created_at)'), [$ini, $fini]) 
+        ->orderByDesc('dp.id')     
+        ->paginate(15);
         return 
         ['pagination' =>
             [
@@ -175,11 +188,10 @@ class DirProveedorController extends Controller
                             'de.razon_social as name_all',
                             'u.name'
                         )
-                        ->where('dp.tipo_persona_empresa', 2)
+                        ->whereRaw($where)
         ->whereRaw($sqls)
-            ->orderByDesc('dp.id')
-            ->limit($limite)
-            ->paginate(20);  
+            ->orderByDesc('dp.id')        
+            ->paginate(15);  
                     }  
                     return 
                         ['pagination' =>
@@ -220,11 +232,11 @@ class DirProveedorController extends Controller
                         'de.razon_social as name_all',
                         'u.name'
                     )
-                    ->where('dp.tipo_persona_empresa', 2)
-   
-        ->orderByDesc('dp.id')
-        ->limit($limite)
-        ->paginate(20); 
+                   
+                    ->whereRaw($where)
+                    ->whereBetween(DB::raw('DATE(dp.created_at)'), [$ini, $fini]) 
+        ->orderByDesc('dp.id')    
+        ->paginate(15); 
             return 
             ['pagination' =>
                 [

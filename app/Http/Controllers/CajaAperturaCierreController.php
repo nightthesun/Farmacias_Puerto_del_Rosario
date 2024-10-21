@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Caja_AperturaCierre;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -20,7 +21,13 @@ class CajaAperturaCierreController extends Controller
         $ini=$request->ini;
         $fini=$request->fini;
         
-        $user= auth()->user()->id; 
+        if (auth()->user()->super_usuario == 0) {
+            $user = auth()->user()->id; 
+            $where = "(cac.id_sucursal = $request->id_sucursal and cac.tipo_caja_c_a = $request->a_e and ca.id_usuario = $user)";            
+        } else {
+            $where = "(cac.id_sucursal = $request->id_sucursal and cac.tipo_caja_c_a = $request->a_e)";
+        }
+        
         if (!empty($request->buscar)) {
             $buscararray = explode(" ", $request->buscar);
             $valor = sizeof($buscararray);
@@ -31,12 +38,12 @@ class CajaAperturaCierreController extends Controller
                         $sqls = "(
                                 u.name like '%" . $valor . "%' 
                                 or cac.estado_caja like '%" . $valor . "%' 
-                            or cac.created_at like '%" . $valor . "%'                                 
+                            or cac.id like '%" . $valor . "%'                                 
                                )";
                     } else {
                         $sqls .= "and (u.name like '%" . $valor . "%' 
                         or cac.estado_caja like '%" . $valor . "%' 
-                       or cac.created_at like '%" . $valor . "%' 
+                       or cac.id like '%" . $valor . "%' 
                        )";
                     }
                 }
@@ -49,12 +56,13 @@ class CajaAperturaCierreController extends Controller
                         DB::raw('(cac.total_venta_caja + cac.total_ingreso_caja) as ingresos'),
                        'ca.cantidad_billete','ca.total_billete','ca.cantidad_moneda','ca.total_moneda','ca.tipo_moneda'
                         )
-                        ->where('cac.id_sucursal','=',$request->id_sucursal)
-                        ->where('cac.tipo_caja_c_a','=',$request->a_e)          
-                        ->where('ca.id_usuario','=',$user)   
-                ->whereRaw($sqls)               
+                     //   ->where('cac.id_sucursal','=',$request->id_sucursal)
+                     //   ->where('cac.tipo_caja_c_a','=',$request->a_e)          
+                     //   ->where('ca.id_usuario','=',$user)   
+                     ->whereRaw($where)
+                     ->whereRaw($sqls)               
                 ->orderByDesc('cac.id')
-                ->whereBetween(DB::raw('DATE(cac.created_at)'), [$ini, $fini]) 
+           
                 ->paginate(15);               
             }   
             return 
@@ -80,11 +88,7 @@ class CajaAperturaCierreController extends Controller
                         DB::raw('(cac.total_venta_caja + cac.total_ingreso_caja) as ingresos'),
                         'ca.cantidad_billete','ca.total_billete','ca.cantidad_moneda','ca.total_moneda','ca.tipo_moneda'
                         )
-              //  ->where('cac.id_sucursal', $request->id_sucursal)
-              //  ->where('cac.tipo_caja_c_a','=',$request->turno)
-              ->where('cac.id_sucursal','=',$request->id_sucursal)
-              ->where('cac.tipo_caja_c_a','=',$request->a_e)
-              ->where('ca.id_usuario','=',$user)  
+                        ->whereRaw($where) 
               ->whereBetween(DB::raw('DATE(cac.created_at)'), [$ini, $fini]) 
                 ->orderByDesc('cac.id')
                 ->paginate(15);  

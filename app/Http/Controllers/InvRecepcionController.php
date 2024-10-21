@@ -23,6 +23,8 @@ class InvRecepcionController extends Controller
     public function index(Request $request)
     {
         $buscararray = array();
+        $ini=$request->ini;
+        $fini=$request->fini;
         $bus = $request->query('buscarAlmTdn');
         if (!empty($request->buscar)) {
             $buscararray = explode(" ", $request->buscar);
@@ -83,7 +85,8 @@ class InvRecepcionController extends Controller
                 ->where('it.id_tipoentrada', '=', 13)
                 ->where('it.cod_2', '=', $bus)
                 ->whereRaw($sqls)
-                ->whereDate('ir.created_at', '>=', now()->subDays(30))->orderBy('id', 'desc');
+                ->whereBetween(DB::raw('DATE(ir.created_at)'), [$ini, $fini]) 
+                ->orderBy('id', 'desc');
                 $recepcion_tda = DB::table('inv__recepcions as ir')
                 ->select(
                     'ir.id as id', 'ir.observacion as rec_observacion', 'it.id as id_traspaso', 'tt.id as id_almacen_tienda', 'it.id_prod_producto as id_prod_producto',
@@ -111,8 +114,9 @@ class InvRecepcionController extends Controller
                 ->leftJoin('log__vehiculos as lv', 'lv.id', '=', 'lt.id_vehiculo')
                 ->where('it.id_tipoentrada', '=', 13)
                 ->where('it.cod_2', '=', $bus)
+                ->whereBetween(DB::raw('DATE(ir.created_at)'), [$ini, $fini]) 
                 ->whereRaw($sqls)
-                ->whereDate('ir.created_at', '>=', now()->subDays(30))->orderBy('id', 'desc');
+                ->orderBy('id', 'desc');
                 $resultadoCombinacion = $recepcion_alm->unionAll($recepcion_tda)->paginate(10);   
             } 
             return
@@ -158,8 +162,8 @@ class InvRecepcionController extends Controller
                 ->leftJoin('log__vehiculos as lv', 'lv.id', '=', 'lt.id_vehiculo')
                 ->where('it.id_tipoentrada', '=', 13)
                 ->where('it.cod_2', '=', $bus)
-              
-                ->whereDate('ir.created_at', '>=', now()->subDays(30))->orderBy('id', 'desc');
+                ->whereBetween(DB::raw('DATE(ir.created_at)'), [$ini, $fini]) 
+              ->orderBy('id', 'desc');
                 $recepcion_tda = DB::table('inv__recepcions as ir')
                 ->select(
                     'ir.id as id', 'ir.observacion as rec_observacion', 'it.id as id_traspaso', 'tt.id as id_almacen_tienda', 'it.id_prod_producto as id_prod_producto',
@@ -187,8 +191,8 @@ class InvRecepcionController extends Controller
                 ->leftJoin('log__vehiculos as lv', 'lv.id', '=', 'lt.id_vehiculo')
                 ->where('it.id_tipoentrada', '=', 13)
                 ->where('it.cod_2', '=', $bus)
-               
-                ->whereDate('ir.created_at', '>=', now()->subDays(30))->orderBy('id', 'desc');
+                ->whereBetween(DB::raw('DATE(ir.created_at)'), [$ini, $fini]) 
+               ->orderBy('id', 'desc');
                 $resultadoCombinacion = $recepcion_alm->unionAll($recepcion_tda)->paginate(10); 
                 return
             [

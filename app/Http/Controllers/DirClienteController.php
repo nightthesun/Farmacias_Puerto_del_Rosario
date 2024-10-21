@@ -15,11 +15,8 @@ class DirClienteController extends Controller
     public function index(Request $request)
     {
         $buscararray=array();
-        $limite_x=$request->limite;
-       
-        if ($limite_x==10) {
-            $limite_x=9999999999999;
-        }
+        $ini=$request->ini;
+        $fini=$request->fini;  
         $bus = $request->query('buscarP_E');
         if(!empty($request->buscar)){
             $buscararray = explode(" ",$request->buscar);
@@ -109,8 +106,8 @@ class DirClienteController extends Controller
                 'dc.activo'
             )
             ->orderBy('dc.id', 'desc')
-            ->limit($limite_x)
-            ->paginate(25);
+   
+            ->paginate(15);
 
          } else {
             if ($bus==2) {
@@ -145,6 +142,7 @@ class DirClienteController extends Controller
                 ->join('dir__empresas as de', 'dc.id_per_emp', '=', 'de.id')
                 ->leftJoin('ven__recibos as vr', 'vr.id_cliente', '=', 'dc.id')
                 ->where('dc.tipo_per_emp', '=', 2)
+                ->whereRaw($sqls)
                 ->groupBy(
                     'dc.id',
                     'dc.id_per_emp',
@@ -168,7 +166,7 @@ class DirClienteController extends Controller
                     'dt.datos'
                 )
                 ->orderBy('dc.id', 'desc')
-                ->limit($limite_x)
+            
                 ->paginate(25);
             } else {
                dd("error de ingreso");
@@ -225,6 +223,7 @@ class DirClienteController extends Controller
     ->join('dir__personas as dp', 'dp.id', '=', 'dc.id_per_emp')
     ->leftJoin('ven__recibos as vr', 'vr.id_cliente', '=', 'dc.id')
     ->where('dc.tipo_per_emp', '=', 1)
+    ->whereBetween(DB::raw('DATE(dc.created_at)'), [$ini, $fini]) 
     ->groupBy(
         'dc.id',
         'dc.id_per_emp',
@@ -250,8 +249,8 @@ class DirClienteController extends Controller
         'dc.activo'
     )
     ->orderBy('dc.id', 'desc')
-    ->limit($limite_x)
-    ->paginate(25);
+ 
+    ->paginate(15);
     return  
         [ 'pagination'=>
                 [
@@ -298,6 +297,7 @@ class DirClienteController extends Controller
                 ->join('dir__empresas as de', 'dc.id_per_emp', '=', 'de.id')
                 ->leftJoin('ven__recibos as vr', 'vr.id_cliente', '=', 'dc.id')
                 ->where('dc.tipo_per_emp', '=', 2)
+                ->whereBetween(DB::raw('DATE(dc.created_at)'), [$ini, $fini]) 
                 ->groupBy(
                     'dc.id',
                     'dc.id_per_emp',
@@ -321,8 +321,8 @@ class DirClienteController extends Controller
                     'dt.datos'
                 )
                 ->orderBy('dc.id', 'desc')
-                ->limit($limite_x)
-                ->paginate(25);
+          
+                ->paginate(15);
                 return  
         [ 'pagination'=>
                 [

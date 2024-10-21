@@ -20,6 +20,14 @@ class VenGestorVentaVistaController extends Controller
 $codigo = $request->codigo_tienda_almacen;
 $startDate = $request->startDate;
 $endDate = $request->endDate;
+//->where('vr.id_sucursal', $sucursalId)
+    //->where('vr.cod', $codigo)
+if (auth()->user()->super_usuario == 0) {
+    $user = auth()->user()->id; 
+    $where = "(vr.id_sucursal = $sucursalId and vr.cod = $codigo and vr.id_usuario = $user)";            
+} else {
+    $where = "(vr.id_sucursal = $sucursalId and vr.cod = $codigo)";   
+}
 
         $buscararray=array();        
         if(!empty($request->buscar))
@@ -107,9 +115,10 @@ $endDate = $request->endDate;
     END AS nombre_completo_cliente"),
     'dc.correo','vr.dosificacion_o_electronica' 
     )
-    ->where('vr.id_sucursal', $sucursalId)
-    ->where('vr.cod', $codigo)
-    ->whereBetween(DB::raw('DATE(vr.created_at)'), [$startDate, $endDate])
+    //->where('vr.id_sucursal', $sucursalId)
+    //->where('vr.cod', $codigo)
+    ->whereRaw($where)
+    //->whereBetween(DB::raw('DATE(vr.created_at)'), [$startDate, $endDate])
     ->whereRaw($sqls)
     ->orderByDesc('vr.id')
     ->paginate(15);
@@ -189,6 +198,7 @@ $endDate = $request->endDate;
     )
     ->where('vr.id_sucursal', $sucursalId)
     ->where('vr.cod', $codigo)
+    //->whereRaw($where)
     ->whereBetween(DB::raw('DATE(vr.created_at)'), [$startDate, $endDate])
    
     ->orderByDesc('vr.id')

@@ -18,10 +18,10 @@
                 </div>
                 <div class="card-body">
                     <div class="form-group row">
-                        <div class="col-md-2" style="text-align: center">
+                        <div class="col-md-1" style="text-align: right">
                             <label for="">Persona o Empresa:</label>
                          </div>
-                        <div class="col-md-4">
+                        <div class="col-md-5">
                             <div class="input-group">
                                 <select class="form-control" @change="listarCliente(1)" v-model="selectTipo">
                                     <option value="0" disabled selected>Seleccionar...</option>
@@ -37,7 +37,7 @@
                         
                         </div>
                        
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <div class="input-group">
                                 <input
                                     type="text"
@@ -62,28 +62,26 @@
                             </div>
                         </div>
                     </div>
-                    <div class="form-group row">
-                        <div class="col-md-2" style="text-align: center">
-                            <label for="" :hidden="selectTipo == 0">Rango de clientes:</label>
-                         </div>
-                         <div class="col-md-4">
-                            <div class="input-group">
-                          
-                    
-                    <select class="form-control"  @change="listarCliente(1)" v-model="limite_X" :hidden="selectTipo == 0"
-                    :disabled="selectTipo == 0">
-                        <option value="0" disabled selected>Seleccionar...</option>
-                        <option v-for="l in arrayLimite" :key="l.id" :value="l.limite">
-                            <span v-if="l.limite === 10">Todos</span>
-                            <span v-else>{{ l.limite }}</span>
-                        </option>
-                    </select>
-              
-         
-                             </div>
-                        </div>        
-                    </div>   
-                    <div v-if="selectTipo===0" class="alert alert-secondary" role="alert">
+
+
+                    <div class="form-group row" :hidden="selectTipo === 0" :disabled="selectTipo === 0">
+                <div class="col-md-1" style="text-align: center">
+                    <label for=""></label>
+                </div>
+                <div class="col-md-5">
+                    <label for="Apectura / Cierre:"></label>          
+                </div>
+                <div class="col-md-3">
+          <label for="start-date">Fecha inicial:</label>
+          <input id="start-date" type="date" class="form-control" v-model="startDate" :disabled="selectTipo===0" @change="listarCliente(1)">
+        </div>
+        <div class="col-md-3">
+          <label for="end-date">Fecha final:</label>
+          <input id="end-date" type="date" class="form-control" v-model="endDate" :disabled="selectTipo===0" @change="listarCliente(1)">
+        </div>
+            </div> 
+
+                     <div v-if="selectTipo===0" class="alert alert-secondary" role="alert">
   Debe seleccionar una opcion.
 </div>
                    <div v-else>
@@ -427,14 +425,11 @@
                 buscar:'',
                 tituloModal:'',    
                 tipoAccion:1, 
-                arrayLimite:[{id:1,limite:50},
-                {id:2,limite:100},
-                {id:3,limite:200},
-                {id:4,limite:400},
-                {id:5,limite:800},
-                {id:6,limite:10},
-                ],
-                limite_X:50,
+                
+            //limitado 
+            startDate: '',
+            endDate: '',
+
                 arrayTipo:[{id:1,tipo:'Persona'},
                             {id:2,tipo:'Empresa'}],
                 selectTipo:0,  
@@ -545,7 +540,7 @@
                 let me=this;
                 
                 if (me.selectTipo!=0) {
-                    var url='/directorio?page='+page+'&buscar='+me.buscar+'&buscarP_E='+me.selectTipo+'&limite='+me.limite_X;
+                    var url='/directorio?page='+page+'&buscar='+me.buscar+'&buscarP_E='+me.selectTipo+"&ini="+me.startDate+"&fini="+me.endDate;
                 axios.get(url)
                 .then(function(response){
                     var respuesta = response.data;
@@ -876,6 +871,26 @@
             }    
             }                          
         },
+
+        fecha_inicial() {
+    // Obtener la fecha actual
+    const today = new Date();    
+    // Obtener la fecha actual menos 5 días
+    const startDate = new Date();
+    startDate.setDate(today.getDate() - 30);
+    // Formatear el año, mes y día para la fecha de inicio
+    const startYear = startDate.getFullYear();
+    const startMonth = String(startDate.getMonth() + 1).padStart(2, '0'); // Meses en JavaScript son de 0 a 11
+    const startDay = String(startDate.getDate()).padStart(2, '0');
+    // Formatear el año, mes y día para la fecha final (hoy)
+    const endYear = today.getFullYear();
+    const endMonth = String(today.getMonth() + 1).padStart(2, '0');
+    const endDay = String(today.getDate()).padStart(2, '0');
+    // Asignar las fechas a los campos correspondientes
+    this.startDate = `${startYear}-${startMonth}-${startDay}`;  // Fecha de inicio (5 días antes)
+    this.endDate = `${endYear}-${endMonth}-${endDay}`;  // Fecha final (hoy)
+},        
+
         eliminar(id){
                 let me=this;
                 const swalWithBootstrapButtons = Swal.mixin({
@@ -976,6 +991,7 @@
         this.listarPerimsoxyz();
         //      this.listarAlmacenes_tiendas_con_permisos();
         //-----------------------
+        this.fecha_inicial();
         this.classModal = new _pl.Modals();
         this.classModal.addModal('registrar');
         this.listarCliente();

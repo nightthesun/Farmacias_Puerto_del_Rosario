@@ -44,7 +44,7 @@
                                     id="texto"
                                     name="texto"
                                     class="form-control"
-                                    placeholder="Puede buscar por usuario, codigo o estado de caja"
+                                    placeholder="BUSCAR POR USUARIO, CODIGO O ESTADO DE CAJA."
                                     v-model="buscar"
                                     @keyup.enter="listarIndex(1)" 
                                     :hidden="sucursalSeleccionada === 0"
@@ -79,13 +79,12 @@
                 </div>
         <div class="col-md-3">
           <label for="start-date">Fecha inicial:</label>
-          <input id="start-date" type="date" class="form-control" v-model="startDate">
+          <input id="start-date" type="date" class="form-control" v-model="startDate" :disabled="selectApertura_Cierre===1" @change="listarIndex(0)">
         </div>
         <div class="col-md-3">
           <label for="end-date">Fecha final:</label>
-          <input id="end-date" type="date" class="form-control" v-model="endDate">
-        </div>
-        
+          <input id="end-date" type="date" class="form-control" v-model="endDate" :disabled="selectApertura_Cierre===1" @change="listarIndex(0)">
+        </div>        
             </div>   
               
 

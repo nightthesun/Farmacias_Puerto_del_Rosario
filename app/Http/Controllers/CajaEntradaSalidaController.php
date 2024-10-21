@@ -15,10 +15,17 @@ class CajaEntradaSalidaController extends Controller
      */
     public function index(Request $request)
     {
-        $user=auth()->user()->id;
+       
         $buscararray = array();   
         $ini=$request->ini;
         $fini=$request->fini;  
+   
+        if (auth()->user()->super_usuario == 0) {
+            $user = auth()->user()->id; 
+            $where = "(ces.id_sucursal = $request->id_sucursal and ces.entrada_salida = $request->entrada_salida and ca.id_usuario = $user)";            
+        } else {
+            $where = "(ces.id_sucursal = $request->id_sucursal and ces.entrada_salida = $request->entrada_salida)";  
+        }
         if (!empty($request->buscar)) {
             $buscararray = explode(" ", $request->buscar);
             $valor = sizeof($buscararray);
@@ -66,12 +73,12 @@ class CajaEntradaSalidaController extends Controller
                    DB::raw('CONCAT(ad.nombre, " - ", ass.ciudad) AS dir')
 
                )
-               ->where('ces.id_sucursal', $request->id_sucursal)
-               ->where('ces.entrada_salida', $request->entrada_salida)
-               ->where('ca.id_usuario', $user)              
+               ->whereRaw($where)   
+               //->where('ces.id_sucursal', $request->id_sucursal)
+               //->where('ces.entrada_salida', $request->entrada_salida)
+               //->where('ca.id_usuario', $user)              
                ->whereRaw($sqls)
-               ->orderByDesc('ces.id')
-               ->whereBetween(DB::raw('DATE(ces.created_at)'), [$ini, $fini]) 
+               ->orderByDesc('ces.id')             
                 ->paginate(15);
             }
             return     
@@ -114,9 +121,10 @@ class CajaEntradaSalidaController extends Controller
                    'ces.entrada_salida as cadena_A',
                    DB::raw('CONCAT(ad.nombre, " - ", ass.ciudad) AS dir')
                )
-               ->where('ces.id_sucursal', $request->id_sucursal)
-               ->where('ces.entrada_salida', $request->entrada_salida) 
-               ->where('ca.id_usuario', $user)               
+               //->where('ces.id_sucursal', $request->id_sucursal)
+               //->where('ces.entrada_salida', $request->entrada_salida) 
+               //->where('ca.id_usuario', $user)               
+               ->whereRaw($where)   
                ->orderByDesc('ces.id')          
                ->whereBetween(DB::raw('DATE(ces.created_at)'), [$ini, $fini]) 
                ->paginate(15);

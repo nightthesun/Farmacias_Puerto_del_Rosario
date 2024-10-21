@@ -28,7 +28,7 @@
                 <div class="col-md-2" style="text-align: center">
                      <label for="">Almacen o Tienda:</label>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-4">
                             <div class="input-group">
                                 <select
                                     class="form-control"
@@ -52,7 +52,7 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <div class="input-group">
                                 <input
                                     type="text"
@@ -78,6 +78,24 @@
                         </div>
 
             </div>
+
+            <div class="form-group row"  :hidden="selectAlmTienda == 0" :disabled="selectAlmTienda == 0">
+                <div class="col-md-1">
+                     <label for=""></label>
+                </div>
+                <div class="col-md-5">                    
+                        <label for=""></label>
+                                            
+                </div>
+        <div class="col-md-3">
+          <label for="start-date">Fecha inicial:</label>
+          <input id="start-date" type="date" class="form-control" v-model="startDate" :disabled="selectAlmTienda===0" @change="listarRecepcion(0)">
+        </div>
+        <div class="col-md-3">
+          <label for="end-date">Fecha final:</label>
+          <input id="end-date" type="date" class="form-control" v-model="endDate" :disabled="selectAlmTienda===0" @change="listarRecepcion(0)">
+        </div>        
+            </div>   
             <!--inicio de tabla-->
             <table class="table table-bordered table-striped table-sm table-responsive" >
                 <thead>
@@ -463,7 +481,9 @@ export default {
                 puedeHacerOpciones_especiales:2,
                 puedeCrear:2,
                 //-----------
-          
+          //limitado                    
+          startDate: '',
+            endDate: '',
         };
     },
 
@@ -587,7 +607,7 @@ export default {
 
         listarRecepcion(page){
             let me=this;
-                var url='/recepcion?page='+page+'&buscar='+me.buscar+'&buscarAlmTdn='+me.selectAlmTienda;
+                var url='/recepcion?page='+page+'&buscar='+me.buscar+'&buscarAlmTdn='+me.selectAlmTienda+"&ini="+me.startDate+"&fini="+me.endDate;
              
                 axios.get(url)
                 .then(function(response){
@@ -847,6 +867,26 @@ me.isSubmitting = true; // Deshabilita el botón
             
             }
         },
+
+        fecha_inicial() {
+    // Obtener la fecha actual
+    const today = new Date();    
+    // Obtener la fecha actual menos 5 días
+    const startDate = new Date();
+    startDate.setDate(today.getDate() - 20);
+    // Formatear el año, mes y día para la fecha de inicio
+    const startYear = startDate.getFullYear();
+    const startMonth = String(startDate.getMonth() + 1).padStart(2, '0'); // Meses en JavaScript son de 0 a 11
+    const startDay = String(startDate.getDate()).padStart(2, '0');
+    // Formatear el año, mes y día para la fecha final (hoy)
+    const endYear = today.getFullYear();
+    const endMonth = String(today.getMonth() + 1).padStart(2, '0');
+    const endDay = String(today.getDate()).padStart(2, '0');
+    // Asignar las fechas a los campos correspondientes
+    this.startDate = `${startYear}-${startMonth}-${startDay}`;  // Fecha de inicio (5 días antes)
+    this.endDate = `${endYear}-${endMonth}-${endDay}`;  // Fecha final (hoy)
+},
+
         cerrarModal(accion) {
             let me = this;
             if (accion == "registrar") {
@@ -1009,7 +1049,8 @@ me.isSubmitting = true; // Deshabilita el botón
         this.classModal = new _pl.Modals();
         this.listarAlmTienda();
         this.classModal.addModal("registrar");
-        this. listarTraspaso();
+        this.listarTraspaso();
+        this.fecha_inicial();
         this.classModal.addModal("staticBackdrop");
         this.listarRecepcion();
         

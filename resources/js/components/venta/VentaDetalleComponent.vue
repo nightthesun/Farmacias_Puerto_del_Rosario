@@ -18,7 +18,7 @@
                 <div class="col-md-2" style="text-align: center">
                      <label for="">Almacen o Tienda:</label>
                 </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <div class="input-group">
                                 <select class="form-control" v-model="sucursalSeleccionada"    @change="listarVentas(0)">
                                     <option value="0" disabled selected>Seleccionar...</option>
@@ -34,14 +34,14 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <div class="input-group">  
                                 <input
                                     type="text"
                                     id="texto"
                                     name="texto"
                                     class="form-control"
-                                    placeholder="Texto a buscar por usuario, nombre a facturar, numero de documento"
+                                    placeholder="BUSCAR POR USUARIO, NOMBRE A FACTURAR O NUMERO DOCUMENTO"
                                     v-model="buscar"
                                     @keyup.enter="listarVentas(1)" 
                                     :hidden="sucursalSeleccionada == 0"
@@ -58,26 +58,27 @@
                                 </button>
                             </div>
                         </div>
-                        
-                       
-
             </div>
-             
 
-            <div class="row justify-content-center">
-    <div class="col-md-8">
-      <div class="row">
-        <div class="col-md-4" v-if="sucursalSeleccionada !== 0">
+            <div class="form-group row"  :hidden="sucursalSeleccionada == 0" :disabled="sucursalSeleccionada == 0">
+                <div class="col-md-1">
+                     <label for=""></label>
+                </div>
+                <div class="col-md-5">              
+                               
+                </div>
+        <div class="col-md-3">
           <label for="start-date">Fecha inicial:</label>
-          <input  @change="listarVentas(1)" id="start-date" type="date" class="form-control" v-model="startDate">
+          <input id="start-date" type="date" class="form-control" v-model="startDate" :disabled="sucursalSeleccionada===0" @change="listarVentas(0)">
         </div>
-        <div class="col-md-4" v-if="sucursalSeleccionada !== 0">
+        <div class="col-md-3">
           <label for="end-date">Fecha final:</label>
-          <input  @change="listarVentas(1)" id="end-date" type="date" class="form-control" v-model="endDate">
+          <input id="end-date" type="date" class="form-control" v-model="endDate" :disabled="sucursalSeleccionada===0" @change="listarVentas(0)">
         </div>
-      </div>
-    </div>
-  </div>
+        
+            </div>   
+
+   
   <br>
   
     <div v-if="sucursalSeleccionada ===0" class="alert alert-secondary" role="alert">

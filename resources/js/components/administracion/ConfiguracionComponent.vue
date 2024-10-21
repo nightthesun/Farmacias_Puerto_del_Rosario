@@ -43,6 +43,9 @@
                             <div class="card-header">
                                 Credencial para servidor de correos
                             </div>
+                            <div class="alert alert-info" role="alert">
+  La configuración solo afectara a servidor de correos y <strong>correo default para crear clientes</strong>
+</div>
                             <div class="card-body">    
                                 <div class="form-group row">
 
@@ -113,6 +116,9 @@
                             <div class="card-header">
                               Datos de la empresa
                             </div>
+                            <div class="alert alert-info" role="alert">
+  La configuración solo afectara a datos del sistema tambien <strong>tomara los datos para la facturación</strong>
+</div>
                             <div class="card-body">
                                 <div class="form-group row">
 
@@ -163,6 +169,9 @@
                             <div class="card-header">
                              Tipo de venta
                             </div>
+                            <div class="alert alert-info" role="alert">
+  La configuración afecta en el tipo facturación, <strong>tambien afecta a modulo de ventas</strong>
+</div>
                             <div class="card-body">
                                 <div class="form-group row">
                                     <label class="col-md-1 form-control-label" for="text-input" style="font-size: 12px;"><strong>Tipo:</strong> 
@@ -200,6 +209,7 @@
                 <div class="tab-pane fade" id="pills-moneda" role="tabpanel" aria-labelledby="pills-moneda-tab">                    
                     <div class="card">
                         <div class="card-header">Tipo de moneda</div>
+             
                         <div class="card-body">
                             <div class="form-group row">
                                 <label class="col-md-1 form-control-label" for="text-input" style="font-size: 12px;"><strong>Tipo:</strong> 
@@ -494,6 +504,9 @@
 <div class="tab-pane fade" id="pills-superUser" role="tabpanel" aria-labelledby="pills-superUser-tab">
     <div class="card-body">
         <!-- insertar datos -->    
+        <div class="alert alert-info" role="alert">
+  La configuración afecta el tipo de vista por usuario especifico. <strong>Puede ver todos los usuarios o usuario autencicado</strong>
+</div>
         <div class="container">
                                 
                                 <div class="form-group row">
