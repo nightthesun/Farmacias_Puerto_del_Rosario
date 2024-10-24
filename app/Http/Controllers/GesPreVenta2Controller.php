@@ -300,7 +300,8 @@ class GesPreVenta2Controller extends Controller
                ;
                $queryCombinacion = $almacen->where('aa.codigo', '=', $bus)->whereRaw($sqls)
                ->unionAll($tienda->where('tt.codigo','=',$bus)->whereRaw($sqls)); 
-               $queryCombinacion = $queryCombinacion -> orderByRaw('id DESC')->paginate(15); 
+               $queryCombinacion = $queryCombinacion -> orderByRaw('id DESC')->limit(1);
+               $queryCombinacion = $queryCombinacion->paginate(15);  
             }    
             return
             [
@@ -571,7 +572,8 @@ class GesPreVenta2Controller extends Controller
             ->unionAll($tienda->where('pivot.tipo', '=', 'TDA')->where('tt.codigo','=',$bus)); 
 
            
-            $queryCombinacion = $queryCombinacion -> orderByRaw('id DESC')->paginate(15); 
+            $queryCombinacion = $queryCombinacion -> orderByRaw('id DESC')->limit(1);
+            $queryCombinacion = $queryCombinacion->paginate(15);  
            
             return [
                 'pagination' => [
@@ -840,7 +842,8 @@ class GesPreVenta2Controller extends Controller
            ;
            $queryCombinacion = $almacen->where('prp.id_lista', '=', $request->lista)->whereRaw($sqls)
            ->unionAll($tienda->where('prp.id_lista', '=', $request->lista)->whereRaw($sqls)); 
-           $queryCombinacion = $queryCombinacion -> orderByRaw('id DESC')->paginate(15); 
+           $queryCombinacion = $queryCombinacion -> orderByRaw('id DESC')->limit(1); 
+           $queryCombinacion = $queryCombinacion->paginate(15); 
         }    
         return
         [
@@ -1086,7 +1089,8 @@ class GesPreVenta2Controller extends Controller
         ;
         $queryCombinacion = $almacen->where('prp.id_lista', '=', $request->lista)
         ->unionAll($tienda->where('prp.id_lista', '=', $request->lista)); 
-        $queryCombinacion = $queryCombinacion -> orderByRaw('id DESC')->paginate(15); 
+        $queryCombinacion = $queryCombinacion -> orderByRaw('id DESC')->limit(1);
+        $queryCombinacion = $queryCombinacion->paginate(15); 
         return [
             'pagination' => [
                 'total'         =>    $queryCombinacion->total(),

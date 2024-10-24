@@ -21,6 +21,16 @@ class InvTraspasoController extends Controller
         $buscararray = array();
         $bus = $request->query('buscarAlmTdn');
  
+        $ini=$request->ini;
+        $fini=$request->fini;
+   
+        if (auth()->user()->super_usuario == 0) {
+            $user = auth()->user()->id; 
+            $where = "(it.cod_1 = '$bus' and it.user_id = $user)";            
+        } else {
+            $where = "(it.cod_1 = '$bus')"; 
+        }
+
         if (!empty($request->buscar)) {
             $buscararray = explode(" ", $request->buscar);
             $valor = sizeof($buscararray);
@@ -135,7 +145,7 @@ class InvTraspasoController extends Controller
                 ->leftJoin('tda__tiendas as tt_2', 'tt_2.codigo', '=', 'it.cod_2')
                 ->join('users as u', 'u.id', '=', 'it.user_id');
 
-    $reusltadocombinado = $traspasos_alm->where('it.cod_1', '=', $bus)->whereRaw($sqls)->orderBy('id', 'desc')->unionAll($traspasos_tienda->where('it.cod_1', '=', $bus)->whereRaw($sqls)->orderBy('id', 'desc'));
+    $reusltadocombinado = $traspasos_alm->whereRaw($where)->whereRaw($sqls)->orderBy('id', 'desc')->unionAll($traspasos_tienda->whereRaw($where)->whereRaw($sqls)->orderBy('id', 'desc'));
     $reusltadocombinado= $reusltadocombinado ->orderByRaw('id DESC')->paginate(15);
  
    
@@ -242,7 +252,7 @@ class InvTraspasoController extends Controller
     ->leftJoin('tda__tiendas as tt_2', 'tt_2.codigo', '=', 'it.cod_2')
     ->join('users as u', 'u.id', '=', 'it.user_id');
     
-    $reusltadocombinado = $traspasos_alm->where('it.cod_1', '=', $bus)->orderBy('id', 'desc')->unionAll($traspasos_tienda->where('it.cod_1', '=', $bus)->orderBy('id', 'desc'));
+    $reusltadocombinado = $traspasos_alm->whereRaw($where)->whereBetween(DB::raw('DATE(it.created_at)'), [$ini, $fini])->orderBy('id', 'desc')->unionAll($traspasos_tienda->whereRaw($where)->whereBetween(DB::raw('DATE(it.created_at)'), [$ini, $fini])->orderBy('id', 'desc'));
     $reusltadocombinado= $reusltadocombinado ->orderByRaw('id DESC')
                     ->paginate(15);
             return [

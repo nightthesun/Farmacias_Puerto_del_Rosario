@@ -11,7 +11,7 @@
             <div class="card">
                 <div class="card-header">
                     <i class="fa fa-align-justify"></i> Usuarios
-                    <button v-if="puedeCrear==1" type="button" class="btn btn-secondary" @click="abrirModal('registrar')">
+                    <button v-if="puedeCrear==1" type="button" class="btn btn-secondary" @click="listarEmepleado_2(); abrirModal('registrar')">
                         <i class="icon-plus"></i>&nbsp;Nuevo
                     </button>
                 </div>
@@ -156,16 +156,32 @@
                     </div>
                   
 
-                    <div class="modal-body" v-if="arrayEmpleado.length > 0 || tipoAccion == 2">
+                    <div class="modal-body">
                         <form action=""  class="form-horizontal">
+                              <!-- insertar datos -->
+                            
                             <div class="form-group row">
-                                <label class="col-md-3 form-control-label" for="text-input">Empleado: <span  v-if="idempleado==0" class="error">(*)</span></label>
+                                <label class="col-md-3 form-control-label" for="text-input">Empleado: <span  v-if="selected==null" class="error">(*)</span></label>
                                 <div class="col-md-9" v-if="!siactualizar">
-                                    <select  v-model="idempleado" class="form-control">
-                                        <option value="0" disabled>Seleccionar...</option>
-                                        <option v-for="empleados in arrayEmpleado" :key="empleados.id" v-text="empleados.nomempleado" :value="empleados.id" ></option>
-                                    </select>
-                                    <span  v-if="idempleado==0 " class="error">Debe seleccionar una opcion</span>
+                                    <VueMultiselect
+                        v-model="selected"
+                        :options="arrayEmpleado_2 "
+                        :max-height="300"                   
+                        :block-keys="['Tab', 'Enter']"                       
+                        placeholder="Seleccione una opción"
+                        label="name" 
+                        :custom-label="nameWithLang"                     
+                        track-by="id"
+                        class="w-350"
+                        selectLabel="Añadir a seleccion"
+                        deselectLabel="Quitar seleccion"
+                        selectedLabel="Seleccionado"
+                       >
+                       <template #noResult>
+                        No se encontraron elementos. Considere cambiar la consulta de búsqueda.
+                      </template>
+                    </VueMultiselect> 
+                                    <span  v-if="selected==null " class="error">Debe seleccionar una opcion</span>
                                 </div>
                                 <div class="col-md-9" v-else>
                                     <strong>{{ nameempleado }}</strong>                                    
@@ -240,20 +256,12 @@
                             
                         </form>
                     </div>
-                    <div class="modal-body" v-else>
-                          
-                        <div class="alert alert-primary d-flex align-items-center" role="alert">
-                            <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Info:"><use xlink:href="#info-fill"/></svg>
-                            <div><i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
-                              Debe registrar al empleado primero en el modulo de <i class="fa fa-handshake-o" aria-hidden="true"></i> RRHH en empleados.
-                            </div>
-                          </div>
-                    </div>
+                  
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary"  @click="cerrarModal('registrar')">Cerrar</button>
                         <div  class="d-flex justify-content-start">
                             <div  v-if="isSubmitting==false">
-                                <button type="button" v-if="tipoAccion==1 && arrayEmpleado.length > 0 " class="btn btn-primary" @click="registrarUsuario()" :disabled="!sicompleto">Guardar</button>
+                                <button type="button" v-if="tipoAccion==1" class="btn btn-primary" @click="registrarUsuario()" :disabled="!sicompleto">Guardar</button>
                                 <button type="button" v-if="tipoAccion==2" class="btn btn-primary" @click="actualizarUsuario()">Actualizar</button>
                             </div>
                             <div v-else>
@@ -549,8 +557,10 @@
 <script>
 import Swal from 'sweetalert2';
 import { error401 } from '../../errores';
+import VueMultiselect from 'vue-multiselect';
 //Vue.use(VeeValidate);
     export default {
+        components: { VueMultiselect },
         //---permisos_R_W_S
         props: ['codventana'],
         //-------------------
@@ -612,6 +622,10 @@ import { error401 } from '../../errores';
                 //-----------
                 
                 arrayModal_2:[],
+                //---------------
+                arrayEmpleado_2:[],
+                selected: null,
+                randomString:'',
             }
 
         },
@@ -636,7 +650,7 @@ import { error401 } from '../../errores';
             
             sicompleto(){
                 let me=this;
-                if (me.idempleado!=0 && me.email !="" && me.rol !=0 && me.sucursal!=0)
+                if (me.selected!=null && me.email !="" && me.rol !=0 && me.sucursal!=0)
                     return true;
                 else
                     return false;
@@ -944,6 +958,23 @@ allKeys.forEach(key => {
                     console.log(error);
                 });
             },
+
+            listarEmepleado_2(){
+                let me=this;
+                me.arrayEmpleado_2=[]; 
+                var url='/getEmpelado';
+                axios.get(url).then(function(response){
+                    var respuesta=response.data;
+                    me.arrayEmpleado_2=respuesta;
+                    
+                })
+                .catch(function(error){
+                    error401(error);
+                    console.log(error);
+                });
+            },
+
+           
             listarUsuarios(page){
                 let me=this;
                 var url='/usuario?page='+page+'&buscar='+me.buscar;
@@ -964,6 +995,7 @@ allKeys.forEach(key => {
                 me.listarUsuarios(page);
             },
 
+
             registrarUsuario(){
                 let me = this;   
                 if (me.password===null || me.password==="") {
@@ -972,15 +1004,18 @@ allKeys.forEach(key => {
                     "La contraseña esta vacia",
                     "error");
                 } else {
-                    let resp=me.arrayEmpleado.find(element=>element.id==me.idempleado);
+                    //let resp=me.arrayEmpleado.find(element=>element.id==me.idempleado);
 
 // Si ya está enviando, no permitas otra solicitud
 if (me.isSubmitting) return;
 me.isSubmitting = true; // Deshabilita el botón
-
+me.generateRandomString()
+                let cadena=(me.selected).name+"-"+me.randomString;
 axios.post('/registro',{
-   'name':resp.name,
-   'idempleado':me.idempleado,
+   //'name':resp.name,
+   'name':cadena,
+   //'idempleado':me.idempleado,
+   'idempleado':(me.selected).id,
    'email':me.email,
    'password':me.password,
    'idrole':me.rol,
@@ -1007,6 +1042,17 @@ me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
 });
                 }
             },
+
+            generateRandomString() {
+                let me=this;
+      const length = 3; // Longitud deseada de la cadena
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'; // Letras y números disponibles
+      let result = '';
+      for (let i = 0; i < length; i++) {
+        result += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      me.randomString = result; // Asignamos la cadena generada a la variable data
+    },
 
             eliminarRolSuc(idrolsuc){
                 let me=this;
@@ -1254,6 +1300,7 @@ me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
                     case 'registrar':
                     {
                         me.siactualizar=0;
+                        me.selected=null;
                         me.isSubmitting=false;
                         me.tituloModal='Registar Usuario'
                         me.tipoAccion=1;
@@ -1264,6 +1311,9 @@ me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
                         me.rol=0;
                         me.sucursal=0;
                         me.cambiarpass=false;
+                        
+                me.selected= null;
+                me.randomString='';
                         me.classModal.openModal('registrar');
                         this.selectEmpleados();
                         break;
@@ -1392,8 +1442,32 @@ me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
                 me.selectAlmTda2=[];
                 me.arrayMasSucursales=[];
                 me.arrayModal_2=[];
+                me.arrayEmpleado_2=[];
+                me.selected= null;
+                me.randomString='';
                 
             },
+
+            nameWithLang ({name,nomempleado, ci,}) {
+            
+            return `${name} ${nomempleado} (${ci}) `
+          },
+
+        toggle () {
+      this.$refs.multiselect.$el.focus()
+
+      setTimeout(() => {
+        this.$refs.multiselect.$refs.search.blur()
+      }, 1000)
+    },
+    open () {
+      this.$refs.multiselect.activate()
+    },
+    close () {
+      this.$refs.multiselect.deactivate()
+    },
+
+
             selectAll: function (event) {
                 setTimeout(function () {
                     event.target.select()
@@ -1405,7 +1479,7 @@ me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
                 axios.get(url).then(function(response){
                     var respuesta=response.data;
                     me.arrayEmpleado=respuesta;
-                    
+                   
                 })
                 .catch(function(error){
                     error401(error);
@@ -1445,7 +1519,7 @@ me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
             //-----------------------
             this.listarUsuarios(1);
             this.selectRoles();
-         
+            //this.listarEmepleado_2();
             this.selectSucursales();
             this.selectEmpleados();
             this.listar_asig_permiso_e_a_s();
@@ -1470,3 +1544,4 @@ me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
     
     }
 </style>
+<style src="vue-multiselect/dist/vue-multiselect.css"></style>

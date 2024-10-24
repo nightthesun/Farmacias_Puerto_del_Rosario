@@ -14,7 +14,16 @@ class TdaIngresoProducto2Controller extends Controller
     public function index( Request $request)
     {
        
-        $buscararray=array();        
+        $buscararray=array();   
+        $ini=$request->ini;
+        $fini=$request->fini;
+        
+        if (auth()->user()->super_usuario == 0) {
+            $user = auth()->user()->id;           
+            $where = "(tip.idtienda = $request->id_tienda and pp.activo = 1 and tip.id_usuario_registra = $user)";            
+        } else {
+            $where = "(tip.idtienda = $request->id_tienda and pp.activo = 1)";   
+        }     
         if(!empty($request->buscar))
         {
             $buscararray = explode(" ",$request->buscar);
@@ -85,8 +94,9 @@ class TdaIngresoProducto2Controller extends Controller
                 ->join('users as u', 'u.id', '=', 'tip.id_usuario_registra')
                 ->leftJoin('users as u_modi', 'u_modi.id', '=', 'tip.id_usuario_modifica')
                 ->join('tda__tiendas as tt', 'tt.id', '=', 'tip.idtienda')
-                ->where('tip.idtienda', $request->id_tienda)
-                ->where('pp.activo', 1)
+                //->where('tip.idtienda', $request->id_tienda)
+                //->where('pp.activo', 1)
+                ->whereRaw($where)
                 ->whereRaw($sqls)
                 ->orderBy('id', 'desc')
                 ->paginate(15);              
@@ -148,9 +158,10 @@ class TdaIngresoProducto2Controller extends Controller
             ->join('users as u', 'u.id', '=', 'tip.id_usuario_registra')
             ->leftJoin('users as u_modi', 'u_modi.id', '=', 'tip.id_usuario_modifica')
             ->join('tda__tiendas as tt', 'tt.id', '=', 'tip.idtienda')
-            ->where('tip.idtienda', $request->id_tienda)
-            ->where('pp.activo', 1)
-        
+            //->where('tip.idtienda', $request->id_tienda)
+            //->where('pp.activo', 1)
+            ->whereRaw($where)
+            ->whereBetween(DB::raw('DATE(tip.created_at)'), [$ini, $fini]) 
             ->orderBy('id', 'desc')
             ->paginate(15);  
            

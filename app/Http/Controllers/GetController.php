@@ -321,4 +321,24 @@ return $result;
         return $usuario;     
 
     }
+    ////////////////////////////////EMPLEADO///////////////////////////////////
+    public function getEmpelado(){
+        $empleados = DB::table('rrh__empleados AS re')
+        ->select(
+            're.id',
+            DB::raw('UPPER(re.codempleado) AS name'), // Convertir codempleado a mayúsculas
+            DB::raw("CONCAT(
+                        COALESCE(UPPER(re.nombre), ''), ' ', 
+                        COALESCE(UPPER(re.papellido), ''), ' ', 
+                        COALESCE(UPPER(re.sapellido), '')
+                    ) AS nomempleado"), // Concatenar nombre, papellido y sapellido en mayúsculas
+            're.ci'
+        )
+        ->where('re.activo', 1) // Filtrar empleados activos
+        ->where('re.id', '<>', 1) // Excluir el empleado con id 1
+        ->orderBy('re.id', 'DESC') // Ordenar por id en orden descendente
+        ->get();
+    
+    return $empleados;
+    }
 }

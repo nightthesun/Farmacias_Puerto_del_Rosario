@@ -28,7 +28,7 @@
                 <div class="col-md-2" style="text-align: center">
                      <label for="">Almacen o Tienda:</label>
                 </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <div class="input-group">
                                 <select class="form-control" v-model="selectAlmTienda"   @change="listarIndex(1)">
                                     <option value="0" disabled selected>Seleccionar...</option>
@@ -37,7 +37,7 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <div class="input-group">
                                 <input
                                     type="text"
@@ -62,8 +62,23 @@
                                 </button>
                             </div>
                         </div>
-
             </div>
+            <div class="form-group row"  :hidden="selectAlmTienda == 0" :disabled="selectAlmTienda == 0">
+                <div class="col-md-1">
+                     <label for=""></label>
+                </div>
+                <div class="col-md-5">                    
+                        <label for=""></label>                                      
+                </div>
+        <div class="col-md-3">
+          <label for="start-date">Fecha inicial:</label>
+          <input id="start-date" type="date" class="form-control" v-model="startDate" :disabled="selectAlmTienda===0" @change="listarIndex(0)">
+        </div>
+        <div class="col-md-3">
+          <label for="end-date">Fecha final:</label>
+          <input id="end-date" type="date" class="form-control" v-model="endDate" :disabled="selectAlmTienda===0" @change="listarIndex(0)">
+        </div>        
+            </div> 
 
             <!---tabla-->
             <table class="table table-bordered table-striped table-sm table-responsive">
@@ -369,6 +384,10 @@ puedeEditar:2,
           
             codigo_alm:'',
 
+            //limitado                    
+            startDate: '',
+            endDate: '',
+
         };
     },
 
@@ -549,7 +568,7 @@ tiene_movimiento(id_almacen,id_index,ingresoProducto){
                 let me=this;
                 
                 if (me.selectAlmTienda!=0) {
-                    var url='/tienda/index?page='+page+'&buscar='+me.buscar+'&id_tienda='+me.selectAlmTienda;        
+                    var url='/tienda/index?page='+page+'&buscar='+me.buscar+'&id_tienda='+me.selectAlmTienda+"&ini="+me.startDate+"&fini="+me.endDate;     
                         
                 axios.get(url)
                 .then(function(response){
@@ -700,6 +719,25 @@ tiene_movimiento(id_almacen,id_index,ingresoProducto){
           me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
         });
             },
+
+            fecha_inicial() {
+    // Obtener la fecha actual
+    const today = new Date();    
+    // Obtener la fecha actual menos 5 días
+    const startDate = new Date();
+    startDate.setDate(today.getDate() - 30);
+    // Formatear el año, mes y día para la fecha de inicio
+    const startYear = startDate.getFullYear();
+    const startMonth = String(startDate.getMonth() + 1).padStart(2, '0'); // Meses en JavaScript son de 0 a 11
+    const startDay = String(startDate.getDate()).padStart(2, '0');
+    // Formatear el año, mes y día para la fecha final (hoy)
+    const endYear = today.getFullYear();
+    const endMonth = String(today.getMonth() + 1).padStart(2, '0');
+    const endDay = String(today.getDate()).padStart(2, '0');
+    // Asignar las fechas a los campos correspondientes
+    this.startDate = `${startYear}-${startMonth}-${startDay}`;  // Fecha de inicio (5 días antes)
+    this.endDate = `${endYear}-${endMonth}-${endDay}`;  // Fecha final (hoy)
+},
 
             actualizarProductoEnAlmacen(){
                 let me =this;
@@ -853,6 +891,7 @@ tiene_movimiento(id_almacen,id_index,ingresoProducto){
         this.obtenerfecha(1);
         this.classModal.addModal("registrar");
         this.listarIndex(1);
+        this.fecha_inicial();
         this. listarProductos_almacen();
     
     },

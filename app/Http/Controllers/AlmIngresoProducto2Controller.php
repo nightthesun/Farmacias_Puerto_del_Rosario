@@ -14,7 +14,16 @@ class AlmIngresoProducto2Controller extends Controller
      */
     public function index(Request $request)
     {
-        $buscararray=array();        
+        $buscararray=array(); 
+        $ini=$request->ini;
+        $fini=$request->fini;
+       
+        if (auth()->user()->super_usuario == 0) {
+            $user = auth()->user()->id;           
+            $where = "(aip.idalmacen = $request->id_almacen and pp.activo = 1 and aip.id_usuario_registra = $user)";            
+        } else {
+            $where = "(aip.idalmacen = $request->id_almacen and pp.activo = 1)";    
+        }           
         if(!empty($request->buscar))
         {
             $buscararray = explode(" ",$request->buscar);
@@ -84,8 +93,9 @@ $almacen = DB::table('alm__ingreso_producto as aip')
     ->leftJoin('users as u_modi', 'u_modi.id', '=', 'aip.id_usuario_modifica')
     ->join('alm__almacens as aa', 'aa.id', '=', 'aip.idalmacen')
     
-    ->where('aip.idalmacen', $request->id_almacen)
-    ->where('pp.activo', 1)
+    //->where('aip.idalmacen', $request->id_almacen)
+    //->where('pp.activo', 1)
+    ->whereRaw($where)
     ->whereRaw($sqls)
     ->orderBy('id', 'desc')
     ->paginate(15);
@@ -144,9 +154,10 @@ $almacen = DB::table('alm__ingreso_producto as aip')
             ->join('users as u', 'u.id', '=', 'aip.id_usuario_registra')
             ->leftJoin('users as u_modi', 'u_modi.id', '=', 'aip.id_usuario_modifica')
             ->join('alm__almacens as aa', 'aa.id', '=', 'aip.idalmacen')
-            ->where('aip.idalmacen', $request->id_almacen)
-            ->where('pp.activo', 1)
-    
+            //->where('aip.idalmacen', $request->id_almacen)
+            //->where('pp.activo', 1)
+            ->whereRaw($where)
+            ->whereBetween(DB::raw('DATE(aip.created_at)'), [$ini, $fini]) 
             ->orderBy('id', 'desc')
             ->paginate(15); 
          

@@ -168,6 +168,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/listarSucusal_TDA_ALM_sin_permiso', [GetController::class, 'listarSucusal_TDA_ALM_sin_permiso']);   
     Route::get('/getBancos', [GetController::class, 'getBancos']);     
     Route::get('/listarUser', [GetController::class, 'getUser']);   
+    Route::get('/getEmpelado', [GetController::class, 'getEmpelado']); 
     
     /**********************verificador de apertura cierre retornod e datos****************************** */
     Route::get('/verificacionAperturaCierre', [GetController::class, 'listarAperturaCierre']);

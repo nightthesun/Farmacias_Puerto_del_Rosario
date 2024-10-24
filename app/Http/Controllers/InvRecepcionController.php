@@ -26,6 +26,9 @@ class InvRecepcionController extends Controller
         $ini=$request->ini;
         $fini=$request->fini;
         $bus = $request->query('buscarAlmTdn');
+     
+     
+        
         if (!empty($request->buscar)) {
             $buscararray = explode(" ", $request->buscar);
             $valor = sizeof($buscararray);
@@ -84,6 +87,7 @@ class InvRecepcionController extends Controller
                 ->leftJoin('log__vehiculos as lv', 'lv.id', '=', 'lt.id_vehiculo')
                 ->where('it.id_tipoentrada', '=', 13)
                 ->where('it.cod_2', '=', $bus)
+           
                 ->whereRaw($sqls)
                 ->whereBetween(DB::raw('DATE(ir.created_at)'), [$ini, $fini]) 
                 ->orderBy('id', 'desc');
@@ -114,10 +118,11 @@ class InvRecepcionController extends Controller
                 ->leftJoin('log__vehiculos as lv', 'lv.id', '=', 'lt.id_vehiculo')
                 ->where('it.id_tipoentrada', '=', 13)
                 ->where('it.cod_2', '=', $bus)
+       
                 ->whereBetween(DB::raw('DATE(ir.created_at)'), [$ini, $fini]) 
                 ->whereRaw($sqls)
                 ->orderBy('id', 'desc');
-                $resultadoCombinacion = $recepcion_alm->unionAll($recepcion_tda)->paginate(10);   
+                $resultadoCombinacion = $recepcion_alm->unionAll($recepcion_tda)->paginate(15);   
             } 
             return
             [
@@ -162,6 +167,7 @@ class InvRecepcionController extends Controller
                 ->leftJoin('log__vehiculos as lv', 'lv.id', '=', 'lt.id_vehiculo')
                 ->where('it.id_tipoentrada', '=', 13)
                 ->where('it.cod_2', '=', $bus)
+      
                 ->whereBetween(DB::raw('DATE(ir.created_at)'), [$ini, $fini]) 
               ->orderBy('id', 'desc');
                 $recepcion_tda = DB::table('inv__recepcions as ir')
@@ -191,9 +197,10 @@ class InvRecepcionController extends Controller
                 ->leftJoin('log__vehiculos as lv', 'lv.id', '=', 'lt.id_vehiculo')
                 ->where('it.id_tipoentrada', '=', 13)
                 ->where('it.cod_2', '=', $bus)
+              
                 ->whereBetween(DB::raw('DATE(ir.created_at)'), [$ini, $fini]) 
                ->orderBy('id', 'desc');
-                $resultadoCombinacion = $recepcion_alm->unionAll($recepcion_tda)->paginate(10); 
+                $resultadoCombinacion = $recepcion_alm->unionAll($recepcion_tda)->paginate(15); 
                 return
             [
                 'pagination' =>

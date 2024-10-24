@@ -110,9 +110,8 @@
                            <th>Usuario</th>
                        </tr>
                    </thead>
-                  
-                   <tr v-for="producto in arrayProductosAlterado" :key="producto.id" :style="[ producto.listo_venta == 1 ? '':'background-color: #FAD537' ]">
-                       <td>
+                   <tr v-for="(producto, index) in arrayProductosAlterado" :key="index" :style="[ producto.listo_venta == 1 ? '' : 'background-color: #FAD537' ]">
+                     <td>
                         <div  v-if="puedeEditar==1">
                             <button type="button" class="btn btn-warning btn-sm"
                                    @click="abrirModal('editarPrecioUtilidadProducto', producto)" :disabled="producto.stock_ingreso == 0">
@@ -692,7 +691,7 @@ listarPerimsoxyz() {
     listarLista(code){
             let me = this;
             var url = "/gestionprecioventa2/listarLista?codigo="+code;
-       
+                me.arrayLista=[];
             axios
                 .get(url)
                 .then(function (response) {

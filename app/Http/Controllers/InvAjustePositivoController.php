@@ -21,9 +21,20 @@ class InvAjustePositivoController extends Controller
 
         $buscararray = array();
         $bus = $request->query('buscarAlmTdn');
+
+        $ini=$request->ini;
+        $fini=$request->fini;
+        if (auth()->user()->super_usuario == 0) {
+            $user = auth()->user()->id; 
+            $where = "(aan.cod = '$bus' and aan.id_usuario_registra = $user)";            
+        } else {
+            $where = "(aan.cod = '$bus')";  
+        }
+
         if (!empty($request->buscar)) {
             $buscararray = explode(" ", $request->buscar);
             $valor = sizeof($buscararray);
+
             if ($valor > 0) {
                 $sqls = '';
 
@@ -78,8 +89,9 @@ class InvAjustePositivoController extends Controller
                         'aan.id_ingreso as id_ingreso',
                         'aan.leyenda as leyenda'
                     )
-                    ->where('aan.cod', '=', $bus)
-                    ->whereDate('aan.created_at', '>=', now()->subDays(30))
+                    ->whereRaw($where)
+                    //->where('aan.cod', '=', $bus)
+                    //->whereDate('aan.created_at', '>=', now()->subDays(30))
                     ->whereRaw($sqls)
                     ->orderByDesc('aan.id')
                     ->paginate(15);
@@ -130,8 +142,10 @@ class InvAjustePositivoController extends Controller
                     'aan.id_ingreso as id_ingreso',
                     'aan.leyenda as leyenda'
                 )
-                ->where('aan.cod', '=', $bus)
-                ->whereDate('aan.created_at', '>=', now()->subDays(30))
+                //->where('aan.cod', '=', $bus)
+                //->whereDate('aan.created_at', '>=', now()->subDays(30))
+                ->whereRaw($where)
+                ->whereBetween(DB::raw('DATE(aan.created_at)'), [$ini, $fini]) 
                 ->orderByDesc('aan.id')
                 ->paginate(15);
             return [
