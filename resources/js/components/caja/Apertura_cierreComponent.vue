@@ -13,12 +13,12 @@
         <div class="container-fluid">
             <div class="card">
                 <div class="card-header">
-                    <i class="fa fa-align-justify"></i> Apertura / Cierre de cajas               
+                    <i class="fa fa-align-justify"></i> Aperturar caja:             
                     <button type="button" class="btn btn-secondary" @click="cajaAnteriror();verificador_moneda_sistemas();"
-                        :disabled="sucursalSeleccionada === 0 || selectApertura_Cierre === 1">
+                        :disabled="sucursalSeleccionada === 0 ">
                         <i class="icon-plus"></i>&nbsp;Nuevo
                     </button>
-                    <span v-if="sucursalSeleccionada === 0 ||  selectApertura_Cierre === 1" class="error"
+                    <span v-if="sucursalSeleccionada === 0 " class="error"
                         >&nbsp; &nbsp;Debe Seleccionar una sucursal.</span >
                 </div>
         <div class="card-body">
@@ -28,7 +28,7 @@
                 </div>
                         <div class="col-md-5">
                             <div class="input-group">
-                                <select class="form-control" v-model="sucursalSeleccionada"  @change="cambiarEstadoSucursal()">
+                                <select class="form-control" v-model="sucursalSeleccionada"  @change="listarIndex(0)">
                                     <option value="0" disabled selected>Seleccionar...</option>
                                     <option v-for="sucursal in arraySucursal" :key="sucursal.id"  :value="sucursal.codigo" :hidden="sucursal.id_tienda===null"
                                         v-text="sucursal.codigoS +' -> ' +sucursal.codigo+' '+sucursal.razon_social"
@@ -70,23 +70,18 @@
                      <label for=""></label>
                 </div>
                 <div class="col-md-5">                    
-                        <label for="Apectura / Cierre:">Apectura / Cierre:</label>
-                            <select class="form-control" v-model="selectApertura_Cierre" @change="listarIndex(0)">
-                                <option value="1" disabled selected>Seleccionar...</option>
-                                <option value="0" >Apertura</option> 
-                                <option value="9" >Cierre</option>                 
-                            </select>                   
+                        <label for="Apectura / Cierre:"></label>
+                                        
                 </div>
         <div class="col-md-3">
           <label for="start-date">Fecha inicial:</label>
-          <input id="start-date" type="date" class="form-control" v-model="startDate" :disabled="selectApertura_Cierre===1" @change="listarIndex(0)">
+          <input id="start-date" type="date" class="form-control" v-model="startDate" :disabled="sucursalSeleccionada===0" @change="listarIndex(0)">
         </div>
         <div class="col-md-3">
           <label for="end-date">Fecha final:</label>
-          <input id="end-date" type="date" class="form-control" v-model="endDate" :disabled="selectApertura_Cierre===1" @change="listarIndex(0)">
+          <input id="end-date" type="date" class="form-control" v-model="endDate" :disabled="sucursalSeleccionada===0" @change="listarIndex(0)">
         </div>        
-            </div>   
-              
+            </div>                 
 
   <br>
             <!---inserte tabla-->
@@ -94,21 +89,36 @@
                 <thead>
                     <tr>
                         <th class="col-md-1">Opciones</th>   
-                        <th class="col-md-2">Codigo</th>                                                          
+                        <th class="col-md-1">Codigo</th>                                                          
                         <th class="col-md-2">Turno</th>                     
                         <th class="col-md-1">Total Caja</th>
                         <th class="col-md-1">Total Arqueo</th>
                         <th class="col-md-1">Diferencia</th> 
                         <th class="col-md-2">Fecha/Hora</th>                         
                         <th class="col-md-1">Usuario</th>
-                        <th class="col-md-2">Estado</th>       
+                        <th class="col-md-1">Estado</th>
+                        <th class="col-md-1">Apertura</th>                             
                     </tr>
                 </thead>
                 <tbody>
                     <tr v-for="i in arrayIndex" :key="i.id">                    
-                        <td class="col-md-1">
-                            <button type="button" class="btn btn-warning" @click="abrirModal('ver',i);" style="margin-right: 5px;">
-                                <i class="fa fa-eye" aria-hidden="true"></i></button>
+                        <td class="col-md-1">                           
+                      
+                                <button type="button" style="color: white;" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    <i class="fa fa-bars" aria-hidden="true"></i>
+  </button>
+  <div class="dropdown-menu">
+    <a @click.prevent="abrirModal('ver', i);"  class="dropdown-item" href="#"><i style="color: black;" class="fa fa-eye" aria-hidden="true"></i> Ver Apertura De Caja</a>
+    <a @click.prevent="abrirModal('actualizar', i);" v-if="i.id_apertura_cierre == 0"   class="dropdown-item" href="#"><i style="color: black;" class="fa fa-pencil" aria-hidden="true"></i> Editar Apertura De Caja</a>
+    <a v-else class="dropdown-item" href="#" style="color: whitesmoke;"><i style="color: whitesmoke;" class="fa fa-pencil" aria-hidden="true"></i> Editar Apertura De Caja</a>
+    <a @click.prevent="abrirModal('ver', i);" v-if="i.id_apertura_cierre == 0" class="dropdown-item" href="#"><i style="color: black;" class="fa fa-lock" aria-hidden="true"></i> Cerrar Apertura De Caja</a>
+    <a v-else class="dropdown-item" href="#" style="color: whitesmoke;"><i style="color: whitesmoke;" class="fa fa-lock" aria-hidden="true"></i> Cerrar Apertura De Caja</a>
+    <a v-if="i.id_apertura_cierre == 0" style="color: whitesmoke;" class="dropdown-item" href="#"><i style="color: whitesmoke;" class="fa fa-eye" aria-hidden="true"></i> Ver Cierre De Caja</a>    
+    <a v-else @click.prevent="abrirModal('ver', i);"  class="dropdown-item" href="#"><i style="color: black;" class="fa fa-eye" aria-hidden="true"></i> Ver Cierre De Caja</a>    
+    <a v-if="i.id_apertura_cierre == 0" style="color: whitesmoke;" class="dropdown-item" href="#"><i style="color: whitesmoke;" class="fa fa-pencil" aria-hidden="true"></i> Editar Cierre De Caja</a>   
+    <a v-else @click.prevent="abrirModal('ver', i);" class="dropdown-item" href="#"><i style="color: black;" class="fa fa-pencil" aria-hidden="true"></i> Editar Cierre De Caja</a>  
+</div>      
+  
                         </td>
                         <td class="col-md-1" style="text-align: left;">{{i.id}}</td>                                               
                         <td class="col-md-2">
@@ -122,7 +132,11 @@
                         <td class="col-md-1" style="text-align: right;">{{i.diferencia_caja}}</td>
                         <td class="col-md-2">{{i.created_at}}</td> 
                         <td class="col-md-1">{{i.name}}</td>
-                        <td class="col-md-2">{{i.estado_caja}}</td>
+                        <td class="col-md-1">{{i.estado_caja}}</td>
+                        <td class="col-md-1">
+                            <span v-if="i.id_apertura_cierre===0" class="badge badge-pill badge-success">Activo</span>
+                            <span v-else class="badge badge-pill badge-light">Cerrado</span>
+                        </td>
                     </tr>
                 </tbody>
             </table>  
@@ -323,12 +337,12 @@
                             </thead> 
                             <tbody>
                                 <tr>
-                                    <td class="col-md-1" style="font-size: 11px; text-align: center">{{total_venta_modal}}</td>
-                                    <td class="col-md-1" style="font-size: 11px; text-align: center">{{total_entrada_modal}}</td>
+                                    <td class="col-md-1" style="font-size: 11px; text-align: center">0.00</td>
+                                    <td class="col-md-1" style="font-size: 11px; text-align: center">0.00</td>
                                    
                             
                                  
-                                    <td class="col-md-1" style="font-size: 11px; text-align: center">{{total_salida_modal}}</td>
+                                    <td class="col-md-1" style="font-size: 11px; text-align: center">0.00</td>
                                 
                                     <td class="col-md-1" style="font-size: 11px; text-align: center">{{total_caja_modal}}</td>
                                     <td class="col-md-1" style="font-size: 11px; text-align: center">{{total_arqueo_modal}}</td>
@@ -415,7 +429,7 @@ export default {
             arrayInput:[],
             tituloModal: "",
             sucursalSeleccionada:0,
-            selectApertura_Cierre:1,
+         
          
             arraySucursal:[],
             buscar:"",
@@ -537,8 +551,9 @@ export default {
         },
 
         listarIndex(page) {
-            let me = this;        
-            var url ="/apertura_cierre/index?page="+page+"&buscar=" +me.buscar+"&id_sucursal="+me.id_sucursal+"&a_e="+parseInt(me.selectApertura_Cierre)+"&ini="+me.startDate+"&fini="+me.endDate;
+            let me = this;  
+            let entrada=0;      
+            var url ="/apertura_cierre/index?page="+page+"&buscar=" +me.buscar+"&id_sucursal="+me.id_sucursal+"&a_e="+parseInt(entrada)+"&ini="+me.startDate+"&fini="+me.endDate;
             axios.get(url)
                 .then(function (response) {
                     var respuesta = response.data;
@@ -557,23 +572,14 @@ export default {
             axios.get(url)
                 .then(function (response) {
                     var respuesta = response.data;          
-                    if (respuesta===0 ) {
-                        if (me.selectApertura_Cierre==="9") {
-                            Swal.fire(
-                    "Debe aperturar una caja",
-                    "Haga click en Ok",
-                    "warning",
-                );
-                        } else {
+                    if (respuesta===0 ) {           
                             me.turno_caja="Inicio";
                             me.tipo_caja_c_a="Inicio";
                             me.total_caja=Number(0).toFixed(2);
                             me.estado_caja="Inicio";
-                            me.abrirModal('registrar');                            
-                        }
-                        
+                            me.abrirModal('registrar'); 
                     } else {
-                        if (respuesta.tipo_caja_c_a===Number(me.selectApertura_Cierre)) {
+                        if (respuesta.tipo_caja_c_a===0) {
                             Swal.fire("Ya se hizo una apertura",
                                         "Haga click en Ok",
                                         "warning");
@@ -655,9 +661,7 @@ export default {
         
         registrarArqueo(){
             let me = this;
-            // console.log(me.id_sucursal+" "+me.selectTurno+" "+me.selectApertura_Cierre+" "+me.total_caja+" "+me.cantidadMonedas+" "+me.totalMonedas+" "+me.cantidadBilletes+" "+me.totalBilletas+" "+me.totalMonto+" "+me.input+" "+me.arrayMoneda); 
-              // Si ya está enviando, no permitas otra solicitud
-     
+      
             if (me.selectTurno === "0") {
                 Swal.fire(
                     "Debe seleccionar su tuno",
@@ -727,7 +731,7 @@ me.isSubmitting = true; // Deshabilita el botón
                 axios.post("/apertura_cierre/store", {
                     	id_sucursal:me.id_sucursal,
                         selectTurno:me.selectTurno,
-                        tipo_caja_c_a:me.selectApertura_Cierre,
+                        tipo_caja_c_a:0,
                         total_caja:me.total_caja,
                         total_arqueo_caja:me.totalMonto,
                         cantidadMonedas:me.cantidadMonedas,
@@ -791,14 +795,7 @@ me.isSubmitting = true; // Deshabilita el botón
                 });
         },
 
-       
-        
-
-        cambiarEstadoSucursal(){
-            let me=this;
-            me.selectApertura_Cierre=1;
-        },
-
+      
                
         sucursalFiltro() {
             let me = this;
@@ -837,7 +834,7 @@ me.isSubmitting = true; // Deshabilita el botón
                 case "registrar": {
                     me.tipoAccion = 1;
                     me.isSubmitting=false;
-                    if (me.selectApertura_Cierre==="0") {
+                  
                         me.tituloModal = "Registro de apertura de caja";
                         me.selectTurno="0";
                         me.totalMonedas="0.00";
@@ -849,10 +846,7 @@ me.isSubmitting = true; // Deshabilita el botón
                         me.cantidadBilletes=0; 
                         me.password="";
                         me.input={};
-                       
-                    } else {
-                        me.tituloModal = "Registro de cierre de caja"; 
-                    }
+                  
                     
             
                     me.classModal.openModal("registrar");
@@ -971,7 +965,7 @@ me.isSubmitting = true; // Deshabilita el botón
     const today = new Date();    
     // Obtener la fecha actual menos 5 días
     const startDate = new Date();
-    startDate.setDate(today.getDate() - 5);
+    startDate.setDate(today.getDate() - 7);
     // Formatear el año, mes y día para la fecha de inicio
     const startYear = startDate.getFullYear();
     const startMonth = String(startDate.getMonth() + 1).padStart(2, '0'); // Meses en JavaScript son de 0 a 11

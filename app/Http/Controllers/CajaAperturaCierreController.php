@@ -50,10 +50,9 @@ class CajaAperturaCierreController extends Controller
                 $resultado = DB::table('caja__apertura_cierres as cac')
                 ->join('caja__arqueo as ca', 'cac.id_arqueo', '=', 'ca.id')
                 ->join('users as u', 'u.id', '=', 'ca.id_usuario')
-                ->select('cac.id','cac.id_arqueo','cac.turno_caja','cac.tipo_caja_c_a','cac.total_venta_caja',
-                       'cac.total_ingreso_caja','cac.total_salida_caja','cac.total_caja',
-                        'cac.total_arqueo_caja','cac.diferencia_caja','cac.estado_caja','cac.created_at','u.name',
-                        DB::raw('(cac.total_venta_caja + cac.total_ingreso_caja) as ingresos'),
+                ->select('cac.id','cac.id_arqueo','cac.turno_caja','cac.tipo_caja_c_a','cac.total_caja',
+                        'cac.total_arqueo_caja','cac.diferencia_caja','cac.estado_caja','cac.created_at','u.name','cac.id_cierre as id_apertura_cierre',
+                
                        'ca.cantidad_billete','ca.total_billete','ca.cantidad_moneda','ca.total_moneda','ca.tipo_moneda'
                         )
                      //   ->where('cac.id_sucursal','=',$request->id_sucursal)
@@ -82,10 +81,9 @@ class CajaAperturaCierreController extends Controller
             $resultado = DB::table('caja__apertura_cierres as cac')
                 ->join('caja__arqueo as ca', 'cac.id_arqueo', '=', 'ca.id')
                 ->join('users as u', 'u.id', '=', 'ca.id_usuario')
-                ->select('cac.id','cac.id_arqueo','cac.turno_caja','cac.tipo_caja_c_a','cac.total_venta_caja',
-                      'cac.total_ingreso_caja','cac.total_salida_caja','cac.total_caja',
+                ->select('cac.id','cac.id_arqueo','cac.turno_caja','cac.tipo_caja_c_a','cac.total_caja',
                         'cac.total_arqueo_caja','cac.diferencia_caja','cac.estado_caja','cac.created_at','u.name',
-                        DB::raw('(cac.total_venta_caja + cac.total_ingreso_caja) as ingresos'),
+                'cac.id_cierre as id_apertura_cierre',
                         'ca.cantidad_billete','ca.total_billete','ca.cantidad_moneda','ca.total_moneda','ca.tipo_moneda'
                         )
                         ->whereRaw($where) 
@@ -145,28 +143,13 @@ class CajaAperturaCierreController extends Controller
                     $apertura_cierre->turno_caja = $request->selectTurno;
                     $apertura_cierre->tipo_caja_c_a = $request->tipo_caja_c_a;
                   
-                    if ($request->tipo_caja_c_a=="0") {
-                        $total_venta_caja=0;
-                      
-                       
-                        $total_ingreso_caja=0;
-                        $total_salida_caja=0;
-                    }else{
-                        if ($request->tipo_caja_c_a=="9") {
-
-                            return "error 9";                     
-                       
-                        }else {
-                            return "erro no entrada ";        
-                        
-                        }                       
-                    }
+                  
              
-                    $apertura_cierre->total_venta_caja = $total_venta_caja;
+                    //$apertura_cierre->total_venta_caja = $total_venta_caja;
               
                     
-                    $apertura_cierre->total_ingreso_caja = $total_ingreso_caja;       
-                    $apertura_cierre->total_salida_caja = $total_salida_caja;   
+             //       $apertura_cierre->total_ingreso_caja = $total_ingreso_caja;       
+              //      $apertura_cierre->total_salida_caja = $total_salida_caja;   
                     $apertura_cierre->total_caja = $request->total_caja; 
                     $apertura_cierre->total_arqueo_caja = $request->total_arqueo_caja; 
                     $apertura_cierre->diferencia_caja = $request->diferencia; 
@@ -235,7 +218,7 @@ $data_1 = $moneda;
       ->where('cac.id_sucursal', $request->id_sucursal)
       ->where('ca.id_usuario', $id_user)
       ->where('cac.tipo_caja_c_a', 0)
-      ->where('cac.id_apertura_cierre', 0)
+      ->where('cac.id_cierre', 0)
       ->orderBy('cac.created_at', 'desc')
       ->first();
     

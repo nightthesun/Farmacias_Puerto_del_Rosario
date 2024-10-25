@@ -17,16 +17,16 @@ return new class extends Migration
             $table->smallInteger('id_arqueo');
             $table->tinyInteger('turno_caja')->comment('1=MAÑANA (TURNO UNO), 2=TARDE (TURNO DOS) 3=TODO EL DIA (COMPLETO)');
             $table->tinyInteger('tipo_caja_c_a')->comment('0 = APERTURA , 9 = CIERRE');
-            $table->decimal('total_venta_caja',11,2);
+           // $table->decimal('total_venta_caja',11,2);
             
-            $table->decimal('total_ingreso_caja',11,2);
-            $table->decimal('total_salida_caja',11,2);
+          //  $table->decimal('total_ingreso_caja',11,2);
+          //  $table->decimal('total_salida_caja',11,2);
             $table->decimal('total_caja',11,2);
             $table->decimal('total_arqueo_caja',11,2);
             $table->decimal('diferencia_caja',11,2);
             $table->string('estado_caja',110);
             $table->timestamps();
-            $table->smallInteger('id_apertura_cierre')->default(0)->comment('valor 0 es para indicar cuando se tiene apertura abierta');
+            $table->smallInteger('id_cierre')->default(0)->comment('valor 0 es para indicar cuando se tiene apertura abierta');
         });
     }
 

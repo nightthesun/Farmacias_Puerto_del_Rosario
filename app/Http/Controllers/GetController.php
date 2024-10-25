@@ -253,7 +253,7 @@ return $result;
     //********************APERTURA /CIERRE************************* */
     public function listarAperturaCierre(Request $request){
      //   $ultimoRegistro = DB::table('caja__apertura_cierres')
-     //   ->select('id','turno_caja', 'tipo_caja_c_a', 'total_caja', 'estado_caja', 'id_arqueo','id_apertura_cierre')
+     //   ->select('id','turno_caja', 'tipo_caja_c_a', 'total_caja', 'estado_caja', 'id_arqueo','')
      //   ->where('id_sucursal', $request->id_sucursal)  
      //   ->orderBy('id', 'desc')
      //   ->first();
@@ -262,10 +262,10 @@ return $result;
     ->join('caja__arqueo as ca', 'cac.id_arqueo', '=', 'ca.id')
     ->where('cac.tipo_caja_c_a', 0)
     ->where('cac.id_sucursal', $request->id_sucursal)
-    ->where('cac.id_apertura_cierre', 0)
+    ->where('cac.id_cierre', 0)
     ->where('ca.id_usuario', $id_user)
     ->orderBy('cac.created_at', 'DESC')    
-    ->select('cac.id','cac.turno_caja', 'cac.tipo_caja_c_a', 'cac.total_caja', 'cac.estado_caja', 'cac.id_arqueo','cac.id_apertura_cierre')
+    ->select('cac.id','cac.turno_caja', 'cac.tipo_caja_c_a', 'cac.total_caja', 'cac.estado_caja', 'cac.id_arqueo','cac.id_cierre as id_apertura_cierre')
     ->first();
 
         if($ultimoRegistro==null){
