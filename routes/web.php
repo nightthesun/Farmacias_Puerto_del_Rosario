@@ -675,7 +675,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/apertura_cierre/store', [CajaAperturaCierreController::class, 'store']);  
     Route::get('/apertura_cierre/index', [CajaAperturaCierreController::class, 'index']);  
     Route::get('/apertura_cierre/monedaModal', [CajaAperturaCierreController::class, 'monedaModal']);  
-    
+    Route::post('/apertura_cierre/cierre', [CajaAperturaCierreController::class, 'cierre_store']);  
+    Route::get('/apertura_cierre/get_operacion', [CajaAperturaCierreController::class, 'suma_operacion_v2']); 
+
     //entrada_salida
     Route::post('/entrada_salida/store', [CajaEntradaSalidaController::class, 'store']); 
     Route::get('/entrada_salida/index', [CajaEntradaSalidaController::class, 'index']); 

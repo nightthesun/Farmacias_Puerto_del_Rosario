@@ -13,9 +13,10 @@
         <div class="container-fluid">
             <div class="card">
                 <div class="card-header">
+               
                     <i class="fa fa-align-justify"></i> Aperturar caja:             
-                    <button type="button" class="btn btn-secondary" @click="cajaAnteriror();verificador_moneda_sistemas();"
-                        :disabled="sucursalSeleccionada === 0 ">
+                    <button type="button"  class="btn btn-secondary" @click="cajaAnteriror();verificador_moneda_sistemas();"
+                        :disabled="selectApertura_cierre!=0">
                         <i class="icon-plus"></i>&nbsp;Nuevo
                     </button>
                     <span v-if="sucursalSeleccionada === 0 " class="error"
@@ -28,7 +29,7 @@
                 </div>
                         <div class="col-md-5">
                             <div class="input-group">
-                                <select class="form-control" v-model="sucursalSeleccionada"  @change="listarIndex(0)">
+                                <select class="form-control" v-model="sucursalSeleccionada"  @change="cambioDeEstado()">
                                     <option value="0" disabled selected>Seleccionar...</option>
                                     <option v-for="sucursal in arraySucursal" :key="sucursal.id"  :value="sucursal.codigo" :hidden="sucursal.id_tienda===null"
                                         v-text="sucursal.codigoS +' -> ' +sucursal.codigo+' '+sucursal.razon_social"
@@ -62,7 +63,7 @@
                             </div>
                         </div>
                         
-                       
+                      
 
             </div>
             <div class="form-group row"  :hidden="sucursalSeleccionada == 0" :disabled="sucursalSeleccionada == 0">
@@ -70,16 +71,21 @@
                      <label for=""></label>
                 </div>
                 <div class="col-md-5">                    
-                        <label for="Apectura / Cierre:"></label>
+                        <label for="Apectura / Cierre:">Acción</label>
+                        <select class="form-control" v-model="selectApertura_cierre"  @change="listarIndex(0)">
+                                    <option value=1 disabled selected>Seleccionar...</option>
+                                    <option value=0>Apertura</option>
+                                    <option value=9>Cierre</option>
+                        </select>
                                         
                 </div>
         <div class="col-md-3">
           <label for="start-date">Fecha inicial:</label>
-          <input id="start-date" type="date" class="form-control" v-model="startDate" :disabled="sucursalSeleccionada===0" @change="listarIndex(0)">
+          <input id="start-date" type="date" class="form-control"  v-model="startDate" :disabled="sucursalSeleccionada===0 || selectApertura_cierre===1" @change="listarIndex(0)" >
         </div>
         <div class="col-md-3">
           <label for="end-date">Fecha final:</label>
-          <input id="end-date" type="date" class="form-control" v-model="endDate" :disabled="sucursalSeleccionada===0" @change="listarIndex(0)">
+          <input id="end-date" type="date" class="form-control" v-model="endDate" :disabled="sucursalSeleccionada===0 || selectApertura_cierre===1" @change="listarIndex(0)">
         </div>        
             </div>                 
 
@@ -102,40 +108,48 @@
                 </thead>
                 <tbody>
                     <tr v-for="i in arrayIndex" :key="i.id">                    
-                        <td class="col-md-1">                           
-                      
-                                <button type="button" style="color: white;" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-    <i class="fa fa-bars" aria-hidden="true"></i>
-  </button>
-  <div class="dropdown-menu">
-    <a @click.prevent="abrirModal('ver', i);"  class="dropdown-item" href="#"><i style="color: black;" class="fa fa-eye" aria-hidden="true"></i> Ver Apertura De Caja</a>
-    <a @click.prevent="abrirModal('actualizar', i);" v-if="i.id_apertura_cierre == 0"   class="dropdown-item" href="#"><i style="color: black;" class="fa fa-pencil" aria-hidden="true"></i> Editar Apertura De Caja</a>
-    <a v-else class="dropdown-item" href="#" style="color: whitesmoke;"><i style="color: whitesmoke;" class="fa fa-pencil" aria-hidden="true"></i> Editar Apertura De Caja</a>
-    <a @click.prevent="abrirModal('ver', i);" v-if="i.id_apertura_cierre == 0" class="dropdown-item" href="#"><i style="color: black;" class="fa fa-lock" aria-hidden="true"></i> Cerrar Apertura De Caja</a>
-    <a v-else class="dropdown-item" href="#" style="color: whitesmoke;"><i style="color: whitesmoke;" class="fa fa-lock" aria-hidden="true"></i> Cerrar Apertura De Caja</a>
-    <a v-if="i.id_apertura_cierre == 0" style="color: whitesmoke;" class="dropdown-item" href="#"><i style="color: whitesmoke;" class="fa fa-eye" aria-hidden="true"></i> Ver Cierre De Caja</a>    
-    <a v-else @click.prevent="abrirModal('ver', i);"  class="dropdown-item" href="#"><i style="color: black;" class="fa fa-eye" aria-hidden="true"></i> Ver Cierre De Caja</a>    
-    <a v-if="i.id_apertura_cierre == 0" style="color: whitesmoke;" class="dropdown-item" href="#"><i style="color: whitesmoke;" class="fa fa-pencil" aria-hidden="true"></i> Editar Cierre De Caja</a>   
-    <a v-else @click.prevent="abrirModal('ver', i);" class="dropdown-item" href="#"><i style="color: black;" class="fa fa-pencil" aria-hidden="true"></i> Editar Cierre De Caja</a>  
-</div>      
-  
+                        <td class="col-md-1"> 
+                            <div  class="d-flex justify-content-start">
+                                <button type="button" class="btn btn-warning" style="margin-right: 5px; color: whitesmoke;" @click="abrirModal('ver',i);">
+                                <i class="fa fa-eye" aria-hidden="true"></i></button> 
+                                <button v-if="i.id_apertura_cierre === 0" type="button" class="btn btn-danger" style="margin-right: 5px;" @click="verificador_moneda_sistemas();abrirModal('cerrar_apertura', i);">
+                                    <i class="fa fa-lock" aria-hidden="true"></i></button>                             
+                                    <button v-else type="button" class="btn btn-light" style="margin-right: 5px;">
+                                        <i class="fa fa-lock" aria-hidden="true"></i></button>   
+                            </div>
                         </td>
-                        <td class="col-md-1" style="text-align: left;">{{i.id}}</td>                                               
+              
+                        <td class="col-md-1" style="text-align: right;">
+                            <span v-if="selectApertura_cierre==='0'">{{i.id}}</span>
+                            <span v-else>{{i.id_cierre_2}}</span>
+                            
+                        </td>                                               
                         <td class="col-md-2">
                             <span v-if="i.turno_caja===1">Turno uno</span>
                             <span v-if="i.turno_caja===2">Turno dos</span>
                             <span v-if="i.turno_caja===3">Turno completo</span>
                         </td>
                     
-                        <td class="col-md-1" style="text-align: right;">{{i.total_caja}}</td>
-                        <td class="col-md-1" style="text-align: right;">{{i.total_arqueo_caja}}</td>
-                        <td class="col-md-1" style="text-align: right;">{{i.diferencia_caja}}</td>
-                        <td class="col-md-2">{{i.created_at}}</td> 
+                        <td class="col-md-1" style="text-align: right;">
+                            <span v-if="selectApertura_cierre==='0'">{{i.total_caja}}</span>
+                            <span v-else>{{i.total_caja_cierre}}</span></td>
+                        <td class="col-md-1" style="text-align: right;">
+                            <span v-if="i.id_apertura_cierre===0">{{i.total_arqueo_caja}}</span>
+                            <span v-else>{{i.total_arqueo_caja_cierre}}</span></td>
+                       
+                        <td class="col-md-1" style="text-align: right;">
+                            <span v-if="selectApertura_cierre==='0'">{{i.diferencia_caja}}</span>
+                            <span v-else>{{i.diferencia_caja_cierre}}</span></td>
+                        <td class="col-md-2">
+                            <span v-if="selectApertura_cierre==='0'">{{i.created_at}}</span>
+                            <span v-else>{{i.created_at_cierre}}</span></td> 
                         <td class="col-md-1">{{i.name}}</td>
-                        <td class="col-md-1">{{i.estado_caja}}</td>
+                        <td class="col-md-1">
+                            <span v-if="selectApertura_cierre==='0'">{{i.estado_caja}}</span>
+                            <span v-else>{{i.estado_caja_cierre}}</span></td>                         
                         <td class="col-md-1">
                             <span v-if="i.id_apertura_cierre===0" class="badge badge-pill badge-success">Activo</span>
-                            <span v-else class="badge badge-pill badge-light">Cerrado</span>
+                            <span v-else class="badge badge-pill badge-danger">Cerrado</span>
                         </td>
                     </tr>
                 </tbody>
@@ -285,6 +299,102 @@
             </div>
         </div>
         <!--fin del modal-->
+
+        <!--Inicio del modal cerrar_apertura -->
+        <div class="modal fade" tabindex="-1" role="dialog" arial-labelledby="myModalLabel" id="cerrar_apertura" aria-hidden="true" data-backdrop="static" data-key="false" >
+            <div class="modal-dialog modal-primary modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">{{ tituloModal }}</h4>
+                        <button type="button" class="close" aria-label="Close" @click="cerrarModal('cerrar_apertura')">
+                            <span aria-hidden="true">x</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">                      
+                        <table class="table table-bordered table-striped table-sm table-responsive">
+                            <thead>
+                                <tr>
+                                    <th class="col-md-1">Monto</th>
+                                    <th class="col-md-1">Simbolo</th>
+                                    <th class="col-md-2">Tipo</th>
+                                    <th class="col-md-1">Valor</th>
+                                    <th class="col-md-3">Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="a in arrayMoneda" :key="a.id">
+                                    <td  class="col-md-1" style="text-align: right;">{{a.unidad_entera}}</td>
+                                    <td class="col-md-1">{{a.unidad}}</td>
+                                    <td  class="col-md-2">{{a.tipo_corte}}</td>
+                                    <td  class="col-md-1" style="text-align: right;">{{a.valor_default}}</td>
+                                    <td  class="col-md-3"> <input type="text" style="text-align: right;" class="form-control" placeholder="Solo valores enteros" v-model="input[a.id]"  @input="validateIntegerInput(a.id,a)" />
+                                    
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <table class="table table-bordered table-striped table-sm table-responsive">                           
+                            <thead>
+                                <tr>
+                                    <th class="col-md-2">Codigo</th>
+                                    <th class="col-md-3">Usuario</th>
+                                    <th class="col-md-2">Monto de apertura</th>    
+                                    <th class="col-md-1">Simbolo</th>                                   
+                                    <th class="col-md-4">Turno</th>                                
+                                 </tr>
+                            </thead>  
+                            <tbody>  
+                                <tr>                    
+                                    <td class="col-md-2" style="text-align: right">{{codigo_cerrar_apertura}}</td>
+                                    <td class="col-md-3">{{usuario_cerrar_apertura}}</td>
+                                    <td class="col-md-2" style="text-align: right">{{monto_cerrar_apertura}}</td>
+                                    <td class="col-md-1">{{SimboloB}}</td>
+                                    <td class="col-md-4">{{Turno_cerrar_apertura}}</td>                                    
+                                                                   
+                                </tr>    
+                            </tbody>  
+                        </table>
+                        <table class="table table-bordered table-striped table-sm table-responsive">
+                            <thead>
+                                <tr>
+                                    <th class="col-md-2">Cant. Moneda</th>
+                                    <th class="col-md-2">Monto Moneda</th>
+                                    <th class="col-md-1">Simbolo</th>
+                                    <th class="col-md-2">Cant. Billete</th>
+                                    <th class="col-md-2">Monto Billete</th>
+                                    <th class="col-md-1">Simbolo</th>
+                                    <th class="col-md-2">Monto Total</th>
+                                    <th class="col-md-1">Simbolo</th>
+                                 </tr>
+                            </thead>  
+                            <tbody>
+                                <tr>
+                                    <td class="col-md-2" style="text-align: right;">{{cantidadMonedas}}</td>
+                                    <td class="col-md-2" style="text-align: right;">{{totalMonedas}}</td>
+                                    <td class="col-md-1">{{SimboloM}}</td>
+                                    <td class="col-md-2" style="text-align: right;">{{cantidadBilletes}}</td>
+                                    <td class="col-md-2" style="text-align: right;">{{ totalBilletas }}</td>
+                                    <td class="col-md-1">{{SimboloB}}</td>
+                                    <td class="col-md-2" style="text-align: right; background-color:darkred; color: azure;">{{totalMonto}}</td>
+                                    <td class="col-md-1">{{SimboloB}}</td>
+                                    
+                                </tr>    
+                            </tbody>          
+                        </table>
+            
+                    </div>
+                                                
+                    <div class="modal-footer">
+                        <button  type="button" class="btn btn-secondary" @click="cerrarModal('cerrar_apertura')">Cerrar</button>                    
+                      
+                                <button type="button" v-if="tipoAccion == 3" @click="cerrar_apertura()" class="btn btn-primary">Guardar</button>                           
+                 
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--fin del modal-->
+
         <!--Inicio del modal VER-->
         <div class="modal fade" tabindex="-1" role="dialog" arial-labelledby="myModalLabel" id="ver" aria-hidden="true" data-backdrop="static" data-key="false">
             <div class="modal-dialog modal-primary modal-lg" role="document">
@@ -484,6 +594,17 @@ export default {
             //limitado                    
             startDate: '',
             endDate: '',
+            //cierre_apertura_-----
+            codigo_cerrar_apertura:'',
+            monto_cerrar_apertura:'',
+            usuario_cerrar_apertura:'',
+            Turno_cerrar_apertura:'',
+            suma_venta:'',
+            sumaEntrada:'',
+            sumaSalida:'',
+
+            selectApertura_cierre:1,
+           
         
         };
     },
@@ -552,7 +673,7 @@ export default {
 
         listarIndex(page) {
             let me = this;  
-            let entrada=0;      
+            let entrada=me.selectApertura_cierre;      
             var url ="/apertura_cierre/index?page="+page+"&buscar=" +me.buscar+"&id_sucursal="+me.id_sucursal+"&a_e="+parseInt(entrada)+"&ini="+me.startDate+"&fini="+me.endDate;
             axios.get(url)
                 .then(function (response) {
@@ -614,6 +735,12 @@ export default {
                 });            
         },
             
+        cambioDeEstado(){
+            let me = this;
+            me.arrayIndex=[];
+         me.selectApertura_cierre=1;
+        },
+
         validateIntegerInput(id,index) {
             let me = this;
             me.cantidadMonedas=0;
@@ -658,6 +785,130 @@ export default {
         });  
      
   },
+
+        cerrar_apertura(){
+            let me = this;
+            let operacion_acciones = Number((me.suma_venta + me.sumaEntrada) - me.sumaSalida);
+            let operacion_apertura = Number(operacion_acciones) + Number(me.monto_cerrar_apertura);
+            //------------------algoritmo-------------------------
+                 
+            let a=me.totalMonto;
+            let b=operacion_apertura;
+            let estado="";
+                //c ---- diferencia
+            
+                let cero=Number(0).toFixed(2);            
+                let c=a-b; 
+                if (c===0) {
+                    if (a===cero && b===cero) {
+                        estado="Acción nula";
+                    } else {
+                        if (a>0 && b>0) {
+                            estado="OK";  
+                        } else {
+                            estado="Error de entrada"; 
+                        }
+                    } 
+                } else {
+                    if (c>cero) {
+                        if (a>cero && b>cero) {
+                            estado="Sobrante";
+                        } else {
+                            if (a>cero && b===cero) {
+                                estado="Saldo inicial";
+                            } else {
+                                if (a>cero && b<cero) {
+                                    estado="Caja negativa";
+                                } else {
+                                    if (a===cero && b>cero) {
+                                        estado="Perdida";
+                                    } else {
+                                        estado="Error";
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        if (c<cero) {
+                            if (a>cero && b>cero) {
+                                estado="Faltante";
+                            } else {
+                                if (a===cero && b>cero) {
+                                    estado="Perdida";
+                                } else {
+                                    estado==="Error";
+                                }
+                            }
+                        } else {
+                            estado="Error"; 
+                        }
+                    }
+                }
+                if (me.isSubmitting) return;
+                me.isSubmitting = true; // Deshabilita el botón
+                axios.post("/apertura_cierre/cierre", {
+                        user:me.usuario_cerrar_apertura,
+                        id_apertura:me.codigo_cerrar_apertura,
+                        total_venta_caja:me.suma_venta,
+                        total_ingreso_caja:me.sumaEntrada,
+                        total_salida_caja:me.sumaSalida,
+                        total_caja:operacion_apertura,
+                        total_arqueo_caja:me.totalMonto,                  
+
+                        
+
+                        total_arqueo_caja:me.totalMonto,
+                        cantidadMonedas:me.cantidadMonedas,
+                        totalMonedas:me.totalMonedas,
+                        cantidadBilletes:me.cantidadBilletes,
+                        totalBilletas:me.totalBilletas,
+                        input:me.input,
+                        arrayMoneda:me.arrayMoneda,
+                        diferencia:c,
+                        estado:estado,
+                        moneda_s1:me.moneda_s1
+                    }).then(function (response) {
+                        console.log((response.data).length);
+                        me.listarIndex();
+                        me.cerrarModal("cerrar_apertura");
+                        if ((response.data).length>0) {
+                            Swal.fire(
+                            ""+response.data,
+                            "Haga click en Ok",
+                            "error",
+                        );
+                        } else {
+                            Swal.fire(
+                            "Registrado exitosamente",
+                            "Haga click en Ok",
+                            "success",
+                        );  
+                        }
+                       
+                    }).catch(function (error) {                 
+                        error401(error);            
+            }).finally(() => {
+          me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
+        });
+        
+                
+        },
+
+        get_operacion_v2(id){
+            let me = this;           
+            var url ="/apertura_cierre/get_operacion?id_apertura="+id;
+            axios.get(url)
+                .then(function (response) {
+                    var respuesta = response.data;                  
+                    me.suma_venta=respuesta.suma_venta;
+                    me.sumaEntrada=respuesta.sumaEntrada;
+                    me.sumaSalida=respuesta.sumaSalida;
+                
+                })
+                .catch(function (error) {
+                    error401(error);
+                });
+        },
         
         registrarArqueo(){
             let me = this;
@@ -740,7 +991,7 @@ me.isSubmitting = true; // Deshabilita el botón
                         totalBilletas:me.totalBilletas,
                         input:me.input,
                         arrayMoneda:me.arrayMoneda,
-                        diferencia:c,
+                        diferencia:0,
                         estado:estado,
                         moneda_s1:me.moneda_s1
                     })
@@ -767,6 +1018,7 @@ me.isSubmitting = true; // Deshabilita el botón
             }        
         },
 
+     
         verificador_moneda_sistemas(){
             let me=this;
             var url = "/apertura_cierre/verificador_moneda_sistemas";
@@ -852,9 +1104,52 @@ me.isSubmitting = true; // Deshabilita el botón
                     me.classModal.openModal("registrar");
                     break;
                 }
+
+                case "cerrar_apertura":{
+                    me.tipoAccion = 3;
+                    console.log(data);
+                    me.tituloModal = "Cerrar caja del usuario "+data.name;
+                    me.isSubmitting=false;   
+                    me.suma_venta="";
+                    me.sumaEntrada="";
+                    me.sumaSalida="";
+                    me.get_operacion_v2(data.id);
+                    me.codigo_cerrar_apertura=data.id;
+                        me.monto_cerrar_apertura=data.total_arqueo_caja;
+                        me.usuario_cerrar_apertura=data.name;
+                        if (data.turno_caja===1) {
+                            me.Turno_cerrar_apertura="Turno uno";
+                        }else{
+                            if (data.turno_caja===2) {
+                                 me.Turno_cerrar_apertura="Turno dos";
+                            } else {
+                                if (data.turno_caja===3) {
+                                    me.Turno_cerrar_apertura="Turno completo";  
+                                } else {
+                                    me.Turno_cerrar_apertura="Error";
+                                }
+                            }
+                        }    
+                        
+
+                        me.totalMonedas="0.00";
+                        me.SimboloM="S/N";
+                        me.SimboloB="S/N";            
+                        me.totalBilletas="0.00";
+                        me.totalMonto="0.00";
+                        me.cantidadMonedas=0;
+                        me.cantidadBilletes=0; 
+                        me.password="";
+                        me.input={};
+            
+                    me.classModal.openModal("cerrar_apertura");
+                    break;
+                }
+
                 case "actualizar": {
                     me.tipoAccion = 2;
-                   
+                    console.log(data);
+                    me.tituloModal = "Editar de apertura de caja";
                     me.isSubmitting=false;
             
                     me.classModal.openModal("registrar");
@@ -907,8 +1202,16 @@ me.isSubmitting = true; // Deshabilita el botón
                     me.cantidad_moneda_modal=data.cantidad_moneda;
                     me.cantidad_billete_modal=data.cantidad_billete;
                     me.monto_moneda_modal=data.total_moneda;
-                    me.monto_billete_modal=data.total_billete
-                    me.modalMoneda(data.id_arqueo);
+                    me.monto_billete_modal=data.total_billete;
+                    console.log(data.id_arqueo+" - "+data.id_arqueo_cierre);
+                    if (data.id_apertura_cierre===0) {
+                        console.log("---");
+                        me.modalMoneda(data.id_arqueo); 
+                    } else {
+                        console.log("***");
+                        me.modalMoneda(data.id_arqueo_cierre);   
+                    }
+                   
                     me.classModal.openModal("ver");
                     break;
                 }
@@ -958,6 +1261,30 @@ me.isSubmitting = true; // Deshabilita el botón
             me.arrayMonedaModal=[];
                 me.classModal.closeModal(accion);
             }
+
+            if (accion === "cerrar_apertura") {
+                me.isSubmitting=false;
+                me.selectTurno="0";
+                me.suma_venta="";
+                me.sumaEntrada="";
+                me.sumaSalida="";
+                        me.totalMonedas="0.00";
+                        me.SimboloM="S/N";
+                        me.SimboloB="S/N";            
+                        me.totalBilletas="0.00";
+                        me.totalMonto="0.00";
+                        me.cantidadMonedas=0;
+                        me.cantidadBilletes=0; 
+                        me.password="";
+                        me.input={};
+
+                        me.codigo_cerrar_apertura="";
+                        me.monto_cerrar_apertura="";
+                        me.usuario_cerrar_apertura="";
+                        me.Turno_cerrar_apertura=""; 
+    
+            me.classModal.closeModal(accion);   
+            }
         },
 
        fecha_inicial() {
@@ -995,7 +1322,7 @@ me.isSubmitting = true; // Deshabilita el botón
         
         this.classModal.addModal("registrar");
         this.classModal.addModal("ver");
-    
+        this.classModal.addModal("cerrar_apertura");
     },
 };
 </script>

@@ -23,9 +23,18 @@ class CajaAperturaCierreController extends Controller
         
         if (auth()->user()->super_usuario == 0) {
             $user = auth()->user()->id; 
-            $where = "(cac.id_sucursal = $request->id_sucursal and cac.tipo_caja_c_a = $request->a_e and ca.id_usuario = $user)";            
+            if ($request->a_e==0) {
+                $where = "(cac.id_sucursal = $request->id_sucursal AND ca.id_usuario = $user)"; 
+            } else {
+                $where = "(cac.id_sucursal = $request->id_sucursal  and cac.id_cierre <> 0 AND ca.id_usuario = $user)"; 
+            }         
         } else {
-            $where = "(cac.id_sucursal = $request->id_sucursal and cac.tipo_caja_c_a = $request->a_e)";
+            if ($request->a_e==0) {
+                $where = "(cac.id_sucursal = $request->id_sucursal )";
+            } else {
+                $where = "(cac.id_sucursal = $request->id_sucursal and cac.id_cierre <> 0)";
+            }   
+            
         }
         
         if (!empty($request->buscar)) {
@@ -50,10 +59,21 @@ class CajaAperturaCierreController extends Controller
                 $resultado = DB::table('caja__apertura_cierres as cac')
                 ->join('caja__arqueo as ca', 'cac.id_arqueo', '=', 'ca.id')
                 ->join('users as u', 'u.id', '=', 'ca.id_usuario')
+                ->leftJoin('caja__cierre as cc', 'cac.id_cierre', '=', 'cc.id')
                 ->select('cac.id','cac.id_arqueo','cac.turno_caja','cac.tipo_caja_c_a','cac.total_caja',
                         'cac.total_arqueo_caja','cac.diferencia_caja','cac.estado_caja','cac.created_at','u.name','cac.id_cierre as id_apertura_cierre',
                 
-                       'ca.cantidad_billete','ca.total_billete','ca.cantidad_moneda','ca.total_moneda','ca.tipo_moneda'
+                       'ca.cantidad_billete','ca.total_billete','ca.cantidad_moneda','ca.total_moneda','ca.tipo_moneda',
+                       'cc.id as id_cierre_2',
+        'cc.id_arqueo as id_arqueo_cierre',
+        'cc.total_venta_caja as total_venta_caja_cierre',
+        'cc.total_ingreso_caja as total_ingreso_caja_cierre',
+        'cc.total_salida_caja as total_salida_caja_cierre',
+        'cc.total_caja as total_caja_cierre',
+        'cc.total_arqueo_caja as total_arqueo_caja_cierre',
+        'cc.diferencia_caja as diferencia_caja_cierre',
+        'cc.estado_caja as estado_caja_cierre',
+        'cc.created_at as created_at_cierre'
                         )
                      //   ->where('cac.id_sucursal','=',$request->id_sucursal)
                      //   ->where('cac.tipo_caja_c_a','=',$request->a_e)          
@@ -81,10 +101,21 @@ class CajaAperturaCierreController extends Controller
             $resultado = DB::table('caja__apertura_cierres as cac')
                 ->join('caja__arqueo as ca', 'cac.id_arqueo', '=', 'ca.id')
                 ->join('users as u', 'u.id', '=', 'ca.id_usuario')
+                ->leftJoin('caja__cierre as cc', 'cac.id_cierre', '=', 'cc.id')
                 ->select('cac.id','cac.id_arqueo','cac.turno_caja','cac.tipo_caja_c_a','cac.total_caja',
                         'cac.total_arqueo_caja','cac.diferencia_caja','cac.estado_caja','cac.created_at','u.name',
                 'cac.id_cierre as id_apertura_cierre',
-                        'ca.cantidad_billete','ca.total_billete','ca.cantidad_moneda','ca.total_moneda','ca.tipo_moneda'
+                        'ca.cantidad_billete','ca.total_billete','ca.cantidad_moneda','ca.total_moneda','ca.tipo_moneda',
+                        'cc.id as id_cierre_2',
+        'cc.id_arqueo as id_arqueo_cierre',
+        'cc.total_venta_caja as total_venta_caja_cierre',
+        'cc.total_ingreso_caja as total_ingreso_caja_cierre',
+        'cc.total_salida_caja as total_salida_caja_cierre',
+        'cc.total_caja as total_caja_cierre',
+        'cc.total_arqueo_caja as total_arqueo_caja_cierre',
+        'cc.diferencia_caja as diferencia_caja_cierre',
+        'cc.estado_caja as estado_caja_cierre',
+        'cc.created_at as created_at_cierre'
                         )
                         ->whereRaw($where) 
               ->whereBetween(DB::raw('DATE(cac.created_at)'), [$ini, $fini]) 
@@ -105,8 +136,86 @@ class CajaAperturaCierreController extends Controller
                 ];
         }       
     }
+    
+    public function suma_operacion_v2(Request $request){
+        $suma_venta = DB::table('ven__recibos')
+        ->where('id_usuario', auth()->user()->id)
+        ->where('id_apertura', $request->id_apertura) 
+        ->sum('total_venta');
+        // Sum of "entrada" values
+        $sumaEntrada = DB::table('caja__entrada_salidas')
+            ->where('id_apertura_cierre', $request->id_apertura)
+            ->where('entrada_salida', 1)
+            ->sum('valor');
 
- 
+// Sum of "salida" values
+$sumaSalida = DB::table('caja__entrada_salidas')
+->where('id_apertura_cierre', $request->id_apertura)
+->where('entrada_salida', 2)
+->sum('valor');
+return response()->json([                        
+    'suma_venta' => $suma_venta,
+    'sumaEntrada' => $sumaEntrada, 
+    'sumaSalida' => $sumaSalida
+]);
+    }
+
+    public function cierre_store(Request $request ){
+
+        try {
+      
+                if ($request->user==auth()->user()->name) {
+                    DB::beginTransaction();
+                    $datos = [
+                        'id_usuario' => auth()->user()->id,
+                        'total_arqueo' => $request->total_arqueo_caja,                       
+                        'cantidad_billete' => $request->cantidadBilletes,  
+                        'total_billete' => $request->totalBilletas, 
+                        'cantidad_moneda' => $request->cantidadMonedas, 
+                        'total_moneda' => $request->totalMonedas, 
+                        'tipo_moneda' => $request->moneda_s1                      
+                    ];    
+
+                    $id = DB::table('caja__arqueo')->insertGetId($datos);     
+                
+                    foreach ($request->input as $key => $value) {                       
+                        $datos_2 = [                            
+                            'id_arqueo' => $id,                       
+                            'id_moneda' => $key,  
+                            'cantidad' => $value                                              
+                        ];  
+                        DB::table('caja__arqueo_array')->insert($datos_2);
+                    }
+                    $currentDateTime = Carbon::now();
+                    
+                    $datos_2 = [
+                        'id_apertura' => $request->id_apertura,
+                        'id_arqueo' => $id,
+                        'total_venta_caja' => $request->total_venta_caja,                       
+                        'total_ingreso_caja' => $request->total_ingreso_caja,  
+                        'total_salida_caja' => $request->total_salida_caja, 
+                        'total_caja' => $request->total_caja, 
+                        'total_arqueo_caja' => $request->total_arqueo_caja, 
+                        'diferencia_caja' => $request->diferencia,  
+                        'estado_caja' => $request->estado, 
+                        'created_at' => $currentDateTime, 
+                        'updated_at' => $currentDateTime,                     
+                    ];    
+
+                   $id_1 = DB::table('caja__cierre')->insertGetId($datos_2);   
+                    $apertura_cierre = Caja_AperturaCierre::findOrFail($request->id_apertura);
+                    $apertura_cierre->id_cierre = $id_1;
+                    $apertura_cierre->save(); 
+                    DB::commit();
+                } else {
+                    return "La operacióm debe ser relziada por el mismo usuario";
+                }
+          
+        } catch (\Throwable $th) {
+            return $th;
+        }
+    }
+
 
     /**
      * Store a newly created resource in storage.
