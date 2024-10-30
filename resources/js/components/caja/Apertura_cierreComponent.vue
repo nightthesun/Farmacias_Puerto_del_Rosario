@@ -447,12 +447,12 @@
                             </thead> 
                             <tbody>
                                 <tr>
-                                    <td class="col-md-1" style="font-size: 11px; text-align: center">0.00</td>
-                                    <td class="col-md-1" style="font-size: 11px; text-align: center">0.00</td>
+                                    <td class="col-md-1" style="font-size: 11px; text-align: center">{{total_venta_modal}}</td>
+                                    <td class="col-md-1" style="font-size: 11px; text-align: center">{{total_entrada_modal}}</td>
                                    
                             
                                  
-                                    <td class="col-md-1" style="font-size: 11px; text-align: center">0.00</td>
+                                    <td class="col-md-1" style="font-size: 11px; text-align: center">{{ total_salida_modal }}</td>
                                 
                                     <td class="col-md-1" style="font-size: 11px; text-align: center">{{total_caja_modal}}</td>
                                     <td class="col-md-1" style="font-size: 11px; text-align: center">{{total_arqueo_modal}}</td>
@@ -788,8 +788,13 @@ export default {
 
         cerrar_apertura(){
             let me = this;
-            let operacion_acciones = Number((me.suma_venta + me.sumaEntrada) - me.sumaSalida);
-            let operacion_apertura = Number(operacion_acciones) + Number(me.monto_cerrar_apertura);
+            let suma_venta = parseFloat(me.suma_venta) || 0;
+let sumaEntrada = parseFloat(me.sumaEntrada) || 0;
+let sumaSalida = parseFloat(me.sumaSalida) || 0;
+let monto_cerrar_apertura = parseFloat(me.monto_cerrar_apertura) || 0;
+let operacion_acciones = (suma_venta + sumaEntrada) - sumaSalida;
+let operacion_apertura = operacion_acciones + monto_cerrar_apertura;
+
             //------------------algoritmo-------------------------
                  
             let a=me.totalMonto;
@@ -846,6 +851,13 @@ export default {
                 }
                 if (me.isSubmitting) return;
                 me.isSubmitting = true; // Deshabilita el botón
+        
+                console.log(operacion_apertura);
+                console.log(me.totalMonto+" - "+me.totalMonto+" - "+me.cantidadMonedas);
+                console.log(me.totalMonto+" - "+me.cantidadMonedas+" - "+me.totalMonedas);
+                console.log(me.cantidadBilletes+" - "+me.totalBilletas+" - "+me.input);
+                console.log(me.arrayMoneda+" - "+me.c+" - "+me.estado);
+                console.log(me.moneda_s1);
                 axios.post("/apertura_cierre/cierre", {
                         user:me.usuario_cerrar_apertura,
                         id_apertura:me.codigo_cerrar_apertura,
@@ -853,9 +865,7 @@ export default {
                         total_ingreso_caja:me.sumaEntrada,
                         total_salida_caja:me.sumaSalida,
                         total_caja:operacion_apertura,
-                        total_arqueo_caja:me.totalMonto,                  
-
-                        
+                        total_arqueo_caja:me.totalMonto,                         
 
                         total_arqueo_caja:me.totalMonto,
                         cantidadMonedas:me.cantidadMonedas,
@@ -1158,18 +1168,42 @@ me.isSubmitting = true; // Deshabilita el botón
                 }
 
                 case "ver": {
-               
-                    if (data.tipo_caja_c_a===0) {
-                        me.tituloModal = "Apertura de caja vista";  
+                    console.log(data);
+           
+                
+                    if (data.id_apertura_cierre===0) {               
+                        me.tituloModal = "Apertura de caja vista";
+                        me.id_modal="000"+data.id;
+                        me.id_arqueo_modal="000"+data.id_arqueo;
+                        me.tipo_modal="Apertura";
+                        me.usuario_modal=data.name;
+                        me.fecha_modal=data.created_at;
+                        me.estado_modal=data.estado_caja;
+                        me.total_venta_modal="0.00";
+                        me.total_entrada_modal="0.00";
+                        me.total_salida_modal="0.00";    
+                        me.total_caja_modal=data.total_caja;
+                        me.total_arqueo_modal=data.total_arqueo_caja;
+                        me.total_diferencia_modal=data.diferencia_caja;
+                        me.modalMoneda(data.id_arqueo); 
+
                     } else {
-                        if (data.tipo_caja_c_a===9) {
-                            me.tituloModal = "Cierre de caja vista";
-                        } else {
-                            me.tituloModal = "Error";
-                        }                       
-                    }
-                    me.id_modal="000"+data.id;
-                    me.id_arqueo_modal="000"+data.id_arqueo;
+      
+                        me.tituloModal = "Cierre de caja vista";
+                        me.id_modal="000"+data.id_cierre_2;
+                        me.id_arqueo_modal="000"+data.id_arqueo_cierre;
+                        me.tipo_modal="Cierre";
+                        me.usuario_modal=data.name;
+                        me.fecha_modal=data.created_at_cierre;
+                        me.estado_modal=data.estado_caja_cierre;
+                        me.total_venta_modal=data.total_venta_caja_cierre;
+                        me.total_entrada_modal=data.total_ingreso_caja_cierre;
+                        me.total_salida_modal=data.total_salida_caja_cierre;   
+                        me.total_caja_modal=data.total_caja_cierre; 
+                        me.total_arqueo_modal=data.total_arqueo_caja_cierre;
+                        me.total_diferencia_modal=data.diferencia_caja_cierre;
+                        me.modalMoneda(data.id_arqueo_cierre);  
+                    }                                    
                     if (data.turno_caja===1) {
                         me.turno_modal="Uno";
                     } else {
@@ -1179,38 +1213,13 @@ me.isSubmitting = true; // Deshabilita el botón
                             me.turno_modal="Completo";   
                         }
                     }
-                    if (data.tipo_caja_c_a===0) {
-                        me.tipo_modal="Apertura";
-                    } else {
-                        me.tipo_modal="Cierre";
-                    }        
-                    me.usuario_modal=data.name;
-                    me.fecha_modal=data.created_at;
-                    me.estado_modal=data.estado_caja;
-
-                    me.total_venta_modal=data.total_venta_caja;
-                    me.total_entrada_modal=data.total_ingreso_caja;
-                   
-                    
-              
-                    me.total_salida_modal=data.total_salida_caja;               
-       
-                    me.total_caja_modal=data.total_caja;
-                    me.total_arqueo_modal=data.total_arqueo_caja;
-                    me.total_diferencia_modal=data.diferencia_caja;
-                    
                     me.cantidad_moneda_modal=data.cantidad_moneda;
-                    me.cantidad_billete_modal=data.cantidad_billete;
                     me.monto_moneda_modal=data.total_moneda;
+                    me.cantidad_billete_modal=data.cantidad_billete;
+               
                     me.monto_billete_modal=data.total_billete;
-                    console.log(data.id_arqueo+" - "+data.id_arqueo_cierre);
-                    if (data.id_apertura_cierre===0) {
-                        console.log("---");
-                        me.modalMoneda(data.id_arqueo); 
-                    } else {
-                        console.log("***");
-                        me.modalMoneda(data.id_arqueo_cierre);   
-                    }
+                    
+                    
                    
                     me.classModal.openModal("ver");
                     break;

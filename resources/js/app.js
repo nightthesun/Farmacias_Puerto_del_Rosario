@@ -94,9 +94,11 @@ createApp ({
     .component('entrada_salida-component', require('./components/caja/Entrada_SalidaComponent.vue').default)
     .component('transaccion-component', require('./components/caja/TransaccionComponent.vue').default)
   
-    //egresos
+    //compras
     .component('gastos-component', require('./components/egreso/GastosComponent.vue').default)
     .component('inversiones-component', require('./components/egreso/InversionesComponent.vue').default)
+    .component('tesoreria-component', require('./components/egreso/TesoreriaComponent.vue').default)
+   
 
     .mount('#app');
  

@@ -14,7 +14,7 @@
         <div v-else class="container-fluid" >
             <div class="card">                
                 <div class="card-header">
-                    <i class="fa fa-align-justify"></i> Apertura / Cierre de cajas               
+                    <i class="fa fa-align-justify"></i> Entrada / Salida              
                     <button type="button" class="btn btn-secondary" @click="verificadorAperturaCierre();verificador_moneda_sistemas();"  :disabled="sucursalSeleccionada === 0 || selectEntradaSalida === 0 || bloqueador ===0">
                         <i class="icon-plus"></i>&nbsp;Nuevo
                     </button>
@@ -23,10 +23,10 @@
                 </div>
         <div class="card-body">
             <div class="form-group row">
-                <div class="col-md-1" style="text-align: right">
+                <div class="col-md-2" style="text-align: right">
                      <label for="">Almacen/Tienda:</label>
                 </div>
-                        <div class="col-md-5">
+                        <div class="col-md-4">
                             <div class="input-group">
                                 <select class="form-control" v-model="sucursalSeleccionada"  @change="cambiarEstadoSucursal()">
                                     <option value="0" disabled selected>Seleccionar...</option>
@@ -65,10 +65,10 @@
 
             </div>             
             <div class="form-group row" :hidden="sucursalSeleccionada === 0" :disabled="sucursalSeleccionada === 0">
-                <div class="col-md-1" style="text-align: center">
+                <div class="col-md-2" style="text-align: center">
                     <label for=""></label>
                 </div>
-                <div class="col-md-5">
+                <div class="col-md-4">
                     <label for="Apectura / Cierre:">Entrada / Salida:</label>
                 <select class="form-control" v-model="selectEntradaSalida" @change="listarIndex(0)">
                     <option value="0" disabled selected >Seleccionar...</option>
@@ -109,11 +109,13 @@
             <tbody>
                 <tr v-for="i in arrayIndex" :key="i.id">                    
                 <td class="col-md-1">
+                    <div  class="d-flex justify-content-start">
                     <button type="button" class="btn btn-info" style="margin-right: 5px; color: whitesmoke;" @click="abrirModal('re_imprecion',i);">
                         <i class="fa fa-print" aria-hidden="true"></i></button>
                     
                     <button type="button" class="btn btn-warning" style="margin-right: 5px; color: whitesmoke;" @click="abrirModal('ver',i);">
                         <i class="fa fa-eye" aria-hidden="true"></i></button>
+                    </div>    
                 </td>
                 <td class="col-md-1" style="text-align: right;">{{ i.id }}</td>
                 <td class="col-md-2">{{ i.created_at }}</td> 

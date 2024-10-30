@@ -187,7 +187,13 @@ return response()->json([
                         DB::table('caja__arqueo_array')->insert($datos_2);
                     }
                     $currentDateTime = Carbon::now();
-                    
+                    $numero = $request->diferencia;
+                    $resultado=0;
+                        if ($numero < 0) {
+                            $resultado=$numero*-1 ;
+                        } else {
+                            $resultado = $request->diferencia;
+                        }
                     $datos_2 = [
                         'id_apertura' => $request->id_apertura,
                         'id_arqueo' => $id,
@@ -196,7 +202,7 @@ return response()->json([
                         'total_salida_caja' => $request->total_salida_caja, 
                         'total_caja' => $request->total_caja, 
                         'total_arqueo_caja' => $request->total_arqueo_caja, 
-                        'diferencia_caja' => $request->diferencia,  
+                        'diferencia_caja' => $resultado,  
                         'estado_caja' => $request->estado, 
                         'created_at' => $currentDateTime, 
                         'updated_at' => $currentDateTime,                     
@@ -274,15 +280,7 @@ return response()->json([
     }
 
   
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Caja_AperturaCierre $caja_AperturaCierre)
-    {
-        //
-    }
-
-    
+       
 
     public function verificador_moneda_sistemas(Request $request){
         

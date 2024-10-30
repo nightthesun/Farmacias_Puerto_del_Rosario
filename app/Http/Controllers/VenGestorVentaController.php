@@ -1175,11 +1175,11 @@ $nombre_empresa = strtoupper($nombre_e);
     $ultimoRegistro = DB::table('caja__apertura_cierres as cac')
     ->join('caja__arqueo as ca', 'cac.id_arqueo', '=', 'ca.id')
     ->join('users as u', 'u.id', '=', 'ca.id_usuario')
-    ->select('cac.id','cac.turno_caja', 'cac.tipo_caja_c_a', 'cac.total_caja', 'cac.estado_caja', 'cac.id_arqueo','cac.id_apertura_cierre')
+    ->select('cac.id','cac.turno_caja', 'cac.tipo_caja_c_a', 'cac.total_caja', 'cac.estado_caja', 'cac.id_arqueo','cac.id_cierre as id_apertura_cierre')
     ->where('cac.id_sucursal', $idsuc)
     ->where('ca.id_usuario', $id_user)
     ->where('cac.tipo_caja_c_a', 0)
-    ->where('cac.id_apertura_cierre', 0)
+    ->where('cac.id_cierre', 0)
     ->orderBy('cac.created_at', 'desc')
     ->first();
 
