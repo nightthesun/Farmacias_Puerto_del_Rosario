@@ -17,14 +17,6 @@ class EgrTesoreriaController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
@@ -32,41 +24,13 @@ class EgrTesoreriaController extends Controller
         //
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Egr_Tesoreria $egr_Tesoreria)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Egr_Tesoreria $egr_Tesoreria)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Egr_Tesoreria $egr_Tesoreria)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Egr_Tesoreria $egr_Tesoreria)
-    {
+    public function getTesoreria(Request $request)
+    {  
         $result = DB::table('egr__tesorerias as et')
     ->select('et.id', 'et.monto_actual_abrir', 'et.abrir_cerrar')
-    ->where('et.id_sucursal', 1)
+    ->where('et.id_sucursal', $request->id_sucursal)
     ->where('et.abrir_cerrar', 9)
-    ->orderByDesc('et.id')
-    ->limit(1)
+    ->orderBy('et.created_at', 'desc')   
     ->first();
-    }
+    }   
 }
