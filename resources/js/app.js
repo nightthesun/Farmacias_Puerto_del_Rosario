@@ -93,7 +93,8 @@ createApp ({
     .component('moneda-component', require('./components/caja/MonedaComponent.vue').default)
     .component('entrada_salida-component', require('./components/caja/Entrada_SalidaComponent.vue').default)
     .component('transaccion-component', require('./components/caja/TransaccionComponent.vue').default)
-  
+    .component('corregir_caja-component', require('./components/caja/Corregir_cajaComponent.vue').default)
+    
     //compras
     .component('gastos-component', require('./components/egreso/GastosComponent.vue').default)
     .component('inversiones-component', require('./components/egreso/InversionesComponent.vue').default)

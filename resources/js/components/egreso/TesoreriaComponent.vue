@@ -11,12 +11,7 @@
             <div class="card">
                 <div class="card-header">
                     <i class="fa fa-align-justify"></i> Tesoreria               
-                    <button
-                        type="button"
-                        class="btn btn-secondary"
-                        @click="abrirModal('registrar');"
-                        :disabled="sucursalSeleccionada == 0"
-                    >
+                    <button type="button" class="btn btn-secondary" @click="abrirModal('registrar');verificador_moneda_sistemas();" :disabled="selectApertura_cierre!=0">
                         <i class="icon-plus"></i>&nbsp;Nuevo
                     </button>
                     <span v-if="sucursalSeleccionada == 0" class="error"
@@ -26,25 +21,18 @@
         <div class="card-body">
             <div class="form-group row">
                 <div class="col-md-2" style="text-align: center">
-                     <label for="">Almacen o Tienda:</label>
+                     <label for="">Sucursal: </label>
                 </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <div class="input-group">
                                 <select class="form-control" v-model="sucursalSeleccionada">
                                     <option value="0" disabled selected>Seleccionar...</option>
                                     <option v-for="sucursal in arraySucursal" :key="sucursal.id"  :value="sucursal.codigo"  :hidden="sucursal.id_tienda===null"
-                                        v-text="
-                                            sucursal.codigoS +
-                                            ' -> ' +
-                                            sucursal.codigo+
-                                            ' ' +
-                                            sucursal.razon_social
-                                        "
-                                    ></option>
+                                        v-text="sucursal.codigoS + ' -> ' + sucursal.codigo+' ' +sucursal.razon_social"></option>
                                 </select>
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <div class="input-group">
                                 <input
                                     type="text"
@@ -73,38 +61,40 @@
 
             </div>
              
-
-            <div class="row justify-content-center">
-    <div class="col-md-8">
-      <div class="row">
-        <div class="col-md-4" v-if="sucursalSeleccionada !== 0">
+            <div class="form-group row"  :hidden="sucursalSeleccionada == 0" :disabled="sucursalSeleccionada == 0">
+                <div class="col-md-2">
+                     <label for=""></label>
+                </div>
+                <div class="col-md-4">                    
+                        <label for="Apectura / Cierre:">Acción</label>
+                        <select class="form-control" v-model="selectApertura_cierre" >
+                                    <option value=1 disabled selected>Seleccionar...</option>
+                                    <option value=0>Abrir</option>
+                                    <option value=9>Cerrar</option>
+                        </select>                                        
+                </div>
+        <div class="col-md-3">
           <label for="start-date">Fecha inicial:</label>
-          <input id="start-date" type="date" class="form-control" v-model="startDate">
+          <input id="start-date" type="date" class="form-control"  v-model="startDate" :disabled="sucursalSeleccionada===0 || selectApertura_cierre===1">
         </div>
-        <div class="col-md-4" v-if="sucursalSeleccionada !== 0">
+        <div class="col-md-3">
           <label for="end-date">Fecha final:</label>
-          <input id="end-date" type="date" class="form-control" v-model="endDate">
-        </div>
-      </div>
-    </div>
-  </div>
+          <input id="end-date" type="date" class="form-control" v-model="endDate" :disabled="sucursalSeleccionada===0 || selectApertura_cierre===1">
+        </div>        
+            </div> 
   <br>
             <!---inserte tabla-->
             <table class="table table-bordered table-striped table-sm table-responsive" >
                 <thead>
                     <tr>
-                        <th>Opciones</th>
-                        <th class="col-md-1">Cliente</th>
-                        <th class="col-md-5">Nro docuemnto</th>
-                        <th>Tipo de comprobante</th>
-                        <th>Numero de comprobante</th>
-                        <th class="col-md-1">Total</th>
-                        <th class="col-md-1">Destino</th>
-                        <th>Vehiculo</th>
+                        <th class="col-md-1">Opciones</th>
+                        <th class="col-md-1">Nro</th>
+                        <th class="col-md-1">Nro arqueo</th>
+                        <th class="col-md-1">Total arqueo</th>
+                        <th class="col-md-1">Monto actual</th>
                         <th class="col-md-3">Observación</th>
-                        <th class="col-md-2">Per. Enviada</th>
-                        <th>Usuario</th>
-                        <th>Estado</th>       
+                        <th class="col-md-2">Fecha/Hora</th>
+                        <th class="col-md-2">Usuario</th>      
                     </tr>
                 </thead>
             </table>    
@@ -139,25 +129,77 @@
                             <span aria-hidden="true">x</span>
                         </button>
                     </div>
-                    <div class="modal-body">
-                        <div class="alert alert-warning" role="alert">
-                            Todos los campos con (*) son requeridos
-                        </div>
-                        <form action="" class="form-horizontal">
-                        
-                            <!-- insertar datos -->
-                            <div class="container">
-                                
-                                <div class="form-group row">
-                                   
-                                   
-        
-                                </div>
+                    <div class="modal-body">                      
+                        <table class="table table-bordered table-striped table-sm table-responsive">
+                            <thead>
+                                <tr>
+                                    <th class="col-md-1">Monto</th>
+                                    <th class="col-md-1">Simbolo</th>
+                                    <th class="col-md-2">Tipo</th>
+                                    <th class="col-md-1">Valor</th>
+                                    <th class="col-md-3">Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody>
                               
-                            
-                               
-                            </div>
-                        </form>
+                                <tr v-for="a in arrayMoneda" :key="a.id">
+                                    <td  class="col-md-1" style="text-align: right;">{{a.unidad_entera}}</td>
+                                    <td class="col-md-1">{{a.unidad}}</td>
+                                    <td  class="col-md-2">{{a.tipo_corte}}</td>
+                                    <td  class="col-md-1" style="text-align: right;">{{a.valor_default}}</td>
+                                    <td  class="col-md-3"> <input type="text" style="text-align: right;" class="form-control" placeholder="Solo valores enteros" v-model="input[a.id]"  @input="validateIntegerInput(a.id,a)" />
+                                    
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <table class="table table-bordered table-striped table-sm table-responsive">
+                            <thead>
+                                <tr>
+                                    <th class="col-md-2">Cant. Moneda</th>
+                                    <th class="col-md-2">Monto Moneda</th>
+                                    <th class="col-md-1">Simbolo</th>
+                                    <th class="col-md-2">Cant. Billete</th>
+                                    <th class="col-md-2">Monto Billete</th>
+                                    <th class="col-md-1">Simbolo</th>
+                                    <th class="col-md-2">Monto Total</th>
+                                    <th class="col-md-1">Simbolo</th>
+                                 </tr>
+                            </thead>  
+                            <tbody>
+                                <tr>
+                                    <td class="col-md-2" style="text-align: right;">{{cantidadMonedas}}</td>
+                                    <td class="col-md-2" style="text-align: right;">{{totalMonedas}}</td>
+                                    <td class="col-md-1">{{SimboloM}}</td>
+                                    <td class="col-md-2" style="text-align: right;">{{cantidadBilletes}}</td>
+                                    <td class="col-md-2" style="text-align: right;">{{ totalBilletas }}</td>
+                                    <td class="col-md-1">{{SimboloB}}</td>
+                                    <td class="col-md-2" style="text-align: right; background-color:darkred; color: azure;">{{totalMonto}}</td>
+                                    <td class="col-md-1">{{SimboloB}}</td>
+                                    
+                                </tr>    
+                            </tbody>          
+                        </table>
+                        <table class="table table-bordered table-striped table-sm table-responsive">
+                            <thead>
+                                <tr>
+                                    <th class="col-md-2">Monto anterior</th>
+                                    <th class="col-md-1">Simbolo</th>
+                                    <th class="col-md-2">Monto sumado</th>
+                                    <th class="col-md-1">Simbolo</th>
+                                    <th class="col-md-6">Observación</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr> 
+                                    <td class="col-md-2">{{ monto_anteriror_X }}</td>
+                                    <td class="col-md-2">{{ SimboloB }}</td>
+                                    <td class="col-md-2">{{ monto_sumado_X }}</td>
+                                    <td class="col-md-2">{{ SimboloB }}</td>
+                                    <td class="col-md-2"><input type="text" class="form-control" placeholder="Escriba la observación"  v-model="observacion_X"/>  </td>
+                                </tr>
+                            </tbody>
+                        </table>        
                     </div>
                   
                     <div class="modal-footer">
@@ -173,7 +215,6 @@
                             v-if="tipoAccion == 1"
                             class="btn btn-primary"
                            
-                            :disabled="!sicompleto"
                         >
                             Guardar
                         </button>
@@ -217,6 +258,25 @@ export default {
             tipoAccion:1,
             startDate: '',
       endDate: '',
+
+      selectApertura_cierre:1,
+
+      input:{},
+      arrayMoneda:[],
+      moneda_s1:'',
+
+      cantidadMonedas:0,
+      cantidadBilletes:0, 
+      totalMonedas:"0.00",
+      totalBilletas:"0.00",
+      totalMonto:"0.00",
+      SimboloM:'S/N',
+      SimboloB:'S/N',
+      
+      monto_anteriror_X:'',
+      monto_sumado_X:'',
+      observacion_X:'',
+
         };
     },
 
@@ -291,6 +351,76 @@ export default {
         //    me.listarAjusteNegativos(page);
         },
 
+        validateIntegerInput(id,index) {
+            let me = this;
+            me.cantidadMonedas=0;
+           me.cantidadBilletes=0;
+           me.totalMonedas=0;
+           me.totalBilletas=0;
+           me.totalMonto=0;
+    me.input[id] = this.input[id].replace(/[^0-9]/g, '');
+    if ( me.input[id]===""|| me.input[id]===null) {
+        me.input[id]=0; 
+        let aa=me.arrayMoneda[id-1];
+        aa.valor_default="0.00";       
+        aa.input=  me.input[id];
+         
+       
+    }else{     
+    
+        let aa=me.arrayMoneda[id-1]; 
+        aa.valor_default=Number(me.input[id] * aa.valor).toFixed(2);
+        aa.input=me.input[id];
+      
+    }
+    me.arrayMoneda.forEach(element => {
+            if (element.tipo_corte==="Moneda") {
+                me.cantidadMonedas=me.cantidadMonedas+  parseInt(element.input, 10);                
+                me.totalMonedas = Number(me.totalMonedas) + Number(element.valor_default);
+                // Si deseas que el resultado final esté formateado a dos decimales
+                me.totalMonedas = Number(me.totalMonedas).toFixed(2);
+                me.SimboloM=element.unidad;      
+            }
+            if (element.tipo_corte==="Billete") {
+                me.cantidadBilletes=me.cantidadBilletes+  parseInt(element.input, 10);             
+                me.totalBilletas = Number(me.totalBilletas) + Number(element.valor_default);
+                // Si deseas que el resultado final esté formateado a dos decimales
+                me.totalBilletas = Number(me.totalBilletas).toFixed(2);
+                me.SimboloB=element.unidad;    
+            }
+            me.totalMonto=Number(me.totalMonto)+ Number(element.valor_default);   
+            me.totalMonto=Number(me.totalMonto).toFixed(2);
+        });
+  },
+
+        verificador_moneda_sistemas(){
+            let me=this;
+            var url = "/verificador_moneda_sistemas";
+            axios
+                .get(url)
+                .then(function (response) {
+                    var respuesta_lista = response.data.listaMoneda;
+                    var respuesta_moneda = response.data.moneda;
+                  if (respuesta_moneda===0) {
+                    me.bloqueador=0;
+                    Swal.fire(
+                    "No se activo el tipo de moneda necesita activar algun tipo de moneda.",
+                    "Para activar necesita ir a configuracion y ver la pestaña de tipo de moneda.",
+                    "warning",
+                );
+                  } else {
+                    me.bloqueador=1;
+                    me.arrayMoneda=respuesta_lista; 
+                    me.moneda_s1=respuesta_moneda;
+             
+                  }                                  
+                })
+                .catch(function (error) {
+                    error401(error);
+                    console.log(error);
+                });
+        },
+
         abrirModal(accion, data = []) {
             let me = this;
         //    let respuesta = me.arraySucursal.find(
@@ -301,6 +431,18 @@ export default {
                 case "registrar": {
                     me.tipoAccion = 1;
                     me.tituloModal = "Registro de traspaso origen ";
+                    me.totalMonedas="0.00";
+                        me.SimboloM="S/N";
+                        me.SimboloB="S/N";            
+                        me.totalBilletas="0.00";
+                        me.totalMonto="0.00";
+                        me.cantidadMonedas=0;
+                        me.cantidadBilletes=0; 
+                        me.input={}; 
+
+                        me.monto_anteriror_X="";
+                        me.monto_sumado_X="";
+                        me.observacion_X="";
             
                     me.classModal.openModal("registrar");
                     break;
