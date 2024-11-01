@@ -11,7 +11,7 @@
             <div class="card">
                 <div class="card-header">
                     <i class="fa fa-align-justify"></i> Tesoreria               
-                    <button type="button" class="btn btn-secondary" @click="abrirModal('registrar');verificador_moneda_sistemas();" :disabled="selectApertura_cierre!=0">
+                    <button type="button" class="btn btn-secondary" @click="get_tiene_tesoreria(); abrirModal('registrar'); verificador_moneda_sistemas();" :disabled="selectApertura_cierre!=0">
                         <i class="icon-plus"></i>&nbsp;Nuevo
                     </button>
                     <span v-if="sucursalSeleccionada == 0" class="error"
@@ -191,11 +191,11 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr> 
-                                    <td class="col-md-2">{{ monto_anteriror_X }}</td>
-                                    <td class="col-md-2">{{ SimboloB }}</td>
-                                    <td class="col-md-2">{{ monto_sumado_X }}</td>
-                                    <td class="col-md-2">{{ SimboloB }}</td>
+                                <tr>
+                                    <td class="col-md-2" style="text-align: right;">{{ monto_anteriror_X }}</td>
+                                    <td class="col-md-1">{{ SimboloB }}</td>
+                                    <td class="col-md-2" style="text-align: right;">{{ monto_sumado_X }}</td>
+                                    <td class="col-md-1">{{ SimboloB }}</td>
                                     <td class="col-md-2"><input type="text" class="form-control" placeholder="Escriba la observación"  v-model="observacion_X"/>  </td>
                                 </tr>
                             </tbody>
@@ -250,11 +250,11 @@ export default {
                 to: 0,
             },
           
-
-            tituloModal: "",
+            id_sucursal:'',
+            tituloModal: '',
             sucursalSeleccionada:0,
             arraySucursal:[],
-            buscar:"",
+            buscar:'',
             tipoAccion:1,
             startDate: '',
       endDate: '',
@@ -273,9 +273,11 @@ export default {
       SimboloM:'S/N',
       SimboloB:'S/N',
       
-      monto_anteriror_X:'',
-      monto_sumado_X:'',
+      monto_anteriror_X:0,
+      monto_sumado_X:0,
       observacion_X:'',
+
+      arrayExiste:[],
 
         };
     },
@@ -318,7 +320,16 @@ export default {
             return pagesArray;
         },
     },
-
+    watch: {
+        sucursalSeleccionada: function (newValue) {
+           
+        let s = this.arraySucursal.find(
+                    (element) => element.codigo === newValue);
+            if (s) {               
+                this.id_sucursal = s.id_sucursal;  
+            }        
+        }
+    },
     methods: {
         sucursalFiltro() {
             let me = this;
@@ -329,17 +340,16 @@ export default {
                 .then(function (response) {
                     var respuesta = response.data;
                     me.arraySucursal = respuesta;
-                    console.log(me.arraySucursal);
-                 
+                    console.log(me.arraySucursal);                 
                 })
                 .catch(function (error) {
                     error401(error);
                     console.log(error);
                 });
         },
+
         cambiarPestana(idPestana) {
             this.pestañaActiva = idPestana;
-
             // Agrega aquí la lógica adicional que necesites al cambiar la pestaña
         },
 
@@ -389,9 +399,15 @@ export default {
                 me.SimboloB=element.unidad;    
             }
             me.totalMonto=Number(me.totalMonto)+ Number(element.valor_default);   
+            me.monto_sumado_X=Number(me.monto_anteriror_X)+Number(me.totalMonto);
             me.totalMonto=Number(me.totalMonto).toFixed(2);
+            me.monto_sumado_X=Number(me.monto_sumado_X).toFixed(2);
+             
+            
         });
   },
+
+      
 
         verificador_moneda_sistemas(){
             let me=this;
@@ -440,9 +456,11 @@ export default {
                         me.cantidadBilletes=0; 
                         me.input={}; 
 
-                        me.monto_anteriror_X="";
-                        me.monto_sumado_X="";
-                        me.observacion_X="";
+                if ((me.arrayExiste).length <= 0) {
+                    me.monto_anteriror_X=(0).toFixed(2);       
+                   } 
+                   me.monto_sumado_X=(0).toFixed(2);  
+                   me.observacion_X="";
             
                     me.classModal.openModal("registrar");
                     break;
@@ -458,6 +476,109 @@ export default {
                 }
             
             }
+        },
+
+        registro(){
+            let me = this;
+              // Si ya está enviando, no permitas otra solicitud    
+            let bandera = 0;    
+            if ((me.SimboloM==="S/N"&&me.SimboloB==="S/N")||me.totalMonto==="0.00") {
+                bandera=0;
+                Swal.fire(
+                    "Sector de monedas sin dados",
+                    "Haga click en Ok",
+                    "warning",
+                    );
+                me.cerrarModal('registrar');    
+            } 
+            if (me.observacion_X==="" || meobservacion_X===null) {
+             bandera=0;
+             Swal.fire(
+                    "Datos nulos en observación",
+                    "Haga click en Ok",
+                    "warning",
+                    );
+                me.cerrarModal('registrar');    
+            }
+            //---------------REGISTRO
+            if (bandera===1) {
+                if (me.isSubmitting) return;
+
+me.isSubmitting = true; // Deshabilita el botón
+                axios.post("/entrada_salida/store", {
+                  
+                       total_arqueo_caja:me.totalMonto,
+                        cantidadBilletes:me.cantidadBilletes,
+                        totalBilletas:me.totalBilletas,
+                        cantidadMonedas:me.cantidadMonedas,
+                        totalMonedas:me.totalMonedas,
+                        moneda_s1:me.moneda_s1,
+                        simbolo:me.SimboloB,
+                                                
+                    	id_sucursal:me.id_sucursal,
+                        obs:me.Obs,
+                        mensaje:me.emisor,
+                        entrada_salida:me.selectEntradaSalida,      
+                        
+                        input:me.input,
+                        arrayMoneda:me.arrayMoneda,  
+                        
+                        id_apertura_cierre:me.id_apertura_cierre
+                       
+                    })
+                    .then(function (response) {
+                        me.listarIndex();                       
+                        let respuesta = response.data;                                      
+                        let razon_social=respuesta.titulo.razon_social;                        
+                        let direccion=respuesta.titulo.direccion;
+                        let lugar=respuesta.titulo.nombre+" - "+respuesta.titulo.ciudad;
+                        let id=respuesta.id;
+                        let soloFecha=respuesta.soloFecha;
+                        let soloHora=respuesta.soloHora;
+                        let mensaje=respuesta.mensaje;
+                        let observacion=respuesta.observacion;
+                        let valor=respuesta.valor;
+                        let simbolo=respuesta.simbolo;
+                        let user=respuesta.user;                           
+                       //console.log("--->"+razon_social+" "+direccion+" "+lugar+" "+id+" "+soloFecha+" "+soloHora+" "+mensaje+" "+observacion+" "+valor+" "+simbolo+" "+user); 
+                       me.cerrarModal('registrar');                        
+                        Swal.fire(
+                        "Registrado exitosamente",
+                        "Haga click en Ok",
+                        "success"
+                        );
+                        me.general_pdf(razon_social,direccion,lugar,cadena_A,id,soloFecha,soloHora,mensaje,observacion,valor,simbolo,user);
+
+                    }).catch(function (error) {                 
+                if (error.response) {               
+                    Swal.fire(
+                    "Error",
+                    ""+error, // Muestra el mensaje de error en el alert
+                    "error"
+                );  
+                }              
+            })
+        .finally(() => {
+          me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
+        });
+    
+            me.cerrarModal('registrar');
+            } 
+        },
+
+        get_tiene_tesoreria(){            
+            let me = this;
+           var url = "/tesoreria/getTesoreria?id_sucursal="+me.id_sucursal;
+            axios.get(url)
+                .then(function (response) {
+                    var respuesta = response.data;
+                    me.arrayExiste=respuesta;
+                   
+                }).catch(function (error) {
+                    error401(error);
+                    console.log(error);
+                });
+
         },
 
         fecha_inicial() {

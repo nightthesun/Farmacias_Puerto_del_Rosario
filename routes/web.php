@@ -30,6 +30,7 @@ use App\Http\Controllers\DirDistriuidorController;
 use App\Http\Controllers\DirProveedorController;
 use App\Http\Controllers\EgrGastoController;
 use App\Http\Controllers\EgrInversionController;
+use App\Http\Controllers\EgrTesoreriaController;
 use App\Http\Controllers\TdaTiendaController;
 use App\Http\Controllers\GesPreVentaController;
 use App\Http\Controllers\ParClienteController;
@@ -710,4 +711,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/gasto/editar', [EgrGastoController::class, 'update']); 
     Route::put('/gasto/activar', [EgrGastoController::class, 'activar']); 
     Route::put('/gasto/desactivar', [EgrGastoController::class, 'desactivar']); 
+
+    //tesoreria----------
+    Route::get('/tesoreria/getTesoreria', [EgrTesoreriaController::class, 'getTesoreria']);
+
+
 });

@@ -26,11 +26,12 @@ class EgrTesoreriaController extends Controller
 
     public function getTesoreria(Request $request)
     {  
-        $result = DB::table('egr__tesorerias as et')
+    $resultado = DB::table('egr__tesorerias as et')
     ->select('et.id', 'et.monto_actual_abrir', 'et.abrir_cerrar')
     ->where('et.id_sucursal', $request->id_sucursal)
-    ->where('et.abrir_cerrar', 9)
+
     ->orderBy('et.created_at', 'desc')   
     ->first();
+    return $resultado;
     }   
 }
