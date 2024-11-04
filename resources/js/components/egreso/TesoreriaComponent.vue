@@ -11,7 +11,7 @@
             <div class="card">
                 <div class="card-header">
                     <i class="fa fa-align-justify"></i> Tesoreria               
-                    <button type="button" class="btn btn-secondary" @click="get_tiene_tesoreria(); abrirModal('registrar'); verificador_moneda_sistemas();" :disabled="selectApertura_cierre!=0">
+                    <button type="button" class="btn btn-secondary" @click="abrirModal_2();" :disabled="selectApertura_cierre!=0">
                         <i class="icon-plus"></i>&nbsp;Nuevo
                     </button>
                     <span v-if="sucursalSeleccionada == 0" class="error"
@@ -25,7 +25,7 @@
                 </div>
                         <div class="col-md-4">
                             <div class="input-group">
-                                <select class="form-control" v-model="sucursalSeleccionada">
+                                <select class="form-control" v-model="sucursalSeleccionada" @change="cambiarEstado()">
                                     <option value="0" disabled selected>Seleccionar...</option>
                                     <option v-for="sucursal in arraySucursal" :key="sucursal.id"  :value="sucursal.codigo"  :hidden="sucursal.id_tienda===null"
                                         v-text="sucursal.codigoS + ' -> ' + sucursal.codigo+' ' +sucursal.razon_social"></option>
@@ -41,16 +41,16 @@
                                     class="form-control"
                                     placeholder="Texto a buscar"
                                     v-model="buscar"
-                               
+                                    @keyup.enter="listarIndex(1)" 
                                     :hidden="sucursalSeleccionada == 0"
-                                    :disabled="sucursalSeleccionada == 0"
+                                    :disabled="selectApertura_cierre == 1"
                                 />
                                 <button
                                     type="submit"
                                     class="btn btn-primary"
-                              
+                                    @click="listarIndex(1)"  
                                     :hidden="sucursalSeleccionada == 0"
-                                    :disabled="sucursalSeleccionada == 0"
+                                    :disabled="selectApertura_cierre == 1"
                                 >
                                     <i class="fa fa-search"></i> Buscar
                                 </button>
@@ -67,7 +67,7 @@
                 </div>
                 <div class="col-md-4">                    
                         <label for="Apectura / Cierre:">Acción</label>
-                        <select class="form-control" v-model="selectApertura_cierre" >
+                        <select class="form-control" v-model="selectApertura_cierre" @change="get_tiene_tesoreria(); listarIndex();">
                                     <option value=1 disabled selected>Seleccionar...</option>
                                     <option value=0>Abrir</option>
                                     <option value=9>Cerrar</option>
@@ -92,11 +92,49 @@
                         <th class="col-md-1">Nro arqueo</th>
                         <th class="col-md-1">Total arqueo</th>
                         <th class="col-md-1">Monto actual</th>
-                        <th class="col-md-3">Observación</th>
+                        <th class="col-md-2">Observación</th>
                         <th class="col-md-2">Fecha/Hora</th>
-                        <th class="col-md-2">Usuario</th>      
+                        <th class="col-md-2">Usuario</th>
+                        <th class="col-md-1">Estado</th>
                     </tr>
                 </thead>
+                <tbody>
+                    <tr v-for="i in arrayIndex" :key="i.id">  
+                        <td class="col-md-1">
+                            <div  class="d-flex justify-content-start">
+                                <button type="button" class="btn btn-warning" style="margin-right: 5px; color: whitesmoke;">
+                                <i class="fa fa-eye" aria-hidden="true"></i></button>
+                                <button v-if="selectApertura_cierre==='0'" type="button" class="btn btn-danger" style="margin-right: 5px; color: whitesmoke;">
+                                    <i class="fa fa-unlock" aria-hidden="true"></i></button>  
+                                <button v-else type="button" class="btn btn-secondary" style="margin-right: 5px;">
+                                    <i class="fa fa-lock" aria-hidden="true"></i></button>  
+                            </div>                              
+                        </td>
+                        <td class="col-md-1">{{ i.id }}</td>
+                        <td class="col-md-1">
+                            <span v-if="selectApertura_cierre==='0'">{{ i.id_arqueo_abrir }}</span>
+                            <span v-else>{{ i.total_arqueo_caja_cerrar}}</span>
+                        </td>
+                        <td class="col-md-1">
+                            <span v-if="selectApertura_cierre==='0'">{{ i.total_arqueo_caja_abrir+" "+i.simbolo }}</span>
+                            <span v-else>{{ i.total_arqueo_caja_cerrar+" "+i.simbolo }}</span>
+                        </td>
+                        <td class="col-md-1">{{ i.monto_actual_abrir +" "+i.simbolo}}</td>
+                        <td class="col-md-1">
+                            <span v-if="selectApertura_cierre==='0'">{{ i.comentario_abrir }}</span>
+                            <span v-else>{{ i.comentario_cerrar }}</span>
+                        </td>
+                        <td class="col-md-1">
+                            <span v-if="selectApertura_cierre==='0'">{{ i.created_at }}</span>
+                            <span v-else>{{ i.updated_at }}</span>
+                        </td>
+                        <td class="col-md-1">{{ i.name }}</td>
+                        <td class="col-md-1">
+                            <span v-if="i.id_arqueo_cerrar!=null" class="badge badge-pill badge-success">Abierto</span>
+                            <span v-else class="badge badge-pill badge-danger">Cerrado</span>
+                        </td>
+                    </tr>
+                </tbody>
             </table>    
 
             <!-----fin de tabla------->
@@ -210,14 +248,8 @@
                         >
                             Cerrar
                         </button>
-                        <button
-                            type="button"
-                            v-if="tipoAccion == 1"
-                            class="btn btn-primary"
-                           
-                        >
-                            Guardar
-                        </button>
+                        <button type="button" v-if="tipoAccion == 1" class="btn btn-primary" 
+                           @click="registro()" :disabled="observacion_X===''">Guardar</button>
                         <button
                             type="button"
                             v-if="tipoAccion == 2"
@@ -278,6 +310,8 @@ export default {
       observacion_X:'',
 
       arrayExiste:[],
+
+      arrayIndex:[],
 
         };
     },
@@ -353,6 +387,10 @@ export default {
             // Agrega aquí la lógica adicional que necesites al cambiar la pestaña
         },
 
+        cambiarEstado(){
+            let me=this;
+            me.selectApertura_cierre=1;
+        },
 
 
         cambiarPagina(page) {
@@ -455,13 +493,13 @@ export default {
                         me.cantidadMonedas=0;
                         me.cantidadBilletes=0; 
                         me.input={}; 
-
+                    console.log(me.arrayExiste);
                 if ((me.arrayExiste).length <= 0) {
                     me.monto_anteriror_X=(0).toFixed(2);       
                    } 
                    me.monto_sumado_X=(0).toFixed(2);  
                    me.observacion_X="";
-            
+                  
                     me.classModal.openModal("registrar");
                     break;
                 }
@@ -483,7 +521,7 @@ export default {
               // Si ya está enviando, no permitas otra solicitud    
             let bandera = 0;    
             if ((me.SimboloM==="S/N"&&me.SimboloB==="S/N")||me.totalMonto==="0.00") {
-                bandera=0;
+                bandera=1;
                 Swal.fire(
                     "Sector de monedas sin dados",
                     "Haga click en Ok",
@@ -491,8 +529,8 @@ export default {
                     );
                 me.cerrarModal('registrar');    
             } 
-            if (me.observacion_X==="" || meobservacion_X===null) {
-             bandera=0;
+            if (me.observacion_X==="" || me.observacion_X===null) {
+             bandera=2;
              Swal.fire(
                     "Datos nulos en observación",
                     "Haga click en Ok",
@@ -501,11 +539,11 @@ export default {
                 me.cerrarModal('registrar');    
             }
             //---------------REGISTRO
-            if (bandera===1) {
+            if (bandera===0) {
                 if (me.isSubmitting) return;
 
 me.isSubmitting = true; // Deshabilita el botón
-                axios.post("/entrada_salida/store", {
+                axios.post("/tesoreria/crear", {
                   
                        total_arqueo_caja:me.totalMonto,
                         cantidadBilletes:me.cantidadBilletes,
@@ -513,41 +551,27 @@ me.isSubmitting = true; // Deshabilita el botón
                         cantidadMonedas:me.cantidadMonedas,
                         totalMonedas:me.totalMonedas,
                         moneda_s1:me.moneda_s1,
-                        simbolo:me.SimboloB,
-                                                
+                        simbolo:me.SimboloB,                                                
                     	id_sucursal:me.id_sucursal,
-                        obs:me.Obs,
-                        mensaje:me.emisor,
-                        entrada_salida:me.selectEntradaSalida,      
-                        
+
+                        monto_anteriror_X:me.monto_anteriror_X,
+                        monto_sumado_X:me.monto_sumado_X,
+                        observacion_X:me.observacion_X,
+                        selectApertura_cierre:me.selectApertura_cierre,                         
                         input:me.input,
                         arrayMoneda:me.arrayMoneda,  
-                        
-                        id_apertura_cierre:me.id_apertura_cierre
-                       
                     })
                     .then(function (response) {
                         me.listarIndex();                       
-                        let respuesta = response.data;                                      
-                        let razon_social=respuesta.titulo.razon_social;                        
-                        let direccion=respuesta.titulo.direccion;
-                        let lugar=respuesta.titulo.nombre+" - "+respuesta.titulo.ciudad;
-                        let id=respuesta.id;
-                        let soloFecha=respuesta.soloFecha;
-                        let soloHora=respuesta.soloHora;
-                        let mensaje=respuesta.mensaje;
-                        let observacion=respuesta.observacion;
-                        let valor=respuesta.valor;
-                        let simbolo=respuesta.simbolo;
-                        let user=respuesta.user;                           
-                       //console.log("--->"+razon_social+" "+direccion+" "+lugar+" "+id+" "+soloFecha+" "+soloHora+" "+mensaje+" "+observacion+" "+valor+" "+simbolo+" "+user); 
-                       me.cerrarModal('registrar');                        
+                        let respuesta = response.data;  
+                        console.log(respuesta);                                    
+                    me.cerrarModal('registrar');                        
                         Swal.fire(
                         "Registrado exitosamente",
                         "Haga click en Ok",
                         "success"
                         );
-                        me.general_pdf(razon_social,direccion,lugar,cadena_A,id,soloFecha,soloHora,mensaje,observacion,valor,simbolo,user);
+                  
 
                     }).catch(function (error) {                 
                 if (error.response) {               
@@ -566,19 +590,50 @@ me.isSubmitting = true; // Deshabilita el botón
             } 
         },
 
+        abrirModal_2(){
+            let me =this;        
+            if (Object.keys(me.arrayExiste).length > 0) {
+                Swal.fire(
+                        "Ya tiene abrierto una caja en esta sucursal",
+                        "Haga click en Ok",
+                        "error"
+                        );            
+            } else {
+                me.verificador_moneda_sistemas();
+                me.abrirModal('registrar'); 
+            }
+        },
+
+        
+        listarIndex(page) {
+            let me = this;    
+       
+            var url ="/tesoreria/listarInicio?page="+page+"&buscar="+me.buscar+"&id_sucursal="+me.id_sucursal+"&abrir_cerrar="+parseInt(me.selectApertura_cierre)+"&ini="+me.startDate+"&fini="+me.endDate;
+            axios.get(url)
+                .then(function (response) {
+                    var respuesta = response.data;
+                    me.pagination = respuesta.pagination;
+                    me.arrayIndex = respuesta.respuesta.data;
+                    console.log(me.arrayIndex);
+                })
+                .catch(function (error) {
+                    error401(error);
+                });
+        },
+
         get_tiene_tesoreria(){            
             let me = this;
            var url = "/tesoreria/getTesoreria?id_sucursal="+me.id_sucursal;
             axios.get(url)
                 .then(function (response) {
-                    var respuesta = response.data;
+                    var respuesta = response.data; 
+                               
                     me.arrayExiste=respuesta;
                    
                 }).catch(function (error) {
                     error401(error);
                     console.log(error);
                 });
-
         },
 
         fecha_inicial() {

@@ -18,12 +18,12 @@ return new class extends Migration
             $table->decimal('total_arqueo_caja_abrir',11,2);        
             $table->decimal('monto_actual_abrir',11,2)->default(0);
             $table->string('comentario_abrir',100)->nullable();                                 
-            $table->smallInteger('user_id_abrir');
+           
             $table->tinyInteger('abrir_cerrar')->default(0)->comment('0 = abrir , 9 = cerrar');   
             $table->smallInteger('id_arqueo_cerrar')->nullable();              
             $table->decimal('total_arqueo_caja_cerrar',11,2)->nullable();
             $table->string('comentario_cerrar',100)->nullable();            
-            $table->smallInteger('user_id_cerrar')->nullable();
+       
             $table->timestamps();          
         });
     }
