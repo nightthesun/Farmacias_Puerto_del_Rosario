@@ -43,17 +43,15 @@ class EgrTesoreriaController extends Controller
                        )";
                     }
                 }
-                  //consulta...
-             
+                  //consulta...             
                   $respuesta = DB::table('egr__tesorerias as et')
                   ->when($request->abrir_cerrar == 0, function ($query) {
-                      return $query->join('caja__arqueo as ca', 'et.id_arqueo_abrir', '=', 'ca.id');
-                  })
-                  ->when(intval($request->abrir_cerrar) == 9, function ($query) {
-                      return $query->join('caja__arqueo as ca', 'et.id_arqueo_cerrar', '=', 'ca.id');
-                  }, function () {
-                      dd("error_z");
-                  })
+                    return $query->join('caja__arqueo as ca', 'et.id_arqueo_abrir', '=', 'ca.id');
+                })
+                ->when($request->abrir_cerrar == 9, function ($query) {
+                    return $query->join('caja__arqueo as ca', 'et.id_arqueo_cerrar', '=', 'ca.id');
+                })
+                 
                   ->join('users as u', 'u.id', '=', 'ca.id_usuario')
                   ->join('adm__nacionalidads as an', 'an.id', '=', 'ca.tipo_moneda')
                   ->select(
@@ -191,16 +189,55 @@ class EgrTesoreriaController extends Controller
         $crear->id_arqueo_abrir=$id;
         $crear->total_arqueo_caja_abrir=$request->monto_sumado_X;
         $crear->monto_actual_abrir=$request->monto_sumado_X;            
-        $crear->comentario_abrir=$request->observacion_X;     
-  
+        $crear->comentario_abrir=$request->observacion_X; 
         $crear->save();
        // return DB::commit();   
         DB::commit();             
         } catch (\Throwable $th) {
            return $th;
-        }
- 
+        } 
     }
+
+    
+    public function update(Request $request)
+    {
+        try {           
+           // $query = $request->all();
+           // return response()->json(['query' => $query]);
+            DB::beginTransaction();
+            $datos = [
+                'id_usuario' => auth()->user()->id,
+                'total_arqueo' => $request->total_arqueo_caja,                       
+                'cantidad_billete' => $request->cantidadBilletes,  
+                'total_billete' => $request->totalBilletas, 
+                'cantidad_moneda' => $request->cantidadMonedas, 
+                'total_moneda' => $request->totalMonedas, 
+                'tipo_moneda' => $request->moneda_s1                      
+            ];                
+            $id = DB::table('caja__arqueo')->insertGetId($datos); 
+            
+            foreach ($request->input as $key => $value) {                       
+                $datos_2 = [                            
+                    'id_arqueo' => $id,                       
+                    'id_moneda' => $key,  
+                    'cantidad' => $value                                              
+                ];  
+                DB::table('caja__entrada_salida_array')->insert($datos_2);
+            }     
+            $actualizar = Egr_Tesoreria::findOrFail($request->id);
+        $actualizar->abrir_cerrar=9;
+        $actualizar->id_arqueo_cerrar=$id;
+        $actualizar->total_arqueo_caja_cerrar=$request->monto_sumado_X;
+            
+        $actualizar->comentario_cerrar=$request->observacion_X; 
+        $actualizar->save();
+       // return DB::commit();   
+        DB::commit();             
+        } catch (\Throwable $th) {
+           return $th;
+        } 
+    }
+
 
     public function getTesoreria(Request $request)
     {  

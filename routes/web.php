@@ -715,6 +715,8 @@ Route::group(['middleware' => 'auth'], function () {
     //tesoreria----------
     Route::get('/tesoreria/getTesoreria', [EgrTesoreriaController::class, 'getTesoreria']);
     Route::post('/tesoreria/crear', [EgrTesoreriaController::class, 'store']); 
-    Route::get('/tesoreria/listarInicio', [EgrTesoreriaController::class, 'index']);  
+    Route::get('/tesoreria/listarInicio', [EgrTesoreriaController::class, 'index']); 
+    Route::post('/tesoreria/editar', [EgrTesoreriaController::class, 'update']);  
+    
     
 });

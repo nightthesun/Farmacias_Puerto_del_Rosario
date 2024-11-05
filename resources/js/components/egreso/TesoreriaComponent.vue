@@ -1,3 +1,4 @@
+
 <template>
     <main class="main">
    <!-- Breadcrumb -->
@@ -20,7 +21,7 @@
                 </div>
         <div class="card-body">
             <div class="form-group row">
-                <div class="col-md-2" style="text-align: center">
+                <div class="col-md-2" style="text-align: right">
                      <label for="">Sucursal: </label>
                 </div>
                         <div class="col-md-4">
@@ -39,7 +40,7 @@
                                     id="texto"
                                     name="texto"
                                     class="form-control"
-                                    placeholder="Texto a buscar"
+                                    placeholder="Buscar por usuario o numero de docuemnto"
                                     v-model="buscar"
                                     @keyup.enter="listarIndex(1)" 
                                     :hidden="sucursalSeleccionada == 0"
@@ -60,14 +61,14 @@
                        
 
             </div>
-             
+            
             <div class="form-group row"  :hidden="sucursalSeleccionada == 0" :disabled="sucursalSeleccionada == 0">
                 <div class="col-md-2">
                      <label for=""></label>
                 </div>
                 <div class="col-md-4">                    
                         <label for="Apectura / Cierre:">Acción</label>
-                        <select class="form-control" v-model="selectApertura_cierre" @change="get_tiene_tesoreria(); listarIndex();">
+                        <select class="form-control" v-model="selectApertura_cierre" @change=" get_tiene_tesoreria(); listarIndex();">
                                     <option value=1 disabled selected>Seleccionar...</option>
                                     <option value=0>Abrir</option>
                                     <option value=9>Cerrar</option>
@@ -83,12 +84,15 @@
         </div>        
             </div> 
   <br>
-            <!---inserte tabla-->
-            <table class="table table-bordered table-striped table-sm table-responsive" >
+            <!---inserte tabla--->
+            
+        <div :hidden="selectApertura_cierre===1"> 
+            <table  class="table table-bordered table-striped table-sm table-responsive">
+                
                 <thead>
                     <tr>
                         <th class="col-md-1">Opciones</th>
-                        <th class="col-md-1">Nro</th>
+                        <th class="col-md-1">Nro documento</th>
                         <th class="col-md-1">Nro arqueo</th>
                         <th class="col-md-1">Total arqueo</th>
                         <th class="col-md-1">Monto actual</th>
@@ -98,13 +102,13 @@
                         <th class="col-md-1">Estado</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody>          
                     <tr v-for="i in arrayIndex" :key="i.id">  
                         <td class="col-md-1">
                             <div  class="d-flex justify-content-start">
                                 <button type="button" class="btn btn-warning" style="margin-right: 5px; color: whitesmoke;">
                                 <i class="fa fa-eye" aria-hidden="true"></i></button>
-                                <button v-if="selectApertura_cierre==='0'" type="button" class="btn btn-danger" style="margin-right: 5px; color: whitesmoke;">
+                                <button v-if="selectApertura_cierre==='0'" @click="abrirModal('actualizar',i); verificador_moneda_sistemas();" type="button" class="btn btn-danger" style="margin-right: 5px; color: whitesmoke;">
                                     <i class="fa fa-unlock" aria-hidden="true"></i></button>  
                                 <button v-else type="button" class="btn btn-secondary" style="margin-right: 5px;">
                                     <i class="fa fa-lock" aria-hidden="true"></i></button>  
@@ -136,8 +140,21 @@
                     </tr>
                 </tbody>
             </table>    
-
             <!-----fin de tabla------->
+             <nav>
+                    <ul class="pagination">
+                            <li class="page-item" v-if="pagination.current_page > 1">
+                                <a class="page-link" href="#" @click.prevent=" cambiarPagina(pagination.current_page - 1)">Ant</a>
+                            </li>
+                            <li class="page-item" v-for="page in pagesNumber" :key="page" :class="[page == isActived ? 'active' : '']">
+                                <a class="page-link" href="#" @click.prevent="cambiarPagina(page)" v-text="page"></a>
+                            </li>
+                            <li class="page-item" v-if="pagination.current_page < pagination.last_page">
+                                <a class="page-link" href="#" @click.prevent="cambiarPagina(pagination.current_page + 1)">Sig</a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>    
         </div>
 
 
@@ -241,21 +258,11 @@
                     </div>
                   
                     <div class="modal-footer">
-                        <button
-                            type="button"
-                            class="btn btn-secondary"
-                            @click="cerrarModal('registrar')"
-                        >
-                            Cerrar
-                        </button>
+                        <button type="button" class="btn btn-secondary"
+                            @click="cerrarModal('registrar')">Cerrar</button>
                         <button type="button" v-if="tipoAccion == 1" class="btn btn-primary" 
                            @click="registro()" :disabled="observacion_X===''">Guardar</button>
-                        <button
-                            type="button"
-                            v-if="tipoAccion == 2"
-                            class="btn btn-primary"
-                          
-                        >
+                        <button @click="actualizar()" type="button" v-if="tipoAccion == 2" class="btn btn-primary" :disabled="observacion_X===''">
                             Actualizar
                         </button>
                     </div>
@@ -269,8 +276,10 @@
 <script>
 import Swal from "sweetalert2";
 import { error401 } from "../../errores";
+
 //Vue.use(VeeValidate);
 export default {
+ 
     data() {
         return {
             pagination: {
@@ -281,7 +290,9 @@ export default {
                 from: 0,
                 to: 0,
             },
-          
+            offset:3,
+
+            isSubmitting: false, // Controla el estado del botón de envío
             id_sucursal:'',
             tituloModal: '',
             sucursalSeleccionada:0,
@@ -312,6 +323,10 @@ export default {
       arrayExiste:[],
 
       arrayIndex:[],
+
+      ocultar_tabla:0,
+
+      id_index:'',
 
         };
     },
@@ -364,6 +379,7 @@ export default {
             }        
         }
     },
+
     methods: {
         sucursalFiltro() {
             let me = this;
@@ -396,7 +412,7 @@ export default {
         cambiarPagina(page) {
             let me = this;
             me.pagination.current_page = page;
-        //    me.listarAjusteNegativos(page);
+            me.listarIndex(page);
         },
 
         validateIntegerInput(id,index) {
@@ -411,8 +427,7 @@ export default {
         me.input[id]=0; 
         let aa=me.arrayMoneda[id-1];
         aa.valor_default="0.00";       
-        aa.input=  me.input[id];
-         
+        aa.input=  me.input[id];    
        
     }else{     
     
@@ -484,7 +499,8 @@ export default {
          switch (accion) {
                 case "registrar": {
                     me.tipoAccion = 1;
-                    me.tituloModal = "Registro de traspaso origen ";
+                    me.isSubmitting=false;
+                    me.tituloModal = "Registro para abrir caja";
                     me.totalMonedas="0.00";
                         me.SimboloM="S/N";
                         me.SimboloB="S/N";            
@@ -505,15 +521,106 @@ export default {
                 }
                 case "actualizar": {
                     me.tipoAccion = 2;
-                   
-          
-            
-                    me.classModal.openModal("registrar");
+                    console.log(data); 
+                    me.id_index=data.id;
+                 
+                    me.isSubmitting=false;
+                    me.tituloModal = "Registro para cerrar caja de codigo "+data.id;
 
+                    me.totalMonedas="0.00";
+                        me.SimboloM="S/N";
+                        me.SimboloB="S/N";            
+                        me.totalBilletas="0.00";
+                        me.totalMonto="0.00";
+                        me.cantidadMonedas=0;
+                        me.cantidadBilletes=0; 
+                        me.input={};              
+                  
+                    me.monto_anteriror_X=data.monto_actual_abrir;       
+                 
+                   me.monto_sumado_X=(0).toFixed(2);  
+                   me.observacion_X="";
+
+                    me.classModal.openModal("registrar");
                     break;
                 }
             
             }
+        },
+
+        actualizar(){
+            let me = this;
+              // Si ya está enviando, no permitas otra solicitud    
+            let bandera = 0;    
+            if ((me.SimboloM==="S/N"&&me.SimboloB==="S/N")||me.totalMonto==="0.00") {
+                bandera=1;
+                Swal.fire(
+                    "Sector de monedas sin dados",
+                    "Haga click en Ok",
+                    "warning",
+                    );
+                me.cerrarModal('registrar');    
+            } 
+            if (me.observacion_X==="" || me.observacion_X===null) {
+             bandera=2;
+             Swal.fire(
+                    "Datos nulos en observación",
+                    "Haga click en Ok",
+                    "warning",
+                    );
+                me.cerrarModal('registrar');    
+            }
+            //---------------REGISTRO
+            if (bandera===0) {
+                if (me.isSubmitting) return;
+
+me.isSubmitting = true; // Deshabilita el botón
+                axios.post("/tesoreria/editar", {
+                        id:me.id_index,
+                       total_arqueo_caja:me.totalMonto,
+                        cantidadBilletes:me.cantidadBilletes,
+                        totalBilletas:me.totalBilletas,
+                        cantidadMonedas:me.cantidadMonedas,
+                        totalMonedas:me.totalMonedas,
+                        moneda_s1:me.moneda_s1,
+                        simbolo:me.SimboloB,                                                
+                    	id_sucursal:me.id_sucursal,
+
+                        monto_anteriror_X:me.monto_anteriror_X,
+                        monto_sumado_X:me.monto_sumado_X,
+                        observacion_X:me.observacion_X,
+                        selectApertura_cierre:me.selectApertura_cierre,                         
+                        input:me.input,
+                        arrayMoneda:me.arrayMoneda,  
+                    })
+                    .then(function (response) {
+                        me.listarIndex();                       
+                        let respuesta = response.data;  
+                        console.log(respuesta);                                    
+                    me.cerrarModal('registrar');                        
+                        Swal.fire(
+                        "Registrado exitosamente",
+                        "Haga click en Ok",
+                        "success"
+                        );
+                  
+
+                    }).catch(function (error) {                 
+                if (error.response) {               
+                    Swal.fire(
+                    "Error",
+                    ""+error, // Muestra el mensaje de error en el alert
+                    "error"
+                );  
+                }              
+            })
+        .finally(() => {
+          me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
+        });
+    
+            me.cerrarModal('registrar');
+            } 
+
         },
 
         registro(){
@@ -606,19 +713,17 @@ me.isSubmitting = true; // Deshabilita el botón
 
         
         listarIndex(page) {
-            let me = this;    
-       
+            let me = this;        
             var url ="/tesoreria/listarInicio?page="+page+"&buscar="+me.buscar+"&id_sucursal="+me.id_sucursal+"&abrir_cerrar="+parseInt(me.selectApertura_cierre)+"&ini="+me.startDate+"&fini="+me.endDate;
             axios.get(url)
                 .then(function (response) {
                     var respuesta = response.data;
                     me.pagination = respuesta.pagination;
-                    me.arrayIndex = respuesta.respuesta.data;
-                    console.log(me.arrayIndex);
+                    me.arrayIndex = respuesta.respuesta.data;                                    
                 })
                 .catch(function (error) {
                     error401(error);
-                });
+                });          
         },
 
         get_tiene_tesoreria(){            
@@ -626,10 +731,8 @@ me.isSubmitting = true; // Deshabilita el botón
            var url = "/tesoreria/getTesoreria?id_sucursal="+me.id_sucursal;
             axios.get(url)
                 .then(function (response) {
-                    var respuesta = response.data; 
-                               
-                    me.arrayExiste=respuesta;
-                   
+                    var respuesta = response.data;                                
+                    me.arrayExiste=respuesta;                   
                 }).catch(function (error) {
                     error401(error);
                     console.log(error);
@@ -654,24 +757,28 @@ me.isSubmitting = true; // Deshabilita el botón
     this.startDate = `${startYear}-${startMonth}-${startDay}`;  // Fecha de inicio (5 días antes)
     this.endDate = `${endYear}-${endMonth}-${endDay}`;  // Fecha final (hoy)
 },
+
         cerrarModal(accion) {
             let me = this;
             if (accion == "registrar") {
                 me.classModal.closeModal(accion);
-               
-                    me.tituloModal = " ";
-             
-                    setTimeout(me.tiempo, 200); 
-                    //me.ProductoLineaIngresoSeleccionado = 0;
-                    me.inputTextBuscarProductoIngreso = "";
-                        me.arrayRetornarProductosIngreso = "";
-              
-            } else {
-                me.classModal.closeModal(accion);
-              
-                me.classModal.openModal("registrar");
-            }
-        },
+                me.totalMonedas="0.00";
+                        me.SimboloM="S/N";
+                        me.SimboloB="S/N";            
+                        me.totalBilletas="0.00";
+                        me.totalMonto="0.00";
+                        me.cantidadMonedas=0;
+                        me.cantidadBilletes=0; 
+                        me.input={};          
+                        me.monto_anteriror_X=0;
+                        me.monto_sumado_X=0;
+                        me.observacion_X='';                        
+                me.tituloModal = "";          
+                me.inputTextBuscarProductoIngreso = "";
+                me.arrayRetornarProductosIngreso = "";
+            
+        }
+    },
 
      
 
@@ -682,7 +789,8 @@ me.isSubmitting = true; // Deshabilita el botón
         },
     },
 
-    mounted() {
+    mounted() {   
+  
         this.classModal = new _pl.Modals();
         this.sucursalFiltro();
         this.fecha_inicial();
