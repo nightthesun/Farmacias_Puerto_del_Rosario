@@ -87,7 +87,7 @@
             <!---inserte tabla--->
             
         <div :hidden="selectApertura_cierre===1"> 
-            <table  class="table table-bordered table-striped table-sm table-responsive">
+            <table  class="table table-bordered table-striped table-sm table-responsive" >
                 
                 <thead>
                     <tr>
@@ -106,9 +106,10 @@
                     <tr v-for="i in arrayIndex" :key="i.id">  
                         <td class="col-md-1">
                             <div  class="d-flex justify-content-start">
-                                <button type="button" class="btn btn-warning" style="margin-right: 5px; color: whitesmoke;">
+                                <button type="button" class="btn btn-warning" style="margin-right: 5px; color: whitesmoke;" @click="abrirModal('ver',i);">
                                 <i class="fa fa-eye" aria-hidden="true"></i></button>
-                                <button v-if="selectApertura_cierre==='0'" @click="abrirModal('actualizar',i); verificador_moneda_sistemas();" type="button" class="btn btn-danger" style="margin-right: 5px; color: whitesmoke;">
+                               
+                                <button v-if="i.abrir_cerrar===0" @click="abrirModal('actualizar',i); verificador_moneda_sistemas();" type="button" class="btn btn-danger" style="margin-right: 5px; color: whitesmoke;">
                                     <i class="fa fa-unlock" aria-hidden="true"></i></button>  
                                 <button v-else type="button" class="btn btn-secondary" style="margin-right: 5px;">
                                     <i class="fa fa-lock" aria-hidden="true"></i></button>  
@@ -117,7 +118,7 @@
                         <td class="col-md-1">{{ i.id }}</td>
                         <td class="col-md-1">
                             <span v-if="selectApertura_cierre==='0'">{{ i.id_arqueo_abrir }}</span>
-                            <span v-else>{{ i.total_arqueo_caja_cerrar}}</span>
+                            <span v-else>{{ i.id_arqueo_cerrar}}</span>
                         </td>
                         <td class="col-md-1">
                             <span v-if="selectApertura_cierre==='0'">{{ i.total_arqueo_caja_abrir+" "+i.simbolo }}</span>
@@ -134,7 +135,7 @@
                         </td>
                         <td class="col-md-1">{{ i.name }}</td>
                         <td class="col-md-1">
-                            <span v-if="i.id_arqueo_cerrar!=null" class="badge badge-pill badge-success">Abierto</span>
+                            <span v-if="i.abrir_cerrar===0" class="badge badge-pill badge-success">Abierto</span>
                             <span v-else class="badge badge-pill badge-danger">Cerrado</span>
                         </td>
                     </tr>
@@ -270,6 +271,95 @@
             </div>
         </div>
         <!--fin del modal-->
+          <!--Inicio del modal VER-->
+          <div class="modal fade" tabindex="-1" role="dialog" arial-labelledby="myModalLabel" id="ver" aria-hidden="true" data-backdrop="static" data-key="false">
+            <div class="modal-dialog modal-primary modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">{{ tituloModal }}</h4>
+                        <button type="button" class="close" aria-label="Close" @click="cerrarModal('ver')">
+                            <span aria-hidden="true">x</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">                      
+                        <table class="table table-bordered table-striped table-sm table-responsive">
+                            <thead>
+                                <tr>
+                                    <th class="col-md-2" style="font-size: 11px; text-align: center">Fecha/Hora</th>
+                                    <th class="col-md-1" style="font-size: 11px; text-align: center">Codigo</th>
+                                    <th class="col-md-1" style="font-size: 11px; text-align: center">Codigo Arqueo</th> 
+                                 
+                                    <th class="col-md-4" style="font-size: 11px; text-align: center">Observación</th>                       
+                                    <th class="col-md-2" style="font-size: 11px; text-align: center">Usuario</th>
+                                    <th class="col-md-1" style="font-size: 11px; text-align: center">Estado</th>                       
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="col-md-2" style="font-size: 11px; text-align: center">{{ fecha_v3 }}</td>
+                                    <td class="col-md-1" style="font-size: 11px; text-align: center">{{id_index}}</td>
+                                    <td class="col-md-1" style="font-size: 11px; text-align: center">{{cogigo_arqueo_v3}}</td>
+                                                     
+                                    <td class="col-md-4" style="font-size: 11px; text-align: center">{{observacion_v3}}</td>
+                                    <td class="col-md-2" style="font-size: 11px; text-align: center">{{usuario_v3}}</td>
+                                    <td class="col-md-1" style="font-size: 11px; text-align: center">{{estado_v3}}</td>                                    
+                                 
+                                </tr>
+                            </tbody> 
+                        </table> 
+                        <table class="table table-bordered table-striped table-sm table-responsive">
+                            <thead>
+                                <tr>
+                                    <th class="col-md-2" style="font-size: 11px; text-align: center">Estado actual</th>
+                                    <th class="col-md-2" style="font-size: 11px; text-align: center">Cantidad monedas</th>
+                                    <th class="col-md-2" style="font-size: 11px; text-align: center">Monto en monedas</th>
+                                    <th class="col-md-2" style="font-size: 11px; text-align: center">Cantidad Billetes</th>
+                                    <th class="col-md-2" style="font-size: 11px; text-align: center">Monto en Billetes</th>
+                                    <th class="col-md-4" style="font-size: 11px; text-align: center">Monto Total</th>                                    
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr> 
+                                    <td class="col-md-2" style="font-size: 11px; text-align: center">{{ arqueo_actual_v3+" "+ver_simbolo  }}</td>
+                                    <td class="col-md-2" style="font-size: 11px; text-align: center">{{ver_cantidad_moenda}}</td>
+                                    <td class="col-md-2" style="font-size: 11px; text-align: center">{{ver_monto_moneda+" "+ver_simbolo }}</td>
+                                    <td class="col-md-2" style="font-size: 11px; text-align: center">{{ver_cantidad_billete}}</td>
+                                    <td class="col-md-2" style="font-size: 11px; text-align: center">{{ver_monto_billete+" "+ver_simbolo}}</td>
+                                    <td class="col-md-4" style="font-size: 11px; text-align: center">{{ver_monto_total+" "+ver_simbolo}}</td>
+                                </tr>
+                            </tbody>   
+                        </table> 
+                        <table class="table table-bordered table-striped table-sm table-responsive">
+                            <thead>
+                                <tr>
+                                    <th class="col-md-3" style="font-size: 11px; text-align: center">Unidad</th>
+                                    <th class="col-md-3" style="font-size: 11px; text-align: center">Simbolo</th>
+                                    <th class="col-md-3" style="font-size: 11px; text-align: center">Tipo</th>
+                                    <th class="col-md-3" style="font-size: 11px; text-align: center">Valor</th>
+                                    <th class="col-md-3" style="font-size: 11px; text-align: center">Cantidad</th>                                    
+                                </tr>
+                            </thead>
+                            <tbody>
+                              
+                                <tr v-for="m in arrayMonedaModal" :key="m.id">   
+                                    <td class="col-md-3" style="font-size: 11px; text-align: center">{{m.unidad_entera}}</td>
+                                    <td class="col-md-3" style="font-size: 11px; text-align: center">{{m.unidad}}</td>
+                                    <td class="col-md-3" style="font-size: 11px; text-align: center">{{m.tipo_corte}}</td>
+                                    <td class="col-md-3" style="font-size: 11px; text-align: center">{{(m.valor * m.cantidad).toFixed(2)}}</td>
+                                    <td class="col-md-3" style="font-size: 11px; text-align: center">{{m.cantidad}}</td>
+                                </tr>
+                            </tbody>   
+                        </table>                       
+                    </div>                   
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" @click="cerrarModal('ver')">
+                            Cerrar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--fin del modal-->
     </main>
 </template>
 
@@ -328,6 +418,20 @@ export default {
 
       id_index:'',
 
+      fecha_v3:'',
+      cogigo_arqueo_v3:'',
+      usuario_v3:'',
+      observacion_v3:'',
+      estado_v3:'',
+      arqueo_actual_v3:'',
+      estado_actual_v3:'',
+      ver_cantidad_moenda:'',
+      ver_monto_moneda:'',
+      ver_simbolo:'',
+      ver_cantidad_billete:'',
+      ver_monto_billete:'',
+      ver_monto_total:'',
+    
         };
     },
 
@@ -509,9 +613,11 @@ export default {
                         me.cantidadMonedas=0;
                         me.cantidadBilletes=0; 
                         me.input={}; 
-                    console.log(me.arrayExiste);
+                  
                 if ((me.arrayExiste).length <= 0) {
                     me.monto_anteriror_X=(0).toFixed(2);       
+                   } else {
+                    me.monto_anteriror_X=(me.arrayExiste).monto_actual_abrir;
                    } 
                    me.monto_sumado_X=(0).toFixed(2);  
                    me.observacion_X="";
@@ -544,6 +650,36 @@ export default {
                     me.classModal.openModal("registrar");
                     break;
                 }
+                case "ver": {
+                    
+                 if (data.abrir_cerrar===0) {
+                    me.tituloModal = "Vista de inicio de caja";
+                    me.fecha_v3=data.created_at;    
+                    me.cogigo_arqueo_v3=data.id_arqueo_abrir;                  
+                    me.observacion_v3=data.comentario_abrir;  
+                    me.estado_v3="Abierto";  
+                    me.arqueo_actual_v3=data.monto_actual_abrir;
+      estado_actual_v3:'',
+      ver_cantidad_moenda:'',
+      ver_monto_moneda:'',
+      ver_simbolo:'',
+      ver_cantidad_billete:'',
+      ver_monto_billete:'',
+      ver_monto_total:'',      
+                 } else {   
+                    me.tituloModal = "Vista de cierre de caja";                    
+                    me.fecha_v3=data.updated_at;  
+                    me.cogigo_arqueo_v3=data.id_arqueo_cerrar;                  
+                    me.observacion_v3=data.comentario_cerrar; 
+                    me.estado_v3="Cerrado";
+                 }   
+                 me.usuario_v3=data.name;
+                 me.id_index=data.id;
+          
+         // me.modalMoneda(data.num_arqueo);      
+          me.classModal.openModal("ver");
+      break;
+      }
             
             }
         },
@@ -669,7 +805,8 @@ me.isSubmitting = true; // Deshabilita el botón
                         arrayMoneda:me.arrayMoneda,  
                     })
                     .then(function (response) {
-                        me.listarIndex();                       
+                        me.listarIndex(); 
+                        me.get_tiene_tesoreria();                      
                         let respuesta = response.data;  
                         console.log(respuesta);                                    
                     me.cerrarModal('registrar');                        
@@ -698,8 +835,9 @@ me.isSubmitting = true; // Deshabilita el botón
         },
 
         abrirModal_2(){
-            let me =this;        
-            if (Object.keys(me.arrayExiste).length > 0) {
+            let me =this;
+         
+            if ((me.arrayExiste).abrir_cerrar===0) {
                 Swal.fire(
                         "Ya tiene abrierto una caja en esta sucursal",
                         "Haga click en Ok",
@@ -732,7 +870,9 @@ me.isSubmitting = true; // Deshabilita el botón
             axios.get(url)
                 .then(function (response) {
                     var respuesta = response.data;                                
-                    me.arrayExiste=respuesta;                   
+                    me.arrayExiste=respuesta; 
+                    console.log("********************");
+                    console.log(me.arrayExiste);                  
                 }).catch(function (error) {
                     error401(error);
                     console.log(error);
@@ -778,6 +918,11 @@ me.isSubmitting = true; // Deshabilita el botón
                 me.arrayRetornarProductosIngreso = "";
             
         }
+        if (accion == "ver") {
+
+
+me.classModal.closeModal(accion);
+}
     },
 
      
@@ -795,7 +940,7 @@ me.isSubmitting = true; // Deshabilita el botón
         this.sucursalFiltro();
         this.fecha_inicial();
         this.classModal.addModal("registrar");
-    
+        this.classModal.addModal("ver");
     
     },
 };

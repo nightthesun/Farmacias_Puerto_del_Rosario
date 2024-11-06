@@ -12,8 +12,7 @@ class EgrTesoreriaController extends Controller
      * Display a listing of the resource.
      */
     public function index(Request $request)
-    {
- 
+    { 
         $buscararray = array();  
         if (auth()->user()->id==1) {
             $idsuc=1;
@@ -23,6 +22,19 @@ class EgrTesoreriaController extends Controller
         $where = "(et.id_sucursal = $idsuc)"; 
         $ini=$request->ini;
         $fini=$request->fini;
+
+        if ($request->abrir_cerrar == 0) {
+            $fecha_2 = 'et.created_at';
+            $joinArqueo = 'et.id_arqueo_abrir';
+        } else {
+            if ($request->abrir_cerrar == 9) {
+                $fecha_2 = 'et.updated_at';
+                $joinArqueo = 'et.id_arqueo_cerrar';
+            } else {
+               dd("error de entrada");
+            }           
+        }
+        
 
         if (!empty($request->buscar)) {
             $buscararray = explode(" ", $request->buscar);
@@ -43,15 +55,10 @@ class EgrTesoreriaController extends Controller
                        )";
                     }
                 }
-                  //consulta...             
+                  //consulta...      
+                    
                   $respuesta = DB::table('egr__tesorerias as et')
-                  ->when($request->abrir_cerrar == 0, function ($query) {
-                    return $query->join('caja__arqueo as ca', 'et.id_arqueo_abrir', '=', 'ca.id');
-                })
-                ->when($request->abrir_cerrar == 9, function ($query) {
-                    return $query->join('caja__arqueo as ca', 'et.id_arqueo_cerrar', '=', 'ca.id');
-                })
-                 
+                  ->join('caja__arqueo as ca','ca.id','=',$joinArqueo) 
                   ->join('users as u', 'u.id', '=', 'ca.id_usuario')
                   ->join('adm__nacionalidads as an', 'an.id', '=', 'ca.tipo_moneda')
                   ->select(
@@ -73,7 +80,7 @@ class EgrTesoreriaController extends Controller
                       'u.name',
                       'an.simbolo'
                   )
-                  ->where('et.abrir_cerrar', $request->abrir_cerrar)
+              
                   ->where('et.id_sucursal', $request->id_sucursal)
                   ->whereRaw($where)
                   ->whereRaw($sqls)
@@ -95,23 +102,10 @@ class EgrTesoreriaController extends Controller
         ];   
         }  else {
             
-            if ($request->abrir_cerrar == 0) {
-                $fecha_2 = 'et.created_at';
-            }else{
-                if ($request->abrir_cerrar == 9) {
-                    $fecha_2 = 'et.updated_at';
-                } else {
-                    dd("error");
-                }            
-            }
+           
            // dd($fecha_2);
             $respuesta = DB::table('egr__tesorerias as et')
-            ->when($request->abrir_cerrar == 0, function ($query) {
-                return $query->join('caja__arqueo as ca', 'et.id_arqueo_abrir', '=', 'ca.id');
-            })
-            ->when($request->abrir_cerrar == 9, function ($query) {
-                return $query->join('caja__arqueo as ca', 'et.id_arqueo_cerrar', '=', 'ca.id');
-            })
+            ->join('caja__arqueo as ca','ca.id','=',$joinArqueo) 
             ->join('users as u', 'u.id', '=', 'ca.id_usuario')
             ->join('adm__nacionalidads as an', 'an.id', '=', 'ca.tipo_moneda')
             ->select(
@@ -133,7 +127,7 @@ class EgrTesoreriaController extends Controller
                 'u.name',
                 'an.simbolo'
             )
-            ->where('et.abrir_cerrar', $request->abrir_cerrar)
+          
             ->where('et.id_sucursal', $request->id_sucursal)
             ->whereRaw($where)
             ->orderByDesc('et.id')            
@@ -240,14 +234,12 @@ class EgrTesoreriaController extends Controller
 
 
     public function getTesoreria(Request $request)
-    {  
-   
+    {     
     $registro = DB::table('egr__tesorerias as et')
-    ->select('et.id', 'et.monto_actual_abrir')
-    ->where('et.id_sucursal', $request->id_sucursal)   
-    ->orderBy('et.created_at', 'desc')    
+    ->select('et.id', 'et.monto_actual_abrir','et.abrir_cerrar')
+    ->where('et.id_sucursal', $request->id_sucursal)     
+    ->orderBy('et.id', 'desc')    
     ->first();
     return $registro;
-
     }   
 }
