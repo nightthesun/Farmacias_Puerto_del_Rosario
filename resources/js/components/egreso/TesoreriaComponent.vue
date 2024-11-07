@@ -310,22 +310,24 @@
                         <table class="table table-bordered table-striped table-sm table-responsive">
                             <thead>
                                 <tr>
-                                    <th class="col-md-2" style="font-size: 11px; text-align: center">Estado actual</th>
-                                    <th class="col-md-2" style="font-size: 11px; text-align: center">Cantidad monedas</th>
-                                    <th class="col-md-2" style="font-size: 11px; text-align: center">Monto en monedas</th>
-                                    <th class="col-md-2" style="font-size: 11px; text-align: center">Cantidad Billetes</th>
+                                    <th class="col-md-2" style="font-size: 11px; text-align: center">Estado Actual</th>
+                                    <th class="col-md-1" style="font-size: 11px; text-align: center">Cant. Monedas</th>
+                                    <th class="col-md-2" style="font-size: 11px; text-align: center">Monto en Monedas</th>
+                                    <th class="col-md-1" style="font-size: 11px; text-align: center">Cant. Billetes</th>
                                     <th class="col-md-2" style="font-size: 11px; text-align: center">Monto en Billetes</th>
-                                    <th class="col-md-4" style="font-size: 11px; text-align: center">Monto Total</th>                                    
+                                    <th class="col-md-2" style="font-size: 11px; text-align: center">Arqueo Total</th>
+                                    <th class="col-md-2" style="font-size: 11px; text-align: center">Monto Total</th>                                    
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr> 
-                                    <td class="col-md-2" style="font-size: 11px; text-align: center">{{ arqueo_actual_v3+" "+ver_simbolo  }}</td>
-                                    <td class="col-md-2" style="font-size: 11px; text-align: center">{{ver_cantidad_moenda}}</td>
+                                    <td class="col-md-2" style="font-size: 11px; text-align: center">{{ estado_actual_v3+" "+ver_simbolo  }}</td>
+                                    <td class="col-md-1" style="font-size: 11px; text-align: center">{{ver_cantidad_moenda}}</td>
                                     <td class="col-md-2" style="font-size: 11px; text-align: center">{{ver_monto_moneda+" "+ver_simbolo }}</td>
-                                    <td class="col-md-2" style="font-size: 11px; text-align: center">{{ver_cantidad_billete}}</td>
+                                    <td class="col-md-1" style="font-size: 11px; text-align: center">{{ver_cantidad_billete}}</td>
                                     <td class="col-md-2" style="font-size: 11px; text-align: center">{{ver_monto_billete+" "+ver_simbolo}}</td>
-                                    <td class="col-md-4" style="font-size: 11px; text-align: center">{{ver_monto_total+" "+ver_simbolo}}</td>
+                                    <td class="col-md-2" style="font-size: 11px; text-align: center">{{ver_monto_total+" "+ver_simbolo}}</td>
+                                    <td class="col-md-2" style="font-size: 11px; text-align: center">{{arqueo_actual_v3+" "+ver_simbolo}}</td>
                                 </tr>
                             </tbody>   
                         </table> 
@@ -431,6 +433,7 @@ export default {
       ver_cantidad_billete:'',
       ver_monto_billete:'',
       ver_monto_total:'',
+      arrayMonedaModal:[],
     
         };
     },
@@ -517,6 +520,20 @@ export default {
             let me = this;
             me.pagination.current_page = page;
             me.listarIndex(page);
+        },
+
+        modalMoneda(id) {
+            let me = this;           
+            var url ="/entrada_salida/monedaModal_vista?id_arqueo="+id;
+            axios.get(url)
+                .then(function (response) {
+                    var respuesta = response.data;
+                    me.arrayMonedaModal=respuesta;           
+                
+                })
+                .catch(function (error) {
+                    error401(error);
+                });
         },
 
         validateIntegerInput(id,index) {
@@ -651,28 +668,31 @@ export default {
                     break;
                 }
                 case "ver": {
-                    
+                    console.log(data);
                  if (data.abrir_cerrar===0) {
                     me.tituloModal = "Vista de inicio de caja";
                     me.fecha_v3=data.created_at;    
                     me.cogigo_arqueo_v3=data.id_arqueo_abrir;                  
                     me.observacion_v3=data.comentario_abrir;  
                     me.estado_v3="Abierto";  
-                    me.arqueo_actual_v3=data.monto_actual_abrir;
-      estado_actual_v3:'',
-      ver_cantidad_moenda:'',
-      ver_monto_moneda:'',
-      ver_simbolo:'',
-      ver_cantidad_billete:'',
-      ver_monto_billete:'',
-      ver_monto_total:'',      
+                    me.arqueo_actual_v3=data.total_arqueo_caja_abrir;    
+                    me.modalMoneda(data.id_arqueo_abrir);                    
                  } else {   
                     me.tituloModal = "Vista de cierre de caja";                    
                     me.fecha_v3=data.updated_at;  
                     me.cogigo_arqueo_v3=data.id_arqueo_cerrar;                  
                     me.observacion_v3=data.comentario_cerrar; 
                     me.estado_v3="Cerrado";
-                 }   
+                    me.arqueo_actual_v3=data.total_arqueo_caja_cerrar;
+                    me.modalMoneda(data.id_arqueo_cerrar);   
+                 }  
+                 me.estado_actual_v3=data.monto_actual_abrir;
+                 me.ver_cantidad_moenda=data.cantidad_moneda;
+                    me.ver_monto_moneda=data.total_moneda;
+                    me.ver_simbolo=data.simbolo;
+                    me.ver_cantidad_billete=data.cantidad_billete;
+                    me.ver_monto_billete=data.total_billete;
+                    me.ver_monto_total=data.total_arqueo;
                  me.usuario_v3=data.name;
                  me.id_index=data.id;
           
@@ -871,8 +891,7 @@ me.isSubmitting = true; // Deshabilita el botón
                 .then(function (response) {
                     var respuesta = response.data;                                
                     me.arrayExiste=respuesta; 
-                    console.log("********************");
-                    console.log(me.arrayExiste);                  
+                 
                 }).catch(function (error) {
                     error401(error);
                     console.log(error);
@@ -919,10 +938,24 @@ me.isSubmitting = true; // Deshabilita el botón
             
         }
         if (accion == "ver") {
+            me.id_index="";
+            me.fecha_v3="";
+            me.cogigo_arqueo_v3="";
+            me.usuario_v3="";
+            me.observacion_v3="";
+            me.estado_v3="";
+            me.arqueo_actual_v3="";
+            me.estado_actual_v3="";
+            me.ver_cantidad_moenda="";
+            me.ver_monto_moneda="";
+            me.ver_simbolo="";
+            me.ver_cantidad_billete="";
+            me.ver_monto_billete="";
+            me.ver_monto_total="";
+            me.arrayMonedaModal=[];
 
-
-me.classModal.closeModal(accion);
-}
+        me.classModal.closeModal(accion);
+        }
     },
 
      

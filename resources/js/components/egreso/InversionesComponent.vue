@@ -14,7 +14,7 @@
                     <button
                         type="button"
                         class="btn btn-secondary"
-                        @click="verificadorAperturaCierre();"
+                        @click="get_tiene_tesoreria(0);"
                         :disabled="sucursalSeleccionada == 0"
                     >
                         <i class="icon-plus"></i>&nbsp;Nuevo
@@ -108,7 +108,7 @@
                         <td class="col-md-1">
                             <div  class="d-flex justify-content-start">
                                 <div  v-if="puedeEditar==1">
-                                    <button type="button"  @click="abrirModal('actualizar',i);"  class="btn btn-warning btn-sm" style="margin-right: 5px;"><i class="icon-pencil"></i></button>                             
+                                    <button type="button"  @click="get_tiene_tesoreria(i);"  class="btn btn-warning btn-sm" style="margin-right: 5px;"><i class="icon-pencil"></i></button>                             
                                 </div>
                                 <div v-else>
                                      <button type="button" class="btn btn-light btn-sm"  style="margin-right: 5px;"><i class="icon-pencil"></i></button>
@@ -275,15 +275,74 @@
                                                 <span  v-if="total_s==''" class="error">Debe ingresar los datos</span> 
                                             </div>
                             </div> 
-                                        <div class="container">                                
-                                            <div class="form-group row"  >
-                                            <strong  class="col-md-3 form-control-label" for="text-input">Descripción: <span v-if="descripcion == ''" class="error" >(*)</span></strong>
-                                                <div class="col-md-7 input-group mb-3">
-                                                    <textarea class="form-control" aria-label="With textarea" v-model="descripcion" placeholder="Describa la inversion"></textarea>
-                                                    <span  v-if="descripcion==''" class="error">Debe descripción</span> 
-                                                </div>
-                                            </div>
-                                        </div>            
+                                   
+                                        <table class="table table-bordered table-striped table-sm table-responsive">
+                                <thead>
+                                    <tr>
+                                        <th class="col-md-2" style="font-size: 11px; text-align: center">Monto actual</th>
+                                        <th class="col-md-2" style="font-size: 11px; text-align: center">Monto editado</th>
+                                        <th class="col-md-2" style="font-size: 11px; text-align: center">Operación</th>
+                                        <th class="col-md-2" style="font-size: 11px; text-align: center">Estado</th>
+                                                                        
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="col-md-2" style="font-size: 13px; text-align: center">{{monto_actual}}</td>
+                                        <td class="col-md-2" style="font-size: 13px; text-align: center">{{monto_editado}}</td>
+                                        <td class="col-md-2" style="font-size: 13px; text-align: center">{{ sumarNumeros() }}</td>
+                                        <td class="col-md-2" style="font-size: 13px; text-align: center">
+                                            <span v-if="sumarNumeros()===0" class="badge badge-pill badge-warning">Sin acción</span>
+                                            <span v-else-if="sumarNumeros()>0" class="badge badge-pill badge-success">OK</span>
+                                            <span v-else class="badge badge-pill badge-danger">Saldo insuficiente</span>                                            
+                                        </td>
+                                  
+                                                                     
+                                    </tr>
+                                </tbody>    
+                            </table>  
+                            <div class="container">                                
+                                <div class="form-group row"  >
+                                  
+                                    <strong  class="col-md-3 form-control-label" for="text-input">Linea: <span v-if="options == null" class="error" >(*)</span></strong>
+                                        <div class="col-md-7 input-group mb-3">
+                                            <multiselect v-model="value"
+             :options="options" 
+             :multiple="true" 
+             :close-on-select="false" 
+             :clear-on-select="false"
+            :preserve-search="true" 
+            placeholder="Seleccione una opción" 
+            label="nombre" 
+            track-by="id" 
+            :preselect-first="false"
+            selectLabel="Añadir a seleccion"
+            deselectLabel="Quitar seleccion"
+            selectedLabel="Seleccionado"
+        
+            >
+          
+                <template #selection="{ values, search, isOpen }">
+                    <span class="multiselect__single" v-if="values.length>1" v-show="!isOpen">{{ values.length }} opciones seleccionadas</span>
+                    <span class="multiselect__single" v-else v-show="!isOpen">{{ values.length }} opcion seleccionada</span>
+                </template>
+            </multiselect>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <button v-if="value.length>0" type="button" class="btn btn-primary" ><i class="fa fa-exclamation" aria-hidden="true"></i>Limpiar</button>
+                                            <button v-else type="button" class="btn btn-light" ><i class="fa fa-exclamation" aria-hidden="true"></i>Limpiar</button>
+                                        </div>
+                                </div>
+                            </div>  
+
+                            <div class="row">
+                                <div class="form-group col-sm-12">
+                                    <strong>Descripción:</strong>
+                                    <textarea class="form-control" id="exampleFormControlTextarea1" rows="3" placeholder="Describa la inversion"  v-model="descripcion"></textarea>
+                                    <span  v-if="descripcion==''" class="error">Debe descripción</span>   
+                                </div>                
+                            </div> 
+                            
                      </div>        
                     </form>
                 </div>
@@ -312,12 +371,14 @@
 import Swal from "sweetalert2";
 import { error401 } from "../../errores";
 import VueMultiselect from 'vue-multiselect';
+import Multiselect from 'vue-multiselect';
 //Vue.use(VeeValidate);
 export default {
         //---permisos_R_W_S
         props: ['codventana'],
         //-------------------
-    components: { VueMultiselect},
+        components: { VueMultiselect ,Multiselect},
+  
     data() {
         return {
             pagination: {
@@ -345,7 +406,11 @@ export default {
             tipoAccion:1,
             id_sucursal:0,
 
+            monto_actual:'',
+            sumador_v3:0,
             arrayIndex:[],
+
+            valor_suma_v3:'',
 
             offset:3,
             isSubmitting: false, // Controla el estado del botón de envío
@@ -358,6 +423,7 @@ export default {
             descripcion:'',
             id_apertura_cierre:'',
             id_inversion:'',
+            monto_editado:'',
 
             //---permisos_R_W_S
             puedeEditar:2,
@@ -365,6 +431,11 @@ export default {
                 puedeHacerOpciones_especiales:2,
                 puedeCrear:2,
                 //-----------
+
+                //----selector multiple   
+        value: [],
+        options: [],       
+      //------------------------
             
         };
     },
@@ -443,6 +514,14 @@ export default {
 },
 //--------------------------------------------------------------  
 
+
+
+    sumarNumeros() {
+        let me = this;
+        me.valor_suma_v3=(parseFloat(me.monto_editado)+ (parseFloat(me.monto_actual) - parseFloat(me.total_s))).toFixed(2);
+        return (parseFloat(me.monto_editado)+ (parseFloat(me.monto_actual) - parseFloat(me.total_s))).toFixed(2);
+    },
+
         changeRango(){
             this.limite_X=10;
          },   
@@ -480,6 +559,39 @@ export default {
       }
     },
 
+        get_tiene_tesoreria(data_v2 = []){            
+        let me = this;
+           var url = "/tesoreria/getTesoreria?id_sucursal="+me.id_sucursal;
+            axios.get(url)
+                .then(function (response) {
+                    var respuesta = response.data; 
+                    if (data_v2===0) {
+                        if (respuesta.abrir_cerrar===9 || respuesta.abrir_cerrar===undefined) {
+                        Swal.fire(
+                    "Debe abrir una caja en tesoreria",
+                    "Haga click en Ok",
+                    "warning",
+                    );  
+                    } else {
+                        me.monto_actual=respuesta.monto_actual_abrir; 
+                        me.id_apertura_cierre=respuesta.id;
+                        me.listarProductos(1);
+                        me.abrirModal('registrar'); 
+                       // abrirModal('actualizar',data_v2);
+                    }  
+                    } else {
+                        me.monto_actual=respuesta.monto_actual_abrir; 
+                        me.id_apertura_cierre=respuesta.id;
+                       // me.abrirModal('registrar'); 
+                       me.abrirModal('actualizar',data_v2);
+                    }                  
+                               
+                }).catch(function (error) {
+                    error401(error);
+                    console.log(error);
+                });
+        },
+
     checkInput_decimal(event) {
       const value = event.target.value;
       // Allow numbers with more than one decimal point (for typing purposes)
@@ -488,6 +600,10 @@ export default {
       } else {
         event.target.value = this.numericValue; // Revert to last valid value
       }
+    },
+
+    clearAll () {
+      this.value = [];
     },
 
          listarInicio(page){           
@@ -505,8 +621,15 @@ export default {
         }, 
 
          crear(){
-            let me = this;     
-            // Si ya está enviando, no permitas otra solicitud
+            let me = this;  
+            if (me.valor_suma_v3<0) {
+                Swal.fire(
+                    "Saldo insuficiente.",
+                    "Haga click en Ok",
+                    "warning",
+                    ); 
+            } else {
+                 // Si ya está enviando, no permitas otra solicitud
         if (me.isSubmitting) return;
         me.isSubmitting = true; // Deshabilita el botón
 
@@ -519,13 +642,15 @@ export default {
                 simbolo: me.simbolo,
                 id_sucursal:me.id_sucursal,
                 descripcion:me.descripcion,
-                id_apertura_cierre:me.id_apertura_cierre,
+                id_apertura_cierre:me.id_apertura_cierre, 
+                valor_suma_v3:me.valor_suma_v3,
 
                     })       
                     .then(function (response) {
                                             
                         let a=response.data;
                         me.cerrarModal("registrar");
+                       // me.get_tiene_tesoreria();
                            me.listarInicio();  
                             if (a===null || a==="" ) {
                                 Swal.fire("Se registro exitosamente","Haga click en Ok", "success",);                             
@@ -538,6 +663,8 @@ export default {
             }).finally(() => {
           me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
         });
+            } 
+           
         },
 
         eliminar(id){
@@ -635,8 +762,14 @@ export default {
 
         editar(){
             let me = this;
-          
-            axios.post("/inversion/editar", {
+            if (me.valor_suma_v3<0) {
+                Swal.fire(
+                    "Saldo insuficiente.",
+                    "Haga click en Ok",
+                    "warning",
+                    ); 
+            } else {
+                axios.post("/inversion/editar", {
                 id_dis: (me.selected).id, 
                 tipo_persona_empresa: (me.selected).tipo_persona_empresa,         
                 tipo_comprabante: me.selectTipoDoc,        
@@ -644,7 +777,9 @@ export default {
                 total: me.total_s,           
                 id_sucursal:me.id_sucursal,
                 descripcion:me.descripcion,   
-                id:me.id_inversion                                                         
+                id:me.id_inversion,
+                id_apertura_cierre:me.id_apertura_cierre, 
+                monto_editado:me.monto_editado                                                         
                     })       
                     .then(function (response) {
                         let a=response.data;
@@ -659,7 +794,9 @@ export default {
                   .catch(function (error) { 
                     error401(error);
                     console.log(error);                         
-            });
+            }); 
+            }
+     
         },
 
 
@@ -726,7 +863,9 @@ export default {
                     me.total_s=0.00;
                     me.selectTipoDoc=0;
                     me.comprobante="";  
-            
+                    me.valor_suma_v3="";
+                    me.monto_editado="0.00";
+                    me.value=[];
                     me.classModal.openModal("registrar");
                     break;
                 }
@@ -741,9 +880,10 @@ export default {
             }            
                     me.selectTipoDoc= null ? 0 : data.id_tipo_comprabante;                    
                     me.comprobante=data.nro_comprobante;
-                    me.total_s=data.total;
+                    me.total_s=0;
                     me.descripcion=data.descripcion;
                     me.id_inversion=data.id;
+                    me.monto_editado=data.total;
                     me.classModal.openModal("registrar");
                     break;
                 }
@@ -751,6 +891,22 @@ export default {
             }
         },
 
+        listarProductos(data) {
+        let me = this;           
+        var url = "/inversion/verproducto?tipo="+data;
+            axios.get(url)
+                .then(function (response) {
+
+                    var respuesta = response.data;
+                    
+                    me.options = respuesta;
+                               
+                })
+                .catch(function (error) {
+                    error401(error);
+                    console.log(error);
+                });
+        },
       
         cerrarModal(accion) {
             let me = this;
@@ -762,9 +918,11 @@ export default {
                 me.descripcion="";
                 me.selectTipoDoc=0;
                 me.comprobante="";
-              
+              me.valor_suma_v3="";
                 me.tituloModal = "";
                 me.id_inversion ="";
+                me.monto_editado="";
+                me.value=[];
             
             }
         },

@@ -338,7 +338,7 @@
 import Swal from "sweetalert2";
 import { error401 } from "../../errores";
 import VueMultiselect from 'vue-multiselect';
-import Multiselect from 'vue-multiselect'
+import Multiselect from 'vue-multiselect';
 
 //Vue.use(VeeValidate);
 export default {

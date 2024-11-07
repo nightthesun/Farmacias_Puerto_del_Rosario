@@ -702,8 +702,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/inversion/listarInicio', [EgrInversionController::class, 'index']); 
     Route::post('/inversion/editar', [EgrInversionController::class, 'update']); 
     Route::put('/inversion/activar', [EgrInversionController::class, 'activar']); 
-    Route::put('/inversion/desactivar', [EgrInversionController::class, 'desactivar']);    
-
+    Route::put('/inversion/desactivar', [EgrInversionController::class, 'desactivar']); 
+    Route::get('/inversion/verproducto', [EgrInversionController::class, 'getProducto']); 
+       
     //gastos--------
     Route::get('/gasto/getCliente', [EgrGastoController::class, 'listarProveedor']); 
     Route::post('/gasto/crear', [EgrGastoController::class, 'store']);  

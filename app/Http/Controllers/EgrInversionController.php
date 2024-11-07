@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Egr_Inversion;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Models\Egr_Tesoreria;
 
 class EgrInversionController extends Controller
 {
@@ -58,7 +59,8 @@ class EgrInversionController extends Controller
                         COALESCE(dp.apellidos, '')
                         ), ''))
                         ELSE NULL 
-                        END AS nombre_1")
+                        END AS nombre_1"),
+                        'ei.monto_editado'
                         )
                     ->join('dir__distribuidors as dd', 'dd.id', '=', 'ei.id_distribuidor')
                     ->join('dir__clientes as dc', 'dd.id_cliente', '=', 'dc.id')
@@ -109,7 +111,8 @@ class EgrInversionController extends Controller
             COALESCE(dp.apellidos, '')
             ), ''))
             ELSE NULL 
-            END AS nombre_1")
+            END AS nombre_1"),
+            'ei.monto_editado'
             )
         ->join('dir__distribuidors as dd', 'dd.id', '=', 'ei.id_distribuidor')
         ->join('dir__clientes as dc', 'dd.id_cliente', '=', 'dc.id')
@@ -166,7 +169,11 @@ class EgrInversionController extends Controller
         $crear->id_apertura=$request->id_apertura_cierre;  
         $crear->save();
        // return DB::commit();   
-        DB::commit();    
+       $e = Egr_Tesoreria::find($request->id_apertura_cierre);
+       $operacion = $e->monto_actual_abrir -$request->total;  
+       $e->monto_actual_abrir=$operacion;
+       $e->save();
+       DB::commit();    
        } catch (\Throwable $th) {
         return $th;
        }
@@ -187,13 +194,20 @@ class EgrInversionController extends Controller
             $e->tipo_comprabante=$request->tipo_comprabante;
             $e->nro_comprobante=$request->nro_comprobante;            
             $e->total=$request->total;     
- 
+            $e->monto_editado =  $request->monto_editado;
             $e->id_sucursal=$request->id_sucursal;    
             $e->total=$request->total;    
             $e->descripcion=$request->descripcion;
             $e->id_usuario_modifica=auth()->user()->id;  
             $e->save();
            //return DB::commit();
+           $e_T = Egr_Tesoreria::find($request->id_apertura_cierre);
+           
+           $operacion_1 = $e_T->monto_actual_abrir + $request->monto_editado;  
+           $operacion_2 = $operacion_1 - $request->total; 
+           $e_T->monto_actual_abrir=$operacion_2;
+           $e_T->save();
+         
             DB::commit();    
            } catch (\Throwable $th) {
             return $th;
@@ -257,6 +271,26 @@ class EgrInversionController extends Controller
        $update->estado = 1;    
        $update->id_usuario_modifica=auth()->user()->id;
        $update->save();
+   }
+
+   public function getProducto(Request $request){
+    if ($request->tipo==1) {
+        $producto = DB::table('prod__productos as pp')
+        ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
+        ->select('pp.id', 'pp.codigo', 'pp.nombre', 'pl.nombre as nombre_linea')
+        ->where('pl.activo', 1)
+        ->orderByDesc('pp.id')
+        ->limit(10)
+        ->get();
+    }else{
+        $producto = DB::table('prod__productos as pp')
+    ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
+    ->select('pp.id', 'pp.codigo', 'pp.nombre', 'pl.nombre as nombre_linea')
+    ->where('pl.activo', 1)
+    ->where('pp.codigo', $request->codigo)
+    ->first();
+    }
+    return $producto;
    }
    
 }

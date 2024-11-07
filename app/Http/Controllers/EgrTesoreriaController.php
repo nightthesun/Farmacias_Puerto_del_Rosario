@@ -77,6 +77,7 @@ class EgrTesoreriaController extends Controller
                       'ca.total_billete',
                       'ca.total_moneda',
                       'ca.cantidad_moneda',
+                      'ca.total_arqueo',
                       'u.name',
                       'an.simbolo'
                   )
@@ -124,6 +125,7 @@ class EgrTesoreriaController extends Controller
                 'ca.total_billete',
                 'ca.total_moneda',
                 'ca.cantidad_moneda',
+                'ca.total_arqueo',
                 'u.name',
                 'an.simbolo'
             )
