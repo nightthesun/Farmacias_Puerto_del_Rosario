@@ -60,10 +60,12 @@ class EgrInversionController extends Controller
                         ), ''))
                         ELSE NULL 
                         END AS nombre_1"),
-                        'ei.monto_editado'
+                        'ei.monto_editado','ei.ids_producto','ei.id_usuario_modifica','ass.direccion',DB::raw("CONCAT(COALESCE(ad.nombre, ''), ' - ', COALESCE(ass.ciudad, '')) AS direccion_completa")
                         )
                     ->join('dir__distribuidors as dd', 'dd.id', '=', 'ei.id_distribuidor')
                     ->join('dir__clientes as dc', 'dd.id_cliente', '=', 'dc.id')
+                    ->join('adm__sucursals as ass', 'ass.id', '=', 'ei.id_sucursal')
+                    ->join('adm__departamentos as ad', 'ad.id', '=', 'ass.departamento')
                     ->leftJoin('dir__empresas as de', function($join) {
                     $join->on('de.id', '=', 'dc.id_per_emp')
                     ->where('dd.tipo_persona_empresa', '=', 2);
@@ -112,10 +114,12 @@ class EgrInversionController extends Controller
             ), ''))
             ELSE NULL 
             END AS nombre_1"),
-            'ei.monto_editado'
-            )
+            'ei.monto_editado','ei.ids_producto','ei.id_usuario_modifica','ass.direccion',DB::raw("CONCAT(COALESCE(ad.nombre, ''), ' - ', COALESCE(ass.ciudad, '')) AS direccion_completa")
+            ) 
         ->join('dir__distribuidors as dd', 'dd.id', '=', 'ei.id_distribuidor')
         ->join('dir__clientes as dc', 'dd.id_cliente', '=', 'dc.id')
+        ->join('adm__sucursals as ass', 'ass.id', '=', 'ei.id_sucursal')
+        ->join('adm__departamentos as ad', 'ad.id', '=', 'ass.departamento')
         ->leftJoin('dir__empresas as de', function($join) {
         $join->on('de.id', '=', 'dc.id_per_emp')
         ->where('dd.tipo_persona_empresa', '=', 2);
@@ -167,6 +171,7 @@ class EgrInversionController extends Controller
         $crear->descripcion=$request->descripcion;
         $crear->id_usuario_registra=auth()->user()->id;  
         $crear->id_apertura=$request->id_apertura_cierre;  
+        $crear->ids_producto=$request->ids_producto;
         $crear->save();
        // return DB::commit();   
        $e = Egr_Tesoreria::find($request->id_apertura_cierre);
@@ -260,6 +265,12 @@ class EgrInversionController extends Controller
    public function desactivar(Request $request)
    {
        $update = Egr_Inversion::findOrFail($request->id);
+       $id_apertura = $update->id_apertura;
+       $total = $update->total;
+       $e = Egr_Tesoreria::find($id_apertura);
+       $operacion = $e->monto_actual_abrir  + $total;  
+       $e->monto_actual_abrir=$operacion;
+       $e->save();
        $update->estado = 0;       
        $update->id_usuario_modifica=auth()->user()->id;
        $update->save();
@@ -268,6 +279,12 @@ class EgrInversionController extends Controller
    public function activar(Request $request)
    {   
        $update = Egr_Inversion::findOrFail($request->id);
+       $id_apertura = $update->id_apertura;
+       $total = $update->total;
+       $e = Egr_Tesoreria::find($id_apertura);
+       $operacion = $e->monto_actual_abrir  - $total;  
+       $e->monto_actual_abrir=$operacion;
+       $e->save();
        $update->estado = 1;    
        $update->id_usuario_modifica=auth()->user()->id;
        $update->save();
@@ -280,7 +297,7 @@ class EgrInversionController extends Controller
         ->select('pp.id', 'pp.codigo', 'pp.nombre', 'pl.nombre as nombre_linea')
         ->where('pl.activo', 1)
         ->orderByDesc('pp.id')
-        ->limit(10)
+        ->limit(50)
         ->get();
     }else{
         $producto = DB::table('prod__productos as pp')

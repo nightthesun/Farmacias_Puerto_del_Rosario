@@ -107,7 +107,7 @@
                     <tr v-for="i in arrayIndex" :key="i.id">
                         <td class="col-md-1">
                             <div  class="d-flex justify-content-start">
-                                <div  v-if="puedeEditar==1">
+                                <div  v-if="puedeEditar==1 && i.estado==1">
                                     <button type="button"  @click="get_tiene_tesoreria(i);"  class="btn btn-warning btn-sm" style="margin-right: 5px;"><i class="icon-pencil"></i></button>                             
                                 </div>
                                 <div v-else>
@@ -127,6 +127,9 @@
                                             <i class="icon-check"></i>
                                             </button>
                                 </div>
+                                <button type="button" class="btn btn-info" style="margin-right: 5px; color: whitesmoke;" @click="abrirModal('re_imprecion',i);">
+                        <i class="fa fa-print" aria-hidden="true"></i></button>
+                    
 
                             </div>       
                         </td>
@@ -140,8 +143,15 @@
                         <td class="col-md-1">{{ i.total +" "+i.simbolo }}</td>
                         <td class="col-md-1">{{ i.name}}</td>                     
                         <td>
-                            <span v-if="i.estado===1" class="badge badge-pill badge-success">Activo</span>
-                            <span v-else class="badge badge-pill badge-danger">Desactivado</span>                            
+                            <div v-if="i.id_usuario_modifica===null">
+                                <span v-if="i.estado===1" class="badge badge-pill badge-success">Activo</span>
+                                <span v-else class="badge badge-pill badge-danger">Desactivado</span>
+                            </div>
+                            <div v-else>
+                                <span v-if="i.estado===1" class="badge badge-pill badge-warning">Activo</span>
+                                <span v-else class="badge badge-pill badge-warning">Desactivado</span>                               
+                            </div>
+                                                   
                         </td>
                     </tr>
                 </tbody>
@@ -301,11 +311,9 @@
                                     </tr>
                                 </tbody>    
                             </table>  
-                            <div class="container">                                
-                                <div class="form-group row"  >
-                                  
-                                    <strong  class="col-md-3 form-control-label" for="text-input">Linea: <span v-if="options == null" class="error" >(*)</span></strong>
-                                        <div class="col-md-7 input-group mb-3">
+                                 <div v-if="tipoAccion===1">
+                                    <div class="form-group row"  >
+                                        <div class="col-md-8 input-group ">
                                             <multiselect v-model="value"
              :options="options" 
              :multiple="true" 
@@ -314,27 +322,100 @@
             :preserve-search="true" 
             placeholder="Seleccione una opción" 
             label="nombre" 
+            :custom-label="nameWithLang_2" 
+            
             track-by="id" 
             :preselect-first="false"
             selectLabel="Añadir a seleccion"
             deselectLabel="Quitar seleccion"
-            selectedLabel="Seleccionado"
-        
-            >
+            selectedLabel="Seleccionado">
           
                 <template #selection="{ values, search, isOpen }">
                     <span class="multiselect__single" v-if="values.length>1" v-show="!isOpen">{{ values.length }} opciones seleccionadas</span>
                     <span class="multiselect__single" v-else v-show="!isOpen">{{ values.length }} opcion seleccionada</span>
                 </template>
             </multiselect>
+            <button v-if="value.length>0" type="button" class="btn btn-primary" @click="clearAll()"><i class="fa fa-times" aria-hidden="true"></i></button>
+                                            <button v-else type="button" class="btn btn-light"><i class="fa fa-times" aria-hidden="true"></i></button>
+                                     
                                         </div>
-                                        <div class="col-md-2">
-                                            <button v-if="value.length>0" type="button" class="btn btn-primary" ><i class="fa fa-exclamation" aria-hidden="true"></i>Limpiar</button>
-                                            <button v-else type="button" class="btn btn-light" ><i class="fa fa-exclamation" aria-hidden="true"></i>Limpiar</button>
-                                        </div>
+                                        <div class="col-md-4 input-group ">
+                                            <input type="text"  class="form-control" placeholder="Debe el codigo del producto"  style="text-align: right;" v-model="producto_selector_uno" >
+                                            <button type="button" class="btn btn-primary" @click="listarProductos(0)"><i class="fa fa-search-plus" aria-hidden="true"></i></button>  
+                                     </div>
+                                </div>
+                                <div v-if="value.length===0 && array_uno_2.length ===0" class="alert alert-info" role="alert">
+                                    Debe seleccionar un producto.
+                            </div>
+                            <div v-else class="row">
+                                <div class="form-group col-sm-6">
+                                    <table  class="table table-bordered table-striped table-sm table-responsive">
+                                    <thead>
+                                        <tr>
+                                            <th class="col-md-1" style="font-size: 11px; text-align: center">Nro</th>
+                                            <th class="col-md-2" style="font-size: 11px; text-align: center">Codigo</th>
+                                            <th class="col-md-2" style="font-size: 11px; text-align: center">Linea</th>  
+                                            <th class="col-md-3" style="font-size: 11px; text-align: center">Nombre</th>                                                         
+                                        </tr>
+                                    </thead>
+                                    <tbody>                                       
+                                        <tr v-for="o in value" :key="o.id">
+                                            <td  class="col-md-1" style="font-size: 11px; text-align: center">{{o.id}}</td>
+                                            <td  class="col-md-2" style="font-size: 11px; text-align: center">{{ o.codigo }}</td>
+                                            <td  class="col-md-2" style="font-size: 11px; text-align: center">{{ o.nombre_linea }}</td>    
+                                            <td  class="col-md-3" style="font-size: 11px; text-align: center">{{ o.nombre }}</td>    
+                                                                                               
+                                        </tr>                                                        
+                                    </tbody>
+                                </table>  
+                                </div>
+                                <div class="form-group col-sm-6">
+                                    <table  class="table table-bordered table-striped table-sm table-responsive">
+                                    <thead>
+                                        <tr>
+                                            <th class="col-md-1" style="font-size: 11px; text-align: center">Opcion</th>
+                                            <th class="col-md-1" style="font-size: 11px; text-align: center">Nro</th>
+                                            <th class="col-md-2" style="font-size: 11px; text-align: center">Codigo</th>
+                                            <th class="col-md-2" style="font-size: 11px; text-align: center">Linea</th>  
+                                            <th class="col-md-3" style="font-size: 11px; text-align: center">Nombre</th>                                                         
+                                        </tr>
+                                    </thead>
+                                    <tbody>                                       
+                                        <tr v-for="o in array_uno_2" :key="o.id">
+                                            <td  class="col-md-1" style="font-size: 11px; text-align: center">
+                                                <button @click="eliminarElemento(o.id)" type="button" class="btn btn-danger btn-sm d-flex align-items-center justify-content-center p-0" style="width: 20px; height: 20px;">
+                                                <i class="fa fa-trash fa-xs" aria-hidden="true"></i>
+                                                </button> </td>
+                                            <td  class="col-md-1" style="font-size: 11px; text-align: center">{{o.id}}</td>
+                                            <td  class="col-md-2" style="font-size: 11px; text-align: center">{{ o.codigo }}</td>
+                                            <td  class="col-md-2" style="font-size: 11px; text-align: center">{{ o.nombre_linea }}</td>    
+                                            <td  class="col-md-3" style="font-size: 11px; text-align: center">{{ o.nombre }}</td>    
+                                                                                               
+                                        </tr>                                                        
+                                    </tbody>
+                                </table>  
                                 </div>
                             </div>  
-
+                                 </div>
+                                 <div v-else> 
+                                    <table  class="table table-bordered table-striped table-sm table-responsive">
+                                    <thead>
+                                        <tr>
+                                            <th class="col-md-8" style="font-size: 11px; text-align: center">id de productos</th>
+                                            <th class="col-md-4" style="font-size: 11px; text-align: center">Estado</th>
+                                                                                         
+                                        </tr>
+                                    </thead>
+                                    <tbody>                                       
+                                        <tr>
+                                            <td  class="col-md-6" style="font-size: 11px; text-align: center">{{ids_producto}}</td>
+                                            <td  class="col-md-6" style="font-size: 11px; text-align: center">No se puede editar los productos</td>                                        
+                                        </tr>                                                        
+                                    </tbody>
+                                </table> 
+                                 </div>                      
+                               
+                              
                             <div class="row">
                                 <div class="form-group col-sm-12">
                                     <strong>Descripción:</strong>
@@ -352,7 +433,7 @@
                         <div  class="d-flex justify-content-start">
                             <div  v-if="isSubmitting==false">
                                 <button type="button" v-if="tipoAccion == 1" class="btn btn-primary" @click="crear()" :disabled="!sicompleto">Guardar</button>
-                                <button type="button" v-if="tipoAccion == 2" class="btn btn-primary" @click="editar()" :disabled="!sicompleto">Actualizar</button>
+                                <button type="button" v-if="tipoAccion == 2" class="btn btn-primary" @click="editar()">Actualizar</button>
                             </div>
                             <div v-else>
                                 <button type="button" v-if="tipoAccion == 1" class="btn btn-light">Guardar</button>
@@ -436,7 +517,11 @@ export default {
         value: [],
         options: [],       
       //------------------------
-            
+      producto_selector_uno:'',
+      producto_selector_uno_2:'',
+      array_uno_2:[],     
+      ids_producto:'', 
+
         };
     },
 
@@ -445,7 +530,7 @@ export default {
     computed: {
         sicompleto() {
             let me = this;
-            if (me.comprobante!="" && me.selected !=null &&  me.total_s!="" &&me.selectTipoDoc!=0 && me.comprobante)
+            if (me.comprobante!="" && me.selected !=null &&  me.total_s!="" &&me.selectTipoDoc!=0 && me.comprobante!="")
               return true;
            else return false;
         },
@@ -582,6 +667,7 @@ export default {
                     } else {
                         me.monto_actual=respuesta.monto_actual_abrir; 
                         me.id_apertura_cierre=respuesta.id;
+             
                        // me.abrirModal('registrar'); 
                        me.abrirModal('actualizar',data_v2);
                     }                  
@@ -612,7 +698,9 @@ export default {
                 axios.get(url).then(function(response){
                     var respuesta=response.data;
                     me.pagination = respuesta.pagination;
-                    me.arrayIndex = respuesta.resultado.data;             
+                    me.arrayIndex = respuesta.resultado.data;
+                    console.log("****************************");
+                    console.log(me.arrayIndex);             
                 })
                 .catch(function(error){
                     error401(error);
@@ -632,7 +720,11 @@ export default {
                  // Si ya está enviando, no permitas otra solicitud
         if (me.isSubmitting) return;
         me.isSubmitting = true; // Deshabilita el botón
+                
 
+        const arrayCombinado = me.array_uno_2.concat(me.value);
+        const ids = arrayCombinado.map(item => item.id).join(',');
+                console.log(ids);
                 axios.post("/inversion/crear", {
                 id_dis: (me.selected).id, 
                 tipo_persona_empresa: (me.selected).tipo_persona_empresa,         
@@ -644,6 +736,7 @@ export default {
                 descripcion:me.descripcion,
                 id_apertura_cierre:me.id_apertura_cierre, 
                 valor_suma_v3:me.valor_suma_v3,
+                ids_producto:ids
 
                     })       
                     .then(function (response) {
@@ -760,6 +853,10 @@ export default {
                 })
             },
 
+            clearAll () {
+      this.value = [];
+    },
+
         editar(){
             let me = this;
             if (me.valor_suma_v3<0) {
@@ -769,7 +866,14 @@ export default {
                     "warning",
                     ); 
             } else {
-                axios.post("/inversion/editar", {
+                if (me.comprobante==="" || me.selected ===null || me.total_s==="" && me.selectTipoDoc===0 || me.comprobante==="") {
+                    Swal.fire(
+                    "Existencia de datos nulos.",
+                    "Haga click en Ok",
+                    "warning",
+                    ); 
+                } else {
+                    axios.post("/inversion/editar", {
                 id_dis: (me.selected).id, 
                 tipo_persona_empresa: (me.selected).tipo_persona_empresa,         
                 tipo_comprabante: me.selectTipoDoc,        
@@ -795,6 +899,8 @@ export default {
                     error401(error);
                     console.log(error);                         
             }); 
+                }
+            
             }
      
         },
@@ -816,7 +922,6 @@ export default {
                 });
          },
 
-
         sucursalFiltro() {
             let me = this;
            // var url = "/traspaso/listarSucursal";
@@ -833,6 +938,7 @@ export default {
                     console.log(error);
                 });
         },
+
         cambiarPestana(idPestana) {
             this.pestañaActiva = idPestana;
 
@@ -866,6 +972,10 @@ export default {
                     me.valor_suma_v3="";
                     me.monto_editado="0.00";
                     me.value=[];
+                    me.array_uno_2=[];
+                    me.producto_selector_uno="";
+                    me.producto_selector_uno_2="";
+                    me.ids_producto="";
                     me.classModal.openModal("registrar");
                     break;
                 }
@@ -884,22 +994,64 @@ export default {
                     me.descripcion=data.descripcion;
                     me.id_inversion=data.id;
                     me.monto_editado=data.total;
+                    me.ids_producto=data.ids_producto;
                     me.classModal.openModal("registrar");
                     break;
+                }
+
+                case "re_imprecion":{
+                    console.log(data);
+                    me.tipoAccion = 2;
+                    let createdAt = data.fecha_mas_reciente;
+                    let valor_nulo="";
+                    if (data.id_usuario_modifica===null) {
+                        valor_nulo="NORMAL"; 
+                    } else {
+                        valor_nulo="EDITADO"; 
+                    }
+                
+                    let [date, time] = createdAt.split(' ');               
+                    me.general_pdf(data.razon_social,data.direccion,data.dir,cadena_A,data.id,date,time,data.mensaje,data.observacion,data.valor,data.simbolo,data.name)
+             
+                   break;
                 }
             
             }
         },
 
+
+        eliminarElemento(id){
+            let me = this;
+            const index = me.array_uno_2.findIndex(item => item.id === id);
+                if (index !== -1) {
+                    me.array_uno_2.splice(index, 1);
+                }
+        },
+
+
+        
         listarProductos(data) {
         let me = this;           
-        var url = "/inversion/verproducto?tipo="+data;
+        var url = "/inversion/verproducto?tipo="+data+"&codigo="+me.producto_selector_uno;
             axios.get(url)
                 .then(function (response) {
 
                     var respuesta = response.data;
+                    console.log(respuesta);
+                    if (data===1) {
+                        me.options = respuesta;  
+                    } else {
+                        me.producto_selector_uno="";
+                        me.producto_selector_uno_2=respuesta;
+                        if (respuesta===""||respuesta===null) {
+                            Swal.fire("No existe el codigo","Haga click en Ok","warning",); 
+                        }else{
+                            me.array_uno_2.push({id: respuesta.id,codigo: respuesta.codigo,nombre: respuesta.nombre,nombre_linea: respuesta.nombre_linea});                     
+                        }
+                     
                     
-                    me.options = respuesta;
+                    }
+                    
                                
                 })
                 .catch(function (error) {
@@ -923,7 +1075,10 @@ export default {
                 me.id_inversion ="";
                 me.monto_editado="";
                 me.value=[];
-            
+                me.array_uno_2=[];
+                me.producto_selector_uno = "";
+                me.producto_selector_uno_2 = "";
+                me.ids_producto="";
             }
         },
 
@@ -931,6 +1086,11 @@ export default {
         nameWithLang ({nombre_1,nom_a_facturar, num_documento,tipo}) {
             
             return `${nombre_1} - ${nom_a_facturar} - ${num_documento} - ${tipo}`
+          },
+
+          nameWithLang_2 ({codigo,nombre, nombre_linea}) {
+            
+            return `${codigo} - ${nombre} - ${nombre_linea}`
           },
 
         toggle () {
