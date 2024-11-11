@@ -26,7 +26,7 @@ return new class extends Migration
             $table->timestamps();
             $table->string('descripcion');
             $table->smallInteger('id_apertura')->default(0);  
-            
+            $table->decimal('monto_editado',20,2)->nullable(); 
         });
     }
 

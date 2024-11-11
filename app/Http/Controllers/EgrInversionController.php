@@ -16,10 +16,8 @@ class EgrInversionController extends Controller
     {
         $buscararray = array();
         ///persona
-        $limite=$request->limite;
-        if ($limite==0) {
-            $limite=999999999;
-        }
+        $ini=$request->ini;
+        $fini=$request->fini; 
         if (!empty($request->buscar)) {
             $buscararray = explode(" ", $request->buscar);
             $valor = sizeof($buscararray);
@@ -60,7 +58,7 @@ class EgrInversionController extends Controller
                         ), ''))
                         ELSE NULL 
                         END AS nombre_1"),
-                        'ei.monto_editado','ei.ids_producto','ei.id_usuario_modifica','ass.direccion',DB::raw("CONCAT(COALESCE(ad.nombre, ''), ' - ', COALESCE(ass.ciudad, '')) AS direccion_completa")
+                        'ei.monto_editado','ei.ids_producto','ei.id_usuario_modifica','ass.direccion',DB::raw("CONCAT(COALESCE(ad.nombre, ''), ' - ', COALESCE(ass.ciudad, '')) AS direccion_completa"),'dd.contacto','dd.nom_linea_array','dd.tipo_persona_empresa'
                         )
                     ->join('dir__distribuidors as dd', 'dd.id', '=', 'ei.id_distribuidor')
                     ->join('dir__clientes as dc', 'dd.id_cliente', '=', 'dc.id')
@@ -78,9 +76,10 @@ class EgrInversionController extends Controller
                  
                     ->where('ei.id_sucursal', '=', $request->id_sucursal)
                     ->whereRaw($sqls)
+                    ->whereBetween(DB::raw('DATE(ei.created_at)'), [$ini, $fini]) 
                     ->orderByDesc('ei.id')
-                    ->limit($limite)
-                    ->paginate(20);  
+                    
+                    ->paginate(15);  
             } 
             return 
                     ['pagination' =>
@@ -114,7 +113,7 @@ class EgrInversionController extends Controller
             ), ''))
             ELSE NULL 
             END AS nombre_1"),
-            'ei.monto_editado','ei.ids_producto','ei.id_usuario_modifica','ass.direccion',DB::raw("CONCAT(COALESCE(ad.nombre, ''), ' - ', COALESCE(ass.ciudad, '')) AS direccion_completa")
+            'ei.monto_editado','ei.ids_producto','ei.id_usuario_modifica','ass.direccion',DB::raw("CONCAT(COALESCE(ad.nombre, ''), ' - ', COALESCE(ass.ciudad, '')) AS direccion_completa"),'dd.contacto','dd.nom_linea_array','dd.tipo_persona_empresa'
             ) 
         ->join('dir__distribuidors as dd', 'dd.id', '=', 'ei.id_distribuidor')
         ->join('dir__clientes as dc', 'dd.id_cliente', '=', 'dc.id')
@@ -131,9 +130,10 @@ class EgrInversionController extends Controller
         ->join('users as u', DB::raw('COALESCE(ei.id_usuario_modifica, ei.id_usuario_registra)'), '=', 'u.id')
    
         ->where('ei.id_sucursal', '=', $request->id_sucursal)
+        ->whereBetween(DB::raw('DATE(ei.created_at)'), [$ini, $fini]) 
         ->orderByDesc('ei.id')
-        ->limit($limite)
-        ->paginate(20);
+   
+        ->paginate(15);
         return 
                     ['pagination' =>
                         [
@@ -308,6 +308,20 @@ class EgrInversionController extends Controller
     ->first();
     }
     return $producto;
+   }
+
+   public function getProducto_array(Request $request){
+    
+    $a = $request->ids_producto;
+    $ids = explode(',', $a); // Convierte la cadena en un array
+    
+    $productos = DB::table('prod__productos as pp')
+        ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
+        ->whereIn('pp.id', $ids)
+        ->select('pp.id', 'pp.codigo','pp.nombre as producto','pl.nombre as nombre_linea')
+        ->get();
+    return $productos;
+
    }
    
 }

@@ -704,6 +704,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::put('/inversion/activar', [EgrInversionController::class, 'activar']); 
     Route::put('/inversion/desactivar', [EgrInversionController::class, 'desactivar']); 
     Route::get('/inversion/verproducto', [EgrInversionController::class, 'getProducto']); 
+    Route::get('/inversion/producto_array', [EgrInversionController::class, 'getProducto_array']);    
        
     //gastos--------
     Route::get('/gasto/getCliente', [EgrGastoController::class, 'listarProveedor']); 

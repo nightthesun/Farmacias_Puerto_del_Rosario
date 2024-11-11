@@ -276,6 +276,31 @@
                                                 <span  v-if="total_s==''" class="error">Debe ingresar los datos</span> 
                                             </div>
                             </div> 
+                            <table class="table table-bordered table-striped table-sm table-responsive">
+                                <thead>
+                                    <tr>
+                                        <th class="col-md-2" style="font-size: 11px; text-align: center">Monto actual</th>
+                                        <th class="col-md-2" style="font-size: 11px; text-align: center">Monto editado</th>
+                                        <th class="col-md-2" style="font-size: 11px; text-align: center">Operación</th>
+                                        <th class="col-md-2" style="font-size: 11px; text-align: center">Estado</th>
+                                                                        
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="col-md-2" style="font-size: 13px; text-align: center">{{monto_actual}}</td>
+                                        <td class="col-md-2" style="font-size: 13px; text-align: center">{{monto_editado}}</td>
+                                        <td class="col-md-2" style="font-size: 13px; text-align: center">{{ sumarNumeros() }}</td>
+                                        <td class="col-md-2" style="font-size: 13px; text-align: center">
+                                            <span v-if="sumarNumeros()===0" class="badge badge-pill badge-warning">Sin acción</span>
+                                            <span v-else-if="sumarNumeros()>0" class="badge badge-pill badge-success">OK</span>
+                                            <span v-else class="badge badge-pill badge-danger">Saldo insuficiente</span>                                            
+                                        </td>
+                                  
+                                                                     
+                                    </tr>
+                                </tbody>    
+                            </table> 
                                         <div class="container">                                
                                             <div class="form-group row"  >
                                             <strong  class="col-md-3 form-control-label" for="text-input">Descripción: <span v-if="descripcion == ''" class="error" >(*)</span></strong>
@@ -363,6 +388,10 @@ export default {
                 puedeHacerOpciones_especiales:2,
                 puedeCrear:2,
                 //-----------
+
+                monto_actual:'',
+                monto_editado:'',
+                valor_suma_v3:'',
         };
     },
 
@@ -445,7 +474,11 @@ export default {
         event.target.value = this.numericValue; // Revert to previous valid value
       }
     },
-
+    sumarNumeros() {
+        let me = this;
+        me.valor_suma_v3=(parseFloat(me.monto_editado)+ (parseFloat(me.monto_actual) - parseFloat(me.total_s))).toFixed(2);
+        return (parseFloat(me.monto_editado)+ (parseFloat(me.monto_actual) - parseFloat(me.total_s))).toFixed(2);
+    },
 
     checkInput_decimal(event) {
       const value = event.target.value;
@@ -495,6 +528,40 @@ export default {
                     console.log(error);
                 });
         }, 
+
+        get_tiene_tesoreria(data_v2 = []){            
+        let me = this;
+           var url = "/tesoreria/getTesoreria?id_sucursal="+me.id_sucursal;
+            axios.get(url)
+                .then(function (response) {
+                    var respuesta = response.data; 
+                    if (data_v2===0) {
+                        if (respuesta.abrir_cerrar===9 || respuesta.abrir_cerrar===undefined) {
+                        Swal.fire(
+                    "Debe abrir una caja en tesoreria",
+                    "Haga click en Ok",
+                    "warning",
+                    );  
+                    } else {
+                        me.monto_actual=respuesta.monto_actual_abrir; 
+                        me.id_apertura_cierre=respuesta.id;
+                        me.listarProductos(1);
+                        me.abrirModal('registrar'); 
+                       // abrirModal('actualizar',data_v2);
+                    }  
+                    } else {
+                        me.monto_actual=respuesta.monto_actual_abrir; 
+                        me.id_apertura_cierre=respuesta.id;
+             
+                       // me.abrirModal('registrar'); 
+                       me.abrirModal('actualizar',data_v2);
+                    }                  
+                               
+                }).catch(function (error) {
+                    error401(error);
+                    console.log(error);
+                });
+        },
 
         eliminar(id){
                 let me=this;
@@ -619,8 +686,14 @@ export default {
 
         crear() {
       let me = this;
-      
-      // Si ya está enviando, no permitas otra solicitud
+      if (me.valor_suma_v3<0) {
+                Swal.fire(
+                    "Saldo insuficiente.",
+                    "Haga click en Ok",
+                    "warning",
+                    ); 
+            } else {
+                // Si ya está enviando, no permitas otra solicitud
       if (me.isSubmitting) return;
       me.isSubmitting = true; // Deshabilita el botón
 
@@ -654,6 +727,7 @@ export default {
         .finally(() => {
           me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
         });
+            }      
     },
   
 
@@ -723,6 +797,7 @@ export default {
                     me.descripcion="";
                     me.id_gasto="";
                     me.total_s=0;
+                    me.monto_editado="0.00";
                     me.classModal.openModal("registrar");
                     break;
                 }
@@ -760,6 +835,7 @@ export default {
                     me.descripcion="";
                     me.id_gasto="";   
                     me.total_s="";
+                    me.monto_editado="";
                 me.classModal.openModal("registrar");
             }
         },

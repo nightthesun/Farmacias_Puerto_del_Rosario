@@ -25,12 +25,12 @@
                 </div>
         <div class="card-body">
             <div class="form-group row">
-                <div class="col-md-2" style="text-align: center">
+                <div class="col-md-2" style="text-align: right">
                      <label for="">Almacen o Tienda:</label>
                 </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <div class="input-group">
-                                <select class="form-control" v-model="sucursalSeleccionada" @change="changeRango();listarInicio(1);">
+                                <select class="form-control" v-model="sucursalSeleccionada" @change="listarInicio(1);">
                                     <option value="0" disabled selected>Seleccionar...</option>
                                     <option v-for="sucursal in arraySucursal" :key="sucursal.id"  :value="sucursal.codigo" :hidden="sucursal.id_tienda === null"
                                         v-text="sucursal.codigoS +' -> ' +sucursal.codigo+' ' +sucursal.razon_social">
@@ -38,7 +38,7 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <div class="input-group">
                                 <input
                                     type="text"
@@ -66,26 +66,22 @@
             </div>
          
   <br>
-  <div class="form-group row">
-                        <div class="col-md-2" style="text-align: center">
-                            <label for="" :hidden="sucursalSeleccionada == 0">Rango :</label>
-                         </div>
-                         <div class="col-md-6">
-                            <div class="input-group">
-                          
-                    
-                    <select class="form-control"   v-model="limite_X" @change="listarInicio(1)" :hidden="sucursalSeleccionada == 0" :disabled="sucursalSeleccionada == 0">
-                        <option value="0" disabled selected>Seleccionar...</option>
-                        <option v-for="l in arrayLimite" :key="l.id" :value="l.limite">
-                            <span v-if="l.limite === 0">Todos</span>
-                            <span v-else>{{ l.limite }}</span>
-                        </option>
-                    </select>
-              
-         
-                             </div>
-                        </div>        
-                    </div>  
+  <div class="form-group row"  :hidden="sucursalSeleccionada == 0" :disabled="sucursalSeleccionada == 0">
+                <div class="col-md-2">
+                     <label for=""></label>
+                </div>
+                <div class="col-md-4">                                     
+                </div>
+        <div class="col-md-3">
+          <label for="start-date">Fecha inicial:</label>
+          <input id="start-date" type="date" class="form-control"  v-model="startDate" :disabled="sucursalSeleccionada===0"  @change="listarInicio(0)" >
+        </div>
+        <div class="col-md-3">
+          <label for="end-date">Fecha final:</label>
+          <input id="end-date" type="date" class="form-control" v-model="endDate" :disabled="sucursalSeleccionada===0" @change="listarInicio(0)">
+        </div>        
+            </div> 
+
             <!---inserte tabla-->
             <table class="table table-bordered table-striped table-sm table-responsive" >
                 <thead>
@@ -127,8 +123,8 @@
                                             <i class="icon-check"></i>
                                             </button>
                                 </div>
-                                <button type="button" class="btn btn-info" style="margin-right: 5px; color: whitesmoke;" @click="abrirModal('re_imprecion',i);">
-                        <i class="fa fa-print" aria-hidden="true"></i></button>
+                                <button type="button" class="btn btn-warning" style="margin-right: 5px; color: whitesmoke;" @click="abrirModal('ver',i);">
+                                    <i class="fa fa-eye" aria-hidden="true"></i></button>
                     
 
                             </div>       
@@ -445,6 +441,96 @@
             </div>
         </div>
         <!--fin del modal-->
+         <!--Inicio del modal VER-->
+         <div class="modal fade" tabindex="-1" role="dialog" arial-labelledby="myModalLabel" id="ver" aria-hidden="true" data-backdrop="static" data-key="false">
+            <div class="modal-dialog modal-primary modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">{{ tituloModal }}</h4>
+                        <button type="button" class="close" aria-label="Close" @click="cerrarModal('ver')">
+                            <span aria-hidden="true">x</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">                      
+                        <table class="table table-bordered table-striped table-sm table-responsive">
+                            <thead>
+                                <tr>
+                                    <th class="col-md-2" style="font-size: 11px; text-align: center">Nro</th>
+                                    <th class="col-md-2" style="font-size: 11px; text-align: center">Nombre</th>
+                                    <th class="col-md-2" style="font-size: 11px; text-align: center">Razón social</th>                                    
+                                    <th class="col-md-2" style="font-size: 11px; text-align: center">Nro documento</th>
+                                    <th class="col-md-1" style="font-size: 11px; text-align: center">Contacto</th>
+                                    <th class="col-md-1" style="font-size: 11px; text-align: center">Linea</th>
+                                    <th class="col-md-2" style="font-size: 11px; text-align: center">Tipo</th>                                  
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>                     
+                                    <td class="col-md-2" style="font-size: 11px; text-align: center">{{id_inversion}}</td>
+                                    <td class="col-md-2" style="font-size: 11px; text-align: center">{{nombre_x2}}</td>
+                                    <td class="col-md-2" style="font-size: 11px; text-align: center">{{razon_social_x2}}</td>
+                                    <td class="col-md-2" style="font-size: 11px; text-align: center">{{nro_docuemnto_x2}}</td>
+                                    <td class="col-md-1" style="font-size: 11px; text-align: center">{{contacto_x2}}</td>
+                                    <td class="col-md-1" style="font-size: 11px; text-align: center">{{linea_x2}}</td>
+                                    <td class="col-md-2" style="font-size: 11px; text-align: center">{{tipo_x2}}</td>
+                                </tr>
+                            </tbody> 
+                        </table> 
+                        <table class="table table-bordered table-striped table-sm table-responsive">
+                            <thead>
+                                <tr>
+                                    <th class="col-md-1" style="font-size: 11px; text-align: center">Tipo de comprobante</th>
+                                    <th class="col-md-3" style="font-size: 11px; text-align: center">Descripción</th>                                    
+                                    <th class="col-md-1" style="font-size: 11px; text-align: center">Nro comprobante</th>
+                                    <th class="col-md-2" style="font-size: 11px; text-align: center">Fecha/Hora</th>                               
+                                    <th class="col-md-2" style="font-size: 11px; text-align: center">Total</th>    
+                                    <th class="col-md-2" style="font-size: 11px; text-align: center">Editado</th>                                 
+                                    <th class="col-md-1" style="font-size: 11px; text-align: center">Estado</th>                                    
+                                                                   
+                                 </tr>
+                            </thead> 
+                            <tbody>
+                                <tr>
+                                    <td class="col-md-1" style="font-size: 11px; text-align: center">{{tipo_compro}}</td>
+                                    <td class="col-md-3" style="font-size: 11px; text-align: center">{{descripcion}}</td>
+                                    <td class="col-md-1" style="font-size: 11px; text-align: center">{{nro_compro}}</td>
+                                    <td class="col-md-2" style="font-size: 11px; text-align: center">{{fecha_x3}}</td>
+                                    <td class="col-md-2" style="font-size: 11px; text-align: center">{{ total_x2+" "+simbolo }}</td>   
+                                    <td class="col-md-2" style="font-size: 11px; text-align: center">{{editado_x3}}</td>                                 
+                                    <td class="col-md-1" style="font-size: 11px; text-align: center">{{estado_x2}}</td>                             
+                                </tr>
+                            </tbody>
+                        </table>  
+                        
+                        <table class="table table-bordered table-striped table-sm table-responsive">
+                            <thead>
+                                <tr>
+                                    <th class="col-md-3" style="font-size: 11px; text-align: center">Codigo</th>
+                                    <th class="col-md-6" style="font-size: 11px; text-align: center">Producto</th>
+                                    <th class="col-md-3" style="font-size: 11px; text-align: center">Linea</th>
+                                                                    
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="m in array_pro_2" :key="m.id">   
+                                    <td class="col-md-3" style="font-size: 11px; text-align: center">{{m.codigo}}</td>
+                                    <td class="col-md-6" style="font-size: 11px; text-align: center">{{m.producto}}</td>
+                                    <td class="col-md-3" style="font-size: 11px; text-align: center">{{m.nombre_linea}}</td>
+                      
+                                </tr>
+                            </tbody>   
+                        </table> 
+                        
+                    </div>                   
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" @click="cerrarModal('ver')">
+                            Cerrar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--fin del modal-->
     </main>
 </template>
 
@@ -453,6 +539,7 @@ import Swal from "sweetalert2";
 import { error401 } from "../../errores";
 import VueMultiselect from 'vue-multiselect';
 import Multiselect from 'vue-multiselect';
+
 //Vue.use(VeeValidate);
 export default {
         //---permisos_R_W_S
@@ -522,6 +609,27 @@ export default {
       array_uno_2:[],     
       ids_producto:'', 
 
+      array_pro_2:[],
+
+      //ver--
+  
+      nombre_x2:'',
+      razon_social_x2:'',
+      nro_docuemnto_x2:'',
+      contacto_x2:'',
+      linea_x2:'',
+      tipo_x2:'', 
+      estado_x2:'',  
+
+      tipo_compro:'',
+      nro_compro:'',
+      total_x2:'',
+      fecha_x3:'',
+      editado_x3:'',
+      //---
+//limitado                    
+startDate: '',
+            endDate: '',
         };
     },
 
@@ -570,6 +678,8 @@ export default {
     },
     methods: {
 
+       
+
            //-----------------------------------permisos_R_W_S        
  listarPerimsoxyz() {
        
@@ -607,9 +717,7 @@ export default {
         return (parseFloat(me.monto_editado)+ (parseFloat(me.monto_actual) - parseFloat(me.total_s))).toFixed(2);
     },
 
-        changeRango(){
-            this.limite_X=10;
-         },   
+      
 
          verificadorAperturaCierre(){
             let me=this;
@@ -694,7 +802,7 @@ export default {
 
          listarInicio(page){           
               let me=this;             
-                var url='/inversion/listarInicio?page='+page+'&buscar='+me.buscar+'&id_sucursal='+me.id_sucursal+'&limite='+me.limite_X;
+                var url='/inversion/listarInicio?page='+page+'&buscar='+me.buscar+'&id_sucursal='+me.id_sucursal+'&limite='+me.limite_X+"&ini="+me.startDate+"&fini="+me.endDate;
                 axios.get(url).then(function(response){
                     var respuesta=response.data;
                     me.pagination = respuesta.pagination;
@@ -743,7 +851,7 @@ export default {
                                             
                         let a=response.data;
                         me.cerrarModal("registrar");
-                       // me.get_tiene_tesoreria();
+                  
                            me.listarInicio();  
                             if (a===null || a==="" ) {
                                 Swal.fire("Se registro exitosamente","Haga click en Ok", "success",);                             
@@ -921,6 +1029,25 @@ export default {
                     console.log(error);
                 });
          },
+        
+         get_producto_array(data) {
+            let me = this;
+            me.array_pro_2=[];
+           // var url = "/traspaso/listarSucursal";
+           var url = "/inversion/producto_array?ids_producto="+data;
+            axios
+                .get(url)
+                .then(function (response) {
+                    var respuesta = response.data;
+                    me.array_pro_2 = respuesta;
+                    console.log("------------------");   
+                    console.log(me.array_pro_2);
+                })
+                .catch(function (error) {
+                    error401(error);
+                    console.log(error);
+                });
+        },
 
         sucursalFiltro() {
             let me = this;
@@ -930,8 +1057,7 @@ export default {
                 .get(url)
                 .then(function (response) {
                     var respuesta = response.data;
-                    me.arraySucursal = respuesta;
-   
+                    me.arraySucursal = respuesta;   
                 })
                 .catch(function (error) {
                     error401(error);
@@ -999,20 +1125,41 @@ export default {
                     break;
                 }
 
-                case "re_imprecion":{
+                case "ver":{
                     console.log(data);
                     me.tipoAccion = 2;
-                    let createdAt = data.fecha_mas_reciente;
-                    let valor_nulo="";
-                    if (data.id_usuario_modifica===null) {
-                        valor_nulo="NORMAL"; 
+
+                    me.id_inversion=data.id;
+                    me.nombre_x2=data.nombre_1;
+                    me.razon_social_x2=data.nom_a_facturar;
+                    me.nro_docuemnto_x2=data.num_documento;
+                    me.contacto_x2=data.contacto;
+                    me.linea_x2=data.nom_linea_array;
+                    me.tipo_x2=data.tipo_persona_empresa;
+                    me.descripcion=data.descripcion;
+                    me.comprobante=data.nro_comprobante; 
+                    me.total_s=data.total;
+                    if (data.estado===1) {
+                        me.estado_x2="Activo"; 
                     } else {
-                        valor_nulo="EDITADO"; 
+                        me.estado_x2="Anulado";
                     }
-                
-                    let [date, time] = createdAt.split(' ');               
-                    me.general_pdf(data.razon_social,data.direccion,data.dir,cadena_A,data.id,date,time,data.mensaje,data.observacion,data.valor,data.simbolo,data.name)
-             
+                    me.tipo_compro=data.tipo_comprabante;
+                    me.nro_compro=data.nro_comprobante;
+                    me.total_x2=data.total;
+                    me.fecha_x3=data.fecha_mas_reciente;
+                    if (data.id_usuario_modifica===null) {
+                        me.editado_x3="NO";  
+                    } else {
+                        me.editado_x3="SI";
+                    }
+                   
+                   me.simbolo=data.simbolo;
+
+                    me.get_producto_array(data.ids_producto);
+               
+                                   
+                    me.classModal.openModal("ver");
                    break;
                 }
             
@@ -1060,9 +1207,28 @@ export default {
                 });
         },
       
+        fecha_inicial() {
+    // Obtener la fecha actual
+    const today = new Date();    
+    // Obtener la fecha actual menos 5 días
+    const startDate = new Date();
+    startDate.setDate(today.getDate() - 7);
+    // Formatear el año, mes y día para la fecha de inicio
+    const startYear = startDate.getFullYear();
+    const startMonth = String(startDate.getMonth() + 1).padStart(2, '0'); // Meses en JavaScript son de 0 a 11
+    const startDay = String(startDate.getDate()).padStart(2, '0');
+    // Formatear el año, mes y día para la fecha final (hoy)
+    const endYear = today.getFullYear();
+    const endMonth = String(today.getMonth() + 1).padStart(2, '0');
+    const endDay = String(today.getDate()).padStart(2, '0');
+    // Asignar las fechas a los campos correspondientes
+    this.startDate = `${startYear}-${startMonth}-${startDay}`;  // Fecha de inicio (5 días antes)
+    this.endDate = `${endYear}-${endMonth}-${endDay}`;  // Fecha final (hoy)
+},
+
         cerrarModal(accion) {
             let me = this;
-            if (accion == "registrar") {
+    
                 me.classModal.closeModal(accion);
                 me.selected=null; 
                 me.isSubmitting=false;                    
@@ -1079,7 +1245,20 @@ export default {
                 me.producto_selector_uno = "";
                 me.producto_selector_uno_2 = "";
                 me.ids_producto="";
-            }
+
+                me.tipoAccion = 1;
+    me.nombre_x2="";
+    me.razon_social_x2="";
+    me.nro_docuemnto_x2="";
+    me.contacto_x2="";
+    me.linea_x2="";
+    me.tipo_x2="";
+    me.estado_x2="";   
+    me.tipo_compro="";
+    me.nro_compro="";
+    me.total_x2="";
+    me.editado_x3="";  
+    me.simbolo="";
         },
 
         //--------------
@@ -1122,7 +1301,9 @@ export default {
         this.listarPerimsoxyz();       
         //-----------------------
         this.sucursalFiltro();
+        this.fecha_inicial();
         this.listarDistribuidor();
+        this.classModal.addModal("ver");
         this.classModal.addModal("registrar");
     
     
