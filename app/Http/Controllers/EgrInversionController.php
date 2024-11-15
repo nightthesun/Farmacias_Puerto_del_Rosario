@@ -76,7 +76,7 @@ class EgrInversionController extends Controller
                  
                     ->where('ei.id_sucursal', '=', $request->id_sucursal)
                     ->whereRaw($sqls)
-                    ->whereBetween(DB::raw('DATE(ei.created_at)'), [$ini, $fini]) 
+                    //->whereBetween(DB::raw('DATE(ei.created_at)'), [$ini, $fini]) 
                     ->orderByDesc('ei.id')
                     
                     ->paginate(15);  

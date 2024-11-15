@@ -14,7 +14,8 @@
                     <button
                         type="button"
                         class="btn btn-secondary"
-                        @click="verificadorAperturaCierre();"
+                        @click="get_tiene_tesoreria(0);"
+                    
                         :disabled="sucursalSeleccionada == 0"
                     >
                         <i class="icon-plus"></i>&nbsp;Nuevo
@@ -31,7 +32,7 @@
                 <div class="col-md-2" style="text-align: center">
                      <label for="">Almacen o Tienda:</label>
                 </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <div class="input-group">
                                 <select class="form-control" v-model="sucursalSeleccionada" @change="changeRango();listarInicio(1);">
                                     <option value="0" disabled selected>Seleccionar...</option>
@@ -40,14 +41,14 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <div class="input-group">
                                 <input
                                     type="text"
                                     id="texto"
                                     name="texto"
                                     class="form-control"
-                                    placeholder="Texto a buscar"
+                                    placeholder="Buscar por nombre a facturar, numero de docuemnto o numero comprobante"
                                     v-model="buscar"
                                 @keyup.enter="listarInicio(1)"
                                     :hidden="sucursalSeleccionada == 0"
@@ -70,26 +71,23 @@
             </div>
              
   <br>
-  <div class="form-group row">
-                        <div class="col-md-2" style="text-align: center">
-                            <label for="" :hidden="sucursalSeleccionada == 0">Rango :</label>
-                         </div>
-                         <div class="col-md-6">
-                            <div class="input-group">
-                          
-                    
-                    <select class="form-control"   v-model="limite_X" @change="listarInicio(1)" :hidden="sucursalSeleccionada == 0" :disabled="sucursalSeleccionada == 0">
-                        <option value="0" disabled selected>Seleccionar...</option>
-                        <option v-for="l in arrayLimite" :key="l.id" :value="l.limite">
-                            <span v-if="l.limite === 0">Todos</span>
-                            <span v-else>{{ l.limite }}</span>
-                        </option>
-                    </select>
-              
-         
-                             </div>
-                        </div>        
-                    </div>  
+
+  <div class="form-group row"  :hidden="sucursalSeleccionada == 0" :disabled="sucursalSeleccionada == 0">
+                <div class="col-md-2">
+                     <label for=""></label>
+                </div>
+                <div class="col-md-4">                                     
+                </div>
+        <div class="col-md-3">
+          <label for="start-date">Fecha inicial:</label>
+          <input id="start-date" type="date" class="form-control"  v-model="startDate" :disabled="sucursalSeleccionada===0"  @change="listarInicio(0)" >
+        </div>
+        <div class="col-md-3">
+          <label for="end-date">Fecha final:</label>
+          <input id="end-date" type="date" class="form-control" v-model="endDate" :disabled="sucursalSeleccionada===0" @change="listarInicio(0)">
+        </div>        
+            </div> 
+  
             <!---inserte tabla-->
             <table class="table table-bordered table-striped table-sm table-responsive" >
                 <thead>
@@ -111,8 +109,8 @@
                     <tr v-for="i in arrayIndex" :key="i.id">
                         <td class="col-md-1">
                             <div  class="d-flex justify-content-start">
-                                <div  v-if="puedeEditar==1">
-                                    <button type="button"  @click="abrirModal('actualizar',i);"  class="btn btn-warning btn-sm" style="margin-right: 5px;"><i class="icon-pencil"></i></button> 
+                                <div  v-if="puedeEditar==1 && i.estado==1">
+                                    <button type="button"  @click="get_tiene_tesoreria(i);"  class="btn btn-warning btn-sm" style="margin-right: 5px;"><i class="icon-pencil"></i></button> 
                                 </div>
                                 <div v-else>
                                     <button type="button" class="btn btn-light btn-sm"  style="margin-right: 5px;"><i class="icon-pencil"></i></button>
@@ -143,8 +141,15 @@
                         <td class="col-md-1">{{ i.total +" "+i.simbolo }}</td>
                         <td class="col-md-1">{{ i.name}}</td>                     
                         <td>
-                            <span v-if="i.estado===1" class="badge badge-pill badge-success">Activo</span>
-                            <span v-else class="badge badge-pill badge-danger">Desactivado</span>                            
+                            <div v-if="i.id_usuario_modifica===null">
+                                <span v-if="i.estado===1" class="badge badge-pill badge-success">Activo</span>
+                                <span v-else class="badge badge-pill badge-danger">Desactivado</span>
+                            </div>
+                            <div v-else>
+                                <span v-if="i.estado===1" class="badge badge-pill badge-warning">Activo</span>
+                                <span v-else class="badge badge-pill badge-warning">Desactivado</span>                               
+                            </div>
+                                        
                         </td>
                     </tr>
                 </tbody>
@@ -392,6 +397,10 @@ export default {
                 monto_actual:'',
                 monto_editado:'',
                 valor_suma_v3:'',
+
+                //limitado                    
+            startDate: '',
+            endDate: '',
         };
     },
 
@@ -516,12 +525,12 @@ export default {
 
         listarInicio(page){           
               let me=this;             
-                var url='/gasto/listarInicio?page='+page+'&buscar='+me.buscar+'&id_sucursal='+me.id_sucursal+'&limite='+me.limite_X;
+                var url='/gasto/listarInicio?page='+page+'&buscar='+me.buscar+'&id_sucursal='+me.id_sucursal+"&ini="+me.startDate+"&fini="+me.endDate;
                 axios.get(url).then(function(response){
                     var respuesta=response.data;
                     me.pagination = respuesta.pagination;
-                    me.arrayIndex = respuesta.resultado.data;         
-           
+                    me.arrayIndex = respuesta.resultado.data;   
+          
                 })
                 .catch(function(error){
                     error401(error);
@@ -535,6 +544,7 @@ export default {
             axios.get(url)
                 .then(function (response) {
                     var respuesta = response.data; 
+      
                     if (data_v2===0) {
                         if (respuesta.abrir_cerrar===9 || respuesta.abrir_cerrar===undefined) {
                         Swal.fire(
@@ -545,7 +555,7 @@ export default {
                     } else {
                         me.monto_actual=respuesta.monto_actual_abrir; 
                         me.id_apertura_cierre=respuesta.id;
-                        me.listarProductos(1);
+                       // me.listarProductos(1);
                         me.abrirModal('registrar'); 
                        // abrirModal('actualizar',data_v2);
                     }  
@@ -657,16 +667,26 @@ export default {
             },
 
         editar(){
-            let me = this;          
-            axios.post("/gasto/editar", {
+            let me = this;   
+      
+            if (me.valor_suma_v3<0) {
+                Swal.fire(
+                    "Saldo insuficiente.",
+                    "Haga click en Ok",
+                    "warning",
+                    ); 
+            } else {
+                axios.post("/gasto/editar", {
                 id_dis: (me.selected).id, 
+                id_apertura_cierre:me.id_apertura_cierre, 
                 tipo_persona_empresa: (me.selected).tipo_persona_empresa,         
                 tipo_comprabante: me.selectTipoDoc,        
                 nro_comprobante: me.comprobante,    
                 total: me.total_s,           
                 id_sucursal:me.id_sucursal,
                 descripcion:me.descripcion,   
-                id:me.id_gasto                                                         
+                id:me.id_gasto,
+                monto_editado:me.monto_editado                                                          
                     })       
                     .then(function (response) {
                         let a=response.data;
@@ -682,6 +702,7 @@ export default {
                     error401(error);
                     console.log(error);                         
             });
+            }    
         },
 
         crear() {
@@ -705,8 +726,8 @@ export default {
         total: me.total_s,
         simbolo: me.simbolo,
         id_sucursal: me.id_sucursal,
-        descripcion: me.descripcion,
-        id_apertura_cierre: me.id_apertura_cierre,
+        id_apertura_cierre:me.id_apertura_cierre, 
+        valor_suma_v3:me.valor_suma_v3,
       };
 
       axios.post("/gasto/crear", requestData)
@@ -796,7 +817,8 @@ export default {
                     me.comprobante="";    
                     me.descripcion="";
                     me.id_gasto="";
-                    me.total_s=0;
+                    me.valor_suma_v3="";
+                    me.total_s=0.00;
                     me.monto_editado="0.00";
                     me.classModal.openModal("registrar");
                     break;
@@ -810,18 +832,42 @@ export default {
                             me.selected = provee;
                         } else {
                             me.selected = null;
-                        }            
+                        }  
+                        me.monto_editado=data.total;          
                     me.selectTipoDoc= null ? 0 : data.id_tipo_comprabante;                    
                     me.comprobante=data.nro_comprobante;
-                    me.total_s=data.total;
+                    me.total_s=0;
                     me.descripcion=data.descripcion;
                     me.id_gasto=data.id;
                     me.classModal.openModal("registrar");
                     break;
-                }  
+                } 
+                case "ver": {
+                    me.total_s=data.total;
+                    me.classModal.openModal("ver");
+                    break;
+                } 
             }
         },
 
+        fecha_inicial() {
+    // Obtener la fecha actual
+    const today = new Date();    
+    // Obtener la fecha actual menos 5 días
+    const startDate = new Date();
+    startDate.setDate(today.getDate() - 7);
+    // Formatear el año, mes y día para la fecha de inicio
+    const startYear = startDate.getFullYear();
+    const startMonth = String(startDate.getMonth() + 1).padStart(2, '0'); // Meses en JavaScript son de 0 a 11
+    const startDay = String(startDate.getDate()).padStart(2, '0');
+    // Formatear el año, mes y día para la fecha final (hoy)
+    const endYear = today.getFullYear();
+    const endMonth = String(today.getMonth() + 1).padStart(2, '0');
+    const endDay = String(today.getDate()).padStart(2, '0');
+    // Asignar las fechas a los campos correspondientes
+    this.startDate = `${startYear}-${startMonth}-${startDay}`;  // Fecha de inicio (5 días antes)
+    this.endDate = `${endYear}-${endMonth}-${endDay}`;  // Fecha final (hoy)
+},
       
         cerrarModal(accion) {
             let me = this;
@@ -834,7 +880,8 @@ export default {
                     me.comprobante="";    
                     me.descripcion="";
                     me.id_gasto="";   
-                    me.total_s="";
+                    me.total_s=0.00;
+                    me.valor_suma_v3="";
                     me.monto_editado="";
                 me.classModal.openModal("registrar");
             }
@@ -875,6 +922,7 @@ export default {
         //-----------------------
         this.sucursalFiltro();
         this.listarProveedor();
+        this.fecha_inicial();
         this.classModal.addModal("registrar");
     
     

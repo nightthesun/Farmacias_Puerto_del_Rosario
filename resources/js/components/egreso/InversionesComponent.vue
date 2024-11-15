@@ -103,7 +103,7 @@
                     <tr v-for="i in arrayIndex" :key="i.id">
                         <td class="col-md-1">
                             <div  class="d-flex justify-content-start">
-                                <div  v-if="puedeEditar==1 && i.estado==1">
+                                <div  v-if="puedeEditar==1 && i.estado==1" >
                                     <button type="button"  @click="get_tiene_tesoreria(i);"  class="btn btn-warning btn-sm" style="margin-right: 5px;"><i class="icon-pencil"></i></button>                             
                                 </div>
                                 <div v-else>
@@ -802,7 +802,7 @@ startDate: '',
 
          listarInicio(page){           
               let me=this;             
-                var url='/inversion/listarInicio?page='+page+'&buscar='+me.buscar+'&id_sucursal='+me.id_sucursal+'&limite='+me.limite_X+"&ini="+me.startDate+"&fini="+me.endDate;
+                var url='/inversion/listarInicio?page='+page+'&buscar='+me.buscar+'&id_sucursal='+me.id_sucursal+"&ini="+me.startDate+"&fini="+me.endDate;
                 axios.get(url).then(function(response){
                     var respuesta=response.data;
                     me.pagination = respuesta.pagination;
@@ -819,11 +819,7 @@ startDate: '',
          crear(){
             let me = this;  
             if (me.valor_suma_v3<0) {
-                Swal.fire(
-                    "Saldo insuficiente.",
-                    "Haga click en Ok",
-                    "warning",
-                    ); 
+                Swal.fire("Saldo insuficiente.","Haga click en Ok","warning",); 
             } else {
                  // Si ya está enviando, no permitas otra solicitud
         if (me.isSubmitting) return;
@@ -1081,10 +1077,7 @@ startDate: '',
 
         abrirModal(accion, data = []) {
             let me = this;
-        //    let respuesta = me.arraySucursal.find(
-        //        (element) => element.codigo == me.sucursalSeleccionada,
-        //    );
-           
+          
          switch (accion) {
                 case "registrar": {
                     me.tipoAccion = 1;
@@ -1107,6 +1100,7 @@ startDate: '',
                 }
                 case "actualizar": {
                     me.tipoAccion = 2;
+                    me.tituloModal = "Edición de inversion";
                     me.isSubmitting=false;
                     let distribuidor = me.arrayDistribuidor.find(c => c.id === data.id_distribuidor);
             if (distribuidor) {

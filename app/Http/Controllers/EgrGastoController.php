@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Egr_Gasto;
+use App\Models\Egr_Tesoreria;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -15,10 +16,9 @@ class EgrGastoController extends Controller
     {
         $buscararray = array();
         ///persona
-        $limite=$request->limite;
-        if ($limite==0) {
-            $limite=999999999;
-        }
+        $ini=$request->ini;
+        $fini=$request->fini;        
+        
         if (!empty($request->buscar)) {
             $buscararray = explode(" ", $request->buscar);
             $valor = sizeof($buscararray);
@@ -63,7 +63,7 @@ class EgrGastoController extends Controller
                         WHEN de.id IS NOT NULL THEN UPPER(COALESCE(de.razon_social, ''))
                         WHEN dp.id IS NOT NULL THEN UPPER(COALESCE(CONCAT(COALESCE(dp.nombres, ''), ' ', COALESCE(dp.apellidos, '')), ''))
                         ELSE NULL 
-                    END AS nombre_1")
+                    END AS nombre_1"),'ei.monto_editado','ei.id_usuario_modifica'
                 )
                 ->join('dir__proveedors as dd', 'dd.id', '=', 'ei.id_proveedor')
                 ->join('dir__clientes as dc', 'dd.id_cliente', '=', 'dc.id')
@@ -78,9 +78,10 @@ class EgrGastoController extends Controller
                 ->join('users as u', DB::raw('COALESCE(ei.id_usuario_modifica, ei.id_usuario_registra)'), '=', 'u.id')          
             ->where('ei.id_sucursal', '=', $request->id_sucursal)
                     ->whereRaw($sqls)
+                    //->whereBetween(DB::raw('DATE(ei.created_at)'), [$ini, $fini]) 
                     ->orderByDesc('ei.id')
-                    ->limit($limite)
-                    ->paginate(20);  
+                 
+                    ->paginate(15);  
             } 
             return 
                     ['pagination' =>
@@ -118,7 +119,7 @@ class EgrGastoController extends Controller
                     WHEN de.id IS NOT NULL THEN UPPER(COALESCE(de.razon_social, ''))
                     WHEN dp.id IS NOT NULL THEN UPPER(COALESCE(CONCAT(COALESCE(dp.nombres, ''), ' ', COALESCE(dp.apellidos, '')), ''))
                     ELSE NULL 
-                END AS nombre_1")
+                END AS nombre_1"),'ei.monto_editado','ei.id_usuario_modifica'
             )
             ->join('dir__proveedors as dd', 'dd.id', '=', 'ei.id_proveedor')
             ->join('dir__clientes as dc', 'dd.id_cliente', '=', 'dc.id')
@@ -132,9 +133,10 @@ class EgrGastoController extends Controller
             })
             ->join('users as u', DB::raw('COALESCE(ei.id_usuario_modifica, ei.id_usuario_registra)'), '=', 'u.id')          
         ->where('ei.id_sucursal', '=', $request->id_sucursal)
+        ->whereBetween(DB::raw('DATE(ei.created_at)'), [$ini, $fini]) 
         ->orderByDesc('ei.id')
-        ->limit($limite)
-        ->paginate(20);
+    
+        ->paginate(15);
         return 
                     ['pagination' =>
                         [
@@ -171,9 +173,13 @@ class EgrGastoController extends Controller
         $crear->total=$request->total;    
         $crear->descripcion=$request->descripcion;
         $crear->id_usuario_registra=auth()->user()->id;  
-        $crear->id_apertura=$request->id_apertura_cierre;  
+        $crear->id_apertura=$request->id_apertura_cierre; 
+        
         $crear->save();
-       // return DB::commit();   
+        $e = Egr_Tesoreria::find($request->id_apertura_cierre);
+        $operacion = $e->monto_actual_abrir -$request->total;  
+        $e->monto_actual_abrir=$operacion;
+        $e->save();  
         DB::commit();    
        } catch (\Throwable $th) {
         return $th;
@@ -195,13 +201,18 @@ class EgrGastoController extends Controller
             $e->tipo_comprabante=$request->tipo_comprabante;
             $e->nro_comprobante=$request->nro_comprobante;            
             $e->total=$request->total;     
- 
+            $e->monto_editado =  $request->monto_editado;
             $e->id_sucursal=$request->id_sucursal;    
             $e->total=$request->total;    
             $e->descripcion=$request->descripcion;
             $e->id_usuario_modifica=auth()->user()->id;  
             $e->save();
-           //return DB::commit();
+             //return DB::commit();
+             $e_T = Egr_Tesoreria::find($request->id_apertura_cierre);           
+             $operacion_1 = $e_T->monto_actual_abrir + $request->monto_editado;  
+             $operacion_2 = $operacion_1 - $request->total; 
+             $e_T->monto_actual_abrir=$operacion_2;
+             $e_T->save();
             DB::commit();    
            } catch (\Throwable $th) {
             return $th;
@@ -253,18 +264,30 @@ class EgrGastoController extends Controller
     public function desactivar(Request $request)
     {
         $update = Egr_Gasto::findOrFail($request->id);
+        $id_apertura = $update->id_apertura;
+       $total = $update->total;
+       $e = Egr_Tesoreria::find($id_apertura);
+       $operacion = $e->monto_actual_abrir  + $total;  
+       $e->monto_actual_abrir=$operacion;
+       $e->save();
         $update->estado = 0;       
         $update->id_usuario_modifica=auth()->user()->id;
         $update->save();
+
+       
     }
  
     public function activar(Request $request)
     {   
         $update = Egr_Gasto::findOrFail($request->id);
+        $id_apertura = $update->id_apertura;
+        $total = $update->total;
+        $e = Egr_Tesoreria::find($id_apertura);
+        $operacion = $e->monto_actual_abrir  - $total;  
+        $e->monto_actual_abrir=$operacion;
+        $e->save();
         $update->estado = 1;    
         $update->id_usuario_modifica=auth()->user()->id;
         $update->save();
-    }
-
-   
+    }   
 }
