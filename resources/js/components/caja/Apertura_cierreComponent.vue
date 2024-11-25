@@ -605,7 +605,7 @@ export default {
 
             selectApertura_cierre:1,
            
-        
+            respuesta_inicio:'',
         };
     },
 
@@ -625,8 +625,7 @@ export default {
         sicompleto() {
             let me = this;
             if (
-                (me.input).length ==0
-             
+                (me.input).length ==0             
             )
                 return true;
            else return false;
@@ -689,42 +688,53 @@ export default {
 
         cajaAnteriror(){
             let me=this;
-            var url = "/apertura_cierre/cajaAnteriror?id_sucursal="+me.id_sucursal ;
+            var url = "/apertura_cierre/cajaAnteriror?id_sucursal="+me.id_sucursal;
             axios.get(url)
                 .then(function (response) {
-                    var respuesta = response.data;          
-                    if (respuesta===0 ) {           
+                    console.log("***respuesta***");
+                    var respuesta = response.data; 
+                    var respuesta_1 = (response.data).ultimoRegistro;
+                    var respuesta_2 = (response.data).ultimoRegistro_2;
+                    console.log(respuesta_2);
+                 if (respuesta_1===0 || respuesta_1===1) {
+                        if (respuesta_1===1) {
+                            me.respuesta_inicio=1;
+                            me.turno_caja="Caja cero";
+                            me.tipo_caja_c_a="Caja cero";
+                            me.estado_caja="Caja cero";
+                        }  else{
                             me.turno_caja="Inicio";
                             me.tipo_caja_c_a="Inicio";
-                            me.total_caja=Number(0).toFixed(2);
                             me.estado_caja="Inicio";
+                        } 
+                            me.total_caja=Number(0).toFixed(2);                           
                             me.abrirModal('registrar'); 
                     } else {
-                        if (respuesta.tipo_caja_c_a===0) {
+                        if (respuesta_1.tipo_caja_c_a===0) {
                             Swal.fire("Ya se hizo una apertura",
                                         "Haga click en Ok",
                                         "warning");
                         } else {
-                                if (respuesta.turno_caja===1) {
+                                if (respuesta_1.turno_caja===1) {
                                 me.turno_caja= "TURNO UNO";
                                 }
-                                if (respuesta.turno_caja===2) {
+                                if (respuesta_1.turno_caja===2) {
                                 me.turno_caja= "TURNO DOS";
                                 } 
-                                if (respuesta.turno_caja===3) {
+                                if (respuesta_1.turno_caja===3) {
                                 me.turno_caja= "TURNO COMPLETO ";
                                 } 
                                   
-                                if(respuesta.tipo_caja_c_a===0){
+                                if(respuesta_1.tipo_caja_c_a===0){
                                 me.tipo_caja_c_a="Apertura";
                                 }    
 
-                                if(respuesta.tipo_caja_c_a===9){
+                                if(respuesta_1.tipo_caja_c_a===9){
                                 me.tipo_caja_c_a="Cierre";
                                 }                                  
                             
-                            me.total_caja=respuesta.total_caja;
-                            me.estado_caja=respuesta.estado_caja;
+                            me.total_caja=respuesta_1.total_caja;
+                            me.estado_caja=respuesta_1.estado_caja;
                             me.abrirModal('registrar');  
                         }
                     }
@@ -820,7 +830,12 @@ let operacion_apertura = operacion_acciones + monto_cerrar_apertura;
                             estado="Sobrante";
                         } else {
                             if (a>cero && b===cero) {
-                                estado="Saldo inicial";
+                                if (me.respuesta_inicio===1) {
+                                    estado="Caja cero"; 
+                                } else {
+                                    estado="Saldo inicial";  
+                                }
+                               
                             } else {
                                 if (a>cero && b<cero) {
                                     estado="Caja negativa";
@@ -959,7 +974,11 @@ me.isSubmitting = true; // Deshabilita el botón
                             estado="Sobrante";
                         } else {
                             if (a>cero && b===cero) {
-                                estado="Saldo inicial";
+                                if (me.respuesta_inicio===1) {
+                                    estado="Caja cero"; 
+                                } else {
+                                    estado="Saldo inicial";  
+                                }
                             } else {
                                 if (a>cero && b<cero) {
                                     estado="Caja negativa";
@@ -1231,6 +1250,7 @@ me.isSubmitting = true; // Deshabilita el botón
        
         cerrarModal(accion) {
             let me = this;
+            me.respuesta_inicio="";
             if (accion == "registrar") {
                 me.isSubmitting=false;
                 me.selectTurno="0";

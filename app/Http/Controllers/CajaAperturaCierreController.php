@@ -7,6 +7,7 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use PhpParser\Node\Stmt\Else_;
 
 class CajaAperturaCierreController extends Controller
 {
@@ -317,22 +318,54 @@ $data_1 = $moneda;
       //  ->where('id_sucursal', $request->id_sucursal)    
       //  ->orderBy('created_at', 'desc')
       //  ->first();
-      $id_user = Auth()->user()->id;
-      $ultimoRegistro=DB::table('caja__apertura_cierres as cac')
-      ->join('caja__arqueo as ca', 'cac.id_arqueo', '=', 'ca.id')
-      ->join('users as u', 'u.id', '=', 'ca.id_usuario')
-      ->select('cac.turno_caja', 'cac.tipo_caja_c_a', 'cac.total_caja', 'cac.estado_caja')
-      ->where('cac.id_sucursal', $request->id_sucursal)
-      ->where('ca.id_usuario', $id_user)
-      ->where('cac.tipo_caja_c_a', 0)
-      ->where('cac.id_cierre', 0)
-      ->orderBy('cac.created_at', 'desc')
+    $totalRegistros = DB::table('caja__apertura_cierres')
+    ->where('id_sucursal', 9)
+    ->count();
+    
+    if ($totalRegistros===0) {
+        return response()->json([                        
+            'ultimoRegistro' => 1,
+            'ultimoRegistro_2' => 1, 
+        ]);
+    } else {
+        $id_user = Auth()->user()->id;
+        $ultimoRegistro=DB::table('caja__apertura_cierres as cac')
+        ->join('caja__arqueo as ca', 'cac.id_arqueo', '=', 'ca.id')
+        ->join('users as u', 'u.id', '=', 'ca.id_usuario')
+        ->select('cac.turno_caja', 'cac.tipo_caja_c_a', 'cac.total_caja', 'cac.estado_caja')
+        ->where('cac.id_sucursal', $request->id_sucursal)
+        ->where('ca.id_usuario', $id_user)
+        ->where('cac.tipo_caja_c_a', 0)
+        ->where('cac.id_cierre', 0)
+        ->orderBy('cac.created_at', 'desc')
+        ->first();
+  
+          // verifica si la seguna apertura es correta o contiene 
+        $ultimoRegistro_2 = DB::table('caja__cierre as cc')
+      ->join('caja__apertura_cierres as cac', 'cac.id_cierre', '=', 'cc.id')
+      ->select('cc.id', 'cc.diferencia_caja', 'cc.estado_caja')
+      ->where('cac.id_sucursal',  $request->id_sucursal)
+      ->orderBy('cc.created_at', 'desc')
       ->first();
     
-        if($ultimoRegistro==null){
-          $ultimoRegistro=0;  
-        }     
-       return $ultimoRegistro;      
+        if ($ultimoRegistro==null) {
+            return response()->json([                        
+                'ultimoRegistro' => 0,
+                'ultimoRegistro_2' => $ultimoRegistro_2, 
+            ]);
+        }else{
+            return response()->json([                        
+                'ultimoRegistro' => $ultimoRegistro,
+                'ultimoRegistro_2' => $ultimoRegistro_2, 
+            ]);
+        }
+
+          
+    }
+
+      
+
+      // return $ultimoRegistro;      
     }
     
     public function monedaModal(Request $request){
