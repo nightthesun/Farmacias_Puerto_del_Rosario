@@ -94,6 +94,7 @@ createApp ({
     .component('entrada_salida-component', require('./components/caja/Entrada_SalidaComponent.vue').default)
     .component('transaccion-component', require('./components/caja/TransaccionComponent.vue').default)
     .component('corregir_caja-component', require('./components/caja/Corregir_cajaComponent.vue').default)
+    .component('crear_caja-component', require('./components/caja/Crear_cajaComponent.vue').default)
     
     //compras
     .component('gastos-component', require('./components/egreso/GastosComponent.vue').default)

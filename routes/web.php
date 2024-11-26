@@ -21,6 +21,7 @@ use App\Http\Controllers\AlmCodificacionController;
 use App\Http\Controllers\AlmIngresoProducto2Controller;
 use App\Http\Controllers\AlmIngresoProductoController;
 use App\Http\Controllers\CajaAperturaCierreController;
+use App\Http\Controllers\CajaCreacionController;
 use App\Http\Controllers\CajaEntradaSalidaController;
 use App\Http\Controllers\CajaMonedaController;
 use App\Http\Controllers\CajaTransaccionController;
@@ -692,7 +693,10 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/transaccion/registrar', [CajaTransaccionController::class, 'store']);  
     Route::get('/transaccion/listar_', [CajaTransaccionController::class, 'index']); 
     Route::post('/transaccion/editar', [CajaTransaccionController::class, 'update']);  
-    Route::get('/transaccion/show', [CajaTransaccionController::class, 'show']);    
+    Route::get('/transaccion/show', [CajaTransaccionController::class, 'show']);   
+    
+    //crear cajas------
+    Route::post('/caja_crear/registrar', [CajaCreacionController::class, 'store']);
 
     //////////////////////////////////////////////////EGRESOS///////////////////////////////////////////////////
     
