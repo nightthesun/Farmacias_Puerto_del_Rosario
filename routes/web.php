@@ -171,6 +171,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/getBancos', [GetController::class, 'getBancos']);     
     Route::get('/listarUser', [GetController::class, 'getUser']);   
     Route::get('/getEmpelado', [GetController::class, 'getEmpelado']); 
+    Route::get('/listarUserNomal', [GetController::class, 'getUserNomal']); 
     
     /**********************verificador de apertura cierre retornod e datos****************************** */
     Route::get('/verificacionAperturaCierre', [GetController::class, 'listarAperturaCierre']);
@@ -679,7 +680,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/apertura_cierre/monedaModal', [CajaAperturaCierreController::class, 'monedaModal']);  
     Route::post('/apertura_cierre/cierre', [CajaAperturaCierreController::class, 'cierre_store']);  
     Route::get('/apertura_cierre/get_operacion', [CajaAperturaCierreController::class, 'suma_operacion_v2']); 
-
+    Route::get('/apertura_cierre/listarCaja_usuario', [CajaAperturaCierreController::class, 'getCaja_x_usuario']); 
+    
     //entrada_salida
     Route::post('/entrada_salida/store', [CajaEntradaSalidaController::class, 'store']); 
     Route::get('/entrada_salida/index', [CajaEntradaSalidaController::class, 'index']); 
@@ -697,6 +699,10 @@ Route::group(['middleware' => 'auth'], function () {
     
     //crear cajas------
     Route::post('/caja_crear/registrar', [CajaCreacionController::class, 'store']);
+    Route::get('/caja_crear/listarInicio', [CajaCreacionController::class, 'index']); 
+    Route::put('/caja_crear/activar', [CajaCreacionController::class, 'activar']); 
+    Route::put('/caja_crear/desactivar', [CajaCreacionController::class, 'desactivar']);  
+    Route::put('/caja_crear/editar', [CajaCreacionController::class, 'update']);  
 
     //////////////////////////////////////////////////EGRESOS///////////////////////////////////////////////////
     

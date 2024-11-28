@@ -385,8 +385,17 @@ $data_1 = $moneda;
     ->join('caja__monedas as cm', 'cm.id', '=', 'cesa.id_moneda')
     ->select('cesa.id_arqueo', 'cesa.cantidad', 'cm.id', 'cm.tipo_corte', 'cm.valor', 'cm.unidad', 'cm.unidad_entera')
     ->where('cesa.id_arqueo', $request->id_arqueo)
+    ->get();    
+    return $resultado;
+    }
+
+    public function getCaja_x_usuario(Request $request){
+        $resultado = DB::table('caja__creacions as cc')
+    ->select('cc.id', 'cc.codigo', 'cc.nombre_caja', 'cc.monto_caja', 'cc.moneda')
+    ->where('cc.id_sucursal', )
+    ->whereRaw('FIND_IN_SET(1, cc.id_users)')
+    ->where('cc.estado', 1)
     ->get();
-    
     return $resultado;
     }
 }

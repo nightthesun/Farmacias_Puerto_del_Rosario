@@ -321,6 +321,19 @@ return $result;
         return $usuario;     
 
     }
+    //--- usuario  normal si estar acivo 
+    public function getUserNomal(Request $request){
+   
+       $arrayIds = explode(',', $request->id_users); // Convertir la cadena en un array       
+       $usuario = DB::table('users as u')
+           ->join('rrh__empleados as re', 're.id', '=', 'u.idempleado')
+           ->select('u.id','u.name','u.responsable',DB::raw("CONCAT(COALESCE(re.nombre, ''), ' ', COALESCE(re.papellido, ''), ' ', COALESCE(re.sapellido, '')) AS nom_completo"),
+               're.ci','u.super_usuario')
+           ->whereIn('u.id', $arrayIds) // Utiliza whereIn para comparar con múltiples valores
+           ->get();
+        return $usuario;     
+
+    }
     ////////////////////////////////EMPLEADO///////////////////////////////////
     public function getEmpelado(){
         $empleados = DB::table('rrh__empleados AS re')

@@ -606,6 +606,8 @@ export default {
             selectApertura_cierre:1,
            
             respuesta_inicio:'',
+
+            arrayCajaUsuario:[],
         };
     },
 
@@ -867,12 +869,6 @@ let operacion_apertura = operacion_acciones + monto_cerrar_apertura;
                 if (me.isSubmitting) return;
                 me.isSubmitting = true; // Deshabilita el botón
         
-                console.log(operacion_apertura);
-                console.log(me.totalMonto+" - "+me.totalMonto+" - "+me.cantidadMonedas);
-                console.log(me.totalMonto+" - "+me.cantidadMonedas+" - "+me.totalMonedas);
-                console.log(me.cantidadBilletes+" - "+me.totalBilletas+" - "+me.input);
-                console.log(me.arrayMoneda+" - "+me.c+" - "+me.estado);
-                console.log(me.moneda_s1);
                 axios.post("/apertura_cierre/cierre", {
                         user:me.usuario_cerrar_apertura,
                         id_apertura:me.codigo_cerrar_apertura,
@@ -1075,8 +1071,21 @@ me.isSubmitting = true; // Deshabilita el botón
                     console.log(error);
                 });
         },
-
       
+        listarCajaUsuario() {
+            let me = this;
+           // var url = "/traspaso/listarSucursal";
+           var url = "/apertura_cierre/listarCaja_usuario";
+            axios.get(url).then(function (response) {
+                    var respuesta = response.data;                  
+                    me.arrayCajaUsuario = respuesta;                 
+                })
+                .catch(function (error) {
+                    error401(error);
+                    console.log(error);
+                });
+        },
+
                
         sucursalFiltro() {
             let me = this;
@@ -1086,14 +1095,14 @@ me.isSubmitting = true; // Deshabilita el botón
                 .get(url)
                 .then(function (response) {
                     var respuesta = response.data;                  
-                    me.arraySucursal = respuesta;
-                 
+                    me.arraySucursal = respuesta;                 
                 })
                 .catch(function (error) {
                     error401(error);
                     console.log(error);
                 });
         },
+
         cambiarPestana(idPestana) {
             this.pestañaActiva = idPestana;
 

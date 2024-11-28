@@ -21,23 +21,80 @@ class CajaCreacionController extends Controller
                 foreach ($buscararray as $valor) {
                     if (empty($sqls)) {
                         $sqls = "(
-                                u.name like '%" . $valor . "%' 
-                                or cac.estado_caja like '%" . $valor . "%' 
-                            or cac.id like '%" . $valor . "%'                                 
+                                cc.nombre_caja like '%" . $valor . "%' 
+                                or cc.codigo like '%" . $valor . "%'                                                         
                                )";
                     } else {
-                        $sqls .= "and (u.name like '%" . $valor . "%' 
-                        or cac.estado_caja like '%" . $valor . "%' 
-                       or cac.id like '%" . $valor . "%' 
+                        $sqls .= "and (cc.nombre_caja like '%" . $valor . "%' 
+                        or cc.codigo like '%" . $valor . "%'          
                        )";
                     }
                 }
                 //cosnsulta---
-                $result = DB::table('caja__creacions as cc')
-                ->where('cc.id_sucursal', 1)
-                ->get();
+                $resultado = DB::table('caja__creacions as cc')
+                ->join('users as u', 'u.id', '=', 'cc.id_usuario_modifica')
+                ->select(
+                    'cc.id',
+                    'cc.codigo',
+                    'cc.nombre_caja',
+                    'cc.id_sucursal',
+                    'cc.id_users as array_user',
+                    'cc.monto_caja',
+                    'cc.moneda',
+                    'cc.estado',
+                    DB::raw('GREATEST(cc.created_at, cc.updated_at) as fecha_mas_reciente'),
+                    'u.name'
+                )
+                ->whereRaw($sqls) 
+                ->where('cc.id_sucursal', $request->id_sucursal)
+                ->orderByDesc('cc.id')           
+                ->paginate(15);            
             }
-        }        
+            return 
+            [
+                    'pagination'=>
+                        [
+                            'total'         =>    $resultado->total(),
+                            'current_page'  =>    $resultado->currentPage(),
+                            'per_page'      =>    $resultado->perPage(),
+                            'last_page'     =>    $resultado->lastPage(),
+                            'from'          =>    $resultado->firstItem(),
+                            'to'            =>    $resultado->lastItem(),
+                        ] ,
+                    'resultado'=>$resultado,
+            ];  
+        } else {
+            $resultado = DB::table('caja__creacions as cc')
+                ->join('users as u', 'u.id', '=', 'cc.id_usuario_modifica')
+                ->select(
+                    'cc.id',
+                    'cc.codigo',
+                    'cc.nombre_caja',
+                    'cc.id_sucursal',
+                    'cc.id_users as array_user',
+                    'cc.monto_caja',
+                    'cc.moneda',
+                    'cc.estado',
+                    DB::raw('GREATEST(cc.created_at, cc.updated_at) as fecha_mas_reciente'),
+                    'u.name'
+                )             
+                ->where('cc.id_sucursal', $request->id_sucursal)
+                ->orderByDesc('cc.id')           
+                ->paginate(15); 
+                return 
+                [
+                        'pagination'=>
+                            [
+                                'total'         =>    $resultado->total(),
+                                'current_page'  =>    $resultado->currentPage(),
+                                'per_page'      =>    $resultado->perPage(),
+                                'last_page'     =>    $resultado->lastPage(),
+                                'from'          =>    $resultado->firstItem(),
+                                'to'            =>    $resultado->lastItem(),
+                            ] ,
+                        'resultado'=>$resultado,
+                ];  
+        }       
     }
 
    
@@ -73,6 +130,7 @@ class CajaCreacionController extends Controller
             $crear->moneda=$moneda_v1;
             $crear->estado=1;
             $crear->id_usuario_registra=auth()->user()->id;
+            $crear->id_usuario_modifica=auth()->user()->id;
             $crear->save();
             DB::commit();
             
@@ -82,13 +140,35 @@ class CajaCreacionController extends Controller
         }
     }
 
-   
+    public function desactivar(Request $request)
+    {
+        $update = Caja_Creacion::findOrFail($request->id);
+       
+        $update->estado = 0;       
+        $update->id_usuario_modifica=auth()->user()->id;
+        $update->save();
+    }
+ 
+    public function activar(Request $request)
+    {   
+        $update = Caja_Creacion::findOrFail($request->id);
+    
+        $update->estado = 1;    
+        $update->id_usuario_modifica=auth()->user()->id;
+        $update->save();
+    }
 
     /**
      * Update the specified resource in storage.
      */
     public function update(Request $request, Caja_Creacion $caja_Creacion)
     {
-        //
+        $cadena = implode(',', $request->array_id_v);
+        $actualizar = Caja_Creacion::findOrFail($request->id);   
+        $actualizar->id_usuario_modifica=auth()->user()->id;    
+        $actualizar->nombre_caja=$request->nombre_caja; 
+        $actualizar->id_users=$cadena;
+        $actualizar->monto_caja=$request->monto_caja;
+        $actualizar->save();
     }
 }
