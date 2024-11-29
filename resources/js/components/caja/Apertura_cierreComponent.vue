@@ -27,9 +27,9 @@
                 <div class="col-md-1" style="text-align: right">
                      <label for="">Sucursal:</label>
                 </div>
-                        <div class="col-md-5">
+                        <div class="col-md-3">
                             <div class="input-group">
-                                <select class="form-control" v-model="sucursalSeleccionada"  @change="cambioDeEstado()">
+                                <select class="form-control" v-model="sucursalSeleccionada"  @change="cambioDeEstado(); listarCajaUsuario()">
                                     <option value="0" disabled selected>Seleccionar...</option>
                                     <option v-for="sucursal in arraySucursal" :key="sucursal.id"  :value="sucursal.codigo" :hidden="sucursal.id_tienda===null"
                                         v-text="sucursal.codigoS +' -> ' +sucursal.codigo+' '+sucursal.razon_social"
@@ -37,7 +37,16 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-3">
+                            <div class="input-group">
+                                <select class="form-control" v-model="selectCajaxUsuario" :hidden="sucursalSeleccionada===0">
+                                    <option value="0" disabled selected>Seleccionar caja...</option>
+                                    <option v-for="caja in arrayCajaUsuario" :key="caja.id" :value="caja.id"
+                                     v-text="(caja.nombre_caja).toUpperCase()+' -> '+(caja.codigo).toUpperCase()"></option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-5">
                             <div class="input-group">
                              
                                 <input
@@ -48,15 +57,15 @@
                                     placeholder="BUSCAR POR USUARIO, CODIGO O ESTADO DE CAJA."
                                     v-model="buscar"
                                     @keyup.enter="listarIndex(1)" 
-                                    :hidden="sucursalSeleccionada === 0"
-                                    :disabled="sucursalSeleccionada === 0"
+                                    :hidden="sucursalSeleccionada === 0 " 
+                                    :disabled="sucursalSeleccionada === 0 || selectApertura_cierre===1"
                                 />
                                 <button
                                     type="submit"
                                     class="btn btn-primary"
                                     @click="listarIndex(1)"  
                                     :hidden="sucursalSeleccionada === 0"
-                                    :disabled="sucursalSeleccionada === 0"
+                                    :disabled="sucursalSeleccionada === 0 || selectApertura_cierre===1"
                                 >
                                     <i class="fa fa-search"></i> Buscar
                                 </button>
@@ -66,13 +75,13 @@
                       
 
             </div>
-            <div class="form-group row"  :hidden="sucursalSeleccionada == 0" :disabled="sucursalSeleccionada == 0">
+            <div class="form-group row"  :hidden="sucursalSeleccionada == 0">
                 <div class="col-md-1">
                      <label for=""></label>
                 </div>
                 <div class="col-md-5">                    
                         <label for="Apectura / Cierre:">Acción</label>
-                        <select class="form-control" v-model="selectApertura_cierre"  @change="listarIndex(0)">
+                        <select class="form-control" v-model="selectApertura_cierre" :disabled="selectCajaxUsuario===0" @change="listarIndex(0)">
                                     <option value=1 disabled selected>Seleccionar...</option>
                                     <option value=0>Apertura</option>
                                     <option value=9>Cierre</option>
@@ -603,11 +612,15 @@ export default {
             sumaEntrada:'',
             sumaSalida:'',
 
+            selectCajaxUsuario:0,
+
             selectApertura_cierre:1,
            
             respuesta_inicio:'',
 
             arrayCajaUsuario:[],
+
+            id_cajaxUsuario:'',
         };
     },
 
@@ -620,7 +633,15 @@ export default {
             if (s) {               
                 this.id_sucursal = s.id_sucursal;  
             }        
-        }
+        },
+
+        selectCajaxUsuario: function (newValue) {           
+           let s = this.arrayCajaUsuario.find(
+                       (element) => element.id === newValue);
+               if (s) {               
+                   this.id_cajaxUsuario = s.id;  
+               }        
+           }
     },
 
     computed: {
@@ -751,6 +772,7 @@ export default {
             let me = this;
             me.arrayIndex=[];
          me.selectApertura_cierre=1;
+         me.selectCajaxUsuario=0;
         },
 
         validateIntegerInput(id,index) {
@@ -1018,7 +1040,8 @@ me.isSubmitting = true; // Deshabilita el botón
                         arrayMoneda:me.arrayMoneda,
                         diferencia:0,
                         estado:estado,
-                        moneda_s1:me.moneda_s1
+                        moneda_s1:me.moneda_s1,
+                        id_cajaxUsuario:me.id_cajaxUsuario
                     })
                     .then(function (response) {
                         me.listarIndex();
@@ -1075,10 +1098,13 @@ me.isSubmitting = true; // Deshabilita el botón
         listarCajaUsuario() {
             let me = this;
            // var url = "/traspaso/listarSucursal";
-           var url = "/apertura_cierre/listarCaja_usuario";
+           me.arrayCajaUsuario=[];
+           var url = "/apertura_cierre/listarCaja_usuario?id_sucursal="+me.id_sucursal;
             axios.get(url).then(function (response) {
                     var respuesta = response.data;                  
-                    me.arrayCajaUsuario = respuesta;                 
+                    me.arrayCajaUsuario = respuesta;
+                    console.log("**********");    
+                    console.log(me.arrayCajaUsuario);             
                 })
                 .catch(function (error) {
                     error401(error);

@@ -259,17 +259,11 @@ return response()->json([
                     $apertura_cierre->turno_caja = $request->selectTurno;
                     $apertura_cierre->tipo_caja_c_a = $request->tipo_caja_c_a;
                   
-                  
-             
-                    //$apertura_cierre->total_venta_caja = $total_venta_caja;
-              
-                    
-             //       $apertura_cierre->total_ingreso_caja = $total_ingreso_caja;       
-              //      $apertura_cierre->total_salida_caja = $total_salida_caja;   
                     $apertura_cierre->total_caja = $request->total_caja; 
                     $apertura_cierre->total_arqueo_caja = $request->total_arqueo_caja; 
                     $apertura_cierre->diferencia_caja = $request->diferencia; 
                     $apertura_cierre->estado_caja = $request->estado;
+                    $apertura_cierre->id_caja = $request->id_cajaxUsuario;
                     $apertura_cierre->save();        
                               
             
@@ -321,7 +315,7 @@ $data_1 = $moneda;
     $totalRegistros = DB::table('caja__apertura_cierres')
     ->where('id_sucursal', 9)
     ->count();
-    
+        
     if ($totalRegistros===0) {
         return response()->json([                        
             'ultimoRegistro' => 1,
@@ -390,12 +384,14 @@ $data_1 = $moneda;
     }
 
     public function getCaja_x_usuario(Request $request){
+        $usuario = auth()->user()->id;
         $resultado = DB::table('caja__creacions as cc')
-    ->select('cc.id', 'cc.codigo', 'cc.nombre_caja', 'cc.monto_caja', 'cc.moneda')
-    ->where('cc.id_sucursal', )
-    ->whereRaw('FIND_IN_SET(1, cc.id_users)')
-    ->where('cc.estado', 1)
-    ->get();
-    return $resultado;
+            ->select('cc.id', 'cc.codigo', 'cc.nombre_caja', 'cc.monto_caja', 'cc.moneda')
+            ->where('cc.id_sucursal', $request->id_sucursal)
+            ->whereRaw('FIND_IN_SET(?, cc.id_users)', [$usuario])
+            ->where('cc.estado', 1)
+            ->get();
+        
+        return $resultado;
     }
 }
