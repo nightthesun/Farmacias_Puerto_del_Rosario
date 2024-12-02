@@ -18,22 +18,22 @@ class CajaAperturaCierreController extends Controller
     {
         $buscararray = array();   
         ///persona
-   
+        
         $ini=$request->ini;
         $fini=$request->fini;
         
         if (auth()->user()->super_usuario == 0) {
             $user = auth()->user()->id; 
             if ($request->a_e==0) {
-                $where = "(cac.id_sucursal = $request->id_sucursal AND ca.id_usuario = $user)"; 
+                $where = "(cac.id_sucursal = $request->id_sucursal AND ca.id_usuario = $user and cac.id_caja = $request->id_caja)"; 
             } else {
-                $where = "(cac.id_sucursal = $request->id_sucursal  and cac.id_cierre <> 0 AND ca.id_usuario = $user)"; 
+                $where = "(cac.id_sucursal = $request->id_sucursal  and cac.id_cierre <> 0 AND ca.id_usuario = $user and cac.id_caja = $request->id_caja)"; 
             }         
         } else {
             if ($request->a_e==0) {
-                $where = "(cac.id_sucursal = $request->id_sucursal )";
+                $where = "(cac.id_sucursal = $request->id_sucursal and cac.id_caja = $request->id_caja)";
             } else {
-                $where = "(cac.id_sucursal = $request->id_sucursal and cac.id_cierre <> 0)";
+                $where = "(cac.id_sucursal = $request->id_sucursal and cac.id_cierre <> 0 and cac.id_caja = $request->id_caja)";
             }   
             
         }
@@ -60,6 +60,7 @@ class CajaAperturaCierreController extends Controller
                 $resultado = DB::table('caja__apertura_cierres as cac')
                 ->join('caja__arqueo as ca', 'cac.id_arqueo', '=', 'ca.id')
                 ->join('users as u', 'u.id', '=', 'ca.id_usuario')
+                ->join('caja__creacions as cc_1','cc_1.id','=','cac.id_caja')
                 ->leftJoin('caja__cierre as cc', 'cac.id_cierre', '=', 'cc.id')
                 ->select('cac.id','cac.id_arqueo','cac.turno_caja','cac.tipo_caja_c_a','cac.total_caja',
                         'cac.total_arqueo_caja','cac.diferencia_caja','cac.estado_caja','cac.created_at','u.name','cac.id_cierre as id_apertura_cierre',
@@ -74,7 +75,7 @@ class CajaAperturaCierreController extends Controller
         'cc.total_arqueo_caja as total_arqueo_caja_cierre',
         'cc.diferencia_caja as diferencia_caja_cierre',
         'cc.estado_caja as estado_caja_cierre',
-        'cc.created_at as created_at_cierre'
+        'cc.created_at as created_at_cierre','cc_1.monto_caja as caja_monto_v2','cc_1.moneda as caja_moneda_v2','cc_1.codigo as caja_codigo_v2','cc_1.nombre_caja as caja_nombre_caja_v2'
                         )
                      //   ->where('cac.id_sucursal','=',$request->id_sucursal)
                      //   ->where('cac.tipo_caja_c_a','=',$request->a_e)          
@@ -102,6 +103,7 @@ class CajaAperturaCierreController extends Controller
             $resultado = DB::table('caja__apertura_cierres as cac')
                 ->join('caja__arqueo as ca', 'cac.id_arqueo', '=', 'ca.id')
                 ->join('users as u', 'u.id', '=', 'ca.id_usuario')
+                ->join('caja__creacions as cc_1','cc_1.id','=','cac.id_caja')
                 ->leftJoin('caja__cierre as cc', 'cac.id_cierre', '=', 'cc.id')
                 ->select('cac.id','cac.id_arqueo','cac.turno_caja','cac.tipo_caja_c_a','cac.total_caja',
                         'cac.total_arqueo_caja','cac.diferencia_caja','cac.estado_caja','cac.created_at','u.name',
@@ -115,8 +117,8 @@ class CajaAperturaCierreController extends Controller
         'cc.total_caja as total_caja_cierre',
         'cc.total_arqueo_caja as total_arqueo_caja_cierre',
         'cc.diferencia_caja as diferencia_caja_cierre',
-        'cc.estado_caja as estado_caja_cierre',
-        'cc.created_at as created_at_cierre'
+        'cc.estado_caja as estado_caja_cierre',    
+        'cc.created_at as created_at_cierre','cc_1.monto_caja as caja_monto_v2','cc_1.moneda as caja_moneda_v2','cc_1.codigo as caja_codigo_v2','cc_1.nombre_caja as caja_nombre_caja_v2'
                         )
                         ->whereRaw($where) 
               ->whereBetween(DB::raw('DATE(cac.created_at)'), [$ini, $fini]) 
@@ -313,7 +315,8 @@ $data_1 = $moneda;
       //  ->orderBy('created_at', 'desc')
       //  ->first();
     $totalRegistros = DB::table('caja__apertura_cierres')
-    ->where('id_sucursal', 9)
+    ->where('id_sucursal', $request->id_sucursal)
+    ->where('id_caja', $request->id_caja)    
     ->count();
         
     if ($totalRegistros===0) {
@@ -328,6 +331,7 @@ $data_1 = $moneda;
         ->join('users as u', 'u.id', '=', 'ca.id_usuario')
         ->select('cac.turno_caja', 'cac.tipo_caja_c_a', 'cac.total_caja', 'cac.estado_caja')
         ->where('cac.id_sucursal', $request->id_sucursal)
+        ->where('cac.id_caja', $request->id_caja)   
         ->where('ca.id_usuario', $id_user)
         ->where('cac.tipo_caja_c_a', 0)
         ->where('cac.id_cierre', 0)
@@ -339,6 +343,7 @@ $data_1 = $moneda;
       ->join('caja__apertura_cierres as cac', 'cac.id_cierre', '=', 'cc.id')
       ->select('cc.id', 'cc.diferencia_caja', 'cc.estado_caja')
       ->where('cac.id_sucursal',  $request->id_sucursal)
+      ->where('cac.id_caja', $request->id_caja)   
       ->orderBy('cc.created_at', 'desc')
       ->first();
     

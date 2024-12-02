@@ -39,7 +39,7 @@
                         </div>
                         <div class="col-md-3">
                             <div class="input-group">
-                                <select class="form-control" v-model="selectCajaxUsuario" :hidden="sucursalSeleccionada===0">
+                                <select class="form-control" v-model="selectCajaxUsuario" :hidden="sucursalSeleccionada===0" @change="cambioDeEstado_ver_2()">
                                     <option value="0" disabled selected>Seleccionar caja...</option>
                                     <option v-for="caja in arrayCajaUsuario" :key="caja.id" :value="caja.id"
                                      v-text="(caja.nombre_caja).toUpperCase()+' -> '+(caja.codigo).toUpperCase()"></option>
@@ -100,7 +100,11 @@
 
   <br>
             <!---inserte tabla-->
-            <table class="table table-bordered table-striped table-sm table-responsive" >
+            <div class="alert alert-warning" role="alert" v-if="selectApertura_cierre===1">
+                <span>Debe seleccionar la sucursal, la caja y el tipo de apertura</span>
+            </div>
+            <div v-else>
+                <table  class="table table-bordered table-striped table-sm table-responsive" >
                 <thead>
                     <tr>
                         <th class="col-md-1">Opciones</th>   
@@ -177,6 +181,7 @@
                             </li>
                         </ul>
                     </nav>
+            </div>           
         </div>
 
 
@@ -696,7 +701,8 @@ export default {
         listarIndex(page) {
             let me = this;  
             let entrada=me.selectApertura_cierre;      
-            var url ="/apertura_cierre/index?page="+page+"&buscar=" +me.buscar+"&id_sucursal="+me.id_sucursal+"&a_e="+parseInt(entrada)+"&ini="+me.startDate+"&fini="+me.endDate;
+            var url ="/apertura_cierre/index?page="+page+"&buscar=" +me.buscar+"&id_sucursal="+me.id_sucursal+"&a_e="+parseInt(entrada)+"&ini="+me.startDate+"&fini="+me.endDate+"&id_caja="+me.selectCajaxUsuario;
+          
             axios.get(url)
                 .then(function (response) {
                     var respuesta = response.data;
@@ -711,13 +717,15 @@ export default {
 
         cajaAnteriror(){
             let me=this;
-            var url = "/apertura_cierre/cajaAnteriror?id_sucursal="+me.id_sucursal;
-            axios.get(url)
-                .then(function (response) {
+            var url = "/apertura_cierre/cajaAnteriror?id_sucursal="+me.id_sucursal+"&id_caja="+me.selectCajaxUsuario;
+            console.log(url);
+            axios.get(url).then(function (response) {
                     console.log("***respuesta***");
                     var respuesta = response.data; 
                     var respuesta_1 = (response.data).ultimoRegistro;
                     var respuesta_2 = (response.data).ultimoRegistro_2;
+                    console.log(respuesta);
+                    console.log(respuesta_1);
                     console.log(respuesta_2);
                  if (respuesta_1===0 || respuesta_1===1) {
                         if (respuesta_1===1) {
@@ -773,6 +781,13 @@ export default {
             me.arrayIndex=[];
          me.selectApertura_cierre=1;
          me.selectCajaxUsuario=0;
+        },
+
+        cambioDeEstado_ver_2(){
+            let me = this;
+            me.arrayIndex=[];
+         me.selectApertura_cierre=1;
+        
         },
 
         validateIntegerInput(id,index) {

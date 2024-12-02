@@ -115,12 +115,29 @@ class CajaCreacionController extends Controller
             } else {
                 $codigo="caja-".$ultimoId."-".$indiceAleatorio;            
             }
+            $cadena = implode(',', $request->array_id_v);    
+            $cadena = "1,12,3";
+
+            // Convertir la cadena en un array
+            $array = explode(',', $cadena);
+            
+            // Recorrer el array con un for
+            for ($i = 0; $i < count($array); $i++) {
+                echo "Elemento $i: " . $array[$i] . "\n";
+            }
+           $cantidad = DB::table('caja__creacions as cc')
+    ->selectRaw('COUNT(cc.id) as cantidad')
+    ->where('cc.id_sucursal', $request->id_sucursal)
+    ->whereRaw('FIND_IN_SET(?, cc.id_users)', [$request->id_caja])
+    ->first();
+
+
             $moneda_v1 = DB::table('adm__credecial_correos as acc')
             ->join('adm__nacionalidads as an', 'an.id', '=', 'acc.moneda')
             ->select('an.simbolo')
             ->limit(1)
             ->value('simbolo');           
-            $cadena = implode(',', $request->array_id_v);
+          
             $crear = new Caja_Creacion();
             $crear->codigo=$codigo;
             $crear->nombre_caja=$request->nombre_caja;
