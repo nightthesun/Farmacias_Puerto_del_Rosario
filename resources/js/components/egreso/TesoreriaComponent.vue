@@ -496,8 +496,7 @@ export default {
                 .get(url)
                 .then(function (response) {
                     var respuesta = response.data;
-                    me.arraySucursal = respuesta;
-                    console.log(me.arraySucursal);                 
+                    me.arraySucursal = respuesta;                               
                 })
                 .catch(function (error) {
                     error401(error);
@@ -643,8 +642,7 @@ export default {
                     break;
                 }
                 case "actualizar": {
-                    me.tipoAccion = 2;
-                    console.log(data); 
+                    me.tipoAccion = 2;                
                     me.id_index=data.id;
                  
                     me.isSubmitting=false;
@@ -668,7 +666,7 @@ export default {
                     break;
                 }
                 case "ver": {
-                    console.log(data);
+           
                  if (data.abrir_cerrar===0) {
                     me.tituloModal = "Vista de inicio de caja";
                     me.fecha_v3=data.created_at;    

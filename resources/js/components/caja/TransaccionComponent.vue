@@ -470,9 +470,7 @@ export default {
                 puedeCrear:2,
                 //-----------
 
-                //limitado                    
-            startDate: '',
-            endDate: '',
+           
         };
     },
 

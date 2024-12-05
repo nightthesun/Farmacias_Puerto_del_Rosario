@@ -314,57 +314,72 @@ $data_1 = $moneda;
       //  ->where('id_sucursal', $request->id_sucursal)    
       //  ->orderBy('created_at', 'desc')
       //  ->first();
-    $totalRegistros = DB::table('caja__apertura_cierres')
-    ->where('id_sucursal', $request->id_sucursal)
-    ->where('id_caja', $request->id_caja)    
-    ->count();
-        
-    if ($totalRegistros===0) {
+      $id_user = Auth()->user()->id;
+
+      $contar = DB::table('caja__apertura_cierres as c')
+    ->join('caja__arqueo as a', 'c.id_arqueo', '=', 'a.id')
+    ->where('a.id_usuario', $id_user)
+    //->where('id_sucursal', $request->id_sucursal)   
+    ->where('c.id_cierre', 0)
+    ->count('c.id');
+
+    if ($contar>0) {
         return response()->json([                        
-            'ultimoRegistro' => 1,
-            'ultimoRegistro_2' => 1, 
+            'ultimoRegistro' => 2,
+            'ultimoRegistro_2' => 2, 
         ]);
     } else {
-        $id_user = Auth()->user()->id;
-        $ultimoRegistro=DB::table('caja__apertura_cierres as cac')
-        ->join('caja__arqueo as ca', 'cac.id_arqueo', '=', 'ca.id')
-        ->join('users as u', 'u.id', '=', 'ca.id_usuario')
-        ->select('cac.turno_caja', 'cac.tipo_caja_c_a', 'cac.total_caja', 'cac.estado_caja')
-        ->where('cac.id_sucursal', $request->id_sucursal)
-        ->where('cac.id_caja', $request->id_caja)   
-        ->where('ca.id_usuario', $id_user)
-        ->where('cac.tipo_caja_c_a', 0)
-        ->where('cac.id_cierre', 0)
-        ->orderBy('cac.created_at', 'desc')
-        ->first();
-  
-          // verifica si la seguna apertura es correta o contiene 
-        $ultimoRegistro_2 = DB::table('caja__cierre as cc')
-      ->join('caja__apertura_cierres as cac', 'cac.id_cierre', '=', 'cc.id')
-      ->select('cc.id', 'cc.diferencia_caja', 'cc.estado_caja')
-      ->where('cac.id_sucursal',  $request->id_sucursal)
-      ->where('cac.id_caja', $request->id_caja)   
-      ->orderBy('cc.created_at', 'desc')
-      ->first();
-    
-        if ($ultimoRegistro==null) {
+        $totalRegistros = DB::table('caja__apertura_cierres')
+        ->where('id_sucursal', $request->id_sucursal)   
+        ->count();
+        if ($totalRegistros===0) {
             return response()->json([                        
-                'ultimoRegistro' => 0,
-                'ultimoRegistro_2' => $ultimoRegistro_2, 
+                'ultimoRegistro' => 1,
+                'ultimoRegistro_2' => 1, 
             ]);
-        }else{
-            return response()->json([                        
-                'ultimoRegistro' => $ultimoRegistro,
-                'ultimoRegistro_2' => $ultimoRegistro_2, 
-            ]);
+        } else {
+           
+            $ultimoRegistro=DB::table('caja__apertura_cierres as cac')
+            ->join('caja__arqueo as ca', 'cac.id_arqueo', '=', 'ca.id')
+            ->join('users as u', 'u.id', '=', 'ca.id_usuario')
+            ->select('cac.turno_caja', 'cac.tipo_caja_c_a', 'cac.total_caja', 'cac.estado_caja')
+            ->where('cac.id_sucursal', $request->id_sucursal)
+            // ->where('cac.id_caja', $request->id_caja)   
+            ->where('ca.id_usuario', $id_user)
+            ->where('cac.tipo_caja_c_a', 0)
+            ->where('cac.id_cierre', 0)
+            ->orderBy('cac.created_at', 'desc')
+            ->first();    
+                
+            // verifica si la seguna apertura es correta o contiene 
+            $ultimoRegistro_2 = DB::table('caja__cierre as cc')
+          ->join('caja__apertura_cierres as cac', 'cac.id_cierre', '=', 'cc.id')
+          ->select('cc.id', 'cc.diferencia_caja', 'cc.estado_caja')
+          ->where('cac.id_sucursal',  $request->id_sucursal)
+          ->where('cac.id_caja', $request->id_caja)   
+          ->orderBy('cc.created_at', 'desc')
+          ->first();
+ 
+           $data_11="";
+           $data_12="";
+            if ($ultimoRegistro==null) {
+                $data_11=0;
+            } else {
+                $data_11=$ultimoRegistro;
+            }
+
+            if ($ultimoRegistro_2==null) {
+                $data_12=0;
+            } else {
+                $data_12=$ultimoRegistro_2;
+            }
+         
+                return response()->json([                        
+                    'ultimoRegistro' => $data_11,
+                    'ultimoRegistro_2' => $data_12, 
+                ]);     
         }
-
-          
     }
-
-      
-
-      // return $ultimoRegistro;      
     }
     
     public function monedaModal(Request $request){
@@ -373,8 +388,7 @@ $data_1 = $moneda;
     ->join('caja__monedas as cm', 'caa.id_moneda', '=', 'cm.id')
     ->select('caa.id_moneda as id','cm.unidad_entera', 'cm.unidad', 'cm.tipo_corte', 'cm.valor', 'caa.cantidad')
     ->where('caa.id_arqueo','=',$request->id_arqueo)
-    ->get();
-  
+    ->get();  
     return $resultado;
 
     }

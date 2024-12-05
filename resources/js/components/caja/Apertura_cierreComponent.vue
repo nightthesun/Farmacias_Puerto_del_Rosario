@@ -190,26 +190,17 @@
         <!-- fin de index -->
         </div>   
            <!--Inicio del modal agregar/actualizar-->
-        <div class="modal fade"
-            tabindex="-1"
-            role="dialog"
-            arial-labelledby="myModalLabel"
-            id="registrar"
-            aria-hidden="true"
-            data-backdrop="static"
-            data-key="false" >
+        <div class="modal fade" tabindex="-1" role="dialog" arial-labelledby="myModalLabel" id="registrar" aria-hidden="true" data-backdrop="static" data-key="false">
             <div class="modal-dialog modal-primary modal-lg" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h4 class="modal-title">{{ tituloModal }}</h4>
-                        <button
-                            type="button"
-                            class="close"
-                            aria-label="Close"
-                            @click="cerrarModal('registrar')"
-                        >
+                        <button type="button" class="close" aria-label="Close" @click="cerrarModal('registrar')">
                             <span aria-hidden="true">x</span>
                         </button>
+                    </div>
+                    <div v-show="bandera_aperturaCierre!=0" class="alert alert-danger" role="alert">                        
+                          <strong style="font-size: 18px;">{{ "Estado: "+estado_aperturaCierre+" Monto: "+monto_aperturaCierre }}</strong>                                               
                     </div>
                     <div class="modal-body">                      
                         <table class="table table-bordered table-striped table-sm table-responsive">
@@ -324,7 +315,9 @@
                             <span aria-hidden="true">x</span>
                         </button>
                     </div>
-                    <div class="modal-body">                      
+          
+                    <div class="modal-body">   
+               
                         <table class="table table-bordered table-striped table-sm table-responsive">
                             <thead>
                                 <tr>
@@ -626,6 +619,11 @@ export default {
             arrayCajaUsuario:[],
 
             id_cajaxUsuario:'',
+
+       
+            estado_aperturaCierre:'',
+            monto_aperturaCierre:'',
+            bandera_aperturaCierre:0,
         };
     },
 
@@ -719,20 +717,45 @@ export default {
             let me=this;
             var url = "/apertura_cierre/cajaAnteriror?id_sucursal="+me.id_sucursal+"&id_caja="+me.selectCajaxUsuario;
             console.log(url);
+            me.estado_aperturaCierre="";
+            me.monto_aperturaCierre="";
+            me.bandera_aperturaCierre=0;
             axios.get(url).then(function (response) {
                     console.log("***respuesta***");
                     var respuesta = response.data; 
                     var respuesta_1 = (response.data).ultimoRegistro;
                     var respuesta_2 = (response.data).ultimoRegistro_2;
-                    console.log(respuesta);
-                    console.log(respuesta_1);
-                    console.log(respuesta_2);
+
+                    if (respuesta_2===0 || respuesta_2===1 || respuesta_2===2) {
+                        me.bandera_aperturaCierre=0; 
+                    } else {                        
+                        console.log("**************");
+                        console.log(respuesta_2);
+                        me.estado_aperturaCierre=respuesta_2.estado_caja;
+                        me.monto_aperturaCierre=respuesta_2.diferencia_caja;
+                        me.bandera_aperturaCierre=1; 
+                    }
+
+                    if (respuesta_1===2) {
+                        Swal.fire("Ya se realizo una pertura.",
+                                        "Haga click en Ok",
+                                        "error");
+                    } else {
+                        console.log("*///////*");
+                        console.log(respuesta);
+                        console.log("*primero*");                        
+                        console.log(respuesta_1);
+                        console.log("*segundo*");                        
+                        console.log(respuesta_2);
+                        
+
                  if (respuesta_1===0 || respuesta_1===1) {
                         if (respuesta_1===1) {
                             me.respuesta_inicio=1;
                             me.turno_caja="Caja cero";
                             me.tipo_caja_c_a="Caja cero";
                             me.estado_caja="Caja cero";
+                           
                         }  else{
                             me.turno_caja="Inicio";
                             me.tipo_caja_c_a="Inicio";
@@ -742,7 +765,7 @@ export default {
                             me.abrirModal('registrar'); 
                     } else {
                         if (respuesta_1.tipo_caja_c_a===0) {
-                            Swal.fire("Ya se hizo una apertura",
+                            Swal.fire("Ya se hizo una apertura o el usuario ya aperturó en otra caja.",
                                         "Haga click en Ok",
                                         "warning");
                         } else {
@@ -769,6 +792,8 @@ export default {
                             me.abrirModal('registrar');  
                         }
                     }
+                    }
+                   
                 })
                 .catch(function (error) {
                     error401(error);
@@ -1186,7 +1211,7 @@ me.isSubmitting = true; // Deshabilita el botón
 
                 case "cerrar_apertura":{
                     me.tipoAccion = 3;
-                    console.log(data);
+               
                     me.tituloModal = "Cerrar caja del usuario "+data.name;
                     me.isSubmitting=false;   
                     me.suma_venta="";
@@ -1314,6 +1339,7 @@ me.isSubmitting = true; // Deshabilita el botón
                         me.password="";
                         me.input={};
                         me.classModal.closeModal(accion);
+                        me.bandera_aperturaCierre="";
             }
             if(accion=== "ver"){
             me.id_modal="";

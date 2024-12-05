@@ -23,6 +23,7 @@ use App\Http\Controllers\AlmIngresoProductoController;
 use App\Http\Controllers\CajaAperturaCierreController;
 use App\Http\Controllers\CajaCreacionController;
 use App\Http\Controllers\CajaEntradaSalidaController;
+use App\Http\Controllers\CajaModificacionController;
 use App\Http\Controllers\CajaMonedaController;
 use App\Http\Controllers\CajaTransaccionController;
 use App\Http\Controllers\DirClienteController;
@@ -704,6 +705,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::put('/caja_crear/desactivar', [CajaCreacionController::class, 'desactivar']);  
     Route::put('/caja_crear/editar', [CajaCreacionController::class, 'update']);  
 
+    //modificar cajas------
+    Route::get('/caja_modificar/listarInicio', [CajaModificacionController::class, 'index']); 
+    Route::post('/caja_modificar/registrar', [CajaModificacionController::class, 'store']);
     //////////////////////////////////////////////////EGRESOS///////////////////////////////////////////////////
     
     //inversiones-----
