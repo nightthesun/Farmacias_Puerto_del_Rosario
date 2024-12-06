@@ -57,8 +57,12 @@ class CajaModificacionController extends Controller
                 'cc_2.codigo',
                 'cc_2.nombre_caja',
                 'cc_2.moneda',
-               'u.name','cc.estado_caja','cm.id as id_mod_v2'
-                  
+               'u.name','cc.estado_caja',
+               'cm.id as id_mod_v2','cm.monto_dif as monto_v2',
+               'cm.estado as estado_v2','cm.motivo as motivo_v2',
+               'cm.id_usuario_registra','cm.id_usuario_modifica',
+               'cm.numero_edicion',
+               DB::raw('GREATEST(cm.created_at, cm.updated_at) as fecha_mas_reciente')  
                 ])
                 ->where('cc.estado_caja', '<>', 'OK')
                 ->where('cac.id_sucursal', $request->id_sucursal)
@@ -100,7 +104,12 @@ class CajaModificacionController extends Controller
                 'cc_2.codigo',
                 'cc_2.nombre_caja',
                 'cc_2.moneda',
-               'u.name','cc.estado_caja','cm.id as id_mod_v2'
+               'u.name','cc.estado_caja',
+               'cm.id as id_mod_v2','cm.monto_dif as monto_v2',
+               'cm.estado as estado_v2','cm.motivo as motivo_v2',
+               'cm.id_usuario_registra','cm.id_usuario_modifica',
+               'cm.numero_edicion',
+               DB::raw('GREATEST(cm.created_at, cm.updated_at) as fecha_mas_reciente') 
             ])
             ->where('cc.estado_caja', '<>', 'OK')
             ->whereBetween(DB::raw('DATE(cc.created_at)'), [$ini, $fini])  
@@ -137,6 +146,20 @@ class CajaModificacionController extends Controller
             $crear->motivo=$request->textArea_modal;   
             $crear->id_usuario_registra->auth()->user()->id;
             $crear->id_usuario_modifica->auth()->user()->id;
+            $id_= $crear->id;
+         //   if ($request->estado_modal=='Faltante') {
+                # code...
+         //   }
+         //   $datos_2 = [                            
+         //       'id_arqueo' => $id,                       
+         //       'id_moneda' => $key,  
+         //       'cantidad' => $value                                              
+         //   ]; 
+         //   DB::table('caja__arqueo_array')
+         //   ->where('id', $id_) // Condición para identificar qué registro actualizar
+         //   ->update($datos_2); // Datos a actualizar
+        
+
             DB::commit();
         } catch (\Throwable $th) {
         return $th;

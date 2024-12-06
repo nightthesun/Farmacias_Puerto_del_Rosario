@@ -16,7 +16,8 @@ return new class extends Migration
             $table->smallInteger('id_cierre');
             $table->decimal('monto_dif',20,2)->nullable();
             $table->string('estado',90)->nullable();
-            $table->string('motivo')->nullable();   
+            $table->string('motivo')->nullable(); 
+            $table->tinyInteger('numero_edicion')->default(1);       
             $table->smallInteger('id_usuario_registra')->nullable();
             $table->smallInteger('id_usuario_modifica')->nullable();     
             $table->timestamps();

@@ -23,6 +23,7 @@ return new class extends Migration
             $table->decimal('diferencia_caja',16,2);
             $table->string('estado_caja',110);
             $table->timestamps();
+            $table->smallInteger('id_arqueo_mod')->nullable();
         });
     }
 

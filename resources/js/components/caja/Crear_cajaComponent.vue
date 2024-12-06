@@ -474,8 +474,7 @@ export default {
             }).finally(() => {
           me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
         });     
-            }      
-          
+            }  
         },
 
         editar(){

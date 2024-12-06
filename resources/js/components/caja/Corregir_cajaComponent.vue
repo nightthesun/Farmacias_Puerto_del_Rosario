@@ -84,9 +84,10 @@
                 </thead>                
                 <tr v-for="i in arrayIndex" :key="i.id">  
                     <td>
-                        <div  class="d-flex justify-content-start">                          
-                            <button type="button" v-if="i.id_mod_v2===null" class="btn btn-warning btn-sm" @click="abrirModal('registrar',i )" style="margin-right: 5px;"><i class="icon-pencil"></i></button>
-                            <button type="button" v-else class="btn btn-light btn-sm" style="margin-right: 5px;"><i class="icon-pencil"></i></button>
+                        <div  class="d-flex justify-content-start">    
+                            <button type="button" v-if="i.numero_edicion!=null || i.numero_edicion===0" class="btn btn-light btn-sm" style="margin-right: 5px;"><i class="icon-pencil"></i></button>                      
+                            <button type="button" v-else  class="btn btn-warning btn-sm" @click="abrirModal('registrar',i )" style="margin-right: 5px;"><i class="icon-pencil"></i></button>
+                            
                              
                           
                             <button type="button"  class="btn btn-info btn-sm"  style="margin-right: 5px; color: white;"><i class="fa fa-eye" aria-hidden="true"></i></button>
@@ -132,19 +133,62 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <h4 class="modal-title">{{ tituloModal }}</h4>
-                        <button
-                            type="button"
-                            class="close"
-                            aria-label="Close"
-                            @click="cerrarModal('registrar')"
-                        >
+                        <button type="button" class="close" aria-label="Close" @click="cerrarModal('registrar')">
                             <span aria-hidden="true">x</span>
                         </button>
                     </div>
                     <div class="modal-body">
-                        <div class="alert alert-warning" role="alert">
-                            Todos los campos con (*) son requeridos
-                        </div>
+                   
+               <table class="table table-bordered table-striped table-sm table-responsive">
+                   <thead>
+                       <tr>
+                           <th class="col-md-1">Monto</th>
+                           <th class="col-md-1">Simbolo</th>
+                           <th class="col-md-2">Tipo</th>
+                           <th class="col-md-1">Valor</th>
+                           <th class="col-md-3">Acción</th>
+                       </tr>
+                   </thead>
+                   <tbody>
+                       <tr v-for="a in arrayMoneda" :key="a.id">
+                           <td  class="col-md-1" style="text-align: right;">{{a.unidad_entera}}</td>
+                           <td class="col-md-1">{{a.unidad}}</td>
+                           <td  class="col-md-2">{{a.tipo_corte}}</td>
+                           <td  class="col-md-1" style="text-align: right;">{{a.valor_default}}</td>
+                           <td  class="col-md-3"> <input type="text" style="text-align: right;" class="form-control" placeholder="Solo valores enteros" v-model="input[a.id]"  @input="validateIntegerInput(a.id,a)" />
+                           
+                           </td>
+                       </tr>
+                   </tbody>
+               </table>
+               <table class="table table-bordered table-striped table-sm table-responsive">
+                            <thead>
+                                <tr>
+                                    <th class="col-md-2">Cant. Moneda</th>
+                                    <th class="col-md-2">Monto Moneda</th>
+                                    <th class="col-md-1">Simbolo</th>
+                                    <th class="col-md-2">Cant. Billete</th>
+                                    <th class="col-md-2">Monto Billete</th>
+                                    <th class="col-md-1">Simbolo</th>
+                                    <th class="col-md-2">Monto Total</th>
+                                    <th class="col-md-1">Simbolo</th>
+                                 </tr>
+                            </thead>  
+                            <tbody>
+                                <tr>
+                                    <td class="col-md-2" style="text-align: right;">{{cantidadMonedas}}</td>
+                                    <td class="col-md-2" style="text-align: right;">{{totalMonedas}}</td>
+                                    <td class="col-md-1">{{SimboloM}}</td>
+                                    <td class="col-md-2" style="text-align: right;">{{cantidadBilletes}}</td>
+                                    <td class="col-md-2" style="text-align: right;">{{ totalBilletas }}</td>
+                                    <td class="col-md-1">{{SimboloB}}</td>
+                                    <td class="col-md-2" style="text-align: right; background-color:darkred; color: azure;">{{totalMonto}}</td>
+                                    <td class="col-md-1">{{SimboloB}}</td>
+                                    
+                                </tr>    
+                            </tbody>          
+                        </table>
+
                         <form action="" class="form-horizontal">
                         
                             <!-- insertar datos -->
@@ -154,17 +198,17 @@
                                     <table class="table table-bordered table-striped table-sm table-responsive">
                             <thead>
                                 <tr>
-                                    <th class="col-md-2" style="font-size: 11px; text-align: center">Nro cierre</th>                                                               
-                                    <th class="col-md-2" style="font-size: 11px; text-align: center">Diferencia</th>                                    
-                                    <th class="col-md-2" style="font-size: 11px; text-align: center">Estado</th>
-                                    <th class="col-md-6" style="font-size: 11px; text-align: center">Motivo</th>                                   
+                                    <th class="col-md-2" style=" text-align: center">Nro cierre</th>                                                               
+                                    <th class="col-md-2" style=" text-align: center">Diferencia</th>                                    
+                                    <th class="col-md-2" style=" text-align: center">Estado</th>
+                                    <th class="col-md-6" style=" text-align: center">Motivo</th>                                   
                                  </tr>
                             </thead>
                             <tbody>
-                                <td class="col-md-2" style="font-size: 11px; text-align: center">{{id_cierre_modal}}</td>
-                                <td class="col-md-2" style="font-size: 11px; text-align: center">{{diferencia_modal}}</td>
-                                <td class="col-md-2" style="font-size: 11px; text-align: center">{{estado_modal}}</td>                        
-                                <td class="col-md-6" style="font-size: 11px; ">
+                                <td class="col-md-2" style=" text-align: center">{{id_cierre_modal}}</td>
+                                <td class="col-md-2" style=" text-align: center">{{diferencia_modal}}</td>
+                                <td class="col-md-2" style=" text-align: center">{{estado_modal}}</td>                        
+                                <td class="col-md-6" >
                                 <textarea v-model="textArea_modal" class="form-control" id="exampleFormControlTextarea1" rows="2"></textarea>
                                 </td>
                             </tbody> 
@@ -178,33 +222,8 @@
                                
                             </div>
                         </form>
-                    </div>
-                  
-                    <div class="modal-footer">
-                        <button
-                            type="button"
-                            class="btn btn-secondary"
-                            @click="cerrarModal('registrar')"
-                        >
-                            Cerrar
-                        </button>
-                        <button
-                            type="button"
-                            v-if="tipoAccion == 1"
-                            class="btn btn-primary"                           
-                            :disabled="textArea_modal===''"
-                        >
-                        Corregir
-                        </button>
-                        <button
-                            type="button"
-                            v-if="tipoAccion == 2"
-                            class="btn btn-primary"
-                          
-                        >
-                            Actualizar
-                        </button>
-                    </div>
+                    </div>                  
+                    
                     <div class="modal-footer">
                         <button  type="button" class="btn btn-secondary" @click="cerrarModal('registrar')">Cerrar</button>
                         <div  class="d-flex justify-content-start">
@@ -257,6 +276,17 @@ export default {
             diferencia_modal:'',
             estado_modal:'',
             textArea_modal:'',
+
+            arrayMoneda:[],
+            input:{},
+           
+           cantidadMonedas:0,
+           cantidadBilletes:0, 
+           totalMonedas:"0.00",
+            SimboloM:'S/N',
+            SimboloB:'S/N',            
+            totalBilletas:"0.00",
+            totalMonto:"0.00",
             
         };
     },
@@ -326,6 +356,7 @@ export default {
                 diferencia_modal:me.diferencia_modal,
                 estado_modal:me.estado_modal,
                 textArea_modal:me.textArea_modal, 
+                arrayMoneda:me.arrayMoneda,
                     })       
                     .then(function (response) {                                            
                         let a=response.data;
@@ -362,6 +393,51 @@ export default {
                 });
         },
 
+        validateIntegerInput(id,index) {
+            let me = this;
+            me.cantidadMonedas=0;
+           me.cantidadBilletes=0;
+           me.totalMonedas=0;
+           me.totalBilletas=0;
+           me.totalMonto=0;
+    me.input[id] = this.input[id].replace(/[^0-9]/g, '');
+    if ( me.input[id]===""|| me.input[id]===null) {
+        me.input[id]=0; 
+        let aa=me.arrayMoneda[id-1];
+        aa.valor_default="0.00";       
+        aa.input=  me.input[id];
+         
+       
+    }else{     
+    
+        let aa=me.arrayMoneda[id-1]; 
+        aa.valor_default=Number(me.input[id] * aa.valor).toFixed(2);
+        aa.input=me.input[id];
+      
+    }
+    me.arrayMoneda.forEach(element => {
+            if (element.tipo_corte==="Moneda") {
+                me.cantidadMonedas=me.cantidadMonedas+  parseInt(element.input, 10);                
+                me.totalMonedas = Number(me.totalMonedas) + Number(element.valor_default);
+                // Si deseas que el resultado final esté formateado a dos decimales
+                me.totalMonedas = Number(me.totalMonedas).toFixed(2);
+                me.SimboloM=element.unidad;
+      
+            }
+            if (element.tipo_corte==="Billete") {
+                me.cantidadBilletes=me.cantidadBilletes+  parseInt(element.input, 10);             
+                me.totalBilletas = Number(me.totalBilletas) + Number(element.valor_default);
+                // Si deseas que el resultado final esté formateado a dos decimales
+                me.totalBilletas = Number(me.totalBilletas).toFixed(2);
+                me.SimboloB=element.unidad;
+    
+            }
+            me.totalMonto=Number(me.totalMonto)+ Number(element.valor_default);   
+            me.totalMonto=Number(me.totalMonto).toFixed(2);
+        });  
+     
+  },
+
         sucursalFiltro() {
             let me = this;
            // var url = "/traspaso/listarSucursal";
@@ -384,6 +460,33 @@ export default {
             // Agrega aquí la lógica adicional que necesites al cambiar la pestaña
         },
 
+        verificador_moneda_sistemas(){
+            let me=this;
+            var url = "/apertura_cierre/verificador_moneda_sistemas";
+            axios
+                .get(url)
+                .then(function (response) {
+                    var respuesta_lista = response.data.listaMoneda;
+                    var respuesta_moneda = response.data.moneda;
+
+                  if (respuesta_moneda===0) {
+                    me.bloqueador=0;
+                    Swal.fire(
+                    "No se activo el tipo de moneda necesita activar algun tipo de moneda.",
+                    "Para activar necesita ir a configuracion y ver la pestaña de tipo de moneda.",
+                    "error",
+                );
+                  } else {
+                    me.bloqueador=1;
+                    me.arrayMoneda=respuesta_lista;
+                    me.moneda_s1=respuesta_moneda;                 
+                  }                                  
+                })
+                .catch(function (error) {
+                    error401(error);
+                    console.log(error);
+                });
+        },
 
 
         cambiarPagina(page) {
@@ -408,6 +511,16 @@ export default {
                     me.diferencia_modal=data.diferencia_caja;
                     me.estado_modal=data.estado_caja;
                     me.textArea_modal="";
+
+                    me.totalMonedas="0.00";
+                        me.SimboloM="S/N";
+                        me.SimboloB="S/N";            
+                        me.totalBilletas="0.00";
+                        me.totalMonto="0.00";
+                        me.cantidadMonedas=0;
+                        me.cantidadBilletes=0; 
+                
+                        me.input={};
                     me.classModal.openModal("registrar");
                     break;
                 }
@@ -430,6 +543,16 @@ export default {
                     me.diferencia_modal="";
                     me.estado_modal="";
                     me.textArea_modal="";
+
+                    me.totalMonedas="0.00";
+                        me.SimboloM="S/N";
+                        me.SimboloB="S/N";            
+                        me.totalBilletas="0.00";
+                        me.totalMonto="0.00";
+                        me.cantidadMonedas=0;
+                        me.cantidadBilletes=0; 
+                
+                        me.input={};
                 
             }
         },
@@ -463,6 +586,7 @@ export default {
 
     mounted() {
         this.classModal = new _pl.Modals();
+        this.verificador_moneda_sistemas();
         this.sucursalFiltro();
         this.fecha_inicial();
         this.classModal.addModal("registrar");
