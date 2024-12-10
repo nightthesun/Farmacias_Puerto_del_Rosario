@@ -86,11 +86,10 @@
                     <td>
                         <div  class="d-flex justify-content-start">    
                             <button type="button" v-if="i.numero_edicion!=null || i.numero_edicion===0" class="btn btn-light btn-sm" style="margin-right: 5px;"><i class="icon-pencil"></i></button>                      
-                            <button type="button" v-else  class="btn btn-warning btn-sm" @click="abrirModal('registrar',i )" style="margin-right: 5px;"><i class="icon-pencil"></i></button>
-                            
-                             
+                            <button type="button" v-else  class="btn btn-warning btn-sm" @click="abrirModal('registrar',i )" style="margin-right: 5px;"><i class="icon-pencil"></i></button>           
                           
-                            <button type="button"  class="btn btn-info btn-sm"  style="margin-right: 5px; color: white;"><i class="fa fa-eye" aria-hidden="true"></i></button>
+                            <button type="button" v-if="i.numero_edicion==null" class="btn btn-light btn-sm" style="margin-right: 5px; color: white;"><i class="fa fa-eye" aria-hidden="true"></i></button>
+                            <button type="button" v-else class="btn btn-info btn-sm" @click="abrirModal('show',i )" style="margin-right: 5px; color: white;"><i class="fa fa-eye" aria-hidden="true"></i></button>
                         </div>                       
                     </td>
                     <td class="col-md-1">{{i.codigo}}</td>
@@ -103,7 +102,12 @@
                     <td class="col-md-1">{{i.diferencia_caja+" "+i.moneda}}</td>
                     <td class="col-md-1">{{i.created_at}}</td>
                     <td class="col-md-2">{{i.name}}</td>
-                    <td>{{ i.estado_caja }}</td>
+                    <td>
+                        <span :class="{ 'badge badge-pill bg-success': i.estado_caja === 'OK',
+                        'badge badge-pill bg-danger': i.estado_caja === 'Sobrante' || i.estado_caja === 'Faltante',
+                        'badge badge-pill bg-warning': i.estado_caja === 'Corregido'}">
+                        {{ i.estado_caja }}</span>
+                    </td>
                 </tr>
             </table>    
             <nav>
@@ -241,6 +245,98 @@
             </div>
         </div>
         <!--fin del modal-->
+        <!--Inicio del modal ver-->
+        <div class="modal fade" tabindex="-1" role="dialog" arial-labelledby="myModalLabel" id="show" aria-hidden="true"
+            data-backdrop="static" data-key="false" >
+            <div class="modal-dialog modal-primary modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">{{ tituloModal }}</h4>
+                        <button type="button" class="close" aria-label="Close" @click="cerrarModal('show')">
+                            <span aria-hidden="true">x</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <table class="table table-bordered table-striped table-sm table-responsive">
+                            <thead>
+                                <tr>
+                                  
+                                    <th class="col-md-1" style="font-size: 11px; text-align: center">Nro</th>
+                                    <th class="col-md-3" style="font-size: 11px; text-align: center">Monto anterior</th>                                   
+                                    <th class="col-md-3" style="font-size: 11px; text-align: center">Motivo</th> 
+                                    <th class="col-md-2" style="font-size: 11px; text-align: center">Fecha/Hora</th>                       
+                                    <th class="col-md-3" style="font-size: 11px; text-align: center">Estado anterior</th> 
+                                             
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="col-md-1" style="font-size: 11px; text-align: center">{{ id_mod_v2 }}</td>
+                                    <td class="col-md-3" style="font-size: 11px; text-align: center">{{monto_v2+" "+simbolo_v2 }}</td>                                  
+                                    <td class="col-md-3" style="font-size: 11px; text-align: center">{{motivo_v2}}</td>               
+                                    <td class="col-md-2" style="font-size: 11px; text-align: center">{{fecha_mas_reciente}}</td>                           
+                                    <td class="col-md-3" style="font-size: 11px; text-align: center">{{estado_v2}}</td>   
+                                 
+                                </tr>
+                            </tbody> 
+                        </table> 
+                        <table class="table table-bordered table-striped table-sm table-responsive">
+                            <thead>
+                                <tr>
+                                  
+                                    <th class="col-md-1" style="font-size: 11px; text-align: center">Nro arqueo</th>
+                                    <th class="col-md-1" style="font-size: 11px; text-align: center">Cant moneda</th>
+                                    <th class="col-md-2" style="font-size: 11px; text-align: center">Monto moneda</th>                                   
+                                    <th class="col-md-1" style="font-size: 11px; text-align: center">Cant billete</th>
+                                    <th class="col-md-2" style="font-size: 11px; text-align: center">Monto billete</th> 
+                                    <th class="col-md-2" style="font-size: 11px; text-align: center">Total de arqueo</th>                       
+                                    <th class="col-md-3" style="font-size: 11px; text-align: center">Usuario</th> 
+                                             
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="a in array_arqueo" :key="a.id">
+                                    <td class="col-md-1" style="font-size: 11px; text-align: center">{{ a.id }}</td>
+                                    <td class="col-md-1" style="font-size: 11px; text-align: center">{{ a.cantidad_moneda }}</td>                                  
+                                    <td class="col-md-2" style="font-size: 11px; text-align: center">{{a.total_moneda+" "+a.simbolo }}</td>               
+                                    <td class="col-md-1" style="font-size: 11px; text-align: center">{{a.cantidad_billete}}</td>                           
+                                    <td class="col-md-2" style="font-size: 11px; text-align: center">{{a.total_billete +" "+a.simbolo}}</td>   
+                                    <td class="col-md-2" style="font-size: 11px; text-align: center">{{a.total_arqueo +" "+a.simbolo}}</td>  
+                                    <td class="col-md-3" style="font-size: 11px; text-align: center">{{a.name}}</td>  
+                                </tr>
+                            </tbody> 
+                        </table> 
+                        <table class="table table-bordered table-striped table-sm table-responsive">
+                            <thead>
+                                <tr>                                  
+                                    <th class="col-md-4" style="font-size: 11px; text-align: center">Tipo corte</th>
+                                    <th class="col-md-2" style="font-size: 11px; text-align: center">Cantidad</th>
+                                    <th class="col-md-3" style="font-size: 11px; text-align: center">Valor</th>                                   
+                                    <th class="col-md-3" style="font-size: 11px; text-align: center">Suma de valor</th>  
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="a in array_array_arqueo" :key="a.id">
+                                    <td class="col-md-4" style="font-size: 11px; text-align: center">{{a.tipo_corte}}</td>
+                                    <td class="col-md-2" style="font-size: 11px; text-align: center">{{ a.cantidad }}</td>
+                                    <td class="col-md-3" style="font-size: 11px; text-align: center">{{ a.unidad_entera+" "+a.unidad }}</td>
+                                    <td class="col-md-3" style="font-size: 11px; text-align: center">{{ (a.valor * a.cantidad).toFixed(2) +" "+a.unidad }}</td>
+                                </tr>
+                            </tbody>
+                          
+                        </table> 
+                     
+                 
+                    </div>                  
+                    
+                    <div class="modal-footer">
+                        <button  type="button" class="btn btn-secondary" @click="cerrarModal('show')">Cerrar</button>
+                                               
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--fin del modal-->
     </main>
 </template>
 
@@ -287,7 +383,16 @@ export default {
             SimboloB:'S/N',            
             totalBilletas:"0.00",
             totalMonto:"0.00",
-            
+
+            fecha_creacion:'',
+            array_array_arqueo:[],
+            array_arqueo:[],
+            id_mod_v2:'',
+            monto_v2:'',
+            estado_v2:'',
+            motivo_v2:'',
+            fecha_mas_reciente:'',
+            simbolo_v2:'',
         };
     },
 
@@ -340,26 +445,61 @@ export default {
         },
 
     },
-    methods: {
+    methods: {        
+
+        listaArqueo(data) {
+            let me = this;
+           // var url = "/traspaso/listarSucursal";
+           var url = "/caja_modificar/ver_arqueo?id_arqueo="+data;
+            axios.get(url)
+                .then(function (response) {
+                    var respuesta_1 = (response.data).array_arqueo;
+                    var respuesta_2 = (response.data).arqueo;
+                   // me.arraySucursal = respuesta;
+                   me.array_array_arqueo=respuesta_1;
+                   me.array_arqueo=respuesta_2;
+                   // console.log(respuesta);
+                })
+                .catch(function (error) {
+                    error401(error);
+                    console.log(error);
+                });
+        },
 
         crear(){
             let me = this;     
             if (me.textArea_modal==="" || me.textArea_modal===null) {
                 Swal.fire("debe llenar el motivo","Haga click en Ok","error",); 
             } else {
-                            // Si ya está enviando, no permitas otra solicitud
-        if (me.isSubmitting) return;
-        me.isSubmitting = true; // Deshabilita el botón    
+
+                  if (me.diferencia_modal===me.totalMonto) {                  
+                     // Si ya está enviando, no permitas otra solicitud
+            if (me.isSubmitting) return;
+            me.isSubmitting = true; // Deshabilita el botón    
                  
-                axios.post("/caja_modificar/registrar", {             
+                axios.post("/caja_modificar/registrar", {         
+               
+                    total_arqueo_caja:me.totalMonto,
+                    cantidadBilletes:me.cantidadBilletes,
+                    totalBilletas:me.totalBilletas,
+                    cantidadMonedas:me.cantidadMonedas,
+                    totalMonedas:me.totalMonedas,
+                    moneda_s1:me.moneda_s1,
+                    input:me.input,
+                 
+
+
                 id_cierre_modal:me.id_cierre_modal,
                 diferencia_modal:me.diferencia_modal,
                 estado_modal:me.estado_modal,
                 textArea_modal:me.textArea_modal, 
                 arrayMoneda:me.arrayMoneda,
-                    })       
-                    .then(function (response) {                                            
+
+                    }).then(function (response) {                                            
                         let a=response.data;
+                        console.log("**************");
+                        console.log(a);
+
                         me.cerrarModal("registrar");                  
                            me.listarIndex();  
                             if (a===null || a==="" ) {
@@ -372,7 +512,11 @@ export default {
                     console.log(error.response.data);
             }).finally(() => {
           me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
-        });   
+        });
+
+                  } else {
+                    Swal.fire("La diferencia no es la misma","Haga click en Ok","error",); 
+                  }            
             }           
         },
 
@@ -454,9 +598,9 @@ export default {
                     console.log(error);
                 });
         },
+
         cambiarPestana(idPestana) {
             this.pestañaActiva = idPestana;
-
             // Agrega aquí la lógica adicional que necesites al cambiar la pestaña
         },
 
@@ -529,6 +673,21 @@ export default {
                     me.classModal.openModal("registrar");
                     break;
                 }
+                case "show":{
+                    me.tituloModal="Ver "+data.nombre_caja+" codigo "+data.codigo ;
+                    console.log(data);
+                    me.fecha_creacion=data.fecha_mas_reciente;
+                    me.id_mod_v2=data.id_mod_v2;
+                    me.monto_v2=data.monto_v2;
+                    me.estado_v2=data.estado_v2;
+                    me.motivo_v2=data.motivo_v2;
+                    me.fecha_mas_reciente=data.fecha_mas_reciente;
+                    me.simbolo_v2=data.moneda;
+                    me.listaArqueo(data.id_arqueo_mod);
+                    
+                    me.classModal.openModal("show");
+                    break;
+                }
             
             }
         },
@@ -550,10 +709,20 @@ export default {
                         me.totalBilletas="0.00";
                         me.totalMonto="0.00";
                         me.cantidadMonedas=0;
-                        me.cantidadBilletes=0; 
-                
-                        me.input={};
-                
+                        me.cantidadBilletes=0;                
+                        me.input={};                
+            }
+            if (accion == "show") {
+                    me.classModal.closeModal(accion);
+                    me.fecha_creacion="";
+                    me.id_mod_v2="";
+                    me.monto_v2="";
+                    me.estado_v2="";
+                    me.motivo_v2="";
+                    me.fecha_mas_reciente="";
+                    me.array_array_arqueo="";
+                    me.array_arqueo="";
+                    me.simbolo_v2="";
             }
         },
 
@@ -590,7 +759,7 @@ export default {
         this.sucursalFiltro();
         this.fecha_inicial();
         this.classModal.addModal("registrar");
-    
+        this.classModal.addModal("show");
     
     },
 };

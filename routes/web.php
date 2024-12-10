@@ -708,6 +708,8 @@ Route::group(['middleware' => 'auth'], function () {
     //modificar cajas------
     Route::get('/caja_modificar/listarInicio', [CajaModificacionController::class, 'index']); 
     Route::post('/caja_modificar/registrar', [CajaModificacionController::class, 'store']);
+    Route::get('/caja_modificar/ver_arqueo', [CajaModificacionController::class, 'show']); 
+    
     //////////////////////////////////////////////////EGRESOS///////////////////////////////////////////////////
     
     //inversiones-----

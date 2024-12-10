@@ -158,8 +158,27 @@
                             <span v-else>{{i.created_at_cierre}}</span></td> 
                         <td class="col-md-1">{{i.name}}</td>
                         <td class="col-md-1">
-                            <span v-if="selectApertura_cierre==='0'">{{i.estado_caja}}</span>
-                            <span v-else>{{i.estado_caja_cierre}}</span></td>                         
+  <span 
+    v-if="selectApertura_cierre === '0'" 
+    :class="{
+      'badge badge-pill bg-success': i.estado_caja === 'OK',
+      'badge badge-pill bg-danger': i.estado_caja === 'Sobrante' || i.estado_caja === 'Faltante',
+      'badge badge-pill bg-warning': i.estado_caja === 'Corregido'
+    }"
+  >
+    {{ i.estado_caja }}
+  </span>
+  <span 
+    v-else 
+    :class="{
+      'badge badge-pill bg-success': i.estado_caja_cierre === 'OK',
+      'badge badge-pill bg-danger': i.estado_caja_cierre === 'Sobrante' || i.estado_caja_cierre === 'Faltante',
+      'badge badge-pill bg-warning': i.estado_caja_cierre === 'Corregido'
+    }"
+  >
+    {{ i.estado_caja_cierre }}
+  </span>
+</td>                       
                         <td class="col-md-1">
                             <span v-if="i.id_apertura_cierre===0" class="badge badge-pill badge-success">Activo</span>
                             <span v-else class="badge badge-pill badge-danger">Cerrado</span>
@@ -940,7 +959,7 @@ let operacion_apertura = operacion_acciones + monto_cerrar_apertura;
                         total_caja:operacion_apertura,
                         total_arqueo_caja:me.totalMonto,                         
 
-                        total_arqueo_caja:me.totalMonto,
+                 
                         cantidadMonedas:me.cantidadMonedas,
                         totalMonedas:me.totalMonedas,
                         cantidadBilletes:me.cantidadBilletes,
@@ -1210,18 +1229,17 @@ me.isSubmitting = true; // Deshabilita el botón
                 }
 
                 case "cerrar_apertura":{
-                    me.tipoAccion = 3;
-               
+                    me.tipoAccion = 3;               
                     me.tituloModal = "Cerrar caja del usuario "+data.name;
                     me.isSubmitting=false;   
                     me.suma_venta="";
                     me.sumaEntrada="";
-                    me.sumaSalida="";
-                    me.get_operacion_v2(data.id);
-                    me.codigo_cerrar_apertura=data.id;
-                        me.monto_cerrar_apertura=data.total_arqueo_caja;
-                        me.usuario_cerrar_apertura=data.name;
-                        if (data.turno_caja===1) {
+                    me.sumaSalida="";            
+                    me.get_operacion_v2(data.id);     
+                    me.codigo_cerrar_apertura=data.id;               
+                    me.monto_cerrar_apertura=data.total_arqueo_caja;
+                    me.usuario_cerrar_apertura=data.name;
+                        if (data.turno_caja===1) {                
                             me.Turno_cerrar_apertura="Turno uno";
                         }else{
                             if (data.turno_caja===2) {
@@ -1233,8 +1251,7 @@ me.isSubmitting = true; // Deshabilita el botón
                                     me.Turno_cerrar_apertura="Error";
                                 }
                             }
-                        }    
-                        
+                        }                            
 
                         me.totalMonedas="0.00";
                         me.SimboloM="S/N";
@@ -1244,9 +1261,8 @@ me.isSubmitting = true; // Deshabilita el botón
                         me.cantidadMonedas=0;
                         me.cantidadBilletes=0; 
                         me.password="";
-                        me.input={};
-            
-                    me.classModal.openModal("cerrar_apertura");
+                        me.input={};            
+                        me.classModal.openModal("cerrar_apertura");
                     break;
                 }
 

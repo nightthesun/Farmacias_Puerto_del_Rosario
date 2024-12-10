@@ -243,9 +243,7 @@ return response()->json([
                         'total_moneda' => $request->totalMonedas, 
                         'tipo_moneda' => $request->moneda_s1                      
                     ];    
-
-                    $id = DB::table('caja__arqueo')->insertGetId($datos);            
-                
+                    $id = DB::table('caja__arqueo')->insertGetId($datos);               
                     foreach ($request->input as $key => $value) {                       
                         $datos_2 = [                            
                             'id_arqueo' => $id,                       
@@ -253,8 +251,7 @@ return response()->json([
                             'cantidad' => $value                                              
                         ];  
                         DB::table('caja__arqueo_array')->insert($datos_2);
-                    }                 
-                
+                    }                       
                     $apertura_cierre = new Caja_AperturaCierre(); 
                     $apertura_cierre->id_sucursal = $request->id_sucursal;
                     $apertura_cierre->id_arqueo = $id; 
