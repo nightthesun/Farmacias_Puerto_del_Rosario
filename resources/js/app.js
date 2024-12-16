@@ -99,7 +99,9 @@ createApp ({
     .component('gastos-component', require('./components/egreso/GastosComponent.vue').default)
     .component('inversiones-component', require('./components/egreso/InversionesComponent.vue').default)
     .component('tesoreria-component', require('./components/egreso/TesoreriaComponent.vue').default)
-   
+    //siat
+    .component('siat-configuracion-component', require('./components/siat/Configuracion_siatComponent.vue').default)
+    
 
     .mount('#app');
  
