@@ -11,7 +11,7 @@
    
     <!-- inicio de index -->
         <div class="container-fluid">
-            <div class="card">
+            <div v-if="verificador>0" class="card">
                 <div class="card-header">
                
                     <i class="fa fa-align-justify"></i> Aperturar caja:             
@@ -143,18 +143,18 @@
                             <span v-if="i.turno_caja===3">Turno completo</span>
                         </td>
                     
-                        <td class="col-md-1" style="text-align: right;">
+                        <td class="col-md-1" style="text-align: right;" v-show="codigoApertura===1">
                             <span v-if="selectApertura_cierre==='0'">{{i.total_caja}}</span>
                             <span v-else>{{i.total_caja_cierre}}</span></td>
-                        <td class="col-md-1" style="text-align: right;">
+                        <td class="col-md-1" style="text-align: right;" v-show="codigoApertura===1">
                             <span v-if="i.id_apertura_cierre===0">{{i.total_arqueo_caja}}</span>
                             <span v-else>{{i.total_arqueo_caja_cierre}}</span></td>
                        
-                        <td class="col-md-1" style="text-align: right;">
+                        <td class="col-md-1" style="text-align: right;" v-show="codigoApertura===1">
                             <span v-if="selectApertura_cierre==='0'">{{i.diferencia_caja}}</span>
                             <span v-else>{{i.diferencia_caja_cierre}}</span></td>
-                        <td class="col-md-2">
-                            <span v-if="selectApertura_cierre==='0'">{{i.created_at}}</span>
+                        <td class="col-md-2" v-show="codigoApertura===1">
+                            <span v-if="selectApertura_cierre==='0'" >{{i.created_at}}</span>
                             <span v-else>{{i.created_at_cierre}}</span></td> 
                         <td class="col-md-1">{{i.name}}</td>
                         <td class="col-md-1">
@@ -205,9 +205,13 @@
 
 
             </div>   
-  
+            <div v-else class="alert alert-danger" role="alert">
+                DEBE CONFIGURAR LA VENTANA MODAL EN ADMINISTRACION/CONFIGURACION/MODAL APERTURA!
+</div>
         <!-- fin de index -->
         </div>   
+
+    
            <!--Inicio del modal agregar/actualizar-->
         <div class="modal fade" tabindex="-1" role="dialog" arial-labelledby="myModalLabel" id="registrar" aria-hidden="true" data-backdrop="static" data-key="false">
             <div class="modal-dialog modal-primary modal-lg" role="document">
@@ -218,9 +222,11 @@
                             <span aria-hidden="true">x</span>
                         </button>
                     </div>
-                    <div v-show="bandera_aperturaCierre!=0" class="alert alert-danger" role="alert">                        
-                          <strong style="font-size: 18px;">{{ "Estado: "+estado_aperturaCierre+" Monto: "+monto_aperturaCierre }}</strong>                                               
+                     <!--   <div v-show="bandera_aperturaCierre!=0" class="alert alert-danger" role="alert">                        
+                        <strong style="font-size: 18px;">{{ "Estado: "+estado_aperturaCierre+" Monto: "+monto_aperturaCierre }}</strong>                                               
                     </div>
+                    --> 
+                   
                     <div class="modal-body">                      
                         <table class="table table-bordered table-striped table-sm table-responsive">
                             <thead>
@@ -311,6 +317,46 @@
                         <div  class="d-flex justify-content-start">
                             <div  v-if="isSubmitting==false">
                                 <button type="button" v-if="tipoAccion == 1" class="btn btn-primary" @click="registrarArqueo()" >Guardar</button>
+                                <button type="button" v-if="tipoAccion == 2" class="btn btn-primary">Actualizar</button>
+                            </div>
+                            <div v-else>
+                                <button type="button" v-if="tipoAccion == 1" class="btn btn-light">Guardar</button>
+                                <button type="button" v-if="tipoAccion == 2" class="btn btn-light">Actualizar</button>
+                            </div>
+                        </div>                        
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--fin del modal-->
+
+         <!--Inicio del modal agregar/actualizar dos para modal diferente -->
+         <div class="modal fade" tabindex="-1" role="dialog" arial-labelledby="myModalLabel" id="registrar_2" aria-hidden="true" data-backdrop="static" data-key="false">
+            <div class="modal-dialog modal-primary modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">{{ tituloModal }}</h4>
+                        <button type="button" class="close" aria-label="Close" @click="cerrarModal('registrar_2')">
+                            <span aria-hidden="true">x</span>
+                        </button>
+                    </div>
+                     <!--   <div v-show="bandera_aperturaCierre!=0" class="alert alert-danger" role="alert">                        
+                        <strong style="font-size: 18px;">{{ "Estado: "+estado_aperturaCierre+" Monto: "+monto_aperturaCierre }}</strong>                                               
+                    </div>
+                    --> 
+                   
+                    <div class="modal-body">                      
+                    
+
+            
+                    </div>
+                 
+                             
+                    <div class="modal-footer">
+                        <button  type="button" class="btn btn-secondary" @click="cerrarModal('registrar_2')">Cerrar</button>
+                        <div  class="d-flex justify-content-start">
+                            <div  v-if="isSubmitting==false">
+                                <button type="button" v-if="tipoAccion == 1" class="btn btn-primary">Guardar</button>
                                 <button type="button" v-if="tipoAccion == 2" class="btn btn-primary">Actualizar</button>
                             </div>
                             <div v-else>
@@ -643,6 +689,9 @@ export default {
             estado_aperturaCierre:'',
             monto_aperturaCierre:'',
             bandera_aperturaCierre:0,
+
+            verificador:0,
+            codigoApertura:'',
         };
     },
 
@@ -735,12 +784,12 @@ export default {
         cajaAnteriror(){
             let me=this;
             var url = "/apertura_cierre/cajaAnteriror?id_sucursal="+me.id_sucursal+"&id_caja="+me.selectCajaxUsuario;
-            console.log(url);
+    
             me.estado_aperturaCierre="";
             me.monto_aperturaCierre="";
             me.bandera_aperturaCierre=0;
             axios.get(url).then(function (response) {
-                    console.log("***respuesta***");
+              
                     var respuesta = response.data; 
                     var respuesta_1 = (response.data).ultimoRegistro;
                     var respuesta_2 = (response.data).ultimoRegistro_2;
@@ -748,8 +797,7 @@ export default {
                     if (respuesta_2===0 || respuesta_2===1 || respuesta_2===2) {
                         me.bandera_aperturaCierre=0; 
                     } else {                        
-                        console.log("**************");
-                        console.log(respuesta_2);
+                    
                         me.estado_aperturaCierre=respuesta_2.estado_caja;
                         me.monto_aperturaCierre=respuesta_2.diferencia_caja;
                         me.bandera_aperturaCierre=1; 
@@ -760,12 +808,7 @@ export default {
                                         "Haga click en Ok",
                                         "error");
                     } else {
-                        console.log("*///////*");
-                        console.log(respuesta);
-                        console.log("*primero*");                        
-                        console.log(respuesta_1);
-                        console.log("*segundo*");                        
-                        console.log(respuesta_2);
+                 
                         
 
                  if (respuesta_1===0 || respuesta_1===1) {
@@ -780,8 +823,13 @@ export default {
                             me.tipo_caja_c_a="Inicio";
                             me.estado_caja="Inicio";
                         } 
-                            me.total_caja=Number(0).toFixed(2);                           
-                            me.abrirModal('registrar'); 
+                            me.total_caja=Number(0).toFixed(2);    
+                            if (me.verificador===1) {
+                                me.abrirModal('registrar');   
+                            } else {
+                                me.abrirModal('registrar_2');  
+                            }                       
+                         
                     } else {
                         if (respuesta_1.tipo_caja_c_a===0) {
                             Swal.fire("Ya se hizo una apertura o el usuario ya aperturó en otra caja.",
@@ -808,7 +856,12 @@ export default {
                             
                             me.total_caja=respuesta_1.total_caja;
                             me.estado_caja=respuesta_1.estado_caja;
-                            me.abrirModal('registrar');  
+                            if (me.verificador===1) {
+                                me.abrirModal('registrar');   
+                            } else {
+                                me.abrirModal('registrar_2');  
+                            }
+                          
                         }
                     }
                     }
@@ -1104,7 +1157,12 @@ me.isSubmitting = true; // Deshabilita el botón
                     })
                     .then(function (response) {
                         me.listarIndex();
-                        me.cerrarModal("registrar");
+                        if (me.verificador===1) {
+                            me.cerrarModal("registrar");
+                        } else {
+                            me.cerrarModal("registrar_2"); 
+                        }
+                        
                         Swal.fire(
                             "Registrado exitosamente",
                             "Haga click en Ok",
@@ -1161,9 +1219,44 @@ me.isSubmitting = true; // Deshabilita el botón
            var url = "/apertura_cierre/listarCaja_usuario?id_sucursal="+me.id_sucursal;
             axios.get(url).then(function (response) {
                     var respuesta = response.data;                  
-                    me.arrayCajaUsuario = respuesta;
-                    console.log("**********");    
-                    console.log(me.arrayCajaUsuario);             
+                    me.arrayCajaUsuario = respuesta;                     
+                })
+                .catch(function (error) {
+                    error401(error);
+                    console.log(error);
+                });
+        },
+      
+        
+        verModalapertura() {
+            let me = this;         
+           var url = "/apertura_cierre/modal_apertura";
+            axios.get(url)
+                .then(function (response) {
+                    var respuesta = (response.data).resultado;
+                    var respuesta_2 = (response.data).usuario;
+                    console.log("************************");   
+                    console.log(respuesta);
+                    console.log(respuesta_2);               
+                    console.log(respuesta.modal_apertura);
+                    if (respuesta.modal_apertura===0) {
+                        me.verificador=0;
+                        Swal.fire( "Error de venta de modal.",
+                    "Debe configurar un tipo de modal en la aprte de administracion en configuracion en la pestaña modal apertura.",
+                    "error",
+                );
+                    } else {
+                        if (respuesta.modal_apertura>0) {
+                            me.verificador=respuesta.modal_apertura;  
+                            me.codigoApertura=respuesta_2;
+                                               
+                        } else {
+                            Swal.fire( "Error.",
+                    "revise la base de datos.",
+                    "error",
+                );
+                        }
+                    }         
                 })
                 .catch(function (error) {
                     error401(error);
@@ -1171,7 +1264,6 @@ me.isSubmitting = true; // Deshabilita el botón
                 });
         },
 
-               
         sucursalFiltro() {
             let me = this;
            // var url = "/traspaso/listarSucursal";
@@ -1225,6 +1317,27 @@ me.isSubmitting = true; // Deshabilita el botón
                     
             
                     me.classModal.openModal("registrar");
+                    break;
+                }
+                case "registrar_2": {
+                    me.tipoAccion = 1;
+                    me.isSubmitting=false;
+                  
+                        me.tituloModal = "Registro de apertura de caja";
+                        me.selectTurno="0";
+                        me.totalMonedas="0.00";
+                        me.SimboloM="S/N";
+                        me.SimboloB="S/N";            
+                        me.totalBilletas="0.00";
+                        me.totalMonto="0.00";
+                        me.cantidadMonedas=0;
+                        me.cantidadBilletes=0; 
+                        me.password="";
+                        me.input={};
+                  
+                    
+            
+                    me.classModal.openModal("registrar_2");
                     break;
                 }
 
@@ -1357,6 +1470,22 @@ me.isSubmitting = true; // Deshabilita el botón
                         me.classModal.closeModal(accion);
                         me.bandera_aperturaCierre="";
             }
+            if (accion == "registrar_2") {
+                me.isSubmitting=false;
+                me.selectTurno="0";
+                        me.totalMonedas="0.00";
+                        me.SimboloM="S/N";
+                        me.SimboloB="S/N";            
+                        me.totalBilletas="0.00";
+                        me.totalMonto="0.00";
+                        me.cantidadMonedas=0;
+                        me.cantidadBilletes=0; 
+                        me.password="";
+                        me.input={};
+                        me.classModal.closeModal(accion);
+                        me.bandera_aperturaCierre="";
+            }
+            
             if(accion=== "ver"){
             me.id_modal="";
             me.id_arqueo_modal="";
@@ -1440,10 +1569,11 @@ me.isSubmitting = true; // Deshabilita el botón
         this.classModal = new _pl.Modals();
         this.sucursalFiltro();
         this.fecha_inicial();
-        
+        this.verModalapertura();
         this.classModal.addModal("registrar");
         this.classModal.addModal("ver");
         this.classModal.addModal("cerrar_apertura");
+        this.classModal.addModal("registrar_2");
     },
 };
 </script>

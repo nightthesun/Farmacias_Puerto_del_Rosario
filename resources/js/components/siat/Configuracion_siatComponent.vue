@@ -27,16 +27,77 @@
                             <div class="card-header">
                                 Configuración general de siat
                             </div>
-                            <div class="alert alert-info" role="alert">
-  La configuración solo afectara a servidor de correos y <strong>correo default para crear clientes</strong>
-</div>
-                            <div class="card-body">    
-                                <div class="form-group row">
-                              
+             
+                            <div class="card-body">       
+                            <div class="row">
+                                <div class="form-group col-sm-3">
+                                    <strong>Codigo de sistema: <span  v-if="cod_sis===''" class="error">(*)</span></strong>
+                                    <input type="text" @input="validateInput($event, 'alphanumeric')" class="form-control" v-model="cod_sis"  placeholder="Codigo de sistema dada por INS">
+                                    <span  v-if="cod_sis==''" class="error">Debe Ingresar codigo</span>
+                                </div>     
+                                <div class="form-group col-sm-3">
+                                    <strong>Tipo ambiente: <span  v-if="selectTipoAmbiente===0" class="error">(*)</span></strong>
+                                    <select  class="form-control"  v-model="selectTipoAmbiente">
+                                            <option value=0 disabled selected>Seleccionar...</option>
+                                            <option value=1>Producción</option>
+                                            <option value=2>Prueba</option>
+                                        </select>
+                                    <span  v-if="selectTipoAmbiente==''" class="error">Debe Ingresar codigo</span>
+                                </div> 
+                                <div class="form-group col-sm-3">
+                                    <strong>Formato de fecha: <span  v-if="forFecha===''" class="error">(*)</span></strong>
+                                    <input type="text"  class="form-control" v-model="forFecha"  placeholder="Debe ingresar el formato de fecha">
+                                    <span  v-if="forFecha==''" class="error">Debe Ingresar formato</span>
                                 </div>
-                                <div class="form-group row">
-           
+                                <div class="form-group col-sm-3">
+                                    <strong>Maximo de facturas por paquete:<span  v-if="paquetes===''" class="error">(*)</span></strong>
+                                    <input type="number"  @input="validateInput($event, 'integer')"  class="form-control" v-model="paquetes"  placeholder="Debe ingresar numero entero de paquetes">
+                                    <span  v-if="paquetes==''" class="error">Debe Ingresar formato</span>
+                                </div>                           
+                            </div>
+                            <div class="row">
+                                <div class="form-group col-sm-6">
+                                    <strong>Token delegado:<span  v-if="token_delegado===''" class="error">(*)</span></strong>
+                                    <textarea class="form-control" v-model="token_delegado" id="exampleFormControlTextarea1" rows="2"></textarea>
+                                     <span  v-if="token_delegado==''" class="error">Debe Ingresar formato</span>
+                                 </div>
+                                 <div class="form-group col-sm-6">
+                                    <strong>Url QR:<span  v-if="qr_===''" class="error">(*)</span></strong>
+                                    <textarea class="form-control"  v-model="qr_" id="exampleFormControlTextarea2" rows="2"></textarea>
+                                     <span  v-if="qr_==''" class="error">Debe Ingresar formato</span>
+                                 </div>
+                            </div> 
+                            <div class="row">
+                                <div class="form-group col-sm-4">
+                                    <strong>Tipo ambiente: <span  v-if="selectTipoAmbiente===0" class="error">(*)</span></strong>
+                                    <select  class="form-control"  v-model="selectTipoAmbiente">
+                                            <option value=0 disabled selected>Seleccionar...</option>
+                                            <option value=1>Producción</option>
+                                            <option value=2>Prueba</option>
+                                        </select>
+                                    <span  v-if="selectTipoAmbiente==''" class="error">Debe Ingresar codigo</span>
+                                </div>     
+                                <div class="form-group col-sm-4">
+                                    <strong>Tipo ambiente: <span  v-if="selectTipoAmbiente===0" class="error">(*)</span></strong>
+                                    <select  class="form-control"  v-model="selectTipoAmbiente">
+                                            <option value=0 disabled selected>Seleccionar...</option>
+                                            <option value=1>Producción</option>
+                                            <option value=2>Prueba</option>
+                                        </select>
+                                    <span  v-if="selectTipoAmbiente==''" class="error">Debe Ingresar codigo</span>
+                                </div> 
+                                <div class="form-group col-sm-4">
+                                    <strong>Tipo ambiente: <span  v-if="selectTipoAmbiente===0" class="error">(*)</span></strong>
+                                    <select  class="form-control"  v-model="selectTipoAmbiente">
+                                            <option value=0 disabled selected>Seleccionar...</option>
+                                            <option value=1>Producción</option>
+                                            <option value=2>Prueba</option>
+                                        </select>
+                                    <span  v-if="selectTipoAmbiente==''" class="error">Debe Ingresar codigo</span>
                                 </div>
+                                                    
+                            </div>       
+                               
                             </div>
                             <div class="form-group row justify-content-center">
                                 <div class="col-md-3 d-flex justify-content-center">       
@@ -103,7 +164,12 @@ export default {
         return {
             //---correo  
             tipoAccion:0,
-          
+            cod_sis:'',
+            selectTipoAmbiente:0,
+            forFecha:'',
+            paquetes:'',
+            token_delegado:'',
+            qr_:'',
             isSubmitting_2: false, // Controla el estado del botón de envío
        
                 //---permisos_R_W_S
@@ -178,6 +244,33 @@ export default {
         });
 },
 //-------------------------------------------------------------- 
+
+
+
+    validateInput(event, type) {
+        let me=this;
+      let value = event.target.value; // Obtener el valor actual del input
+      switch (type) {
+        case "integer":
+          value = value.replace(/\D/g, ""); // Permitir solo números
+          break;
+        case "alphanumeric":
+          value = value.replace(/[^a-zA-Z0-9]/g, ""); // Permitir solo letras y números
+          break;
+        default:
+          break;
+      }
+      event.target.value = value; // Actualizar el valor del input
+      me.updateModel(event); // Sincronizar con v-model
+    },
+
+    updateModel(event) {
+        let me=this;
+      const model = event.target.getAttribute("v-model"); // Obtener el modelo vinculado
+      if (model && this[model] !== undefined) {
+        this[model] = event.target.value;
+      }
+    },
 
         cambiarPestana(idPestana) {
             this.pestañaActiva = idPestana;

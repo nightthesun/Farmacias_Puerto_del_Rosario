@@ -261,8 +261,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::put('/cuenta/activar_cuenta', [AdmCredecialCorreoController::class, 'activar_cuenta']); 
     Route::put('/responsable/añadir_quitar', [AdmCredecialCorreoController::class, 'añadir_quitar_Encargado']); 
     Route::post('/credenciales_correo/limite_2', [AdmCredecialCorreoController::class, 'añadirLimite']);   
-    Route::put('/super_usuario/añadir_quitar', [AdmCredecialCorreoController::class, 'añadir_quitar_superUsuario']);     
-      
+    Route::put('/super_usuario/añadir_quitar', [AdmCredecialCorreoController::class, 'añadir_quitar_superUsuario']);
+    Route::post('/credenciales_correo/modal_apertura', [AdmCredecialCorreoController::class, 'editar_modal_apertura']);  
+           
     Route::get('/dosificacion/getDataSucursal', [AdmCredecialCorreoController::class, 'getDataSucursal']);
     Route::post('/dosificacion/store_dosificacion', [AdmCredecialCorreoController::class, 'store_dosificacion']);
     Route::get('/dosificacion/index_dosificacion', [AdmCredecialCorreoController::class, 'index_dosificacion']);    
@@ -682,6 +683,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/apertura_cierre/cierre', [CajaAperturaCierreController::class, 'cierre_store']);  
     Route::get('/apertura_cierre/get_operacion', [CajaAperturaCierreController::class, 'suma_operacion_v2']); 
     Route::get('/apertura_cierre/listarCaja_usuario', [CajaAperturaCierreController::class, 'getCaja_x_usuario']); 
+    Route::get('/apertura_cierre/modal_apertura', [CajaAperturaCierreController::class, 'getModalApertura']);     
     
     //entrada_salida
     Route::post('/entrada_salida/store', [CajaEntradaSalidaController::class, 'store']); 

@@ -32,7 +32,10 @@
                 </li>   
                 <li class="nav-item">
                     <a class="nav-link" id="pills-superUser-tab" data-toggle="pill" href="#pills-superUser" role="tab" aria-controls="pills-superUser" @click="listarUser()" aria-selected="false">Super usuario</a>
-                </li>              
+                </li>    
+                <li class="nav-item">
+                    <a class="nav-link" id="pills-modal-tab" data-toggle="pill" href="#pills-modal" role="tab" aria-controls="pills-modal" aria-selected="false">Modal de apertura</a>
+                </li>            
             </ul>
         </div>
         <div class="card-body">
@@ -566,6 +569,52 @@
         </div>
                     </div>
     <!---------------------------------------------------------------------------------------------------------------------------->
+  <div class="tab-pane fade" id="pills-modal" role="tabpanel" aria-labelledby="pills-modal-tab">
+                   <div class="card">
+                            <div class="card-header">Datos de modal de apertura</div>
+                            <div class="alert alert-info" role="alert">
+  Solo afecta las ventanas modales donde se muestre conteo de monedas. <strong>Disponible en modulo de cajas</strong>
+</div>
+                            <div class="card-body">
+                                <div class="form-group row">
+                                    <label class="col-md-1 form-control-label" for="text-input" style="font-size: 12px;"><strong>Venta modal:</strong> 
+                                    </label>
+                                  
+          
+                                    <div class="col-md-3">
+                                        <select v-if="puedeHacerOpciones_especiales===1" class="form-control"  v-model="selectModalApertura" @change="cambioModalApertura(selectModalApertura)">
+                                        <option value=0 disabled selected>Seleccionar...</option>
+                                        <option value=1>Venta modal normal</option>
+                                        <option value=2>Venta modal modificada</option>
+                                    </select>    
+                                        <select v-else class="form-control">
+                                            <option value="0" disabled selected>Sin permiso...</option>
+                                        
+                                        </select>
+                                     </div>
+                                   
+                                    <div class="col-md-3">
+                                        <div v-if="selectModalApertura===0" class="alert alert-danger" role="alert">
+                                             {{ modalApertura  }}
+                                        </div>
+                                        <div v-else class="alert alert-primary" role="alert">
+                                             {{ modalApertura  }}
+                                        </div>
+                                     </div>
+              
+                                </div>
+                            </div>
+                           
+                            <div class="form-group row justify-content-center">
+                                <div class="col-md-3 d-flex justify-content-center">       
+                                    <button v-if="puedeEditar==1" type="button" class="btn btn-warning" style="color: white;" @click="actualizarModalContable()" >Actualizar modal de apertura</button>
+                                    <button v-else type="button" class="btn btn-light">Actualizar modal de apertura</button>   
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+<!------------------------------------------------------------------------------------------------------------------------->
+
 
                 </div>
             
@@ -739,6 +788,9 @@ puedeEditar:2,
                 arryaSuper_user:[],
                 selectUser_super:null,
 
+                modalApertura:'No tiene ninguna configuración',
+                selectModalApertura:0,
+
         };
     },
 
@@ -821,7 +873,6 @@ puedeEditar:2,
 },
 //-------------------------------------------------------------- 
 
-
         añadirlimite(){
             let me = this;            
             if (me.limite_monto===null || me.limite_monto==="" || me.limite_horas===null || me.limite_horas==="") {
@@ -856,6 +907,26 @@ puedeEditar:2,
                 error401(error);
                 });
             }
+        },
+       
+        cambioModalApertura(data){
+            let me = this;
+          console.log(data);
+          let numero = Number(data); // 123
+          switch (numero) {
+            case 0: {
+                me.modalApertura="No tiene ninguna configuración";  
+                    break;
+                }
+            case 1: {
+                me.modalApertura="Modal normal. Esta selección anota en forma vertical tiene una forma clasica de llenado de datos.";  
+                    break;
+                }
+            case 2: {
+                me.modalApertura="Modal modificado, esta es un modal mas personalizado en formato de siguiente y siguiente";  
+                    break;
+                }        
+          }       
         },
 
 
@@ -1646,6 +1717,24 @@ puedeEditar:2,
                 })
             },
 
+            actualizarModalContable(){
+                let me = this;
+                axios.post("/credenciales_correo/modal_apertura", {
+                    id: me.id_credencial,                   
+                    modal_apertura:me.selectModalApertura,
+
+                    id_modulo: me.idmodulo,
+                id_sub_modulo:me.codventana, 
+                des:"actualziacion modal de apertura",                
+                }).then(function (response) {                    
+                        Swal.fire("Se registro exitosamente","Haga click en Ok", "success",);                                            
+                    })                
+                  .catch(function (error) { 
+                    error401(error);
+                    console.log(error);                         
+            }); 
+            },
+
  listarCredencial() {
             let me = this;
             var url = "/credenciales_correo";
@@ -1669,7 +1758,8 @@ puedeEditar:2,
                     
                     me.limite_monto=response.data[0].monto_limite;
                     me.limite_horas=response.data[0].tiempo_limite;  
-             
+                    me.selectModalApertura=response.data[0].modal_apertura;
+                    me.cambioModalApertura(me.selectModalApertura);
                 })
                 .catch(function (error) {
                     error401(error);

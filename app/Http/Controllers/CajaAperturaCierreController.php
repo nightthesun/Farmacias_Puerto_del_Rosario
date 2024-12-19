@@ -410,4 +410,19 @@ $data_1 = $moneda;
         
         return $resultado;
     }
+
+    public function getModalApertura(Request $request){
+        $resultado = DB::table('adm__credecial_correos')
+    ->select('id', 'modal_apertura')
+    ->first();
+
+    $usuario = auth()->user()->super_usuario;
+
+    return response()->json([                        
+        'resultado' => $resultado,
+        'usuario' => $usuario, 
+    ]);
+    
+    }
+
 }
