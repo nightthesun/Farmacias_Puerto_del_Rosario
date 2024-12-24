@@ -58,19 +58,19 @@
                             <div class="row">
                                 <div class="form-group col-sm-6">
                                     <strong>Token delegado:<span  v-if="token_delegado===''" class="error">(*)</span></strong>
-                                    <textarea class="form-control" v-model="token_delegado" id="exampleFormControlTextarea1" rows="2"></textarea>
+                                    <textarea class="form-control" v-model="token_delegado" id="exampleFormControlTextarea1" rows="2" placeholder="ingrese el token delegado"></textarea>
                                      <span  v-if="token_delegado==''" class="error">Debe Ingresar formato</span>
                                  </div>
                                  <div class="form-group col-sm-6">
                                     <strong>Url QR:<span  v-if="qr_===''" class="error">(*)</span></strong>
-                                    <textarea class="form-control"  v-model="qr_" id="exampleFormControlTextarea2" rows="2"></textarea>
+                                    <textarea class="form-control"  v-model="qr_" id="exampleFormControlTextarea2" rows="2" placeholder="ingrese los datos"></textarea>
                                      <span  v-if="qr_==''" class="error">Debe Ingresar formato</span>
                                  </div>
                             </div> 
                             <div class="row">
                                 <div class="form-group col-sm-4">
-                                    <strong>Tipo ambiente: <span  v-if="selectTipoAmbiente===0" class="error">(*)</span></strong>
-                                    <select  class="form-control"  v-model="selectTipoAmbiente">
+                                    <strong>Vencimiento token: <span  v-if="selectVenToken===0" class="error">(*)</span></strong>
+                                    <select  class="form-control"  v-model="selectVenToken">
                                             <option value=0 disabled selected>Seleccionar...</option>
                                             <option value=1>Producción</option>
                                             <option value=2>Prueba</option>
