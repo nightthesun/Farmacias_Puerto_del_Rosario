@@ -131,7 +131,7 @@
                                 <button type="button" class="btn btn-light" v-else style="margin-right: 5px; color: black;">
                                 <i class="fa fa-eye" aria-hidden="true"></i>
                                 </button> 
-                                <button v-if="i.id_apertura_cierre === 0" type="button" class="btn btn-danger" style="margin-right: 5px;" @click="verificador_moneda_sistemas();abrirModal('cerrar_apertura', i);">
+                                <button v-if="i.id_apertura_cierre === 0" type="button" class="btn btn-danger" style="margin-right: 5px;" @click="abrirModalCerrar(i);">
                                     <i class="fa fa-lock" aria-hidden="true"></i></button>                             
                                     <button v-else type="button" class="btn btn-light" style="margin-right: 5px;">
                                         <i class="fa fa-lock" aria-hidden="true"></i></button>   
@@ -345,7 +345,7 @@
                         <button  type="button" class="btn btn-secondary" @click="cerrarModal('registrar')">Cerrar</button>
                         <div  class="d-flex justify-content-start">
                             <div  v-if="isSubmitting==false">
-                                <button type="button" v-if="tipoAccion == 1" class="btn btn-primary" @click="registrarArqueo()" >Guardar</button>
+                                <button type="button" v-if="tipoAccion == 1" class="btn btn-primary" @click="registrarArqueo()">Guardar</button>
                                 <button type="button" v-if="tipoAccion == 2" class="btn btn-primary">Actualizar</button>
                             </div>
                             <div v-else>
@@ -387,10 +387,17 @@
                                     <th class="col-md-2">Siguiente</th>
                                 </tr>
                             </thead>
-                            <tbody>
                  
+<tbody v-if="tamaño_v2>=0">                 
     <tr style="text-align: center; vertical-align: middle;">
-        <td class="col-md-3" style="font-size: 30px;"><strong>{{ arraySiguiente.unidad_entera+" "+arraySiguiente.unidad }}</strong></td>
+        <td class="col-md-3" style="font-size: 30px;">         
+                <strong v-if="arraySiguiente.unidad!='ctvo'">
+                {{ arraySiguiente.unidad_entera+" "+arraySiguiente.unidad }}
+            </strong>
+            <strong v-else>
+                {{ "0."+arraySiguiente.unidad_entera+" "+arraySiguiente.unidad }}
+            </strong>  
+        </td>
         <td class="col-md-3" style="font-size: 30px;"><strong>{{ arraySiguiente.tipo_corte }}</strong></td>
         <td class="col-md-2">
             <input type="text" class="form-control text-right" v-model="input_v2" placeholder="Solo valores enteros"  @input="validar_v2"/>
@@ -411,33 +418,33 @@
         </td>
     </tr>
 </tbody>
-
+<tbody v-else>                 
+    <tr style="text-align: center; vertical-align: middle;">
+        <td class="col-md-3" style="font-size: 30px;">      
+            <strong>0</strong>
+         </td>
+        <td class="col-md-3" style="font-size: 30px;"><strong>S/T</strong></td>
+        <td class="col-md-2">
+            <input type="text" class="form-control text-right"  placeholder="Solo valores enteros" disabled/>
+        </td>
+        <td class="col-md-1">
+            <button type="button" class="btn btn-secondary" disabled>
+                <i class="fa fa-minus" aria-hidden="true"></i>
+            </button>
+        </td>
+        <td class="col-md-1">
+            <button type="button" class="btn btn-secondary" disabled>
+                <i class="fa fa-plus" aria-hidden="true"></i>
+            </button>
+        </td>
+        <td class="col-md-2">  
+            <button type="button" class="btn btn-secondary">Siguiente</button>
+        </td>
+    </tr>
+</tbody>
                          
                         </table>                        
-                        <table class="table table-bordered table-striped table-sm table-responsive">
-                            <thead>
-                                <tr>
-                                    <th class="col-md-1">Monto</th>
-                                    <th class="col-md-1">Simbolo</th>
-                                    <th class="col-md-2">Tipo</th>
-                                    <th class="col-md-1">Valor</th>
-                                    <th class="col-md-3">Acción</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr v-for="a in arrayMoneda" :key="a.id">
-                                    <td  class="col-md-1" style="text-align: right;">{{a.unidad_entera}}</td>
-                                    <td class="col-md-1">{{a.unidad}}</td>
-                                    <td  class="col-md-2">{{a.tipo_corte}}</td>
-                                    <td  class="col-md-1" style="text-align: right;">{{a.valor_default}}</td>
-                                    <td  class="col-md-3"> 
-                                        <input type="text" style="text-align: right;" class="form-control" placeholder="Solo valores enteros" v-model="input[a.id]"  @input="validateIntegerInput(a.id,a)" />
-                                    
-                                    </td>
-                              
-                                </tr>
-                            </tbody>
-                        </table>
+               
                         <table class="table table-bordered table-striped table-sm table-responsive">
                             <thead>
                                 <tr>
@@ -499,8 +506,8 @@
                     <div class="modal-footer">
                         <button  type="button" class="btn btn-secondary" @click="cerrarModal('registrar_2')">Cerrar</button>
                         <div  class="d-flex justify-content-start">
-                            <div  v-if="isSubmitting==false">
-                                <button type="button" v-if="tipoAccion == 1" class="btn btn-primary">Guardar</button>
+                            <div  v-if="isSubmitting==false && tamaño_v2<0" >
+                                <button type="button" v-if="tipoAccion == 1" class="btn btn-primary" @click="registrarArqueo()">Guardar</button>
                                 <button type="button" v-if="tipoAccion == 2" class="btn btn-primary">Actualizar</button>
                             </div>
                             <div v-else>
@@ -605,6 +612,148 @@
                       
                                 <button type="button" v-if="tipoAccion == 3" @click="cerrar_apertura()" class="btn btn-primary">Guardar</button>                           
                  
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--fin del modal-->
+        <!--Inicio del modal cerrar_apertura dos ******2 -->
+        <div class="modal fade" tabindex="-1" role="dialog" arial-labelledby="myModalLabel" id="cerrar_apertura_2" aria-hidden="true" data-backdrop="static" data-key="false" >
+            <div class="modal-dialog modal-primary modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">{{ tituloModal }}</h4>
+                        <button type="button" class="close" aria-label="Close" @click="cerrarModal('cerrar_apertura_2')">
+                            <span aria-hidden="true">x</span>
+                        </button>
+                    </div>
+          
+                    <div class="modal-body">   
+               
+                      
+                        <table class="table table-bordered table-striped table-sm table-responsive">
+                            <thead>
+                                <tr>
+                                    <th class="col-md-3">Monto</th>                               
+                                    <th class="col-md-3">Tipo</th>                                  
+                                    <th class="col-md-2">Cantidad</th>
+                                    <th class="col-md-1">Menos</th>
+                                    <th class="col-md-1">Mas</th>
+                                    <th class="col-md-2">Siguiente</th>
+                                </tr>
+                            </thead>
+                 
+<tbody v-if="tamaño_v2>=0">                 
+    <tr style="text-align: center; vertical-align: middle;">
+        <td class="col-md-3" style="font-size: 30px;">         
+                <strong v-if="arraySiguiente.unidad!='ctvo'">
+                {{ arraySiguiente.unidad_entera+" "+arraySiguiente.unidad }}
+            </strong>
+            <strong v-else>
+                {{ "0."+arraySiguiente.unidad_entera+" "+arraySiguiente.unidad }}
+            </strong>  
+        </td>
+        <td class="col-md-3" style="font-size: 30px;"><strong>{{ arraySiguiente.tipo_corte }}</strong></td>
+        <td class="col-md-2">
+            <input type="text" class="form-control text-right" v-model="input_v2" placeholder="Solo valores enteros"  @input="validar_v2"/>
+        </td>
+        <td class="col-md-1">
+            <button type="button" class="btn btn-primary"  @click="restador_v2()">
+                <i class="fa fa-minus" aria-hidden="true"></i>
+            </button>
+        </td>
+        <td class="col-md-1">
+            <button type="button" class="btn btn-primary" @click="sumador_v2()">
+                <i class="fa fa-plus" aria-hidden="true"></i>
+            </button>
+        </td>
+        <td class="col-md-2">            
+            <button v-if="input_v2==='' ||  input_v2===null || bloqueador_v2===1" type="button" class="btn btn-secondary">Siguiente</button>
+            <button v-else type="button" class="btn btn-primary"  @click="añadir_v2()">Siguiente</button>
+        </td>
+    </tr>
+</tbody>
+<tbody v-else>                 
+    <tr style="text-align: center; vertical-align: middle;">
+        <td class="col-md-3" style="font-size: 30px;">      
+            <strong>0</strong>
+         </td>
+        <td class="col-md-3" style="font-size: 30px;"><strong>S/T</strong></td>
+        <td class="col-md-2">
+            <input type="text" class="form-control text-right"  placeholder="Solo valores enteros" disabled/>
+        </td>
+        <td class="col-md-1">
+            <button type="button" class="btn btn-secondary" disabled>
+                <i class="fa fa-minus" aria-hidden="true"></i>
+            </button>
+        </td>
+        <td class="col-md-1">
+            <button type="button" class="btn btn-secondary" disabled>
+                <i class="fa fa-plus" aria-hidden="true"></i>
+            </button>
+        </td>
+        <td class="col-md-2">  
+            <button type="button" class="btn btn-secondary">Siguiente</button>
+        </td>
+    </tr>
+</tbody>
+                         
+                        </table>  
+                        <table class="table table-bordered table-striped table-sm table-responsive">                           
+                            <thead>
+                                <tr>
+                                    <th class="col-md-2">Codigo</th>
+                                    <th class="col-md-3">Usuario</th>
+                                    <th class="col-md-2">Monto de apertura</th>    
+                                    <th class="col-md-1">Simbolo</th>                                   
+                                    <th class="col-md-4">Turno</th>                                
+                                 </tr>
+                            </thead>  
+                            <tbody>  
+                                <tr>                    
+                                    <td class="col-md-2" style="text-align: right">{{codigo_cerrar_apertura}}</td>
+                                    <td class="col-md-3">{{usuario_cerrar_apertura}}</td>
+                                    <td class="col-md-2" style="text-align: right">{{monto_cerrar_apertura}}</td>
+                                    <td class="col-md-1">{{SimboloB}}</td>
+                                    <td class="col-md-4">{{Turno_cerrar_apertura}}</td>                                    
+                                                                   
+                                </tr>    
+                            </tbody>  
+                        </table>
+                        <table class="table table-bordered table-striped table-sm table-responsive">
+                            <thead>
+                                <tr>
+                                    <th class="col-md-2">Cant. Moneda</th>
+                                    <th class="col-md-2">Monto Moneda</th>
+                                    <th class="col-md-1">Simbolo</th>
+                                    <th class="col-md-2">Cant. Billete</th>
+                                    <th class="col-md-2">Monto Billete</th>
+                                    <th class="col-md-1">Simbolo</th>
+                                    <th class="col-md-2">Monto Total</th>
+                                    <th class="col-md-1">Simbolo</th>
+                                 </tr>
+                            </thead>  
+                            <tbody>
+                                <tr>
+                                    <td class="col-md-2" style="text-align: right;">{{cantidadMonedas}}</td>
+                                    <td class="col-md-2" style="text-align: right;">{{totalMonedas}}</td>
+                                    <td class="col-md-1">{{SimboloM}}</td>
+                                    <td class="col-md-2" style="text-align: right;">{{cantidadBilletes}}</td>
+                                    <td class="col-md-2" style="text-align: right;">{{ totalBilletas }}</td>
+                                    <td class="col-md-1">{{SimboloB}}</td>
+                                    <td class="col-md-2" style="text-align: right; background-color:darkred; color: azure;">{{totalMonto}}</td>
+                                    <td class="col-md-1">{{SimboloB}}</td>
+                                    
+                                </tr>    
+                            </tbody>          
+                        </table>
+            
+                    </div>
+                                                
+                    <div class="modal-footer"> 
+                        <button  type="button" class="btn btn-secondary" @click="cerrarModal('cerrar_apertura_2')">Cerrar</button>                      
+                        <button type="button" v-if="tipoAccion == 3 && tamaño_v2<0" @click="cerrar_apertura()" class="btn btn-primary">Guardar</button>                           
+                        <button type="button" v-else class="btn btn-secondary">Guardar</button>   
                     </div>
                 </div>
             </div>
@@ -844,6 +993,8 @@ export default {
             arrayFalso_:[],
             arraySiguiente:[],
             bloqueador_v2:0,
+            sepuede_guardar:0,          
+
            
         };
     },
@@ -1040,34 +1191,78 @@ export default {
         
         },
 
-        añadir_v2(){
-            console.log("----");
-            let me=this;            
-            
-            me.tamaño_v2=me.tamaño_v2-1;
-          
-            me.arraySiguiente=[];
-          console.log(me.tamaño_v2);
+        añadir_v2(){        
+            let me=this;      
+            const swalWithBootstrapButtons = Swal.mixin({
+  customClass: {
+    confirmButton: "btn btn-success",
+    cancelButton: "btn btn-danger"
+  },
+  buttonsStyling: false
+});
+swalWithBootstrapButtons.fire({
+  title: "¿Esta seguro ir al siguiente monto?",
+  text: "¡Una vez que continue con el siguiente monto no se podra volver al monto anterior!",
+  icon: "warning",
+  showCancelButton: true,
+  confirmButtonText: "Si, seguir!",
+  cancelButtonText: "No, cancelar!",
+  reverseButtons: true
+}).then((result) => {
+  if (result.isConfirmed) {
+    console.log("----------------------------------");   
+            console.log((me.arraySiguiente));
+         
+        me.sepuede_guardar=1;
+        let id_array=(me.arraySiguiente).id;
+        let numero = Number(me.input_v2);           
+        if (numero>0) {
+         console.log("******");
+         me.cantidadMonedas=0;
+        me.cantidadBilletes=0;
+        me.totalMonedas=0;
+        me.totalBilletas=0;
+        me.totalMonto=0;
+         let aa=me.arrayMoneda[id_array-1]; 
+        aa.valor_default=Number(me.input_v2 * aa.valor).toFixed(2);
+        aa.input=me.input_v2;
+        me.input[id_array] = me.input_v2;
+        me.arrayMoneda.forEach(element => {
+            if (element.tipo_corte==="Moneda") {
+                me.cantidadMonedas=me.cantidadMonedas+  parseInt(element.input, 10);                
+                me.totalMonedas = Number(me.totalMonedas) + Number(element.valor_default);
+                // Si deseas que el resultado final esté formateado a dos decimales
+                me.totalMonedas = Number(me.totalMonedas).toFixed(2);
+                me.SimboloM=element.unidad;
+      
+            }
+            if (element.tipo_corte==="Billete") {
+                me.cantidadBilletes=me.cantidadBilletes+  parseInt(element.input, 10);             
+                me.totalBilletas = Number(me.totalBilletas) + Number(element.valor_default);
+                // Si deseas que el resultado final esté formateado a dos decimales
+                me.totalBilletas = Number(me.totalBilletas).toFixed(2);
+                me.SimboloB=element.unidad;
+    
+            }
+            me.totalMonto=Number(me.totalMonto)+ Number(element.valor_default);   
+            me.totalMonto=Number(me.totalMonto).toFixed(2);
+        });             
+           }      
+            me.tamaño_v2=me.tamaño_v2-1;          
+            me.arraySiguiente=[];     
             
             if (me.tamaño_v2<0) {
                 me.bloqueador_v2=1;
             } else {
                 me.arraySiguiente=me.arrayFalso_[me.tamaño_v2]; 
             }
-            me.input=
-            validateIntegerInput((me.arraySiguiente).id,me.arraySiguiente)
-           // me.bloqueador_v2=1;
-        
-          
-     
-       
-            let numero = Number(me.input_v2);
-           
-
-            if (numero>0) {
-                me.arrayNext.push(numero);        
-                console.log(me.arrayNext);
-            }            
+            me.input_v2=0; 
+  } else
+  {
+    result.dismiss === Swal.DismissReason.cancel
+  }
+ 
+});                      
         },
         
         validar_v2() {
@@ -1144,7 +1339,8 @@ export default {
 
         cerrar_apertura(){
             let me = this;
-            let suma_venta = parseFloat(me.suma_venta) || 0;
+        
+                let suma_venta = parseFloat(me.suma_venta) || 0;
 let sumaEntrada = parseFloat(me.sumaEntrada) || 0;
 let sumaSalida = parseFloat(me.sumaSalida) || 0;
 let monto_cerrar_apertura = parseFloat(me.monto_cerrar_apertura) || 0;
@@ -1235,7 +1431,12 @@ let operacion_apertura = operacion_acciones + monto_cerrar_apertura;
                     }).then(function (response) {
                         console.log((response.data).length);
                         me.listarIndex();
-                        me.cerrarModal("cerrar_apertura");
+                        if (me.verificador===1) {
+                            me.cerrarModal("cerrar_apertura");
+                        } else {
+                            me.cerrarModal("cerrar_apertura_2"); 
+                        }
+                       
                         if ((response.data).length>0) {
                             Swal.fire(
                             ""+response.data,
@@ -1255,8 +1456,17 @@ let operacion_apertura = operacion_acciones + monto_cerrar_apertura;
             }).finally(() => {
           me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
         });
-        
-                
+                     
+        },
+
+        abrirModalCerrar(data){
+            let me=this;
+            me.verificador_moneda_sistemas();
+            if (me.condition===1) {       
+                me.abrirModal('cerrar_apertura', data); 
+            } else {            
+                me.abrirModal('cerrar_apertura_2', data);
+            }
         },
 
         get_operacion_v2(id){
@@ -1278,7 +1488,7 @@ let operacion_apertura = operacion_acciones + monto_cerrar_apertura;
             let me = this;      
             if (me.selectTurno === "0") {
                 Swal.fire(
-                    "Debe seleccionar su tuno",
+                    "No se selecciono un tuno ",
                     "Haga click en Ok",
                     "warning",
                 );
@@ -1404,8 +1614,10 @@ me.isSubmitting = true; // Deshabilita el botón
         },
 
         sumador(){
+            let me=this; 
             me.ini0_=me.ini0_+1;
         },
+
 
         verificador_moneda_sistemas(){
             let me=this;
@@ -1473,10 +1685,7 @@ me.isSubmitting = true; // Deshabilita el botón
                 .then(function (response) {
                     var respuesta = (response.data).resultado;
                     var respuesta_2 = (response.data).usuario;
-                    console.log("************************");   
-                    console.log(respuesta);
-                    console.log(respuesta_2);               
-                    console.log(respuesta.modal_apertura);
+                
                     if (respuesta.modal_apertura===0) {
                         me.verificador=0;
                         Swal.fire( "Error de venta de modal.",
@@ -1570,9 +1779,15 @@ me.isSubmitting = true; // Deshabilita el botón
                         me.cantidadBilletes=0; 
                         me.password="";
                         me.input={};
-                  
-                    
-            
+
+                        me.ini0_=0;
+                        me.input_v2=0;
+                        me.arrayNext=[];
+                        me.arrayFalso_=[];
+                        me.arraySiguiente=[];
+                        me.bloqueador_v2=0;
+                        me.sepuede_guardar=0;   
+
                     me.classModal.openModal("registrar_2");
                     break;
                 }
@@ -1612,6 +1827,52 @@ me.isSubmitting = true; // Deshabilita el botón
                         me.password="";
                         me.input={};            
                         me.classModal.openModal("cerrar_apertura");
+                    break;
+                }
+
+                case "cerrar_apertura_2":{
+                    me.tipoAccion = 3;               
+                    me.tituloModal = "Cerrar caja del usuario "+data.name;
+                    me.isSubmitting=false;   
+                    me.suma_venta="";
+                    me.sumaEntrada="";
+                    me.sumaSalida="";            
+                    me.get_operacion_v2(data.id);     
+                    me.codigo_cerrar_apertura=data.id;               
+                    me.monto_cerrar_apertura=data.total_arqueo_caja;
+                    me.usuario_cerrar_apertura=data.name;
+                        if (data.turno_caja===1) {                
+                            me.Turno_cerrar_apertura="Turno uno";
+                        }else{
+                            if (data.turno_caja===2) {
+                                 me.Turno_cerrar_apertura="Turno dos";
+                            } else {
+                                if (data.turno_caja===3) {
+                                    me.Turno_cerrar_apertura="Turno completo";  
+                                } else {
+                                    me.Turno_cerrar_apertura="Error";
+                                }
+                            }
+                        }                            
+
+                        me.totalMonedas="0.00";
+                        me.SimboloM="S/N";
+                        me.SimboloB="S/N";            
+                        me.totalBilletas="0.00";
+                        me.totalMonto="0.00";
+                        me.cantidadMonedas=0;
+                        me.cantidadBilletes=0; 
+                        me.password="";
+                        me.input={};   
+                        
+                        me.ini0_=0;
+                        me.input_v2=0;
+                        me.arrayNext=[];
+                        me.arrayFalso_=[];
+                        me.arraySiguiente=[];
+                        me.bloqueador_v2=0;
+                        me.sepuede_guardar=0;  
+                        me.classModal.openModal("cerrar_apertura_2");
                     break;
                 }
 
@@ -1720,6 +1981,14 @@ me.isSubmitting = true; // Deshabilita el botón
                         me.input={};
                         me.classModal.closeModal(accion);
                         me.bandera_aperturaCierre="";
+
+                        me.ini0_=0;
+                        me.input_v2=0;
+                        me.arrayNext=[];
+                        me.arrayFalso_=[];
+                        me.arraySiguiente=[];
+                        me.bloqueador_v2=0;
+                        me.sepuede_guardar=0;  
             }
             
             if(accion=== "ver"){
@@ -1749,6 +2018,30 @@ me.isSubmitting = true; // Deshabilita el botón
             }
 
             if (accion === "cerrar_apertura") {
+                me.isSubmitting=false;
+                me.selectTurno="0";
+                me.suma_venta="";
+                me.sumaEntrada="";
+                me.sumaSalida="";
+                        me.totalMonedas="0.00";
+                        me.SimboloM="S/N";
+                        me.SimboloB="S/N";            
+                        me.totalBilletas="0.00";
+                        me.totalMonto="0.00";
+                        me.cantidadMonedas=0;
+                        me.cantidadBilletes=0; 
+                        me.password="";
+                        me.input={};
+
+                        me.codigo_cerrar_apertura="";
+                        me.monto_cerrar_apertura="";
+                        me.usuario_cerrar_apertura="";
+                        me.Turno_cerrar_apertura=""; 
+    
+            me.classModal.closeModal(accion);   
+            }
+
+            if (accion === "cerrar_apertura_2") {
                 me.isSubmitting=false;
                 me.selectTurno="0";
                 me.suma_venta="";
@@ -1810,6 +2103,7 @@ me.isSubmitting = true; // Deshabilita el botón
         this.classModal.addModal("ver");
         this.classModal.addModal("cerrar_apertura");
         this.classModal.addModal("registrar_2");
+        this.classModal.addModal("cerrar_apertura_2");
     },
 };
 </script>
