@@ -24,17 +24,22 @@
              <div class="tab-content" id="pills-tabContent">
                     <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-general-tab">
                         <div class="card">
-                            <div class="card-header">
-                                Configuración general de siat
-                            </div>
+                            <div class="card-header d-flex justify-content-between align-items-center">
+    <span>Configuración general de siat</span>
+    <button type="button" class="btn btn-info ml-2 ml-sm-0" style="color: white;" @click="resetFecha()">Resetear formato de fecha</button>   
+</div>
+
+
              
                             <div class="card-body">       
+                                
                             <div class="row">
                                 <div class="form-group col-sm-3">
                                     <strong>Codigo de sistema: <span  v-if="cod_sis===''" class="error">(*)</span></strong>
                                     <input type="text" @input="validateInput($event, 'alphanumeric')" class="form-control" v-model="cod_sis"  placeholder="Codigo de sistema dada por INS">
                                     <span  v-if="cod_sis==''" class="error">Debe Ingresar codigo</span>
-                                </div>     
+                                </div>  
+                         
                                 <div class="form-group col-sm-3">
                                     <strong>Tipo ambiente: <span  v-if="selectTipoAmbiente===0" class="error">(*)</span></strong>
                                     <select  class="form-control"  v-model="selectTipoAmbiente">
@@ -44,11 +49,12 @@
                                         </select>
                                     <span  v-if="selectTipoAmbiente==''" class="error">Debe Ingresar codigo</span>
                                 </div> 
-                                <div class="form-group col-sm-3">
+                                <div class="form-group  col-sm-3">
                                     <strong>Formato de fecha: <span  v-if="forFecha===''" class="error">(*)</span></strong>
                                     <input type="text"  class="form-control" v-model="forFecha"  placeholder="Debe ingresar el formato de fecha">
                                     <span  v-if="forFecha==''" class="error">Debe Ingresar formato</span>
                                 </div>
+                               
                                 <div class="form-group col-sm-3">
                                     <strong>Maximo de facturas por paquete:<span  v-if="paquetes===''" class="error">(*)</span></strong>
                                     <input type="number"  @input="validateInput($event, 'integer')"  class="form-control" v-model="paquetes"  placeholder="Debe ingresar numero entero de paquetes">
@@ -66,43 +72,69 @@
                                     <textarea class="form-control"  v-model="qr_" id="exampleFormControlTextarea2" rows="2" placeholder="ingrese los datos"></textarea>
                                      <span  v-if="qr_==''" class="error">Debe Ingresar formato</span>
                                  </div>
+                            </div>  
+                            <div class="row">
+                                <div class="form-group col-sm-4">
+                                    <strong>Vencimiento token: <span  v-if="selectVenToken===''" class="error">(*)</span></strong>
+                                    <input  type="date" class="form-control"  v-model="selectVenToken">       
+                                </div>     
+                                <div class="form-group col-sm-4">
+                                    <strong>Maximo de tiempo para respuesta SIAT [seg]:</strong>
+                                    <input type="text" @input="validateInput($event, 'integer')" class="form-control" v-model="maxTiempoResouesta"  placeholder="Tiempo de espera">                                 
+                                </div> 
+                                <div class="form-group col-sm-4"> 
+                                    <strong>Tipo ambiente: <span  v-if="codigoModalidad===0" class="error">(*)</span></strong>
+                                    <select  class="form-control"  v-model="codigoModalidad">
+                                            <option value=0 disabled selected>Seleccionar...</option>
+                                            <option value=1>Electrónica en linea</option>
+                                            <option value=2>Computarizada en linea</option>
+                                    </select>
+                                    <span  v-if="codigoModalidad==''" class="error">Debe Ingresar codigo</span>
+                                </div>
+                                                    
                             </div> 
                             <div class="row">
                                 <div class="form-group col-sm-4">
-                                    <strong>Vencimiento token: <span  v-if="selectVenToken===0" class="error">(*)</span></strong>
-                                    <select  class="form-control"  v-model="selectVenToken">
+                                    <strong>Tipo de certificado: <span  v-if="selectCertificado===0" class="error">(*)</span></strong>
+                                    <select  class="form-control"  v-model="selectCertificado">
                                             <option value=0 disabled selected>Seleccionar...</option>
-                                            <option value=1>Producción</option>
-                                            <option value=2>Prueba</option>
-                                        </select>
-                                    <span  v-if="selectTipoAmbiente==''" class="error">Debe Ingresar codigo</span>
-                                </div>     
-                                <div class="form-group col-sm-4">
-                                    <strong>Tipo ambiente: <span  v-if="selectTipoAmbiente===0" class="error">(*)</span></strong>
-                                    <select  class="form-control"  v-model="selectTipoAmbiente">
-                                            <option value=0 disabled selected>Seleccionar...</option>
-                                            <option value=1>Producción</option>
-                                            <option value=2>Prueba</option>
-                                        </select>
-                                    <span  v-if="selectTipoAmbiente==''" class="error">Debe Ingresar codigo</span>
+                                            <option value=1>Todos</option>
+                                            <option value=2>File_PEM_Value</option>
+                                            <option value=3>File_P12</option>
+                                    </select>
+                                    <span  v-if="selectCertificado===0" class="error">Debe Ingresar codigo</span>     
                                 </div> 
-                                <div class="form-group col-sm-4">
-                                    <strong>Tipo ambiente: <span  v-if="selectTipoAmbiente===0" class="error">(*)</span></strong>
-                                    <select  class="form-control"  v-model="selectTipoAmbiente">
-                                            <option value=0 disabled selected>Seleccionar...</option>
-                                            <option value=1>Producción</option>
-                                            <option value=2>Prueba</option>
-                                        </select>
-                                    <span  v-if="selectTipoAmbiente==''" class="error">Debe Ingresar codigo</span>
+                       
+                                <div class="form-group col-sm-4" v-if="selectCertificado==='1' || selectCertificado==='2'">
+                                    <strong>Archivo P12:</strong>
+                                        <input type="file" ref="fileInput" class="form-control" accept=".p12,.pem,.token,.crt,.cert"  @change="validateFile"/>
+                                        <small v-if="errorMessage" class="text-danger">{{ errorMessage }}</small>                        
+                                </div> 
+                                <div class="form-group col-sm-4" v-if="selectCertificado==='1' || selectCertificado==='2'"> 
+                                    <strong>Contraseña del archivo .p12: <span  v-if="password===''" class="error">(*)</span></strong>
+                                    <input type="password"  v-model="password" placeholder="escriba la contraseña de archivo P.12" class="form-control">                                   
                                 </div>
-                                                    
-                            </div>       
-                               
+                            
+                                        
+                            </div>   
+                            <div class="row">
+                                <div class="form-group col-sm-4">
+
+                                </div>     
+                                    <div class="form-group col-sm-4"  v-if="selectCertificado==='1' || selectCertificado==='3'">
+                                        <strong>Llave privada:<span  v-if="key_privade===''" class="error">(*)</span></strong>
+                                        <textarea class="form-control" v-model="key_privade" id="exampleFormControlTextarea3" rows="3" placeholder="ingrese la llave privada que se le dio"></textarea>                                   
+                                    </div> 
+                                <div class="form-group col-sm-4"  v-if="selectCertificado==='1' || selectCertificado==='3'">
+                                    <strong>Certificado X509:<span  v-if="certificado_x509===''" class="error">(*)</span></strong>
+                                    <textarea class="form-control" v-model="certificado_x509" id="exampleFormControlTextarea5" rows="3" placeholder="ingrese elc ertificado"></textarea>                                      
+                                </div>     
+                            </div>   
                             </div>
                             <div class="form-group row justify-content-center">
                                 <div class="col-md-3 d-flex justify-content-center">       
-        <button v-if="puedeEditar==1" type="button" class="btn btn-warning" style="color: white;">Actualizar configuracion correro</button>
-        <button v-else type="button" class="btn btn-light"  >Actualizar configuracion correro</button>
+        <button v-if="puedeEditar==1" type="button" class="btn btn-warning" style="color: white;">Actualizar configuración</button>
+        <button v-else type="button" class="btn btn-light"  >Actualizar configuración</button>
    
     </div>
 </div>
@@ -170,6 +202,14 @@ export default {
             paquetes:'',
             token_delegado:'',
             qr_:'',
+            codigoModalidad:0,
+            selectVenToken:'',
+            maxTiempoResouesta:'',
+            certificado_x509:'', 
+            password:'',
+            key_privade:'',
+            selectCertificado:0,
+            errorMessage: "", // Para manejar mensajes de error
             isSubmitting_2: false, // Controla el estado del botón de envío
        
                 //---permisos_R_W_S
@@ -245,7 +285,36 @@ export default {
 },
 //-------------------------------------------------------------- 
 
+validateFile() {
+    let me = this;
+    const file = this.$refs.fileInput.files[0]; // Obtén el archivo seleccionado
+    if (file) {
+        const extension = file.name.split('.').pop().toLowerCase(); // Extrae la extensión
+        const allowedExtensions = ["p12", "pem", "token", "crt", "cert"]; // Lista de extensiones permitidas
 
+        if (!allowedExtensions.includes(extension)) {
+            me.errorMessage = `Solo se permiten archivos con las extensiones: ${allowedExtensions.join(", ")}.`;
+            me.$refs.fileInput.value = ""; // Reinicia el campo del archivo
+            Swal.fire("Error", me.errorMessage, "error");
+        } else {
+            me.errorMessage = "";
+            console.log("Archivo válido:", file);
+            // Aquí puedes continuar con el procesamiento del archivo
+        }
+    } else {
+        me.errorMessage = "Por favor selecciona un archivo.";
+    }
+},
+
+    resetFecha(){
+        let me=this;
+        me.forFecha='yyyy-MM-ddTHH:mm:ss.fff';
+    },
+
+    triggerFileInput() {
+      // Simula un clic en el input de archivo
+      this.$refs.fileInput.click();
+    },
 
     validateInput(event, type) {
         let me=this;
