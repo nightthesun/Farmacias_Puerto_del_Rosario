@@ -17,7 +17,7 @@ return new class extends Migration
             $table->tinyInteger('tipo_ambiente');
             $table->string('formato_fecha');
             $table->smallInteger('max_paquete'); // Cambié el tipo aquí
-            $table->string('token_delegado', 255);
+            $table->text('token_delegado');
             $table->string('url_QR', 255);
             $table->string('vencimiento_token')->nullable();
             $table->integer('tiempo_espera');
@@ -27,8 +27,8 @@ return new class extends Migration
             $table->string('path')->nullable(); // Ruta del archivo almacenado
             $table->string('extension', 10)->nullable(); // Extensión del archivo
             $table->string('password')->nullable();
-            $table->string('llave_privada', 255)->nullable();
-            $table->string('certificado_x509', 255)->nullable();
+            $table->text('llave_privada')->nullable();
+            $table->text('certificado_x509')->nullable();
             $table->timestamps();
         });
     }

@@ -101,6 +101,7 @@ createApp ({
     .component('tesoreria-component', require('./components/egreso/TesoreriaComponent.vue').default)
     //siat
     .component('siat-configuracion-component', require('./components/siat/Configuracion_siatComponent.vue').default)
+    .component('siat-sucursal-component', require('./components/siat/Sucursal_siatComponent.vue').default)
     
 
     .mount('#app');

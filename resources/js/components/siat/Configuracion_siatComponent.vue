@@ -26,7 +26,7 @@
                         <div class="card">
                             <div class="card-header d-flex justify-content-between align-items-center">
     <span>Configuración general de siat</span>
-    <button type="button" class="btn btn-info ml-2 ml-sm-0" style="color: white;" @click="resetFecha()">Resetear formato de fecha</button>   
+    <button type="button" class="btn btn-info ml-2 ml-sm-0" style="color: white;" @click="resetear_x()">Resetear datos</button>   
 </div>
 
 
@@ -80,10 +80,10 @@
                                 </div>     
                                 <div class="form-group col-sm-4">
                                     <strong>Maximo de tiempo para respuesta SIAT [seg]:</strong>
-                                    <input type="text" @input="validateInput($event, 'integer')" class="form-control" v-model="maxTiempoResouesta"  placeholder="Tiempo de espera">                                 
+                                    <input type="text" @input="validateInput($event, 'integer')" class="form-control" v-model=" maxTiempoRespuesta"  placeholder="Tiempo de espera">                                 
                                 </div> 
                                 <div class="form-group col-sm-4"> 
-                                    <strong>Tipo ambiente: <span  v-if="codigoModalidad===0" class="error">(*)</span></strong>
+                                    <strong>Tipo de modalidad: <span  v-if="codigoModalidad===0" class="error">(*)</span></strong>
                                     <select  class="form-control"  v-model="codigoModalidad">
                                             <option value=0 disabled selected>Seleccionar...</option>
                                             <option value=1>Electrónica en linea</option>
@@ -133,7 +133,8 @@
                             </div>
                             <div class="form-group row justify-content-center">
                                 <div class="col-md-3 d-flex justify-content-center">       
-        <button v-if="puedeEditar==1" type="button" class="btn btn-warning" style="color: white;">Actualizar configuración</button>
+        <button v-if="puedeEditar==1 && cod_sis!='' && selectTipoAmbiente!=0 && forFecha!='' && paquetes!='' && token_delegado!='' && qr_!='' && selectVenToken!='' && maxTiempoRespuesta!='' && codigoModalidad!=0 &&selectCertificado!=0" 
+         type="button" class="btn btn-warning" style="color: white;" @click="crearConfiguracion()">Actualizar configuración</button>
         <button v-else type="button" class="btn btn-light"  >Actualizar configuración</button>
    
     </div>
@@ -185,6 +186,7 @@
 import Swal from "sweetalert2";
 import { error401 } from "../../errores";
 import VueMultiselect from 'vue-multiselect';
+import { data } from "jquery";
 //Vue.use(VeeValidate);
 
 export default {
@@ -204,13 +206,17 @@ export default {
             qr_:'',
             codigoModalidad:0,
             selectVenToken:'',
-            maxTiempoResouesta:'',
+            maxTiempoRespuesta:'',
             certificado_x509:'', 
             password:'',
             key_privade:'',
             selectCertificado:0,
-            errorMessage: "", // Para manejar mensajes de error
+            errorMessage: 'Seleccione el archivo', // Para manejar mensajes de error
+            id_configuracion:'',
             isSubmitting_2: false, // Controla el estado del botón de envío
+
+
+
        
                 //---permisos_R_W_S
                 puedeEditar:2,
@@ -285,6 +291,127 @@ export default {
 },
 //-------------------------------------------------------------- 
 
+    crearConfiguracion(){
+                let me = this; 
+                const swalWithBootstrapButtons = Swal.mixin({
+  customClass: {
+    confirmButton: "btn btn-success",
+    cancelButton: "btn btn-danger"
+  },
+  buttonsStyling: false
+});
+swalWithBootstrapButtons.fire({
+  title: "¿Esta seguro?",
+  text: "¡De cambiar la información!",
+  icon: "warning",
+  showCancelButton: true,
+  confirmButtonText: "Si, Actualizar!",
+  cancelButtonText: "No, cancelar!",
+  reverseButtons: true
+}).then((result) => {
+  if (result.isConfirmed) {
+    let controlador=0;
+               switch (data) {
+                case '0': 
+                controlador=1;                 
+                Swal.fire({icon: "error",title: "Tipo de certificado", text: "Sin seleccionar",});              
+                    break;
+
+                    case '1':
+                     if (me.errorMessage!='' && me.password!='' && me.errorMessage!='' && me.password==='' ) {
+                        controlador=1;
+                        Swal.fire({icon: "error",title: "opcion Todo seleccionada", text: "Verifique si todos los campos estan llenos",});
+                     }   
+                    break;
+                case '2':
+                     if (me.errorMessage!='' && me.password!='') {
+                        controlador=1;
+                        Swal.fire({icon: "error",title: "Archivo P12 o Contraseña del archivo .p12", text: "Esta seleccionadas mal",});
+                     }   
+                    break;
+                case '3':
+                     if (me.errorMessage!='' && me.password!='' ) {
+                        controlador=1;
+                        Swal.fire({icon: "error",title: "Llave privada o Certificado X509", text: "Estan ",});
+                     }   
+                    break;    
+                default:
+                    controlador=0;
+                    break;
+               }
+               
+               if (controlador===0) {              
+                console.log("modalidad: "+me.codigoModalidad+"  certificado:"+me.selectCertificado);
+                axios.post('/siat/crear_configuracion',{
+                    id:me.id_configuracion,
+                    cod_sis:me.cod_sis,
+                    selectTipoAmbiente:me.selectTipoAmbiente,
+                    forFecha:me.forFecha,
+                    paquetes:me.paquetes,
+                    token_delegado:me.token_delegado,
+                    qr_:me.qr_,
+                    selectVenToken:me.selectVenToken,
+                    maxTiempoRespuesta:me.maxTiempoRespuesta,
+                    codigoModalidad:me.codigoModalidad,
+                    selectCertificado:me.selectCertificado, 
+                    password:me.password,
+
+                    key_privade:me.key_privade,
+                    certificado_x509:me.certificado_x509,            
+
+                    id_modulo: me.idmodulo,
+                    id_sub_modulo:me.codventana, 
+                    des:"actualziacion la configuracion siat configuracion",  
+              
+                }).then(function(response){
+                    var respuesta = response.data; 
+                    console.log(respuesta);
+                    console.log(respuesta.length);
+                    Swal.fire('Registrado Correctamente');            
+                    me.listarIndexConfiguracion();
+                }).catch(function (error) {                  
+                console.log(error);
+                });
+               } 
+ 
+  } else if (
+    /* Read more about handling dismissals below */
+    result.dismiss === Swal.DismissReason.cancel
+  ) { 
+  }
+});                           
+    },
+
+listarIndexConfiguracion()
+            {
+                let me=this;                
+              
+                    var url='/siat/configuracion';                        
+                axios.get(url).then(function(response){
+                    var respuesta = response.data; 
+                    me.cod_sis=respuesta.cod_sis;
+                    me.selectTipoAmbiente=respuesta.tipo_ambiente;
+                    me.forFecha=respuesta.formato_fecha;
+                    me.paquetes=respuesta.max_paquete;
+                    me.token_delegado=respuesta.token_delegado;
+                    me.qr_=respuesta.url_QR;
+                    me.codigoModalidad=respuesta.tipo_modalidad;
+                    me.selectVenToken=respuesta.vencimiento_token;
+                    me.maxTiempoRespuesta=respuesta.tiempo_espera;
+                    me.id_configuracion=respuesta.id;
+                    me.selectCertificado=respuesta.tipo_certificado;
+                    me.password=respuesta.password;
+                    me.key_privade=respuesta.llave_privada;
+                    me.certificado_x509=respuesta.certificado_x509;
+                    console.log(respuesta);          
+                    
+                })
+                .catch(function(error){
+                    error401(error);
+                }); 
+                       
+            },
+
 validateFile() {
     let me = this;
     const file = this.$refs.fileInput.files[0]; // Obtén el archivo seleccionado
@@ -306,9 +433,25 @@ validateFile() {
     }
 },
 
-    resetFecha(){
+    resetear_x(){
         let me=this;
+        let ambiente=me.selectTipoAmbiente;
         me.forFecha='yyyy-MM-ddTHH:mm:ss.fff';
+        me.maxTiempoRespuesta= 15;
+        switch (ambiente) {
+            case '1':
+                me.qr_='https://siat.impuestos.gob.bo/consulta/QR?nit={nit_emisor}&cuf={cuf}&numero={nro_factura}&t=2';
+                me.paquetes=100;
+                break;
+            case '2':
+                me.qr_='https://pilotosiat.impuestos.gob.bo/consulta/QR?nit={nit_emisor}&cuf={cuf}&numero={nro_factura}&t=2';
+                me.paquetes=1;
+                break;
+            
+            default:
+            me.qr_='';
+                break;
+        }
     },
 
     triggerFileInput() {
@@ -398,7 +541,7 @@ validateFile() {
         //-------permiso E_W_S-----
         this.listarPerimsoxyz();
             //-----------------------
-   
+        this.listarIndexConfiguracion();
         this.classModal.addModal("regcuenta");
     
     },

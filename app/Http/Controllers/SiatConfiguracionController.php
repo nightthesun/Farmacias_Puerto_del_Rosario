@@ -1,65 +1,148 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use SoapClient;
 use App\Models\Siat_Configuracion;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon as SupportCarbon;
+use Illuminate\Support\Facades\DB;
 
 class SiatConfiguracionController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index_general()
     {
-        //
+        $resultado = DB::table('siat__configuracions')
+        ->where('id', 1)
+        ->first();
+        return $resultado;
+    }
+    public function update_general(Request $request)
+    {
+        try {
+            DB::beginTransaction();
+            $actualizar = Siat_Configuracion::findOrFail($request->id);
+            $actualizar->cod_sis=$request->cod_sis; 
+            $actualizar->tipo_ambiente=$request->selectTipoAmbiente; 
+            $actualizar->formato_fecha=$request->forFecha; 
+            $actualizar->max_paquete=$request->paquetes; 
+            $actualizar->token_delegado=$request->token_delegado; 
+            $actualizar->url_QR=$request->qr_; 
+            $actualizar->vencimiento_token=$request->selectVenToken; 
+            $actualizar->tiempo_espera=$request->maxTiempoRespuesta; 
+            $actualizar->tipo_modalidad=$request->codigoModalidad;             
+            $actualizar->tipo_certificado=$request->selectCertificado; 
+            $data= (int)$request->selectCertificado; 
+          
+            switch ($data) {
+                case 1:
+                    $actualizar->password=$request->password; 
+                    $actualizar->llave_privada=$request->key_privade; 
+                    $actualizar->certificado_x509=$request->certificado_x509; 
+                    break;
+            
+                case 2:
+                    $actualizar->password=$request->password; 
+                    $actualizar->llave_privada=""; 
+                    $actualizar->certificado_x509=""; 
+                    break;
+            
+                case 3:
+                    $actualizar->password=""; 
+                    $actualizar->llave_privada=$request->key_privade; 
+                    $actualizar->certificado_x509=$request->certificado_x509; 
+                    break;
+            
+                default:
+                $actualizar->password=""; 
+                $actualizar->llave_privada=""; 
+                $actualizar->certificado_x509=""; 
+                    break;
+            }   
+            $actualizar->save();
+            $fechaActual = SupportCarbon::now(); // Obtiene la fecha y hora actual
+            $datos = [
+                'id_modulo' => $request->id_modulo,
+                'id_sub_modulo' => $request->id_sub_modulo,
+                'accion' => 4,
+                'descripcion' => $request->des,          
+                'user_id' =>auth()->user()->id, 
+                'created_at'=>$fechaActual,
+                'id_movimiento'=>$request->id,   
+            ];        
+            DB::table('log__sistema')->insert($datos);
+           
+            DB::commit();
+        } catch (\Throwable $th) {
+           return $th;
+        }
+     
+    }
+ 
+    public function obtenerCuis()
+    {
+        $wsdl = 'https://pilotosiat.impuestos.gob.bo/v2/FacturacionCodigos?wsdl'; // Cambiar a producción si es necesario
+
+        // Parámetros para la solicitud
+        $params = [
+            'SolicitudCuis' => [
+                'codigoAmbiente' => 2, // Cambiar a 1 en producción
+                'codigoPuntoVenta' => 1,
+                'codigoSistema' => env('SIN_CODIGO_SISTEMA'),
+                'nit' => env('SIN_NIT'),
+                'codigoSucursal' => 0,
+                'codigoModalidad' => env('SIN_CODIGO_MODALIDAD'),
+            ],
+        ];
+
+        try {
+            // Crear cliente SOAP
+            $client = new SoapClient($wsdl, [
+                'trace' => true,
+                'cache_wsdl' => WSDL_CACHE_NONE,
+            ]);
+
+            // Hacer la solicitud
+            $response = $client->cuis($params);
+
+            return response()->json([
+                'cuis' => $response->RespuestaCuis->codigo,
+                'fechaVigencia' => $response->RespuestaCuis->fechaVigencia,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Error al solicitar CUIS',
+                'detalle' => $e->getMessage(),
+            ], 500);
+        }
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+    public function departamento_siat(){
+        $departamentos = DB::table('adm__departamentos as ad')
+        ->select('ad.id', 'ad.nombre', 'ad.abrev')
+        ->get();
+        return $departamentos;
+    } 
+
+    public function sucursal_siat(){
+        $sucursales = DB::table('adm__sucursals as ass')
+        ->select('ass.id', 'ass.tipo', 'ass.cod', 'ass.razon_social', 'ass.nombre_comercial', 'ass.seleccionado')
+        ->where('ass.activo', 1)
+        ->get();    
+        return $sucursales;
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
+    public function modificar_sucursal_sec(Request $request){
+        try {
+            DB::beginTransaction();
+            DB::table('adm__sucursals')
+            ->where('id', $request->id)
+            ->update(['seleccionado' => $request->data]);    
+            DB::commit();
+        } catch (\Throwable $th) {
+            return $th;
+        }
+       
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Siat_Configuracion $siat_Configuracion)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Siat_Configuracion $siat_Configuracion)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Siat_Configuracion $siat_Configuracion)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Siat_Configuracion $siat_Configuracion)
-    {
-        //
-    }
 }

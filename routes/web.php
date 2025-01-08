@@ -69,12 +69,15 @@ use App\Http\Controllers\GetController;
 use App\Http\Controllers\ParDescuentoController;
 use App\Http\Controllers\ProdListaController;
 use App\Http\Controllers\ProdRegistroPreXListController;
+use App\Http\Controllers\SiatConfiguracionController;
+use App\Http\Controllers\SiatSucursalController;
 use App\Http\Controllers\TdaIngresoProducto2Controller;
 use App\Http\Controllers\VenCaducidadController;
 use App\Http\Controllers\VenGestorVentaController;
 use App\Http\Controllers\VenGestorVentaVistaController;
 use App\Models\Alm_IngresoProducto;
 use App\Models\Tda_Tienda;
+use Database\Seeders\SiatConfiguracion;
 
 /*
 |--------------------------------------------------------------------------
@@ -738,5 +741,16 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/tesoreria/listarInicio', [EgrTesoreriaController::class, 'index']); 
     Route::post('/tesoreria/editar', [EgrTesoreriaController::class, 'update']);  
     
-    
+    ///////////////////////////////////SIAT///////////////////////////////////////////////
+   
+    //Configuracion siat---------------
+    Route::get('/siat/configuracion', [SiatConfiguracionController::class, 'index_general']);   
+    Route::post('/siat/crear_configuracion', [SiatConfiguracionController::class, 'update_general']); 
+ 
+    //Sucursal siat---------------   
+    Route::get('/siat_su/departamento_siat', [SiatSucursalController::class, 'departamento_siat']);  
+    Route::get('/siat_su/sucursal_siat', [SiatSucursalController::class, 'sucursal_siat']);  
+    Route::post('/siat_su/crear', [SiatSucursalController::class, 'store']);
+    Route::get('/siat_su/listarInicio', [SiatSucursalController::class, 'index']); 
+      
 });
