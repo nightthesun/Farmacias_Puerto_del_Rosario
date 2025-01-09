@@ -42,7 +42,7 @@ class SiatSucursalController extends Controller
                 $index = DB::table('siat__sucursals as ss')
                 ->join('users as u', 'u.id', '=', 'ss.id_usuario_modifica')
                 ->join('adm__departamentos as ad', 'ad.id', '=', 'ss.departamento')
-                ->select('ss.id','ss.nombre_suc_siat','ss.codigo_siat','ss.id_sucursal','u.name','ad.nombre as departamento','ss.estado','ss.updated_at')
+                ->select('ss.id','ss.nombre_suc_siat','ss.codigo_siat','ss.id_sucursal','u.name','ad.id as id_departamento','ad.nombre as departamento','ss.estado','ss.updated_at')
                 ->whereRaw($sqls)
                 ->orderBy('id', 'desc')
                 ->paginate(15); 
@@ -64,7 +64,7 @@ class SiatSucursalController extends Controller
             $index = DB::table('siat__sucursals as ss')
             ->join('users as u', 'u.id', '=', 'ss.id_usuario_modifica')
             ->join('adm__departamentos as ad', 'ad.id', '=', 'ss.departamento')
-            ->select('ss.id','ss.nombre_suc_siat','ss.codigo_siat','ss.id_sucursal','u.name','ad.nombre as departamento','ss.estado','ss.updated_at')
+            ->select('ss.id','ss.nombre_suc_siat','ss.codigo_siat','ss.id_sucursal','u.name','ad.id as id_departamento','ad.nombre as departamento','ss.estado','ss.updated_at')
          
             ->orderBy('id', 'desc')
             ->paginate(15); 
@@ -159,5 +159,60 @@ if ($sucursales->count() > 0) {
             return $th;
         }
        
+    }
+
+    public function listar_sucursal_siat(Request $request){
+        $s = $request->id_sucursal;
+        $sArray = explode(',', $s); // Convierte la cadena en un array
+
+    $sucursales = DB::table('adm__sucursals as ass')
+    ->select('ass.id', 'ass.tipo', 'ass.cod', 'ass.razon_social', 'ass.nombre_comercial', 'ass.direccion')
+    ->where('ass.idrubro', 1)
+    ->whereIn('ass.id', $sArray)
+    ->get();
+
+    return $sucursales;
+    
+    }
+
+    public function desactivar(Request $request)
+    {
+        $actualizar = Siat_Sucursal::findOrFail($request->id);
+        $actualizar->estado = 0;
+        $actualizar->id_usuario_modifica=auth()->user()->id;
+        $actualizar->save();
+    }
+
+    public function activar(Request $request)
+    {
+        $actualizar = Siat_Sucursal::findOrFail($request->id);
+        $actualizar->estado = 1;
+        $actualizar->id_usuario_modifica=auth()->user()->id;
+        $actualizar->save();
+    }
+
+    public function update(Request $request){
+        try {
+            DB::beginTransaction();
+            $sucursales = DB::table('siat__sucursals')
+            ->select('id', 'nombre_suc_siat')
+            ->where('codigo_siat', intval($request->codigo))
+            ->where('estado', 1)
+            ->get();
+            // Verificar si hay resultados
+        if ($sucursales->count() > 0) {
+            // Si hay resultados
+            return "Ya existe el codigo siat";  
+        } 
+            $actualizar = Siat_Sucursal::findOrFail($request->id);
+            $actualizar->nombre_suc_siat=$request->nombre;
+            $actualizar->codigo_siat=intval($request->codigo);
+            $actualizar->departamento=$request->departamento;
+            $actualizar->id_usuario_modifica=auth()->user()->id;
+            $actualizar->save();  
+            DB::commit();
+        } catch (\Throwable $th) {
+            return $th;
+        }       
     }
 }

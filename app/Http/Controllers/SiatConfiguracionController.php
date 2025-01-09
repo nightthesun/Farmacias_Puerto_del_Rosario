@@ -32,6 +32,8 @@ class SiatConfiguracionController extends Controller
             $actualizar->tiempo_espera=$request->maxTiempoRespuesta; 
             $actualizar->tipo_modalidad=$request->codigoModalidad;             
             $actualizar->tipo_certificado=$request->selectCertificado; 
+            $actualizar->emisor=intval($request->emisor); 
+           
             $data= (int)$request->selectCertificado; 
           
             switch ($data) {
@@ -117,32 +119,6 @@ class SiatConfiguracionController extends Controller
         }
     }
 
-    public function departamento_siat(){
-        $departamentos = DB::table('adm__departamentos as ad')
-        ->select('ad.id', 'ad.nombre', 'ad.abrev')
-        ->get();
-        return $departamentos;
-    } 
-
-    public function sucursal_siat(){
-        $sucursales = DB::table('adm__sucursals as ass')
-        ->select('ass.id', 'ass.tipo', 'ass.cod', 'ass.razon_social', 'ass.nombre_comercial', 'ass.seleccionado')
-        ->where('ass.activo', 1)
-        ->get();    
-        return $sucursales;
-    }
-
-    public function modificar_sucursal_sec(Request $request){
-        try {
-            DB::beginTransaction();
-            DB::table('adm__sucursals')
-            ->where('id', $request->id)
-            ->update(['seleccionado' => $request->data]);    
-            DB::commit();
-        } catch (\Throwable $th) {
-            return $th;
-        }
-       
-    }
+   
 
 }

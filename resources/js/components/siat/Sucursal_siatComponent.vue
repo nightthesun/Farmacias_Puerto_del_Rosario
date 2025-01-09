@@ -11,7 +11,7 @@
             <div class="card">
                 <div class="card-header">
                     <i class="fa fa-align-justify"></i> Sucursal Siat               
-                    <button type="button" class="btn btn-secondary" @click="abrirModal('registrar');listarSucursal(); listarDepartamento();">
+                    <button type="button" v-if="puedeCrear==1" class="btn btn-secondary" @click="listarSucursal(); listarDepartamento();abrirModal('registrar');">
                         <i class="icon-plus"></i>&nbsp;Nuevo
                     </button>                  
                 </div>
@@ -63,19 +63,41 @@
                 <tbody>
                     <tr v-for="i in arrayIndex" :key="i.id">
                         <td class="col-md-2">
-                            <button type="button" class="btn btn-warning btn-sm"  style="margin-right: 5px;">
+                            <div  class="d-flex justify-content-start">
+                                <div  v-if="puedeEditar==1">
+                                    <button type="button" class="btn btn-warning btn-sm"  @click="abrirModal('actualizar',i);listarSucursal(); listarDepartamento();" style="margin-right: 5px;">
                                 <i class="icon-pencil"></i>
                             </button> 
-                            <button v-if="i.estado==1" type="button" class="btn btn-danger btn-sm" style="margin-right: 5px;">
+                                </div>
+                                <div v-else>
+                                <button type="button" class="btn btn-light btn-sm" style="margin-right: 5px;">
+                                <i class="icon-pencil"></i>
+                                </button> 
+                            </div>
+                            <div v-if="puedeActivar==1">
+                                <button v-if="i.estado==1" type="button" @click="desactivar(i.id)" class="btn btn-danger btn-sm" style="margin-right: 5px;">
                                 <i class="icon-trash"></i>
                             </button>
-                            <button v-else type="button" class="btn btn-info btn-sm" style="margin-right: 5px;">
+                            <button v-else type="button" @click="activar(i.id)" class="btn btn-info btn-sm" style="margin-right: 5px;">
                                 <i class="icon-check"></i>
                             </button>
-
-                            <button type="button" class="btn btn-info btn-sm"  style="margin-right: 5px;" @click="abrirModal('ver',i);">
+                            </div>
+                            <div v-else>
+                                <button v-if="ingresoProducto.activo==1" type="button" class="btn btn-light btn-sm" style="margin-right: 5px;">
+                                <i class="icon-trash"></i>
+                                </button>
+                                <button v-else type="button" class="btn btn-light btn-sm" style="margin-right: 5px;">
+                                <i class="icon-check"></i>
+                                </button>
+                            </div>
+                            <button type="button" class="btn btn-info btn-sm"  style="margin-right: 5px; color: white;" @click="listarSucursalVer(i.id_sucursal);abrirModal('ver',i);">
                                 <i class="fa fa-eye" aria-hidden="true"></i>
                             </button>
+                            </div>    
+                         
+                            
+
+                           
                         </td>
                         <td class="col-md-1">{{ i.nombre_suc_siat }}</td>
                         <td class="col-md-1">{{ i.departamento }}</td>
@@ -168,7 +190,7 @@
                                         <span  v-if="selectDepartamento==='0'" class="error">Debe seleccionar</span> 
                                     </div>     
                                 </div>  
-                                <div class="form-group row">     
+                                <div class="form-group row" v-show="tipoAccion===1">     
                                     <div class="col-md-2">
                                         <label >Sucursal: </label>
                                     </div>                              
@@ -181,12 +203,12 @@
                                         </select>
                                    
                                     </div> 
-                                    <div class="col-md-2">                                                                      
+                                    <div class="col-md-2" >                                                                      
                                         <button  v-if="selectSucursal==='0'" type="button" class="btn btn-light">Añadir</button>      
                                         <button  v-else type="button" class="btn btn-primary" @click="añadirDato(selectSucursal,1)">Añadir</button>          
                                     </div> 
                                 </div> 
-                                <table class="table table-bordered table-striped table-sm table-responsive">
+                                <table class="table table-bordered table-striped table-sm table-responsive" v-show="tipoAccion===1">
                             <thead>
                                  <tr>  
                                     <th class="col-md-2" style="font-size: 13px; text-align: center">Opción</th>                                
@@ -210,7 +232,7 @@
                         <div  class="d-flex justify-content-start">
                             <div  v-if="isSubmitting==false">
                                 <button v-if="tipoAccion===1" @click="crear()" type="button" class="btn btn-primary rounded" :disabled="!sicompleto">Guardar</button>
-                                <button v-else type="button" @click="editar()" class="btn btn-primary rounded">Actualizar</button>
+                                <button v-else type="button" @click="editar()" class="btn btn-primary rounded" :disabled="!sicompleto">Actualizar</button>
                             </div>
                             <div v-else>
                                 <button type="button" v-if="tipoAccion == 1" class="btn btn-light">Guardar</button>
@@ -250,7 +272,26 @@
                         
                             <!-- insertar datos -->
                             <div class="container">                                
-                                 
+                                <table class="table table-bordered table-striped table-sm table-responsive">
+    <thead>
+      <tr>
+        <th style="font-size: 11px;">Tipo</th>
+        <th style="font-size: 11px;">Codigo</th>
+        <th style="font-size: 11px;">Razón social</th>
+        <th style="font-size: 11px;">Nombre comercial</th>
+        <th style="font-size: 11px;">Dirección</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr v-for="v in arrayVer" :key="v.id">
+        <td style="font-size: 11px;">{{ v.tipo }}</td>
+        <td style="font-size: 11px;">{{ v.cod }}</td>
+        <td style="font-size: 11px;">{{ v.razon_social }}</td>
+        <td style="font-size: 11px;">{{ v.nombre_comercial }}</td>
+        <td style="font-size: 11px;">{{ v.direccion }}</td>
+      </tr>
+    </tbody> 
+  </table>  
                             
                             </div>
                         </form>
@@ -270,6 +311,9 @@ import Swal from "sweetalert2";
 import { error401 } from "../../errores";
 //Vue.use(VeeValidate);
 export default {
+     //---permisos_R_W_S
+     props: ['codventana'],
+        //-------------------
     data() {
         return {
             pagination: {
@@ -293,12 +337,19 @@ export default {
       codSiat:'',
       selectDepartamento:'0',
       selectSucursal:'0',
+      id_sucursalSiat:'',
       arrayDepartamento:[],
       arraySucusal_x:[],
       arrayIndex:[],
+      arrayVer:[],
       
       arrayFalasoSucursal:[],   
-
+//---permisos_R_W_S
+puedeEditar:2,
+                puedeActivar:2,
+                puedeHacerOpciones_especiales:2,
+                puedeCrear:2,
+                //-----------
 
         };
     },
@@ -343,6 +394,34 @@ export default {
 
     methods: {
 
+             //---------------------------------permiso de ver lista de sucursales tiendas almacenes
+    
+ listarPerimsoxyz() {
+           
+           let me = this;        
+           var url = '/gestion_permiso_editar_eliminar?win='+me.codventana;  
+           axios.get(url)
+               .then(function(response) {
+                   var respuesta = response.data;     
+                   if(respuesta=="root"){
+                   me.puedeEditar=1;
+                   me.puedeActivar=1;
+                   me.puedeHacerOpciones_especiales=1;
+                   me.puedeCrear=1; 
+                   }else{
+                   me.puedeEditar=respuesta.edit;
+                   me.puedeActivar=respuesta.activar;
+                   me.puedeHacerOpciones_especiales=respuesta.especial;
+                   me.puedeCrear=respuesta.crear;        
+                   }           
+               })
+               .catch(function(error) {
+                   error401(error);
+                   console.log(error);
+               });
+       },
+       //--------------------------------------------------------------  
+
         listarIndex(page)
             {
                 let me=this;  
@@ -352,9 +431,7 @@ export default {
                 .then(function(response){
                     var respuesta = response.data;
                     me.pagination = respuesta.pagination;
-                    me.arrayIndex = respuesta.index.data;
-                    console.log(me.arrayIndex);
-                    
+                    me.arrayIndex = respuesta.index.data;                   
                 })
                 .catch(function(error){
                     error401(error);
@@ -400,9 +477,8 @@ export default {
                 id_sucursal:cadena,             
                 })
                 .then(function (response) {
-                   // me.listarCuenta(); 
-                    let respuesta=response.data;
-                    console.log(respuesta);                     
+                    me.listarIndex(); 
+                    let respuesta=response.data;                                   
                   
                     if (respuesta.length>0) {
                         Swal.fire(
@@ -430,6 +506,39 @@ export default {
         } 
        },
 
+       editar(){
+        let me = this; 
+                axios.put("/siat_su/actualizar", { 
+                id:me.id_sucursalSiat,                
+                nombre:me.nomsucursalSiat,
+                codigo:me.codSiat,
+                departamento:me.selectDepartamento,                      
+                })
+                .then(function (response) {                   
+                    let respuesta=response.data;                   
+                    if (respuesta.length>0) {
+                        Swal.fire(
+                        "Error!",
+                        ""+respuesta,
+                        "error",
+                    );    
+                    } else {
+
+                        Swal.fire(
+                        "Registro creado!",
+                        "Correctamente",
+                        "success",
+                    );  
+                    }         
+                    me.listarIndex();                
+                    me.cerrarModal('registrar');        
+                                             
+                })               
+                .catch(function (error) {                
+                  console.log(error);                
+            });
+       },
+       
         listarDepartamento() {
             let me = this;    
            var url = "/siat_su/departamento_siat";
@@ -437,8 +546,22 @@ export default {
                 .get(url)
                 .then(function (response) {
                     var respuesta = response.data;                 
-                    me.arrayDepartamento = respuesta;
-                    console.log(me.arrayDepartamento);                 
+                    me.arrayDepartamento = respuesta;                              
+                })
+                .catch(function (error) {
+                    error401(error);
+                    console.log(error);
+                });
+        },
+
+        listarSucursalVer(data) {
+            let me = this;    
+            me.arrayVer=[];
+           var url = "/siat_su/sucursal_siat_ver?id_sucursal="+data;
+            axios.get(url)
+                .then(function (response) {
+                    var respuesta = response.data;                 
+                    me.arrayVer = respuesta;              
                 })
                 .catch(function (error) {
                     error401(error);
@@ -453,8 +576,7 @@ export default {
                 .get(url)
                 .then(function (response) {
                     var respuesta = response.data;                  
-                    me.arraySucusal_x = respuesta;  
-                    console.log(me.arraySucusal_x);               
+                    me.arraySucusal_x = respuesta;              
                 })
                 .catch(function (error) {
                     error401(error);
@@ -485,6 +607,102 @@ export default {
             // Agrega aquí la lógica adicional que necesites al cambiar la pestaña
         },
 
+        desactivar(id){
+                let me=this;
+                const swalWithBootstrapButtons = Swal.mixin({
+                customClass: {
+                    confirmButton: 'btn btn-success',
+                    cancelButton: 'btn btn-danger'
+                },
+                buttonsStyling: false
+                })
+
+                swalWithBootstrapButtons.fire({
+                title: 'Esta Seguro de Desactivar?',
+                text: "Es una eliminacion logica",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Si, Desactivar',
+                cancelButtonText: 'No, Cancelar',
+                reverseButtons: true
+                }).then((result) => {
+                
+                if (result.isConfirmed) {
+                     axios.put('/siat_su/desactivar',{
+                        'id': id
+                    }).then(function (response) {
+                        swalWithBootstrapButtons.fire(
+                            'Desactivado!',
+                            'El registro a sido desactivado Correctamente',
+                            'success'
+                        )
+                        me.listarIndex(1);
+                    }).catch(function (error) {
+                        error401(error);
+                        console.log(error);
+                    });
+                        
+                } else if (
+                    /* Read more about handling dismissals below */
+                    result.dismiss === Swal.DismissReason.cancel
+                ) {
+                    /* swalWithBootstrapButtons.fire(
+                    'Cancelado!',
+                    'El Registro no fue desactivado',
+                    'error'
+                    ) */
+                }
+                })
+            },
+
+            activar(id){
+                let me=this;
+                const swalWithBootstrapButtons = Swal.mixin({
+                customClass: {
+                    confirmButton: 'btn btn-success',
+                    cancelButton: 'btn btn-danger'
+                },
+                buttonsStyling: false
+                })
+
+                swalWithBootstrapButtons.fire({
+                title: 'Esta Seguro de Activar?',
+                text: "Es una Activacion logica",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Si, Activar',
+                cancelButtonText: 'No, Cancelar',
+                reverseButtons: true
+                }).then((result) => {
+                if (result.isConfirmed) {
+                     axios.put('/siat_su/activar',{
+                        'id': id
+                    }).then(function (response) {
+                        
+                        swalWithBootstrapButtons.fire(
+                            'Activado!',
+                            'El registro a sido Activado Correctamente',
+                            'success'
+                        )
+                        me.listarIndex(1);
+                    }).catch(function (error) {
+                        error401(error);
+                        console.log(error);
+                    });
+                    
+                    
+                } else if (
+                    /* Read more about handling dismissals below */
+                    result.dismiss === Swal.DismissReason.cancel
+                ) {
+                    /* swalWithBootstrapButtons.fire(
+                    'Cancelado!',
+                    'El Registro no fue Activado',
+                    'error'
+                    ) */
+                }
+                })
+            },
 
 
         cambiarPagina(page) {
@@ -502,7 +720,7 @@ export default {
          switch (accion) {
                 case "registrar": {
                     me.tipoAccion = 1;
-                    me.tituloModal = "Registro de traspaso origen ";
+                    me.tituloModal = "Registro de sucursal a siat";
                     me.isSubmitting=false;
                     me.nomsucursalSiat="";
                     me.codSiat="";
@@ -512,17 +730,23 @@ export default {
                     break;
                 }
                 case "ver": {
-                    console.log(data);
+             
                     me.tipoAccion = 1;
-                    me.tituloModal = data.nombre_suc_siat;
+                    me.tituloModal = "Nombre siat: "+data.nombre_suc_siat+" Codigo siat: "+data.codigo_siat;
+                    
                     me.classModal.openModal("ver");
                     break;
                 }
                 case "actualizar": {
                     me.tipoAccion = 2;
+                 
                     me.isSubmitting=false;
-          
-            
+                    me.tituloModal = "Actualización de sucursal a siat";     
+                    me.nomsucursalSiat=data.nombre_suc_siat;
+                    me.codSiat=data.codigo_siat;
+                    me.selectDepartamento=data.id_departamento;
+                    me.selectSucursal="0";   
+                    me.id_sucursalSiat=data.id;    
                     me.classModal.openModal("registrar");
 
                     break;
@@ -542,8 +766,10 @@ export default {
                     me.codSiat="";
                     me.selectDepartamento="0";
                     me.selectSucursal="0";
+                    me.id_sucursalSiat="";
             }
             if (accion== "ver") {
+                me.arrayVer=[];
                 me.classModal.closeModal(accion); 
             }
         },
@@ -560,7 +786,9 @@ export default {
     mounted() {
         this.classModal = new _pl.Modals();
         this.sucursalFiltro();
-  
+            //-------permiso E_W_S-----
+               this.listarPerimsoxyz();        
+            //-----------------------
         this.listarIndex();
         this.classModal.addModal("registrar");
         this.classModal.addModal("ver");

@@ -74,15 +74,15 @@
                                  </div>
                             </div>  
                             <div class="row">
-                                <div class="form-group col-sm-4">
+                                <div class="form-group col-sm-3">
                                     <strong>Vencimiento token: <span  v-if="selectVenToken===''" class="error">(*)</span></strong>
                                     <input  type="date" class="form-control"  v-model="selectVenToken">       
                                 </div>     
-                                <div class="form-group col-sm-4">
+                                <div class="form-group col-sm-3">
                                     <strong>Maximo de tiempo para respuesta SIAT [seg]:</strong>
                                     <input type="text" @input="validateInput($event, 'integer')" class="form-control" v-model=" maxTiempoRespuesta"  placeholder="Tiempo de espera">                                 
                                 </div> 
-                                <div class="form-group col-sm-4"> 
+                                <div class="form-group col-sm-3"> 
                                     <strong>Tipo de modalidad: <span  v-if="codigoModalidad===0" class="error">(*)</span></strong>
                                     <select  class="form-control"  v-model="codigoModalidad">
                                             <option value=0 disabled selected>Seleccionar...</option>
@@ -90,6 +90,15 @@
                                             <option value=2>Computarizada en linea</option>
                                     </select>
                                     <span  v-if="codigoModalidad==''" class="error">Debe Ingresar codigo</span>
+                                </div>
+                                <div class="form-group col-sm-3"> 
+                                    <strong>Tipo de modalidad: <span  v-if="selectEmisor==='2'" class="error">(*)</span></strong>
+                                    <select  class="form-control"  v-model="selectEmisor">
+                                            <option value="2" disabled selected>Seleccionar...</option>
+                                            <option value="1">Usar emisor </option>
+                                            <option value="0">No usar emisor</option>
+                                    </select>
+                                    <span  v-if="selectEmisor=='2'" class="error">Debe seleccionar el tipo de emisor</span>
                                 </div>
                                                     
                             </div> 
@@ -214,7 +223,7 @@ export default {
             errorMessage: 'Seleccione el archivo', // Para manejar mensajes de error
             id_configuracion:'',
             isSubmitting_2: false, // Controla el estado del botón de envío
-
+            selectEmisor:'2',
 
 
        
@@ -358,7 +367,7 @@ swalWithBootstrapButtons.fire({
 
                     key_privade:me.key_privade,
                     certificado_x509:me.certificado_x509,            
-
+                    emisor:me.selectEmisor,
                     id_modulo: me.idmodulo,
                     id_sub_modulo:me.codventana, 
                     des:"actualziacion la configuracion siat configuracion",  
@@ -403,6 +412,7 @@ listarIndexConfiguracion()
                     me.password=respuesta.password;
                     me.key_privade=respuesta.llave_privada;
                     me.certificado_x509=respuesta.certificado_x509;
+                    me.selectEmisor=respuesta.emisor;
                     console.log(respuesta);          
                     
                 })
@@ -442,10 +452,12 @@ validateFile() {
             case '1':
                 me.qr_='https://siat.impuestos.gob.bo/consulta/QR?nit={nit_emisor}&cuf={cuf}&numero={nro_factura}&t=2';
                 me.paquetes=100;
+                me.selectEmisor='0';
                 break;
             case '2':
                 me.qr_='https://pilotosiat.impuestos.gob.bo/consulta/QR?nit={nit_emisor}&cuf={cuf}&numero={nro_factura}&t=2';
                 me.paquetes=1;
+                me.selectEmisor='0';
                 break;
             
             default:

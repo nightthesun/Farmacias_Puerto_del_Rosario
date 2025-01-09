@@ -752,5 +752,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/siat_su/sucursal_siat', [SiatSucursalController::class, 'sucursal_siat']);  
     Route::post('/siat_su/crear', [SiatSucursalController::class, 'store']);
     Route::get('/siat_su/listarInicio', [SiatSucursalController::class, 'index']); 
+    Route::get('/siat_su/sucursal_siat_ver', [SiatSucursalController::class, 'listar_sucursal_siat']);  
+    Route::put('/siat_su/activar', [SiatSucursalController::class, 'activar']); 
+    Route::put('/siat_su/desactivar', [SiatSucursalController::class, 'desactivar']); 
+    Route::put('/siat_su/actualizar', [SiatSucursalController::class, 'update']);    
       
 });
