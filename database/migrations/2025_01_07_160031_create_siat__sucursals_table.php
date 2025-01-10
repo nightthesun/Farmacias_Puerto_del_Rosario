@@ -19,7 +19,9 @@ return new class extends Migration
             $table->string('id_sucursal');
             $table->tinyInteger('estado')->default(1);  
             $table->smallInteger('id_usuario_registra')->nullable();
-            $table->smallInteger('id_usuario_modifica')->nullable();   
+            $table->smallInteger('id_usuario_modifica')->nullable();
+            $table->BIGINT('id_cuis')->nullable();
+            $table->BIGINT('id_cufd')->nullable();   
             $table->timestamps();
         });
     }

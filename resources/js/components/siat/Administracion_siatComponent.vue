@@ -119,7 +119,15 @@ export default {
         //-------------------
     data() {
         return {
-          
+            pagination: {
+                total: 0,
+                current_page: 0,
+                per_page: 0,
+                last_page: 0,
+                from: 0,
+                to: 0,
+            },
+          offset:3,
             tipoAccion:1,
             tituloModal:'',
             selectModalidad:'0',
@@ -137,6 +145,10 @@ export default {
     computed: {
       
         isActived: function () {
+            return this.pagination.current_page;
+        },
+
+       function () {
             return this.pagination.current_page;
         },
 
@@ -205,8 +217,25 @@ export default {
         cambiarPagina(page) {
             let me = this;
             me.pagination.current_page = page;
-        //    me.listarAjusteNegativos(page);
+           me.listarIndex(page);
         },
+
+        listarIndex(page)
+            {
+                let me=this;  
+                 var url='/siat_cuis_cufd/index?page='+page;     
+                        
+                axios.get(url)
+                .then(function(response){
+                    var respuesta = response.data;
+                    me.pagination = respuesta.pagination;
+                    me.arrayIndex = respuesta.index.data;                   
+                })
+                .catch(function(error){
+                    error401(error);
+                });              
+               
+            },
 
         abrirModal(accion, data = []) {
             let me = this;     

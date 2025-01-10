@@ -70,6 +70,7 @@ use App\Http\Controllers\ParDescuentoController;
 use App\Http\Controllers\ProdListaController;
 use App\Http\Controllers\ProdRegistroPreXListController;
 use App\Http\Controllers\SiatConfiguracionController;
+use App\Http\Controllers\SiatCuisCufdControlador;
 use App\Http\Controllers\SiatSucursalController;
 use App\Http\Controllers\TdaIngresoProducto2Controller;
 use App\Http\Controllers\VenCaducidadController;
@@ -756,5 +757,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::put('/siat_su/activar', [SiatSucursalController::class, 'activar']); 
     Route::put('/siat_su/desactivar', [SiatSucursalController::class, 'desactivar']); 
     Route::put('/siat_su/actualizar', [SiatSucursalController::class, 'update']);    
+
+    //CUIS / CUFD----------------
+    Route::get('/siat_cuis_cufd/index', [SiatCuisCufdControlador::class, 'index']); 
       
 });
