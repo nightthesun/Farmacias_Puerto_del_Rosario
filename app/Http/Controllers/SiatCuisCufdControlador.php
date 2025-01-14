@@ -51,6 +51,13 @@ class SiatCuisCufdControlador extends Controller
 
     }
 
-  
+    public function siat_fig(){
+        $siatConfiguracion = DB::table('siat__configuracions')->where('id', 1)->first();
+        return $siatConfiguracion;
+    } 
+
+
+
+
     
 }

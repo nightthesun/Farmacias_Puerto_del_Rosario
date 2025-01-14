@@ -158,27 +158,52 @@
 
                         <div class="card">
                             <div class="card-header">
-                              End poends
+                              End points
                             </div>
                             <div class="alert alert-info" role="alert">
-  La configuración solo afectara a datos del sistema tambien <strong>tomara los datos para la facturación</strong>
+  Recuerde que no debe haber ningun espacion en los <strong>end points</strong>
 </div>
-                            <div class="card-body">
-                                <div class="form-group row">                                                  
-                               
-                                </div>  
-                                <div class="form-group row">
-                                 
+<div class="card-body">    
+                                <div class="row">
+                                <div class="form-group col-sm-1">
+                                    <strong >Tipo:</strong>
                                 </div> 
+                                <div class="form-group col-sm-5">
+                                     <select  class="form-control"  v-model="selectModalidad">
+                                            <option value="0" disabled selected>Seleccionar...</option>
+                                            <option value="1">Producción</option>
+                                            <option value="2">Piloto</option>
+                                    </select>
+                                </div>
+                                <div class="form-group col-sm-3">
+                                    <button v-show="selectModalidad==='1'" type="button" class="btn btn-primary btn-sm btn-block" @click="abrirModal('regcuenta')"><i class="fa fa-link" aria-hidden="true"></i> Crear end point</button>
+                                 </div>  
+                                 <div class="form-group col-sm-3">
+                                    <button v-show="selectModalidad==='2'" type="button" class="btn btn-info btn-sm btn-block" style="color: white;" @click="abrirModal('regcuenta')"><i class="fa fa-link" aria-hidden="true"></i> Crear end point</button>
+                                 </div>                                 
+                                </div>    
+                                 <!---inserte tabla-->
+                            <div v-show="selectModalidad!='0'">
+                                <table class="table table-bordered table-striped table-sm table-responsive" >
+                <thead>
+                    <tr>
+                        <th>Opciones</th>
+                        <th class="col-md-3">Descripción</th>                       
+                        <th class="col-md-5">Url</th>
+                        <th class="col-md-1">Versión</th>
+                        <th class="col-md-2">Fecha / hora</th>
+                        <th class="col-md-1">Usuario</th>
+                    </tr>
+                </thead>               
+            </table>    
+           
+            <!-----fin de tabla------->
+              
                             </div>
-                            <div class="form-group row justify-content-center">
-                                <div class="col-md-3 d-flex justify-content-center">
-       
-        <button v-if="puedeEditar==1" type="button" class="btn btn-warning" style="color: white;" >Actualizar datos de empresa</button>
-        <button v-else type="button" class="btn btn-light"  >Actualizar datos de empresa</button>
-   
-    </div>
-</div>
+                              
+                          
+                            </div>
+                   
                         </div>
                     </div>        
                     <!---------------------------------------------------------------------------------------------------------------------------->
@@ -187,7 +212,65 @@
     </div>
 </div>
 
+ <!--Inicio del modal agregar/actualizar-->
+ <div class="modal fade" tabindex="-1" role="dialog" arial-labelledby="myModalLabel" id="regcuenta" aria-hidden="true"
+            data-backdrop="static" data-key="false">
+            <div class="modal-dialog modal-primary modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">{{ tituloModal }}</h4>
+                        <button type="button" class="close" aria-label="Close" @click="cerrarModal('regcuenta')">
+                            <span aria-hidden="true">x</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        
+                        <div class="alert alert-info" role="alert">
+                            Debe verificar si los datos no tiene espacios
+                        </div>
 
+                        <form action="" class="form-horizontal">                        
+                            <!-- insertar datos -->
+                            <div class="container">                                
+                                <div class="form-group row" >                                   
+                                    <div class="col-md-4">
+                                        <label>Descripción: </label>
+                                        <input  type="text" class="form-control" v-model="descripcion_endpoint">
+                                        <span  v-if="descripcion_endpoint==''" class="error">Debe llenar el dato</span> 
+                                    </div>
+                                    <div class="col-md-6">
+                                    <label for="end-date">URL: </label>
+                                        <input type="text" class="form-control" v-model="url_endpoint">
+                                        <span  v-if="url_endpoint==''" class="error">Debe llenar el dato</span> 
+                                    </div>   
+                                    <div class="col-md-2">
+                                    <label >Versión:</label>
+                                            <input type="text" class="form-control" v-model="version_endpoint">
+                                            <span  v-if="version_endpoint==''" class="error">Debe llenar el dato</span> 
+                                    </div>     
+                                </div> 
+                               
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary rounded"  @click="cerrarModal('regcuenta')">Cerrar</button>
+                        <div  class="d-flex justify-content-start">
+                            <div  v-if="isSubmitting==false">
+                                <button v-if="tipoAccion===1" @click="crearEndPoint()" type="button" class="btn btn-primary rounded" :disabled="descripcion_endpoint===''|| url_endpoint==='' || version_endpoint===''">Guardar</button>
+                                <button v-else type="button" @click="editar()" class="btn btn-primary rounded" :disabled="descripcion_endpoint===''|| url_endpoint==='' || version_endpoint===''">Actualizar</button>
+                            </div>
+                            <div v-else>
+                                <button type="button" v-if="tipoAccion == 1" class="btn btn-light">Guardar</button>
+                                <button type="button" v-else class="btn btn-light">Actualizar</button>
+                            </div>
+                        </div>
+                                             
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--fin del modal-->
     </main>
 </template>
 
@@ -205,7 +288,15 @@ export default {
         //-------------------
     data() {
         return {
-            //---correo  
+            pagination: {
+                total: 0,
+                current_page: 0,
+                per_page: 0,
+                last_page: 0,
+                from: 0,
+                to: 0,
+            },
+          offset:3,
             tipoAccion:0,
             cod_sis:'',
             selectTipoAmbiente:0,
@@ -222,10 +313,15 @@ export default {
             selectCertificado:0,
             errorMessage: 'Seleccione el archivo', // Para manejar mensajes de error
             id_configuracion:'',
-            isSubmitting_2: false, // Controla el estado del botón de envío
+            tituloModal:'',
+
             selectEmisor:'2',
+            selectModalidad:'0',
 
-
+            descripcion_endpoint:'',
+            url_endpoint:'',
+            version_endpoint:'',
+            arrayEndpoint:[],
        
                 //---permisos_R_W_S
                 puedeEditar:2,
@@ -299,6 +395,73 @@ export default {
         });
 },
 //-------------------------------------------------------------- 
+
+cambiarPestana(idPestana) {
+            this.pestañaActiva = idPestana;
+            // Agrega aquí la lógica adicional que necesites al cambiar la pestaña
+        }, 
+
+        cambiarPagina(page) {
+            let me = this;
+            me.pagination.current_page = page;
+           me.listarIndexEndPoint(page);
+        },
+       
+listarIndexEndPoint(page)
+            {
+                let me=this;              
+                    var url='/siat/index_endpoint?page='+page;                         
+                axios.get(url).then(function(response){
+                    var respuesta = response.data; 
+                    me.arrayEndpoint=respuesta;
+                    me.pagination = respuesta.pagination;
+                    console.log(respuesta);                    
+                })
+                .catch(function(error){
+                    error401(error);
+                });                       
+            },
+
+crearEndPoint(){
+        let me = this;
+    
+            if (me.isSubmitting) return;
+                me.isSubmitting = true; // Deshabilita el botón
+                axios.post("/siat/crear_endpoint", {
+                descripcion:me.descripcion_endpoint,
+                endpoint:me.url_endpoint,
+                version:me.version_endpoint,  
+                prod_piloto:me.selectModalidad,         
+                })
+                .then(function (response) {
+                   // me.listarIndex(); 
+                    let respuesta=response.data;    
+                    
+                    console.log(respuesta);
+                    if (respuesta.length>0) {
+                        Swal.fire(
+                        "Error!",
+                        ""+respuesta,
+                        "error",
+                    );    
+                    } else {
+                        Swal.fire(
+                        "Registro creado!",
+                        "Correctamente",
+                        "success",
+                    );  
+                    }
+                    me.cerrarModal('regcuenta');
+                                
+                })               
+                .catch(function (error) {                
+                  console.log(error);                
+            }).finally(() => {
+          me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
+        });
+            
+        
+       },
 
     crearConfiguracion(){
                 let me = this; 
@@ -508,14 +671,17 @@ validateFile() {
         //    me.listarAjusteNegativos(page);
         },
 
-        abrirModal(accion, data = []) {
+        abrirModal(accion, data = []) { 
             let me = this;     
          switch (accion) {
               
                 case "regcuenta": {
                     me.tipoAccion = 1;
                     me.isSubmitting=false;
-   
+                    me.descripcion_endpoint="";
+                    me.url_endpoint="";
+                    me.version_endpoint="";
+                    me.tituloModal="Registro de end points"
                     me.classModal.openModal("regcuenta");
                     break;
                 }
@@ -535,7 +701,9 @@ validateFile() {
                 me.tipoAccion=1;
                 me.isSubmitting=false;
                 me.tituloModal="";
-          
+                me.descripcion_endpoint="";
+                    me.url_endpoint="";
+                    me.version_endpoint="";
                 me.classModal.closeModal(accion);         
             }
         },

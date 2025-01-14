@@ -71,6 +71,7 @@ use App\Http\Controllers\ProdListaController;
 use App\Http\Controllers\ProdRegistroPreXListController;
 use App\Http\Controllers\SiatConfiguracionController;
 use App\Http\Controllers\SiatCuisCufdControlador;
+use App\Http\Controllers\SiatEndpointController;
 use App\Http\Controllers\SiatSucursalController;
 use App\Http\Controllers\TdaIngresoProducto2Controller;
 use App\Http\Controllers\VenCaducidadController;
@@ -746,8 +747,11 @@ Route::group(['middleware' => 'auth'], function () {
    
     //Configuracion siat---------------
     Route::get('/siat/configuracion', [SiatConfiguracionController::class, 'index_general']);   
-    Route::post('/siat/crear_configuracion', [SiatConfiguracionController::class, 'update_general']); 
- 
+    Route::post('/siat/crear_configuracion', [SiatConfiguracionController::class, 'update_general']);
+        //endpoint--
+        Route::post('/siat/crear_endpoint', [SiatEndpointController::class, 'crearEndPoint']);  
+        Route::get('/siat/index_endpoint', [SiatEndpointController::class, 'index']); 
+    
     //Sucursal siat---------------   
     Route::get('/siat_su/departamento_siat', [SiatSucursalController::class, 'departamento_siat']);  
     Route::get('/siat_su/sucursal_siat', [SiatSucursalController::class, 'sucursal_siat']);  
@@ -759,6 +763,6 @@ Route::group(['middleware' => 'auth'], function () {
     Route::put('/siat_su/actualizar', [SiatSucursalController::class, 'update']);    
 
     //CUIS / CUFD----------------
-    Route::get('/siat_cuis_cufd/index', [SiatCuisCufdControlador::class, 'index']); 
-      
+    Route::get('/siat_cuis_cufd/inicio', [SiatCuisCufdControlador::class, 'index']); 
+    Route::get('/siat_cuis_cufd/siat_config', [SiatCuisCufdControlador::class, 'siat_fig']);      
 });

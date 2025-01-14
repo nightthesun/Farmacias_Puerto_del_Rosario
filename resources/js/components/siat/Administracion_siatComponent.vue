@@ -17,7 +17,10 @@
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" id="pills-profile-tab" data-toggle="pill" href="#pills-profile" role="tab" aria-controls="pills-profile" aria-selected="false">Sincronización SIAT</a>
-                </li>                       
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="pills-comunicacion-tab" data-toggle="pill" href="#pills-comunicacion" role="tab" aria-controls="pills-comunicacion" aria-selected="false">Comunicación</a>
+                </li>                         
             </ul>
         </div>
         <div class="card-body">           
@@ -38,7 +41,7 @@
                                     <strong >Tipo:</strong>
                                 </div> 
                                 <div class="form-group col-sm-5">
-                                     <select  class="form-control"  v-model="selectModalidad">
+                                     <select  class="form-control"  v-model="selectModalidad" @change="listarIndex();listarConfiguracionSiat();">
                                             <option value="0" disabled selected>Seleccionar...</option>
                                             <option value="1">Manual</option>
                                             <option value="2">Automatico</option>
@@ -55,13 +58,75 @@
                               
                           
                             </div>
+                            <!---inserte tabla-->
+                            <div v-show="selectModalidad==='1'">
+                                <table class="table table-bordered table-striped table-sm table-responsive" >
+                <thead>
+                    <tr>
+                        <th >Opciones</th>
+                        <th class="col-md-1">Sucursal siat</th>                       
+                        <th class="col-md-1">Codigo siat</th>
+                        <th class="col-md-1">Emisor</th>
+                        <th class="col-md-1">Cuis</th>
+                        <th class="col-md-4">Cufd</th>
+                        <th class="col-md-1">Cuis vigencia</th>
+                        <th class="col-md-1">Cufd vigencia</th>
+                        <th class="col-md-1">Cuis Estado</th> 
+                        <th class="col-md-1">Cufd Estado</th>     
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="i in arrayIndex" :key="i.id">
+                        <td >   
+                        <button type="button" style="color: white;" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    <i class="fa fa-bars" aria-hidden="true"></i>
+  </button>     
+  <div class="dropdown-menu">
+      <a class="dropdown-item" href="#"><i style="color: black;" class="fa fa-cube" aria-hidden="true"></i> Solicitar CUIS</a>
+    <a  class="dropdown-item" href="#"><i style="color: black;" class="fa fa-cubes" aria-hidden="true"></i> Solicitar CUFD</a>     
+     </div>                   
+                        </td>
+                        <td class="col-md-1">{{ i.nombre_suc_siat }}</td>
+                        <td class="col-md-1">{{ i.codigo_siat }}</td>
+                        <td class="col-md-1">{{emisor}}</td>
+                        <td class="col-md-1">{{ i.cuis }}</td>
+                        <td class="col-md-4">{{ i.cufd }}</td>
+                        <td class="col-md-1">{{ i.fecha_v_cuis }}</td>
+                        <td class="col-md-1">{{ i.fecha_v_cufd }}</td>
+                        <td class="col-md-1">
+                            <span v-if="i.estado_cuis===null || i.estado_cuis===''" class="badge badge-pill badge-secondary">Vacio</span>
+                            <span v-else-if="i.estado_cuis===1" class="badge badge-pill badge-success">Activado</span>
+                            <span v-else class="badge badge-pill badge-danger">Desactivado</span>
+                        </td>                      
+                        <td class="col-md-1">
+                            <span v-if="i.estado_cufd===null || i.estado_cufd===''" class="badge badge-pill badge-secondary">Vacio</span>
+                            <span v-else-if="i.estado_cufd===1" class="badge badge-pill badge-success">Activado</span>
+                            <span v-else class="badge badge-pill badge-danger">Desactivado</span>                        
+                        </td>
+                    </tr>
+                </tbody>
+            </table>    
+            <nav>
+                <ul class="pagination">
+                    <li class="page-item" v-if="pagination.current_page > 1">
+                        <a class="page-link" href="#" @click.prevent="cambiarPagina(pagination.current_page - 1)">Ant</a>
+                    </li>
+                    <li class="page-item" v-for="page in pagesNumber" :key="page" :class="[page == isActived ? 'active':'']">
+                        <a class="page-link" href="#" @click.prevent="cambiarPagina(page)" v-text="page"></a>
+                    </li>
+                    <li class="page-item" v-if="pagination.current_page< pagination.last_page">
+                        <a class="page-link" href="#" @click.prevent="cambiarPagina(pagination.current_page + 1)">Sig</a>
+                    </li>
+                </ul>
+            </nav>
+            <!-----fin de tabla------->
                             <div class="form-group row justify-content-center">
-                                <div class="col-md-3 d-flex justify-content-center">       
-    
-        <button type="button" class="btn btn-light"  >Actualizar configuración</button>
-   
+                                <div class="col-md-3 d-flex justify-content-center">     
+        <button type="button" class="btn btn-light"  >Actualizar configuración</button> 
     </div>
 </div>
+                            </div>
+           
 
                           
                         </div>
@@ -96,11 +161,35 @@
                         </div>
                     </div>        
                     <!---------------------------------------------------------------------------------------------------------------------------->
+               
+                    <div class="tab-pane fade" id="pills-comunicacion" role="tabpanel" aria-labelledby="pills-comunicacion-tab">
+                        <div class="card">
+                            <div class="card-header">
+                                Servicios
+                            </div>
+                           
+    <div class="card-body">
+        <div class="row">    
+                                    <div class="form-group col-sm-1">
+                                        <strong>verificar Comunicacion:</strong>
+                                   </div> 
+                                <div class="form-group col-sm-4">
+                                    <button  type="button" class="btn btn-light"  ><i class="fa fa-code-fork" aria-hidden="true"></i> Verificar</button>
+                                </div>     
+                            </div>   
+        <div class="form-group row">
+         
+        </div> 
+    </div>
+  
+                        </div>
+                    </div>        
+<!---------------------------------------------------------------------------------------------------------------------------->
             </div>            
         </div>
     </div>
 </div>
-
+   
 
     </main>
 </template>
@@ -131,12 +220,17 @@ export default {
             tipoAccion:1,
             tituloModal:'',
             selectModalidad:'0',
+
+            arrayIndex:[],
                 //---permisos_R_W_S
                 puedeEditar:2,
                 puedeActivar:2,
                 puedeHacerOpciones_especiales:2,
                 puedeCrear:2,
-                //-----------            
+                //-----------      
+                
+                emisor:'',
+                isSubmitting:false,
         };
     },
 
@@ -207,7 +301,6 @@ export default {
 
 
 
-
         cambiarPestana(idPestana) {
             this.pestañaActiva = idPestana;
             // Agrega aquí la lógica adicional que necesites al cambiar la pestaña
@@ -219,11 +312,27 @@ export default {
             me.pagination.current_page = page;
            me.listarIndex(page);
         },
+       
+        listarConfiguracionSiat()
+            {
+                let me=this;  
+                var url='/siat_cuis_cufd/siat_config';                        
+                axios.get(url)
+                .then(function(response){
+                    var respuesta = response.data;
+                    me.emisor=respuesta.emisor;
+                    console.log(respuesta);    
+                                          
+                })
+                .catch(function(error){
+                    error401(error);
+                });   
+            },
 
         listarIndex(page)
             {
                 let me=this;  
-                 var url='/siat_cuis_cufd/index?page='+page;     
+                 var url='/siat_cuis_cufd/inicio?page='+page;     
                         
                 axios.get(url)
                 .then(function(response){
@@ -267,6 +376,10 @@ export default {
           
                 me.classModal.closeModal(accion);         
             }
+        },
+
+        verificarComunicacion(){
+            
         },
 
 
