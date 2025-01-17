@@ -751,7 +751,7 @@ Route::group(['middleware' => 'auth'], function () {
         //endpoint--
         Route::post('/siat/crear_endpoint', [SiatEndpointController::class, 'crearEndPoint']);  
         Route::get('/siat/index_endpoint', [SiatEndpointController::class, 'index']); 
-    
+        Route::put('/siat/editar_endpoint', [SiatEndpointController::class, 'editarEndPoint']);  
     //Sucursal siat---------------   
     Route::get('/siat_su/departamento_siat', [SiatSucursalController::class, 'departamento_siat']);  
     Route::get('/siat_su/sucursal_siat', [SiatSucursalController::class, 'sucursal_siat']);  
@@ -764,5 +764,7 @@ Route::group(['middleware' => 'auth'], function () {
 
     //CUIS / CUFD----------------
     Route::get('/siat_cuis_cufd/inicio', [SiatCuisCufdControlador::class, 'index']); 
-    Route::get('/siat_cuis_cufd/siat_config', [SiatCuisCufdControlador::class, 'siat_fig']);      
+    Route::get('/siat_cuis_cufd/siat_config', [SiatCuisCufdControlador::class, 'siat_fig']);  
+    Route::get('/siat_cuis_cufd/cuis', [SiatCuisCufdControlador::class, 'solicitarCuis']);  
+        
 });

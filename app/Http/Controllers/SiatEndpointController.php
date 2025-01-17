@@ -15,12 +15,12 @@ class SiatEndpointController extends Controller
     {
         $index = DB::table('siat__endpoints as se')
     ->leftJoin('users as u', 'u.id', '=', 'se.id_usuario_modifica')
-    ->where('se.tipo', $request->tipo)
+    ->where('se.tipo',  intval($request->tipo))
     ->select('se.id', 'se.Descripcion', 'se.Url', 'se.Version', 'se.updated_at', 'u.name')
     ->paginate(15);
+    
     return 
-    [
-            'pagination'=>
+    [      'pagination'=>
                 [
                     'total'         =>    $index->total(),
                     'current_page'  =>    $index->currentPage(),
@@ -34,10 +34,8 @@ class SiatEndpointController extends Controller
     }
 
     public function crearEndPoint(Request $request){
-
       try{
-        DB::beginTransaction();
-        
+        DB::beginTransaction();        
         $entero = intval($request->prod_piloto); 
         $crear = new Siat_Endpoint();
         $crear->Descripcion=$request->descripcion;
@@ -52,5 +50,13 @@ class SiatEndpointController extends Controller
         return $th;
       }
     }
-  
+
+    public function editarEndPoint(Request $request){
+             
+        $actualizar = Siat_Endpoint::findOrFail($request->id);
+        $actualizar->Url=$request->endpoint;
+        $actualizar->id_usuario_modifica=auth()->user()->id;       
+        $actualizar->save();
+     
+    }
 }

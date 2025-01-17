@@ -169,17 +169,17 @@
                                     <strong >Tipo:</strong>
                                 </div> 
                                 <div class="form-group col-sm-5">
-                                     <select  class="form-control"  v-model="selectModalidad">
+                                     <select  class="form-control"  v-model="selectModalidad" @change="listarIndexEndPoint()">
                                             <option value="0" disabled selected>Seleccionar...</option>
                                             <option value="1">Producción</option>
                                             <option value="2">Piloto</option>
                                     </select>
                                 </div>
                                 <div class="form-group col-sm-3">
-                                    <button v-show="selectModalidad==='1'" type="button" class="btn btn-primary btn-sm btn-block" @click="abrirModal('regcuenta')"><i class="fa fa-link" aria-hidden="true"></i> Crear end point</button>
+                                    <button v-show="selectModalidad==='1' && crear_x===1" type="button" class="btn btn-primary btn-sm btn-block" @click="abrirModal('regcuenta')"><i class="fa fa-link" aria-hidden="true" ></i> Crear end point</button>
                                  </div>  
                                  <div class="form-group col-sm-3">
-                                    <button v-show="selectModalidad==='2'" type="button" class="btn btn-info btn-sm btn-block" style="color: white;" @click="abrirModal('regcuenta')"><i class="fa fa-link" aria-hidden="true"></i> Crear end point</button>
+                                    <button v-show="selectModalidad==='2' && crear_x===1" type="button" class="btn btn-info btn-sm btn-block" style="color: white;" @click="abrirModal('regcuenta')"><i class="fa fa-link" aria-hidden="true" ></i> Crear end point</button>
                                  </div>                                 
                                 </div>    
                                  <!---inserte tabla-->
@@ -188,15 +188,48 @@
                 <thead>
                     <tr>
                         <th>Opciones</th>
-                        <th class="col-md-3">Descripción</th>                       
+                        <th class="col-md-1">ID</th>   
+                        <th class="col-md-4">Descripción</th>                       
                         <th class="col-md-5">Url</th>
-                        <th class="col-md-1">Versión</th>
-                        <th class="col-md-2">Fecha / hora</th>
-                        <th class="col-md-1">Usuario</th>
+                        <th class="col-md-2">Versión</th>
+                 
                     </tr>
-                </thead>               
+                </thead> 
+                <tbody>
+                    <tr v-for="e in arrayEndpoint" :key="e.id">
+                        <td>
+                            <div  v-if="puedeEditar==1">
+                                    <button type="button" class="btn btn-warning btn-sm" style="margin-right: 5px;" @click="abrirModal('regcuenta_edit',e)">
+                                <i class="icon-pencil"></i>
+                            </button> 
+                                </div>
+                                <div v-else>
+                                <button type="button" class="btn btn-light btn-sm" style="margin-right: 5px;">
+                                <i class="icon-pencil"></i>
+                                </button> 
+                            </div>
+                        </td>
+                        <td class="col-md-1">{{ e.id }}</td>
+                        <td class="col-md-4">{{ e.Descripcion }}</td>
+                        <td class="col-md-5">{{ e.Url }}</td>
+                        <td class="col-md-2">{{ e.Version }}</td>
+                   
+                    </tr>
+                </tbody>              
             </table>    
-           
+            <nav>
+                <ul class="pagination">
+                    <li class="page-item" v-if="pagination.current_page > 1">
+                        <a class="page-link" href="#" @click.prevent="cambiarPagina(pagination.current_page - 1)">Ant</a>
+                    </li>
+                    <li class="page-item" v-for="page in pagesNumber" :key="page" :class="[page == isActived ? 'active':'']">
+                        <a class="page-link" href="#" @click.prevent="cambiarPagina(page)" v-text="page"></a>
+                    </li>
+                    <li class="page-item" v-if="pagination.current_page< pagination.last_page">
+                        <a class="page-link" href="#" @click.prevent="cambiarPagina(pagination.current_page + 1)">Sig</a>
+                    </li>
+                </ul>
+            </nav>
             <!-----fin de tabla------->
               
                             </div>
@@ -233,19 +266,22 @@
                             <!-- insertar datos -->
                             <div class="container">                                
                                 <div class="form-group row" >                                   
-                                    <div class="col-md-4">
+                                    <div class="col-md-5">
                                         <label>Descripción: </label>
-                                        <input  type="text" class="form-control" v-model="descripcion_endpoint">
+                                        <input v-if="tipoAccion===1" type="text" class="form-control" v-model="descripcion_endpoint">
+                                        <input v-else type="text" class="form-control" v-model="descripcion_endpoint" disabled>
                                         <span  v-if="descripcion_endpoint==''" class="error">Debe llenar el dato</span> 
                                     </div>
-                                    <div class="col-md-6">
+                                    <div class="col-md-5">
                                     <label for="end-date">URL: </label>
-                                        <input type="text" class="form-control" v-model="url_endpoint">
+                                    <textarea class="form-control" id="exampleFormControlTextarea1" v-model="url_endpoint" rows="3"></textarea>
+                                    
                                         <span  v-if="url_endpoint==''" class="error">Debe llenar el dato</span> 
                                     </div>   
                                     <div class="col-md-2">
                                     <label >Versión:</label>
-                                            <input type="text" class="form-control" v-model="version_endpoint">
+                                            <input  v-if="tipoAccion===1" type="text" class="form-control" v-model="version_endpoint">
+                                            <input  v-else type="text" class="form-control" v-model="version_endpoint" disabled>
                                             <span  v-if="version_endpoint==''" class="error">Debe llenar el dato</span> 
                                     </div>     
                                 </div> 
@@ -258,7 +294,7 @@
                         <div  class="d-flex justify-content-start">
                             <div  v-if="isSubmitting==false">
                                 <button v-if="tipoAccion===1" @click="crearEndPoint()" type="button" class="btn btn-primary rounded" :disabled="descripcion_endpoint===''|| url_endpoint==='' || version_endpoint===''">Guardar</button>
-                                <button v-else type="button" @click="editar()" class="btn btn-primary rounded" :disabled="descripcion_endpoint===''|| url_endpoint==='' || version_endpoint===''">Actualizar</button>
+                                <button v-else type="button" @click="editarEndPoint()" class="btn btn-primary rounded" :disabled="descripcion_endpoint===''|| url_endpoint==='' || version_endpoint===''">Actualizar</button>
                             </div>
                             <div v-else>
                                 <button type="button" v-if="tipoAccion == 1" class="btn btn-light">Guardar</button>
@@ -322,7 +358,8 @@ export default {
             url_endpoint:'',
             version_endpoint:'',
             arrayEndpoint:[],
-       
+            id_endpoint:'',
+            crear_x:0,
                 //---permisos_R_W_S
                 puedeEditar:2,
                 puedeActivar:2,
@@ -407,15 +444,15 @@ cambiarPestana(idPestana) {
            me.listarIndexEndPoint(page);
         },
        
-listarIndexEndPoint(page)
+    listarIndexEndPoint(page)
             {
-                let me=this;              
-                    var url='/siat/index_endpoint?page='+page;                         
+                let me=this;     
+                me.arrayEndpoint=[];         
+                    var url='/siat/index_endpoint?page='+page+'&tipo='+me.selectModalidad;                         
                 axios.get(url).then(function(response){
                     var respuesta = response.data; 
-                    me.arrayEndpoint=respuesta;
-                    me.pagination = respuesta.pagination;
-                    console.log(respuesta);                    
+                    me.arrayEndpoint=respuesta.index.data;  
+                    me.pagination = respuesta.pagination;                                
                 })
                 .catch(function(error){
                     error401(error);
@@ -424,8 +461,8 @@ listarIndexEndPoint(page)
 
 crearEndPoint(){
         let me = this;
-    
-            if (me.isSubmitting) return;
+    if (me.crear_x===1) {
+        if (me.isSubmitting) return;
                 me.isSubmitting = true; // Deshabilita el botón
                 axios.post("/siat/crear_endpoint", {
                 descripcion:me.descripcion_endpoint,
@@ -434,7 +471,7 @@ crearEndPoint(){
                 prod_piloto:me.selectModalidad,         
                 })
                 .then(function (response) {
-                   // me.listarIndex(); 
+                    me.listarIndexEndPoint(); 
                     let respuesta=response.data;    
                     
                     console.log(respuesta);
@@ -458,10 +495,44 @@ crearEndPoint(){
                   console.log(error);                
             }).finally(() => {
           me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
-        });
-            
-        
-       },
+        });       
+    } 
+ },
+
+ editarEndPoint(){
+        let me = this;
+   
+     
+                axios.put("/siat/editar_endpoint", {
+                id:me.id_endpoint,
+                endpoint:me.url_endpoint,               
+                })
+                .then(function (response) {
+                    me.listarIndexEndPoint(); 
+                    let respuesta=response.data;    
+                    
+                    console.log(respuesta);
+                    if (respuesta.length>0) {
+                        Swal.fire(
+                        "Error!",
+                        ""+respuesta,
+                        "error",
+                    );    
+                    } else {
+                        Swal.fire(
+                        "Registro creado!",
+                        "Correctamente",
+                        "success",
+                    );  
+                    }
+                    me.cerrarModal('regcuenta');
+                                
+                })               
+                .catch(function (error) {                
+                  console.log(error);                
+            });       
+   
+ },
 
     crearConfiguracion(){
                 let me = this; 
@@ -659,17 +730,6 @@ validateFile() {
       }
     },
 
-        cambiarPestana(idPestana) {
-            this.pestañaActiva = idPestana;
-            // Agrega aquí la lógica adicional que necesites al cambiar la pestaña
-        },      
-       
-
-        cambiarPagina(page) {
-            let me = this;
-            me.pagination.current_page = page;
-        //    me.listarAjusteNegativos(page);
-        },
 
         abrirModal(accion, data = []) { 
             let me = this;     
@@ -687,8 +747,13 @@ validateFile() {
                 }
                 case "regcuenta_edit":{
                     me.tipoAccion = 2;
+                    console.log(data);
                     me.isSubmitting=false;                  
-                
+                    me.descripcion_endpoint=data.Descripcion;
+                    me.url_endpoint=data.Url;
+                    me.version_endpoint=data.Version;
+                    me.id_endpoint=data.id;
+                    me.tituloModal="Edicion de end points"
                     me.classModal.openModal("regcuenta");
                     break;
                 }                           
@@ -704,6 +769,7 @@ validateFile() {
                 me.descripcion_endpoint="";
                     me.url_endpoint="";
                     me.version_endpoint="";
+                    me.id_endpoint="";
                 me.classModal.closeModal(accion);         
             }
         },

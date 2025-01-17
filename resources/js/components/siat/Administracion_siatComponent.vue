@@ -41,7 +41,7 @@
                                     <strong >Tipo:</strong>
                                 </div> 
                                 <div class="form-group col-sm-5">
-                                     <select  class="form-control"  v-model="selectModalidad" @change="listarIndex();listarConfiguracionSiat();">
+                                     <select  class="form-control"  v-model="selectModalidad" @change="listarIndex();listarConfiguracionSiat(1);">
                                             <option value="0" disabled selected>Seleccionar...</option>
                                             <option value="1">Manual</option>
                                             <option value="2">Automatico</option>
@@ -82,7 +82,7 @@
     <i class="fa fa-bars" aria-hidden="true"></i>
   </button>     
   <div class="dropdown-menu">
-      <a class="dropdown-item" href="#"><i style="color: black;" class="fa fa-cube" aria-hidden="true"></i> Solicitar CUIS</a>
+      <a class="dropdown-item" href="#" @click="solicitarCuis(i.codigo_siat);"><i style="color: black;" class="fa fa-cube" aria-hidden="true"></i> Solicitar CUIS</a>
     <a  class="dropdown-item" href="#"><i style="color: black;" class="fa fa-cubes" aria-hidden="true"></i> Solicitar CUFD</a>     
      </div>                   
                         </td>
@@ -228,9 +228,17 @@ export default {
                 puedeHacerOpciones_especiales:2,
                 puedeCrear:2,
                 //-----------      
-                
-                emisor:'',
                 isSubmitting:false,
+                //----cuis---
+                emisor:'',              
+                codigoSis:'',
+                codigodAmb:'',
+                nit:'',
+                modalidad:'',
+                codigoSuc:'',
+                codigoPunVen:'',
+                token_delegado:'',
+                //-----------
         };
     },
 
@@ -299,7 +307,80 @@ export default {
 },
 //-------------------------------------------------------------- 
 
+        solicitarCuis(data)
+            {
+                let me=this;    
+                const swalWithBootstrapButtons = Swal.mixin({
+                customClass: {
+                    confirmButton: 'btn btn-success',
+                    cancelButton: 'btn btn-danger'
+                },
+                buttonsStyling: false
+                })
 
+                swalWithBootstrapButtons.fire({
+                title: '¿Esta seguro de pedir CUIS?',
+                text: 'Conforme a normativa vigente el proceso de obtención del CUIS para una sucursal o punto de venta debe realizarse mediante el Sistema Informático de Facturación autorizado.El Código Único de Inicio de Sistemas (CUIS) para el Sistema Informático de Facturación en las modalidades de facturación Electrónica en Línea o Computarizada en Línea tendrá una vigencia de trescientos sesenta y cinco (365) días calendario.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Si, Solicitar',
+                cancelButtonText: 'No, Solicitar',
+                reverseButtons: true
+                }).then((result) => {
+                if (result.isConfirmed) {
+                    var url='/siat_cuis_cufd/cuis?emisor='+me.emisor+'&codigo_siat='+data+'&nit='+me.nit+'&codigo_ambiente='+me.codigodAmb+'&codigo_sistema='+me.codigoSis+'&modalidad='+me.modalidad+'&token_delegado='+me.token_delegado+"&cuis_end="+3;                        
+                    axios.get(url)
+                    .then(function (response) {
+                        var respuesta = response.data; 
+                    me.parseXML(respuesta);                 
+                    console.log(respuesta); 
+                        swalWithBootstrapButtons.fire(
+                            'Activado!',
+                            'El registro a sido Activado Correctamente',
+                            'success'
+                        )
+                      //  me.listarIndex(1);
+                    }).catch(function (error) {
+                        error401(error);
+                        console.log(error);
+                    });
+                    
+                    
+                } else if (
+                    /* Read more about handling dismissals below */
+                    result.dismiss === Swal.DismissReason.cancel
+                ) {
+                    /* swalWithBootstrapButtons.fire(
+                    'Cancelado!',
+                    'El Registro no fue Activado',
+                    'error'
+                    ) */
+                }
+                })            
+               
+            },
+
+              // Método para parsear el XML y extraer los datos
+  parseXML(xmlString) {
+    const parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(xmlString, "text/xml");
+    const respuestaCuis = xmlDoc.getElementsByTagName("RespuestaCuis")[0];
+    const respuestaCuis_2 = xmlDoc.getElementsByTagName("faultstring")[0];
+    console.log("------1-------");
+    console.log(xmlDoc);
+    console.log("------2-------");
+    console.log(respuestaCuis);
+    console.log("------3-------");
+    console.log(respuestaCuis_2.textContent);
+    // Extraemos los datos de los elementos XML
+  //  this.cuisData = {
+  //    codigo: respuestaCuis.getElementsByTagName("codigo")[0].textContent,
+  //    fechaVigencia: respuestaCuis.getElementsByTagName("fechaVigencia")[0].textContent,
+  //    descripcion: respuestaCuis.getElementsByTagName("descripcion")[0].textContent,
+  //    transaccion: respuestaCuis.getElementsByTagName("transaccion")[0].textContent === 'true',
+  //  };
+  },
+//---------------------
 
         cambiarPestana(idPestana) {
             this.pestañaActiva = idPestana;
@@ -319,15 +400,52 @@ export default {
                 var url='/siat_cuis_cufd/siat_config';                        
                 axios.get(url)
                 .then(function(response){
-                    var respuesta = response.data;
+                    var respuesta = response.data; 
                     me.emisor=respuesta.emisor;
-                    console.log(respuesta);    
-                                          
+                me.codigoSis=respuesta.cod_sis;
+                me.codigodAmb=respuesta.tipo_ambiente;           
+                me.modalidad=respuesta.tipo_modalidad;
+                me.token_delegado=respuesta.token_delegado;    
+                    console.log("-------*--------");
+                    console.log(respuesta);         
+                    console.log("-------*--------");                                     
                 })
                 .catch(function(error){
                     error401(error);
                 });   
             },
+
+            listarCredencial() {
+            let me = this;
+            var url = "/credenciales_correo";
+            axios.get(url)
+                .then(function (response) {
+                    var respuesta = response.data;
+                  
+                 //   me.id_credencial=response.data[0].id;
+                 //   me.host=response.data[0].host;                   
+                //   me.correo=response.data[0].correo;
+                //    me.puerto=response.data[0].puerto;
+                //    me.usuario=response.data[0].usuario;
+               //     me.contraseña=response.data[0].contraseña;
+               //     me.ssl=response.data[0].ssl;               
+                    me.nit=response.data[0].nit;
+              //      me.nombre_empresa=response.data[0].nom_empresa;
+              //      me.celular=response.data[0].nro_celular;
+              //      me.validador_variables=response.data[0].factura_dosificacion === null ? 0:response.data[0].factura_dosificacion;
+              //      me.actividad_eco=response.data[0].actividad_economica;
+              //      me.estado_cambio_moneda=response.data[0].moneda;
+                    
+              //      me.limite_monto=response.data[0].monto_limite;
+              //      me.limite_horas=response.data[0].tiempo_limite;  
+              //      me.selectModalApertura=response.data[0].modal_apertura;
+                
+                })
+                .catch(function (error) {
+                    error401(error);
+                    console.log(error);
+                });
+        },
 
         listarIndex(page)
             {
@@ -395,7 +513,8 @@ export default {
         //-------permiso E_W_S-----
         this.listarPerimsoxyz();
             //-----------------------
-    
+        this.listarConfiguracionSiat();
+        this.listarCredencial();
         this.classModal.addModal("regcuenta");
     
     },
