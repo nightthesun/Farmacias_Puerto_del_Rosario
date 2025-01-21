@@ -17,7 +17,10 @@
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" id="pills-profile-tab" data-toggle="pill" href="#pills-profile" role="tab" aria-controls="pills-profile" aria-selected="false">End Points</a>
-                </li>                       
+                </li>       
+                <li class="nav-item">
+                    <a class="nav-link" id="pills-concepto-tab" data-toggle="pill" href="#pills-concepto" role="tab" aria-controls="pills-concepto" aria-selected="false" @click="listar_catalogo()">Conceptos</a>
+                </li>                   
             </ul>
         </div>
         <div class="card-body">           
@@ -240,6 +243,49 @@
                         </div>
                     </div>        
                     <!---------------------------------------------------------------------------------------------------------------------------->
+             
+                      <div class="tab-pane fade" id="pills-concepto" role="tabpanel" aria-labelledby="pills-concepto-tab">
+
+<div class="card">
+    <div class="card-header">
+      Catalogo SIAT
+    </div>
+    
+<div class="card-body">    
+        <div class="row">
+        <div class="form-group col-sm-2">
+            <strong >Actividad:</strong>
+        </div> 
+        <div class="form-group col-sm-4">
+            <select class="form-control" v-model="selectCatalogo">
+    <option value="0" disabled selected>Seleccionar...</option>
+    <option v-for="i in arrayCatalogo" :key="i.id" :value="i.id">{{ i.catalogo }}</option>
+</select>
+        </div>
+        <div class="form-group col-sm-2">
+                  <button v-show="selectCatalogo!='0'" @click="listar_emision()" type="button" class="btn btn-primary btn-sm btn-block" ><i class="fa fa-download" aria-hidden="true"></i> Descargar</button>
+                
+        </div> 
+        <div class="form-group col-sm-2">
+            <label class="btn btn-primary btn-sm btn-block" v-show="selectCatalogo!='0'">
+      <i class="fa fa-upload" aria-hidden="true"></i> Subir
+      <input type="file" @change="handleFileUpload" accept=".xlsx, .xls" style="display: none;" />
+    </label>
+ </div> 
+        <div class="form-group col-sm-2">
+            <button v-show="selectCatalogo!='0'" type="button" class="btn btn-primary btn-sm btn-block"><i class="fa fa-eye" aria-hidden="true"></i> Ver</button>
+        </div> 
+                                      
+        </div>    
+         <!---inserte tabla-->
+ 
+      
+  
+    </div>
+
+</div>
+</div>        
+<!---------------------------------------------------------------------------------------------------------------------------->
             </div>            
         </div>
     </div>
@@ -315,6 +361,10 @@ import Swal from "sweetalert2";
 import { error401 } from "../../errores";
 import VueMultiselect from 'vue-multiselect';
 import { data } from "jquery";
+import * as XLSX from 'xlsx';
+
+
+
 //Vue.use(VeeValidate);
 
 export default {
@@ -369,6 +419,10 @@ export default {
                
 
                 isSubmitting: false, // Controla el estado del botón de envío
+            //--catalogo
+            arrayCatalogo:[],
+            selectCatalogo:'0',
+
         };
     },
 
@@ -677,6 +731,27 @@ validateFile() {
     }
 },
 
+validateFileExcel() {
+    let me = this;
+    const file = this.$refs.fileInput.files[0]; // Obtén el archivo seleccionado
+    if (file) {
+        const extension = file.name.split('.').pop().toLowerCase(); // Extrae la extensión
+        const allowedExtensions = ["p12", "pem", "token", "crt", "cert"]; // Lista de extensiones permitidas
+
+        if (!allowedExtensions.includes(extension)) {
+            me.errorMessage = `Solo se permiten archivos con las extensiones: ${allowedExtensions.join(", ")}.`;
+            me.$refs.fileInput.value = ""; // Reinicia el campo del archivo
+            Swal.fire("Error", me.errorMessage, "error");
+        } else {
+            me.errorMessage = "";
+            console.log("Archivo válido:", file);
+            // Aquí puedes continuar con el procesamiento del archivo
+        }
+    } else {
+        me.errorMessage = "Por favor selecciona un archivo.";
+    }
+},
+
     resetear_x(){
         let me=this;
         let ambiente=me.selectTipoAmbiente;
@@ -759,6 +834,69 @@ validateFile() {
                 }                           
             }
         },
+
+        ///-------inicio catalogo-------------        
+        listar_catalogo(){
+            let me=this;     
+                me.arrayCatalogo=[];         
+                    var url='/siat/listar_catalogo';                         
+                axios.get(url).then(function(response){
+                    var respuesta = response.data; 
+                    me.arrayCatalogo=respuesta;                                                 
+                })
+                .catch(function(error){
+                    error401(error);
+                });
+        },
+
+        handleFileUpload(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const sheetName = workbook.SheetNames[0];
+          const sheet = workbook.Sheets[sheetName];
+          const jsonData = XLSX.utils.sheet_to_json(sheet);
+          console.log(jsonData);
+        //  this.sendDataToServer(jsonData);
+        };
+        reader.readAsArrayBuffer(file);
+      }
+    },
+
+    sendDataToServer(data) {
+      axios.post('/api/import-excel', { data })
+        .then(response => {
+          console.log('Data sent successfully:', response.data);
+        })
+        .catch(error => {
+          console.error('Error sending data:', error);
+        });
+    },
+
+    listar_emision(){
+            let me=this;                          
+                    var url='/siat/listar_emision';                         
+                axios.get(url).then(function(response){
+                    var respuesta = response.data; 
+                    
+                      // Convertir los datos a un formato que XLSX pueda entender
+        const ws = XLSX.utils.json_to_sheet(respuesta);
+         // Crear un libro de trabajo de Excel con esos datos
+         const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Emisiones');
+
+        // Generar un archivo Excel y forzar la descarga
+        XLSX.writeFile(wb, 'emisiones.xlsx');
+                                                               
+                })
+                .catch(function(error){
+                    error401(error);
+                });
+        },
+        //--------------------
         cerrarModal(accion) {
             let me = this;
             

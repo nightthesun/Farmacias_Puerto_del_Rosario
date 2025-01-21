@@ -748,10 +748,13 @@ Route::group(['middleware' => 'auth'], function () {
     //Configuracion siat---------------
     Route::get('/siat/configuracion', [SiatConfiguracionController::class, 'index_general']);   
     Route::post('/siat/crear_configuracion', [SiatConfiguracionController::class, 'update_general']);
+    Route::get('/siat/listar_catalogo', [SiatConfiguracionController::class, 'catalagos']); 
+    Route::get('/siat/listar_emision', [SiatConfiguracionController::class, 'excel_emision']); 
+    
         //endpoint--
         Route::post('/siat/crear_endpoint', [SiatEndpointController::class, 'crearEndPoint']);  
         Route::get('/siat/index_endpoint', [SiatEndpointController::class, 'index']); 
-        Route::put('/siat/editar_endpoint', [SiatEndpointController::class, 'editarEndPoint']);  
+        Route::put('/siat/editar_endpoint', [SiatEndpointController::class, 'editarEndPoint']);         
     //Sucursal siat---------------   
     Route::get('/siat_su/departamento_siat', [SiatSucursalController::class, 'departamento_siat']);  
     Route::get('/siat_su/sucursal_siat', [SiatSucursalController::class, 'sucursal_siat']);  

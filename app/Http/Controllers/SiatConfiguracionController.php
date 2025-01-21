@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon as SupportCarbon;
 use Illuminate\Support\Facades\DB;
 
+
 class SiatConfiguracionController extends Controller
 {
     public function index_general()
@@ -120,5 +121,15 @@ class SiatConfiguracionController extends Controller
     }
 
    
+    public function catalagos(){
+        $catalogos = DB::table('siat__catalogo')->select('id', 'catalogo')->get();
+        return $catalogos;  
+    }
+
+    public function excel_emision(){
+        $emisiones = DB::table('excel__emision')->get();
+        return $emisiones;    
+    }
+    
 
 }

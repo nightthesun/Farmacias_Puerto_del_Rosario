@@ -71,7 +71,7 @@ class SiatCuisCufdControlador extends Controller
         $wsdl = $cadena_url;
             // Asignación de la URL y API key
             $wsdl = $cadena_url; 
-            $apikeyValue = 'TokenApi ' . $request->token_delegado; // Concatenar correctamente el valor del API key
+            $apikeyValue = 'TokenApi ' .$request->token_delegado; // Concatenar correctamente el valor del API key
 
          // Crear el cuerpo del mensaje SOAP, sustituyendo los valores con los parámetros correspondientes
          $xmlData = <<<EOD
@@ -82,7 +82,7 @@ class SiatCuisCufdControlador extends Controller
                   <SolicitudCuis>
                      <codigoAmbiente>{$request->codigo_ambiente}</codigoAmbiente>
                      <codigoModalidad>{$request->modalidad}</codigoModalidad>
-                     <codigoPuntoVenta>1</codigoPuntoVenta>
+                     <codigoPuntoVenta>{$request->emisor}</codigoPuntoVenta>
                      <codigoSistema>{$request->codigo_sistema}</codigoSistema>
                      <codigoSucursal>{$request->codigo_siat}</codigoSucursal>
                      <nit>{$request->nit}</nit>

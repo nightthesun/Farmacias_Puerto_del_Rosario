@@ -332,16 +332,23 @@ export default {
                     axios.get(url)
                     .then(function (response) {
                         var respuesta = response.data; 
-                    me.parseXML(respuesta);                 
-                    console.log(respuesta); 
-                        swalWithBootstrapButtons.fire(
-                            'Activado!',
-                            'El registro a sido Activado Correctamente',
-                            'success'
+                     
+                        if (respuesta.error==null || respuesta.error=="") {
+                            me.parseXML(respuesta);   
+                        }else{
+                            swalWithBootstrapButtons.fire(
+                            ''+respuesta.error,
+                            ''+respuesta.message,
+                            'error'
                         )
+                        }
+                                 
+                    
+                       
                       //  me.listarIndex(1);
                     }).catch(function (error) {
                         error401(error);
+                        
                         console.log(error);
                     });
                     
@@ -362,16 +369,45 @@ export default {
 
               // Método para parsear el XML y extraer los datos
   parseXML(xmlString) {
+
     const parser = new DOMParser();
     const xmlDoc = parser.parseFromString(xmlString, "text/xml");
-    const respuestaCuis = xmlDoc.getElementsByTagName("RespuestaCuis")[0];
+   // const respuestaCuis = xmlDoc.getElementsByTagName("RespuestaCuis")[0].childNodes[0];
     const respuestaCuis_2 = xmlDoc.getElementsByTagName("faultstring")[0];
-    console.log("------1-------");
+
+   
+
+
+    if (respuestaCuis_2!=undefined) {
+        Swal.fire("Error",""+respuestaCuis_2.textContent,"error",);
+    }else{
+        // Recorrer todos los hijos de 'mensajesList' mensajesList
+        const mensajesList = xmlDoc.querySelector('mensajesList');
+       Array.from(mensajesList.children).forEach(child => {
+            console.log(`${child.tagName}: ${child.textContent}`);
+         
+        });
+    }
+   // console.log("*---ini---*");
+  //  console.log(respuestaCuis_2);
+  //  console.log("*---fini---*");
+     
+       // console.log(respuestaCuis_2.textContent);
+    
+
+//Array.from(mensajesList.children).forEach(child => {
+//    console.log(`${child.tagName}: ${child.textContent}`);
+//});
+
+  console.log("------1-------");
     console.log(xmlDoc);
-    console.log("------2-------");
-    console.log(respuestaCuis);
-    console.log("------3-------");
-    console.log(respuestaCuis_2.textContent);
+  //  console.log("------2-------");
+  //  console.log(respuestaCuis.nodeValue);
+  //  console.log("------3-------");
+  //  console.log(respuestaCuis_2.textContent);
+
+
+
     // Extraemos los datos de los elementos XML
   //  this.cuisData = {
   //    codigo: respuestaCuis.getElementsByTagName("codigo")[0].textContent,
@@ -379,6 +415,9 @@ export default {
   //    descripcion: respuestaCuis.getElementsByTagName("descripcion")[0].textContent,
   //    transaccion: respuestaCuis.getElementsByTagName("transaccion")[0].textContent === 'true',
   //  };
+
+  
+
   },
 //---------------------
 
