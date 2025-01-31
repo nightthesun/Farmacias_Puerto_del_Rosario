@@ -126,9 +126,38 @@ class SiatConfiguracionController extends Controller
         return $catalogos;  
     }
 
-    public function excel_emision(){
-        $emisiones = DB::table('excel__emision')->get();
+    public function excel_emision(Request $request){
+        $emisiones = DB::table('excel__emision')
+        ->where('id_catalogo', $request->id_catalogo)
+        ->get();
         return $emisiones;    
+    }
+
+    public function upload_exe(Request $request){
+            try {
+                // Iniciar una transacción
+                DB::beginTransaction();
+                $bloque=$request->data;
+                $id=$request->id;
+              // return $array;    
+              DB::table('excel__emision')->where('id_catalogo', $id)->delete();        
+                foreach ($bloque as $item) {
+                 
+                    $datos = [
+                        'descripcion' => $item['descripcion'],
+                        'codigo' => $item['codigo'],
+                        'id_catalogo' => $item['id_catalogo'],
+                        'id_erp' => $item['id_erp'],
+                    ];                
+                    DB::table('excel__emision')->insert($datos);                 
+                 }
+
+                 // Si llegamos aquí sin errores, confirmamos la transacción
+                DB::commit();
+            } catch (\Throwable $th) {
+            //throw $th;
+            }        
+    
     }
     
 

@@ -71,6 +71,7 @@ use App\Http\Controllers\ProdListaController;
 use App\Http\Controllers\ProdRegistroPreXListController;
 use App\Http\Controllers\SiatConfiguracionController;
 use App\Http\Controllers\SiatCuisCufdControlador;
+use App\Http\Controllers\SiatEmisorController;
 use App\Http\Controllers\SiatEndpointController;
 use App\Http\Controllers\SiatSucursalController;
 use App\Http\Controllers\TdaIngresoProducto2Controller;
@@ -182,6 +183,10 @@ Route::group(['middleware' => 'auth'], function () {
     /**********************verificador de apertura cierre retornod e datos****************************** */
     Route::get('/verificacionAperturaCierre', [GetController::class, 'listarAperturaCierre']);
     Route::get('/verificador_moneda_sistemas', [GetController::class, 'listarMoneda_2']);
+
+    /********************************************* impuestos**************************************/
+    Route::get('/listar_conceptos_v3', [GetController::class, 'getConceptos']); 
+    Route::get('/listar_config_siat_sis_v3', [GetController::class, 'getCredencialesData']);       
     
     //adm///////////////////////////////////////////////////////////////////////////////////
 
@@ -750,6 +755,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/siat/crear_configuracion', [SiatConfiguracionController::class, 'update_general']);
     Route::get('/siat/listar_catalogo', [SiatConfiguracionController::class, 'catalagos']); 
     Route::get('/siat/listar_emision', [SiatConfiguracionController::class, 'excel_emision']); 
+    Route::post('/siat/subir_excel', [SiatConfiguracionController::class, 'upload_exe']); 
     
         //endpoint--
         Route::post('/siat/crear_endpoint', [SiatEndpointController::class, 'crearEndPoint']);  
@@ -768,6 +774,18 @@ Route::group(['middleware' => 'auth'], function () {
     //CUIS / CUFD----------------
     Route::get('/siat_cuis_cufd/inicio', [SiatCuisCufdControlador::class, 'index']); 
     Route::get('/siat_cuis_cufd/siat_config', [SiatCuisCufdControlador::class, 'siat_fig']);  
-    Route::get('/siat_cuis_cufd/cuis', [SiatCuisCufdControlador::class, 'solicitarCuis']);  
-        
+    Route::get('/siat_cuis_cufd/cuis', [SiatCuisCufdControlador::class, 'solicitarCuis']); 
+
+    Route::post('/siat_cuis_cufd/insertar_cuis ', [SiatCuisCufdControlador::class, 'crear_cuis']);  
+    
+    //emisor-----------------------
+    Route::get('/siat_emisor/listar_siat_sucursal', [SiatEmisorController::class, 'siat_sucursal']); 
+    Route::get('/siat_emisor/solicitar_regiPunV', [SiatEmisorController::class, 'registrarPuntoV']);     
+    Route::post('/siat_emisor/crear', [SiatEmisorController::class, 'store']); 
+    Route::get('/siat_emisor/listar_caja', [SiatEmisorController::class, 'listar_caja']);   
+    Route::get('/siat_emisor/listar_inicio', [SiatEmisorController::class, 'index']);    
+    Route::put('/siat_emisor/subir_caja', [SiatEmisorController::class, 'update_caja']); 
+    Route::put('/siat_emisor/quitar_caja', [SiatEmisorController::class, 'modificar_nul_caja']); 
+    Route::get('/siat_emisor/consultar_PuntoV_siat', [SiatEmisorController::class, 'consultar_PV_siat']);   
+  
 });

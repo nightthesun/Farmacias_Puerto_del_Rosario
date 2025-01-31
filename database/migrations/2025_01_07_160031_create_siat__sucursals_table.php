@@ -20,8 +20,7 @@ return new class extends Migration
             $table->tinyInteger('estado')->default(1);  
             $table->smallInteger('id_usuario_registra')->nullable();
             $table->smallInteger('id_usuario_modifica')->nullable();
-            $table->BIGINT('id_cuis')->nullable();
-            $table->BIGINT('id_cufd')->nullable();   
+            $table->bigInteger('id_emisor')->nullable();           
             $table->timestamps();
         });
     }

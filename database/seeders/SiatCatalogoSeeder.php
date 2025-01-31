@@ -23,8 +23,7 @@ class SiatCatalogoSeeder extends Seeder
         DB::table('siat__catalogo')->insert(['catalogo'=>'Tipo pago']); 
         DB::table('siat__catalogo')->insert(['catalogo'=>'Tipo moneda']); 
         DB::table('siat__catalogo')->insert(['catalogo'=>'Tipo origen']); 
-        DB::table('siat__catalogo')->insert(['catalogo'=>'Tipo leyenda']); 
-        DB::table('siat__catalogo')->insert(['catalogo'=>'Tipo sector']); 
+        DB::table('siat__catalogo')->insert(['catalogo'=>'Tipo leyenda']);      
         DB::table('siat__catalogo')->insert(['catalogo'=>'Tipo unidad medida']); 
         DB::table('siat__catalogo')->insert(['catalogo'=>'Tipo punto venta']); 
         DB::table('siat__catalogo')->insert(['catalogo'=>'Codigo tipo habilitacion']); 

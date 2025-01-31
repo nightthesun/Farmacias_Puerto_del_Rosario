@@ -103,7 +103,7 @@ createApp ({
     .component('siat-configuracion-component', require('./components/siat/Configuracion_siatComponent.vue').default)
     .component('siat-sucursal-component', require('./components/siat/Sucursal_siatComponent.vue').default)
     .component('siat-administracion-component', require('./components/siat/Administracion_siatComponent.vue').default)
-    
+    .component('siat-emisor-component', require('./components/siat/Emisor_siatComponent.vue').default)
 
     .mount('#app');
  

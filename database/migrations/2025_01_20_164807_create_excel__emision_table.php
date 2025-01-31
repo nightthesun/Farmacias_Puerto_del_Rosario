@@ -14,8 +14,9 @@ return new class extends Migration
         Schema::create('excel__emision', function (Blueprint $table) {
             
             $table->string('descripcion'); 
-            $table->smallInteger('codigo');
-            $table->smallInteger('id_catalogo');     
+            $table->integer('codigo');
+            $table->smallInteger('id_catalogo');    
+            $table->smallInteger('id_erp')->nullable(); 
         });
     }
 

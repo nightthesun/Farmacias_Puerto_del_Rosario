@@ -354,4 +354,26 @@ return $result;
     
     return $empleados;
     }
+
+//---------------------------impuestos------------------------------------
+    public function getConceptos(Request $request){
+        $resultado = DB::table('excel__emision')
+    ->where('id_catalogo', $request->id)
+    ->get();
+    return $resultado;
+    }
+
+    public function getCredencialesData(){
+        $query_1 = DB::table('adm__credecial_correos')
+        ->where('id', 1)
+        ->get();
+        $query_2 = DB::table('siat__configuracions')
+        ->where('id', 1)
+        ->get();
+        return response()->json([                        
+            'config_sistema' => $query_1,
+            'config_siat' => $query_2, 
+        ]);
+
+    }
 }

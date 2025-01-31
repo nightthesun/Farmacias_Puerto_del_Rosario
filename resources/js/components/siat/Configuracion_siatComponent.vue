@@ -242,10 +242,9 @@
                    
                         </div>
                     </div>        
-                    <!---------------------------------------------------------------------------------------------------------------------------->
+                    <!-----------------------------------------------------------------CONCEPTOS----------------------------------------------------------->
              
                       <div class="tab-pane fade" id="pills-concepto" role="tabpanel" aria-labelledby="pills-concepto-tab">
-
 <div class="card">
     <div class="card-header">
       Catalogo SIAT
@@ -259,12 +258,12 @@
         <div class="form-group col-sm-4">
             <select class="form-control" v-model="selectCatalogo">
     <option value="0" disabled selected>Seleccionar...</option>
+    
     <option v-for="i in arrayCatalogo" :key="i.id" :value="i.id">{{ i.catalogo }}</option>
 </select>
         </div>
         <div class="form-group col-sm-2">
-                  <button v-show="selectCatalogo!='0'" @click="listar_emision()" type="button" class="btn btn-primary btn-sm btn-block" ><i class="fa fa-download" aria-hidden="true"></i> Descargar</button>
-                
+                  <button v-show="selectCatalogo!='0'" @click="listar_emision(selectCatalogo)" type="button" class="btn btn-primary btn-sm btn-block" ><i class="fa fa-download" aria-hidden="true"></i> Descargar</button>                
         </div> 
         <div class="form-group col-sm-2">
             <label class="btn btn-primary btn-sm btn-block" v-show="selectCatalogo!='0'">
@@ -272,9 +271,7 @@
       <input type="file" @change="handleFileUpload" accept=".xlsx, .xls" style="display: none;" />
     </label>
  </div> 
-        <div class="form-group col-sm-2">
-            <button v-show="selectCatalogo!='0'" type="button" class="btn btn-primary btn-sm btn-block"><i class="fa fa-eye" aria-hidden="true"></i> Ver</button>
-        </div> 
+        
                                       
         </div>    
          <!---inserte tabla-->
@@ -422,11 +419,25 @@ export default {
             //--catalogo
             arrayCatalogo:[],
             selectCatalogo:'0',
+            nombreCatalogo:'',
 
         };
     },
 
-   
+    watch: {
+        selectCatalogo: function (newValue) {
+                this.nombreCatalogo='';
+                let selector = this.arrayCatalogo.find(
+                    (element) => element.id === newValue,
+
+                );
+          
+               if (selector) {
+                   this.nombreCatalogo = selector.catalogo;                 
+                }          
+        },
+    },
+ 
 
     computed: {
       
@@ -554,30 +565,18 @@ crearEndPoint(){
  },
 
  editarEndPoint(){
-        let me = this;
-   
-     
+        let me = this;    
                 axios.put("/siat/editar_endpoint", {
                 id:me.id_endpoint,
                 endpoint:me.url_endpoint,               
                 })
                 .then(function (response) {
                     me.listarIndexEndPoint(); 
-                    let respuesta=response.data;    
-                    
-                    console.log(respuesta);
+                    let respuesta=response.data;                   
                     if (respuesta.length>0) {
-                        Swal.fire(
-                        "Error!",
-                        ""+respuesta,
-                        "error",
-                    );    
+                        Swal.fire("Error!",""+respuesta,"error",);    
                     } else {
-                        Swal.fire(
-                        "Registro creado!",
-                        "Correctamente",
-                        "success",
-                    );  
+                        Swal.fire("Registro creado!","Correctamente","success",);  
                     }
                     me.cerrarModal('regcuenta');
                                 
@@ -656,6 +655,7 @@ swalWithBootstrapButtons.fire({
                     key_privade:me.key_privade,
                     certificado_x509:me.certificado_x509,            
                     emisor:me.selectEmisor,
+                    
                     id_modulo: me.idmodulo,
                     id_sub_modulo:me.codventana, 
                     des:"actualziacion la configuracion siat configuracion",  
@@ -859,26 +859,78 @@ validateFileExcel() {
           const sheetName = workbook.SheetNames[0];
           const sheet = workbook.Sheets[sheetName];
           const jsonData = XLSX.utils.sheet_to_json(sheet);
-          console.log(jsonData);
-        //  this.sendDataToServer(jsonData);
+           // Filtrar y procesar solo las columnas específicas
+      const processedData = jsonData.map((row) => ({
+        descripcion: row.descripcion || null, // Incluir "descripcion"
+        codigo: row.codigo || null,           // Incluir "codigo"
+        id_catalogo: row.id_catalogo || null, // Incluir "id_catalogo"
+        id_erp: row.id_erp === undefined || row.id_erp === "" ? null : row.id_erp, // Incluir "id_erp" con transformación
+      }));
+
+      //console.log(processedData); // Verificar los datos procesados
+      this.subirExcel(processedData); // Enviar los datos procesados
+            
+        //  console.log(jsonData);
+        // this.subirExcel(jsonData);
         };
         reader.readAsArrayBuffer(file);
       }
     },
 
-    sendDataToServer(data) {
-      axios.post('/api/import-excel', { data })
-        .then(response => {
-          console.log('Data sent successfully:', response.data);
-        })
-        .catch(error => {
-          console.error('Error sending data:', error);
-        });
-    },
+    subirExcel(data){
+        let me = this;    
+        let sumador=0;
+        data.forEach(element => {     
+            if(element.id_catalogo===me.selectCatalogo){
+                sumador++;
+            }
+        }); 
+        if (sumador===data.length) {
+            axios.post("/siat/subir_excel", {
+                data:data,
+                id:me.selectCatalogo,                              
+                })
+                .then(function (response) {
+                  //  me.listarIndexEndPoint(); 
+                    let respuesta=response.data;     
+                    console.log("---------------");                   
+                    console.log(respuesta);
+                    if (respuesta.length>0) {
+                        Swal.fire("Error!",""+respuesta,"error",);    
+                    } else {
+                        Swal.fire("Se subio!","Correctamente","success",
+                    );  
+                    }                               
+                })               
+                .catch(function (error) {                
+                  console.log(error);                
+            });
+        } else {
+            Swal.fire("Error de validacion!","La id_catalogo no es la misma del selector de actividades","error",);  
+        }       
+ },
 
-    listar_emision(){
-            let me=this;                          
-                    var url='/siat/listar_emision';                         
+    listar_emision(id_catalogo){
+            let me=this; 
+            
+            const swalWithBootstrapButtons = Swal.mixin({
+                customClass: {
+                    confirmButton: 'btn btn-success',
+                    cancelButton: 'btn btn-danger'
+                },
+                buttonsStyling: false
+                })
+                swalWithBootstrapButtons.fire({
+                title: '¿Esta seguro de descargar?',
+                text: 'en formato excel.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Si, Descargar',
+                cancelButtonText: 'No, Descargar',
+                reverseButtons: true
+                }).then((result) => {
+                if (result.isConfirmed) {
+                    var url='/siat/listar_emision?id_catalogo='+id_catalogo;                         
                 axios.get(url).then(function(response){
                     var respuesta = response.data; 
                     
@@ -889,12 +941,26 @@ validateFileExcel() {
         XLSX.utils.book_append_sheet(wb, ws, 'Emisiones');
 
         // Generar un archivo Excel y forzar la descarga
-        XLSX.writeFile(wb, 'emisiones.xlsx');
+        XLSX.writeFile(wb, me.nombreCatalogo+'.xlsx');
                                                                
                 })
                 .catch(function(error){
                     error401(error);
-                });
+                });   
+                    
+                } else if (
+                    /* Read more about handling dismissals below */
+                    result.dismiss === Swal.DismissReason.cancel
+                ) {
+                    /* swalWithBootstrapButtons.fire(
+                    'Cancelado!',
+                    'El Registro no fue Activado',
+                    'error'
+                    ) */
+                }
+                })  
+
+                
         },
         //--------------------
         cerrarModal(accion) {

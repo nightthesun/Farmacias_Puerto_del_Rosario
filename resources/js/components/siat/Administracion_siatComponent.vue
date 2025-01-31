@@ -82,13 +82,13 @@
     <i class="fa fa-bars" aria-hidden="true"></i>
   </button>     
   <div class="dropdown-menu">
-      <a class="dropdown-item" href="#" @click="solicitarCuis(i.codigo_siat);"><i style="color: black;" class="fa fa-cube" aria-hidden="true"></i> Solicitar CUIS</a>
+      <a class="dropdown-item" href="#" @click="solicitarCuis(i.codigo_siat,i.id);"><i style="color: black;" class="fa fa-cube" aria-hidden="true"></i> Solicitar CUIS</a>
     <a  class="dropdown-item" href="#"><i style="color: black;" class="fa fa-cubes" aria-hidden="true"></i> Solicitar CUFD</a>     
      </div>                   
                         </td>
                         <td class="col-md-1">{{ i.nombre_suc_siat }}</td>
                         <td class="col-md-1">{{ i.codigo_siat }}</td>
-                        <td class="col-md-1">{{emisor}}</td>
+                        <td class="col-md-1">{{ emisor }}</td>
                         <td class="col-md-1">{{ i.cuis }}</td>
                         <td class="col-md-4">{{ i.cufd }}</td>
                         <td class="col-md-1">{{ i.fecha_v_cuis }}</td>
@@ -120,11 +120,7 @@
                 </ul>
             </nav>
             <!-----fin de tabla------->
-                            <div class="form-group row justify-content-center">
-                                <div class="col-md-3 d-flex justify-content-center">     
-        <button type="button" class="btn btn-light"  >Actualizar configuración</button> 
-    </div>
-</div>
+           
                             </div>
            
 
@@ -307,7 +303,7 @@ export default {
 },
 //-------------------------------------------------------------- 
 
-        solicitarCuis(data)
+        solicitarCuis(data,id)
             {
                 let me=this;    
                 const swalWithBootstrapButtons = Swal.mixin({
@@ -334,7 +330,7 @@ export default {
                         var respuesta = response.data; 
                      
                         if (respuesta.error==null || respuesta.error=="") {
-                            me.parseXML(respuesta);   
+                            me.parseXML(respuesta,id);   
                         }else{
                             swalWithBootstrapButtons.fire(
                             ''+respuesta.error,
@@ -342,13 +338,9 @@ export default {
                             'error'
                         )
                         }
-                                 
-                    
-                       
                       //  me.listarIndex(1);
                     }).catch(function (error) {
-                        error401(error);
-                        
+                        error401(error);                        
                         console.log(error);
                     });
                     
@@ -368,57 +360,75 @@ export default {
             },
 
               // Método para parsear el XML y extraer los datos
-  parseXML(xmlString) {
-
+  parseXML(xmlString,id) {
+    let me= this;
     const parser = new DOMParser();
     const xmlDoc = parser.parseFromString(xmlString, "text/xml");
    // const respuestaCuis = xmlDoc.getElementsByTagName("RespuestaCuis")[0].childNodes[0];
     const respuestaCuis_2 = xmlDoc.getElementsByTagName("faultstring")[0];
-
-   
-
-
     if (respuestaCuis_2!=undefined) {
         Swal.fire("Error",""+respuestaCuis_2.textContent,"error",);
     }else{
+      
         // Recorrer todos los hijos de 'mensajesList' mensajesList
-        const mensajesList = xmlDoc.querySelector('mensajesList');
+        const trasaccion= xmlDoc.querySelector('transaccion');
+        if (trasaccion.textContent==='true') {
+            console.log("por verdad");
+            const codigoCuis= xmlDoc.querySelector('codigo');       
+            const fechaCuis= xmlDoc.querySelector('fechaVigencia');         
+         //   console.log(codigoCuis.textContent+" - "+fechaCuis.textContent);
+            me.insertarCuis(id, codigoCuis.textContent, fechaCuis.textContent);
+
+        } else {
+            if (trasaccion.textContent==='false') {
+             
+            const codigoCuis= xmlDoc.querySelector('codigo');       
+            const fechaCuis= xmlDoc.querySelector('fechaVigencia');   
+        const mensajesList = xmlDoc.querySelector('mensajesList'); 
+        let cadena_nombre="";
        Array.from(mensajesList.children).forEach(child => {
-            console.log(`${child.tagName}: ${child.textContent}`);
-         
+        cadena_nombre += `${child.tagName}: ${child.textContent.trim()}\n`;   
+         // console.log(`${child.tagName}: ${child.textContent}`);         
         });
-    }
-   // console.log("*---ini---*");
-  //  console.log(respuestaCuis_2);
-  //  console.log("*---fini---*");
-     
-       // console.log(respuestaCuis_2.textContent);
-    
-
-//Array.from(mensajesList.children).forEach(child => {
-//    console.log(`${child.tagName}: ${child.textContent}`);
-//});
-
-  console.log("------1-------");
-    console.log(xmlDoc);
-  //  console.log("------2-------");
-  //  console.log(respuestaCuis.nodeValue);
-  //  console.log("------3-------");
-  //  console.log(respuestaCuis_2.textContent);
-
-
-
-    // Extraemos los datos de los elementos XML
-  //  this.cuisData = {
-  //    codigo: respuestaCuis.getElementsByTagName("codigo")[0].textContent,
-  //    fechaVigencia: respuestaCuis.getElementsByTagName("fechaVigencia")[0].textContent,
-  //    descripcion: respuestaCuis.getElementsByTagName("descripcion")[0].textContent,
-  //    transaccion: respuestaCuis.getElementsByTagName("transaccion")[0].textContent === 'true',
-  //  };
-
-  
-
+        Swal.fire("Cuis!",""+cadena_nombre,"warning",); 
+            } else {
+                Swal.fire("Error!","transacción nula","error",);  
+            }            
+        }
+        
+    }   
+  // console.log(xmlDoc);
+ 
   },
+
+
+  insertarCuis(id,cuis,fecha){
+        let me = this;    
+                axios.post("/siat_cuis_cufd/insertar_cuis", {
+                id:id,
+                cuis:cuis,
+                fecha:fecha,
+                
+                id_modulo: me.idmodulo,
+                id_sub_modulo:me.codventana, 
+                des:"insercion de cuis",                
+                
+                })
+                .then(function (response) {
+                 //   me.listarIndexEndPoint(); 
+                    let respuesta=response.data; 
+                    me.listarIndex();                  
+                    if (respuesta.length>0) {
+                        Swal.fire("Error!",""+respuesta,"error",);    
+                    } else {
+                        Swal.fire("Insercion!","Correctamente","success",);  
+                    }
+                                                    
+                })               
+                .catch(function (error) {                
+                  console.log(error);                
+            });      
+        },
 //---------------------
 
         cambiarPestana(idPestana) {

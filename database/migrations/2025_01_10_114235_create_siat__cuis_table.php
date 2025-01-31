@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->text('dato');
             $table->string('fecha_vigencia');
-            $table->tinyInteger('estado');            
+            $table->tinyInteger('estado')->default(1);            
             $table->timestamps();
         });
     }

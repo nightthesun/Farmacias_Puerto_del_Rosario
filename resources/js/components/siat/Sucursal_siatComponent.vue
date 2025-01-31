@@ -592,8 +592,7 @@ puedeEditar:2,
                 .get(url)
                 .then(function (response) {
                     var respuesta = response.data;
-                    me.arraySucursal = respuesta;
-                 
+                    me.arraySucursal = respuesta;                 
                 })
                 .catch(function (error) {
                     error401(error);
