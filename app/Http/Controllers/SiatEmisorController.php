@@ -272,14 +272,13 @@ class SiatEmisorController extends Controller
     }      
 
     public function consultar_PV_siat(Request $request){
-
-
- 
+         
    $endPoints = DB::table('siat__endpoints as se')    
             ->select('se.id', 'se.Descripcion', 'se.Url', 'se.Version')
             ->where('se.tipo', $request->codigoAmbiente)
             ->where('se.id', 2)
             ->get();
+            
             $cadena_url=$endPoints[0]->Url; 
             $wsdl = $cadena_url;
                 // Asignación de la URL y API key
@@ -288,36 +287,34 @@ class SiatEmisorController extends Controller
     
              // Crear el cuerpo del mensaje SOAP, sustituyendo los valores con los parámetros correspondientes
         
-            $codigoAmbiente = $request->codigoAmbiente;
+        $codigoAmbiente = $request->codigoAmbiente;
+        $codigoSistema =  $request->codigoSistema;
+        $codigoSucursal = $request->codigoSucursal;      
+        $cuis = $request->cuis;       
+        $nit = $request->nit;
+         
+        $xmlData = <<<EOD
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:siat="https://siat.impuestos.gob.bo/">
+    <soapenv:Header/>
+    <soapenv:Body>
+        <siat:consultaPuntoVenta>
+            <SolicitudConsultaPuntoVenta> <!-- Eliminamos "siat:" aquí -->
+                <codigoAmbiente>{$codigoAmbiente}</codigoAmbiente>
+                <codigoSistema>{$codigoSistema}</codigoSistema>
+                <codigoSucursal>{$codigoSucursal}</codigoSucursal>
+                <cuis>{$cuis}</cuis>
+                <nit>{$nit}</nit>
+            </SolicitudConsultaPuntoVenta>
+        </siat:consultaPuntoVenta>
+    </soapenv:Body>
+</soapenv:Envelope>
+EOD;
 
-            $codigoSistema =  $request->codigoSistema;
-           $codigoSucursal = $request->codigoSucursal;
-      
-           $cuis = $request->cuis;
-       
-             $nit = $request->nit;
-         
-         $xmlData = <<<EOD
-         <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:siat="https://siat.impuestos.gob.bo/">
-            <soapenv:Header/>
-            <soapenv:Body>
-               <siat:consultaPuntoVenta>
-                  <siat:SolicitudConsultaPuntoVenta>
-                     <siat:codigoAmbiente>{$codigoAmbiente}</siat:codigoAmbiente>
-                     <siat:codigoSistema>{$codigoSistema}</siat:codigoSistema>
-                     <siat:codigoSucursal>{$codigoSucursal}</siat:codigoSucursal>
-                     <siat:cuis>{$cuis}</siat:cuis>
-                     <siat:nit>{$nit}</siat:nit>
-                  </siat:SolicitudConsultaPuntoVenta>
-               </siat:consultaPuntoVenta>
-            </soapenv:Body>
-         </soapenv:Envelope>
-         EOD;
     
-         
+    
                 // Inicializar cURL
                 $ch = curl_init();
-    
+                
                 // Configuración de la solicitud cURL
                 curl_setopt($ch, CURLOPT_URL, $wsdl); // Reemplaza con el endpoint correcto
                 curl_setopt($ch, CURLOPT_POST, 1);
@@ -325,13 +322,13 @@ class SiatEmisorController extends Controller
                 curl_setopt($ch, CURLOPT_HTTPHEADER, [
                     'Content-Type: text/xml; charset=utf-8',
                     'SOAPAction: ""', // Si el SOAPAction es requerido, inclúyelo aquí
-                    'apikey: ' . $apikeyValue // Incluye la API key con el valor correspondiente
+                    'apikey: ' .$apikeyValue // Incluye la API key con el valor correspondiente
                 ]);
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     
                 // Ejecutar la solicitud y obtener la respuesta
                 $response = curl_exec($ch);
-               
+          
                 // Verificar si hubo un error en cURL
                 if (curl_errno($ch)) {
                     throw new \Exception(curl_error($ch));
@@ -339,7 +336,7 @@ class SiatEmisorController extends Controller
     
                 // Cerrar la sesión de cURL
                 curl_close($ch);
-               // dd($response);               
+                        
                 return $response; 
         
     }

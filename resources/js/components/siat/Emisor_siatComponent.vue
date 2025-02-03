@@ -11,12 +11,7 @@
             <div class="card" v-if="arraySucursal.length>0">
                 <div class="card-header">
                     <i class="fa fa-align-justify"></i> Emisor               
-                    <button
-                        type="button"
-                        class="btn btn-secondary"
-                        @click="abrirModal('registrar');listar_caja();"
-                        :disabled="sucursalSeleccionada == 0"   
-                    >
+                    <button type="button" class="btn btn-secondary" @click="abrirModal('registrar');listar_caja();" :disabled="sucursalSeleccionada == 0">
                         <i class="icon-plus"></i>&nbsp;Nuevo
                     </button>
                     <span v-if="sucursalSeleccionada == 0" class="error"
@@ -27,7 +22,7 @@
                 <div class="col-md-2" style="text-align: center">
                      <label for="">Sucursal siat:</label>
                 </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <div class="input-group">
                                 <select class="form-control" v-model="sucursalSeleccionada" @change="listarIndex();">
                                     <option value="0" disabled selected>Seleccionar...</option>
@@ -37,10 +32,13 @@
                                 </select>
                             </div>
                         </div> 
-                        <div class="col-md-4" v-show="sucursalSeleccionada != 0"  >
+                        <div class="col-md-3" v-show="sucursalSeleccionada != 0"  >
                             <button type="button" @click="consultarPuntoV()" class="btn btn-primary"><i class="fa fa-volume-control-phone" aria-hidden="true"></i> Consultar punto de venta a siat</button>
                         </div>      
                 
+                        <div class="col-md-3" v-show="sucursalSeleccionada != 0">
+                            <button type="button" @click="abrirModal('cerrar_PV');" class="btn btn-danger"><i class="fa fa-lock" aria-hidden="true"></i> Cerrar punto de venta </button>
+                        </div>      
                        
 
             </div>
@@ -73,8 +71,8 @@
   </button>     
 <div class="dropdown-menu">
     <a v-show="i.nombre_caja===null && i.tipo===1000" @click="abrirModal('caja',i);listar_caja();" class="dropdown-item" href="#"><i style="color: black;" class="icon-pencil"></i> Añadir tipo</a>
-    <a v-show="i.nombre_caja!=null" @click="quitarCaja(i.id)" class="dropdown-item" href="#"><i style="color:black;" class="fa fa-window-close-o" aria-hidden="true"></i> Quitar nomre de caja</a>
-    <a v-show="i.tipo!=1000" class="dropdown-item" href="#"><i style="color: black;" class="icon-trash"></i> Eliminar</a>
+    <a v-show="i.nombre_caja!=null" @click="quitarCaja(i.id)" class="dropdown-item" href="#"><i style="color:black;" class="fa fa-window-close-o" aria-hidden="true"></i> Quitar nombre de caja</a>
+    
     
     <a v-show="i.tipo!=1000" class="dropdown-item" href="#"><i style="color: black;" class="fa fa-cubes" aria-hidden="true"></i> Solicitar CUFD</a>   
     <a v-show="i.tipo!=1000" class="dropdown-item" href="#"><i style="color: black;" class="fa fa-cube" aria-hidden="true"></i> Solicitar CUIS</a> 
@@ -197,15 +195,8 @@ Debe crear antes una sucursal en el modulo de SIAT
             </div>
         </div>
         <!--fin del modal-->
-           <!---------------------caja---------------------->
-           <div class="modal fade"
-            tabindex="-1"
-            role="dialog"
-            arial-labelledby="myModalLabel"
-            id="caja"
-            aria-hidden="true"
-            data-backdrop="static"
-            data-key="false" >
+           <!---------------------modal caja---------------------->
+           <div class="modal fade" tabindex="-1" role="dialog" arial-labelledby="myModalLabel" id="caja" aria-hidden="true" data-backdrop="static" data-key="false" >
             <div class="modal-dialog modal-primary modal-lg" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -242,7 +233,34 @@ Debe crear antes una sucursal en el modulo de SIAT
                 </div>
             </div>
         </div>
-        <!--fin del modal-->
+        <!--fin del modal-->   
+        <!---------------------modal cierre punto venta---------------------->
+        <div class="modal fade" tabindex="-1" role="dialog" arial-labelledby="myModalLabel" id="cerrar_PV" aria-hidden="true" data-backdrop="static" data-key="false" >
+            <div class="modal-dialog modal-primary modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">{{ tituloModal }}</h4>
+                        <button type="button" class="close" aria-label="Close" @click="cerrarModal('cerrar_PV')">
+                            <span aria-hidden="true">x</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="alert alert-warning" role="alert">
+                            Todos los campos con (*) son requeridos
+                        </div>
+                        <form action="" class="form-horizontal">                        
+                        
+                        </form>
+                    </div>
+                  
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" @click="cerrarModal('cerrar_PV')">Cerrar</button>                                             
+                        <button type="button" class="btn btn-primary" >Aceptar</button>                     
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--fin del modal-->   
     </main>
 </template>
 
@@ -403,7 +421,67 @@ export default {
                     var respuesta = response.data;     
                     const parser = new DOMParser();
     const xmlDoc = parser.parseFromString(respuesta, "text/xml");    
-    console.log(xmlDoc);           
+    console.log(xmlDoc);    
+    // const respuestaCuis = xmlDoc.getElementsByTagName("RespuestaCuis")[0].childNodes[0];
+    const respuestaCuis_2 = xmlDoc.getElementsByTagName("faultstring")[0];
+    if (respuestaCuis_2!=undefined) {
+        Swal.fire("Error",""+respuestaCuis_2.textContent,"error",);
+    }else{      
+        // Recorrer todos los hijos de 'mensajesList' mensajesList
+        const trasaccion= xmlDoc.querySelector('transaccion');
+        if (trasaccion.textContent === "true") {
+    const trasaccion = xmlDoc.querySelector("transaccion");
+    const RespuestaConsultaPuntoVenta = xmlDoc.querySelector("RespuestaConsultaPuntoVenta");
+
+    if (RespuestaConsultaPuntoVenta) {
+        // Obtener TODOS los elementos <listaPuntosVentas>
+        const listaPuntosVentas = RespuestaConsultaPuntoVenta.querySelectorAll("listaPuntosVentas");
+
+        console.log("Transacción:", trasaccion.textContent);
+        console.log("RespuestaConsultaPuntoVenta:", RespuestaConsultaPuntoVenta);
+        console.log("Cantidad de listaPuntosVentas:", listaPuntosVentas.length);
+        
+        let cadenaPuntosVentas = ""; // Inicializamos la cadena
+
+listaPuntosVentas.forEach((puntoVenta, index) => {
+    const codigo = puntoVenta.querySelector("codigoPuntoVenta")?.textContent || "N/A";
+    const nombre = puntoVenta.querySelector("nombrePuntoVenta")?.textContent || "N/A";
+    const tipo = puntoVenta.querySelector("tipoPuntoVenta")?.textContent || "N/A";
+
+    cadenaPuntosVentas += `Consulta ${index + 1}:\n`;
+    cadenaPuntosVentas += `  Código: ${codigo}\n`;
+    cadenaPuntosVentas += `  Nombre: ${nombre}\n`;
+    cadenaPuntosVentas += `  Tipo: ${tipo}\n`;
+    cadenaPuntosVentas += "-------------------\n";
+});
+Swal.fire({
+            title: "",
+            html: `<pre>${cadenaPuntosVentas}</pre>`, // Usamos <pre> para respetar saltos de línea
+            icon: "success"
+        });
+
+    } else {
+        console.log("No se encontró RespuestaConsultaPuntoVenta");
+    }
+}
+ else {
+            if (trasaccion.textContent==='false') {
+           
+          //  const codigoCuis= xmlDoc.querySelector('codigo');       
+          //  const fechaCuis= xmlDoc.querySelector('fechaVigencia');   
+        const mensajesList = xmlDoc.querySelector('mensajesList'); 
+        let cadena_nombre="";
+       Array.from(mensajesList.children).forEach(child => {
+        cadena_nombre += `${child.tagName}: ${child.textContent.trim()}\n`;   
+          console.log(`${child.tagName}: ${child.textContent}`);         
+        });
+        Swal.fire("Problemas con  envio de datos!",""+cadena_nombre,"warning",); 
+            } else {
+                me.cerrarModal('registrar');
+                Swal.fire("Error!","transacción nula","error",);  
+            }            
+        }        
+    }          
                                  
                 })
                 .catch(function(error){
@@ -640,8 +718,11 @@ export default {
                     me.tituloModal = "Agregar el tipo de caja";
                     me.classModal.openModal("caja");
                     me.id=data.id;
-                }
-            
+                }   
+                case "cerrar_PV":{
+                    me.tituloModal="Cerrar punto de venta";
+                    me.classModal.openModal("cerrar_PV");
+                }        
             }
         },
 
@@ -662,8 +743,11 @@ export default {
                 me.tituloModal = " ";
                 me.selectCaja="0";
                 me.id="";
-
-            }   
+            }  
+            if (accion == "cerrar_PV") {
+                me.classModal.closeModal(accion);
+                me.tituloModal="";
+            }        
         },
 
      
@@ -681,8 +765,8 @@ export default {
         this.listarConceptos();
         this.listar_config_siat();
         this.classModal.addModal("registrar");
-        this.classModal.addModal("caja");
-    
+        this.classModal.addModal("caja");       
+        this.classModal.addModal("cerrar_PV");
     },
 };
 </script>
