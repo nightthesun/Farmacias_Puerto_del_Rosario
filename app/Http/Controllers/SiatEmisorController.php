@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Siat_Emisor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
+use Illuminate\Support\Carbon as SupportCarbon;
 
 class SiatEmisorController extends Controller
 {
@@ -35,9 +37,11 @@ class SiatEmisorController extends Controller
             'ss.codigo_siat',
             'sc.nombre_caja',
             'ee.descripcion as descripcion_tipo',
+            'se.id_cuis', 
             'cui.dato as cuis',
             'cui.fecha_vigencia as fecha_cuis',
             'cui.estado as cuis_estado',
+            'se.id_cufd',
             'cuf.dato as cufd',
             'cuf.fecha_vigencia as fecha_cufd',
             'cuf.estado as cufd_estado',
@@ -227,11 +231,12 @@ class SiatEmisorController extends Controller
         'ca.nombre_caja',
         'ass.razon_social',
         'ss.nombre_suc_siat',
-        'ss.codigo_siat'
+        'ss.codigo_siat',
+        'se.estado'    
     )
     ->where('ss.estado', 1)
     ->where('ass.activo', 1)
-    ->where('ca.estado', 1)
+    ->where('ca.estado', 1)    
     ->where('ss.codigo_siat', $request->id)
     ->whereNull('se.id_caja') // Filtra los valores donde se.id_caja es NULL
     ->get();
@@ -272,6 +277,8 @@ class SiatEmisorController extends Controller
     }      
 
     public function consultar_PV_siat(Request $request){
+
+        
          
    $endPoints = DB::table('siat__endpoints as se')    
             ->select('se.id', 'se.Descripcion', 'se.Url', 'se.Version')
@@ -298,7 +305,7 @@ class SiatEmisorController extends Controller
     <soapenv:Header/>
     <soapenv:Body>
         <siat:consultaPuntoVenta>
-            <SolicitudConsultaPuntoVenta> <!-- Eliminamos "siat:" aquí -->
+            <SolicitudConsultaPuntoVenta> 
                 <codigoAmbiente>{$codigoAmbiente}</codigoAmbiente>
                 <codigoSistema>{$codigoSistema}</codigoSistema>
                 <codigoSucursal>{$codigoSucursal}</codigoSucursal>
@@ -310,7 +317,7 @@ class SiatEmisorController extends Controller
 </soapenv:Envelope>
 EOD;
 
-    
+
     
                 // Inicializar cURL
                 $ch = curl_init();
@@ -336,8 +343,198 @@ EOD;
     
                 // Cerrar la sesión de cURL
                 curl_close($ch);
-                        
+             
                 return $response; 
         
     }
+
+    public function cerrarPV(Request $request){
+        
+        try {
+            DB::beginTransaction();    
+          //contraseña para cambiar
+            $pass="123";
+           
+        if ($request->passsCmbio==$pass) {
+            $endPoints = DB::table('siat__endpoints as se')    
+            ->select('se.id', 'se.Descripcion', 'se.Url', 'se.Version')
+            ->where('se.tipo', $request->codigoAmbiente)
+            ->where('se.id', 2)
+            ->get();
+            
+            $cadena_url=$endPoints[0]->Url; 
+            $wsdl = $cadena_url;
+                // Asignación de la URL y API key
+                $wsdl = $cadena_url; 
+                $apikeyValue = 'TokenApi ' .$request->token_delegado; // Concatenar correctamente el valor del API key
+    
+             // Crear el cuerpo del mensaje SOAP, sustituyendo los valores con los parámetros correspondientes
+        
+        $codigoAmbiente = $request->codigoAmbiente;
+        $codigoSistema =  $request->codigoSistema;
+        $codigoSucursal = $request->codigoSucursal;  
+        $codigoPuntoVenta = $request->codigoPuntoVenta;    
+        $cuis = $request->cuis;       
+        $nit = $request->nit;
+         
+        $xmlData = <<<EOD
+        <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:siat="https://siat.impuestos.gob.bo/">
+           <soapenv:Header/>
+           <soapenv:Body>
+              <siat:cierrePuntoVenta>
+                 <SolicitudCierrePuntoVenta>
+                    <codigoAmbiente>{$codigoAmbiente}</codigoAmbiente>
+                    <codigoPuntoVenta>{$codigoPuntoVenta}</codigoPuntoVenta>
+                    <codigoSistema>{$codigoSistema}</codigoSistema>
+                    <codigoSucursal>{$codigoSucursal}</codigoSucursal>
+                    <cuis>{$cuis}</cuis>
+                    <nit>{$nit}</nit>
+                 </SolicitudCierrePuntoVenta>
+              </siat:cierrePuntoVenta>
+           </soapenv:Body>
+        </soapenv:Envelope>
+        EOD;
+           // Inicializar cURL
+                $ch = curl_init();
+                
+                // Configuración de la solicitud cURL
+                curl_setopt($ch, CURLOPT_URL, $wsdl); // Reemplaza con el endpoint correcto
+                curl_setopt($ch, CURLOPT_POST, 1);
+                curl_setopt($ch, CURLOPT_POSTFIELDS, $xmlData);
+                curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                    'Content-Type: text/xml; charset=utf-8',
+                    'SOAPAction: ""', // Si el SOAPAction es requerido, inclúyelo aquí
+                    'apikey: ' .$apikeyValue // Incluye la API key con el valor correspondiente
+                ]);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    
+                // Ejecutar la solicitud y obtener la respuesta
+                $response = curl_exec($ch);
+          
+                // Verificar si hubo un error en cURL
+                if (curl_errno($ch)) {
+                    throw new \Exception(curl_error($ch));
+                }
+    
+                // Cerrar la sesión de cURL
+                curl_close($ch);
+                        
+                return $response; 
+
+            /* 
+                $soapResponse2 = <<<XML
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+    <soap:Body>
+        <ns2:cierrePuntoVentaResponse xmlns:ns2="https://siat.impuestos.gob.bo/">
+            <RespuestaCierrePuntoVenta>
+                <codigoPuntoVenta>3</codigoPuntoVenta>
+                <transaccion>true</transaccion>
+            </RespuestaCierrePuntoVenta>
+        </ns2:cierrePuntoVentaResponse>
+    </soap:Body>
+</soap:Envelope>
+XML;              
+                return $soapResponse2;
+            */
+          
+        } else {
+            return "error";
+        }    
+            DB::commit();          
+        } catch (\Exception $e) {        
+            return $e;
+        }  
+    }
+
+    public function eliminarPV(Request $request){
+        try {
+            DB::beginTransaction();  
+            $fechaActual = SupportCarbon::now(); // Obtiene la fecha y hora actual
+            $datos = [
+                'id_modulo' => $request->id_modulo,
+                'id_sub_modulo' => $request->id_sub_modulo,
+                'accion' => 2,
+                'descripcion' => $request->des,          
+                'user_id' =>auth()->user()->id, 
+                'created_at'=>$fechaActual,
+                'id_movimiento'=>$request->id,   
+            ];        
+            DB::table('log__sistema')->insert($datos);
+            $emi = Siat_Emisor::findOrFail($request->id);
+            $emi->estado=0;
+            $emi->save();
+       DB::commit();    
+        } catch (\Throwable $th) {
+           return $th;
+        }      
+
+    }
+
+    public function crear_cuis(Request $request){
+    
+        try {
+            DB::beginTransaction();
+            $fechaActual = Carbon::now(); // Obtiene la fecha y hora actual
+            $id = $request->id;        
+            $cuis = $request->cuis;
+            $fecha = $request->fecha;  
+    
+            $datos_2=[
+                'dato' => $cuis,
+                'fecha_vigencia' => $fecha,
+                'created_at' => $fechaActual,
+            ];
+            $id_cuis = DB::table('siat__cuis')->insertGetId($datos_2);
+                
+            $actualizar = Siat_Emisor::findOrFail($id);
+            $actualizar->id_cuis = $id_cuis;    
+            $actualizar->save();
+            
+            $datos = [
+                'id_modulo' => $request->id_modulo,
+                'id_sub_modulo' => $request->id_sub_modulo,
+                'accion' => 3,
+                'descripcion' => $request->des,          
+                'user_id' =>auth()->user()->id, 
+                'created_at'=>$fechaActual,
+                'id_movimiento'=>$id_cuis,   
+            ];    
+            DB::table('log__sistema')->insert($datos);
+    
+            DB::commit();
+        } catch (\Throwable $th) {
+           return $th;
+        }
+       }
+
+       public function eliminar_operaciones(Request $request){
+        try {
+            DB::beginTransaction();
+            $fechaActual = Carbon::now(); // Obtiene la fecha y hora actual
+            $id = $request->id;         
+            $id_cuis=$request->id_cuis;        
+            $id_emisor=$request->id_emisor;
+            $id_cufd=$request->id_cufd;
+              // Si el registro existe, actualizar el dato (cuis)
+        DB::table('siat__cuis')->where('id', $id_cuis)->update(['estado' =>0]);
+        DB::table('siat__cufd')->where('id', $id_cufd)->update(['estado' =>0]);
+      
+      
+            
+            $datos = [
+                'id_modulo' => $request->id_modulo,
+                'id_sub_modulo' => $request->id_sub_modulo,
+                'accion' => 2,
+                'descripcion' => $request->des,          
+                'user_id' =>auth()->user()->id, 
+                'created_at'=>$fechaActual,
+                'id_movimiento'=>$id,   
+            ];    
+            DB::table('log__sistema')->insert($datos);
+    
+            DB::commit();
+        } catch (\Throwable $th) {
+           return $th;
+        }
+       }  
 }

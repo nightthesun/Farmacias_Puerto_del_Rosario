@@ -33,11 +33,11 @@
                             </div>
                         </div> 
                         <div class="col-md-3" v-show="sucursalSeleccionada != 0"  >
-                            <button type="button" @click="consultarPuntoV()" class="btn btn-primary"><i class="fa fa-volume-control-phone" aria-hidden="true"></i> Consultar punto de venta a siat</button>
+                            <button type="button" @click="consultarPuntoV(1)" class="btn btn-primary"><i class="fa fa-volume-control-phone" aria-hidden="true"></i> Consultar punto de venta a siat</button>
                         </div>      
                 
-                        <div class="col-md-3" v-show="sucursalSeleccionada != 0">
-                            <button type="button" @click="abrirModal('cerrar_PV');" class="btn btn-danger"><i class="fa fa-lock" aria-hidden="true"></i> Cerrar punto de venta </button>
+                        <div class="col-md-3" v-show="sucursalSeleccionada != 0 " :disabled="puedeActivar===1">
+                            <button type="button" @click="consultarPuntoV(2);" class="btn btn-danger"><i class="fa fa-lock" aria-hidden="true"></i> Cerrar punto de venta </button>
                         </div>      
                        
 
@@ -70,12 +70,18 @@
     <i class="fa fa-bars" aria-hidden="true"></i>
   </button>     
 <div class="dropdown-menu">
-    <a v-show="i.nombre_caja===null && i.tipo===1000" @click="abrirModal('caja',i);listar_caja();" class="dropdown-item" href="#"><i style="color: black;" class="icon-pencil"></i> Añadir tipo</a>
-    <a v-show="i.nombre_caja!=null" @click="quitarCaja(i.id)" class="dropdown-item" href="#"><i style="color:black;" class="fa fa-window-close-o" aria-hidden="true"></i> Quitar nombre de caja</a>
+    <a v-show="i.nombre_caja===null && i.tipo===1000" @click="abrirModal('caja',i);listar_caja();" class="dropdown-item" href="#"><i style="color: black;" class="icon-pencil"></i> Añadir caja</a>
+    <a v-show="i.nombre_caja!=null" @click="quitarCaja(i.id,i.id_cuis)" class="dropdown-item" href="#"><i style="color:black;" class="fa fa-window-close-o" aria-hidden="true"></i> Quitar nombre de caja</a>
+    <a v-show="i.tipo!=1000 && i.estado===1" @click="abrirModal('cerrar_PV',i);" class="dropdown-item" href="#"><i style="color: black;" class="fa fa-trash" aria-hidden="true"></i> Eliminar punto de venta</a> 
     
-    
-    <a v-show="i.tipo!=1000" class="dropdown-item" href="#"><i style="color: black;" class="fa fa-cubes" aria-hidden="true"></i> Solicitar CUFD</a>   
-    <a v-show="i.tipo!=1000" class="dropdown-item" href="#"><i style="color: black;" class="fa fa-cube" aria-hidden="true"></i> Solicitar CUIS</a> 
+    <a v-show="i.tipo!=1000  && i.estado===1" class="dropdown-item" href="#"><i style="color: black;" class="fa fa-cubes" aria-hidden="true"></i> Solicitar CUFD</a>   
+ 
+        <div v-if="i.id_cuis==null"> 
+           <a v-show="i.tipo!=1000  && i.estado===1" @click="solicitarCuis(i.codigo_siat,i.id,i.id_punto_venta)" class="dropdown-item" href="#"><i style="color: black;" class="fa fa-cube" aria-hidden="true"></i> Solicitar CUIS</a>              
+        </div>
+        <div v-else>
+            <a v-show="i.tipo!=1000  && i.estado===1" @click="cerrarOperaciones(i.codigo_siat,i.id,i.cuis,i.id_cufd,i.id_cuis,i.id_punto_venta)" class="dropdown-item" href="#"><i style="color: black;" class="fa fa-refresh" aria-hidden="true"></i> Cierre de operaciones en punto de venta (inhabilita el CUIS y el CUFD) </a> 
+        </div>                                                                                        
 </div>  
                         </td>
                         <td>{{ i.nombre }}</td>
@@ -96,8 +102,8 @@
                             <span v-else class="badge badge-pill badge-danger">Desactivado</span> 
                         </td>
                         <td>
-                            <span v-if="i.nombre_caja===null" class="badge badge-pill badge-warning">Nesecita caja</span>
-                            <span v-else-if="i.estado===1" class="badge badge-pill badge-success">Activo</span>
+                            <span v-if="i.nombre_caja===null&&i.estado===1" class="badge badge-pill badge-warning">Nesecita caja</span>
+                            <span v-else-if="i.estado===1 && i.nombre_caja!=null" class="badge badge-pill badge-success">Activo</span>
                             <span v-else class="badge badge-pill badge-danger">Desactivado</span> 
                         </td>
 
@@ -106,7 +112,19 @@
                 </tbody>
 
             </table>    
-
+            <nav>
+                <ul class="pagination">
+                    <li class="page-item" v-if="pagination.current_page > 1">
+                        <a class="page-link" href="#" @click.prevent="cambiarPagina(pagination.current_page - 1)">Ant</a>
+                    </li>
+                    <li class="page-item" v-for="page in pagesNumber" :key="page" :class="[page == isActived ? 'active':'']">
+                        <a class="page-link" href="#" @click.prevent="cambiarPagina(page)" v-text="page"></a>
+                    </li>
+                    <li class="page-item" v-if="pagination.current_page< pagination.last_page">
+                        <a class="page-link" href="#" @click.prevent="cambiarPagina(pagination.current_page + 1)">Sig</a>
+                    </li>
+                </ul>
+            </nav>
             <!-----fin de tabla------->
         </div>
 
@@ -188,8 +206,7 @@ Debe crear antes una sucursal en el modulo de SIAT
                                 <button type="button" v-if="tipoAccion == 1" class="btn btn-light">Guardar</button>
                                 <button type="button" v-else class="btn btn-light">Actualizar</button>
                             </div>
-                        </div>
-                     
+                        </div>                     
                     </div>
                 </div>
             </div>
@@ -227,8 +244,19 @@ Debe crear antes una sucursal en el modulo de SIAT
                     </div>
                   
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" @click="cerrarModal('caja')">Cerrar</button>                                             
-                        <button type="button" class="btn btn-primary" @click="subir_caja()" :disabled="selectCaja==='0'">Actualizar</button>                     
+                        <button type="button" class="btn btn-secondary" @click="cerrarModal('caja')">Cerrar</button>    
+                                                                 
+                              
+                        <div  class="d-flex justify-content-start">
+                            <div  v-if="isSubmitting==false">
+                                <button type="button" class="btn btn-primary" @click="subir_caja()" :disabled="selectCaja==='0'">Actualizar</button> 
+                            
+                            </div>
+                            <div v-else>
+                            
+                                <button type="button" class="btn btn-light">Actualizar</button>
+                            </div>
+                        </div>             
                     </div>
                 </div>
             </div>
@@ -248,14 +276,46 @@ Debe crear antes una sucursal en el modulo de SIAT
                         <div class="alert alert-warning" role="alert">
                             Todos los campos con (*) son requeridos
                         </div>
+                        <div class="alert alert-danger" role="alert">
+                            Este servicio permite al Sujeto Pasivo realizar el cierre definitivo de un punto de venta, solo podrá realizar esta operación <strong>si para el punto de venta no existe CUIS o CUFD activo. </strong>Una vez que el punto de venta se haya cerrado no podrá generarse nuevamente con el mismo correlativo.
+                      
+                        </div>
                         <form action="" class="form-horizontal">                        
-                        
+                            <div class="container">                                
+                                <div class="form-group row">   
+                                 
+                                    <div v-show="tipoAccion===3" class="col-md-8">
+             
+                                        <label >Tipo: <span v-show="selectPuntoVneta=='0'" style="color: red;">(*)</span></label>
+                                    <select class="form-control" v-model="selectPuntoVneta">
+                                    <option value="0" disabled selected>Seleccionar...</option>
+                                    <option v-for="a in arrayPuntosVentas" :key="a.consulta"  :value="a.codigo">{{ "Emisor: " +a.codigo+" Nombre: "+a.nombre+" Tipo: "+a.tipo }}</option>
+                                    </select>
+                                        <span  v-if="selectPuntoVneta=='0'" class="error">Debe llenar el dato</span> 
+                                    </div>
+                                    <div class="col-md-4">
+                                    <label for="end-date">Contraseña de cambio: <span v-show="selectPuntoVneta!='0'" style="color: red;">(*)</span></label>
+                                    <input type="password" class="form-control" v-model="passsCmbio" id="inputPassword" placeholder="Contraseña">                                   
+                                        <span  v-if="passsCmbio==''" class="error">Debe llenar el dato</span> 
+                                    </div>   
+                                    
+                                </div> 
+                            </div>
                         </form>
                     </div>
                   
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" @click="cerrarModal('cerrar_PV')">Cerrar</button>                                             
-                        <button type="button" class="btn btn-primary" >Aceptar</button>                     
+                        <button type="button" class="btn btn-secondary" @click="cerrarModal('cerrar_PV')">Cerrar</button>                    
+                        <div  class="d-flex justify-content-start">
+                            <div  v-if="isSubmitting==false">
+                                <button v-if=" tipoAccion===3" type="button" class="btn btn-primary" @click="cerrarPuntoVenta()" :disabled="selectPuntoVneta==='0' || passsCmbio===''" >Aceptar</button>      
+                                <button v-else-if="tipoAccion===2" type="button" class="btn btn-primary" @click="cerrarPuntoVenta()" :disabled="passsCmbio===''" >Aceptar</button> 
+                            </div>
+                            <div v-else>
+                                <button v-if=" tipoAccion===3" type="button" class="btn btn-primary">Aceptar</button>      
+                                <button v-else-if="tipoAccion===2" type="button" class="btn btn-primary">Aceptar</button> 
+                            </div>
+                        </div>                
                     </div>
                 </div>
             </div>
@@ -269,6 +329,9 @@ import Swal from "sweetalert2";
 import { error401 } from "../../errores";
 //Vue.use(VeeValidate);
 export default {
+     //---permisos_R_W_S
+     props: ['codventana','idmodulo'],
+        //-------------------
     data() {
         return {
             pagination: {
@@ -281,7 +344,7 @@ export default {
             },
           
             isSubmitting: false,
-            
+            offset:3,
 
             tituloModal: "",
             sucursalSeleccionada:'0',
@@ -305,6 +368,22 @@ export default {
             selectCaja:'0',
             arrayIndex:[],
             id:'',
+
+            arrayPuntosVentas:[],
+            selectPuntoVneta:"0",
+            passsCmbio:"",
+
+            ventana_0:0,
+
+              //---permisos_R_W_S
+              puedeEditar:2,
+                puedeActivar:2,
+                puedeHacerOpciones_especiales:2,
+                puedeCrear:2,
+                //-----------
+            id_cufd:'',
+            id_cuis:'', 
+
         };
     },
 
@@ -359,7 +438,7 @@ export default {
     methods: {
        
                     // Método para parsear el XML y extraer los datos
-  parseXML(xmlString) {
+  parseXML(xmlString,data) {
     let me= this;
     const parser = new DOMParser();
     const xmlDoc = parser.parseFromString(xmlString, "text/xml");    
@@ -373,22 +452,55 @@ export default {
         // Recorrer todos los hijos de 'mensajesList' mensajesList
         const trasaccion= xmlDoc.querySelector('transaccion');
         if (trasaccion.textContent==='true') {
-            console.log("por verdad");
-            const codigoPuntoVenta_1= xmlDoc.querySelector('codigoPuntoVenta');                
-            me.crear(codigoPuntoVenta_1.textContent);
+   
+                const codigoPuntoVenta_1= xmlDoc.querySelector('codigoPuntoVenta');    
+            if (data===1) {                            
+                me.crear(codigoPuntoVenta_1.textContent);
+              //  me.cerrarModal('registrar');
+            } else {
+                if (data===2) {
+                    console.log("***"+codigoPuntoVenta_1.textContent);
+                console.log("+++"+me.sucursalSeleccionada);
+                me.eliminar_puntoVenta();   
+              //  me.cerrarModal('cerrar_PV');  
+                } else {                    
+                        me.cerrarModal('registrar');  
+                        me.cerrarModal('cerrar_PV'); 
+                        Swal.fire("Error de data!","","warning",);                   
+                }           
+            }
+                    
+           
         } else {
             if (trasaccion.textContent==='false') {
-                me.cerrarModal('registrar');
+                let cadena_nombre="";
+                Array.from(mensajesList.children).forEach(child => {
+        cadena_nombre += `${child.tagName}: ${child.textContent.trim()}\n`;   
+         console.log(`${child.tagName}: ${child.textContent}`);         
+        });
+                if (data===1) {
+                
+                    me.cerrarModal('registrar');                
+                } else {
+                     if (data===2) {
+                        me.cerrarModal('cerrar_PV'); 
+                     } else {                       
+                            me.cerrarModal('registrar');  
+                        me.cerrarModal('cerrar_PV'); 
+                        Swal.fire("Error de data!","","warning",);  
+                     
+                     }            
+                                 
+                }
+                Swal.fire("Punto de venta!",""+cadena_nombre,"warning",); 
           //  const codigoCuis= xmlDoc.querySelector('codigo');       
           //  const fechaCuis= xmlDoc.querySelector('fechaVigencia');   
         //const mensajesList = xmlDoc.querySelector('mensajesList'); 
-        let cadena_nombre="";
-       //Array.from(mensajesList.children).forEach(child => {
-       // cadena_nombre += `${child.tagName}: ${child.textContent.trim()}\n`;   
-         // console.log(`${child.tagName}: ${child.textContent}`);         
-       // });
-        Swal.fire("Punto de venta!",""+cadena_nombre,"warning",); 
+        
+      
+       
             } else {
+               
                 me.cerrarModal('registrar');
                 Swal.fire("Error!","transacción nula","error",);  
             }            
@@ -397,7 +509,257 @@ export default {
   
   },
 
+  parseXML_eliminar(xmlString,data,id,id_cuis,id_cufd,id_emisor) {
+    let me= this;
+    const parser = new DOMParser();
+    const xmlDoc = parser.parseFromString(xmlString, "text/xml");    
+    console.log(xmlDoc);
  
+    // const respuestaCuis = xmlDoc.getElementsByTagName("RespuestaCuis")[0].childNodes[0];
+    const respuestaCuis_2 = xmlDoc.getElementsByTagName("faultstring")[0];
+    if (respuestaCuis_2!=undefined) {
+        Swal.fire("Error",""+respuestaCuis_2.textContent,"error",);
+    }else{      
+        // Recorrer todos los hijos de 'mensajesList' mensajesList
+        const trasaccion= xmlDoc.querySelector('transaccion');
+        if (trasaccion.textContent==='true') {
+          
+               
+            if (data===1) {                            
+                const codigoCuis= xmlDoc.querySelector('codigo');       
+            const fechaCuis= xmlDoc.querySelector('fechaVigencia');    
+            me.insertarCuis(id, codigoCuis.textContent, fechaCuis.textContent);
+            } else {
+                if (data===2) {
+                    console.log("resultado....");
+                console.log(xmlDoc);                
+                me.EliminarCuis(id,id_cuis,id_cufd,id_emisor);  
+              //  me.cerrarModal('cerrar_PV');  
+                } else {                  
+                Swal.fire("Error de entrada!","revise la entrada  si es eliminacion o adicion, tipo transacción","warning",);          
+                }
+           
+            }
+                     
+           
+        } else {
+            if (trasaccion.textContent==='false') {
+                let cadena_nombre="";
+                Array.from(mensajesList.children).forEach(child => {
+        cadena_nombre += `${child.tagName}: ${child.textContent.trim()}\n`;   
+         console.log(`${child.tagName}: ${child.textContent}`);         
+        });
+              
+                Swal.fire("Punto de venta!",""+cadena_nombre,"warning",); 
+          //  const codigoCuis= xmlDoc.querySelector('codigo');       
+          //  const fechaCuis= xmlDoc.querySelector('fechaVigencia');   
+        //const mensajesList = xmlDoc.querySelector('mensajesList');      
+       
+            } else {
+        
+                Swal.fire("Error!","transacción nula","error",);  
+            }            
+        }        
+    }   
+  
+  },
+
+           //---------------------------------permiso de ver lista de sucursales tiendas almacenes
+    
+ listarPerimsoxyz() {
+           
+           let me = this;        
+           var url = '/gestion_permiso_editar_eliminar?win='+me.codventana;  
+           axios.get(url)
+               .then(function(response) {
+                   var respuesta = response.data;     
+                   if(respuesta=="root"){
+                   me.puedeEditar=1;
+                   me.puedeActivar=1;
+                   me.puedeHacerOpciones_especiales=1;
+                   me.puedeCrear=1; 
+                   }else{
+                   me.puedeEditar=respuesta.edit;
+                   me.puedeActivar=respuesta.activar;
+                   me.puedeHacerOpciones_especiales=respuesta.especial;
+                   me.puedeCrear=respuesta.crear;        
+                   }           
+               })
+               .catch(function(error) {
+                   error401(error);
+                   console.log(error);
+               });
+       },
+       //--------------------------------------------------------------  
+
+       solicitarCuis(codigo_siat,id,id_punto_venta)
+            {
+                let me=this;    
+                const swalWithBootstrapButtons = Swal.mixin({
+                customClass: {
+                    confirmButton: 'btn btn-success',
+                    cancelButton: 'btn btn-danger'
+                },
+                buttonsStyling: false
+                })
+                swalWithBootstrapButtons.fire({
+                title: '¿Esta seguro de pedir CUIS?',
+                text: 'Conforme a normativa vigente el proceso de obtención del CUIS para una sucursal o punto de venta debe realizarse mediante el Sistema Informático de Facturación autorizado.El Código Único de Inicio de Sistemas (CUIS) para el Sistema Informático de Facturación en las modalidades de facturación Electrónica en Línea o Computarizada en Línea tendrá una vigencia de trescientos sesenta y cinco (365) días calendario.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Si, Solicitar',
+                cancelButtonText: 'No, Solicitar',
+                reverseButtons: true
+                }).then((result) => {
+                if (result.isConfirmed) {
+                                    
+                    var url='/siat_cuis_cufd/cuis?emisor='+id_punto_venta+'&codigo_siat='+codigo_siat+'&nit='+me.nit+'&codigo_ambiente='+me.codigoAmbiente+'&codigo_sistema='+me.codigoSistema+'&modalidad='+me.codigoModalidad+'&token_delegado='+me.token_delegado+"&cuis_end="+3;                        
+                   console.log(url);
+                    axios.get(url)
+                    .then(function (response) {
+                        var respuesta = response.data;   
+                        console.log("*************solicitud**************");
+                        console.log(respuesta);                   
+                        if (respuesta.error==null || respuesta.error=="") {
+                            me.parseXML_eliminar(respuesta,1,id,0,0,0);   
+                         
+                        }else{
+                            swalWithBootstrapButtons.fire(
+                            ''+respuesta.error,
+                            ''+respuesta.message,
+                            'error'
+                        )
+                        }
+                      //  me.listarIndex(1);
+                    }).catch(function (error) {
+                        error401(error);                        
+                        console.log(error);
+                    });                       
+                } else if (
+                    /* Read more about handling dismissals below */
+                    result.dismiss === Swal.DismissReason.cancel
+                ) {
+                    /* swalWithBootstrapButtons.fire(
+                    'Cancelado!',
+                    'El Registro no fue Activado',
+                    'error'
+                    ) */
+                }
+                })               
+            },
+//----------------------
+insertarCuis(id,cuis,fecha){
+        let me = this;    
+                axios.post("/siat_emisor/insertar_cuis", {
+                id:id,
+                cuis:cuis,
+                fecha:fecha,
+                
+                id_modulo: me.idmodulo,
+                id_sub_modulo:me.codventana, 
+                des:"insercion de cuis desde emisor",                  
+                })
+                .then(function (response) {
+               
+                    let respuesta=response.data; 
+                    me.listarIndex();                  
+                    if (respuesta.length>0) {
+                        Swal.fire("Error!",""+respuesta,"error",);    
+                    } else {
+                        Swal.fire("Insercion!","Correctamente","success",);  
+                    }                                                    
+                })               
+                .catch(function (error) {                
+                  console.log(error);                
+            });      
+        },
+//---------------------
+cerrarOperaciones(codigo_siat,id,cuis,id_cufd,id_cuis,id_emisor)
+            {
+                let me=this;    
+            
+                const swalWithBootstrapButtons = Swal.mixin({
+                customClass: {
+                    confirmButton: 'btn btn-success',
+                    cancelButton: 'btn btn-danger'
+                },
+                buttonsStyling: false
+                })
+
+                swalWithBootstrapButtons.fire({
+                title: '¿Esta seguro de cerrar operaciones?',
+                text: 'Conforme normativa vigente el proceso de cierre de operaciones para el Sistema Informático de Facturación podrá realizarse a través de los Servicios Web disponibles y permite realizar el cierre de operaciones de una sucursal o punto de venta, este proceso inhabilita el CUIS y el CUFD vigente, de manera automática no pudiendo realizar la emisión de Facturas Digitales a partir de ese momento.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Si, Solicitar',
+                cancelButtonText: 'No, Solicitar',
+                reverseButtons: true
+                }).then((result) => {
+                if (result.isConfirmed) {
+                    var url='/siat_cuis_cufd/cerrarOperaciones?emisor='+id_emisor+'&codigo_siat='+codigo_siat+'&nit='+me.nit+'&codigo_ambiente='+me.codigoAmbiente+'&codigo_sistema='+me.codigoSistema+'&modalidad='+me.codigoModalidad+'&token_delegado='+me.token_delegado+"&cuis_end="+2+"&id="+id+"&cuis="+cuis;                        
+                    axios.get(url)
+                    .then(function (response) {
+                        var respuesta = response.data; 
+                        if (respuesta==="error_1") {
+                            Swal.fire("Error!","Debe cerrar todos los puntos de venta en esta sucursal antes de usar esta opcion. Debe ir a Siat/emisor y cerrar el punto de venta que quiere.","error",);    
+                        } else {                                             
+                            me.id_cufd=id_cufd;
+                            me.id_cuis=id_cuis; 
+                           me.parseXML_eliminar(respuesta,2,id,id_cuis,id_cufd,id_emisor);
+                     
+                        }
+                        console.log("----------------------------------");
+                        console.log(respuesta);
+                        console.log("----------------------------------");
+                      //  me.listarIndex(1);
+                    }).catch(function (error) {
+                        error401(error);                        
+                        console.log(error);
+                    });
+                    
+                    
+                } else if (
+                    /* Read more about handling dismissals below */
+                    result.dismiss === Swal.DismissReason.cancel
+                ) {
+                    /* swalWithBootstrapButtons.fire(
+                    'Cancelado!',
+                    'El Registro no fue Activado',
+                    'error'
+                    ) */
+                }
+                })               
+            },
+
+            EliminarCuis(id,id_cuis,id_cufd){
+        let me = this;    
+                axios.post("/siat_cuis_cufd/eliminar_operaciones_V", {
+                id:id,
+                id_cuis:id_cuis,
+                id_emisor:id_emisor,              
+                id_cufd:id_cufd,
+
+                id_modulo: me.idmodulo,
+                id_sub_modulo:me.codventana, 
+                des:"eliminacion de estados ",             
+                
+                })
+                .then(function (response) {
+                 //   me.listarIndexEndPoint(); 
+                    let respuesta=response.data; 
+                    me.listarIndex();                  
+                    if (respuesta.length>0) {
+                        Swal.fire("Error!",""+respuesta,"error",);    
+                    } else {
+                        Swal.fire("Eliminacion","Correctamente","success",);  
+                    }
+                                                    
+                })               
+                .catch(function (error) {                
+                  console.log(error);                
+            });      
+        },
+ //----------------------
   listarIndex(page)
           {
                 let me=this;  
@@ -413,8 +775,36 @@ export default {
                 });               
             },
 
-            consultarPuntoV(){
+
+
+            cerrarPuntoVenta(){
+                let me=this;                
+            me.isSubmitting = true; // Deshabilita el botón
+                axios.get("/siat_emisor/cerrar_puntoVenta?codigoAmbiente="+me.codigoAmbiente+"&codigoPuntoVenta="+me.selectPuntoVneta+"&codigoSistema="+me.codigoSistema+"&codigoSucursal="+me.codigoSucursal+"&cuis="+me.cuis+"&nit="+me.nit+"&token_delegado="+me.token_delegado+"&passsCmbio="+me.passsCmbio, {                
+                   
+                  
+                })
+                .then(function (response) {
+                 
+            me.listarIndex(); 
+                    let respuesta=response.data;             
+                    console.log(respuesta);
+                    if (respuesta=="error") {
+                        me.isSubmitting=false;                 
+                        Swal.fire("Error!","contraseña incorrecta","error",);    
+                    } else {
+                        me.parseXML(respuesta,2);    
+                    }                                                 
+                })               
+                .catch(function (error) {                
+                  console.log(error);                
+            });  
+            },
+
+            consultarPuntoV(data){
+                
                 let me=this;  
+                me.isSubmitting=true;
                  var url='/siat_emisor/consultar_PuntoV_siat?codigoAmbiente='+me.codigoAmbiente+"&codigoSistema="+me.codigoSistema+"&codigoSucursal="+me.codigoSucursal+"&cuis="+me.cuis+"&nit="+me.nit+"&token_delegado="+me.token_delegado;                     
                 axios.get(url)
                 .then(function(response){
@@ -430,6 +820,7 @@ export default {
         // Recorrer todos los hijos de 'mensajesList' mensajesList
         const trasaccion= xmlDoc.querySelector('transaccion');
         if (trasaccion.textContent === "true") {
+       
     const trasaccion = xmlDoc.querySelector("transaccion");
     const RespuestaConsultaPuntoVenta = xmlDoc.querySelector("RespuestaConsultaPuntoVenta");
 
@@ -443,6 +834,8 @@ export default {
         
         let cadenaPuntosVentas = ""; // Inicializamos la cadena
 
+        me.arrayPuntosVentas=[];
+
 listaPuntosVentas.forEach((puntoVenta, index) => {
     const codigo = puntoVenta.querySelector("codigoPuntoVenta")?.textContent || "N/A";
     const nombre = puntoVenta.querySelector("nombrePuntoVenta")?.textContent || "N/A";
@@ -453,20 +846,39 @@ listaPuntosVentas.forEach((puntoVenta, index) => {
     cadenaPuntosVentas += `  Nombre: ${nombre}\n`;
     cadenaPuntosVentas += `  Tipo: ${tipo}\n`;
     cadenaPuntosVentas += "-------------------\n";
+    
+          // Guardamos el objeto en el array
+          me.arrayPuntosVentas.push({
+                consulta: index + 1,
+                codigo: codigo,
+                nombre: nombre,
+                tipo: tipo
+            });
+
 });
-Swal.fire({
+if (data===1) {
+    Swal.fire({
             title: "",
             html: `<pre>${cadenaPuntosVentas}</pre>`, // Usamos <pre> para respetar saltos de línea
             icon: "success"
-        });
-
+        }); 
+} else {
+    if (data===2) {
+           me.tipoAccion=2;
+        me.abrirModal('cerrar_PV',999);
     } else {
-        console.log("No se encontró RespuestaConsultaPuntoVenta");
+        me.isSubmitting=false;
+        Swal.fire("Error!","error de entrada interno","error",);   
+    }
+}
+    } else {    
+        me.isSubmitting=false;  
+        Swal.fire("Error!","No se encontró RespuestaConsultaPuntoVenta","warning",);   
     }
 }
  else {
             if (trasaccion.textContent==='false') {
-           
+                me.isSubmitting=false;
           //  const codigoCuis= xmlDoc.querySelector('codigo');       
           //  const fechaCuis= xmlDoc.querySelector('fechaVigencia');   
         const mensajesList = xmlDoc.querySelector('mensajesList'); 
@@ -490,9 +902,10 @@ Swal.fire({
 
             },
 
-            quitarCaja(id){
+            quitarCaja(id,id_cuis){
                 let me=this;
-                const swalWithBootstrapButtons = Swal.mixin({
+                if (id_cuis===null) {
+                    const swalWithBootstrapButtons = Swal.mixin({
                 customClass: {
                     confirmButton: 'btn btn-success',
                     cancelButton: 'btn btn-danger'
@@ -536,6 +949,10 @@ Swal.fire({
                     ) */
                 }
                 })
+                   
+                } else {
+                    Swal.fire("Error!","debe dar de baja primero el cuis","error",);  
+                }               
             },
 
 
@@ -543,6 +960,7 @@ Swal.fire({
         subir_caja(){
             let me=this;
             // me.isSubmitting = true; // Deshabilita el botón
+            me.isSubmitting=true;
                 axios.put("/siat_emisor/subir_caja", {
                     id:me.id,
                     id_caja:me.selectCaja,                                       
@@ -557,6 +975,32 @@ Swal.fire({
                     } else {
                         Swal.fire("Registro creado!","Correctamente","success",);  
                     }                               
+                })               
+                .catch(function (error) {                
+                  console.log(error);                
+            });  
+        },
+
+        eliminar_puntoVenta(data){
+            let me=this;
+        
+                axios.post("/siat_emisor/eliminar_puntoVenta", {
+                    id:me.id,
+                    id_modulo: me.idmodulo,
+                    id_sub_modulo:me.codventana, 
+                    des:"Eliminacion de punto de venta",              
+                })
+                .then(function (response) {
+                    me.cerrarModal('cerrar_PV');
+                     me.listarIndex(); 
+                    let respuesta=response.data;             
+                   
+                    if (respuesta.length>0) {
+                        Swal.fire("Error!",""+respuesta,"error",);    
+                    } else {
+                        Swal.fire("Registro creado!","Correctamente","success",);  
+                    }  
+
                 })               
                 .catch(function (error) {                
                   console.log(error);                
@@ -587,9 +1031,7 @@ Swal.fire({
                 })               
                 .catch(function (error) {                
                   console.log(error);                
-            }).finally(() => {
-          me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
-        });  
+            });  
         },
 
         requerirCreacionPV(){
@@ -602,9 +1044,8 @@ Swal.fire({
             axios.get(url)
                 .then(function (response) {
                     var respuesta = response.data;
-                    me.parseXML(respuesta);                
-                })
-                .catch(function (error) {
+                    me.parseXML(respuesta,1);                
+                }).catch(function (error) {
                     error401(error);
                     console.log(error);
                 });             
@@ -688,7 +1129,7 @@ Swal.fire({
         cambiarPagina(page) {
             let me = this;
             me.pagination.current_page = page;
-        //    me.listarAjusteNegativos(page);
+          me.listarIndex(page);
         },
 
         abrirModal(accion, data = []) {
@@ -696,7 +1137,7 @@ Swal.fire({
         //    let respuesta = me.arraySucursal.find(
         //        (element) => element.codigo == me.sucursalSeleccionada,
         //    );
-           
+           console.log(accion+"---");
          switch (accion) {
                 case "registrar": {
                     me.tipoAccion = 1;
@@ -715,13 +1156,42 @@ Swal.fire({
                     break;
                 }
                 case "caja":{
+                  
                     me.tituloModal = "Agregar el tipo de caja";
                     me.classModal.openModal("caja");
                     me.id=data.id;
+                    me.tipoAccion =1;
+                    me.ventana_0=1;
+                    me.isSubmitting=false;
+                    break;
                 }   
                 case "cerrar_PV":{
-                    me.tituloModal="Cerrar punto de venta";
+                    me.tituloModal="Cerrar punto de venta";                
                     me.classModal.openModal("cerrar_PV");
+                    console.log("--------");
+                    console.log(data);
+                    me.isSubmitting=false;
+                    if (data==999) {                       
+                        me.selectPuntoVneta='0';
+                        me.tipoAccion =3;
+                    }else{
+                        console.log(data);
+                        me.selectPuntoVneta=data.id_punto_venta;
+                        me.id=data.id;
+                        me.tipoAccion =2;
+                    }
+                  
+                    //  me.ventana_0=2;
+                  //  if (me.tipoAccion===2) {
+                  //      me.selectPuntoVneta=data.id;
+                  //      me.tipoAccion =3;
+                  //  } else {                       
+                  //      me.selectPuntoVneta='0';
+                  //      me.tipoAccion =2;
+                  //  }
+                   
+                    me.passsCmbio="";
+                    break;
                 }        
             }
         },
@@ -737,16 +1207,27 @@ Swal.fire({
                     me.nombrePuntoVenta="";
                     me.isSubmitting=false;  
                     me.selectCaja="0";
+                    me.tipoAccion=1;
+                    me.ventana_0=0;
             }
             if (accion == "caja") {
                 me.classModal.closeModal(accion);
-                me.tituloModal = " ";
+                me.tituloModal = "";
                 me.selectCaja="0";
                 me.id="";
+                me.tipoAccion=1;
+                me.isSubmitting=false;
             }  
             if (accion == "cerrar_PV") {
                 me.classModal.closeModal(accion);
                 me.tituloModal="";
+                me.arrayPuntosVentas=[];
+                me.selectPuntoVneta="0";
+                me.passsCmbio="";
+                me.tipoAccion=1;
+                me.ventana_0=0;
+                me.id="";
+                me.isSubmitting=false;
             }        
         },
 
@@ -763,6 +1244,9 @@ Swal.fire({
         this.classModal = new _pl.Modals();
         this.sucursalFiltro();
         this.listarConceptos();
+          //-------permiso E_W_S-----
+          this.listarPerimsoxyz();        
+            //-----------------------
         this.listar_config_siat();
         this.classModal.addModal("registrar");
         this.classModal.addModal("caja");       

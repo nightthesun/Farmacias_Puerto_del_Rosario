@@ -84,6 +84,7 @@
   <div class="dropdown-menu">
       <a class="dropdown-item" href="#" @click="solicitarCuis(i.codigo_siat,i.id);"><i style="color: black;" class="fa fa-cube" aria-hidden="true"></i> Solicitar CUIS</a>
     <a  class="dropdown-item" href="#"><i style="color: black;" class="fa fa-cubes" aria-hidden="true"></i> Solicitar CUFD</a>     
+    <a  class="dropdown-item" href="#" @click="cerrarOperaciones(i.codigo_siat,i.id,i.cuis,i.id_cufd, i.id_cuis, i.id_emisor);"><i style="color: black;" class="fa fa-refresh" aria-hidden="true"></i> Cierre de operaciones (inhabilita el CUIS y el CUFD)</a>   
      </div>                   
                         </td>
                         <td class="col-md-1">{{ i.nombre_suc_siat }}</td>
@@ -330,7 +331,7 @@ export default {
                         var respuesta = response.data; 
                      
                         if (respuesta.error==null || respuesta.error=="") {
-                            me.parseXML(respuesta,id);   
+                            me.parseXML(respuesta,1,id);   
                         }else{
                             swalWithBootstrapButtons.fire(
                             ''+respuesta.error,
@@ -355,15 +356,70 @@ export default {
                     'error'
                     ) */
                 }
-                })            
-               
+                })               
+            },
+            
+           
+            cerrarOperaciones(data,id,cuis,id_cufd,id_cuis,id_emisor)
+            {
+                let me=this;    
+                const swalWithBootstrapButtons = Swal.mixin({
+                customClass: {
+                    confirmButton: 'btn btn-success',
+                    cancelButton: 'btn btn-danger'
+                },
+                buttonsStyling: false
+                })
+
+                swalWithBootstrapButtons.fire({
+                title: '¿Esta seguro de cerrar operaciones?',
+                text: 'Conforme normativa vigente el proceso de cierre de operaciones para el Sistema Informático de Facturación podrá realizarse a través de los Servicios Web disponibles y permite realizar el cierre de operaciones de una sucursal o punto de venta, este proceso inhabilita el CUIS y el CUFD vigente, de manera automática no pudiendo realizar la emisión de Facturas Digitales a partir de ese momento.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Si, Solicitar',
+                cancelButtonText: 'No, Solicitar',
+                reverseButtons: true
+                }).then((result) => {
+                if (result.isConfirmed) {
+                    var url='/siat_cuis_cufd/cerrarOperaciones?emisor='+me.emisor+'&codigo_siat='+data+'&nit='+me.nit+'&codigo_ambiente='+me.codigodAmb+'&codigo_sistema='+me.codigoSis+'&modalidad='+me.modalidad+'&token_delegado='+me.token_delegado+"&cuis_end="+2+"&id="+id+"&cuis="+cuis;                        
+                    axios.get(url)
+                    .then(function (response) {
+                        var respuesta = response.data; 
+                        if (respuesta==="error_1") {
+                            Swal.fire("Error!","Debe cerrar todos los puntos de venta en esta sucursal antes de usar esta opcion. Debe ir a Siat/emisor y cerrar el punto de venta que quiere.","error",);    
+                        } else {                                             
+                          
+                           me.parseXML(respuesta,2,id,id_cufd,id_cuis,id_emisor);
+                        }
+                        console.log("----------------------------------");
+                        console.log(respuesta);
+                        console.log("----------------------------------");
+                      //  me.listarIndex(1);
+                    }).catch(function (error) {
+                        error401(error);                        
+                        console.log(error);
+                    });
+                    
+                    
+                } else if (
+                    /* Read more about handling dismissals below */
+                    result.dismiss === Swal.DismissReason.cancel
+                ) {
+                    /* swalWithBootstrapButtons.fire(
+                    'Cancelado!',
+                    'El Registro no fue Activado',
+                    'error'
+                    ) */
+                }
+                })               
             },
 
               // Método para parsear el XML y extraer los datos
-  parseXML(xmlString,id) {
+  parseXML(xmlString,data,id,id_cufd,id_cuis,id_emisor) {
     let me= this;
     const parser = new DOMParser();
     const xmlDoc = parser.parseFromString(xmlString, "text/xml");
+    console.log(xmlDoc);
    // const respuestaCuis = xmlDoc.getElementsByTagName("RespuestaCuis")[0].childNodes[0];
     const respuestaCuis_2 = xmlDoc.getElementsByTagName("faultstring")[0];
     if (respuestaCuis_2!=undefined) {
@@ -374,15 +430,27 @@ export default {
         const trasaccion= xmlDoc.querySelector('transaccion');
         if (trasaccion.textContent==='true') {
             console.log("por verdad");
-            const codigoCuis= xmlDoc.querySelector('codigo');       
-            const fechaCuis= xmlDoc.querySelector('fechaVigencia');         
+               
          //   console.log(codigoCuis.textContent+" - "+fechaCuis.textContent);
+         if (data==1) {
+            const codigoCuis= xmlDoc.querySelector('codigo');       
+            const fechaCuis= xmlDoc.querySelector('fechaVigencia');    
             me.insertarCuis(id, codigoCuis.textContent, fechaCuis.textContent);
+         } else {
+            if (data===2) {
+                console.log("resultado....");
+                console.log(xmlDoc);                
+                me.EliminarCuis(id,id_cuis,id_cufd,id_emisor);
+            } else {
+                Swal.fire("Error de entrada!","revise la entrada  si es eliminacion o adicion, tipo transacción","warning",);  
+            }
+         }
+           
 
         } else {
             if (trasaccion.textContent==='false') {
-             
-            const codigoCuis= xmlDoc.querySelector('codigo');       
+                if (data===1) {
+                    const codigoCuis= xmlDoc.querySelector('codigo');       
             const fechaCuis= xmlDoc.querySelector('fechaVigencia');   
         const mensajesList = xmlDoc.querySelector('mensajesList'); 
         let cadena_nombre="";
@@ -390,7 +458,16 @@ export default {
         cadena_nombre += `${child.tagName}: ${child.textContent.trim()}\n`;   
          // console.log(`${child.tagName}: ${child.textContent}`);         
         });
-        Swal.fire("Cuis!",""+cadena_nombre,"warning",); 
+        Swal.fire("Cuis!",""+cadena_nombre,"warning",);  
+                } else {
+                    if (data===2) {
+                        console.log("-*---*-");
+                        console.log(xmlDoc); 
+                    } else {
+                        Swal.fire("Error de entrada!","revise la entrada  si es eliminacion o adicion","warning",);   
+                    }
+                }
+           
             } else {
                 Swal.fire("Error!","transacción nula","error",);  
             }            
@@ -401,6 +478,34 @@ export default {
  
   },
 
+  EliminarCuis(id,id_cuis,id_cufd,id_emisor){
+        let me = this;    
+                axios.post("/siat_cuis_cufd/eliminar_operaciones_V", {
+                id:id,
+                id_cuis:id_cuis,
+                id_emisor:id_emisor,              
+                id_cufd:id_cufd,
+
+                id_modulo: me.idmodulo,
+                id_sub_modulo:me.codventana, 
+                des:"eliminacion de estados ",             
+                
+                })
+                .then(function (response) {
+                 //   me.listarIndexEndPoint(); 
+                    let respuesta=response.data; 
+                    me.listarIndex();                  
+                    if (respuesta.length>0) {
+                        Swal.fire("Error!",""+respuesta,"error",);    
+                    } else {
+                        Swal.fire("Eliminacion","Correctamente","success",);  
+                    }
+                                                    
+                })               
+                .catch(function (error) {                
+                  console.log(error);                
+            });      
+        },
 
   insertarCuis(id,cuis,fecha){
         let me = this;    

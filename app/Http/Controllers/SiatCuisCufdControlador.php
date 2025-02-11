@@ -27,7 +27,7 @@ class SiatCuisCufdControlador extends Controller
         'ss.nombre_suc_siat',
         'ss.codigo_siat',
         'ss.id_sucursal',
-        'sc.id as id_cuis',
+        'sc.id as id_cuis', 
         'sc.dato as cuis',
         'sc.fecha_vigencia as fecha_v_cuis',
         'sc.estado as estado_cuis',
@@ -37,7 +37,8 @@ class SiatCuisCufdControlador extends Controller
         'sf.estado as estado_cufd',
         'ass.id as id_adm_sucursal',
         'ass.razon_social',
-        'ass.direccion'
+        'ass.direccion',
+        'ss.id_emisor'
     )
     ->where('ss.estado', 1)
    
@@ -121,7 +122,7 @@ class SiatCuisCufdControlador extends Controller
 
             // Cerrar la sesión de cURL
             curl_close($ch);
-           // dd($response);
+        
              return $response; 
             
          /** 
@@ -198,5 +199,138 @@ class SiatCuisCufdControlador extends Controller
        return $th;
     }
    }
-  
+
+   public function get_cancelar_operacion(Request $request){
+        
+    try {
+        
+        $emisores = DB::table('siat__emisors')
+        ->where('id_siat_sucursal', $request->id)
+        ->where('id_punto_venta', '<>', 0)
+        ->where('estado', 1)
+        ->pluck('id');
+    
+        if (count($emisores)>0) {
+            return "error_1";
+        } else {      
+            
+            $endPoints = DB::table('siat__endpoints as se')    
+            ->select('se.id', 'se.Descripcion', 'se.Url', 'se.Version')
+            ->where('se.tipo', intval($request->codigo_ambiente))
+            ->where('se.id',$request->cuis_end)
+            ->get();            
+         
+
+        $cadena_url=$endPoints[0]->Url; 
+        $wsdl = $cadena_url;
+
+            // Asignación de la URL y API key
+            $wsdl = $cadena_url; 
+            $apikeyValue = 'TokenApi ' .$request->token_delegado; // Concatenar correctamente el valor del API key
+
+         // Crear el cuerpo del mensaje SOAP, sustituyendo los valores con los parámetros correspondientes
+        //en punto de venta Solo se envía cuando la transacción se realiza utilizando un punto de venta. Caso contrario enviar 0.
+         
+         $xmlData = <<<EOD
+         <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:siat="https://siat.impuestos.gob.bo/">
+            <soapenv:Header/>
+            <soapenv:Body>
+               <siat:cierreOperacionesSistema>
+                  <SolicitudOperaciones>
+                     <codigoAmbiente>$request->codigo_ambiente</codigoAmbiente>
+                     <codigoModalidad>$request->modalidad</codigoModalidad>
+                     <!--Optional:-->
+                     <codigoPuntoVenta>$request->emisor</codigoPuntoVenta>
+                     <codigoSistema>$request->codigo_sistema</codigoSistema>
+                     <codigoSucursal>$request->codigo_siat</codigoSucursal>
+                     <cuis>$request->cuis</cuis>
+                     <nit>$request->nit</nit>
+                  </SolicitudOperaciones>
+               </siat:cierreOperacionesSistema>
+            </soapenv:Body>
+         </soapenv:Envelope>
+         EOD;
+     
+            // Inicializar cURL
+            $ch = curl_init();
+
+            // Configuración de la solicitud cURL
+            curl_setopt($ch, CURLOPT_URL, $wsdl); // Reemplaza con el endpoint correcto
+            curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $xmlData);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                'Content-Type: text/xml; charset=utf-8',
+                'SOAPAction: ""', // Si el SOAPAction es requerido, inclúyelo aquí
+                'apikey: ' . $apikeyValue // Incluye la API key con el valor correspondiente
+            ]);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+            // Ejecutar la solicitud y obtener la respuesta
+            $response = curl_exec($ch);
+           
+            // Verificar si hubo un error en cURL
+            if (curl_errno($ch)) {
+                throw new \Exception(curl_error($ch));
+            }
+
+            // Cerrar la sesión de cURL
+            curl_close($ch);
+          
+            return $response; 
+                     
+        }    
+        /*
+           $soapResponse2 = <<<XML
+             <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+                <soap:Body>
+                <ns2:cierreOperacionesSistemaResponse xmlns:ns2="https://siat.impuestos.gob.bo/">
+                    <RespuestaCierreSistemas><codigoSistema>7CB3E3D13E3F5D0D6422E06</codigoSistema>
+                    <transaccion>true</transaccion>
+                    </RespuestaCierreSistemas>
+                </ns2:cierreOperacionesSistemaResponse>
+                </soap:Body>
+             </soap:Envelope>
+             XML;
+             return $soapResponse2;
+        */ 
+              
+    }  catch (\Exception $e) {
+        // Manejo de excepciones
+        return response()->json([
+            'error' => 'Error en la solicitud SOAP',
+            'message' => $e->getMessage()
+        ]);
+    } 
+   }
+
+   public function eliminar_operaciones(Request $request){
+    try {
+        DB::beginTransaction();
+        $fechaActual = Carbon::now(); // Obtiene la fecha y hora actual
+        $id = $request->id;         
+        $id_cuis=$request->id_cuis;        
+        $id_emisor=$request->id_emisor;
+        $id_cufd=$request->id_cufd;
+          // Si el registro existe, actualizar el dato (cuis)
+    DB::table('siat__cuis')->where('id', $id_cuis)->update(['estado' =>0]);
+    DB::table('siat__cufd')->where('id', $id_cufd)->update(['estado' =>0]);
+    DB::table('siat__emisors')->where('id', $id_emisor)->update(['estado' =>0,'descripcion'=>'sucursal eliminada']);
+    DB::table('siat__sucursals')->where('id', $id)->update(['id_emisor' =>null]);
+        
+        $datos = [
+            'id_modulo' => $request->id_modulo,
+            'id_sub_modulo' => $request->id_sub_modulo,
+            'accion' => 2,
+            'descripcion' => $request->des,          
+            'user_id' =>auth()->user()->id, 
+            'created_at'=>$fechaActual,
+            'id_movimiento'=>$id,   
+        ];    
+        DB::table('log__sistema')->insert($datos);
+
+        DB::commit();
+    } catch (\Throwable $th) {
+       return $th;
+    }
+   }  
 }

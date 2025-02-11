@@ -775,8 +775,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/siat_cuis_cufd/inicio', [SiatCuisCufdControlador::class, 'index']); 
     Route::get('/siat_cuis_cufd/siat_config', [SiatCuisCufdControlador::class, 'siat_fig']);  
     Route::get('/siat_cuis_cufd/cuis', [SiatCuisCufdControlador::class, 'solicitarCuis']); 
-
-    Route::post('/siat_cuis_cufd/insertar_cuis ', [SiatCuisCufdControlador::class, 'crear_cuis']);  
+    Route::post('/siat_cuis_cufd/insertar_cuis', [SiatCuisCufdControlador::class, 'crear_cuis']);
+    Route::get('/siat_cuis_cufd/cerrarOperaciones', [SiatCuisCufdControlador::class, 'get_cancelar_operacion']);  
+    Route::post('/siat_cuis_cufd/eliminar_operaciones_V', [SiatCuisCufdControlador::class, 'eliminar_operaciones']); 
     
     //emisor-----------------------
     Route::get('/siat_emisor/listar_siat_sucursal', [SiatEmisorController::class, 'siat_sucursal']); 
@@ -787,5 +788,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::put('/siat_emisor/subir_caja', [SiatEmisorController::class, 'update_caja']); 
     Route::put('/siat_emisor/quitar_caja', [SiatEmisorController::class, 'modificar_nul_caja']); 
     Route::get('/siat_emisor/consultar_PuntoV_siat', [SiatEmisorController::class, 'consultar_PV_siat']);   
+    Route::get('/siat_emisor/cerrar_puntoVenta', [SiatEmisorController::class, 'cerrarPV']); 
+    Route::post('/siat_emisor/eliminar_puntoVenta', [SiatEmisorController::class, 'eliminarPV']);
+    Route::post('/siat_emisor/insertar_cuis', [SiatEmisorController::class, 'crear_cuis']);  
+    Route::post('/siat_emisor/eliminar_operaciones_V', [SiatCuisCufdControlador::class, 'eliminar_operaciones']);   
   
 });
