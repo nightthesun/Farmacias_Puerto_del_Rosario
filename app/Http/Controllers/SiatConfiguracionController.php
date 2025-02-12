@@ -33,7 +33,7 @@ class SiatConfiguracionController extends Controller
             $actualizar->tiempo_espera=$request->maxTiempoRespuesta; 
             $actualizar->tipo_modalidad=$request->codigoModalidad;             
             $actualizar->tipo_certificado=$request->selectCertificado; 
-            $actualizar->emisor=intval($request->emisor); 
+       
            
             $data= (int)$request->selectCertificado; 
           

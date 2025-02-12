@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('fecha_vigencia');
             $table->tinyInteger('estado');            
             $table->timestamps();
+            $table->smallInteger('id_emisor')->nullable()->comment('cuando se hace una baja de cuis el emisor del punto de venta');
         });
     }
 

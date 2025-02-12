@@ -73,6 +73,7 @@ use App\Http\Controllers\SiatConfiguracionController;
 use App\Http\Controllers\SiatCuisCufdControlador;
 use App\Http\Controllers\SiatEmisorController;
 use App\Http\Controllers\SiatEndpointController;
+use App\Http\Controllers\SiatSincronizacionController;
 use App\Http\Controllers\SiatSucursalController;
 use App\Http\Controllers\TdaIngresoProducto2Controller;
 use App\Http\Controllers\VenCaducidadController;
@@ -791,6 +792,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/siat_emisor/cerrar_puntoVenta', [SiatEmisorController::class, 'cerrarPV']); 
     Route::post('/siat_emisor/eliminar_puntoVenta', [SiatEmisorController::class, 'eliminarPV']);
     Route::post('/siat_emisor/insertar_cuis', [SiatEmisorController::class, 'crear_cuis']);  
-    Route::post('/siat_emisor/eliminar_operaciones_V', [SiatCuisCufdControlador::class, 'eliminar_operaciones']);   
+    Route::post('/siat_emisor/eliminar_operaciones_V', [SiatEmisorController::class, 'eliminar_operaciones']);   
+
+    //sincronizacion siat----------------
+    Route::put('/siat_sincronizacion/manual_automatico', [SiatSincronizacionController::class, 'activarModo']);
   
 });

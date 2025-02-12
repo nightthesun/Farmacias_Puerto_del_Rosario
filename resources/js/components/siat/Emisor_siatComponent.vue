@@ -71,7 +71,7 @@
   </button>     
 <div class="dropdown-menu">
     <a v-show="i.nombre_caja===null && i.tipo===1000" @click="abrirModal('caja',i);listar_caja();" class="dropdown-item" href="#"><i style="color: black;" class="icon-pencil"></i> Añadir caja</a>
-    <a v-show="i.nombre_caja!=null" @click="quitarCaja(i.id,i.id_cuis)" class="dropdown-item" href="#"><i style="color:black;" class="fa fa-window-close-o" aria-hidden="true"></i> Quitar nombre de caja</a>
+    <a v-show="i.nombre_caja!=null" @click="quitarCaja(i.id)" class="dropdown-item" href="#"><i style="color:black;" class="fa fa-window-close-o" aria-hidden="true"></i> Quitar nombre de caja</a>
     <a v-show="i.tipo!=1000 && i.estado===1" @click="abrirModal('cerrar_PV',i);" class="dropdown-item" href="#"><i style="color: black;" class="fa fa-trash" aria-hidden="true"></i> Eliminar punto de venta</a> 
     
     <a v-show="i.tipo!=1000  && i.estado===1" class="dropdown-item" href="#"><i style="color: black;" class="fa fa-cubes" aria-hidden="true"></i> Solicitar CUFD</a>   
@@ -474,6 +474,7 @@ export default {
         } else {
             if (trasaccion.textContent==='false') {
                 let cadena_nombre="";
+                const mensajesList = xmlDoc.querySelector('mensajesList'); 
                 Array.from(mensajesList.children).forEach(child => {
         cadena_nombre += `${child.tagName}: ${child.textContent.trim()}\n`;   
          console.log(`${child.tagName}: ${child.textContent}`);         
@@ -537,14 +538,13 @@ export default {
               //  me.cerrarModal('cerrar_PV');  
                 } else {                  
                 Swal.fire("Error de entrada!","revise la entrada  si es eliminacion o adicion, tipo transacción","warning",);          
-                }
-           
-            }
-                     
+                }           
+            }                   
            
         } else {
             if (trasaccion.textContent==='false') {
                 let cadena_nombre="";
+                const mensajesList = xmlDoc.querySelector('mensajesList'); 
                 Array.from(mensajesList.children).forEach(child => {
         cadena_nombre += `${child.tagName}: ${child.textContent.trim()}\n`;   
          console.log(`${child.tagName}: ${child.textContent}`);         
@@ -677,7 +677,7 @@ insertarCuis(id,cuis,fecha){
 cerrarOperaciones(codigo_siat,id,cuis,id_cufd,id_cuis,id_emisor)
             {
                 let me=this;    
-            
+                console.log(codigo_siat+"--"+id+"---"+cuis+"---"+id_cufd+"---"+id_cuis+"---"+id_emisor);
                 const swalWithBootstrapButtons = Swal.mixin({
                 customClass: {
                     confirmButton: 'btn btn-success',
@@ -731,9 +731,9 @@ cerrarOperaciones(codigo_siat,id,cuis,id_cufd,id_cuis,id_emisor)
                 })               
             },
 
-            EliminarCuis(id,id_cuis,id_cufd){
+            EliminarCuis(id,id_cuis,id_cufd,id_emisor){
         let me = this;    
-                axios.post("/siat_cuis_cufd/eliminar_operaciones_V", {
+                axios.post("/siat_emisor/eliminar_operaciones_V", {
                 id:id,
                 id_cuis:id_cuis,
                 id_emisor:id_emisor,              
@@ -902,9 +902,9 @@ if (data===1) {
 
             },
 
-            quitarCaja(id,id_cuis){
-                let me=this;
-                if (id_cuis===null) {
+            quitarCaja(id){                
+                
+                let me=this;             
                     const swalWithBootstrapButtons = Swal.mixin({
                 customClass: {
                     confirmButton: 'btn btn-success',
@@ -950,9 +950,7 @@ if (data===1) {
                 }
                 })
                    
-                } else {
-                    Swal.fire("Error!","debe dar de baja primero el cuis","error",);  
-                }               
+                               
             },
 
 
@@ -1166,9 +1164,12 @@ if (data===1) {
                     break;
                 }   
                 case "cerrar_PV":{
-                    me.tituloModal="Cerrar punto de venta";                
+                    if (data.id_cuis!=null) {
+                        Swal.fire("Error!","Debe cerrar operaciones en el punto de venta.","error",);
+                    } else {
+                        me.tituloModal="Cerrar punto de venta";                
                     me.classModal.openModal("cerrar_PV");
-                    console.log("--------");
+                    console.log("--------11");
                     console.log(data);
                     me.isSubmitting=false;
                     if (data==999) {                       
@@ -1179,8 +1180,7 @@ if (data===1) {
                         me.selectPuntoVneta=data.id_punto_venta;
                         me.id=data.id;
                         me.tipoAccion =2;
-                    }
-                  
+                    }                  
                     //  me.ventana_0=2;
                   //  if (me.tipoAccion===2) {
                   //      me.selectPuntoVneta=data.id;
@@ -1188,9 +1188,9 @@ if (data===1) {
                   //  } else {                       
                   //      me.selectPuntoVneta='0';
                   //      me.tipoAccion =2;
-                  //  }
-                   
-                    me.passsCmbio="";
+                  //  }                   
+                    me.passsCmbio=""; 
+                    }                   
                     break;
                 }        
             }

@@ -13,10 +13,10 @@
            
             <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
                 <li class="nav-item">
-                    <a class="nav-link active" id="pills-home-tab" data-toggle="pill" href="#pills-home" role="tab" aria-controls="pills-general" aria-selected="true">CUIS / CUFD</a>
+                    <a class="nav-link active" id="pills-home-tab" @click="resert_0(1)" data-toggle="pill" href="#pills-home" role="tab" aria-controls="pills-general" aria-selected="true">CUIS / CUFD</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" id="pills-profile-tab" data-toggle="pill" href="#pills-profile" role="tab" aria-controls="pills-profile" aria-selected="false">Sincronización SIAT</a>
+                    <a class="nav-link" id="pills-profile-tab" @click="resert_0(2)" data-toggle="pill" href="#pills-profile" role="tab" aria-controls="pills-profile" aria-selected="false">Sincronización SIAT</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" id="pills-comunicacion-tab" data-toggle="pill" href="#pills-comunicacion" role="tab" aria-controls="pills-comunicacion" aria-selected="false">Comunicación</a>
@@ -129,29 +129,53 @@
                         </div>
                         
                     </div>
-                    <!--------------------------------------------------------------------------------------------------------------------------->
+<!--------------------------------------------------------------------------------------------------------------------------------------------->
+<!--------------------------------------------------------------------------------------------------------------------------------------------->                    
+<!--------------------------------------------------------------------------------------------------------------------------------------------->
+<!--------------------------------------------------------------------------------------------------------------------------------------------->
+<!--------------------------------------------------------------------------------------------------------------------------------------------->
                     <div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">
 
                         <div class="card">
                             <div class="card-header">
-                           ...........
+                                <span>Configuración de sincronización</span>
                             </div>
-                            <div class="alert alert-info" role="alert">
-  .............n <strong>........</strong>
-</div>
+                            <div class="alert alert-danger" v-if="evento_manual_automatico===0" role="alert">
+                                <strong>Sin activación</strong>
+                            </div>
+                            <div class="alert alert-primary" v-else-if="evento_manual_automatico===1" role="alert">
+                                <strong>Activación manual</strong>
+                            </div>
+                            <div class="alert alert-info" v-else role="alert">
+                                <strong>Activación automatico</strong>
+                            </div>
                             <div class="card-body">
-                                <div class="form-group row">                                                  
-                               
-                                </div>  
-                                <div class="form-group row">
-                                 
+                                <div class="row">
+                                <div class="form-group col-sm-1">
+                                    <span>Tipo activacion: </span> 
                                 </div> 
+                                <div class="form-group col-sm-4">
+                                     <select  class="form-control"  v-model="selectAutoManual">
+                                            <option value="0" disabled selected>Seleccionar...</option>
+                                            <option value="1">Manual</option>
+                                            <option value="2">Automatico</option>
+                                    </select>
+                                </div>
+                                <div class="form-group col-sm-3">
+                                    <button v-if="selectAutoManual==='0'" type="button" class="btn btn-Secondary btn-sm btn-block"><i class="fa fa-star" aria-hidden="true"></i> Activar</button>
+                                    <button v-else type="button" class="btn btn-primary btn-sm btn-block"><i class="fa fa-star" aria-hidden="true"></i> Activar</button>
+                                 </div> 
+                                 <div class="form-group col-sm-3">
+                                    <button  v-if="evento_manual_automatico===1" type="button" class="btn btn-info btn-sm btn-block" style="color: white;"><i class="fa fa-hand-paper-o" aria-hidden="true"></i> Sincronización manual</button>
+                                    <button  v-else-if="evento_manual_automatico===2" type="button" class="btn btn-info btn-sm btn-block" style="color: white;"><i class="fa fa-simplybuilt" aria-hidden="true"></i> Sincronización automatico</button>
+                                </div>   
+                                </div>    
+                               
                             </div>
                             <div class="form-group row justify-content-center">
                                 <div class="col-md-3 d-flex justify-content-center">
        
-        <button v-if="puedeEditar==1" type="button" class="btn btn-warning" style="color: white;" >Actualizar datos de empresa</button>
-        <button v-else type="button" class="btn btn-light"  >Actualizar datos de empresa</button>
+     
    
     </div>
 </div>
@@ -236,6 +260,11 @@ export default {
                 codigoPunVen:'',
                 token_delegado:'',
                 //-----------
+
+//////////////////////sincronizacion////////////////////////////////////////
+                evento_manual_automatico:'',
+                selectAutoManual:'0',
+
         };
     },
 
@@ -303,6 +332,47 @@ export default {
         });
 },
 //-------------------------------------------------------------- 
+
+    resert_0(data){
+        let me=this;
+        me.pagination.total= 0;
+        me.pagination.current_page= 0;   
+        me.pagination.per_page= 0;            
+        me.pagination.last_page= 0;    
+        me.pagination.from= 0;     
+        me.pagination.to= 0;   
+        me.offset=3; 
+if (data===1) {
+        
+        me.tipoAccion=1;
+        me.tituloModal='';
+        me.selectModalidad='0';
+        me.arrayIndex=[];
+        //---permisos_R_W_S
+        me.puedeEditar=2;
+        me.puedeActivar=2;
+        me.puedeHacerOpciones_especiales=2;
+        me.puedeCrear=2;
+        //-----------      
+        me.isSubmitting=false;
+        //----cuis---
+        me.emisor='';              
+        me.codigoSis='';
+        me.codigodAmb='';
+        me.nit='';
+        me.modalidad='';
+        me.codigoSuc='';
+        me.codigoPunVen='';
+        me.token_delegado='';
+        //-----------
+} else {
+    if (data===2) {
+        
+    } else {
+        console.log("error-------");
+    }
+}       
+    },
 
         solicitarCuis(data,id)
             {
@@ -555,7 +625,8 @@ export default {
                 axios.get(url)
                 .then(function(response){
                     var respuesta = response.data; 
-                    me.emisor=respuesta.emisor;
+                    me.evento_manual_automatico=respuesta.sincro_auto_manual;
+                    me.emisor=0;
                 me.codigoSis=respuesta.cod_sis;
                 me.codigodAmb=respuesta.tipo_ambiente;           
                 me.modalidad=respuesta.tipo_modalidad;
@@ -638,6 +709,7 @@ export default {
                 }                           
             }
         },
+
         cerrarModal(accion) {
             let me = this;
             
@@ -649,9 +721,34 @@ export default {
                 me.classModal.closeModal(accion);         
             }
         },
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+        /************************************************SINCRONIZACION*******************************************/
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         verificarComunicacion(){
             
+        },
+
+        activarModo(){
+        let me = this;    
+                axios.put("/siat_sincronizacion/manual_automatico", {
+                    selectAutoManual:me.selectAutoManual,                     
+                
+                })
+                .then(function (response) {
+                 //   me.listarIndexEndPoint(); 
+                    let respuesta=response.data; 
+                 //   me.listarIndex();                  
+                    if (respuesta.length>0) {
+                        Swal.fire("Error!",""+respuesta,"error",);    
+                    } else {
+                        Swal.fire("Eliminacion","Correctamente","success",);  
+                    }
+                                                    
+                })               
+                .catch(function (error) {                
+                  console.log(error);                
+            });      
         },
 
 

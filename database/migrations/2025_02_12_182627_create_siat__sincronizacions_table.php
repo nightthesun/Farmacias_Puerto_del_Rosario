@@ -11,13 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('siat__cuis', function (Blueprint $table) {
+        Schema::create('siat__sincronizacions', function (Blueprint $table) {
             $table->id();
-            $table->text('dato');
-            $table->string('fecha_vigencia');
-            $table->tinyInteger('estado')->default(1);            
             $table->timestamps();
-            $table->smallInteger('id_emisor')->nullable()->comment('cuando se hace una baja de cuis el emisor del punto de venta');
         });
     }
 
@@ -26,6 +22,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('siat__cuis');
+        Schema::dropIfExists('siat__sincronizacions');
     }
 };

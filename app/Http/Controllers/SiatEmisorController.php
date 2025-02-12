@@ -516,11 +516,9 @@ XML;
             $id_emisor=$request->id_emisor;
             $id_cufd=$request->id_cufd;
               // Si el registro existe, actualizar el dato (cuis)
-        DB::table('siat__cuis')->where('id', $id_cuis)->update(['estado' =>0]);
-        DB::table('siat__cufd')->where('id', $id_cufd)->update(['estado' =>0]);
-      
-      
-            
+        DB::table('siat__cuis')->where('id', $id_cuis)->update(['estado' =>0,'id_emisor'=>$id]);
+        DB::table('siat__cufd')->where('id', $id_cufd)->update(['estado' =>0,'id_emisor'=>$id]);     
+        DB::table('siat__emisors')->where('id', $id)->update(['id_cuis' =>null,'id_cufd'=>null]);    
             $datos = [
                 'id_modulo' => $request->id_modulo,
                 'id_sub_modulo' => $request->id_sub_modulo,

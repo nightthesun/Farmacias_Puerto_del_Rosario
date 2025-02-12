@@ -312,8 +312,8 @@ class SiatCuisCufdControlador extends Controller
         $id_emisor=$request->id_emisor;
         $id_cufd=$request->id_cufd;
           // Si el registro existe, actualizar el dato (cuis)
-    DB::table('siat__cuis')->where('id', $id_cuis)->update(['estado' =>0]);
-    DB::table('siat__cufd')->where('id', $id_cufd)->update(['estado' =>0]);
+    DB::table('siat__cuis')->where('id', $id_cuis)->update(['estado' =>0,'id_emisor' =>$id_emisor ]);
+    DB::table('siat__cufd')->where('id', $id_cufd)->update(['estado' =>0,'id_emisor' =>$id_emisor]);
     DB::table('siat__emisors')->where('id', $id_emisor)->update(['estado' =>0,'descripcion'=>'sucursal eliminada']);
     DB::table('siat__sucursals')->where('id', $id)->update(['id_emisor' =>null]);
         
