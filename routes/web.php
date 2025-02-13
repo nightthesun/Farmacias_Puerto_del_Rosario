@@ -796,5 +796,8 @@ Route::group(['middleware' => 'auth'], function () {
 
     //sincronizacion siat----------------
     Route::put('/siat_sincronizacion/manual_automatico', [SiatSincronizacionController::class, 'activarModo']);
-  
+    Route::get('/siat_sincronizacion/listar_emisor', [SiatSincronizacionController::class, 'emisor']);  
+    Route::get('/siat_sincronizacion/auto_s', [SiatSincronizacionController::class, 'auto_sincro']);   
+    Route::get('/siat_sincronizacion/sincronizar_manual_automatico', [SiatSincronizacionController::class, 'sincronizar_m_a']);      
+    
 });

@@ -41,7 +41,7 @@
                                     <strong >Tipo:</strong>
                                 </div> 
                                 <div class="form-group col-sm-5">
-                                     <select  class="form-control"  v-model="selectModalidad" @change="listarIndex();listarConfiguracionSiat(1);">
+                                     <select  class="form-control"  v-model="selectModalidad" @change="listarIndex();listarConfiguracionSiat();">
                                             <option value="0" disabled selected>Seleccionar...</option>
                                             <option value="1">Manual</option>
                                             <option value="2">Automatico</option>
@@ -141,13 +141,13 @@
                                 <span>Configuración de sincronización</span>
                             </div>
                             <div class="alert alert-danger" v-if="evento_manual_automatico===0" role="alert">
-                                <strong>Sin activación</strong>
+                               <h3><strong>Sin activación</strong></h3> 
                             </div>
-                            <div class="alert alert-primary" v-else-if="evento_manual_automatico===1" role="alert">
-                                <strong>Activación manual</strong>
+                            <div class="alert alert-success" v-else-if="evento_manual_automatico===1" role="alert">
+                               <h3><strong>Activación manual</strong></h3> 
                             </div>
-                            <div class="alert alert-info" v-else role="alert">
-                                <strong>Activación automatico</strong>
+                            <div class="alert alert-warning " v-else role="alert">
+                                <h3><strong>Activación automatico</strong></h3>
                             </div>
                             <div class="card-body">
                                 <div class="row">
@@ -163,11 +163,11 @@
                                 </div>
                                 <div class="form-group col-sm-3">
                                     <button v-if="selectAutoManual==='0'" type="button" class="btn btn-Secondary btn-sm btn-block"><i class="fa fa-star" aria-hidden="true"></i> Activar</button>
-                                    <button v-else type="button" class="btn btn-primary btn-sm btn-block"><i class="fa fa-star" aria-hidden="true"></i> Activar</button>
+                                    <button v-else type="button" @click="activarModo()" class="btn btn-primary btn-sm btn-block"><i class="fa fa-star" aria-hidden="true"></i> Activar</button>
                                  </div> 
                                  <div class="form-group col-sm-3">
-                                    <button  v-if="evento_manual_automatico===1" type="button" class="btn btn-info btn-sm btn-block" style="color: white;"><i class="fa fa-hand-paper-o" aria-hidden="true"></i> Sincronización manual</button>
-                                    <button  v-else-if="evento_manual_automatico===2" type="button" class="btn btn-info btn-sm btn-block" style="color: white;"><i class="fa fa-simplybuilt" aria-hidden="true"></i> Sincronización automatico</button>
+                                    <button  v-if="evento_manual_automatico===1" @click="abrirModal('manual'); listar_emisor_v()" type="button" class="btn btn-success btn-sm btn-block" style="color: white;"><i class="fa fa-hand-paper-o" aria-hidden="true"></i> Sincronización manual</button>
+                                    <button  v-else-if="evento_manual_automatico===2" @click="abrirModal('auto_v'); listarAuto_sicro() " type="button" class="btn btn-warning btn-sm btn-block" style="color: white;"><i class="fa fa-simplybuilt" aria-hidden="true"></i> Sincronización automatico</button>
                                 </div>   
                                 </div>    
                                
@@ -211,7 +211,100 @@
     </div>
 </div>
    
-
+ <!--Inicio del modal manual-->
+ <div class="modal fade" tabindex="-1" role="dialog" arial-labelledby="myModalLabel" id="manual" aria-hidden="true"
+            data-backdrop="static" data-key="false">
+            <div class="modal-dialog modal-primary modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">{{ tituloModal }}</h4>
+                        <button type="button" class="close" aria-label="Close" @click="cerrarModal('manual')">
+                            <span aria-hidden="true">x</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">                       
+                        <form action="" class="form-horizontal">                        
+                            <!-- insertar datos -->
+                            <div class="container">                                
+                                <div class="form-group row" >                                   
+                                    <div class="col-md-1">
+                                        <label>Emisor: </label>                                     
+                                    </div>
+                                    <div class="col-md-11">
+                                        <select  class="form-control"  v-model="selectEmisor_v">
+                                            <option value="0" disabled selected>Seleccionar...</option>
+                                            <option v-for="a in arrayListarEmisor_v" :key="a.id"  :value="a.id">
+                                                {{ "Emisor: " +a.nombre_emisor+" - Sucursal siat: "+a.nombre_suc_siat+" - Razon social: "+a.razon_social }}
+                                            </option>                                     
+                                    </select>
+                                    </div>                                     
+                                </div> 
+                            
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary rounded"  @click="cerrarModal('manual')">Cerrar</button>  
+                        <button type="button" v-if="isSubmitting===false" class="btn btn-primary rounded"  @click="sinCronizacion()">Sincronizar</button>                        
+                        <button type="button" v-else class="btn btn-secondary rounded">Sincronizar</button>   
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--fin del modal-->
+        <!--Inicio del modal AUTOMATICO-->
+ <div class="modal fade" tabindex="-1" role="dialog" arial-labelledby="myModalLabel" id="auto_v" aria-hidden="true"
+            data-backdrop="static" data-key="false">
+            <div class="modal-dialog modal-primary modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">{{ tituloModal }}</h4>
+                        <button type="button" class="close" aria-label="Close" @click="cerrarModal('auto_v')">
+                            <span aria-hidden="true">x</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">                       
+                     
+                        <form action="" class="form-horizontal">  
+                            <table class="table table-bordered table-striped table-sm table-responsive" >
+                <thead>
+                    <tr>
+                        <th class="col-md-3">Hora de sincronización</th>
+                        <th class="col-md-3">Frecuencia para la sincronización</th>
+                        <th class="col-md-3">Cantidad de intentos</th>
+                        <th class="col-md-3">Intervalo de tiempo para los intentos en minutos:</th>                             
+                    </tr>
+                </thead>
+                <tbody>
+                        <tr>
+                            <td class="col-md-3"><input  type="time" class="form-control" v-model="hora_a"></td>
+                            <td class="col-md-3">
+                                <select  class="form-control"  v-model="frecuencia_a">
+                                            <option value="0" disabled selected>Seleccionar...</option>
+                                            <option value="1">Dia</option>
+                                            <option value="2">Semanal</option>
+                                            <option value="3">Mes</option>
+                                            <option value="4">Bimestral</option>
+                                            <option value="4">Trimestral</option>                                                                                 
+                                    </select>
+                            </td>
+                            <td class="col-md-3"><input  type="text" class="form-control" v-model="intentos"></td>
+                            <td class="col-md-3"><input  type="text" class="form-control" v-model="intervalo_min"></td>
+                        </tr>
+                </tbody>
+                </table>                      
+                          
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary rounded"  @click="cerrarModal('auto_v')">Cerrar</button>                      
+                                             
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--fin del modal-->
+        
     </main>
 </template>
 
@@ -264,10 +357,35 @@ export default {
 //////////////////////sincronizacion////////////////////////////////////////
                 evento_manual_automatico:'',
                 selectAutoManual:'0',
+                arrayListarEmisor_v:[],
+                selectEmisor_v:'0',
+
+                codigoPuntoVenta_Modal:'',
+                codigo_siat_modal:'',
+                cuis_modal:'',
+
+                frecuencia_a:'',
+                hora_a:"",
+                intentos:0,
+                intervalo_min:0,
 
         };
     },
-
+    watch: {     
+        selectEmisor_v: function (newValue) {
+                this.codigoSucursal='';
+                this.cuis='';
+                let selector = this.arrayListarEmisor_v.find(
+                    (element) => element.id === newValue,                   
+                );
+          console.log(selector);
+               if (selector) {
+                   this.codigoPuntoVenta_Modal = selector.codigoPuntoVenta; 
+                   this.codigo_siat_modal = selector.codigo_siat;    
+                   this.cuis_modal =selector.cuis;                                           
+                }          
+        },
+    },
    
 
     computed: {
@@ -335,6 +453,8 @@ export default {
 
     resert_0(data){
         let me=this;
+        me.listarConfiguracionSiat();
+        
         me.pagination.total= 0;
         me.pagination.current_page= 0;   
         me.pagination.per_page= 0;            
@@ -367,7 +487,11 @@ if (data===1) {
         //-----------
 } else {
     if (data===2) {
-        
+        me.evento_manual_automatico='';
+        me.selectAutoManual='0';
+        me.arrayListarEmisor_v=[];
+        me.selectEmisor_v='0';
+
     } else {
         console.log("error-------");
     }
@@ -693,32 +817,39 @@ if (data===1) {
             let me = this;     
          switch (accion) {
               
-                case "regcuenta": {
-                    me.tipoAccion = 1;
-              
-   
-                    me.classModal.openModal("regcuenta");
+                case "manual": {
+                    me.tipoAccion = 1; 
+                    me.tituloModal="Sincronización manual"; 
+                    me.classModal.openModal("manual");
+                  
                     break;
                 }
-                case "regcuenta_edit":{
-                    me.tipoAccion = 2;
-                               
-                
-                    me.classModal.openModal("regcuenta");
+                case "auto_v": {
+                    me.tipoAccion = 1; 
+                    me.tituloModal="Sincronización automatica"; 
+                    me.classModal.openModal("auto_v");
+                  
                     break;
-                }                           
+                }
+                
+                                     
             }
         },
 
         cerrarModal(accion) {
             let me = this;
             
-            if (accion == "regcuenta") {
+            if (accion == "manual") {
                 me.tipoAccion=1;
               
                 me.tituloModal="";
           
                 me.classModal.closeModal(accion);         
+            }
+            if (accion == "auto_v") {
+                me.tipoAccion=1;
+                me.tituloModal="";
+                me.classModal.closeModal(accion);
             }
         },
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -728,21 +859,69 @@ if (data===1) {
         verificarComunicacion(){
             
         },
+        
+        sinCronizacion(){
+            let me=this;
+            me.isSubmitting=true;
+            var url='/siat_sincronizacion/sincronizar_manual_automatico?codigoAmbiente='+me.codigodAmb+'&codigoPuntoVenta='+me.codigoPuntoVenta_Modal+'&codigoSistema='+me.codigoSis+'&codigoSucursal='+me.codigo_siat_modal+'&cuis='+me.cuis_modal+'&nit='+me.nit+'&token_delegado='+me.token_delegado;                        
+                axios.get(url)
+                .then(function(response){
 
+                    var respuesta = response.data;                 
+                    console.log(respuesta);             
+                })
+                .catch(function(error){
+                    error401(error);
+                }); 
+        },
+      
+        listarAuto_sicro(){
+            let me=this;  
+                 var url='/siat_sincronizacion/auto_s';                        
+                axios.get(url)
+                .then(function(response){
+                    var respuesta = response.data;
+                    me.frecuencia_a=respuesta.frecuencia;
+                    me.hora_a=respuesta.hora;
+                    me.intentos=respuesta.intentos;
+                    me.intervalo_min=respuesta.intervalo_min;
+                    console.log(respuesta);             
+                })
+                .catch(function(error){
+                    error401(error);
+                }); 
+        },
+
+        listar_emisor_v()
+            {
+                let me=this;  
+                 var url='/siat_sincronizacion/listar_emisor';                        
+                axios.get(url)
+                .then(function(response){
+                    var respuesta = response.data;
+                    me.arrayListarEmisor_v=respuesta;              
+                })
+                .catch(function(error){
+                    error401(error);
+                });              
+            },
+      
         activarModo(){
-        let me = this;    
+        let me = this;         
                 axios.put("/siat_sincronizacion/manual_automatico", {
-                    selectAutoManual:me.selectAutoManual,                     
-                
+                    selectAutoManual:me.selectAutoManual,                 
                 })
                 .then(function (response) {
                  //   me.listarIndexEndPoint(); 
                     let respuesta=response.data; 
-                 //   me.listarIndex();                  
+                 //   me.listarIndex();
+                 me.selectAutoManual='0';                  
                     if (respuesta.length>0) {
                         Swal.fire("Error!",""+respuesta,"error",);    
                     } else {
-                        Swal.fire("Eliminacion","Correctamente","success",);  
+                        
+                        me.listarConfiguracionSiat();
+                        Swal.fire("Activacion","Correctamente","success",); 
                     }
                                                     
                 })               
@@ -763,10 +942,11 @@ if (data===1) {
         this.classModal = new _pl.Modals();
         //-------permiso E_W_S-----
         this.listarPerimsoxyz();
-            //-----------------------
+        //-------------------------
         this.listarConfiguracionSiat();
         this.listarCredencial();
-        this.classModal.addModal("regcuenta");
+        this.classModal.addModal("manual");
+        this.classModal.addModal("auto_v");
     
     },
 };
