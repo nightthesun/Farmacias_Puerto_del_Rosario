@@ -843,7 +843,7 @@ if (data===1) {
                 me.tipoAccion=1;
               
                 me.tituloModal="";
-          
+                me.isSubmitting=false;
                 me.classModal.closeModal(accion);         
             }
             if (accion == "auto_v") {
@@ -867,7 +867,13 @@ if (data===1) {
                 axios.get(url)
                 .then(function(response){
 
-                    var respuesta = response.data;                 
+                    var respuesta = response.data;  
+                    if (respuesta===0) {
+                        Swal.fire("Sincronización","Correctamente","success",); 
+                    } else {
+                        Swal.fire(""+respuesta.error,""+respuesta.message,"error",); 
+                    }      
+                    me.cerrarModal('manual');         
                     console.log(respuesta);             
                 })
                 .catch(function(error){
