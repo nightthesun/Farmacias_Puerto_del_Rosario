@@ -11,12 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('excel__emision', function (Blueprint $table) {
-            
-            $table->string('descripcion'); 
-            $table->integer('codigo');
-            $table->smallInteger('id_catalogo');    
-            $table->smallInteger('id_erp')->nullable(); 
+        Schema::create('excel__emision', function (Blueprint $table) {            
+            $table->text('descripcion'); 
+            $table->integer('codigo'); 
+            $table->integer('id_catalogo'); // Cambiado de MEDIUMINT a INTEGER
+            $table->bigInteger('id_erp')->nullable();
         });
     }
 

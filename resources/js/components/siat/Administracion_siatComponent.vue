@@ -245,7 +245,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary rounded"  @click="cerrarModal('manual')">Cerrar</button>  
-                        <button type="button" v-if="isSubmitting===false" class="btn btn-primary rounded"  @click="sinCronizacion()">Sincronizar</button>                        
+                        <button type="button" v-if="isSubmitting===false" class="btn btn-primary rounded" :disabled="selectEmisor_v==='0'" @click="sinCronizacion()">Sincronizar</button>                        
                         <button type="button" v-else class="btn btn-secondary rounded">Sincronizar</button>   
                     </div>
                 </div>
@@ -844,6 +844,7 @@ if (data===1) {
               
                 me.tituloModal="";
                 me.isSubmitting=false;
+                me.selectEmisor_v="0";
                 me.classModal.closeModal(accion);         
             }
             if (accion == "auto_v") {
@@ -871,13 +872,21 @@ if (data===1) {
                     if (respuesta===0) {
                         Swal.fire("Sincronización","Correctamente","success",); 
                     } else {
-                        Swal.fire(""+respuesta.error,""+respuesta.message,"error",); 
+                    
+                        if (respuesta!=null || respuesta!="") {
+                            Swal.fire("Error",""+respuesta,"error",);
+                        } else {
+                            Swal.fire(""+respuesta.error,""+respuesta.message,"error",);                    
+                        }
+                   
                     }      
                     me.cerrarModal('manual');         
-                    console.log(respuesta);             
+             
+
                 })
                 .catch(function(error){
                     error401(error);
+                    console.log("--- >"+error);
                 }); 
         },
       
