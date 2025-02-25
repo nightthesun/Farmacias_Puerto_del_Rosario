@@ -140,14 +140,15 @@
                             <div class="card-header">
                                 <span>Configuración de sincronización</span>
                             </div>
-                            <div class="alert alert-danger" v-if="evento_manual_automatico===0" role="alert">
-                               <h3><strong>Sin activación</strong></h3> 
-                            </div>
-                            <div class="alert alert-success" v-else-if="evento_manual_automatico===1" role="alert">
+                            
+                            <div class="alert alert-success" v-if="evento_manual_automatico===0" role="alert">
                                <h3><strong>Activación manual</strong></h3> 
                             </div>
-                            <div class="alert alert-warning " v-else role="alert">
+                            <div class="alert alert-warning " v-else-if="evento_manual_automatico===1" role="alert">
                                 <h3><strong>Activación automatico</strong></h3>
+                            </div>
+                            <div class="alert alert-danger" v-else role="alert">
+                               <h3><strong>Sin activación</strong></h3> 
                             </div>
                             <div class="card-body">
                                 <div class="row">
@@ -166,8 +167,8 @@
                                     <button v-else type="button" @click="activarModo()" class="btn btn-primary btn-sm btn-block"><i class="fa fa-star" aria-hidden="true"></i> Activar</button>
                                  </div> 
                                  <div class="form-group col-sm-3">
-                                    <button  v-if="evento_manual_automatico===1" @click="abrirModal('manual'); listar_emisor_v()" type="button" class="btn btn-success btn-sm btn-block" style="color: white;"><i class="fa fa-hand-paper-o" aria-hidden="true"></i> Sincronización manual</button>
-                                    <button  v-else-if="evento_manual_automatico===2" @click="abrirModal('auto_v'); listarAuto_sicro() " type="button" class="btn btn-warning btn-sm btn-block" style="color: white;"><i class="fa fa-simplybuilt" aria-hidden="true"></i> Sincronización automatico</button>
+                                    <button  v-if="evento_manual_automatico===0" @click="abrirModal('manual'); listar_emisor_v()" type="button" class="btn btn-success btn-sm btn-block" style="color: white;"><i class="fa fa-hand-paper-o" aria-hidden="true"></i> Sincronización manual</button>
+                                    <button  v-else-if="evento_manual_automatico===1" @click="abrirModal('auto_v'); listarAuto_sicro() " type="button" class="btn btn-warning btn-sm btn-block" style="color: white;"><i class="fa fa-simplybuilt" aria-hidden="true"></i> Sincronización automatico</button>
                                 </div>   
                                 </div>    
                                
@@ -281,15 +282,15 @@
                             <td class="col-md-3">
                                 <select  class="form-control"  v-model="frecuencia_a">
                                             <option value="0" disabled selected>Seleccionar...</option>
-                                            <option value="1">Dia</option>
-                                            <option value="2">Semanal</option>
-                                            <option value="3">Mes</option>
-                                            <option value="4">Bimestral</option>
-                                            <option value="4">Trimestral</option>                                                                                 
+                                            <option value="1">Cada dia</option>
+                                            <option value="7">Cada siete dias</option>
+                                            <option value="30">Cada treinta dias</option>
+                                            <option value="60">Cada sesenta dias</option>
+                                            <option value="90">Cada noventa dias</option>                                                                                 
                                     </select>
                             </td>
-                            <td class="col-md-3"><input  type="text" class="form-control" v-model="intentos"></td>
-                            <td class="col-md-3"><input  type="text" class="form-control" v-model="intervalo_min"></td>
+                            <td class="col-md-3"><input  type="text" class="form-control" v-model="intentos" @keypress="onlyNumbers($event)"></td>
+                            <td class="col-md-3"><input  type="text" class="form-control" v-model="intervalo_min" @keypress="onlyNumbers($event)"></td>
                         </tr>
                 </tbody>
                 </table>                      
@@ -297,8 +298,9 @@
                         </form>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary rounded"  @click="cerrarModal('auto_v')">Cerrar</button>                      
-                                             
+                        <button type="button" class="btn btn-secondary rounded"  @click="cerrarModal('auto_v')">Cerrar</button>       
+                        <button type="button" class="btn btn-primary rounded"  @click="cambiarSicronizacion()">Actualizar</button>                
+                                          
                     </div>
                 </div>
             </div>
@@ -353,6 +355,7 @@ export default {
                 codigoPunVen:'',
                 token_delegado:'',
                 //-----------
+                id_estado:'',
 
 //////////////////////sincronizacion////////////////////////////////////////
                 evento_manual_automatico:'',
@@ -487,7 +490,7 @@ if (data===1) {
         //-----------
 } else {
     if (data===2) {
-        me.evento_manual_automatico='';
+        me.listarAuto_sicro();
         me.selectAutoManual='0';
         me.arrayListarEmisor_v=[];
         me.selectEmisor_v='0';
@@ -672,6 +675,12 @@ if (data===1) {
  
   },
 
+  onlyNumbers(event) {
+        if (!/^\d$/.test(event.key)) {
+            event.preventDefault();
+        }
+    },
+
   EliminarCuis(id,id_cuis,id_cufd,id_emisor){
         let me = this;    
                 axios.post("/siat_cuis_cufd/eliminar_operaciones_V", {
@@ -749,7 +758,7 @@ if (data===1) {
                 axios.get(url)
                 .then(function(response){
                     var respuesta = response.data; 
-                    me.evento_manual_automatico=respuesta.sincro_auto_manual;
+                   // me.evento_manual_automatico=respuesta.id_sincro_auto;
                     me.emisor=0;
                 me.codigoSis=respuesta.cod_sis;
                 me.codigodAmb=respuesta.tipo_ambiente;           
@@ -861,6 +870,33 @@ if (data===1) {
             
         },
         
+        cambiarSicronizacion(){
+            let me = this;         
+                axios.put("/siat_sincronizacion/cambiarConfiguracion", {                      
+                    frecuencia_a:me.frecuencia_a,
+                    hora_a:me.hora_a,
+                    intentos:me.intentos,
+                    intervalo_min:me.intervalo_min,             
+                })
+                .then(function (response) {
+                 //   me.listarIndexEndPoint(); 
+                    let respuesta=response.data; 
+                              
+                    if (respuesta==="0") {
+                        me.cerrarModal('auto_v');
+                        Swal.fire("Error!","no exite la tabla con ese ID","error",);    
+                    } else {        
+                        me.cerrarModal('auto_v');                
+                        me.listarAuto_sicro();
+                        Swal.fire("Activacion y actualización","Correctamente","success",); 
+                    }
+                                                    
+                })               
+                .catch(function (error) {                
+                  console.log(error);                
+            }); 
+        },    
+        
         sinCronizacion(){
             let me=this;
             me.isSubmitting=true;
@@ -900,6 +936,8 @@ if (data===1) {
                     me.hora_a=respuesta.hora;
                     me.intentos=respuesta.intentos;
                     me.intervalo_min=respuesta.intervalo_min;
+                    me.id_estado=respuesta.activo;
+                    me.evento_manual_automatico=respuesta.activo;
                     console.log(respuesta);             
                 })
                 .catch(function(error){
@@ -928,13 +966,14 @@ if (data===1) {
                 })
                 .then(function (response) {
                  //   me.listarIndexEndPoint(); 
-                    let respuesta=response.data; 
-                 //   me.listarIndex();
-                 me.selectAutoManual='0';                  
+                    let respuesta=response.data;                    
+                 me.listarAuto_sicro();
+                 me.selectAutoManual='0';  
+
                     if (respuesta.length>0) {
                         Swal.fire("Error!",""+respuesta,"error",);    
                     } else {
-                        
+                  
                         me.listarConfiguracionSiat();
                         Swal.fire("Activacion","Correctamente","success",); 
                     }
@@ -943,6 +982,21 @@ if (data===1) {
                 .catch(function (error) {                
                   console.log(error);                
             });      
+        },
+
+        iniciarAutomatizacion(){
+            let me=this;  
+                 var url='/siat_sincronizacion/iniciarAutomatizacion';                        
+                axios.get(url)
+                .then(function(response){
+                    var respuesta = response.data;
+                    console.log("/********************");
+                    console.log(respuesta);
+                              
+                })
+                .catch(function(error){
+                    error401(error);
+                });
         },
 
 
@@ -962,6 +1016,7 @@ if (data===1) {
         this.listarCredencial();
         this.classModal.addModal("manual");
         this.classModal.addModal("auto_v");
+        this.listarAuto_sicro();
     
     },
 };

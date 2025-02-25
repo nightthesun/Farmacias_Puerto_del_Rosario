@@ -798,6 +798,12 @@ Route::group(['middleware' => 'auth'], function () {
     Route::put('/siat_sincronizacion/manual_automatico', [SiatSincronizacionController::class, 'activarModo']);
     Route::get('/siat_sincronizacion/listar_emisor', [SiatSincronizacionController::class, 'emisor']);  
     Route::get('/siat_sincronizacion/auto_s', [SiatSincronizacionController::class, 'auto_sincro']);   
-    Route::get('/siat_sincronizacion/sincronizar_manual_automatico', [SiatSincronizacionController::class, 'sincronizar_m_a']);      
+    Route::get('/siat_sincronizacion/sincronizar_manual_automatico', [SiatSincronizacionController::class, 'sincronizar_m_a']);  
+    Route::put('/siat_sincronizacion/activar', [SiatSincronizacionController::class, 'activar']); 
+    Route::put('/siat_sincronizacion/desactivar', [SiatSincronizacionController::class, 'desactivar']);
+    Route::put('/siat_sincronizacion/cambiarConfiguracion', [SiatSincronizacionController::class, 'cambiarConfiguracion']);  
     
+    Route::get('/siat_sincronizacion/iniciarAutomatizacion', [SiatSincronizacionController::class, 'iniciarAutomatizacion']);    
+    
+ 
 });

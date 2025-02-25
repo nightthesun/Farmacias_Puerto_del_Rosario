@@ -1,142 +1,112 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Console\Commands;
 
-use App\Models\Siat_Sincronizacion;
+use Illuminate\Console\Command;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Artisan;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
-class SiatSincronizacionController extends Controller
+class EjecutarSincronizacion extends Command
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    protected $signature = 'sincronizacion:auto';
+    protected $description = 'Ejecuta la sincronización automática basada en la configuración de la base de datos';
+   
+    public function handle()
     {
-        
-    }
+        // Obtener todas las sincronizaciones programadas
+        $sincronizacion = DB::table('auto__sincronizacion')->where('id', 1)->where('activo',1)->first();
+        Log::info("datos....");
 
-    public function iniciarAutomatizacion(Request $request){
-        try {
-            $sincronizacion = DB::table('auto__sincronizacion')->where('id', 1)->first();
-            dd($sincronizacion->activo);
-        } catch (\Throwable $th) {
-            return $th;
+        if (!$sincronizacion) {
+            $this->info("La sincronización está desactivada o no existe.");
+            return;
         }
-    }
+     
 
-    public function activarModo(Request $request){
-        try {
-            DB::beginTransaction();
-            
-                if (intval($request->selectAutoManual)==1) {
-                    $datos = [
-                        'activo' => 0,                
-                    ];                   
-                } 
-                if (intval($request->selectAutoManual)==2) {
-                        $datos = [
-                            'activo' => 1,                                         
-                        ];              
-                    } 
-            DB::table('auto__sincronizacion')->where('id', 1)->update($datos);               
-            $sincronizacion = DB::table('auto__sincronizacion')->where('id', 1)->first();
-            if ($sincronizacion->activo==1) {
-                  Artisan::call('schedule:run');
-                //Aquí puedes agregar la lógica para programar la tarea
-                // en un horario específico.
-                //$this->programarTarea();
+
+        if ($sincronizacion->frecuencia==1) {        
+        $now = Carbon::now();    
+        $currentTime = $now->format('H:i'); // Ejemplo: 14:30:15
+        $currentDataBase = Carbon::parse($sincronizacion->hora)->format('H:i');
+    
+            if ($currentTime==$currentDataBase) {
+                $datos_1 = DB::table('siat__configuracions')->where('id', 1)->first();
+                $datos_2 = DB::table('adm__credecial_correos')->where('id', 1)->first();  
+                $configuracion = DB::table('siat__emisors as s')
+                ->join('siat__sucursals as ss', 'ss.id', '=', 's.id_siat_sucursal')
+                ->join('siat__cuis as c', 'c.id', '=', 's.id_cuis')
+                ->where('s.estado', 1)->where('c.estado', 1)
+                ->select('s.id','s.nombre as nombre_emisor','s.id_punto_venta as punto_venta','ss.nombre_suc_siat','ss.codigo_siat','c.dato')->get();
+                
+                foreach ($configuracion as $key => $value) {
+               
+                    $this->sincronizar_m_a($datos_1->tipo_ambiente,$datos_1->token_delegado,$datos_1->cod_sis,$datos_2->nit,$value->punto_venta,$value->codigo_siat,$value->dato); 
+             
+                }               
+
+               
+            }else {
+                $this->info("Aún no es la hora de sincronización. Esperando...".$now);
+                return; 
             }
           
-            DB::commit();
-        } catch (\Throwable $th) {
-          return $th;
-        }
-    }
-
-
-    public function emisor(){
-        $emisores = DB::table('siat__emisors as s')
-    ->join('siat__sucursals as ss', 'ss.id', '=', 's.id_siat_sucursal')
-    ->join('siat__cuis as c', 'c.id', '=', 's.id_cuis')
-    ->join('adm__sucursals as sss', 'sss.id', '=', 'ss.id_sucursal')
-    ->select(
-        's.id',
-        's.nombre as nombre_emisor',
-        's.id_siat_sucursal as codigoSucursal',
-        's.id_punto_venta as codigoPuntoVenta',
-        'c.dato as cuis',
-        'ss.nombre_suc_siat',
-        'ss.codigo_siat',
-        'sss.razon_social'
-    )
-    ->where('s.estado', 1)
-    ->whereNotNull('s.id_cuis')
-    ->get();
-    return $emisores;
-    }
-
-   public function cambiarConfiguracion(Request $request){
-    try {
-        if ($request->frecuencia_a==1) {
-            $datos = [
-                'hora' => $request->hora_a,
-                'frecuencia' => $request->frecuencia_a,
-                'intentos' => $request->intentos,
-                'intervalo_min' => $request->intervalo_min,
-                'fecha_siguiente' => null,
-                'fecha_ini' => null,           
-            ];   
-        } else {
-            $now = Carbon::now();          
-            $nuevaFecha = $now->addDays($request->frecuencia_a);
-            $datos = [
-                'hora' => $request->hora_a,
-                'frecuencia' => $request->frecuencia_a,
-                'intentos' => $request->intentos,
-                'intervalo_min' => $request->intervalo_min,
-                'fecha_siguiente' => $nuevaFecha,
-                'fecha_ini' => $now,           
-            ];  
-        }  
-        $a=DB::table('auto__sincronizacion')->where('id', 1)->exists();
-        if ($a) {
-            DB::table('auto__sincronizacion')->where('id', 1)->update($datos);
-            return "1";
-        }else{
-            return "0"; 
-        }
-       
-    } catch (\Throwable $th) {
-        return $th;
-    }    
-   }
-
-    public function auto_sincro(){
-        $sincronizacion = DB::table('auto__sincronizacion')->where('id', 1)->first();
-        return $sincronizacion;
-    }
-
-    public function sincronizacion_v2()
-    {
-        try {
-            Artisan::call('schedule:run'); // Ejecuta las tareas programadas en Laravel
-
-            return response()->json(['mensaje' => 'Sincronización ejecutada correctamente'], 200);
-        } catch (\Exception $e) {
-            return response()->json(['error' => 'Error en la sincronización: ' . $e->getMessage()], 500);
-        }
-    } 
-
-    public function sincronizar_m_a(Request $request){
-        try {
-         //codigoAmbiente='+me.tipo_ambiente+'&codigoPuntoVenta='+me.codigoPuntoVenta_Modal+'&codigoSistema='+me.cod_sis+'&codigoSucursal='+me.codigo_siat_modal+'&cuis='+me.cuis_modal+'&nit='+me.nit+'&token_delegado='+me.token_delegado;                        
             
+        } else {
+            if ($sincronizacion->frecuencia>1) {
+                # code...
+            }else{
+                $this->info("Error de ingreso de frecuencia...");
+                return; 
+            }
+        }
+
+        $now = Carbon::now();
+        $currentTime = $now->format('H:i:s'); // Ejemplo: 14:30:15
+      
+         $this->info("Aún no es la hora de sincronización. Esperando...".$now);
+            return;
+       
+
+        if ($currentTime !== $sincronizacion->hora) {
+            $this->info("Aún no es la hora de sincronización. Esperando...");
+            return;
+        }
+
+        $this->ejecutarSincronizacion($sincronizacion);
+        $hora = $sincronizacion->hora;
+        $frecuencia = $sincronizacion->frecuencia;
+        $intentos = $sincronizacion->intentos;
+        $intervalo_min = $sincronizacion->intervalo_min;
+         
+        $this->ejecutarSincronizacion($sincronizacion);       
+    }
+    
+    private function ejecutarSincronizacion($sincronizacion)
+    {
+        $this->info("Iniciando sincronización para la configuración ID: {$sincronizacion->id}");
+
+        for ($intento = 1; $intento <= $sincronizacion->intentos; $intento++) {
+            $this->info("Intento {$intento} de {$sincronizacion->intentos}");
+
+            // Aquí va la lógica real de sincronización
+            // Simulando ejecución
+            sleep(1); //  Mejor usa un Job en Laravel en lugar de sleep()
+
+            $this->info("Ejecución completada para el intento {$intento}");
+        }
+
+        $this->info("Sincronización completada para la configuración ID: {$sincronizacion->id}");
+    }
+
+    
+    private function sincronizar_m_a($codigoAmbiente,$token_delegado,$codigoSistema,$nit,$codigoPuntoVenta,$codigoSucursal,$cuis){
+        try {
+          
             $endPoints = DB::table('siat__endpoints as se')    
         ->select('se.id', 'se.Descripcion', 'se.Url', 'se.Version')
-        ->where('se.tipo', intval($request->codigoAmbiente))
+        ->where('se.tipo', intval($codigoAmbiente))
         ->where('se.id',1)
         ->get(); 
     
@@ -144,14 +114,8 @@ class SiatSincronizacionController extends Controller
         $wsdl = $cadena_url;
             // Asignación de la URL y API key
             $wsdl = $cadena_url; 
-            $apikeyValue = 'TokenApi ' .$request->token_delegado; // Concatenar correctamente el valor del API key
+            $apikeyValue = 'TokenApi ' .$token_delegado; // Concatenar correctamente el valor del API key
             
-            $codigoAmbiente = $request->codigoAmbiente; 
-            $codigoPuntoVenta = $request->codigoPuntoVenta; 
-            $codigoSistema = $request->codigoSistema;
-            $codigoSucursal = $request->codigoSucursal;
-            $cuis = $request->cuis;
-            $nit = $request->nit; 
             $numero=0;
             while ($numero <= 18) {
                    // Llamar al método privado dentro de la misma clase
@@ -184,22 +148,19 @@ class SiatSincronizacionController extends Controller
     
 
     if ($respuesta_final!=0) {
-        return $respuesta_final;
+        $this->info("Error de ingreso index");
+        return;
     } 
                 $numero++;
             }
             return 0;           
              
         } catch (\Exception $e) {
-            // Manejo de excepciones
-            return response()->json([
-                'error' => 'Error en la solicitud SOAP',
-                'message' => $e->getMessage()
-            ]);
+            $this->info("Error de ingreso excepcion ".$e);
+        return;
         }   
 
     }
-
     public function endpoint($codigoAmbiente, $codigoPuntoVenta, $codigoSistema, $codigoSucursal, $cuis, $nit, $n) {
         $xmlData = null;
         switch ($n) {
@@ -647,16 +608,6 @@ class SiatSincronizacionController extends Controller
             }   
              break;   
             case 1:
-               // Crear un objeto DOMDocument para formatear el XML
-//$dom = new DOMDocument();
-//$dom->preserveWhiteSpace = false;
-//$dom->formatOutput = true;
-//$dom->loadXML($response);
-
-// Mostrar el XML formateado
-//header('Content-Type: text/xml');
-//echo $dom->saveXML();
-  // Convertir la respuesta en un objeto SimpleXMLElement
 $xml = simplexml_load_string($response);
 
 // Usar XPath para encontrar el nodo <transaccion>
@@ -1262,10 +1213,9 @@ if ($transaccion && isset($transaccion[0])) {
 
 
         }
-        return $respuesta;
+        $this->info("Error de ingreso excepcion ".$respuesta);
+                return;      
       
     }
 
-   
-    
 }

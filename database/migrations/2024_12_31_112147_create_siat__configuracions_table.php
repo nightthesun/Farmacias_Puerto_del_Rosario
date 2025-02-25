@@ -30,7 +30,7 @@ return new class extends Migration
             $table->text('llave_privada')->nullable();
             $table->text('certificado_x509')->nullable();
             $table->timestamps();
-            $table->tinyInteger('sincro_auto_manual')->nullable()->default(0);
+            $table->tinyInteger('id_sincro_auto')->nullable()->default(1);
         });
     }
 
