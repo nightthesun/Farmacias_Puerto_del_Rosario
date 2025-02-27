@@ -7,6 +7,7 @@ use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use App\Models\Siat_Paramatros_sincronizacion;
 
 class Kernel extends ConsoleKernel
 {
@@ -19,18 +20,19 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
+
+        
+
         $tareaActiva = DB::table('auto__sincronizacion')->where('id', 1)->first();
         $intentos=$tareaActiva->intentos;
         $intervalo_min=$tareaActiva->intervalo_min;
         $operacion=$intervalo_min*60;
+        $frecuencia=$tareaActiva->frecuencia;
         if ($tareaActiva && $tareaActiva->activo == 1) {
 
             $horaDB = Carbon::parse($tareaActiva->hora)->format('H:i');
-    
-            $schedule->call(function () use ($horaDB,$intentos,$operacion) {
       
-                
-         
+           $evento= $schedule->call(function () use ($horaDB,$intentos,$operacion) {        
                     Log::info("Ejecutando tarea programada el  las {$horaDB}");
                     // Aquí ejecutas la lógica de la tarea
                     $datos_1 = DB::table('siat__configuracions')->where('id', 1)->first();
@@ -41,36 +43,69 @@ class Kernel extends ConsoleKernel
                     ->where('s.estado', 1)->where('c.estado', 1)
                     ->select('s.id','s.nombre as nombre_emisor','s.id_punto_venta as punto_venta','ss.nombre_suc_siat','ss.codigo_siat','c.dato')->get();
                    
-             
+                    $tama=count($configuracion);
                         foreach ($configuracion as $key => $value) { 
                             $n=1;   
                             while ($n <= $intentos) {
                                 $a= $this->sincronizar_m_a($datos_1->tipo_ambiente,$datos_1->token_delegado,$datos_1->cod_sis,$datos_2->nit,$value->punto_venta,$value->codigo_siat,$value->dato);                         
                                 if ($a==0) {
                             $n=$intentos+1;
+                            $tama--;
                                 }else{
                                     $n++;
-                                }
-                         
+                                }                         
                             }
-                            sleep($operacion);    
-                        } 
+                           // if ($a!=0) {
+                           //     Log::info("error "); 
+                           // }
+                           // sleep($operacion);    
+                        }   
+                if ($tama==0) {
+                    $crear=new Siat_Paramatros_sincronizacion();
+                    $crear->tipo="automatico";
+                    $crear->estado=1;
+                    $crear->descripcion="Todas las sucursales";
+                    $crear->save();
+                }else{
+                    $crear=new Siat_Paramatros_sincronizacion();
+                    $crear->tipo="automatico";
+                    $crear->estado=2;
+                    $crear->descripcion="Todas las sucursales";
+                    $crear->save();
+                }
+            });
+             // Asignar la frecuencia según el valor en la base de datos
+        switch ($frecuencia) {
+            case 1:  // Diaria
+                $evento->dailyAt($horaDB);
+                break;
+            case 2:  // Semanal (Ejemplo: Viernes)
+                $evento->weeklyOn(5, $horaDB); // 5 = Viernes
+                break;
+            case 3:  // Último día del mes
+                $evento->lastDayOfMonth($horaDB);
+                break;
+            case 4:  // Trimestral (día 1 de enero, abril, julio, octubre)
+                $evento->quarterlyOn(1, $horaDB);
+                break;
+            default:
+                Log::info("Frecuencia no válida.");
+        }
 
-                        
-                    
-                               
-           
-            })->dailyAt($horaDB); // Se ejecutará cada día a la hora específica
         }else{
             Log::info("modo normal-...."); 
         }
        }   
+
+    
+       
 
     /**
      * Register the commands for the application.
      *
      * @return void
      */
+
     protected function commands()
     {
         $this->load(__DIR__.'/Commands'); // Carga los comandos personalizados
@@ -126,7 +161,7 @@ class Kernel extends ConsoleKernel
 
     if ($respuesta_final!=0) {
         Log::info("error de ingreso ".$respuesta_final); 
-        return;
+        return "error de entrada ".$respuesta_final;
     } 
                 $numero++;
             }
@@ -136,7 +171,7 @@ class Kernel extends ConsoleKernel
              
         } catch (\Exception $e) {
             Log::info("error de inicio".$e); 
-        return;
+        return "error de inicio".$e;
         }   
 
     }

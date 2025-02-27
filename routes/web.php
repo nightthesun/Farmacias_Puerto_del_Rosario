@@ -73,6 +73,7 @@ use App\Http\Controllers\SiatConfiguracionController;
 use App\Http\Controllers\SiatCuisCufdControlador;
 use App\Http\Controllers\SiatEmisorController;
 use App\Http\Controllers\SiatEndpointController;
+use App\Http\Controllers\SiatParamatrosSincronizacionController;
 use App\Http\Controllers\SiatSincronizacionController;
 use App\Http\Controllers\SiatSucursalController;
 use App\Http\Controllers\TdaIngresoProducto2Controller;
@@ -801,9 +802,11 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/siat_sincronizacion/sincronizar_manual_automatico', [SiatSincronizacionController::class, 'sincronizar_m_a']);  
     Route::put('/siat_sincronizacion/activar', [SiatSincronizacionController::class, 'activar']); 
     Route::put('/siat_sincronizacion/desactivar', [SiatSincronizacionController::class, 'desactivar']);
-    Route::put('/siat_sincronizacion/cambiarConfiguracion', [SiatSincronizacionController::class, 'cambiarConfiguracion']);  
+    Route::put('/siat_sincronizacion/cambiarConfiguracion', [SiatSincronizacionController::class, 'cambiarConfiguracion']);    
+    Route::get('/siat_sincronizacion/iniciarAutomatizacion', [SiatSincronizacionController::class, 'iniciarAutomatizacion']);   
     
-    Route::get('/siat_sincronizacion/iniciarAutomatizacion', [SiatSincronizacionController::class, 'iniciarAutomatizacion']);    
+    Route::post('/siat_sincronizacion/parametros', [SiatParamatrosSincronizacionController::class, 'store']); 
+    Route::get('/siat_sincronizacion/listarInicio', [SiatParamatrosSincronizacionController::class, 'index']); 
     
  
 });

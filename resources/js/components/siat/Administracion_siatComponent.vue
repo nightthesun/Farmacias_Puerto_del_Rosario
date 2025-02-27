@@ -16,7 +16,7 @@
                     <a class="nav-link active" id="pills-home-tab" @click="resert_0(1)" data-toggle="pill" href="#pills-home" role="tab" aria-controls="pills-general" aria-selected="true">CUIS / CUFD</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" id="pills-profile-tab" @click="resert_0(2)" data-toggle="pill" href="#pills-profile" role="tab" aria-controls="pills-profile" aria-selected="false">Sincronización SIAT</a>
+                    <a class="nav-link" id="pills-profile-tab" @click="resert_0(2);listar_inicio_v2();" data-toggle="pill" href="#pills-profile" role="tab" aria-controls="pills-profile" aria-selected="false">Sincronización SIAT</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" id="pills-comunicacion-tab" data-toggle="pill" href="#pills-comunicacion" role="tab" aria-controls="pills-comunicacion" aria-selected="false">Comunicación</a>
@@ -173,13 +173,31 @@
                                 </div>    
                                
                             </div>
-                            <div class="form-group row justify-content-center">
-                                <div class="col-md-3 d-flex justify-content-center">
-       
-     
-   
-    </div>
-</div>
+                    
+                                <table class="table table-bordered table-striped table-sm table-responsive" :hidden="arrayInicio.length<=0">
+                                    <thead>
+                                        <tr>
+                                        <th>Numero</th>
+                                        <th>tipo</th>
+                                        <th>Descripción</th>                       
+                                        <th>Fecha / hora</th>
+                                        <th>Estado</th>                        
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="i in arrayInicio" :key="i.id">
+                                            <td>{{i.id}}</td>
+                                            <td>{{i.tipo}}</td>
+                                            <td>{{i.descripcion}}</td>
+                                            <td>{{i.created_at}}</td>
+                                            <td>
+                                                <span class="badge badge-pill badge-success" v-if="i.estado===1">APROBADA</span>
+                                                <span class="badge badge-pill badge-danger" v-else>OBSERVADO!</span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
                         </div>
                     </div>        
                     <!---------------------------------------------------------------------------------------------------------------------------->
@@ -226,29 +244,49 @@
                     <div class="modal-body">                       
                         <form action="" class="form-horizontal">                        
                             <!-- insertar datos -->
-                            <div class="container">                                
-                                <div class="form-group row" >                                   
-                                    <div class="col-md-1">
+                            <div class="container">  
+                                <div class="card">
+  <div class="card-header">
+    Opción 1
+  </div>
+  <div class="card-body">
+    <div class="form-group row" >                                   
+                                    <div class="col-md-2">
                                         <label>Emisor: </label>                                     
                                     </div>
-                                    <div class="col-md-11">
+                                    <div class="col-md-7">
                                         <select  class="form-control"  v-model="selectEmisor_v">
                                             <option value="0" disabled selected>Seleccionar...</option>
                                             <option v-for="a in arrayListarEmisor_v" :key="a.id"  :value="a.id">
                                                 {{ "Emisor: " +a.nombre_emisor+" - Sucursal siat: "+a.nombre_suc_siat+" - Razon social: "+a.razon_social }}
                                             </option>                                     
                                     </select>
-                                    </div>                                     
+                                    </div>
+                                    <div class="col-md-3">
+                                        <button type="button" v-if="isSubmitting===false" class="btn btn-primary rounded" :disabled="selectEmisor_v==='0'" @click="sinCronizacion()">Sincronizar</button>                        
+                                        <button type="button" v-else class="btn btn-secondary rounded">Sincronizar</button>   
+                                    </div>                                        
                                 </div> 
-                            
+  </div>
+</div>  
+                               
+
+                                <div class="card">
+  <div class="card-header">
+    Opción 2
+  </div>
+  <div class="card-body">
+    <button type="button" v-if="isSubmitting===false" class="btn btn-warning btn-lg btn-block" style="color: white;" @click="iniciarAutomatizacion()">Sincronizar todo tipo de punto de venta y sucursal</button>                        
+                                        <button type="button" v-else class="btn btn-secondary btn-lg btn-block">Sincronizar todo tipo de punto de venta y sucursal</button>   
+                                  
+  </div>
+</div>  
+                           
                             </div>
                         </form>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary rounded"  @click="cerrarModal('manual')">Cerrar</button>  
-                        <button type="button" v-if="isSubmitting===false" class="btn btn-primary rounded" :disabled="selectEmisor_v==='0'" @click="sinCronizacion()">Sincronizar</button>                        
-                        <button type="button" v-else class="btn btn-secondary rounded">Sincronizar</button>   
-                    </div>
+                        <button type="button" class="btn btn-secondary rounded"  @click="cerrarModal('manual')">Cerrar</button>                                            </div>
                 </div>
             </div>
         </div>
@@ -282,12 +320,11 @@
                             <td class="col-md-3">
                                 <select  class="form-control"  v-model="frecuencia_a">
                                             <option value="0" disabled selected>Seleccionar...</option>
-                                            <option value="1">Cada dia</option>
-                                            <option value="7">Cada siete dias</option>
-                                            <option value="30">Cada treinta dias</option>
-                                            <option value="60">Cada sesenta dias</option>
-                                            <option value="90">Cada noventa dias</option>                                                                                 
-                                    </select>
+                                            <option value="1">Ejecutar todos los días</option>
+                                            <option value="2">Ejecutar el ultimo dia de la semana laboral</option>
+                                            <option value="3">Ejecutar el último día del mes</option>
+                                            <option value="4">Ejecutar cada trimestre el día 1</option>                                                                                                                          
+                                </select>
                             </td>
                             <td class="col-md-3"><input  type="text" class="form-control" v-model="intentos" @keypress="onlyNumbers($event)"></td>
                             <td class="col-md-3"><input  type="text" class="form-control" v-model="intervalo_min" @keypress="onlyNumbers($event)"></td>
@@ -371,6 +408,8 @@ export default {
                 hora_a:"",
                 intentos:0,
                 intervalo_min:0,
+
+                arrayInicio:[],
 
         };
     },
@@ -907,6 +946,7 @@ if (data===1) {
                     var respuesta = response.data;  
                     if (respuesta===0) {
                         Swal.fire("Sincronización","Correctamente","success",); 
+                        me.crearindex("manual",1,"Punto de venta: "+me.codigoPuntoVenta_Modal);
                     } else {
                     
                         if (respuesta!=null || respuesta!="") {
@@ -914,7 +954,7 @@ if (data===1) {
                         } else {
                             Swal.fire(""+respuesta.error,""+respuesta.message,"error",);                    
                         }
-                   
+                        me.crearindex("manual",2,"Punto de venta: "+me.codigoPuntoVenta_Modal);
                     }      
                     me.cerrarModal('manual');         
              
@@ -986,17 +1026,60 @@ if (data===1) {
 
         iniciarAutomatizacion(){
             let me=this;  
+            me.isSubmitting=true;
                  var url='/siat_sincronizacion/iniciarAutomatizacion';                        
                 axios.get(url)
                 .then(function(response){
                     var respuesta = response.data;
-                    console.log("/********************");
-                    console.log(respuesta);
-                              
+                    me.isSubmitting=false;
+              
+                    if (respuesta===0) {
+                        Swal.fire("Sincronización","Correctamente","success",); 
+                        me.crearindex("manual",1,"todas las sucursales");
+                    } else {
+                            Swal.fire("Error","Para ver el problema escoger la opcion 1 ","error",);
+                            me.crearindex("manual",2,"todas las sucursales");
+                    }  
+                      me.cerrarModal('manual');         
                 })
                 .catch(function(error){
                     error401(error);
                 });
+        },
+      
+
+        listar_inicio_v2()
+            {
+                let me=this;  
+                me.arrayInicio=[];
+                 var url='/siat_sincronizacion/listarInicio';                        
+                axios.get(url)
+                .then(function(response){
+                    var respuesta = response.data;
+                    console.log("---*");
+                    console.log(respuesta);
+                    me.arrayInicio=respuesta;              
+                })
+                .catch(function(error){
+                    error401(error);
+                });              
+            },
+
+        crearindex(tipo,estado,desc){
+            let me = this;         
+                axios.post("/siat_sincronizacion/parametros", {             
+            tipo:tipo,   
+            estado:estado,   
+            descripcion:desc,                 
+                })
+                .then(function (response) {
+                    me.listar_inicio_v2(); 
+                    let respuesta=response.data;              
+                                 
+                })               
+                .catch(function (error) {                
+                  console.log(error);                
+            });  
         },
 
 

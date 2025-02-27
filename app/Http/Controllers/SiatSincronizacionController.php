@@ -20,8 +20,44 @@ class SiatSincronizacionController extends Controller
 
     public function iniciarAutomatizacion(Request $request){
         try {
-            $sincronizacion = DB::table('auto__sincronizacion')->where('id', 1)->first();
-            dd($sincronizacion->activo);
+            $tareaActiva = DB::table('auto__sincronizacion')->where('id', 1)->first();
+        $intentos=$tareaActiva->intentos;
+        $intervalo_min=$tareaActiva->intervalo_min;
+       
+        if ($tareaActiva) {
+        
+            $datos_1 = DB::table('siat__configuracions')->where('id', 1)->first();
+            $datos_2 = DB::table('adm__credecial_correos')->where('id', 1)->first();  
+                $configuracion = DB::table('siat__emisors as s')
+                ->join('siat__sucursals as ss', 'ss.id', '=', 's.id_siat_sucursal')
+                ->join('siat__cuis as c', 'c.id', '=', 's.id_cuis')
+                ->where('s.estado', 1)->where('c.estado', 1)
+                ->select('s.id','s.nombre as nombre_emisor','s.id_punto_venta as punto_venta','ss.nombre_suc_siat','ss.codigo_siat','c.dato')->get();
+               
+                    $tamaño=count($configuracion);
+                    foreach ($configuracion as $key => $value) { 
+                        $n=1;   
+                        while ($n <= $intentos) {
+                            $a= $this->sincronizar_m_a_v2($datos_1->tipo_ambiente,$datos_1->token_delegado,$datos_1->cod_sis,$datos_2->nit,$value->punto_venta,$value->codigo_siat,$value->dato);                         
+                            if ($a==0) {
+                        $n=$intentos+1;
+                                $tamaño--;
+                            }else{
+                                $n++;
+                            }                         
+                        }                  
+                    }
+                
+                if ($tamaño==0) {
+                    return $tamaño;
+                }else{
+                    return 1;
+                }
+
+           
+          
+        }
+        
         } catch (\Throwable $th) {
             return $th;
         }
@@ -128,7 +164,71 @@ class SiatSincronizacionController extends Controller
         } catch (\Exception $e) {
             return response()->json(['error' => 'Error en la sincronización: ' . $e->getMessage()], 500);
         }
+    }
+
+    public function sincronizar_m_a_v2($codigoAmbiente,$token_delegado,$codigoSistema,$nit,$codigoPuntoVenta,$codigoSucursal,$cuis){
+        try {
+         //codigoAmbiente='+me.tipo_ambiente+'&codigoPuntoVenta='+me.codigoPuntoVenta_Modal+'&codigoSistema='+me.cod_sis+'&codigoSucursal='+me.codigo_siat_modal+'&cuis='+me.cuis_modal+'&nit='+me.nit+'&token_delegado='+me.token_delegado;                        
+
+            $endPoints = DB::table('siat__endpoints as se')    
+        ->select('se.id', 'se.Descripcion', 'se.Url', 'se.Version')
+        ->where('se.tipo', intval($codigoAmbiente))
+        ->where('se.id',1)
+        ->get(); 
+    
+        $cadena_url=$endPoints[0]->Url; 
+        $wsdl = $cadena_url;
+            // Asignación de la URL y API key
+            $wsdl = $cadena_url; 
+            $apikeyValue = 'TokenApi ' .$token_delegado; // Concatenar correctamente el valor del API key
+       
+            $numero=0;
+            while ($numero <= 18) {
+                   // Llamar al método privado dentro de la misma clase
+    $xmlData = $this->endpoint($codigoAmbiente, $codigoPuntoVenta, $codigoSistema, $codigoSucursal, $cuis, $nit, $numero);
+       
+    $ch = curl_init();
+    // Configuración de la solicitud cURL
+    curl_setopt($ch, CURLOPT_URL, $wsdl); // Reemplaza con el endpoint correcto
+    curl_setopt($ch, CURLOPT_POST, 1);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $xmlData);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        'Content-Type: text/xml; charset=utf-8',
+        'SOAPAction: ""', // Si el SOAPAction es requerido, inclúyelo aquí
+        'apikey: ' . $apikeyValue // Incluye la API key con el valor correspondiente
+    ]);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+    // Ejecutar la solicitud y obtener la respuesta
+    $response = curl_exec($ch);
+
+    // Verificar si hubo un error en cURL
+    if (curl_errno($ch)) {
+        throw new \Exception(curl_error($ch));
+    }
+
+    // Cerrar la sesión de cURL
+    curl_close($ch);
+   
+    $respuesta_final= $this->operacionSincro($numero,$response);      
+    
+
+    if ($respuesta_final!=0) {
+        return $respuesta_final;
     } 
+                $numero++;
+            }
+            return 0;           
+             
+        } catch (\Exception $e) {
+            // Manejo de excepciones
+            return response()->json([
+                'error' => 'Error en la solicitud SOAP',
+                'message' => $e->getMessage()
+            ]);
+        }   
+
+    }
 
     public function sincronizar_m_a(Request $request){
         try {
