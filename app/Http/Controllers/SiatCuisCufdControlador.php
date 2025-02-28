@@ -64,6 +64,91 @@ class SiatCuisCufdControlador extends Controller
         return $siatConfiguracion;
     }
     
+
+    public function solicitarCudf(Request $request){
+        try {
+   
+            $endPoints = DB::table('siat__endpoints as se')    
+        ->select('se.id', 'se.Descripcion', 'se.Url', 'se.Version')
+        ->where('se.tipo', intval($request->codigo_ambiente))
+        ->where('se.id',$request->endpoint)
+        ->get(); 
+           
+        $cadena_url=$endPoints[0]->Url; 
+        $wsdl = $cadena_url;
+            // Asignación de la URL y API key
+            $wsdl = $cadena_url; 
+            $apikeyValue = 'TokenApi ' .$request->token_delegado; // Concatenar correctamente el valor del API key
+        
+        // Crear el cuerpo del mensaje SOAP, sustituyendo los valores con los parámetros correspondientes        
+        $xmlData = <<<EOD
+        <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:siat="https://siat.impuestos.gob.bo/">
+            <soapenv:Header/>
+            <soapenv:Body>
+                <siat:SolicitudCufd>
+                    <codigoAmbiente>{$request->codigo_ambiente}</codigoAmbiente>
+                    <codigoModalidad>{$request->modalidad}</codigoModalidad>
+                    <codigoPuntoVenta>{$request->emisor}</codigoPuntoVenta>
+                    <codigoSistema>{$request->codigo_sistema}</codigoSistema>
+                    <codigoSucursal>{$request->codigo_siat}</codigoSucursal>
+                    <cuis>{$request->cuis}</cuis>
+                    <nit>{$request->nit}</nit>
+                </siat:SolicitudCufd>
+            </soapenv:Body>
+        </soapenv:Envelope>
+        EOD;
+
+        return $xmlData;
+            // Inicializar cURL
+            $ch = curl_init();
+
+            // Configuración de la solicitud cURL
+            curl_setopt($ch, CURLOPT_URL, $wsdl); // Reemplaza con el endpoint correcto
+            curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $xmlData);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                'Content-Type: text/xml; charset=utf-8',
+                'SOAPAction: ""', // Si el SOAPAction es requerido, inclúyelo aquí
+                'apikey: ' . $apikeyValue // Incluye la API key con el valor correspondiente
+            ]);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+            // Ejecutar la solicitud y obtener la respuesta
+            $response = curl_exec($ch);
+           
+            // Verificar si hubo un error en cURL
+            if (curl_errno($ch)) {
+                throw new \Exception(curl_error($ch));
+            }
+
+            // Cerrar la sesión de cURL
+            curl_close($ch);
+        // Convertir la respuesta en un objeto SimpleXMLElement
+        $xml = simplexml_load_string($response);
+        // Usar XPath para encontrar el nodo <transaccion>    
+        $transaccion = $xml->xpath('//transaccion');
+        if ($transaccion && isset($transaccion[0])) {
+            if ($transaccion[0]== 'true') {                     
+                    $respuesta=0;
+                    return $respuesta;
+            } else {
+                $respuesta=$response;
+                return $respuesta;
+            }                
+    } else {   
+        $respuesta="error en sicronización con siat la accion es falsa";
+        return $respuesta;
+    } 
+            
+        } catch (\Exception $e) {
+            // Manejo de excepciones
+            return response()->json([
+                'error' => 'Error en la solicitud SOAP',
+                'message' => $e->getMessage()
+            ]);
+        }       
+    }
+
     public function solicitarCuis(Request $request){
 
         try {

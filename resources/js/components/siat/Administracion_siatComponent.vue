@@ -13,7 +13,7 @@
            
             <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
                 <li class="nav-item">
-                    <a class="nav-link active" id="pills-home-tab" @click="resert_0(1)" data-toggle="pill" href="#pills-home" role="tab" aria-controls="pills-general" aria-selected="true">CUIS / CUFD</a>
+                    <a class="nav-link active" id="pills-home-tab" @click="resert_0(1);listarIndex()" data-toggle="pill" href="#pills-home" role="tab" aria-controls="pills-general" aria-selected="true">CUIS / CUFD</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" id="pills-profile-tab" @click="resert_0(2);listar_inicio_v2();" data-toggle="pill" href="#pills-profile" role="tab" aria-controls="pills-profile" aria-selected="false">Sincronización SIAT</a>
@@ -37,29 +37,23 @@
              
                             <div class="card-body">    
                                 <div class="row">
-                                <div class="form-group col-sm-1">
-                                    <strong >Tipo:</strong>
-                                </div> 
-                                <div class="form-group col-sm-5">
-                                     <select  class="form-control"  v-model="selectModalidad" @change="listarIndex();listarConfiguracionSiat();">
-                                            <option value="0" disabled selected>Seleccionar...</option>
-                                            <option value="1">Manual</option>
-                                            <option value="2">Automatico</option>
-                                    </select>
-                                </div>
-                                <div class="form-group col-sm-3">
-                                    <button v-show="selectModalidad==='1'" type="button" class="btn btn-primary btn-sm btn-block"><i class="fa fa-cube" aria-hidden="true"></i> Solicitar CUIS Para todos</button>
+                               
+                                <div class="form-group col-sm-4">
+                                    <button  type="button" class="btn btn-primary btn-sm btn-block"><i class="fa fa-cube" aria-hidden="true"></i> Solicitar CUIS Para todos</button>
                                  </div> 
-                                 <div class="form-group col-sm-3">
-                                    <button v-show="selectModalidad==='1'" type="button" class="btn btn-info btn-sm btn-block" style="color: white;"><i class="fa fa-cubes" aria-hidden="true"></i> Solicitar CUFD Para todos</button>
-                                </div>   
+                                 <div class="form-group col-sm-4">
+                                    <button  type="button" class="btn btn-info btn-sm btn-block" style="color: white;"><i class="fa fa-cubes" aria-hidden="true"></i> Solicitar CUFD Para todos</button>
+                                </div>
+                                <div class="form-group col-sm-4">
+                                    <button  type="button" class="btn btn-warning btn-sm btn-block" style="color: white;"><i class="fa fa-clock-o" aria-hidden="true"></i> Programar CUFD</button>
+                                </div>    
                                 </div>    
                                
                               
                           
                             </div>
                             <!---inserte tabla-->
-                            <div v-show="selectModalidad==='1'">
+                            <div>
                                 <table class="table table-bordered table-striped table-sm table-responsive" >
                 <thead>
                     <tr>
@@ -83,7 +77,7 @@
   </button>     
   <div class="dropdown-menu">
       <a class="dropdown-item" href="#" @click="solicitarCuis(i.codigo_siat,i.id);"><i style="color: black;" class="fa fa-cube" aria-hidden="true"></i> Solicitar CUIS</a>
-    <a  class="dropdown-item" href="#"><i style="color: black;" class="fa fa-cubes" aria-hidden="true"></i> Solicitar CUFD</a>     
+    <a  class="dropdown-item" href="#" @click="insertar_cufd(i.codigo_siat,i.cuis);"><i style="color: black;" class="fa fa-cubes" aria-hidden="true"></i> Solicitar CUFD</a>     
     <a  class="dropdown-item" href="#" @click="cerrarOperaciones(i.codigo_siat,i.id,i.cuis,i.id_cufd, i.id_cuis, i.id_emisor);"><i style="color: black;" class="fa fa-refresh" aria-hidden="true"></i> Cierre de operaciones (inhabilita el CUIS y el CUFD)</a>   
      </div>                   
                         </td>
@@ -372,7 +366,7 @@ export default {
           offset:3,
             tipoAccion:1,
             tituloModal:'',
-            selectModalidad:'0',
+       
 
             arrayIndex:[],
                 //---permisos_R_W_S
@@ -508,7 +502,7 @@ if (data===1) {
         
         me.tipoAccion=1;
         me.tituloModal='';
-        me.selectModalidad='0';
+      
         me.arrayIndex=[];
         //---permisos_R_W_S
         me.puedeEditar=2;
@@ -1081,7 +1075,66 @@ if (data===1) {
                   console.log(error);                
             });  
         },
+////////////////////////////////////-----------CUFD-------
+insertar_cufd(codigo_siat,cuis){
+    let me=this;    
+                const swalWithBootstrapButtons = Swal.mixin({
+                customClass: {
+                    confirmButton: 'btn btn-success',
+                    cancelButton: 'btn btn-danger'
+                },
+                buttonsStyling: false
+                })
 
+                swalWithBootstrapButtons.fire({
+                title: '¿Esta seguro de pedir CUFD?',
+                text: 'Conforme a normativa vigente el proceso de obtención del Código Único de Facturación Diaria (CUFD) para el Sistema Informático de Facturación autorizado debe realizarse diariamente. Este código habilita el sistema del Sujeto Pasivo para la emisión de Facturas Digitales durante un periodo de vigencia de 24 horas.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Si, Solicitar',
+                cancelButtonText: 'No, Solicitar',
+                reverseButtons: true
+                }).then((result) => {
+                if (result.isConfirmed) {
+            
+               axios.post("/siat_cuis_cufd/insertar_cufd", {             
+                    emisor:me.emisor,   
+                    codigo_siat:codigo_siat,   
+                    codigo_ambiente:me.codigodAmb,
+                    codigo_sistema:me.codigoSis, 
+                    modalidad:me.modalidad, 
+                    token_delegado:me.token_delegado, 
+                    endpoint:3, 
+                    cuis:cuis,                  
+                })
+                    .then(function (response) {
+                        var respuesta = response.data;  
+                        console.log("*----------*");
+                        console.log(respuesta);                    
+                        if (respuesta.error==null || respuesta.error=="") {
+                          console.log("---- exito o error"); 
+                        }else{
+                            swalWithBootstrapButtons.fire(
+                            ''+respuesta.error,
+                            ''+respuesta.message,
+                            'error'
+                        )}
+                      // xxxx me.listarIndex(1);
+                    }).catch(function (error) {
+                       error401(error);                        
+                        console.log(error);
+                    });
+                    
+                    
+                } else if (
+                    /* Read more about handling dismissals below */
+                    result.dismiss === Swal.DismissReason.cancel
+                ) {
+                    
+                }
+                }); 
+        },
+////////////////////--------------------------------------
 
         selectAll: function (event) {
             setTimeout(function () {
@@ -1094,6 +1147,7 @@ if (data===1) {
         this.classModal = new _pl.Modals();
         //-------permiso E_W_S-----
         this.listarPerimsoxyz();
+        this.listarIndex();
         //-------------------------
         this.listarConfiguracionSiat();
         this.listarCredencial();
