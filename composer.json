@@ -9,7 +9,7 @@
         "barryvdh/laravel-dompdf": "^2.0",
         "barryvdh/laravel-snappy": "^1.0",
         "doctrine/dbal": "^3.7",
-        "guzzlehttp/guzzle": "^7.0.1",
+        "guzzlehttp/guzzle": "^7.9",
         "kwn/number-to-words": "^2.9",
         "laravel/framework": "^10.0",
         "laravel/sanctum": "^3.2",

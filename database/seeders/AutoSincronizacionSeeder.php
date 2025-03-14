@@ -13,6 +13,7 @@ class AutoSincronizacionSeeder extends Seeder
      */
     public function run(): void
     {
-        DB::table('auto__sincronizacion')->insert(['hora'=>'00:00:00','frecuencia'=>1,'intentos'=>5,'intervalo_min'=>30]);    
+        DB::table('auto__sincronizacion')->insert(['hora'=>'00:00:00','frecuencia'=>1,'intentos'=>5,'intervalo_min'=>30,'activacionCufd'=>0,'hora_cufd'=>'00:00:00']);
+        
     }
 }

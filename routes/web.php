@@ -780,7 +780,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/siat_cuis_cufd/insertar_cuis', [SiatCuisCufdControlador::class, 'crear_cuis']);
     Route::get('/siat_cuis_cufd/cerrarOperaciones', [SiatCuisCufdControlador::class, 'get_cancelar_operacion']);  
     Route::post('/siat_cuis_cufd/eliminar_operaciones_V', [SiatCuisCufdControlador::class, 'eliminar_operaciones']); 
-    Route::post('/siat_cuis_cufd/insertar_cufd', [SiatCuisCufdControlador::class, 'solicitarCudf']);    
+    Route::post('/siat_cuis_cufd/insertar_cufd', [SiatCuisCufdControlador::class, 'solicitarCudf']); 
+    Route::post('/siat_cuis_cufd/perdirCufd_all', [SiatCuisCufdControlador::class, 'perdirCufd_all']);       
     
     //emisor-----------------------
     Route::get('/siat_emisor/listar_siat_sucursal', [SiatEmisorController::class, 'siat_sucursal']); 

@@ -36,7 +36,7 @@
                             <button type="button" @click="consultarPuntoV(1)" class="btn btn-primary"><i class="fa fa-volume-control-phone" aria-hidden="true"></i> Consultar punto de venta a siat</button>
                         </div>      
                 
-                        <div class="col-md-3" v-show="sucursalSeleccionada != 0 " :disabled="puedeActivar===1">
+                        <div class="col-md-3" v-show="sucursalSeleccionada != 0 " :disabled="puedeActivar===1" hidden>
                             <button type="button" @click="consultarPuntoV(2);" class="btn btn-danger"><i class="fa fa-lock" aria-hidden="true"></i> Cerrar punto de venta </button>
                         </div>      
                        
@@ -48,18 +48,16 @@
                 <thead>
                     <tr>
                         <th>Opciones</th>
-                        <th>Nombre</th>
-                        <th>Descripción</th>
-                        <th>Nombre caja</th>
-                        <th>Tipo</th>
-                        <th>Emisor</th>
-                        <th>Cuis</th>
-                        <th>Cufd</th>
-                        <th>Cuis vigencia</th>
-                        <th>Cufd vigecia</th>
-                        <th>Estado Cuis</th>
-                        <th>Estado Cufd</th>
-                        <th>Estado</th>
+                        <th class="col-md-1">Nombre</th>
+                        <th class="col-md-1">Descripción</th>
+                        <th class="col-md-1">Nombre caja</th>
+                        <th class="col-md-1">Tipo</th>
+                        <th class="col-md-1">Emisor</th>
+                        <th class="col-md-1">Cuis</th>
+                        <th class="col-md-3">Cufd</th>
+                        <th class="col-md-1">Cuis vigencia</th>
+                        <th class="col-md-1">Cufd vigecia</th>
+                        <th class="col-md-1">Estado</th>                    
                                
                     </tr>
                 </thead>
@@ -74,7 +72,7 @@
     <a v-show="i.nombre_caja!=null" @click="quitarCaja(i.id)" class="dropdown-item" href="#"><i style="color:black;" class="fa fa-window-close-o" aria-hidden="true"></i> Quitar nombre de caja</a>
     <a v-show="i.tipo!=1000 && i.estado===1" @click="abrirModal('cerrar_PV',i);" class="dropdown-item" href="#"><i style="color: black;" class="fa fa-trash" aria-hidden="true"></i> Eliminar punto de venta</a> 
     
-    <a v-show="i.tipo!=1000  && i.estado===1" class="dropdown-item" href="#"><i style="color: black;" class="fa fa-cubes" aria-hidden="true"></i> Solicitar CUFD</a>   
+    <a v-show="i.tipo!=1000  && i.estado===1" @click="insertar_cufd(i.codigo_siat,i.cuis,i.id,i.id_punto_venta,i.cufd)" class="dropdown-item" href="#"><i style="color: black;" class="fa fa-cubes" aria-hidden="true"></i> Solicitar CUFD</a>   
  
         <div v-if="i.id_cuis==null"> 
            <a v-show="i.tipo!=1000  && i.estado===1" @click="solicitarCuis(i.codigo_siat,i.id,i.id_punto_venta)" class="dropdown-item" href="#"><i style="color: black;" class="fa fa-cube" aria-hidden="true"></i> Solicitar CUIS</a>              
@@ -84,30 +82,24 @@
         </div>                                                                                        
 </div>  
                         </td>
-                        <td>{{ i.nombre }}</td>
-                        <td>{{ i.descripcion }}</td>
-                        <td>{{ i.nombre_caja }}</td>
-                        <td><span v-if="i.tipo===1000">Principal</span><span v-else>{{ i.descripcion_tipo }}</span></td>
-                        <td>{{ i.id_punto_venta }}</td>
-                        <td>{{ i.cuis }}</td>
-                        <td>{{ i.cufd }}</td>
-                        <td>{{ i.fecha_cuis }}</td>
-                        <td>{{ i.fecha_vigencia }}</td>
-                        <td>
-                            <span v-if="i.cuis_estado===1" class="badge badge-pill badge-success">Activo</span>
-                            <span v-else class="badge badge-pill badge-danger">Desactivado</span> 
-                        </td>
-                        <td>
-                            <span v-if="i.cufd_estado===1" class="badge badge-pill badge-success">Activo</span>
-                            <span v-else class="badge badge-pill badge-danger">Desactivado</span> 
-                        </td>
-                        <td>
+                        <td class="col-md-1">{{ i.nombre }}</td>
+                        <td class="col-md-1">{{ i.descripcion }}</td>
+                        <td class="col-md-1">{{ i.nombre_caja }}</td>
+                        <td class="col-md-1"><span v-if="i.tipo===1000">Principal</span><span v-else>{{ i.descripcion_tipo }}</span></td>
+                        <td class="col-md-1">{{ i.id_punto_venta }}</td>
+                        <td class="col-md-1">{{ i.cuis }}</td>
+                        <td class="col-md-3">{{ i.cufd }}</td>
+                        <td class="col-md-1">{{ i.fecha_cuis }}</td>
+                        <td class="col-md-1">{{ i.fecha_cufd }}</td>
+                        <td class="col-md-1">
+                            <span v-if="i.cuis_estado===1" class="badge badge-pill badge-success">Cuis activo</span>
+                            <span v-else class="badge badge-pill badge-danger">cuis desactivado</span> 
+                            <span v-if="i.cufd_estado===1" class="badge badge-pill badge-success">Cufd activo</span>
+                            <span v-else class="badge badge-pill badge-danger">Cufd desactivado</span> 
                             <span v-if="i.nombre_caja===null&&i.estado===1" class="badge badge-pill badge-warning">Nesecita caja</span>
-                            <span v-else-if="i.estado===1 && i.nombre_caja!=null" class="badge badge-pill badge-success">Activo</span>
-                            <span v-else class="badge badge-pill badge-danger">Desactivado</span> 
-                        </td>
-
-                        
+                            <span v-else-if="i.estado===1 && i.nombre_caja!=null" class="badge badge-pill badge-success">Caja activo</span>
+                            <span v-else class="badge badge-pill badge-danger">Caja Desactivado</span> 
+                        </td>                    
                     </tr>
                 </tbody>
 
@@ -1231,7 +1223,69 @@ if (data===1) {
             }        
         },
 
-     
+     ////////////////////////////////////-----------CUFD-------
+insertar_cufd(codigo_siat,cuis,id,id_emisor,cufd){
+    let me=this;    
+    console.log(codigo_siat+"---"+cuis+"---"+id+"---"+id_emisor+"---"+cufd);
+                const swalWithBootstrapButtons = Swal.mixin({
+                customClass: {
+                    confirmButton: 'btn btn-success',
+                    cancelButton: 'btn btn-danger'
+                },
+                buttonsStyling: false
+                })
+
+                swalWithBootstrapButtons.fire({
+                title: '¿Esta seguro de pedir CUFD?',
+                text: 'Conforme a normativa vigente el proceso de obtención del Código Único de Facturación Diaria (CUFD) para el Sistema Informático de Facturación autorizado debe realizarse diariamente. Este código habilita el sistema del Sujeto Pasivo para la emisión de Facturas Digitales durante un periodo de vigencia de 24 horas.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Si, Solicitar',
+                cancelButtonText: 'No, Solicitar',
+                reverseButtons: true
+                }).then((result) => {
+                if (result.isConfirmed) {
+         
+                  
+               axios.post("/siat_cuis_cufd/insertar_cufd", {             
+                    punto_venta:id_emisor,   
+                    codigo_siat:codigo_siat,   
+                    codigo_ambiente:me.codigoAmbiente,
+                    codigo_sistema:me.codigoSistema, 
+                    modalidad:me.codigoModalidad, 
+                    token_delegado:me.token_delegado, 
+                    endpoint:3, 
+                    cuis:cuis,
+                    nit:me.nit,
+                    id:id,
+                    id_emisor:id,   
+                    cufd:cufd,               
+                })
+                    .then(function (response) {
+                        var respuesta = response.data;  
+                        console.log(respuesta);
+                        if (respuesta===0) {
+                            Swal.fire("CUFD","Consulta exitosa","success",); 
+                        } else {
+                            Swal.fire("Error",""+respuesta,"error",);  
+                        } 
+                      me.listarIndex(1);
+                    }).catch(function (error) {
+                       error401(error);                        
+                        console.log(error);
+                    });
+                    
+                    
+                } else if (
+                    /* Read more about handling dismissals below */
+                    result.dismiss === Swal.DismissReason.cancel
+                ) {
+                    
+                }
+                }); 
+        },
+////////////////////--------------------------------------
+
 
         selectAll: function (event) {
             setTimeout(function () {

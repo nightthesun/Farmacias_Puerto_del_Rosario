@@ -42,11 +42,9 @@
                                     <button  type="button" class="btn btn-primary btn-sm btn-block"><i class="fa fa-cube" aria-hidden="true"></i> Solicitar CUIS Para todos</button>
                                  </div> 
                                  <div class="form-group col-sm-4">
-                                    <button  type="button" class="btn btn-info btn-sm btn-block" style="color: white;"><i class="fa fa-cubes" aria-hidden="true"></i> Solicitar CUFD Para todos</button>
+                                    <button  type="button" class="btn btn-info btn-sm btn-block" style="color: white;" @click="solicitarCufd_all()"><i class="fa fa-cubes" aria-hidden="true"></i> Solicitar CUFD Para todos</button>
                                 </div>
-                                <div class="form-group col-sm-4">
-                                    <button  type="button" class="btn btn-warning btn-sm btn-block" style="color: white;"><i class="fa fa-clock-o" aria-hidden="true"></i> Programar CUFD</button>
-                                </div>    
+                               
                                 </div>    
                                
                               
@@ -65,8 +63,8 @@
                         <th class="col-md-4">Cufd</th>
                         <th class="col-md-1">Cuis vigencia</th>
                         <th class="col-md-1">Cufd vigencia</th>
-                        <th class="col-md-1">Cuis Estado</th> 
-                        <th class="col-md-1">Cufd Estado</th>     
+                        <th class="col-md-1">Estado</th> 
+                      
                     </tr>
                 </thead>
                 <tbody>
@@ -77,7 +75,7 @@
   </button>     
   <div class="dropdown-menu">
       <a class="dropdown-item" href="#" @click="solicitarCuis(i.codigo_siat,i.id);"><i style="color: black;" class="fa fa-cube" aria-hidden="true"></i> Solicitar CUIS</a>
-    <a  class="dropdown-item" href="#" @click="insertar_cufd(i.codigo_siat,i.cuis);"><i style="color: black;" class="fa fa-cubes" aria-hidden="true"></i> Solicitar CUFD</a>     
+    <a  class="dropdown-item" href="#" @click="insertar_cufd(i.codigo_siat,i.cuis,i.id,i.id_emisor,i.cufd);"><i style="color: black;" class="fa fa-cubes" aria-hidden="true"></i> Solicitar CUFD</a>     
     <a  class="dropdown-item" href="#" @click="cerrarOperaciones(i.codigo_siat,i.id,i.cuis,i.id_cufd, i.id_cuis, i.id_emisor);"><i style="color: black;" class="fa fa-refresh" aria-hidden="true"></i> Cierre de operaciones (inhabilita el CUIS y el CUFD)</a>   
      </div>                   
                         </td>
@@ -89,15 +87,20 @@
                         <td class="col-md-1">{{ i.fecha_v_cuis }}</td>
                         <td class="col-md-1">{{ i.fecha_v_cufd }}</td>
                         <td class="col-md-1">
-                            <span v-if="i.estado_cuis===null || i.estado_cuis===''" class="badge badge-pill badge-secondary">Vacio</span>
-                            <span v-else-if="i.estado_cuis===1" class="badge badge-pill badge-success">Activado</span>
-                            <span v-else class="badge badge-pill badge-danger">Desactivado</span>
+                            <div>
+                                <span v-if="i.estado_cuis===null || i.estado_cuis===''" class="badge badge-pill badge-secondary">Cuis vacio</span>
+                            <span v-else-if="i.estado_cuis===1" class="badge badge-pill badge-success">Cuis activado</span>
+                            <span v-else class="badge badge-pill badge-danger">Cuis desactivado</span>
+                            </div>
+                           <div>
+                            <span v-if="i.estado_cufd===null || i.estado_cufd===''" class="badge badge-pill badge-secondary">Cufd vacio</span>
+                            <span v-else-if="i.estado_cufd===1" class="badge badge-pill badge-success">Cufd activado</span>
+                            <span v-else class="badge badge-pill badge-danger">Cufd desactivado</span>  
+                           </div>
                         </td>                      
-                        <td class="col-md-1">
-                            <span v-if="i.estado_cufd===null || i.estado_cufd===''" class="badge badge-pill badge-secondary">Vacio</span>
-                            <span v-else-if="i.estado_cufd===1" class="badge badge-pill badge-success">Activado</span>
-                            <span v-else class="badge badge-pill badge-danger">Desactivado</span>                        
-                        </td>
+                     
+                                                  
+                       
                     </tr>
                 </tbody>
             </table>    
@@ -324,7 +327,30 @@
                             <td class="col-md-3"><input  type="text" class="form-control" v-model="intervalo_min" @keypress="onlyNumbers($event)"></td>
                         </tr>
                 </tbody>
-                </table>                      
+                </table> 
+                <table class="table table-bordered table-striped table-sm table-responsive" >
+                <thead>
+                    <tr>
+                        <th class="col-md-3">Hora de sincronización</th>
+                        <th class="col-md-3">Activar automatización cufd</th>
+                                 
+                    </tr>
+                </thead>
+                <tbody>
+                        <tr>
+                            <td class="col-md-3"><input  type="time" class="form-control" v-model="hora_cufd"></td>
+                            <td class="col-md-3">
+                                <select  class="form-control"  v-model="activacionCufd">
+                                            <option value="2" disabled selected>Seleccionar...</option>
+                                            <option value="1">Activar</option>
+                                            <option value="0">Desactivar</option>
+                                                                                                                                                                     
+                                </select>
+                            </td>
+                           
+                        </tr>
+                </tbody>
+                </table>                       
                           
                         </form>
                     </div>
@@ -404,6 +430,9 @@ export default {
                 intervalo_min:0,
 
                 arrayInicio:[],
+
+                hora_cufd:'',
+                activacionCufd:'2',
 
         };
     },
@@ -909,7 +938,9 @@ if (data===1) {
                     frecuencia_a:me.frecuencia_a,
                     hora_a:me.hora_a,
                     intentos:me.intentos,
-                    intervalo_min:me.intervalo_min,             
+                    intervalo_min:me.intervalo_min,  
+                    hora_cufd:me.hora_cufd,
+                    activacionCufd:me.activacionCufd,           
                 })
                 .then(function (response) {
                  //   me.listarIndexEndPoint(); 
@@ -972,7 +1003,8 @@ if (data===1) {
                     me.intervalo_min=respuesta.intervalo_min;
                     me.id_estado=respuesta.activo;
                     me.evento_manual_automatico=respuesta.activo;
-                    console.log(respuesta);             
+                    me.hora_cufd=respuesta.hora_cufd,
+                    me.activacionCufd=respuesta.activacionCufd          
                 })
                 .catch(function(error){
                     error401(error);
@@ -1076,8 +1108,9 @@ if (data===1) {
             });  
         },
 ////////////////////////////////////-----------CUFD-------
-insertar_cufd(codigo_siat,cuis){
+insertar_cufd(codigo_siat,cuis,id,id_emisor,cufd){
     let me=this;    
+    
                 const swalWithBootstrapButtons = Swal.mixin({
                 customClass: {
                     confirmButton: 'btn btn-success',
@@ -1098,28 +1131,28 @@ insertar_cufd(codigo_siat,cuis){
                 if (result.isConfirmed) {
             
                axios.post("/siat_cuis_cufd/insertar_cufd", {             
-                    emisor:me.emisor,   
+                    punto_venta:me.emisor,   
                     codigo_siat:codigo_siat,   
                     codigo_ambiente:me.codigodAmb,
                     codigo_sistema:me.codigoSis, 
                     modalidad:me.modalidad, 
                     token_delegado:me.token_delegado, 
                     endpoint:3, 
-                    cuis:cuis,                  
+                    cuis:cuis,
+                    nit:me.nit,
+                    id:id,
+                    id_emisor:id_emisor,   
+                    cufd:cufd,               
                 })
                     .then(function (response) {
                         var respuesta = response.data;  
-                        console.log("*----------*");
-                        console.log(respuesta);                    
-                        if (respuesta.error==null || respuesta.error=="") {
-                          console.log("---- exito o error"); 
-                        }else{
-                            swalWithBootstrapButtons.fire(
-                            ''+respuesta.error,
-                            ''+respuesta.message,
-                            'error'
-                        )}
-                      // xxxx me.listarIndex(1);
+                        console.log(respuesta);
+                        if (respuesta===0) {
+                            Swal.fire("CUFD","Consulta exitosa","success",); 
+                        } else {
+                            Swal.fire("Error",""+respuesta,"error",);  
+                        } 
+                      me.listarIndex(1);
                     }).catch(function (error) {
                        error401(error);                        
                         console.log(error);
@@ -1133,6 +1166,57 @@ insertar_cufd(codigo_siat,cuis){
                     
                 }
                 }); 
+        },
+
+        solicitarCufd_all(){
+            let me = this;  
+            const swalWithBootstrapButtons = Swal.mixin({
+                customClass: {
+                    confirmButton: 'btn btn-success',
+                    cancelButton: 'btn btn-danger'
+                },
+                buttonsStyling: false
+                })
+
+                swalWithBootstrapButtons.fire({
+                title: '¿Esta seguro de pedir CUFD para todas las punto de venta?',
+                text: 'Conforme a normativa vigente el proceso de obtención del Código Único de Facturación Diaria (CUFD) para el Sistema Informático de Facturación autorizado debe realizarse diariamente. Este código habilita el sistema del Sujeto Pasivo para la emisión de Facturas Digitales durante un periodo de vigencia de 24 horas.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Si, Solicitar',
+                cancelButtonText: 'No, Solicitar',
+                reverseButtons: true
+                }).then((result) => {
+                if (result.isConfirmed) {
+                    axios.post("/siat_cuis_cufd/perdirCufd_all", {            
+                            
+                        })
+                        .then(function (response) {
+                            me.listarIndex(); 
+                            let respuesta=response.data; 
+                            console.log("///////////////");  
+                            console.log(respuesta);
+                            if (respuesta===0) {
+                                Swal.fire("CUFD","Consulta exitosa","success",); 
+                            } else {
+                                Swal.fire("Error",respuesta+" La lista no se solicito todo","error",);  
+                            }           
+                                         
+                        })               
+                        .catch(function (error) {                
+                          console.log(error);                
+                    }); 
+                    
+                    
+                } else if (
+                    /* Read more about handling dismissals below */
+                    result.dismiss === Swal.DismissReason.cancel
+                ) {
+                    
+                }
+                });       
+
+               
         },
 ////////////////////--------------------------------------
 

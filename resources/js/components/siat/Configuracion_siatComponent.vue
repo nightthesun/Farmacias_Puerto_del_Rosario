@@ -106,17 +106,24 @@
                                             <option value=2>File_PEM_Value</option>
                                             <option value=3>File_P12</option>
                                     </select>
+                                    <button v-if="ActivarCambioFirma===0" type="button" @click="activarBoton()" class="btn btn-secondary btn-sm btn-block">Activar cambio de firma</button>
+                                    <button v-else type="button" @click="desactivarBoton()" style="color: white;" class="btn btn-success btn-sm btn-block">Desactivar cambio de firma</button>
                                     <span  v-if="selectCertificado===0" class="error">Debe Ingresar codigo</span>     
                                 </div> 
                        
-                                <div class="form-group col-sm-4" v-if="selectCertificado==='1' || selectCertificado==='2'">
+                                <div class="form-group col-sm-4" v-if="selectCertificado==='1' || selectCertificado==='3'">
                                     <strong>Archivo P12:</strong>
-                                        <input type="file" ref="fileInput" class="form-control" accept=".p12,.pem,.token,.crt,.cert"  @change="validateFile"/>
-                                        <small v-if="errorMessage" class="text-danger">{{ errorMessage }}</small>                        
+                                        <input type="file" ref="fileInput" class="form-control" accept=".p12,.pem,.token,.crt,.cert"  @change="validateFile"/>                                        
+                                        <small v-if="errorMessage" class="text-danger">{{ errorMessage }}</small>  
+                                        <br>
+                                        <strong v-if="name_firma===''||name_firma===null" style="color: red;">Sin firma</strong>
+                                        <strong v-else style="color: green;">{{name_firma+' '+path_firma}}</strong>                      
                                 </div> 
-                                <div class="form-group col-sm-4" v-if="selectCertificado==='1' || selectCertificado==='2'"> 
+                                <div class="form-group col-sm-4" v-if="selectCertificado==='1' || selectCertificado==='3'"> 
                                     <strong>Contraseña del archivo .p12: <span  v-if="password===''" class="error">(*)</span></strong>
-                                    <input type="password"  v-model="password" placeholder="escriba la contraseña de archivo P.12" class="form-control">                                   
+                                    <input type="password"  v-model="password" placeholder="escriba la contraseña de archivo P.12" class="form-control">  
+                                    <strong v-if="data_pass===''||data_pass===null" style="color: red;">Sin contraseña</strong>
+                                        <strong v-else style="color: green;">{{"contraseña ya disponible"}}</strong>                                   
                                 </div>
                             
                                         
@@ -125,11 +132,11 @@
                                 <div class="form-group col-sm-4">
 
                                 </div>     
-                                    <div class="form-group col-sm-4"  v-if="selectCertificado==='1' || selectCertificado==='3'">
+                                    <div class="form-group col-sm-4"  v-if="selectCertificado==='1' || selectCertificado==='2'">
                                         <strong>Llave privada:<span  v-if="key_privade===''" class="error">(*)</span></strong>
                                         <textarea class="form-control" v-model="key_privade" id="exampleFormControlTextarea3" rows="3" placeholder="ingrese la llave privada que se le dio"></textarea>                                   
                                     </div> 
-                                <div class="form-group col-sm-4"  v-if="selectCertificado==='1' || selectCertificado==='3'">
+                                <div class="form-group col-sm-4"  v-if="selectCertificado==='1' || selectCertificado==='2'">
                                     <strong>Certificado X509:<span  v-if="certificado_x509===''" class="error">(*)</span></strong>
                                     <textarea class="form-control" v-model="certificado_x509" id="exampleFormControlTextarea5" rows="3" placeholder="ingrese elc ertificado"></textarea>                                      
                                 </div>     
@@ -384,6 +391,7 @@ export default {
             maxTiempoRespuesta:'',
             certificado_x509:'', 
             password:'',
+            data_pass:'',
             key_privade:'',
             selectCertificado:0,
             errorMessage: 'Seleccione el archivo', // Para manejar mensajes de error
@@ -399,6 +407,7 @@ export default {
             arrayEndpoint:[],
             id_endpoint:'',
             crear_x:0,
+            archivo:'',
                 //---permisos_R_W_S
                 puedeEditar:2,
                 puedeActivar:2,
@@ -412,6 +421,9 @@ export default {
             arrayCatalogo:[],
             selectCatalogo:'0',
             nombreCatalogo:'',
+            ActivarCambioFirma:0,
+            name_firma:'',
+            path_firma:'',
 
         };
     },
@@ -515,6 +527,40 @@ cambiarPestana(idPestana) {
                     error401(error);
                 });                       
             },
+
+            activarBoton(){
+                let me=this;
+                const swalWithBootstrapButtons = Swal.mixin({
+  customClass: {
+    confirmButton: "btn btn-success",
+    cancelButton: "btn btn-danger"
+  },
+  buttonsStyling: false
+});
+swalWithBootstrapButtons.fire({
+  title: "Cambiar firma?",
+  text: "Este cambio borrar la información anterior!",
+  icon: "warning",
+  showCancelButton: true,
+  confirmButtonText: "Si",
+  cancelButtonText: "No",
+  reverseButtons: true
+}).then((result) => {
+  if (result.isConfirmed) {
+    me.ActivarCambioFirma=1;  
+  } else if (
+    /* Read more about handling dismissals below */
+    result.dismiss === Swal.DismissReason.cancel
+  ) {
+    me.ActivarCambioFirma=0;  
+  }
+});
+    
+            },
+            desactivarBoton(){
+                let me=this;
+                me.ActivarCambioFirma=0;
+            },    
 
 crearEndPoint(){
         let me = this;
@@ -627,39 +673,49 @@ swalWithBootstrapButtons.fire({
                     controlador=0;
                     break;
                }
-               
+               console.log(me.archivo);
                if (controlador===0) {              
-                console.log("modalidad: "+me.codigoModalidad+"  certificado:"+me.selectCertificado);
-                axios.post('/siat/crear_configuracion',{
-                    id:me.id_configuracion,
-                    cod_sis:me.cod_sis,
-                    selectTipoAmbiente:me.selectTipoAmbiente,
-                    forFecha:me.forFecha,
-                    paquetes:me.paquetes,
-                    token_delegado:me.token_delegado,
-                    qr_:me.qr_,
-                    selectVenToken:me.selectVenToken,
-                    maxTiempoRespuesta:me.maxTiempoRespuesta,
-                    codigoModalidad:me.codigoModalidad,
-                    selectCertificado:me.selectCertificado, 
-                    password:me.password,
-
-                    key_privade:me.key_privade,
-                    certificado_x509:me.certificado_x509,            
                  
-                    
-                    id_modulo: me.idmodulo,
-                    id_sub_modulo:me.codventana, 
-                    des:"actualziacion la configuracion siat configuracion",  
-              
-                }).then(function(response){
+                // Crear un objeto FormData para enviar el archivo
+                const formData = new FormData();
+                formData.append('id', me.id_configuracion);
+                formData.append('cod_sis', me.cod_sis);
+                formData.append('selectTipoAmbiente', me.selectTipoAmbiente);
+                formData.append('forFecha', me.forFecha);
+                formData.append('paquetes', me.paquetes);
+                formData.append('token_delegado', me.token_delegado);
+                formData.append('qr_', me.qr_);
+                formData.append('selectVenToken', me.selectVenToken);
+                formData.append('maxTiempoRespuesta', me.maxTiempoRespuesta);
+                formData.append('codigoModalidad', me.codigoModalidad); 
+                formData.append('ActivarCambioFirma', me.ActivarCambioFirma);               
+
+                formData.append('selectCertificado', me.selectCertificado);
+                formData.append('password', me.password);
+                formData.append('firma', me.archivo);
+
+                formData.append('key_privade', me.key_privade);
+                formData.append('certificado_x509', me.certificado_x509);
+
+                formData.append('id_modulo', me.idmodulo);
+                formData.append('id_sub_modulo', me.codventana);
+                formData.append('des', 'actualziacion la configuracion siat configuracion');
+                axios.post('/siat/crear_configuracion', formData, {headers : {'content-type': 'multipart/form-data'}})
+                .then(function(response){
+                    me.password="";
                     var respuesta = response.data; 
                     console.log(respuesta);
-                    console.log(respuesta.length);
-                    Swal.fire('Registrado Correctamente');            
-                    me.listarIndexConfiguracion();
-                }).catch(function (error) {                  
-                console.log(error);
+                    if (respuesta.length>0) {                        
+                        Swal.fire("Error!",""+respuesta,"error",);
+                    }else{                        
+                        Swal.fire("Datos!","actualziado correctamente","success",);
+                    }      
+                    me.listarIndexConfiguracion(); 
+                    me.ActivarCambioFirma=0;                   
+                }).catch(function(error){
+                    me.password="";
+                    error401(error);
+                    console.log(error);
                 });
                } 
  
@@ -689,10 +745,11 @@ listarIndexConfiguracion()
                     me.maxTiempoRespuesta=respuesta.tiempo_espera;
                     me.id_configuracion=respuesta.id;
                     me.selectCertificado=respuesta.tipo_certificado;
-                    me.password=respuesta.password;
+                    me.data_pass=respuesta.password;
                     me.key_privade=respuesta.llave_privada;
                     me.certificado_x509=respuesta.certificado_x509;
-                  
+                    me.name_firma=respuesta.name;
+                    me.path_firma=respuesta.path;
                     console.log(respuesta);          
                     
                 })
@@ -704,7 +761,9 @@ listarIndexConfiguracion()
 
 validateFile() {
     let me = this;
+    me.archivo="";
     const file = this.$refs.fileInput.files[0]; // Obtén el archivo seleccionado
+    me.archivo=file;
     if (file) {
         const extension = file.name.split('.').pop().toLowerCase(); // Extrae la extensión
         const allowedExtensions = ["p12", "pem", "token", "crt", "cert"]; // Lista de extensiones permitidas
@@ -715,7 +774,7 @@ validateFile() {
             Swal.fire("Error", me.errorMessage, "error");
         } else {
             me.errorMessage = "";
-            console.log("Archivo válido:", file);
+          
             // Aquí puedes continuar con el procesamiento del archivo
         }
     } else {
@@ -725,7 +784,9 @@ validateFile() {
 
 validateFileExcel() {
     let me = this;
-    const file = this.$refs.fileInput.files[0]; // Obtén el archivo seleccionado
+    
+    const file = this.$refs.fileInput.files[0]; // Obt 
+    // én el archivo seleccionado
     if (file) {
         const extension = file.name.split('.').pop().toLowerCase(); // Extrae la extensión
         const allowedExtensions = ["p12", "pem", "token", "crt", "cert"]; // Lista de extensiones permitidas
@@ -890,8 +951,7 @@ validateFileExcel() {
                     if (respuesta.length>0) {
                         Swal.fire("Error!",""+respuesta,"error",);    
                     } else {
-                        Swal.fire("Se subio!","Correctamente","success",
-                    );  
+                        Swal.fire("Se subio!","Correctamente","success",);  
                     }                               
                 })               
                 .catch(function (error) {                
@@ -955,6 +1015,8 @@ validateFileExcel() {
                 
         },
         //--------------------
+        
+      
         cerrarModal(accion) {
             let me = this;
             

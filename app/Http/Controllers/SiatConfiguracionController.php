@@ -1,13 +1,16 @@
 <?php
 
 namespace App\Http\Controllers;
+
+use App\Helpers\CufHelper;
 use SoapClient;
 use App\Models\Siat_Configuracion;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon as SupportCarbon;
 use Illuminate\Support\Facades\DB;
-
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Storage;
 
 class SiatConfiguracionController extends Controller
 {
@@ -22,7 +25,25 @@ class SiatConfiguracionController extends Controller
     {
         try {
             DB::beginTransaction();
-            $actualizar = Siat_Configuracion::findOrFail($request->id);
+            $nitEmisor = 123456789;
+            $fechaHora = Carbon::now(); // Se usará automáticamente el formato correcto
+            $fecha = Carbon::now();
+            $fechaFormateada = $fecha->format('YmdHisv'); // yyyyMMddHHmmssSSS
+            $fechaFormateada ="20190113163721231";
+            $sucursal = 0;
+            $modalidad = 1;
+            $tipoEmision = 1;
+            $tipoFactura = 1;
+            $tipoDocumentoSector = 1;
+            $numeroFactura = 1;
+            $puntoVenta = 0;
+            $codigoControl = 'A19E23EF34124CD'; // Este valor lo obtienes del WebService de la SIN
+    
+            $cuf = CufHelper::generarCUF($nitEmisor, $fechaFormateada, $sucursal, $modalidad, $tipoEmision, $tipoFactura, $tipoDocumentoSector, $numeroFactura, $puntoVenta, $codigoControl);
+            return $cuf;
+            
+            //$textoDesencriptado = Crypt::decrypt($textoEncriptado); desencriptar clave
+            $actualizar = Siat_Configuracion::findOrFail(1);
             $actualizar->cod_sis=$request->cod_sis; 
             $actualizar->tipo_ambiente=$request->selectTipoAmbiente; 
             $actualizar->formato_fecha=$request->forFecha; 
@@ -31,37 +52,95 @@ class SiatConfiguracionController extends Controller
             $actualizar->url_QR=$request->qr_; 
             $actualizar->vencimiento_token=$request->selectVenToken; 
             $actualizar->tiempo_espera=$request->maxTiempoRespuesta; 
-            $actualizar->tipo_modalidad=$request->codigoModalidad;             
-            $actualizar->tipo_certificado=$request->selectCertificado; 
-       
-           
-            $data= (int)$request->selectCertificado; 
-          
-            switch ($data) {
-                case 1:
-                    $actualizar->password=$request->password; 
-                    $actualizar->llave_privada=$request->key_privade; 
-                    $actualizar->certificado_x509=$request->certificado_x509; 
-                    break;
+            $actualizar->tipo_modalidad=$request->codigoModalidad; 
             
-                case 2:
-                    $actualizar->password=$request->password; 
+            if ($request->ActivarCambioFirma==1) {
+                
+                $actualizar->tipo_certificado=$request->selectCertificado;           
+                $data= (int)$request->selectCertificado;   
+                    
+                switch ($data) {
+                    case 1:
+                        if ($request->password==""||$request->password==null) {
+                            return "la contraseña no puede estar vacia";           
+                           } else {
+                            if($request->hasFile('firma'))
+                            {
+                                  // Ruta de la carpeta donde se guardarán los archivos
+                                 $carpeta = 'firma';
+                                // Eliminar el archivo anterior si existe
+                                $archivos = Storage::files($carpeta);
+                                if (count($archivos) > 0) {
+                                 Storage::delete($archivos[0]); // Elimina el primer archivo encontrado
+                                    }
+                            $filename=$request->firma->getClientOriginalName();
+                            info($filename);
+                            $actualizar->path=$request->file('firma')->store('firma');                                        
+                            $actualizar->name=$filename; 
+                            //(AES-256-CBC) la incriptacion es 2 caracteres aletorio + la contraseña encryptada + 3 caracteres aletorios
+                            $caracteres = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+                            $randomString_2 = substr(str_shuffle($caracteres), 0, 2);
+                            $randomString_3 = substr(str_shuffle($caracteres), 0, 3);
+                            $textoEncriptado = Crypt::encrypt($request->password);   
+                            $cadena_pass=$randomString_2.$textoEncriptado.$randomString_3;           
+                            $actualizar->password=$cadena_pass;                      
+                            }
+    
+                            $actualizar->llave_privada=$request->key_privade; 
+                            $actualizar->certificado_x509=$request->certificado_x509; 
+                           }
+                       
+                        break;
+                
+                    case 2:
+                      
+                        $actualizar->llave_privada=""; 
+                        $actualizar->certificado_x509=""; 
+                        break;
+                
+                    case 3:
+                        if ($request->password==""||$request->password==null) {
+                            return "la contraseña no puede estar vacia";           
+                           } else {
+                            if($request->hasFile('firma'))
+                        {
+                          
+                              // Ruta de la carpeta donde se guardarán los archivos
+                             $carpeta = 'firma';
+                            // Eliminar el archivo anterior si existe
+                            $archivos = Storage::files($carpeta);
+                            if (count($archivos) > 0) {
+                             Storage::delete($archivos[0]); // Elimina el primer archivo encontrado
+                                }
+                        $filename=$request->firma->getClientOriginalName();
+                    
+                        info($filename);
+                        $a=$request->file('firma')->store('firma');
+                      
+                        $actualizar->path=$a;                                        
+                        $actualizar->name=$filename; 
+                     //(AES-256-CBC) la incriptacion es 2 caracteres aletorio + la contraseña encryptada + 3 caracteres aletorios
+                     $caracteres = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+                     $randomString_2 = substr(str_shuffle($caracteres), 0, 2);
+                     $randomString_3 = substr(str_shuffle($caracteres), 0, 3);
+                     $textoEncriptado = Crypt::encrypt($request->password);   
+                     $cadena_pass=$randomString_2.$textoEncriptado.$randomString_3;           
+                     $actualizar->password=$cadena_pass;                    
+
+                        }
+                        } 
+                        break;
+                
+                    default:
+                    $actualizar->name=""; 
+                    $actualizar->path=""; 
+                    $actualizar->password=""; 
                     $actualizar->llave_privada=""; 
                     $actualizar->certificado_x509=""; 
-                    break;
+                        break;
+                }   
+            }
             
-                case 3:
-                    $actualizar->password=""; 
-                    $actualizar->llave_privada=$request->key_privade; 
-                    $actualizar->certificado_x509=$request->certificado_x509; 
-                    break;
-            
-                default:
-                $actualizar->password=""; 
-                $actualizar->llave_privada=""; 
-                $actualizar->certificado_x509=""; 
-                    break;
-            }   
             $actualizar->save();
             $fechaActual = SupportCarbon::now(); // Obtiene la fecha y hora actual
             $datos = [
@@ -74,7 +153,6 @@ class SiatConfiguracionController extends Controller
                 'id_movimiento'=>$request->id,   
             ];        
             DB::table('log__sistema')->insert($datos);
-           
             DB::commit();
         } catch (\Throwable $th) {
            return $th;
@@ -159,6 +237,31 @@ class SiatConfiguracionController extends Controller
             }        
     
     }
-    
+    public function subirArchivo(Request $request)
+    {
+        // Validar el archivo
+        $request->validate([
+            'archivo' => 'required|file|mimes:pem,p12', // Solo permite .pem y .p12
+        ]);
+
+        // Ruta de la carpeta donde se guardarán los archivos
+        $carpeta = 'archivos';
+
+        // Eliminar el archivo anterior si existe
+        $archivos = Storage::files($carpeta);
+        if (count($archivos) > 0) {
+            Storage::delete($archivos[0]); // Elimina el primer archivo encontrado
+        }
+
+        // Guardar el nuevo archivo
+        $archivo = $request->file('archivo');
+        $nombreArchivo = $archivo->getClientOriginalName(); // Nombre original del archivo
+        $rutaArchivo = $archivo->storeAs($carpeta, $nombreArchivo); // Guardar en storage/app/archivos
+
+        return response()->json([
+            'message' => 'Archivo subido correctamente.',
+            'ruta' => $rutaArchivo,
+        ]);
+    }
 
 }

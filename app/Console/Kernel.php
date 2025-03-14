@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\Models\Siat_Emisor;
 use Carbon\Carbon;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
@@ -28,10 +29,13 @@ class Kernel extends ConsoleKernel
         $intervalo_min=$tareaActiva->intervalo_min;
         $operacion=$intervalo_min*60;
         $frecuencia=$tareaActiva->frecuencia;
+        $cufd_x=$tareaActiva->activacionCufd;
+        $hora_cufd=$tareaActiva->hora_cufd;
+
         if ($tareaActiva && $tareaActiva->activo == 1) {
 
             $horaDB = Carbon::parse($tareaActiva->hora)->format('H:i');
-      
+            $horaDB_2 = Carbon::parse($hora_cufd)->format('H:i');
            $evento= $schedule->call(function () use ($horaDB,$intentos,$operacion) {        
                     Log::info("Ejecutando tarea programada el  las {$horaDB}");
                     // Aquí ejecutas la lógica de la tarea
@@ -90,8 +94,141 @@ class Kernel extends ConsoleKernel
                 break;
             default:
                 Log::info("Frecuencia no válida.");
-        }
+        }           
+             if ($cufd_x==1) {
+                $evento_2= $schedule->call(function () use ($horaDB_2) {
 
+                    $datos_1 = DB::table('siat__configuracions')->where('id', 1)->first();
+                    $datos_2 = DB::table('adm__credecial_correos')->where('id', 1)->first();  
+                    $nit=$datos_2->nit;
+                        $configuracion = DB::table('siat__emisors as s')
+                        ->join('siat__sucursals as ss', 'ss.id', '=', 's.id_siat_sucursal')
+                        ->join('siat__cuis as c', 'c.id', '=', 's.id_cuis')
+                        ->leftJoin('siat__cufd as cu', 'cu.id', '=', 's.id_cufd')
+                        ->where('s.estado', 1)->where('c.estado', 1)
+                        ->select('s.id','s.nombre as nombre_emisor','s.id_punto_venta as punto_venta','ss.nombre_suc_siat','ss.codigo_siat','c.dato','cu.dato as cufd','cu.id as cufd_id')->get();
+                        
+                           
+                            
+                            $intento_fin=3;
+                            foreach ($configuracion as $key => $value) { 
+                                $intento_ini=1;
+                                while ($intento_ini <= $intento_fin) {
+                                    $endPoints = DB::table('siat__endpoints as se')    
+                                ->select('se.id', 'se.Descripcion', 'se.Url', 'se.Version')
+                                ->where('se.tipo', intval($datos_1->tipo_ambiente))
+                                ->where('se.id',3)
+                                ->get(); 
+                             
+                                
+                                $cadena_url=$endPoints[0]->Url; 
+                                $wsdl = $cadena_url;
+                                    // Asignación de la URL y API key
+                                    $wsdl = $cadena_url; 
+                                    $apikeyValue = 'TokenApi ' .$datos_1->token_delegado; // Concatenar correctamente el valor del API key
+                                
+                                // Crear el cuerpo del mensaje SOAP, sustituyendo los valores con los parámetros correspondientes        
+                                $xmlData = <<<EOD
+                                <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:siat="https://siat.impuestos.gob.bo/">
+                                    <soapenv:Header/>
+                                    <soapenv:Body>
+                                        <siat:cufd>
+                                            <SolicitudCufd>
+                                                <codigoAmbiente>{$datos_1->tipo_ambiente}</codigoAmbiente>
+                                                <codigoModalidad>{$datos_1->tipo_modalidad}</codigoModalidad>              
+                                                <codigoPuntoVenta>{$value->punto_venta}</codigoPuntoVenta>
+                                                <codigoSistema>{$datos_1->cod_sis}</codigoSistema>
+                                                <codigoSucursal>{$value->codigo_siat}</codigoSucursal>
+                                                <cuis>{$value->dato}</cuis>
+                                                <nit>{$nit}</nit>
+                                            </SolicitudCufd>
+                                        </siat:cufd>
+                                    </soapenv:Body>
+                                </soapenv:Envelope>
+                                EOD;
+                             
+                                
+                                    // Inicializar cURL
+                                    $ch = curl_init();
+                        
+                                    // Configuración de la solicitud cURL
+                                    curl_setopt($ch, CURLOPT_URL, $wsdl); // Reemplaza con el endpoint correcto
+                                    curl_setopt($ch, CURLOPT_POST, 1);
+                                    curl_setopt($ch, CURLOPT_POSTFIELDS, $xmlData);
+                                    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                                        'Content-Type: text/xml; charset=utf-8',
+                                        'SOAPAction: ""', // Si el SOAPAction es requerido, inclúyelo aquí
+                                        'apikey: ' . $apikeyValue // Incluye la API key con el valor correspondiente
+                                    ]);
+                                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                        
+                                    // Ejecutar la solicitud y obtener la respuesta
+                                    $response = curl_exec($ch);
+                                   
+                                    // Verificar si hubo un error en cURL
+                                    if (curl_errno($ch)) {
+                                        throw new \Exception(curl_error($ch));
+                                    }
+                        
+                                    // Cerrar la sesión de cURL
+                                    curl_close($ch);
+                                // Convertir la respuesta en un objeto SimpleXMLElement
+                                $xml = simplexml_load_string($response);
+                                
+                                $respuesta=$response;
+                              
+                                // Usar XPath para encontrar el nodo <transaccion>    
+                                $transaccion = $xml->xpath('//transaccion');
+                                if ($transaccion && isset($transaccion[0])) {
+                                    if ($transaccion[0]== 'true') {                     
+                                            $intento_ini=$intento_fin+1;
+                                            $codigo_2 = $xml->xpath('//codigo');
+                                            $fechaVigencia= $xml->xpath('//fechaVigencia');
+                                            $fechaActual = Carbon::now(); // Obtiene la fecha y hora actual
+                                       
+                                            $actualizar = Siat_Emisor::findOrFail($value->id);
+                                           
+                                            $existe_cufd = DB::table('siat__cufd')->where('dato', $value->cufd)->first();
+                                            
+                                            if ($existe_cufd) {     
+                                                                
+                                                DB::table('siat__cufd')->where('dato', $value->cufd)->where('id',$value->cufd_id)->update(['estado' =>0,'id_emisor' =>$value->id]);
+                                                $datos_3=[                        
+                                                    'dato' => $codigo_2[0],
+                                                    'fecha_vigencia' => $fechaVigencia[0],
+                                                    'created_at' => $fechaActual,
+                                                    'id_emisor' => $value->id,
+                                                ];
+                                                $id_cufd = DB::table('siat__cufd')->insertGetId($datos_3);
+                        
+                                            } else {             
+                                               
+                                                $datos_3=[                        
+                                                    'dato' => $codigo_2[0],
+                                                    'fecha_vigencia' => $fechaVigencia[0],
+                                                    'created_at' => $fechaActual,
+                                                    'id_emisor' => $value->id,
+                                                ];
+                                                $id_cufd = DB::table('siat__cufd')->insertGetId($datos_3);
+                                            }
+                                            $actualizar->id_cufd = $id_cufd;    
+                                            $actualizar->save();              
+                                           
+                                           
+                                    } 
+                                    $intento_ini++;
+
+                            } 
+                            $intento_ini++;        
+                                }
+                                                               
+                            }
+                        
+                       
+
+                }); 
+                $evento_2->dailyAt($horaDB_2);
+             }   
         }else{
             Log::info("modo normal-...."); 
         }
@@ -623,6 +760,7 @@ class Kernel extends ConsoleKernel
             }   
              break;   
             case 1:
+                
 $xml = simplexml_load_string($response);
 
 // Usar XPath para encontrar el nodo <transaccion>
@@ -666,20 +804,28 @@ if ($transaccion && isset($transaccion[0])) {
                         $codigos = $xml->xpath("//fechaHora"); 
                        // Obtener el primer resultado y convertirlo a string
                         $fechaTexto = (string) $codigos[0];
-                        // Convertir la fecha a Carbon
-                        $fechaCarbon = Carbon::parse($fechaTexto); 
+                      // Convertir la fecha extraída a Carbon
+$fecha1 = Carbon::parse($fechaTexto); // Convierte el string a una fecha Carbon
+$fechaHoy = Carbon::now(); // Obtiene la fecha de hoy como Carbon
+// Truncar a segundos
+$fecha1Truncada = $fecha1->format('Y-m-d\TH:i:s');
+$fecha2Truncada = $fechaHoy->format('Y-m-d\TH:i:s');
+$minutos_1 = intval($fecha1->format('i')); // Extrae solo los minutos
+$minutos_2 = intval($fechaHoy->format('i')); // Extrae solo los minutos
+$respuesta_minutos = abs($minutos_1 - $minutos_2); // Convierte a positivo             
 
                        
                         $time="";        
                             $data_query = $this->query_($n);   
-    // Formatear la fecha del XML también sin milisegundos
-    $fechaCarbonFormat = $fechaCarbon->format('Y-m-d H:i:s'); 
-
-    //dd($fechaCarbonFormat." --- ".$data_query);
-                            if ($fechaCarbonFormat==$data_query) {
+   
+                            if ($fecha1Truncada==$fecha2Truncada) {
                                 $time=0;
                             } else {
-                                $time= "Las fechas son diferentes.";
+                                if ($respuesta_minutos == 0 || $respuesta_minutos == 1)  {
+                                    $time=0;
+                                }else{
+                                    $time= "Las fechas son diferentes.";
+                                }  
                             }
                             $respuesta=$time;
                     } else {

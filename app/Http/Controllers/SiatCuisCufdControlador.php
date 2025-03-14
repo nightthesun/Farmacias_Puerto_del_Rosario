@@ -73,7 +73,7 @@ class SiatCuisCufdControlador extends Controller
         ->where('se.tipo', intval($request->codigo_ambiente))
         ->where('se.id',$request->endpoint)
         ->get(); 
-           
+        
         $cadena_url=$endPoints[0]->Url; 
         $wsdl = $cadena_url;
             // Asignación de la URL y API key
@@ -85,20 +85,22 @@ class SiatCuisCufdControlador extends Controller
         <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:siat="https://siat.impuestos.gob.bo/">
             <soapenv:Header/>
             <soapenv:Body>
-                <siat:SolicitudCufd>
-                    <codigoAmbiente>{$request->codigo_ambiente}</codigoAmbiente>
-                    <codigoModalidad>{$request->modalidad}</codigoModalidad>
-                    <codigoPuntoVenta>{$request->emisor}</codigoPuntoVenta>
-                    <codigoSistema>{$request->codigo_sistema}</codigoSistema>
-                    <codigoSucursal>{$request->codigo_siat}</codigoSucursal>
-                    <cuis>{$request->cuis}</cuis>
-                    <nit>{$request->nit}</nit>
-                </siat:SolicitudCufd>
+                <siat:cufd>
+                    <SolicitudCufd>
+                        <codigoAmbiente>{$request->codigo_ambiente}</codigoAmbiente>
+                        <codigoModalidad>{$request->modalidad}</codigoModalidad>              
+                        <codigoPuntoVenta>{$request->punto_venta}</codigoPuntoVenta>
+                        <codigoSistema>{$request->codigo_sistema}</codigoSistema>
+                        <codigoSucursal>{$request->codigo_siat}</codigoSucursal>
+                        <cuis>{$request->cuis}</cuis>
+                        <nit>{$request->nit}</nit>
+                    </SolicitudCufd>
+                </siat:cufd>
             </soapenv:Body>
         </soapenv:Envelope>
         EOD;
-
-        return $xmlData;
+     
+ 
             // Inicializar cURL
             $ch = curl_init();
 
@@ -125,18 +127,56 @@ class SiatCuisCufdControlador extends Controller
             curl_close($ch);
         // Convertir la respuesta en un objeto SimpleXMLElement
         $xml = simplexml_load_string($response);
+        
+        $respuesta=$response;
+      
         // Usar XPath para encontrar el nodo <transaccion>    
         $transaccion = $xml->xpath('//transaccion');
         if ($transaccion && isset($transaccion[0])) {
             if ($transaccion[0]== 'true') {                     
                     $respuesta=0;
+                    $codigo_2 = $xml->xpath('//codigo');
+                    $fechaVigencia= $xml->xpath('//fechaVigencia');
+                  //  $direccion= $xml->xpath('//direccion');
+                  //  $fechaVigencia= $xml->xpath('//codigoControl');
+                    
+                    $fechaActual = Carbon::now(); // Obtiene la fecha y hora actual
+               
+                    $actualizar = Siat_Emisor::findOrFail($request->id_emisor);
+               
+                    $existe_cufd = DB::table('siat__cufd')->where('dato', $request->cufd)->first();
+
+                    if ($existe_cufd) {     
+                                        
+                        DB::table('siat__cufd')->where('dato', $request->cufd)->update(['estado' =>0,'id_emisor' =>$request->id_emisor]);
+                        $datos_2=[                        
+                            'dato' => $codigo_2[0],
+                            'fecha_vigencia' => $fechaVigencia[0],
+                            'created_at' => $fechaActual,
+                            'id_emisor' => $request->id_emisor,
+                        ];
+                        $id_cufd = DB::table('siat__cufd')->insertGetId($datos_2);
+
+                    } else {             
+                       
+                        $datos_2=[                        
+                            'dato' => $codigo_2[0],
+                            'fecha_vigencia' => $fechaVigencia[0],
+                            'created_at' => $fechaActual,
+                            'id_emisor' => $request->id_emisor,
+                        ];
+                        $id_cufd = DB::table('siat__cufd')->insertGetId($datos_2);
+                    }
+                    $actualizar->id_cufd = $id_cufd;    
+                    $actualizar->save();              
+                   
                     return $respuesta;
             } else {
                 $respuesta=$response;
                 return $respuesta;
             }                
     } else {   
-        $respuesta="error en sicronización con siat la accion es falsa";
+       
         return $respuesta;
     } 
             
@@ -418,4 +458,137 @@ class SiatCuisCufdControlador extends Controller
        return $th;
     }
    }  
+
+
+   public function perdirCufd_all(Request $request){
+    try {
+           
+        $datos_1 = DB::table('siat__configuracions')->where('id', 1)->first();
+        $datos_2 = DB::table('adm__credecial_correos')->where('id', 1)->first();  
+        $nit=$datos_2->nit;
+            $configuracion = DB::table('siat__emisors as s')
+            ->join('siat__sucursals as ss', 'ss.id', '=', 's.id_siat_sucursal')
+            ->join('siat__cuis as c', 'c.id', '=', 's.id_cuis')
+            ->leftJoin('siat__cufd as cu', 'cu.id', '=', 's.id_cufd')
+            ->where('s.estado', 1)->where('c.estado', 1)
+            ->select('s.id','s.nombre as nombre_emisor','s.id_punto_venta as punto_venta','ss.nombre_suc_siat','ss.codigo_siat','c.dato','cu.dato as cufd','cu.id as cufd_id')->get();
+            
+                $tamaño=count($configuracion);
+              
+                foreach ($configuracion as $key => $value) { 
+                    $endPoints = DB::table('siat__endpoints as se')    
+                    ->select('se.id', 'se.Descripcion', 'se.Url', 'se.Version')
+                    ->where('se.tipo', intval($datos_1->tipo_ambiente))
+                    ->where('se.id',3)
+                    ->get(); 
+                 
+                    
+                    $cadena_url=$endPoints[0]->Url; 
+                    $wsdl = $cadena_url;
+                        // Asignación de la URL y API key
+                        $wsdl = $cadena_url; 
+                        $apikeyValue = 'TokenApi ' .$datos_1->token_delegado; // Concatenar correctamente el valor del API key
+                    
+                    // Crear el cuerpo del mensaje SOAP, sustituyendo los valores con los parámetros correspondientes        
+                    $xmlData = <<<EOD
+                    <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:siat="https://siat.impuestos.gob.bo/">
+                        <soapenv:Header/>
+                        <soapenv:Body>
+                            <siat:cufd>
+                                <SolicitudCufd>
+                                    <codigoAmbiente>{$datos_1->tipo_ambiente}</codigoAmbiente>
+                                    <codigoModalidad>{$datos_1->tipo_modalidad}</codigoModalidad>              
+                                    <codigoPuntoVenta>{$value->punto_venta}</codigoPuntoVenta>
+                                    <codigoSistema>{$datos_1->cod_sis}</codigoSistema>
+                                    <codigoSucursal>{$value->codigo_siat}</codigoSucursal>
+                                    <cuis>{$value->dato}</cuis>
+                                    <nit>{$nit}</nit>
+                                </SolicitudCufd>
+                            </siat:cufd>
+                        </soapenv:Body>
+                    </soapenv:Envelope>
+                    EOD;
+                 
+                    
+                        // Inicializar cURL
+                        $ch = curl_init();
+            
+                        // Configuración de la solicitud cURL
+                        curl_setopt($ch, CURLOPT_URL, $wsdl); // Reemplaza con el endpoint correcto
+                        curl_setopt($ch, CURLOPT_POST, 1);
+                        curl_setopt($ch, CURLOPT_POSTFIELDS, $xmlData);
+                        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                            'Content-Type: text/xml; charset=utf-8',
+                            'SOAPAction: ""', // Si el SOAPAction es requerido, inclúyelo aquí
+                            'apikey: ' . $apikeyValue // Incluye la API key con el valor correspondiente
+                        ]);
+                        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            
+                        // Ejecutar la solicitud y obtener la respuesta
+                        $response = curl_exec($ch);
+                       
+                        // Verificar si hubo un error en cURL
+                        if (curl_errno($ch)) {
+                            throw new \Exception(curl_error($ch));
+                        }
+            
+                        // Cerrar la sesión de cURL
+                        curl_close($ch);
+                    // Convertir la respuesta en un objeto SimpleXMLElement
+                    $xml = simplexml_load_string($response);
+                    
+                    $respuesta=$response;
+                  
+                    // Usar XPath para encontrar el nodo <transaccion>    
+                    $transaccion = $xml->xpath('//transaccion');
+                    if ($transaccion && isset($transaccion[0])) {
+                        if ($transaccion[0]== 'true') {                     
+                                $respuesta=0;
+                                $codigo_2 = $xml->xpath('//codigo');
+                                $fechaVigencia= $xml->xpath('//fechaVigencia');
+                                $fechaActual = Carbon::now(); // Obtiene la fecha y hora actual
+                           
+                                $actualizar = Siat_Emisor::findOrFail($value->id);
+                               
+                                $existe_cufd = DB::table('siat__cufd')->where('dato', $value->cufd)->first();
+                                
+                                if ($existe_cufd) {     
+                                                    
+                                    DB::table('siat__cufd')->where('dato', $value->cufd)->where('id',$value->cufd_id)->update(['estado' =>0,'id_emisor' =>$value->id]);
+                                    $datos_3=[                        
+                                        'dato' => $codigo_2[0],
+                                        'fecha_vigencia' => $fechaVigencia[0],
+                                        'created_at' => $fechaActual,
+                                        'id_emisor' => $value->id,
+                                    ];
+                                    $id_cufd = DB::table('siat__cufd')->insertGetId($datos_3);
+            
+                                } else {             
+                                   
+                                    $datos_3=[                        
+                                        'dato' => $codigo_2[0],
+                                        'fecha_vigencia' => $fechaVigencia[0],
+                                        'created_at' => $fechaActual,
+                                        'id_emisor' => $value->id,
+                                    ];
+                                    $id_cufd = DB::table('siat__cufd')->insertGetId($datos_3);
+                                }
+                                $actualizar->id_cufd = $id_cufd;    
+                                $actualizar->save();              
+                                $tamaño--;
+                               
+                        }                
+                }             
+                }
+            
+            if ($tamaño==0) {
+                return $tamaño;
+            }else{
+                return 1;
+            }
+    
+    } catch (\Throwable $th) {
+        return $th;
+    }
+}
 }

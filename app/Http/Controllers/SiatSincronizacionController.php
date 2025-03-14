@@ -123,7 +123,9 @@ class SiatSincronizacionController extends Controller
                 'intentos' => $request->intentos,
                 'intervalo_min' => $request->intervalo_min,
                 'fecha_siguiente' => null,
-                'fecha_ini' => null,           
+                'fecha_ini' => null,
+                'activacionCufd' => $request->activacionCufd,
+                'hora_cufd' => $request->hora_cufd,          
             ];   
         } else {
             $now = Carbon::now();          
@@ -134,7 +136,9 @@ class SiatSincronizacionController extends Controller
                 'intentos' => $request->intentos,
                 'intervalo_min' => $request->intervalo_min,
                 'fecha_siguiente' => $nuevaFecha,
-                'fecha_ini' => $now,           
+                'fecha_ini' => $now, 
+                'activacionCufd' => $request->activacionCufd,
+                'hora_cufd' => $request->hora_cufd,           
             ];  
         }  
         $a=DB::table('auto__sincronizacion')->where('id', 1)->exists();
@@ -201,6 +205,8 @@ class SiatSincronizacionController extends Controller
 
     // Ejecutar la solicitud y obtener la respuesta
     $response = curl_exec($ch);
+
+    
 
     // Verificar si hubo un error en cURL
     if (curl_errno($ch)) {
@@ -734,6 +740,7 @@ class SiatSincronizacionController extends Controller
             case 0:
                 // Convertir la respuesta en un objeto SimpleXMLElement
                 $xml = simplexml_load_string($response);
+             
                 // Usar XPath para encontrar el nodo <transaccion>    
                 $transaccion = $xml->xpath('//transaccion');
                 if ($transaccion && isset($transaccion[0])) {
@@ -757,10 +764,12 @@ class SiatSincronizacionController extends Controller
 //header('Content-Type: text/xml');
 //echo $dom->saveXML();
   // Convertir la respuesta en un objeto SimpleXMLElement
-$xml = simplexml_load_string($response);
+  
+  // Convertir la respuesta en un objeto SimpleXMLElement
+  $xml = simplexml_load_string($response);
 
-// Usar XPath para encontrar el nodo <transaccion>
-$transaccion = $xml->xpath('//transaccion');
+  // Usar XPath para encontrar el nodo <transaccion>
+  $transaccion = $xml->xpath('//transaccion');
 
 if ($transaccion && isset($transaccion[0])) {
         if ($transaccion[0]== 'true') {
@@ -788,32 +797,37 @@ if ($transaccion && isset($transaccion[0])) {
                 break;
             
             case 2:
-                 // Convertir la respuesta en un objeto SimpleXMLElement
-                $xml = simplexml_load_string($response);
-             
-                // Usar XPath para encontrar el nodo <transaccion>
-                $transaccion = $xml->xpath('//transaccion');
-     
+                   // Convertir la respuesta en un objeto SimpleXMLElement
+                   $xml = simplexml_load_string($response);             
+                   // Usar XPath para encontrar el nodo <transaccion>
+                $transaccion = $xml->xpath('//transaccion');     
                 if ($transaccion && isset($transaccion[0])) {
                     if ($transaccion[0]== 'true') {
                         // Extraer y decodificar las descripciones de actividades
                         $codigos = $xml->xpath("//fechaHora"); 
-                       // Obtener el primer resultado y convertirlo a string
-                        $fechaTexto = (string) $codigos[0];
-                        // Convertir la fecha a Carbon
-                        $fechaCarbon = Carbon::parse($fechaTexto); 
+                    // Obtener el primer resultado y convertirlo a string
+$fechaTexto = (string) $codigos[0];
 
-                       
+// Convertir la fecha extraída a Carbon
+$fecha1 = Carbon::parse($fechaTexto); // Convierte el string a una fecha Carbon
+$fechaHoy = Carbon::now(); // Obtiene la fecha de hoy como Carbon
+// Truncar a segundos
+$fecha1Truncada = $fecha1->format('Y-m-d\TH:i:s');
+$fecha2Truncada = $fechaHoy->format('Y-m-d\TH:i:s');
+$minutos_1 = intval($fecha1->format('i')); // Extrae solo los minutos
+$minutos_2 = intval($fechaHoy->format('i')); // Extrae solo los minutos
+$respuesta_minutos = abs($minutos_1 - $minutos_2); // Convierte a positivo             
+
                         $time="";        
-                            $data_query = $this->query_($n);   
-    // Formatear la fecha del XML también sin milisegundos
-    $fechaCarbonFormat = $fechaCarbon->format('Y-m-d H:i:s'); 
-
-    //dd($fechaCarbonFormat." --- ".$data_query);
-                            if ($fechaCarbonFormat==$data_query) {
+                            $data_query = $this->query_($n);     
+                            if ($fecha1Truncada==$fecha2Truncada) {
                                 $time=0;
                             } else {
-                                $time= "Las fechas son diferentes.";
+                                if ($respuesta_minutos == 0 || $respuesta_minutos == 1)  {
+                                    $time=0;
+                                }else{
+                                    $time= "Las fechas son diferentes.";
+                                }                              
                             }
                             $respuesta=$time;
                     } else {

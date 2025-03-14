@@ -20,6 +20,8 @@ return new class extends Migration
             $table->tinyInteger('activo')->nullable()->default(0)->comment('1=Ejecutar todos los días 2=Ejecutar el ultimo dia de la semana laboral, 3=Ejecutar el último día del mes,4=Ejecutar cada trimestre el día 1'); // Campo para activar/desactivar
             $table->string('fecha_ini')->nullable();
             $table->string('fecha_siguiente')->nullable();
+            $table->tinyInteger('activacionCufd')->nullable()->default(0)->comment('0= desactivado 1=activado');
+            $table->time('hora_cufd')->nullable(); // Guarda solo la hora (HH:MM:SS)
         });
     }
 
