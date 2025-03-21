@@ -194,13 +194,16 @@
                                    
                                     <div class="col-md-3">
                                         <div v-if="validador_variables===0" class="alert alert-danger" role="alert">
-                                           SIN FACTURACION
+                                           SIN CONFIGURACIÓN DE FACTURACIÓN
                                         </div>
-                                        <div v-if="validador_variables===1" class="alert alert-primary" role="alert">
+                                        <div v-if="validador_variables===1" class="alert alert-success" role="alert">
                                             FACTURA
                                         </div>
-                                        <div v-if="validador_variables===2" class="alert alert-success" role="alert">
+                                        <div v-if="validador_variables===2" class="alert alert-primary" role="alert">
                                             DOSIFICACION
+                                        </div>
+                                        <div v-if="validador_variables===3" class="alert alert-warning" role="alert">
+                                           USAR SOLO RECIBOS
                                         </div>
                                      </div>
               
@@ -747,7 +750,7 @@ export default {
             celular:'',
             selectTipoFac:0,  
             actividad_eco:'',
-            arrayTipofac: [{ id: 1, tipo: "Facturacion en linea" },{ id: 2, tipo: "Dosificacion" }],
+            arrayTipofac: [{ id: 1, tipo: "Facturacion en linea" },{ id: 2, tipo: "Dosificacion" },{ id: 3, tipo: "Usa recibo" }],
 //---permisos_R_W_S
 puedeEditar:2,
                 puedeActivar:2,
@@ -1298,7 +1301,7 @@ puedeEditar:2,
                     text: "Se cambiara a facturacion en liena",
                     icon: "warning",
                     showCancelButton: true,
-                    confirmButtonText: "Si, Desactivar",
+                    confirmButtonText: "Si, Activar",
                     cancelButtonText: "No, Cancelar",
                     reverseButtons: true,
                 }).then((result) => {
@@ -1326,7 +1329,7 @@ puedeEditar:2,
                     text: "Se cambiara a Dofisificacion",
                     icon: "warning",
                     showCancelButton: true,
-                    confirmButtonText: "Si, Desactivar",
+                    confirmButtonText: "Si, Activar",
                     cancelButtonText: "No, Cancelar",
                     reverseButtons: true,
                 }).then((result) => {
@@ -1353,6 +1356,35 @@ puedeEditar:2,
                                     "error",
                                 );
                 }
+            } if (id===3) {
+                swalWithBootstrapButtons
+                .fire({
+                    title: "¿Esta Seguro no usar ninguna?",
+                    text: "Esta opción no podra imprimir factura solo resivos podra hacer",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Si, Activar",
+                    cancelButtonText: "No, Cancelar",
+                    reverseButtons: true,
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        me.validador_variables=3;
+                        me.update_tipo_venta(3);
+                    } else if (
+                        /* Read more about handling dismissals below */
+                       
+                        result.dismiss === Swal.DismissReason.cancel
+                    ) {
+                        me.selectTipoFac=0;
+                        /* swalWithBootstrapButtons.fire(
+                    'Cancelado!',
+                    'El Registro no fue desactivado',
+                    'error'
+                    ) */
+                    }
+                });
+            } else {
+                
             }
         },
 

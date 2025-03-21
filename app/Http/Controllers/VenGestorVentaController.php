@@ -6,7 +6,7 @@ use App\Helpers\operacionDosificacion;
 use App\Models\Tda_ingresoProducto2;
 use App\Models\Ven_GestorVenta;
 use Barryvdh\DomPDF\Facade\Pdf;
-
+use Illuminate\Support\Facades\Crypt;
 use Carbon\Carbon;
 use Dompdf\Dompdf;
 use Dompdf\Options;
@@ -25,11 +25,182 @@ class VenGestorVentaController extends Controller
         
     }
 
+    private function verComunicacion($ambiente,$token_delegado){
+      
+        switch ($ambiente) {
+            case 1:
+                
+                return 1;
+            break;
+
+            case 2:
+                $endPoints = DB::table('siat__endpoints as se')    
+                    ->select('se.id', 'se.Descripcion', 'se.Url', 'se.Version')
+                    ->where('se.tipo', intval($ambiente))
+                    ->where('se.id',4)
+                    ->first();
+                
+                if ($endPoints) {
+                    $cadena_url = $endPoints->Url;
+                 
+                    $wsdl = $cadena_url;
+                        // Asignación de la URL y API key
+                        $wsdl = $cadena_url; 
+                        $apikeyValue = 'TokenApi ' .$token_delegado; // Concatenar correctamente el valor del API key
+                    
+                    // Crear el cuerpo del mensaje SOAP, sustituyendo los valores con los parámetros correspondientes        
+                    $xmlData = <<<EOD
+                    <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:siat="https://siat.impuestos.gob.bo/">
+                        <soapenv:Header/>
+                        <soapenv:Body>
+                            <siat:verificarComunicacion/>
+                        </soapenv:Body>
+                    </soapenv:Envelope>
+                    EOD;                 
+                    
+                        // Inicializar cURL
+                        $ch = curl_init();
+            
+                        // Configuración de la solicitud cURL
+                        curl_setopt($ch, CURLOPT_URL, $wsdl); // Reemplaza con el endpoint correcto
+                        curl_setopt($ch, CURLOPT_POST, 1);
+                        curl_setopt($ch, CURLOPT_POSTFIELDS, $xmlData);
+                        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                            'Content-Type: text/xml; charset=utf-8',
+                            'SOAPAction: ""', // Si el SOAPAction es requerido, inclúyelo aquí
+                            'apikey: ' . $apikeyValue // Incluye la API key con el valor correspondiente
+                        ]);
+                        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            
+                        // Ejecutar la solicitud y obtener la respuesta
+                        $response = curl_exec($ch);
+                       
+                        // Verificar si hubo un error en cURL
+                        if (curl_errno($ch)) {
+                            throw new \Exception(curl_error($ch));
+                        }            
+                        // Cerrar la sesión de cURL
+                        curl_close($ch);
+                    // Convertir la respuesta en un objeto SimpleXMLElement
+                    $xml = simplexml_load_string($response);                    
+                    $respuesta=$response;
+                   // Usar XPath para encontrar el nodo <transaccion>    
+                   $transaccion = $xml->xpath('//transaccion');
+                   if ($transaccion && isset($transaccion[0])) {
+                    if ($transaccion[0]== 'true') { 
+                        return 1;
+                        }else{
+                            return 10;
+                        }
+                    }                   
+                }else{
+                    return 0;
+                }    
+                          
+            break;
+            
+            default:
+                return 0;
+            break;
+        }
+         
+    }
+
+    public function ventaFacturaSiat(Request $request){
+        try {
+            DB::beginTransaction();
+            $fechaHora = Carbon::now(); // Se usará automáticamente el formato correcto
+            $arrayEstado_dosificacion_facctura=$request->arrayEstado_dosificacion_facctura;
+            $arrayQuery_siat_=$request->arrayQuery_siat_;
+            return $request->all();
+            //-----verifica el tipo de emision 
+            $comunicacion = $this->verComunicacion($arrayEstado_dosificacion_facctura['tipo_ambiente'],$arrayEstado_dosificacion_facctura['token_delegado']);
+          
+            $queryEmision="";
+            switch ($comunicacion) {
+                case 0:
+                    return "Error con la consulta... contacte al administrador";
+                break;
+                
+                case 1:
+                    $queryEmision = DB::table('excel__emision')
+                    ->where('id_catalogo', 1)
+                    ->where('codigo', 1)
+                    ->first();
+                    if ($queryEmision) {
+                        return $queryEmision;
+                    }else{
+                        return "Error de emision";
+                    }                    
+                break;
+                case 10:
+                    //--------------------modulo de facturas si respuestas  o contigencia
+                    $queryEmision = DB::table('excel__emision')
+                    ->where('id_catalogo', 1)
+                    ->where('codigo', 2)
+                    ->first();
+                    if ($queryEmision) {
+                        return $queryEmision;
+                    }else{
+                        return "Error de emision";
+                    }
+                break;    
+                default:
+                  return "Error con la consulta... contacte al administrador";
+                break;
+            }
+            if($queryEmision==""){
+                return "Error de consulta de emision";
+            }
+         
+            $querytipodocuemnto = DB::table('excel__emision')
+            ->where('id_catalogo', 2)
+            ->where('codigo', 1)
+            ->first();
+            if($querytipodocuemnto['codigo']==null){
+                return "Tipo de docuemnto";
+            }
+
+            $querytipoSector = DB::table('excel__emision')
+            ->where('id_catalogo', 3)
+            ->where('codigo', 1)
+            ->first();
+            if($querytipoSector['codigo']==null){
+                return "Tipo de docuemnto";
+            }
+            //----------------CUF
+
+            
+            // Obtener la fecha actual con milisegundos
+            $fechaFormateada = $fechaHora->format('YmdHisv'); // yyyyMMddHHmmssSSS
+            $nitEmisor = $arrayEstado_dosificacion_facctura['nit'];
+            $sucursal = $arrayQuery_siat_['id_sucursal_siat'];
+            $modalidad = $arrayEstado_dosificacion_facctura['tipo_modalidad'];
+            $tipoEmision = $queryEmision['codigo'];;
+            $tipoFactura = $querytipodocuemnto['codigo'];
+            $tipoDocumentoSector = $querytipoSector['codigo'];
+            $numeroFactura = 1;
+            $puntoVenta = 0;
+            $codigoControl = 'A19E23EF34124CD'; // Este valor lo obtienes del WebService de la SIN
+
+            
+          
+                              
+           
+                             
+           
+    
+            $cuf = CufHelper::generarCUF($nitEmisor, $fechaFormateada, $sucursal, $modalidad, $tipoEmision, $tipoFactura, $tipoDocumentoSector, $numeroFactura, $puntoVenta, $codigoControl);
+            return $cuf;
+            DB::commit();
+        } catch (\Throwable $th) {
+            return $th;
+        }
+    }
+
     public function venta(Request $request){
       
         try {
-
-          
                // Iniciar una transacción
                $num_factura="";
                $fechaHoy = Carbon::now()->format('Y-m-d');
@@ -1097,6 +1268,8 @@ $nombre_empresa = strtoupper($nombre_e);
        
 
     }
+
+
     public function verificador_dosificacion_o_facturacion(Request $request){
         
         $credencialesCorreos = DB::table('adm__credecial_correos as acc')
@@ -1104,48 +1277,140 @@ $nombre_empresa = strtoupper($nombre_e);
     ->get();
     $data_return_estado="";
     $fechaHoy = Carbon::now()->format('Y-m-d');  
+  
     if ($credencialesCorreos[0]->factura_dosificacion==null || $credencialesCorreos[0]->factura_dosificacion=="" || $credencialesCorreos[0]->factura_dosificacion==0) {
-        return response()->json(['estado' => 0, 'consulta' => null]);
+        return response()->json(['estado' => 0, 'consulta' => null,'query'=>null]);
     } else{
-        if ($credencialesCorreos[0]->factura_dosificacion==1) {
-            $data_return_estado=1;     
-            ///---- falta datos de factura en linea siat
-            return response()->json(['estado' => $data_return_estado, 'consulta' => null]); 
-        }else{
-            if ($credencialesCorreos[0]->factura_dosificacion==2) {
-                if (auth()->user()->id===1) {                 
-                $idsuc = 1;
-                } else {                
-                    $idsuc = session('idsuc');
-                }
-            $data_return_estado=2; 
-            $dosificaciones = DB::table('dos__dosificacion as dd')
-            ->select(
-                'dd.id',
-                'dd.nro_autorizacion',
-                'dd.dosificacion',
-                'dd.fecha_e',
-                'dd.n_ini_facturacion',
-                'dd.n_fin_facturacion',
-                'dd.n_act_facturacion',
-                'dd.nit',
-                DB::raw("DATEDIFF(dd.fecha_e, '$fechaHoy') as diferencia_dias")
-            )
-            ->where('dd.id_sucursal', $idsuc)
-            ->where('dd.estado', 1)
-            ->first();
 
-                if ( $dosificaciones) {
-                    return response()->json(['estado' => $data_return_estado, 'consulta' => $dosificaciones]);
-           
-                }
-                else {
-                    return response()->json(['estado' => "error", 'consulta' => null]);
-                }
-            }else{
-                dd("error de entrada");
+            switch ($credencialesCorreos[0]->factura_dosificacion) {
+                case 1:
+                       ///---- falta datos de factura en linea siat
+                       $query_1 = DB::table('adm__credecial_correos')
+                        ->where('id', 1)->first();
+                       
+                        $query_2 = DB::table('siat__configuracions')
+                        ->where('id', 1)
+                        ->first();
+                   
+$query_emisor= DB::table('siat__emisors as e')
+    ->select('e.id','e.id_caja','e.tipo','e.id_punto_venta as punto_venta','e.id_cuis','e.id_cufd','s.codigo_siat as id_sucursal_siat','s.id_sucursal as id_sucursal_sistemas',
+        'c.id_users','cuis.dato as cuis','cuis.fecha_vigencia as fecha_vigencia_cuis','cufd.dato as cufd','cufd.fecha_vigencia as fecha_vigencia_cufd','cufd.codigoControl as codigo_control_cufd',
+        'cufd.direccion as direccion_cufd'
+    )
+    ->leftJoin('siat__sucursals as s', 's.id', '=', 'e.id_siat_sucursal')
+    ->leftJoin('caja__creacions as c', 'c.id', '=', 'e.id_caja')
+    ->leftJoin('siat__cuis as cuis', 'cuis.id', '=', 'e.id_cuis')
+    ->leftJoin('siat__cufd as cufd', 'cufd.id', '=', 'e.id_cufd')
+    ->where('e.estado', 1)
+    ->where('cuis.estado', 1)
+    ->where('cufd.estado', 1)
+    ->whereNotNull('e.id_caja')
+    ->where('e.id_caja', $request->id_caja)//emisor
+    ->where('c.id_sucursal', $request->id_sucursal)//sucursal de sistema
+    ->first();
+  
+                        
+                     //   $a=$query_2->password;
+// Eliminar los dos primeros y los tres últimos caracteres
+//$cadena_modificada = substr($a, 2, -3);
+//$textoDesencriptado = Crypt::decrypt($cadena_modificada);
+//query_2->password,path->query_2, query_2->name 
+     $cod_exito=0;
+$fechaHoy = Carbon::today(); // Fecha actual (YYYY-MM-DD)
+$fechaFutura = Carbon::parse($query_2->vencimiento_token); // Fecha futura límite
+
+$hoy = Carbon::now()->startOfDay(); // Fecha actual sin hora
+if ($hoy->greaterThan($fechaFutura)) {
+   // dd("Ya pasó la fecha $fechaFutura");
+   return response()->json(['estado' => 10, 'consulta' => null,'query'=>null]); 
+} else {
+   // dd("Está en rango, aún no ha pasado la fecha $fechaFutura");
+   // Convertir a Carbon
+
+$fechaA = Carbon::parse($query_emisor->fecha_vigencia_cufd);
+$fechaC = Carbon::parse($query_emisor->fecha_vigencia_cuis);
+// Obtener la fecha actual en el mismo formato
+$hoy = Carbon::now();
+
+// Comparar fechas
+if ($hoy->greaterThan($fechaC)) { 
+    return response()->json(['estado' => 11, 'consulta' => null,'query'=>null]);
+} else { 
+    $cod_exito++;
+}
+// Comparar fechas
+if ($hoy->greaterThan($fechaA)) {
+    return response()->json(['estado' => 12, 'consulta' => null,'query'=>null]);
+} else {
+    $cod_exito++;
+}
+
+    if ($cod_exito>=2) {
+        $datos = [
+            'nit' => $query_1->nit,
+            'nro_celular' => $query_1->nro_celular,
+    
+            'cod_sis' => $query_2->cod_sis, 
+            'name' => $query_2->name,
+            'password' => $query_2->password,
+            'path' => $query_2->path,
+            'tipo_ambiente' => $query_2->tipo_ambiente,
+            'tipo_certificado' => $query_2->tipo_certificado,
+            'tipo_modalidad' => $query_2->tipo_modalidad,
+            'token_delegado' => $query_2->token_delegado,        
+            ];
+    
+        return response()->json(['estado' => 1, 'consulta' => $datos,'query'=>$query_emisor]); 
+    }else{
+        return response()->json(['estado' => 13, 'consulta' => null,'query'=>null]);  
+    }
+}
+//10= error de fecha de token, 11= error de fecha vencimiento cuis o no activo ,12=error de fecha vencimiento cufd o no activo
+ 
+                break;
+
+                case 2:
+                    if (auth()->user()->id===1) {                 
+                        $idsuc = 1;
+                        } else {                
+                            $idsuc = session('idsuc');
+                        }
+                  
+                    $dosificaciones = DB::table('dos__dosificacion as dd')
+                    ->select(
+                        'dd.id',
+                        'dd.nro_autorizacion',
+                        'dd.dosificacion',
+                        'dd.fecha_e',
+                        'dd.n_ini_facturacion',
+                        'dd.n_fin_facturacion',
+                        'dd.n_act_facturacion',
+                        'dd.nit',
+                        DB::raw("DATEDIFF(dd.fecha_e, '$fechaHoy') as diferencia_dias")
+                    )
+                    ->where('dd.id_sucursal', $idsuc)
+                    ->where('dd.estado', 1)
+                    ->first();
+        
+                        if ( $dosificaciones) {
+                            return response()->json(['estado' => 2, 'consulta' => $dosificaciones,'query'=>null]);
+                   
+                        }
+                        else {
+                            return response()->json(['estado' => "error", 'consulta' => null,'query'=>null]);
+                        }
+                 
+                break;
+                
+                case 3:
+                    ///---- recibo
+                 return response()->json(['estado' => 3, 'consulta' => null,'query'=>null]); 
+                break;
+
+                default:
+                return response()->json(['estado' => 0, 'consulta' => null,'query'=>null]); 
+                break;
             }
-        }
     }
     
     }
@@ -1175,7 +1440,7 @@ $nombre_empresa = strtoupper($nombre_e);
     $ultimoRegistro = DB::table('caja__apertura_cierres as cac')
     ->join('caja__arqueo as ca', 'cac.id_arqueo', '=', 'ca.id')
     ->join('users as u', 'u.id', '=', 'ca.id_usuario')
-    ->select('cac.id','cac.turno_caja', 'cac.tipo_caja_c_a', 'cac.total_caja', 'cac.estado_caja', 'cac.id_arqueo','cac.id_cierre as id_apertura_cierre')
+    ->select('cac.id','cac.turno_caja', 'cac.tipo_caja_c_a', 'cac.total_caja', 'cac.estado_caja', 'cac.id_arqueo','cac.id_cierre as id_apertura_cierre','cac.id_caja','cac.id_sucursal')
     ->where('cac.id_sucursal', $idsuc)
     ->where('ca.id_usuario', $id_user)
     ->where('cac.tipo_caja_c_a', 0)

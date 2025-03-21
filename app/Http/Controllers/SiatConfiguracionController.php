@@ -25,22 +25,7 @@ class SiatConfiguracionController extends Controller
     {
         try {
             DB::beginTransaction();
-            $nitEmisor = 123456789;
-            $fechaHora = Carbon::now(); // Se usará automáticamente el formato correcto
-            $fecha = Carbon::now();
-            $fechaFormateada = $fecha->format('YmdHisv'); // yyyyMMddHHmmssSSS
-            $fechaFormateada ="20190113163721231";
-            $sucursal = 0;
-            $modalidad = 1;
-            $tipoEmision = 1;
-            $tipoFactura = 1;
-            $tipoDocumentoSector = 1;
-            $numeroFactura = 1;
-            $puntoVenta = 0;
-            $codigoControl = 'A19E23EF34124CD'; // Este valor lo obtienes del WebService de la SIN
-    
-            $cuf = CufHelper::generarCUF($nitEmisor, $fechaFormateada, $sucursal, $modalidad, $tipoEmision, $tipoFactura, $tipoDocumentoSector, $numeroFactura, $puntoVenta, $codigoControl);
-            return $cuf;
+            
             
             //$textoDesencriptado = Crypt::decrypt($textoEncriptado); desencriptar clave
             $actualizar = Siat_Configuracion::findOrFail(1);

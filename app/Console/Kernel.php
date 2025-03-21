@@ -184,6 +184,8 @@ class Kernel extends ConsoleKernel
                                             $intento_ini=$intento_fin+1;
                                             $codigo_2 = $xml->xpath('//codigo');
                                             $fechaVigencia= $xml->xpath('//fechaVigencia');
+                                            $direccion= $xml->xpath('//direccion');
+                                            $codigoControl= $xml->xpath('//codigoControl');     
                                             $fechaActual = Carbon::now(); // Obtiene la fecha y hora actual
                                        
                                             $actualizar = Siat_Emisor::findOrFail($value->id);
@@ -198,6 +200,8 @@ class Kernel extends ConsoleKernel
                                                     'fecha_vigencia' => $fechaVigencia[0],
                                                     'created_at' => $fechaActual,
                                                     'id_emisor' => $value->id,
+                                                    'codigoControl' => $codigoControl[0],
+                                                    'direccion' => $direccion[0] 
                                                 ];
                                                 $id_cufd = DB::table('siat__cufd')->insertGetId($datos_3);
                         
@@ -208,6 +212,8 @@ class Kernel extends ConsoleKernel
                                                     'fecha_vigencia' => $fechaVigencia[0],
                                                     'created_at' => $fechaActual,
                                                     'id_emisor' => $value->id,
+                                                    'codigoControl' => $codigoControl[0],
+                                                    'direccion' => $direccion[0] 
                                                 ];
                                                 $id_cufd = DB::table('siat__cufd')->insertGetId($datos_3);
                                             }

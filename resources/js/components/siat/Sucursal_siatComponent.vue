@@ -83,7 +83,7 @@
                             </button>
                             </div>
                             <div v-else>
-                                <button v-if="ingresoProducto.activo==1" type="button" class="btn btn-light btn-sm" style="margin-right: 5px;">
+                                <button v-if="ingresoProducto.estado==1" type="button" class="btn btn-light btn-sm" style="margin-right: 5px;">
                                 <i class="icon-trash"></i>
                                 </button>
                                 <button v-else type="button" class="btn btn-light btn-sm" style="margin-right: 5px;">
@@ -163,6 +163,9 @@
                         <div class="alert alert-info" role="alert">
                             Codigo Siat = 0, para casa matriz
                         </div>
+                        <div class="alert alert-info" role="alert">
+                            Solo puede seleccionar una sucursal.
+                        </div>
 
                         <form action="" class="form-horizontal">
                         
@@ -204,11 +207,12 @@
                                    
                                     </div> 
                                     <div class="col-md-2" >                                                                      
-                                        <button  v-if="selectSucursal==='0'" type="button" class="btn btn-light">Añadir</button>      
+                                        <button  v-if="selectSucursal==='0' || controlador_v1===1" type="button" class="btn btn-light">Añadir</button>      
                                         <button  v-else type="button" class="btn btn-primary" @click="añadirDato(selectSucursal,1)">Añadir</button>          
                                     </div> 
                                 </div> 
                                 <table class="table table-bordered table-striped table-sm table-responsive" v-show="tipoAccion===1">
+                              
                             <thead>
                                  <tr>  
                                     <th class="col-md-2" style="font-size: 13px; text-align: center">Opción</th>                                
@@ -331,7 +335,7 @@ export default {
             arraySucursal:[],
             buscar:"",
             tipoAccion:1,
-     
+            controlador_v1:0,
 
       nomsucursalSiat:'',
       codSiat:'',
@@ -443,8 +447,14 @@ puedeEditar:2,
         añadirDato(data,numero){
             let me=this;                        
         let index = me.arraySucusal_x.findIndex(elemento => elemento.id === data);
+        if (numero===1) {
+            me.controlador_v1=1;  
+        } else {
+            me.controlador_v1=0;  
+        }
         if (index !== -1) {        
-            me.arraySucusal_x[index].seleccionado = numero;  // Modificar el campo si el id existe                     
+            me.arraySucusal_x[index].seleccionado = numero;  // Modificar el campo si el id existe    
+                          
         }
         me.selectSucursal='0';
         },
@@ -766,6 +776,7 @@ puedeEditar:2,
                     me.selectDepartamento="0";
                     me.selectSucursal="0";
                     me.id_sucursalSiat="";
+                    me.controlador_v1=0;
             }
             if (accion== "ver") {
                 me.arrayVer=[];

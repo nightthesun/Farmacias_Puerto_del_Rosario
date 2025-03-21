@@ -25,22 +25,11 @@ class CufHelper
     
         // Agregar el dígito verificador a la cadena
         $cadena=$cadena.$codigoAutoverificador;
-       
-       // Eliminar los ceros a la izquierda si es necesario
-$cadena = ltrim($cadena, '0');
+        $hexResult = self::convertToBase16(ltrim($cadena, '0')); // Eliminar ceros a la izquierda
+        $resultado_final= $hexResult.$codigoControl;
+        return $resultado_final;
 
-// Convertir la cadena a un número entero (PHP maneja números grandes como cadenas)
-$numero_2 = gmp_init($cadena);
-
-// Convertir el número a una cadena hexadecimal
-$hexadecimal = gmp_strval($numero_2, 16);
-        return $hexadecimal;
-        $cufBase16 = strtoupper(base_convert($cadena, 10, 16));
-        return $cufBase16;
-        // Concatenar con el código de control
-        $cufFinal = $cufBase16 . $codigoControl;
-        
-        return $cufFinal;
+     
     }
 
     private static function modulo11($cadena)
@@ -122,4 +111,17 @@ $hexadecimal = gmp_strval($numero_2, 16);
     private static function base10($pString) {
         return base_convert($pString, 16, 10); // Convertir de base 16 a base 10
     }
+
+    private static function convertToBase16($number) {
+        // Convertir a Base 16 usando BCMath
+        $hexString = "";
+        while (bccomp($number, '0') > 0) {
+            $remainder = bcmod($number, '16'); // Obtener el residuo en base 16
+            $hexString = dechex($remainder) . $hexString; // Convertir y agregar al resultado
+            $number = bcdiv($number, '16', 0); // Dividir por 16 sin decimales
+        }
+    
+        return strtoupper($hexString); // Convertir a mayúsculas
+    }
+
 }

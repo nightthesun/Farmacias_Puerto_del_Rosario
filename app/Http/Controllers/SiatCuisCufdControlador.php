@@ -137,8 +137,8 @@ class SiatCuisCufdControlador extends Controller
                     $respuesta=0;
                     $codigo_2 = $xml->xpath('//codigo');
                     $fechaVigencia= $xml->xpath('//fechaVigencia');
-                  //  $direccion= $xml->xpath('//direccion');
-                  //  $fechaVigencia= $xml->xpath('//codigoControl');
+                    $direccion= $xml->xpath('//direccion');
+                    $codigoControl= $xml->xpath('//codigoControl');
                     
                     $fechaActual = Carbon::now(); // Obtiene la fecha y hora actual
                
@@ -154,6 +154,8 @@ class SiatCuisCufdControlador extends Controller
                             'fecha_vigencia' => $fechaVigencia[0],
                             'created_at' => $fechaActual,
                             'id_emisor' => $request->id_emisor,
+                            'codigoControl' => $codigoControl[0],
+                            'direccion' => $direccion[0]                            
                         ];
                         $id_cufd = DB::table('siat__cufd')->insertGetId($datos_2);
 
@@ -164,6 +166,8 @@ class SiatCuisCufdControlador extends Controller
                             'fecha_vigencia' => $fechaVigencia[0],
                             'created_at' => $fechaActual,
                             'id_emisor' => $request->id_emisor,
+                            'codigoControl' => $codigoControl[0],
+                            'direccion' => $direccion[0]    
                         ];
                         $id_cufd = DB::table('siat__cufd')->insertGetId($datos_2);
                     }
@@ -546,12 +550,14 @@ class SiatCuisCufdControlador extends Controller
                                 $respuesta=0;
                                 $codigo_2 = $xml->xpath('//codigo');
                                 $fechaVigencia= $xml->xpath('//fechaVigencia');
+                                $direccion= $xml->xpath('//direccion');
+                                $codigoControl= $xml->xpath('//codigoControl');                                
                                 $fechaActual = Carbon::now(); // Obtiene la fecha y hora actual
                            
                                 $actualizar = Siat_Emisor::findOrFail($value->id);
                                
                                 $existe_cufd = DB::table('siat__cufd')->where('dato', $value->cufd)->first();
-                                
+                            
                                 if ($existe_cufd) {     
                                                     
                                     DB::table('siat__cufd')->where('dato', $value->cufd)->where('id',$value->cufd_id)->update(['estado' =>0,'id_emisor' =>$value->id]);
@@ -560,6 +566,8 @@ class SiatCuisCufdControlador extends Controller
                                         'fecha_vigencia' => $fechaVigencia[0],
                                         'created_at' => $fechaActual,
                                         'id_emisor' => $value->id,
+                                        'codigoControl' => $codigoControl[0],
+                                        'direccion' => $direccion[0] 
                                     ];
                                     $id_cufd = DB::table('siat__cufd')->insertGetId($datos_3);
             
@@ -570,6 +578,8 @@ class SiatCuisCufdControlador extends Controller
                                         'fecha_vigencia' => $fechaVigencia[0],
                                         'created_at' => $fechaActual,
                                         'id_emisor' => $value->id,
+                                        'codigoControl' => $codigoControl[0],
+                                        'direccion' => $direccion[0] 
                                     ];
                                     $id_cufd = DB::table('siat__cufd')->insertGetId($datos_3);
                                 }

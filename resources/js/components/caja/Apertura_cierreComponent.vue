@@ -15,7 +15,7 @@
                 <div class="card-header">
                
                     <i class="fa fa-align-justify"></i> Aperturar caja:             
-                    <button type="button"  class="btn btn-secondary" @click="cajaAnteriror();verificador_moneda_sistemas();"
+                    <button type="button"  class="btn btn-secondary" @click="cajaAnteriror();"
                         :disabled="selectApertura_cierre!=0">
                         <i class="icon-plus"></i>&nbsp;Nuevo
                     </button>
@@ -1128,7 +1128,9 @@ export default {
                             me.estado_caja="Inicio";
                         } 
                             me.total_caja=Number(0).toFixed(2);    
+                            me.verificador_moneda_sistemas();
                             if (me.verificador===1) {
+                               
                                 me.abrirModal('registrar');   
                             } else {
                                 me.abrirModal('registrar_2');  
@@ -1210,14 +1212,13 @@ swalWithBootstrapButtons.fire({
   reverseButtons: true
 }).then((result) => {
   if (result.isConfirmed) {
-    console.log("----------------------------------");   
-            console.log((me.arraySiguiente));
+    
          
         me.sepuede_guardar=1;
         let id_array=(me.arraySiguiente).id;
         let numero = Number(me.input_v2);           
         if (numero>0) {
-         console.log("******");
+     
          me.cantidadMonedas=0;
         me.cantidadBilletes=0;
         me.totalMonedas=0;
@@ -1272,7 +1273,7 @@ swalWithBootstrapButtons.fire({
             if (me.input_v2 === "") {
                      me.input_v2 = "0";
             }
-            console.log(me.input_v2);
+           
         },
 
         sumador_v2(){
@@ -1429,7 +1430,7 @@ let operacion_apertura = operacion_acciones + monto_cerrar_apertura;
                         estado:estado,
                         moneda_s1:me.moneda_s1
                     }).then(function (response) {
-                        console.log((response.data).length);
+                      
                         me.listarIndex();
                         if (me.verificador===1) {
                             me.cerrarModal("cerrar_apertura");
@@ -1461,7 +1462,7 @@ let operacion_apertura = operacion_acciones + monto_cerrar_apertura;
 
         abrirModalCerrar(data){
             let me=this;
-            me.verificador_moneda_sistemas();
+          //  me.verificador_moneda_sistemas();
             if (me.condition===1) {       
                 me.abrirModal('cerrar_apertura', data); 
             } else {            
@@ -1603,13 +1604,11 @@ me.isSubmitting = true; // Deshabilita el botón
 
         arrayMonedaSiguiente(){
             let me=this; 
-            console.log("---------*******------------***");
-          
             me.tamaño_v2=me.tamaño_v2-1;
             me.arrayFalso_=me.arrayFalso_[me.tamaño_v2];
-            console.log(me.arrayFalso_);
+          
             //me.arrayFalso_ arrayFalso_
-           // console.log(me.arrayMoneda[me.ini0_]);
+          
             
         },
 
@@ -1620,41 +1619,39 @@ me.isSubmitting = true; // Deshabilita el botón
 
 
         verificador_moneda_sistemas(){
+         
             let me=this;
             var url = "/apertura_cierre/verificador_moneda_sistemas";
             axios
                 .get(url)
                 .then(function (response) {
+                    
                     var respuesta_lista = response.data.listaMoneda;
                     var respuesta_moneda = response.data.moneda;
-
-                  if (respuesta_moneda===0) {
-                    me.bloqueador=0;
-                    Swal.fire(
-                    "No se activo el tipo de moneda necesita activar algun tipo de moneda.",
-                    "Para activar necesita ir a configuracion y ver la pestaña de tipo de moneda.",
-                    "error",
-                );
-                  } else {
+                   
+                        if (respuesta_moneda===0) {
+                            me.bloqueador=0;
+                    Swal.fire("No se activo el tipo de moneda necesita activar algun tipo de moneda.","Para activar necesita ir a configuracion y ver la pestaña de tipo de moneda.","error",);                        
+                  
                 
-                    me.tamaño_v2=0;
-                    me.arrayFalso_=[];
-                    me.arraySiguiente=[];
-                    me.bloqueador=1;
-                    me.arrayMoneda=respuesta_lista;
-                    me.moneda_s1=respuesta_moneda;
-
-                      if (me.verificador>1) {
+                        } else{
+                            me.tamaño_v2=0;
+                        me.arrayFalso_=[];
+                        me.arraySiguiente=[];
+                        me.arrayMoneda=[];
+                        me.moneda_s1=[];
+                        me.bloqueador=1;
+                        me.arrayMoneda=respuesta_lista;
+                        me.moneda_s1=respuesta_moneda;
+                        me.arrayFalso_=respuesta_lista;
+                        if (me.verificador>1) {
                         me.arrayFalso_=respuesta_lista;         
                     me.tamaño_v2=(me.arrayFalso_).length;   
 
                     me.tamaño_v2=me.tamaño_v2-1;
                     me.arraySiguiente=me.arrayFalso_[me.tamaño_v2];
                       }  
-                   
-                
-
-                  }                                  
+                        }                                                   
                 })
                 .catch(function (error) {
                     error401(error);
@@ -1664,7 +1661,6 @@ me.isSubmitting = true; // Deshabilita el botón
       
         listarCajaUsuario() {
             let me = this;
-           // var url = "/traspaso/listarSucursal";
            me.arrayCajaUsuario=[];
            var url = "/apertura_cierre/listarCaja_usuario?id_sucursal="+me.id_sucursal;
             axios.get(url).then(function (response) {
@@ -1878,7 +1874,6 @@ me.isSubmitting = true; // Deshabilita el botón
 
                 case "actualizar": {
                     me.tipoAccion = 2;
-                    console.log(data);
                     me.tituloModal = "Editar de apertura de caja";
                     me.isSubmitting=false;
             
@@ -1888,9 +1883,6 @@ me.isSubmitting = true; // Deshabilita el botón
                 }
 
                 case "ver": {
-                    console.log(data);
-           
-                
                     if (data.id_apertura_cierre===0) {               
                         me.tituloModal = "Apertura de caja vista";
                         me.id_modal="000"+data.id;

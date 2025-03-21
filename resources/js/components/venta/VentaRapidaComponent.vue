@@ -292,20 +292,17 @@
                      <button class="btn btn-light" type="button" style="color: white;" v-else>
                         Limpiar
                     </button>
-                 </div>   
-                
+                 </div>
+             
                 <div class="form-group col-sm-3">
-
-
-                    <select class="custom-select mr-sm-2" id="inlineFormCustomSelect" v-model="TipoComprobate">
+                      <select class="custom-select mr-sm-2" id="inlineFormCustomSelect" v-model="TipoComprobate">
                         <option value="0" selected disabled>Comprobante</option>
-                        <option value="1">Recibo</option>
-                        <option value="2" :disabled="estado_dosificacion_facctura==0">Factura</option>
-                        
+                        <option value="1" :disabled="key_Activacion==2">Recibo</option>
+                        <option value="2" :disabled="key_Activacion==2" :hidden="key_Activacion==0">Factura</option>                        
                       </select>
-                    <button v-if="(TipoComprobate!=0&& datos_cliete!=''&&id_tipo_doc!=''&&arrayVentas.length>0&&key_1===1 || isSubmitting==false)" type="button" class="btn btn-primary" @click="realizarVenta()">REALIZAR VENTA</button>  
-                      
-                    <button v-else type="button" class="btn btn-light" >REALIZAR VENTA</button>
+                  
+                    <button v-if="selected === null || numero === '' || numero <= 0 || arrayVentas.length <= 0 || TipoComprobate===0 || datos_cliete==='' || isSubmitting==true ||key_1!=1 " type="button" class="btn btn-light">REALIZAR VENTA</button>                   
+                    <button v-else type="button" class="btn btn-primary" @click="realizarVenta()">REALIZAR VENTA</button>
                 </div>          
                 
                
@@ -829,7 +826,8 @@ export default {
             correo_cliente:'',
             extencion_tipodocumento:'',
             nombre_documento:'',
-            TipoComprobate:0,
+            TipoComprobate:0,          
+            arrayTipoCom_v2:[],
     //----venta----
     arrayVentas:[],
     descuento_1:0,
@@ -883,6 +881,7 @@ export default {
 
      estado_dosificacion_facctura:0,
      arrayEstado_dosificacion_facctura:[],
+     arrayQuery_siat_:[],
      id_dosificacaion_1:'',
      nro_autorizacion_1:'',
      dosificacion_1:'', 
@@ -899,6 +898,12 @@ export default {
 
      //-apertura
      id_apertura_cierre:'',
+
+     //*siat----
+            key_Activacion:'',
+            id_sucursal_siat:'',
+            id_caja_siat:'',
+
         };
     },
     created() {
@@ -1689,34 +1694,65 @@ if (tipo_can_valor==='BS') {
     },
 
         
-        listarPermisoFacturacion(){
-            let me = this;       
-            var url ="/gestor_ventas/verificador_dosificacion_o_facturacion";  
+        listarPermisoFacturacion(sucursal,caja){
+            let me = this; 
+            var url ="/gestor_ventas/verificador_dosificacion_o_facturacion?id_sucursal="+sucursal+"&id_caja="+caja;  
             axios
                 .get(url)
                 .then(function (response){
                     let respuesta = response.data; 
+                    console.log("***xx****");     
+                    console.log(respuesta);                                
                     me.estado_dosificacion_facctura=respuesta.estado;
-                    me.arrayEstado_dosificacion_facctura=respuesta.consulta;  
-                
-                    if ((me.estado_dosificacion_facctura===0||me.estado_dosificacion_facctura===null)&&(respuesta.consulta===null)) {
-                        Swal.fire({
-                  title: "No existe Dosificación o facturación",
-                  text: "Debe activar alguna de estas opciones para continuar.",
-                  icon: "error",
-              })  
-              me.estado_dosificacion_facctura=0;    
-                    }else{
-                        if (me.arrayEstado_dosificacion_facctura.diferencia_dias<=0) {
-                            Swal.fire({
-                  title: "Dosificación o facturación caducada",
-                  text: "Paso el tiempo de vigencia establecido.",
-                  icon: "error",
-              })  
-              me.estado_dosificacion_facctura=0; 
+                    switch (me.estado_dosificacion_facctura) {
+                      case 0:
+                        me.key_Activacion=2;
+                         Swal.fire({title: "No existe configuracion de factura",text: "Debe activar alguna de estas opciones para continuar.",icon: "error",});  
+                      break;
+                      case 1:
+                      me.key_Activacion=1;
+                        
+                        switch (me.estado_dosificacion_facctura) {
+                          case 1:
+                            //----------para facturacion  en linea
+                            me.arrayEstado_dosificacion_facctura=respuesta.consulta;  
+                            me.arrayQuery_siat_=respuesta.query; 
+                            console.log("***--ini---***");
+                            console.log(me.arrayEstado_dosificacion_facctura);  
+                            console.log(me.arrayQuery_siat_);  
+                            console.log("***---fin---***");
+                          break;
+                          case 10:  
+                          Swal.fire({title: "Token caducado",text: "revicé: en configuración siat y actualice las fechas con su token de legado, si el error persite revise en la configuracion de impuestos nacionales y pida otro token.",icon: "error",});  
+                          break;
+                          case 11:  
+                          Swal.fire({title: "CUIS caducado",text: "Pedir otro cuis en el sector de siat en la pestaña de cuis, revise si es sucursal o punto de venta.",icon: "error",});  
+                          break;
+                          case 12:  
+                          Swal.fire({title: "CUFD caducado",text: "Pedir otro cufd en el sector de siat en la pestaña de cufd, revise si es sucursal o punto de venta",icon: "error",});  
+                          break;
+                          case 13:  
+                          Swal.fire({title: "Error",text: "Debe esta correcto el cuis o cufd",icon: "error",});  
+                          break;
+                          default:
+                          Swal.fire({title: "ERROR",text: "error de listar facturacion contacte al administrador.",icon: "error",});  
+                          
+                            break;
+                        }
+                       
+                      break;
+                      case 2:
+                           //----------para facturacion  docificacion
+                          
+                           me.arrayEstado_dosificacion_facctura=respuesta.consulta;  
+                           if (me.arrayEstado_dosificacion_facctura.diferencia_dias<=0) {
+                            Swal.fire({title: "Dosificación o facturación caducada",text: "Paso el tiempo de vigencia establecido.",icon: "error",});  
+                           me.estado_dosificacion_facctura=0; 
+                           me.key_Activacion=0;
                         } else {
-                            me.estado_dosificacion_facctura=respuesta.estado;
-                            me.id_dosificacaion_1=me.arrayEstado_dosificacion_facctura.id;                       
+                          me.key_Activacion=1;
+
+                          me.id_dosificacaion_1=me.arrayEstado_dosificacion_facctura.id;                       
                             me.nro_autorizacion_1=me.arrayEstado_dosificacion_facctura.nro_autorizacion;
                             me.dosificacion_1=me.arrayEstado_dosificacion_facctura.dosificacion; 
                             me.fecha_e_1=me.arrayEstado_dosificacion_facctura.fecha_e; 
@@ -1725,8 +1761,21 @@ if (tipo_can_valor==='BS') {
                             me.n_act_facturacion_1=me.arrayEstado_dosificacion_facctura.n_act_facturacion;  
                             me.arrayEstado_dosificacion_facctura=respuesta.consulta;  
                         }
+                      
+                      break;
+                      case 3:
+                      me.key_Activacion=0;
+                        //-------para
                        
-                    }                   
+                      break;
+                    
+                      default:     
+                      me.key_Activacion=2;                   
+                      Swal.fire({title: "Error",text: "Manipulación no autorizada.",icon: "error",});                   
+                      break;
+                    }
+                    
+                               
                    
                 }).catch(function (error) {
                     error401(error);
@@ -2452,10 +2501,15 @@ if(Number(me.efectivo) > 0){
             var opcion=me.buscarCliente;
             switch(opcion) {
     case '99001':
+      if (me.key_Activacion==1) {
         me.abrirModal('cliente_modal');
+      }else{
+        me.datos_cliete="No se encontro cliente...";
+      }       
         break;
     case '99002':
-            me.id_tipo_doc=4;
+    if (me.key_Activacion==1) {
+      me.id_tipo_doc=4;
             me.cliente_id=0;
             me.num_documento=99002;
             me.nom_a_facturar="CONTROL TRIBUTARIO";
@@ -2463,9 +2517,13 @@ if(Number(me.efectivo) > 0){
             me.datos_cliete=me.nom_a_facturar+"/"+ me.num_documento+"/OD-OTRO DOCUMENTO DE IDENTIDAD";
             me.TipoComprobate=2;
             me.key_1=1;
+      }else{
+        me.datos_cliete="No se encontro cliente...";
+      }            
         break;
     case '99003':
-        me.id_tipo_doc=4;
+    if (me.key_Activacion==1) {
+      me.id_tipo_doc=4;
         me.cliente_id=0;
         me.num_documento=99003;
         me.correo_cliente="";
@@ -2473,9 +2531,13 @@ if(Number(me.efectivo) > 0){
         me.datos_cliete=me.nom_a_facturar+"/"+me.num_documento+"/OD-OTRO DOCUMENTO DE IDENTIDAD";
         me.TipoComprobate=2;
         me.key_1=1;
+      }else{
+        me.datos_cliete="No se encontro cliente...";
+      }        
     break;
     case '0':
-        me.id_tipo_doc=4;
+    if (me.key_Activacion==1) {
+      me.id_tipo_doc=4;
         me.cliente_id=0;
         me.num_documento=0;
         me.nom_a_facturar="SIN NOMBRE";
@@ -2483,6 +2545,9 @@ if(Number(me.efectivo) > 0){
         me.datos_cliete=me.nom_a_facturar+"/"+me.num_documento+"/OD-OTRO DOCUMENTO DE IDENTIDAD";
         me.TipoComprobate=2;
         me.key_1=1;
+      }else{
+        me.datos_cliete="No se encontro cliente...";
+      }       
     break;
     case '000':    
     me.id_tipo_doc=4;
@@ -2507,7 +2572,7 @@ if(Number(me.efectivo) > 0){
                     me.cliente_id_descuento=response.data.id_descuento; 
                     me.cliente_id_tabla=response.data.id_tabla;
                     if (me.cliente_id==undefined) {
-                        me.datos_cliete="No se encontro cliente..."
+                        me.datos_cliete="No se encontro cliente...";
                         me.key_1=0;
                         me.TipoComprobate=0;
                     } else {
@@ -2718,6 +2783,9 @@ if(Number(me.efectivo) > 0){
          
             let cadena=String(me.num_documento);
             let cadena_tipo=String(me.TipoComprobate);
+
+            console.log(cadena+" --- "+cadena_tipo);
+
             switch (cadena_tipo) {
                 case "1":
                 if ("0"===cadena||"99001"===cadena||"99002"===cadena||"99003"===cadena) {
@@ -2742,18 +2810,13 @@ if(Number(me.efectivo) > 0){
                     } else {
                         //----facturacion
                         if(me.estado_dosificacion_facctura===1){
-                            Swal.fire(
-                    "Modulo en construcción",
-                    "Conctate al administrador para mas infromación",
-                    "error"); 
+                          me.EnviarFactura();
+                     
                         } else {
                             if (me.estado_dosificacion_facctura===2) {
                                 me.EnviarRecibo(); 
                             } else {
-                                Swal.fire(
-                    "Acción no valida",
-                    "Error inesperado",
-                    "error"); 
+                                Swal.fire("Acción no valida","Error inesperado","error"); 
                             }
                         }
                    
@@ -2823,7 +2886,8 @@ me.descuento_1=totalDescuento+me.descuento_final;
           n_ini_facturacion_1:me.n_ini_facturacion_1,     
           n_fin_facturacion_1:me.n_fin_facturacion_1,  
           n_act_facturacion_1:me.n_act_facturacion_1,                        
-        //  arrayEstado_dosificacion_facctura:me.arrayEstado_dosificacion_facctura,
+        //  arrayEstado_dosificacion_facctura:me.arrayEstado_dosificacion_facctura,    
+
       };
        // Si ya está enviando, no permitas otra solicitud
        if (me.isSubmitting) return;
@@ -2842,7 +2906,7 @@ me.isSubmitting = true; // Deshabilita el botón
                   title: "Logitud de numero de factura paso el limite de 12 digitos",
                   text: "Haga click en Ok ",
                   icon: "error",
-              })  
+              });  
               } else {
                 me.respuesta = response.data.data;
               if (me.respuesta==='1') {
@@ -2850,7 +2914,7 @@ me.isSubmitting = true; // Deshabilita el botón
                   title: "El usuario root no puede realizar ventas",
                   text: "Haga click en Ok ",
                   icon: "error",
-              })  
+              });  
               } else {
                   let respuesta= response.data;
 
@@ -2958,7 +3022,8 @@ total_sin_des,descuento_venta,total_venta,efectivo_venta,cambio_venta,fechaMas7D
             var url = "/gestor_ventas/tieneApertura";
             axios.get(url)
                 .then(function (response) {
-                    var respuesta = response.data;                           
+                    var respuesta = response.data;  
+               
                     if (respuesta===0||respuesta.tipo_caja_c_a===9||respuesta.id_apertura_cierre!=0) {
                       me.tieneApertura_0=0;
                         Swal.fire(
@@ -2969,6 +3034,11 @@ total_sin_des,descuento_venta,total_venta,efectivo_venta,cambio_venta,fechaMas7D
                     } else {
                       me.tieneApertura_0=1;
                          me.id_apertura_cierre=respuesta.id;
+                         me.listarPermisoFacturacion(respuesta.id_sucursal,respuesta.id_caja);
+                         
+                         me.id_sucursal_siat=respuesta.id_sucursal;
+                         me.id_caja_siat=respuesta.id_caja;
+                         
                      } 
                 })
                 .catch(function (error) {
@@ -3078,11 +3148,84 @@ if (!correoRegex.test(me.correo)) {
            
         },
 
+
         selectAll: function (event) {
             setTimeout(function () {
                 event.target.select();
             }, 0);
         },
+        ////////////////////////////////////SIAT/////////////////////////////////////////
+
+        EnviarFactura(){
+        let me = this;    
+        me.isSubmitting = true; // Deshabilita el botón   
+        if (me.validadorPersonal===3) {           
+            me.array_ven__detalle_descuentos.push({id_contador:0,id_tabla:0,id_descuento:0,cantidad_descuento:0.00,tipo:1});            
+          }
+          if (me.cliente_bandera === 1&&me.validadorPersonal===5) {
+            me.array_ven__detalle_descuentos.push({id_contador:0,id_tabla:0,id_descuento:0,cantidad_descuento:0.00,tipo:1});
+          }
+          if (me.validadorPersonal===7 || me.existe_final>0) {
+            let sumador_21_sub = 0;
+            let sumador_21_des = 0;
+
+                me.arrayDescuentoOperacion.forEach((descuento) => {
+                if (descuento.id_nom_tabla===6) {
+                    let operacion_21 = this.operacion_Numeral_Procentaje(descuento.tipo_num_des, descuento.monto_descuento, me.sumatotal);
+                let { valorNumeral, porcentaje } = operacion_21;
+                sumador_21_sub += parseFloat(valorNumeral);  // Acumular los valores numerales como float
+                sumador_21_des += parseFloat(porcentaje); 
+                me.array_ven__detalle_descuentos.push({id_contador:0,id_tabla:descuento.id_nom_tabla,id_descuento:descuento.id,cantidad_descuento:parseFloat(porcentaje),tipo:2});
+                }                
+            });      
+          }
+          
+        const totalDescuento = me.array_vetasQuery.reduce((total, venta) => {
+        return total + (parseFloat(venta.descuento) || 0);
+}, 0);
+me.descuento_1=totalDescuento+me.descuento_final;
+        const data = {
+          TipoComprobate: me.TipoComprobate,
+          num_documento: me.num_documento,
+          id_tipo_doc: me.id_tipo_doc,
+          cliente_id: me.cliente_id,
+          nom_a_facturar: me.nom_a_facturar,
+          correo_cliente: me.correo_cliente,
+
+          total_venta:me.tota_del_total,
+          efectivo_venta:me.efectivo,
+          cambio_venta:me.cambio,
+          descuento_venta:me.descuento_1,
+          arrayProRecibo:me.arrayProducto_recibo_1,
+          arrayDescuentoOperacion: me.array_ven__detalle_descuentos, // Incluir el array en el objeto data
+          arrayDesatlleVenta: me.array_vetasQuery,
+          codigo_tienda_almacen_0:me.codigo_tienda_almacen,
+          id_lista_v2:me.id_lista_v2,
+          id_apertura_cierre:me.id_apertura_cierre,
+
+           arrayQuery_siat_:me.arrayQuery_siat_,
+           arrayEstado_dosificacion_facctura:me.arrayEstado_dosificacion_facctura,          
+        //  arrayEstado_dosificacion_facctura:me.arrayEstado_dosificacion_facctura,    
+
+      };
+
+  
+
+      // Realizar la solicitud POST con Axios
+      axios.post("/gestor_ventas/ventaFacturaSiat", data)
+          .then(response => {
+            var respuesta = response.data;  
+            console.log("-----respuesta-----");
+            console.log(respuesta);
+            me.isSubmitting = false;
+          })
+          .catch(error => {
+            me.isSubmitting = false; // Deshabilita el botón
+            console.log(error);
+          });
+    },
+
+
     },
 
     
@@ -3091,7 +3234,7 @@ if (!correoRegex.test(me.correo)) {
         this.classModal = new _pl.Modals();
         this.listarDescuentos_listas();
         this.listarSucursalGet();
-        this.listarPermisoFacturacion();
+       
         this.verificadorAperturaCierre();
         this.classModal.addModal("registrar");
         this.classModal.addModal("cliente_modal");
