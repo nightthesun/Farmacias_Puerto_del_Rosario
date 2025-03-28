@@ -666,6 +666,8 @@ Route::group(['middleware' => 'auth'], function () {
 
         //*****SIAT FACTURACION VENTAS */
         Route::post('/gestor_ventas/ventaFacturaSiat', [VenGestorVentaController::class, 'ventaFacturaSiat']);
+        Route::get('/gestor_ventas/pago_ex', [VenGestorVentaController::class, 'tipoPago']);    
+        
 
     //mostrar venta,re-imprimir,anular
     Route::get('/detalle_venta_2/index', [VenGestorVentaVistaController::class, 'index']);

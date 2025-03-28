@@ -233,6 +233,10 @@
                             <th v-text="parseFloat(tota_del_total).toFixed(2)  + ' Bs.'" style="text-align:right"></th>
                         </tr>
                         <tr>
+                            <th colspan="6" style="text-align:right">Monto GiftCard:</th>
+                            <th v-text="parseFloat(tota_del_total).toFixed(2)  + ' Bs.'" style="text-align:right"></th>
+                        </tr>
+                        <tr>
                             <th colspan="6" style="text-align:right">Efectivo:</th>
                             <th><input type="number" v-model="efectivo" v-on:focus="selectAll"  :disabled="sumatotal===0" @keyup="restartotal()" style="text-align:right"></th>
                         </tr>
@@ -266,7 +270,7 @@
                      </button>
                    
                  </div>
-                 <div class="form-group col-sm-3" style="display: flex; align-items: center;" v-else>
+                 <div class="form-group col-sm-1" style="display: flex; align-items: center;" v-else>
                     <input type="text" class="form-control"  placeholder="Número de Documento" disabled>
                     <button class="btn btn-light" type="button" disabled>
                         Buscar
@@ -295,7 +299,7 @@
                  </div>
              
                 <div class="form-group col-sm-3">
-                      <select class="custom-select mr-sm-2" id="inlineFormCustomSelect" v-model="TipoComprobate">
+                      <select class="custom-select mr-sm-2" id="inlineFormCustomSelect" v-model="TipoComprobate" @change="resetDatosAdicionales_siat()">
                         <option value="0" selected disabled>Comprobante</option>
                         <option value="1" :disabled="key_Activacion==2">Recibo</option>
                         <option value="2" :disabled="key_Activacion==2" :hidden="key_Activacion==0">Factura</option>                        
@@ -303,13 +307,88 @@
                   
                     <button v-if="selected === null || numero === '' || numero <= 0 || arrayVentas.length <= 0 || TipoComprobate===0 || datos_cliete==='' || isSubmitting==true ||key_1!=1 " type="button" class="btn btn-light">REALIZAR VENTA</button>                   
                     <button v-else type="button" class="btn btn-primary" @click="realizarVenta()">REALIZAR VENTA</button>
-                </div>          
-                
-               
-                 
+                </div>                 
              </div> 
+             
+             <div class="row"> 
+              <div class="form-group col-sm-2" style="display: flex;">
+                <strong>Tipo de pago:</strong>
+              </div>            
+              <div class="form-group col-sm-3 d-flex gap-2">
+        <button type="button" class="btn" :class="tipo_contado_s === 1 ? 'btn-primary' : 'btn-secondary'" @click="tipoPago_sis(1)">
+            <i class="fa fa-money" aria-hidden="true"></i>
+        </button>
+        <button type="button" class="btn" :class="tipo_qr_s === 1 ? 'btn-primary' : 'btn-secondary'" @click="tipoPago_sis(2)">
+            <i class="fa fa-qrcode" aria-hidden="true"></i>
+        </button>
+        <button type="button" class="btn" :class="tipo_tarjeta === 1 ? 'btn-primary' : 'btn-secondary'" @click="tipoPago_sis(3)">
+            <i class="fa fa-credit-card-alt" aria-hidden="true"></i>
+        </button>  
+    </div>
+    <div class="form-group col-sm-2" style="display: flex;">
+                <strong>Gift Card:</strong>
+              </div>  
+    <div class="form-group col-sm-2 d-flex gap-2">
+        <button v-if="gift_sis_===0" type="button" class="btn btn-primary" @click="gift_sis(1)">
+          <i class="fa fa-gift" aria-hidden="true"></i>
+        </button>
+        <button v-else type="button" class="btn btn-secondary" @click="gift_sis(2)">
+          <i class="fa fa-gift" aria-hidden="true"></i>
+        </button>
+      
+    </div>
+
+                </div>   
              </div>
            </div>
+
+          <!-----------------------------tabla extra---------------------------------------------->
+
+          <div v-show="estado_dosificacion_facctura===1 && TipoComprobate==='2'" class="card w-100" style="border-left: 3px solid #9b111e;">
+         
+         <div class="card-body">
+          <a   class="btn btn-outline-secondary" data-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
+            <strong >Datos extra</strong>
+          </a>
+          
+           <hr> <!-- Línea horizontal -->                               
+          
+<div class="collapse" id="collapseExample">
+  <div class="card card-body">
+    <div class="alert alert-warning" role="alert">
+Si no selecciona alguna opción automaticamente marca como efectivo en caso de otro tipo de pago seleccione otra opción 
+</div>
+    <div class="container">
+                                 <div class="form-group row">
+                                  
+                                     <label class="col-md-2 form-control-label" for="text-input">
+                                         Tipo de pago:                                       
+                                     </label>
+                                     <div class="col-md-4">                
+                                         <select  class="form-control" v-model="selectPago_" @change="resertPago_siat()">
+                                             <option value="0" disabled selected>Seleccionar...</option>
+                                             <option v-for="t in arrayPago_"  :key="t.codigo" :value="t.codigo" v-text="t.descripcion">
+                                             </option>                                  
+                                         </select>
+                                     </div> 
+                                  
+                                      <label v-show="selectPago_===2" class="col-md-2 form-control-label" for="text-input">
+                                         Numero de tarjeta:                                       
+                                     </label>
+                                   
+                                    <div class="col-md-4">
+                                      <input v-show="selectPago_===2" style="text-align: right;" type="number" class="form-control"  placeholder="Número de tarjeta" v-model="numeroTarjeta_siat">
+                                    </div>
+                                 </div>
+    </div>                             
+   </div>
+</div>
+         </div>
+       </div>
+
+
+
+          <!----------------------------fin de la tabla extra--------------------------------------------------------->
                      </div>
                  </div>
                      </div>   
@@ -523,8 +602,7 @@
                                                  v-text="t.tipo">
                                              </option>                                  
                                          </select>
-                                     </div>
-                                   
+                                     </div>  
                                     
                                  </div>
                                  <div class="form-group row"  v-if="selectTipo!=0">
@@ -821,6 +899,7 @@ export default {
             correo:'',
             nombre_a_facturar:'',
             nombres:'',
+            complemento_siat:'',
             complemento_:'',
             //tipo de codigo 
             correo_cliente:'',
@@ -903,7 +982,19 @@ export default {
             key_Activacion:'',
             id_sucursal_siat:'',
             id_caja_siat:'',
+            arrayPago_:[],
+            selectPago_:'0',
+            numeroTarjeta_siat:'',
 
+            gift_sis_:0,
+          
+
+    // sistema contado=1, qr=2, tarje=3
+    tipo_pago_Qr_con_tar:0,
+    tipo_contado_s:0,
+    tipo_qr_s:0,
+    tipo_tarjeta:0, 
+            
         };
     },
     created() {
@@ -1680,6 +1771,10 @@ if (tipo_can_valor==='BS') {
          me.cliente_bandera=0;             
          me.producto_bandera_1=0;
 
+        me.selectPago_='0';
+        me.numeroTarjeta_siat='';
+        me.complemento_siat='';
+
      //    me.estado_dosificacion_facctura=0;
     // me.arrayEstado_dosificacion_facctura:[],
      //me.id_dosificacaion_1='';
@@ -1765,9 +1860,20 @@ if (tipo_can_valor==='BS') {
                       break;
                       case 3:
                       me.key_Activacion=0;
-                        //-------para
-                       
+                        //-------para                      
                       break;
+                      case 10:  
+                          Swal.fire({title: "Token caducado",text: "revicé: en configuración siat y actualice las fechas con su token de legado, si el error persite revise en la configuracion de impuestos nacionales y pida otro token.",icon: "error",});  
+                      break;
+                      case 11:  
+                          Swal.fire({title: "CUIS caducado",text: "Pedir otro cuis en el sector de siat en la pestaña de cuis, revise si es sucursal o punto de venta.",icon: "error",});  
+                      break;
+                          case 12:  
+                          Swal.fire({title: "CUFD caducado",text: "Pedir otro cufd en el sector de siat en la pestaña de cufd, revise si es sucursal o punto de venta",icon: "error",});  
+                          break;
+                          case 13:  
+                          Swal.fire({title: "Error",text: "Debe esta correcto el cuis o cufd",icon: "error",});  
+                          break;
                     
                       default:     
                       me.key_Activacion=2;                   
@@ -2577,6 +2683,9 @@ if(Number(me.efectivo) > 0){
                         me.TipoComprobate=0;
                     } else {
                         me.id_tipo_doc=response.data.id_tipo_doc;
+                        if(me.id_tipo_doc===1){
+                          me.complemento_siat=response.data.complemento_s;                        
+                        }
                         me.nom_a_facturar=response.data.nom_a_facturar;
                         me.num_documento=response.data.num_documento;
                         me.cliente_id=response.data.id;
@@ -2729,6 +2838,7 @@ if(Number(me.efectivo) > 0){
                     me.nombre_documento='';
                     me.num_documento2='';
                     me.TipoComprobate=0;
+                    me.complemento_siat='';
                     me.classModal.openModal("registrar_cliente");
                     break;
                 } 
@@ -2780,7 +2890,9 @@ if(Number(me.efectivo) > 0){
 
         realizarVenta() {
         let me = this;
-         
+          if (me.tipo_pago_Qr_con_tar<=0) {
+            Swal.fire("Tipo de pago sin seleccionar","Debe seleccionar tipo de pago, que esta debajo de detalle de cliente","error");
+          } else {
             let cadena=String(me.num_documento);
             let cadena_tipo=String(me.TipoComprobate);
 
@@ -2830,6 +2942,8 @@ if(Number(me.efectivo) > 0){
                 );
                     break;
             } 
+          }
+           
       },
 
     EnviarRecibo(){
@@ -2866,6 +2980,7 @@ me.descuento_1=totalDescuento+me.descuento_final;
           cliente_id: me.cliente_id,
           nom_a_facturar: me.nom_a_facturar,
           correo_cliente: me.correo_cliente,
+    
 
           total_venta:me.tota_del_total,
           efectivo_venta:me.efectivo,
@@ -3104,6 +3219,7 @@ if (!correoRegex.test(me.correo)) {
             me.num_documento=response.data.num_documento;
             me.correo_cliente=response.data.correo;
             me.nom_a_facturar=response.data.nom_a_facturar;
+            me.complemento_siat=response.data.complemento;
         //var documento
       
         me.datos_cliete=me.nom_a_facturar+"/"+me.num_documento+"/"+me.extencion_tipodocumento+"-"+me.nombre_documento;
@@ -3185,12 +3301,15 @@ if (!correoRegex.test(me.correo)) {
 }, 0);
 me.descuento_1=totalDescuento+me.descuento_final;
         const data = {
-          TipoComprobate: me.TipoComprobate,
+          TipoComprobate: me.TipoComprobate, 
           num_documento: me.num_documento,
           id_tipo_doc: me.id_tipo_doc,
           cliente_id: me.cliente_id,
           nom_a_facturar: me.nom_a_facturar,
           correo_cliente: me.correo_cliente,
+          complemento_siat: me.complemento_siat,
+          tipoPago:me.selectPago_,
+          numeroTarjeta:me.numeroTarjeta_siat,
 
           total_venta:me.tota_del_total,
           efectivo_venta:me.efectivo,
@@ -3215,8 +3334,9 @@ me.descuento_1=totalDescuento+me.descuento_final;
       axios.post("/gestor_ventas/ventaFacturaSiat", data)
           .then(response => {
             var respuesta = response.data;  
-            console.log("-----respuesta-----");
+            console.log("-----respuesta- siat----");
             console.log(respuesta);
+            console.log("-----respuesta- fin siat----");
             me.isSubmitting = false;
           })
           .catch(error => {
@@ -3225,7 +3345,90 @@ me.descuento_1=totalDescuento+me.descuento_final;
           });
     },
 
+ listarPago_() {
+            let me = this;          
+           var url = "/gestor_ventas/pago_ex";          
+            axios.get(url)
+                .then(function (response) {
+                    var respuesta = response.data;
+                    me.arrayPago_=respuesta;    
+                                 
+                   me.selectPago_="0";
+                   
+                })
+                .catch(function (error) {
+                    error401(error);
+                    console.log(error);
+                });
+        },
 
+        gift_sis(data){
+          let me=this;
+          switch (data) {
+            case 1:
+            me.gift_sis_=1;
+            me.selectPago_="27";
+              break;
+              case 2:
+            me.gift_sis_=0;
+            me.selectPago_="0";
+              break;
+              
+          
+            default:
+              break;
+          }
+        },
+
+
+        tipoPago_sis(data){
+          let me=this;
+          switch (data) {
+            case 1:
+            me.tipo_contado_s=1;
+            me.tipo_qr_s=0;
+            me.tipo_tarjeta=0;
+            me.tipo_pago_Qr_con_tar=data;
+            me.selectPago_="1";
+            break;
+          
+            case 2:
+            me.tipo_pago_Qr_con_tar=data;
+            me.tipo_contado_s=0;
+            me.tipo_qr_s=1;
+            me.tipo_tarjeta=0;
+            me.selectPago_="2";  
+            break;
+
+            case 3:
+            me.tipo_pago_Qr_con_tar=data;
+            me.tipo_contado_s=0;
+            me.tipo_qr_s=0;
+            me.tipo_tarjeta=1;
+            me.selectPago_="6";
+            break;
+
+            default:
+            me.tipo_pago_Qr_con_tar=0;
+            me.tipo_contado_s=0;
+            me.tipo_qr_s=0;
+            me.tipo_tarjeta=0;
+            me.selectPago_="0"; 
+              break;
+          }
+
+        },
+
+
+        resetDatosAdicionales_siat(){
+          let me=this;
+          me.selectPago_="0";
+          me.numeroTarjeta_siat="";
+        }, 
+        resertPago_siat(){
+          let me=this;      
+          me.numeroTarjeta_siat="";
+        }, 
     },
 
     
@@ -3240,7 +3443,8 @@ me.descuento_1=totalDescuento+me.descuento_final;
         this.classModal.addModal("cliente_modal");
         this.classModal.addModal("lote_cliete"); 
         this.classModal.addModal("registrar_cliente");
-        this.classModal.addModal("vista_bloque");   
+        this.classModal.addModal("vista_bloque");
+        this.listarPago_();   
     },
 };
 </script>

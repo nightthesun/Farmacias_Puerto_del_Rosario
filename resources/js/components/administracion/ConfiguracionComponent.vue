@@ -35,7 +35,8 @@
                 </li>    
                 <li class="nav-item">
                     <a class="nav-link" id="pills-modal-tab" data-toggle="pill" href="#pills-modal" role="tab" aria-controls="pills-modal" aria-selected="false">Modal de apertura</a>
-                </li>            
+                </li> 
+                       
             </ul>
         </div>
         <div class="card-body">
@@ -215,7 +216,9 @@
                 <div class="tab-pane fade" id="pills-moneda" role="tabpanel" aria-labelledby="pills-moneda-tab">                    
                     <div class="card">
                         <div class="card-header">Tipo de moneda</div>
-             
+                        <div class="alert alert-warning" role="alert">
+                           Para configuracion de facturación en linea. Ir a Siat/Configuración siat/en la pestaña de Conceptos/ en atividad escojer la opción Tipo moneda descargar, abrir el archivo que se descargo y buscar el pais que tiene en la configuracion de tipo de moneda, una vez que tenga el pais porner en la columna id_erp el valor de 1 solo debe haber un solo valor en 1 los demas deben estar vacios. guardar y subir el documento en mismo modulo que se descargo. 
+</div>
                         <div class="card-body">
                             <div class="form-group row">
                                 <label class="col-md-1 form-control-label" for="text-input" style="font-size: 12px;"><strong>Tipo:</strong> 
@@ -237,7 +240,7 @@
                                            SIN TIPO DE MONEDA
                                         </div>
                                         <div v-else class="alert alert-primary" role="alert">
-                                            {{nombre_pais}}
+                                            {{"Pais: "+nombre_pais}}
                                         </div>
                                        
                                      </div>
@@ -616,8 +619,8 @@
                             </div>
                         </div>
                     </div>
-<!------------------------------------------------------------------------------------------------------------------------->
 
+           <!------------------------------------------------------------------------------------------------------------------------->         
 
                 </div>
             

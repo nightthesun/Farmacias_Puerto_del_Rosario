@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('ven__factura_siat', function (Blueprint $table) {
             $table->id();
-            $table->integer('id_venta');
+            $table->integer('id_venta');        
             $table->integer('id_cufd');
             $table->integer('id_cuis');
             $table->text('cuf');

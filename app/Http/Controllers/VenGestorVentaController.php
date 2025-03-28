@@ -13,7 +13,7 @@ use Dompdf\Options;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Helpers\converso_numero_a_texto;
-
+use App\Helpers\CufHelper;
 
 class VenGestorVentaController extends Controller
 {
@@ -108,15 +108,17 @@ class VenGestorVentaController extends Controller
 
     public function ventaFacturaSiat(Request $request){
         try {
+            return $request->all();
             DB::beginTransaction();
             $fechaHora = Carbon::now(); // Se usará automáticamente el formato correcto
             $arrayEstado_dosificacion_facctura=$request->arrayEstado_dosificacion_facctura;
             $arrayQuery_siat_=$request->arrayQuery_siat_;
-            return $request->all();
+      
+          //  return $request->all();
             //-----verifica el tipo de emision 
             $comunicacion = $this->verComunicacion($arrayEstado_dosificacion_facctura['tipo_ambiente'],$arrayEstado_dosificacion_facctura['token_delegado']);
-          
-            $queryEmision="";
+        
+           
             switch ($comunicacion) {
                 case 0:
                     return "Error con la consulta... contacte al administrador";
@@ -127,11 +129,9 @@ class VenGestorVentaController extends Controller
                     ->where('id_catalogo', 1)
                     ->where('codigo', 1)
                     ->first();
-                    if ($queryEmision) {
-                        return $queryEmision;
-                    }else{
-                        return "Error de emision";
-                    }                    
+                    if (!$queryEmision) {
+                        return "Error de emisión";
+                    }                   
                 break;
                 case 10:
                     //--------------------modulo de facturas si respuestas  o contigencia
@@ -139,59 +139,87 @@ class VenGestorVentaController extends Controller
                     ->where('id_catalogo', 1)
                     ->where('codigo', 2)
                     ->first();
-                    if ($queryEmision) {
-                        return $queryEmision;
-                    }else{
-                        return "Error de emision";
-                    }
+                    if (!$queryEmision) {
+                        return "Error de emisión";
+                    }  
                 break;    
                 default:
                   return "Error con la consulta... contacte al administrador";
                 break;
             }
-            if($queryEmision==""){
-                return "Error de consulta de emision";
-            }
-         
-            $querytipodocuemnto = DB::table('excel__emision')
-            ->where('id_catalogo', 2)
-            ->where('codigo', 1)
-            ->first();
-            if($querytipodocuemnto['codigo']==null){
-                return "Tipo de docuemnto";
-            }
-
-            $querytipoSector = DB::table('excel__emision')
+        
+                  
+        $querytipoSector = DB::table('excel__emision')
             ->where('id_catalogo', 3)
             ->where('codigo', 1)
             ->first();
-            if($querytipoSector['codigo']==null){
-                return "Tipo de docuemnto";
+            if(!$querytipoSector){
+                return "Tipo de catalogo no existe";
             }
-            //----------------CUF
 
-            
-            // Obtener la fecha actual con milisegundos
-            $fechaFormateada = $fechaHora->format('YmdHisv'); // yyyyMMddHHmmssSSS
-            $nitEmisor = $arrayEstado_dosificacion_facctura['nit'];
-            $sucursal = $arrayQuery_siat_['id_sucursal_siat'];
-            $modalidad = $arrayEstado_dosificacion_facctura['tipo_modalidad'];
-            $tipoEmision = $queryEmision['codigo'];;
-            $tipoFactura = $querytipodocuemnto['codigo'];
-            $tipoDocumentoSector = $querytipoSector['codigo'];
-            $numeroFactura = 1;
-            $puntoVenta = 0;
-            $codigoControl = 'A19E23EF34124CD'; // Este valor lo obtienes del WebService de la SIN
-
-            
+            $queryNumeroFactura = DB::table('ven__factura_siat')
+            ->orderBy('id', 'desc')->limit(1)->value('numero_factura');
+            if($queryNumeroFactura){
+            $numero__=$queryNumeroFactura;
+            }else{ $numero__=1; }
+            //----------------CUF      
           
-                              
-           
-                             
-           
+            // Obtener la fecha actual con milisegundos
+            $fechaFormateada = $fechaHora->format('YmdHisv'); // yyyyMMddHHmmssSSS 
+            $nitEmisor = $arrayEstado_dosificacion_facctura['nit']; //<----------------------------------------1 cabecera
+            $sucursal = $arrayQuery_siat_['id_sucursal_siat'];//<----------------------------------------8 cabecera
+            $modalidad = $arrayEstado_dosificacion_facctura['tipo_modalidad'];
+            $tipoEmision = $queryEmision->codigo;
+            $tipoFactura = $request->id_tipo_doc;//<----------------------------------------13 cabecera
+            $tipoDocumentoSector = $querytipoSector->codigo;
+            $numeroFactura = $numero__;//<----------------------------------------5 cabecera
+            $puntoVenta = $arrayQuery_siat_['punto_venta'];//<----------------------------------------10 cabecera
+            $codigoControl = $arrayQuery_siat_['codigo_control_cufd']; // Este valor lo obtienes del WebService de la SIN              
     
-            $cuf = CufHelper::generarCUF($nitEmisor, $fechaFormateada, $sucursal, $modalidad, $tipoEmision, $tipoFactura, $tipoDocumentoSector, $numeroFactura, $puntoVenta, $codigoControl);
-            return $cuf;
+            $cuf = CufHelper::generarCUF($nitEmisor, $fechaFormateada, $sucursal, $modalidad, $tipoEmision, $tipoFactura, $tipoDocumentoSector, $numeroFactura, $puntoVenta, $codigoControl);//<----------------------------------------6 cabecera
+            //----------------------
+        
+            $razonSocialEmisor=$request->nom_a_facturar;////<----------------------------------------2 cabecera         
+            $id_sucursal_sistemas__=$arrayQuery_siat_['id_sucursal_sistemas'];
+            $departamento = DB::table('adm__sucursals as s')
+            ->join('adm__departamentos as d', 'd.id', '=', 's.departamento')
+            ->select('s.razon_social', 's.telefonos', 's.direccion', 'd.nombre')
+            ->where('s.id', $id_sucursal_sistemas__)
+            ->first();
+         
+            if(!$departamento){
+                return "Error de departamento";
+            }
+            $municipio=$departamento->nombre;//<----------------------------------------3 cabecera
+            $telefono=$arrayEstado_dosificacion_facctura['nro_celular'];//<----------------------------------------4 cabecera
+            $cufd=$arrayQuery_siat_['cufd'];//<----------------------------------------7 cabecera
+          //  $cuis=$arrayQuery_siat_['cuis'];
+         
+            $direccion=$arrayQuery_siat_['direccion_cufd'];//<----------------------------------------9 cabecera
+            $fechaEmision=$fechaHora->format('Y-m-d\TH:i:s.v');//<----------------------------------------11 cabecera
+            $nombreRazonSocial=$request->nom_a_facturar;//<----------------------------------------12 cabecera
+            $complemento_siat=$request->complemento_siat;//---- revisar si es null //<----------------------------------------15 cabecera
+            $codigoCliente=$request->cliente_id;//---- revisar si es null //<----------------------------------------16 cabecera
+            $numeroDocumento=$request->num_documento;//<----------------------------------------14 cabecera         
+            $codigoMetodoPago=$request->tipoPago;//<----------------------------------------17 cabecera
+            if($request->numeroTarjeta==null || $request->numeroTarjeta==''){
+                $numeroTarjeta=$request->numeroTarjeta;  //<----------------------------------------18 casos nulo cabecera
+            } else{ 
+                $numeroTarjeta = $this->ofuscarTarjeta($request->numeroTarjeta); //<----------------------------------------18 filtrar informacion cabecera
+            }           
+            $montoTotal=number_format($request->total_venta, 2, '.', '');  //<----------------------------------------19 cabecera 
+            $montoTotalSujetoIva=number_format($request->total_venta, 2, '.', '');  //<----------------------------------------20 cabecera 
+            $moneda_siat_x = DB::table('excel__emision')
+                ->where('id_catalogo', 9)->where('id_erp', 1)->first();              
+            if(!$moneda_siat_x){
+                return "no exite configuracion de moneda contacte al administrador";
+            }    
+            $codigoMoneda=$moneda_siat_x->codigo;//<----------------------------------------21 cabecera 
+            $tipoCambio=$moneda_siat_x->codigo;//<----------------------------------------22 cabecera 
+            $montoTotalMoneda=$montoTotal;
+            
+           
+          
             DB::commit();
         } catch (\Throwable $th) {
             return $th;
@@ -917,7 +945,8 @@ $nombre_empresa = strtoupper($nombre_e);
             'pd2.activo as descuento_activo',
             'pad2.id_sucursal as id_11',
             'pd2.id as id_descuento',
-            'pd2.id_tipo_tabla as id_tabla'
+            'pd2.id_tipo_tabla as id_tabla',
+            'dp.complemento as complemento_s'
         ])        
        
         ->first();
@@ -1454,5 +1483,33 @@ if ($hoy->greaterThan($fechaA)) {
  return $ultimoRegistro;  
 
     }
+    
+
+    public function tipoPago(){
+        $registros = DB::table('excel__emision')
+    ->where('id_catalogo', 8)
+    ->get();
+        return $registros;
+    }
+
+    private function ofuscarTarjeta($numeroTarjeta) {
+      
+    
+        // Asegurar que la tarjeta tiene al menos 8 dígitos
+        if (strlen($numeroTarjeta) < 8) {
+            return null;
+        }
+    
+        // Obtener los primeros 4 y últimos 4 dígitos
+        $primeros4 = substr($numeroTarjeta, 0, 4);
+        $ultimos4 = substr($numeroTarjeta, -4);
+    
+        // Rellenar el medio con ceros
+        $ceros = str_repeat('0', strlen($numeroTarjeta) - 8);
+    
+        return $primeros4 . $ceros . $ultimos4;
+    }
+
+
     
 }

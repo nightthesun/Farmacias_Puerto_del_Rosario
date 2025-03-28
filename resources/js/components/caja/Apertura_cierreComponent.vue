@@ -1462,7 +1462,7 @@ let operacion_apertura = operacion_acciones + monto_cerrar_apertura;
 
         abrirModalCerrar(data){
             let me=this;
-          //  me.verificador_moneda_sistemas();
+            me.verificador_moneda_sistemas();
             if (me.condition===1) {       
                 me.abrirModal('cerrar_apertura', data); 
             } else {            
