@@ -190,11 +190,19 @@ class SiatSincronizacionController extends Controller
             while ($numero <= 18) {
                    // Llamar al método privado dentro de la misma clase
     $xmlData = $this->endpoint($codigoAmbiente, $codigoPuntoVenta, $codigoSistema, $codigoSucursal, $cuis, $nit, $numero);
-       
+    $tiempoEspera = DB::table('siat__configuracions')
+    ->where('id', 1)
+    ->value('tiempo_espera'); // Obtiene directamente el valor de la columna
+    if (is_null($tiempoEspera)) {
+        $tiempoEspera = 30;
+    }   
     $ch = curl_init();
     // Configuración de la solicitud cURL
     curl_setopt($ch, CURLOPT_URL, $wsdl); // Reemplaza con el endpoint correcto
     curl_setopt($ch, CURLOPT_POST, 1);
+    curl_setopt($ch, CURLOPT_TIMEOUT, $tiempoEspera); // Espera máximo 30 segundos para la respuesta completa
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10); // Espera máximo 10 segundos para conectarse
+  
     curl_setopt($ch, CURLOPT_POSTFIELDS, $xmlData);
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
         'Content-Type: text/xml; charset=utf-8',
@@ -206,11 +214,11 @@ class SiatSincronizacionController extends Controller
     // Ejecutar la solicitud y obtener la respuesta
     $response = curl_exec($ch);
 
-    
-
     // Verificar si hubo un error en cURL
     if (curl_errno($ch)) {
-        throw new \Exception(curl_error($ch));
+        $cadena_22=curl_error($ch);
+        return "Error: ".$cadena_22;
+       // throw new \Exception(curl_error($ch));
     }
 
     // Cerrar la sesión de cURL

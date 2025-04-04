@@ -144,7 +144,17 @@ class CajaAperturaCierreController extends Controller
         $suma_venta = DB::table('ven__recibos')
         ->where('id_usuario', auth()->user()->id)
         ->where('id_apertura', $request->id_apertura) 
-        ->sum('total_venta');
+        ->where('tipo_venta', 1)->where('tipo_venta', 4)  
+        ->selectRaw('COALESCE(SUM(total_venta), 0) as total')
+        ->value('total');
+
+        $suma_venta_qr = DB::table('ven__recibos')
+        ->where('id_usuario', auth()->user()->id)
+        ->where('id_apertura', $request->id_apertura) 
+        ->where('tipo_venta', 3) 
+        ->selectRaw('COALESCE(SUM(total_venta), 0) as total_qr')
+        ->value('total_qr');
+       
         // Sum of "entrada" values
         $sumaEntrada = DB::table('caja__entrada_salidas')
             ->where('id_apertura_cierre', $request->id_apertura)
@@ -159,7 +169,10 @@ $sumaSalida = DB::table('caja__entrada_salidas')
 return response()->json([                        
     'suma_venta' => $suma_venta,
     'sumaEntrada' => $sumaEntrada, 
-    'sumaSalida' => $sumaSalida
+    'sumaSalida' => $sumaSalida,
+    
+    'suma_venta_qr' => $suma_venta_qr,
+  
 ]);
     }
 

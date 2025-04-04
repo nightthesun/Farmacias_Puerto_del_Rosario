@@ -234,7 +234,15 @@
                         </tr>
                         <tr>
                             <th colspan="6" style="text-align:right">Monto GiftCard:</th>
-                            <th v-text="parseFloat(tota_del_total).toFixed(2)  + ' Bs.'" style="text-align:right"></th>
+                            <th><input type="number" v-model="gift_value" v-on:focus="selectAll"  :disabled="tipo_gift_===0" @keyup="reset_gift()" style="text-align:right"></th>
+                        </tr>
+                        <tr>
+                            <th colspan="6" style="text-align:right">Monto a pagar:</th>
+                            <th v-text="parseFloat(monto_a_pagar).toFixed(2)  + ' Bs.'" style="text-align:right"></th>
+                        </tr>
+                        <tr>
+                            <th colspan="6" style="text-align:right">Importe base crédito fiscal:</th>
+                            <th v-text="parseFloat(importe_fiscal).toFixed(2)  + ' Bs.'" style="text-align:right"></th>
                         </tr>
                         <tr>
                             <th colspan="6" style="text-align:right">Efectivo:</th>
@@ -276,7 +284,7 @@
                         Buscar
                     </button>                  
                 </div>
-                 <div class="form-group col-sm-5" style="display: flex; align-items: center;">
+                 <div class="form-group col-sm-7" style="display: flex; align-items: center;">
                      <input type="text" class="form-control"  v-model="datos_cliete" disabled placeholder="Número Documento/Número de Cliente">
                      <button class="btn btn-primary" type="button" @click="abrirModal('lote_cliete');listarUsuarioRetorno();" v-if="contador_cliente===0">
                          <i class="fa fa-search-plus" aria-hidden="true"></i>
@@ -296,18 +304,8 @@
                      <button class="btn btn-light" type="button" style="color: white;" v-else>
                         Limpiar
                     </button>
-                 </div>
-             
-                <div class="form-group col-sm-3">
-                      <select class="custom-select mr-sm-2" id="inlineFormCustomSelect" v-model="TipoComprobate" @change="resetDatosAdicionales_siat()">
-                        <option value="0" selected disabled>Comprobante</option>
-                        <option value="1" :disabled="key_Activacion==2">Recibo</option>
-                        <option value="2" :disabled="key_Activacion==2" :hidden="key_Activacion==0">Factura</option>                        
-                      </select>
-                  
-                    <button v-if="selected === null || numero === '' || numero <= 0 || arrayVentas.length <= 0 || TipoComprobate===0 || datos_cliete==='' || isSubmitting==true ||key_1!=1 " type="button" class="btn btn-light">REALIZAR VENTA</button>                   
-                    <button v-else type="button" class="btn btn-primary" @click="realizarVenta()">REALIZAR VENTA</button>
-                </div>                 
+                 </div>             
+                               
              </div> 
              
              <div class="row"> 
@@ -315,28 +313,31 @@
                 <strong>Tipo de pago:</strong>
               </div>            
               <div class="form-group col-sm-3 d-flex gap-2">
-        <button type="button" class="btn" :class="tipo_contado_s === 1 ? 'btn-primary' : 'btn-secondary'" @click="tipoPago_sis(1)">
+        <button type="button" class="btn" :class="tipo_contado_s === 1 ? 'btn-primary' : 'btn-secondary'" data-toggle="tooltip" data-placement="bottom" :title="tipo_contado_s === 1 ? 'Pago al contado' : 'Pago al contado'"  @click="tipoPago_sis(1)">
             <i class="fa fa-money" aria-hidden="true"></i>
         </button>
-        <button type="button" class="btn" :class="tipo_qr_s === 1 ? 'btn-primary' : 'btn-secondary'" @click="tipoPago_sis(2)">
+        <button type="button" class="btn" :class="tipo_qr_s === 1 ? 'btn-primary' : 'btn-secondary'" data-toggle="tooltip" data-placement="bottom" :title="tipo_qr_s === 1 ? 'Pago QR' : 'Pago QR'" @click="tipoPago_sis(2)">
             <i class="fa fa-qrcode" aria-hidden="true"></i>
         </button>
-        <button type="button" class="btn" :class="tipo_tarjeta === 1 ? 'btn-primary' : 'btn-secondary'" @click="tipoPago_sis(3)">
+        <button type="button" class="btn" :class="tipo_tarjeta === 1 ? 'btn-primary' : 'btn-secondary'" data-toggle="tooltip" data-placement="bottom" :title="tipo_tarjeta === 1 ? 'Pago con tarjeta' : 'Pago con tarjeta'" @click="tipoPago_sis(3)">
             <i class="fa fa-credit-card-alt" aria-hidden="true"></i>
-        </button>  
-    </div>
-    <div class="form-group col-sm-2" style="display: flex;">
-                <strong>Gift Card:</strong>
-              </div>  
-    <div class="form-group col-sm-2 d-flex gap-2">
-        <button v-if="gift_sis_===0" type="button" class="btn btn-primary" @click="gift_sis(1)">
+        </button> 
+        <button type="button" class="btn" :class="tipo_gift_ === 1 ? 'btn-primary' : 'btn-secondary'" data-toggle="tooltip" data-placement="bottom" :title="tipo_gift_ === 1 ? 'Pago GiftCard' : 'Pago GiftCard'" @click="tipoPago_sis(4)">
           <i class="fa fa-gift" aria-hidden="true"></i>
-        </button>
-        <button v-else type="button" class="btn btn-secondary" @click="gift_sis(2)">
-          <i class="fa fa-gift" aria-hidden="true"></i>
-        </button>
-      
+        </button>   
     </div>
+     
+    <div v-show="tipo_pago_Qr_con_tar>=1" class="form-group col-sm-7" >
+                      <select class="custom-select mr-sm-2" id="inlineFormCustomSelect" v-model="TipoComprobate">
+                        <option value="0" selected disabled>Comprobante</option>
+                        <option value="1" :disabled="key_Activacion==2">Recibo</option>
+                        <option value="2" :disabled="key_Activacion==2" :hidden="key_Activacion==0">Factura</option>                        
+                      </select>
+                  
+                    <button v-if="selected === null || numero === '' || numero <= 0 || arrayVentas.length <= 0 || TipoComprobate===0 || datos_cliete==='' || isSubmitting==true ||key_1!=1 " type="button" class="btn btn-light">REALIZAR VENTA</button>                   
+                    <button v-else type="button" class="btn btn-primary" @click="realizarVenta()">REALIZAR VENTA</button>
+                </div> 
+   
 
                 </div>   
              </div>
@@ -347,7 +348,7 @@
           <div v-show="estado_dosificacion_facctura===1 && TipoComprobate==='2'" class="card w-100" style="border-left: 3px solid #9b111e;">
          
          <div class="card-body">
-          <a   class="btn btn-outline-secondary" data-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
+          <a class="btn btn-outline-secondary" data-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
             <strong >Datos extra</strong>
           </a>
           
@@ -372,12 +373,12 @@ Si no selecciona alguna opción automaticamente marca como efectivo en caso de o
                                          </select>
                                      </div> 
                                   
-                                      <label v-show="selectPago_===2" class="col-md-2 form-control-label" for="text-input">
+                                      <label v-show="selectPago_===2 || selectPago_==='2'" class="col-md-2 form-control-label" for="text-input">
                                          Numero de tarjeta:                                       
                                      </label>
                                    
                                     <div class="col-md-4">
-                                      <input v-show="selectPago_===2" style="text-align: right;" type="number" class="form-control"  placeholder="Número de tarjeta" v-model="numeroTarjeta_siat">
+                                      <input v-show="selectPago_===2 || selectPago_==='2'" style="text-align: right;" type="number" class="form-control"  placeholder="Número de tarjeta" v-model="numeroTarjeta_siat">
                                     </div>
                                  </div>
     </div>                             
@@ -934,6 +935,8 @@ export default {
     sumatotal:0,
                 efectivo:0,
                 cambio:0,
+                gift_value:0,
+
      id_tabla_y2:'', 
      existe_cliente:0,  
      existe_cliente_f:0,
@@ -947,7 +950,8 @@ export default {
      contador_cliente:0,
  
      existe_producto:0,
-
+     monto_a_pagar:0,
+     importe_fiscal:0,
      tota_del_total:0,
      descuento_final:0,       
      id_descuento_x:0,
@@ -986,14 +990,15 @@ export default {
             selectPago_:'0',
             numeroTarjeta_siat:'',
 
-            gift_sis_:0,
+            
           
 
-    // sistema contado=1, qr=2, tarje=3
+    // sistema contado=1, qr=2, tarje=3, giftcard
     tipo_pago_Qr_con_tar:0,
     tipo_contado_s:0,
     tipo_qr_s:0,
     tipo_tarjeta:0, 
+    tipo_gift_:0,
             
         };
     },
@@ -1427,7 +1432,7 @@ watch: {
       pdfMake.createPdf(documentDefinition).open();
     }, 
    ///////////////////////////////funciones para la venta///////////////////////////////////////////////////////
-    generarPDF( direccionMayusculas,nomsucursal,nuevoComprobante,fecha,hora,num_documento,nom_a_facturar,array_recibo,total_sin_des,descuento_venta,total_venta,efectivo_venta,cambio_venta,fechaMas7Dias,numero_referencia,nombreCompleto_1,nombre_empresa) {
+    generarPDF( direccionMayusculas,nomsucursal,nuevoComprobante,fecha,hora,num_documento,nom_a_facturar,array_recibo,total_sin_des,descuento_venta,total_venta,efectivo_venta,cambio_venta,fechaMas7Dias,numero_referencia,nombreCompleto_1,nombre_empresa,tipo_venta_1,monto_vale_1,monto_apagar_1) {
       // Define el contenido del PDF
 
  // Crea el cuerpo de la tabla dinámicamente
@@ -1502,6 +1507,11 @@ watch: {
         margin: [ 6, 1, 6, 1 ]
       },
       {
+        text: 'TIPO VENTA:'+'              '+tipo_venta_1,    
+        style: 'datos_f',
+        margin: [ 6, 1, 6, 1 ]
+      },
+      {
         canvas: [
           { type: 'line', x1: 0, y1: 0, x2: 226.8, y2: 0, lineWidth: 1, dash: { length: 1, space: 2 } } // Línea punteada
         ],
@@ -1531,7 +1541,15 @@ watch: {
         style: 'header_1',margin: [0, 0, 8, 0]
       },
       {
-        text: 'IMPORTE A PAGAR: Bs.   '+total_venta.toFixed(2),      
+        text: 'TOTAL CON DESC.: Bs.   '+total_venta.toFixed(2),      
+        style: 'header_1',margin: [0, 0, 8, 0]
+      },
+      {
+        text: 'VALE: Bs.   '+monto_vale_1.toFixed(2),      
+        style: 'header_1',margin: [0, 0, 8, 0]
+      },
+      {
+        text: 'IMPORTE A PAGAR: Bs.   '+monto_apagar_1,      
         style: 'header_1',margin: [0, 0, 8, 0]
       },
       
@@ -1755,12 +1773,14 @@ if (tipo_can_valor==='BS') {
             me.caso5_id_tabla="";
             me.sumatotal=0;
             me.efectivo=0;
+            me.gift_value=0;
             me.cambio=0;
             me.id_tabla_y2=""; 
       
             me.existe_cliente_f=0;    
             me.contador_cliente=0;  
-           
+            me.monto_a_pagar=0;
+            me.importe_fiscal=0;
             me.tota_del_total=0;
             me.descuento_final=0;      
             me.array_vetasQuery=[]; 
@@ -1774,6 +1794,12 @@ if (tipo_can_valor==='BS') {
         me.selectPago_='0';
         me.numeroTarjeta_siat='';
         me.complemento_siat='';
+
+        me.tipo_pago_Qr_con_tar=0;
+            me.tipo_contado_s=0;
+            me.tipo_qr_s=0;
+            me.tipo_tarjeta=0;
+            me.tipo_gift_=0;    
 
      //    me.estado_dosificacion_facctura=0;
     // me.arrayEstado_dosificacion_facctura:[],
@@ -2039,6 +2065,9 @@ if (tipo_can_valor==='BS') {
           
 me.tota_del_total = parseFloat((me.sumatotal - Number(me.descuento_final)).toFixed(2));  
 
+me.monto_a_pagar=parseFloat((me.tota_del_total - Number(me.gift_value)).toFixed(2)); 
+me.importe_fiscal=me.monto_a_pagar;
+
 if(Number(me.efectivo) > 0){
     me.cambio = parseFloat((Number(me.efectivo) - me.tota_del_total).toFixed(2)); 
     me.cambio =  me.cambio.toFixed(2);
@@ -2060,6 +2089,9 @@ if(Number(me.efectivo) > 0){
                 me.controlador_venta_id=0;
                 me.efectivo=0;
                 me.cambio=0;
+                me.gift_value=0;
+                me.monto_a_pagar=0;
+                me.importe_fiscal=0;
             }           
           },
 
@@ -2161,17 +2193,14 @@ if(Number(me.efectivo) > 0){
             var final_d=0; 
             var total_d=0;
             precioXcantida=me.selected.precio_lista_gespreventa*me.numero;
-            //descuento=1-(me.descuento/100);
+
             if (sumador_21_des>me.selected.precio_lista_gespreventa) {
                 sumador_21_des=0.00;
             } 
             descuento=sumador_21_des;
             me.descuento_1 += parseFloat(descuento);
             subtotal=precioXcantida-descuento;
-            //subtotal=sumador_21_sub;
             
-            //subtotal=precioXcantida*descuento;  
-              
             }   
                
              }   
@@ -2388,6 +2417,9 @@ if(Number(me.efectivo) > 0){
           me.sumatotal=me.sumatotal+subtotal;
 
           me.tota_del_total=me.sumatotal;
+      
+me.monto_a_pagar=me.tota_del_total-me.gift_value;
+me.importe_fiscal=me.monto_a_pagar;
             // Convertir a un número con dos decimales
             subtotal = parseFloat(subtotal.toFixed(2));
             me.arrayVentas.push({id_contador:me.controlador_venta_id, id: me.selected.id,leyenda: me.selected.leyenda,cantidad:me.numero,precio:me.selected.precio_lista_gespreventa,
@@ -2424,7 +2456,8 @@ if(Number(me.efectivo) > 0){
             descuento=sumador_21_des;
            
             me.tota_del_total=me.sumatotal-descuento;
-       
+            me.monto_a_pagar=me.tota_del_total-me.gift_value;
+            me.importe_fiscal=me.monto_a_pagar;
           }
         
             } catch (error) {
@@ -2582,10 +2615,25 @@ if(Number(me.efectivo) > 0){
       restartotal(){
                 let me=this;
                 if(me.efectivo!=0)
-                    me.cambio=Number(me.efectivo-me.tota_del_total);
+                    me.cambio=Number(me.efectivo-me.monto_a_pagar);
                 else
                     me.cambio=0;
             },
+      reset_gift(){
+        let me=this;
+        if(me.gift_value!=0){
+          me.monto_a_pagar=Number(me.tota_del_total-me.gift_value);
+          me.importe_fiscal=me.monto_a_pagar;
+          me.efectivo=0;
+          me.cambio=0;
+        }                
+                else{
+                  me.monto_a_pagar=me.tota_del_total;
+                  me.importe_fiscal=me.monto_a_pagar;
+                  me.efectivo=0;
+                  me.cambio=0;
+                }                    
+      },      
 
       limpiar(){
         this.id_tipo_doc="";
@@ -2896,7 +2944,7 @@ if(Number(me.efectivo) > 0){
             let cadena=String(me.num_documento);
             let cadena_tipo=String(me.TipoComprobate);
 
-            console.log(cadena+" --- "+cadena_tipo);
+     
 
             switch (cadena_tipo) {
                 case "1":
@@ -2980,7 +3028,17 @@ me.descuento_1=totalDescuento+me.descuento_final;
           cliente_id: me.cliente_id,
           nom_a_facturar: me.nom_a_facturar,
           correo_cliente: me.correo_cliente,
-    
+          tipoPago:me.selectPago_,
+          
+          gift_value:me.gift_value,
+          monto_a_pagar:parseFloat(me.monto_a_pagar).toFixed(2),
+          importe_fiscal:parseFloat(me.importe_fiscal).toFixed(2),
+          tipo_pago_Qr_con_tar:me.tipo_pago_Qr_con_tar,
+          tipo_contado_s:me.tipo_contado_s,
+          tipo_qr_s:me.tipo_qr_s,
+          tipo_tarjeta:me.tipo_tarjeta, 
+          tipo_gift_:me.tipo_gift_,
+          tipo_pago_siat:me.selectPago_,
 
           total_venta:me.tota_del_total,
           efectivo_venta:me.efectivo,
@@ -3062,6 +3120,27 @@ let numero_factura = respuesta.numero_factura;
 let cliente_id = respuesta.cliente_id;
 let total_literal=respuesta.total_literal;
 let nit_2=respuesta.nit_2;
+let tipo_venta_1="S/N";
+switch (respuesta.tipo_venta) {
+  case 1:
+    tipo_venta_1="EFECTIVO";
+    break;
+    case 2:
+    tipo_venta_1="QR";
+    break;
+    case 3:
+    tipo_venta_1="TARJETA";
+    break;
+    case 4:
+    tipo_venta_1="GIFTCARD";
+    break;  
+  default:
+    tipo_venta_1="OTROS";
+    break;
+}
+let monto_vale_1=respuesta.monto_vale; 
+let monto_apagar_1=respuesta.monto_apagar;     
+
 
 // Mostrar la alerta de éxito
                 if (tipocom===1) {
@@ -3072,7 +3151,7 @@ let nit_2=respuesta.nit_2;
   icon: "success",
 })
 me.generarPDF(direccionMayusculas,nomsucursal,nuevoComprobante,fecha,hora,num_documento,nom_a_facturar,array_recibo,
-total_sin_des,descuento_venta,total_venta,efectivo_venta,cambio_venta,fechaMas7Dias,numero_referencia,nombreCompleto_1,nombre_empresa
+total_sin_des,descuento_venta,total_venta,efectivo_venta,cambio_venta,fechaMas7Dias,numero_referencia,nombreCompleto_1,nombre_empresa,tipo_venta_1,monto_vale_1,monto_apagar_1
 ); 
                 } else{
                     if (tipocom===2) {
@@ -3084,7 +3163,7 @@ total_sin_des,descuento_venta,total_venta,efectivo_venta,cambio_venta,fechaMas7D
                         })
                         ///falta modelo de factura ------------
                         me.generarPDF_factura_dosificacion(direccionMayusculas,nomsucursal,nuevoComprobante,fecha,hora,num_documento,nom_a_facturar,array_recibo,
-total_sin_des,descuento_venta,total_venta,efectivo_venta,cambio_venta,fechaMas7Dias,numero_referencia,nombreCompleto_1,nombre_empresa,actividad_economica,num_auto,cod_autorizacion,fecha_e_2,ciudad_su_1,departamento_su_1,numero_factura,cliente_id,descuento_final_2,total_literal,nit_2
+total_sin_des,descuento_venta,total_venta,efectivo_venta,cambio_venta,fechaMas7Dias,numero_referencia,nombreCompleto_1,nombre_empresa,actividad_economica,num_auto,cod_autorizacion,fecha_e_2,ciudad_su_1,departamento_su_1,numero_factura,cliente_id,descuento_final_2,total_literal,nit_2,tipo_venta_1,monto_vale_1,monto_apagar_1
 ); 
                     } 
                 }
@@ -3310,10 +3389,19 @@ me.descuento_1=totalDescuento+me.descuento_final;
           complemento_siat: me.complemento_siat,
           tipoPago:me.selectPago_,
           numeroTarjeta:me.numeroTarjeta_siat,
+          gift_value:me.gift_value,
+          monto_a_pagar:parseFloat(me.monto_a_pagar).toFixed(2),
+          importe_fiscal:parseFloat(me.importe_fiscal).toFixed(2),
+          tipo_pago_Qr_con_tar:me.tipo_pago_Qr_con_tar,
+          tipo_contado_s:me.tipo_contado_s,
+          tipo_qr_s:me.tipo_qr_s,
+          tipo_tarjeta:me.tipo_tarjeta, 
+          tipo_gift_:me.tipo_gift_,
+          tipo_pago_siat:me.selectPago_,
 
           total_venta:me.tota_del_total,
           efectivo_venta:me.efectivo,
-          cambio_venta:me.cambio,
+          cambio_venta:parseFloat(me.cambio).toFixed(2),
           descuento_venta:me.descuento_1,
           arrayProRecibo:me.arrayProducto_recibo_1,
           arrayDescuentoOperacion: me.array_ven__detalle_descuentos, // Incluir el array en el objeto data
@@ -3362,23 +3450,7 @@ me.descuento_1=totalDescuento+me.descuento_final;
                 });
         },
 
-        gift_sis(data){
-          let me=this;
-          switch (data) {
-            case 1:
-            me.gift_sis_=1;
-            me.selectPago_="27";
-              break;
-              case 2:
-            me.gift_sis_=0;
-            me.selectPago_="0";
-              break;
-              
-          
-            default:
-              break;
-          }
-        },
+  
 
 
         tipoPago_sis(data){
@@ -3388,8 +3460,14 @@ me.descuento_1=totalDescuento+me.descuento_final;
             me.tipo_contado_s=1;
             me.tipo_qr_s=0;
             me.tipo_tarjeta=0;
+            me.tipo_gift_=0;
             me.tipo_pago_Qr_con_tar=data;
             me.selectPago_="1";
+            me.gift_value=0;
+            me.monto_a_pagar=me.tota_del_total-me.gift_value;
+            me.importe_fiscal=me.monto_a_pagar;
+            me.efectivo=0;
+          me.cambio=0;
             break;
           
             case 2:
@@ -3397,7 +3475,13 @@ me.descuento_1=totalDescuento+me.descuento_final;
             me.tipo_contado_s=0;
             me.tipo_qr_s=1;
             me.tipo_tarjeta=0;
-            me.selectPago_="2";  
+            me.tipo_gift_=0;
+            me.selectPago_="7";  
+            me.gift_value=0;
+            me.monto_a_pagar=me.tota_del_total-me.gift_value;
+            me.importe_fiscal=me.monto_a_pagar;
+            me.efectivo=0;
+          me.cambio=0;
             break;
 
             case 3:
@@ -3405,7 +3489,26 @@ me.descuento_1=totalDescuento+me.descuento_final;
             me.tipo_contado_s=0;
             me.tipo_qr_s=0;
             me.tipo_tarjeta=1;
-            me.selectPago_="6";
+            me.tipo_gift_=0;
+            me.selectPago_="2";
+            me.gift_value=0;
+            me.monto_a_pagar=me.tota_del_total-me.gift_value;
+            me.importe_fiscal=me.monto_a_pagar;
+            me.efectivo=0;
+          me.cambio=0;
+            break;
+            case 4:
+            me.tipo_pago_Qr_con_tar=data;
+            me.tipo_contado_s=0;
+            me.tipo_qr_s=0;
+            me.tipo_tarjeta=0;
+            me.tipo_gift_=1;
+            me.selectPago_="102";
+            me.gift_value=0;
+            me.monto_a_pagar=me.tota_del_total-me.gift_value;
+            me.importe_fiscal=me.monto_a_pagar;
+            me.efectivo=0;
+          me.cambio=0;
             break;
 
             default:
@@ -3414,6 +3517,9 @@ me.descuento_1=totalDescuento+me.descuento_final;
             me.tipo_qr_s=0;
             me.tipo_tarjeta=0;
             me.selectPago_="0"; 
+            me.gift_value=0;
+            me.efectivo=0;
+          me.cambio=0;
               break;
           }
 
@@ -3424,6 +3530,12 @@ me.descuento_1=totalDescuento+me.descuento_final;
           let me=this;
           me.selectPago_="0";
           me.numeroTarjeta_siat="";
+          me.tipo_pago_Qr_con_tar=0;
+            me.tipo_contado_s=0;
+            me.tipo_qr_s=0;
+            me.tipo_tarjeta=0;
+            me.selectPago_="0";
+            me.gift_value=0;
         }, 
         resertPago_siat(){
           let me=this;      

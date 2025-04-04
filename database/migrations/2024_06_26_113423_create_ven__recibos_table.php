@@ -32,7 +32,12 @@ return new class extends Migration
             $table->string('nro_ref',15)->nullable();
             $table->string('nro_doc',100)->nullable();
             $table->string('razon_social',100)->nullable(); 
-            $table->tinyInteger('dosificacion_o_electronica')->nullable()->comment('1=electronica 2=dosificacion');           
+            $table->tinyInteger('dosificacion_o_electronica')->nullable()->comment('0=recibo,1=electronica 2=dosificacion');  
+            $table->bigInteger('id_apertura')->default(0);
+            $table->tinyInteger('tipo_venta')->nullable()->default(1)->comment('1=efectivo,2=tarjeta,3=qr,4=vales');  
+            $table->decimal('monto_vale',11,2)->nullable()->default(0.00);
+            $table->decimal('monto_apagar',20,2)->nullable()->default(0.00);
+ 
         });
     }
 

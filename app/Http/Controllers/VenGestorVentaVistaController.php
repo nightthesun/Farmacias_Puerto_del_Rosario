@@ -113,7 +113,7 @@ if (auth()->user()->super_usuario == 0) {
         WHEN de.id IS NOT NULL THEN UPPER(de.razon_social)
         ELSE NULL
     END AS nombre_completo_cliente"),
-    'dc.correo','vr.dosificacion_o_electronica' 
+    'dc.correo','vr.dosificacion_o_electronica','vr.tipo_venta','vr.monto_vale','vr.monto_apagar' 
     )
     //->where('vr.id_sucursal', $sucursalId)
     //->where('vr.cod', $codigo)
@@ -194,7 +194,7 @@ if (auth()->user()->super_usuario == 0) {
         WHEN de.id IS NOT NULL THEN UPPER(de.razon_social)
         ELSE NULL
     END AS nombre_completo_cliente"),
-    'dc.correo','vr.dosificacion_o_electronica'   
+    'dc.correo','vr.dosificacion_o_electronica','vr.tipo_venta','vr.monto_vale','vr.monto_apagar'    
     )
     ->where('vr.id_sucursal', $sucursalId)
     ->where('vr.cod', $codigo)

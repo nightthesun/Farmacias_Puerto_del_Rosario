@@ -301,6 +301,9 @@ $nombre_empresa = strtoupper($nombre_e);
         $id_lista_v2=$request->id_lista_v2;
         $cliente_id=$request->cliente_id;
         $id_apertura_cierre=$request->id_apertura_cierre;
+        $monto_apagar=$request->monto_a_pagar;
+        $monto_vale =$request->gift_value;
+        $tipo_venta= (integer)$request->tipo_pago_Qr_con_tar;
     $data_recibo = [
         'id_sucursal' => $idsuc,
         'id_cliente' => $cliente_id,
@@ -322,6 +325,9 @@ $nombre_empresa = strtoupper($nombre_e);
         'razon_social'=>$nom_a_facturar,
         'dosificacion_o_electronica'=>$estado_dosificacion_facctura,
         'id_apertura'=>$id_apertura_cierre,
+        'tipo_venta'=>$tipo_venta,
+        'monto_vale'=>$monto_vale,
+        'monto_apagar'=>$monto_apagar
        ];   
       
        $id_recibo = DB::table('ven__recibos')->insertGetId($data_recibo);
@@ -512,7 +518,12 @@ $nombre_empresa = strtoupper($nombre_e);
             'fecha_e_2' => $fecha_e_2,
             'numero_factura' => $num_factura,
             'cliente_id' => $cliente_id,
-            'total_literal' => $total_literal
+            'total_literal' => $total_literal,
+
+            'id_apertura'=>$id_apertura_cierre,
+        'tipo_venta'=>$tipo_venta,
+        'monto_vale'=>$monto_vale,
+        'monto_apagar'=>$monto_apagar
         ]);
 
 

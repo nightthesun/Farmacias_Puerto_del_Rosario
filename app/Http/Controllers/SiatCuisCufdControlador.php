@@ -99,8 +99,12 @@ class SiatCuisCufdControlador extends Controller
             </soapenv:Body>
         </soapenv:Envelope>
         EOD;
-     
- 
+        $tiempoEspera = DB::table('siat__configuracions')
+        ->where('id', 1)
+        ->value('tiempo_espera'); // Obtiene directamente el valor de la columna
+        if (is_null($tiempoEspera)) {
+            $tiempoEspera = 30;
+        } 
             // Inicializar cURL
             $ch = curl_init();
 
@@ -108,6 +112,9 @@ class SiatCuisCufdControlador extends Controller
             curl_setopt($ch, CURLOPT_URL, $wsdl); // Reemplaza con el endpoint correcto
             curl_setopt($ch, CURLOPT_POST, 1);
             curl_setopt($ch, CURLOPT_POSTFIELDS, $xmlData);
+            //  Agregar timeout (en segundos)
+            curl_setopt($ch, CURLOPT_TIMEOUT, $tiempoEspera); // Espera máximo 30 segundos para la respuesta completa
+            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10); // Espera máximo 10 segundos para conectarse
             curl_setopt($ch, CURLOPT_HTTPHEADER, [
                 'Content-Type: text/xml; charset=utf-8',
                 'SOAPAction: ""', // Si el SOAPAction es requerido, inclúyelo aquí
@@ -117,19 +124,68 @@ class SiatCuisCufdControlador extends Controller
 
             // Ejecutar la solicitud y obtener la respuesta
             $response = curl_exec($ch);
-           
+            
             // Verificar si hubo un error en cURL
             if (curl_errno($ch)) {
-                throw new \Exception(curl_error($ch));
+                $cadena_22=curl_error($ch);
+                return "Error: ".$cadena_22;
+               // throw new \Exception(curl_error($ch));
             }
-
+          
+            $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+if ($http_code != 200) {
+    switch ($http_code) {
+         
+        case 500:
+            return "500 Internal Server Error” - Es un error genérico que indica que el servidor encontró una condición inesperada y no puede cumplir con la solicitud. El servidor te dice que hay algo mal, pero no está seguro de cuál es el problema.";
+            break;        
+        case 501:
+            return "501 Not Implemented” - El servidor no admite el método de solicitud o no tiene la capacidad de cumplir con la solicitud.";
+            break;
+        case 502:
+            return "502 Bad Gateway - Este error indica que el servidor actuó como puerta de enlace o proxy y recibió una respuesta no válida del servidor ascendente. Esta es la descripción oficial, pero hay varios factores que pueden causar este error.";
+            break;
+        case 503:
+            return "503 Service Unavailable - El servidor no puede manejar la solicitud. Esto suele ser una condición temporal causada por una sobrecarga o mantenimiento continuo en el servidor.";
+            break;
+        case 504:
+            return "504 “Gateway Timeout” - El servidor actuó como puerta de enlace y no recibió una respuesta oportuna del servidor ascendente. En la mayoría de los casos, este error es causado por scripts PHP que no terminan a tiempo y exceden el límite de tiempo de espera.";
+            break;
+        case 505:
+            return "505 “HTTP Version Not Supported” - El servidor no es compatible con la versión HTTP utilizada en la solicitud.";
+            break;
+        case 506:
+            return "506 Variant Also Negotiates - Este error ocurre cuando el cliente y el servidor entran en Negociación de Contenido Transparente, que permite al cliente recuperar la mejor variante de un recurso cuando el servidor soporta múltiples versiones.";
+            break;
+        case 507:
+            return "507 Insufficient Storage (WebDAV) - El servidor no puede almacenar la representación requerida para completar la solicitud.";
+            break;
+        case 508:
+            return "508 Loop Detected (WebDAV) - El servidor detectó un bucle infinito al procesar la solicitud.";
+            break;  
+        case 510:
+            return "510 Not Extended - Se requieren más extensiones a la solicitud para que el servidor la cumpla. Este código ya no está disponible.";
+            break;
+        case 511:
+            return "511 Network Authentication Required - Esta respuesta se envía cuando necesitas ser autenticado para que la red pueda enviar tu solicitud a un servidor. Más comúnmente, se ve al intentar usar una red Wi-Fi, y debe aceptar sus Términos de acuerdo.";
+            break;           
+           
+        default:
+        return "Error 1: ".$http_code;
+            break;
+    }
+   
+}
             // Cerrar la sesión de cURL
             curl_close($ch);
+            // Verificar respuesta SOAP
+if (empty($response)) {
+    return("Error 2: ".$response);
+}
         // Convertir la respuesta en un objeto SimpleXMLElement
-        $xml = simplexml_load_string($response);
-        
+        $xml = simplexml_load_string($response);   
         $respuesta=$response;
-      
+    
         // Usar XPath para encontrar el nodo <transaccion>    
         $transaccion = $xml->xpath('//transaccion');
         if ($transaccion && isset($transaccion[0])) {
@@ -176,11 +232,18 @@ class SiatCuisCufdControlador extends Controller
                    
                     return $respuesta;
             } else {
-                $respuesta=$response;
-                return $respuesta;
+                $codigo_2 = $xml->xpath('//codigo');
+                $descripcion = DB::table('excel__emision')
+                ->where('id_catalogo', 5)
+                ->where('codigo', 902)
+                ->value('descripcion'); // Obtiene directamente el valor de la columna
+                if (is_null($descripcion)) {
+                    return "Error siat ".$respuesta;
+                } else{
+                   return $descripcion; 
+                }
             }                
-    } else {   
-       
+    } else {         
         return $respuesta;
     } 
             
@@ -226,13 +289,20 @@ class SiatCuisCufdControlador extends Controller
             </soapenv:Body>
          </soapenv:Envelope>
          EOD;
-     
+         $tiempoEspera = DB::table('siat__configuracions')
+         ->where('id', 1)
+         ->value('tiempo_espera'); // Obtiene directamente el valor de la columna
+         if (is_null($tiempoEspera)) {
+             $tiempoEspera = 30;
+         } 
             // Inicializar cURL
             $ch = curl_init();
 
             // Configuración de la solicitud cURL
             curl_setopt($ch, CURLOPT_URL, $wsdl); // Reemplaza con el endpoint correcto
-            curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_POST, 1);            
+  curl_setopt($ch, CURLOPT_TIMEOUT, $tiempoEspera); // Espera máximo 30 segundos para la respuesta completa
+  curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10); // Espera máximo 10 segundos para conectarse
             curl_setopt($ch, CURLOPT_POSTFIELDS, $xmlData);
             curl_setopt($ch, CURLOPT_HTTPHEADER, [
                 'Content-Type: text/xml; charset=utf-8',
@@ -246,9 +316,54 @@ class SiatCuisCufdControlador extends Controller
            
             // Verificar si hubo un error en cURL
             if (curl_errno($ch)) {
-                throw new \Exception(curl_error($ch));
+                $cadena_22=curl_error($ch);
+                return "Error: ".$cadena_22;
+               // throw new \Exception(curl_error($ch));
             }
-
+            $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            if ($http_code != 200) {
+                switch ($http_code) {
+                     
+                    case 500:
+                        return "500 Internal Server Error” - Es un error genérico que indica que el servidor encontró una condición inesperada y no puede cumplir con la solicitud. El servidor te dice que hay algo mal, pero no está seguro de cuál es el problema.";
+                        break;        
+                    case 501:
+                        return "501 Not Implemented” - El servidor no admite el método de solicitud o no tiene la capacidad de cumplir con la solicitud.";
+                        break;
+                    case 502:
+                        return "502 Bad Gateway - Este error indica que el servidor actuó como puerta de enlace o proxy y recibió una respuesta no válida del servidor ascendente. Esta es la descripción oficial, pero hay varios factores que pueden causar este error.";
+                        break;
+                    case 503:
+                        return "503 Service Unavailable - El servidor no puede manejar la solicitud. Esto suele ser una condición temporal causada por una sobrecarga o mantenimiento continuo en el servidor.";
+                        break;
+                    case 504:
+                        return "504 “Gateway Timeout” - El servidor actuó como puerta de enlace y no recibió una respuesta oportuna del servidor ascendente. En la mayoría de los casos, este error es causado por scripts PHP que no terminan a tiempo y exceden el límite de tiempo de espera.";
+                        break;
+                    case 505:
+                        return "505 “HTTP Version Not Supported” - El servidor no es compatible con la versión HTTP utilizada en la solicitud.";
+                        break;
+                    case 506:
+                        return "506 Variant Also Negotiates - Este error ocurre cuando el cliente y el servidor entran en Negociación de Contenido Transparente, que permite al cliente recuperar la mejor variante de un recurso cuando el servidor soporta múltiples versiones.";
+                        break;
+                    case 507:
+                        return "507 Insufficient Storage (WebDAV) - El servidor no puede almacenar la representación requerida para completar la solicitud.";
+                        break;
+                    case 508:
+                        return "508 Loop Detected (WebDAV) - El servidor detectó un bucle infinito al procesar la solicitud.";
+                        break;  
+                    case 510:
+                        return "510 Not Extended - Se requieren más extensiones a la solicitud para que el servidor la cumpla. Este código ya no está disponible.";
+                        break;
+                    case 511:
+                        return "511 Network Authentication Required - Esta respuesta se envía cuando necesitas ser autenticado para que la red pueda enviar tu solicitud a un servidor. Más comúnmente, se ve al intentar usar una red Wi-Fi, y debe aceptar sus Términos de acuerdo.";
+                        break;           
+                       
+                    default:
+                    return "Error 1: ".$http_code;
+                        break;
+                }
+               
+            }
             // Cerrar la sesión de cURL
             curl_close($ch);
         
@@ -379,13 +494,20 @@ class SiatCuisCufdControlador extends Controller
             </soapenv:Body>
          </soapenv:Envelope>
          EOD;
-     
+         $tiempoEspera = DB::table('siat__configuracions')
+         ->where('id', 1)
+         ->value('tiempo_espera'); // Obtiene directamente el valor de la columna
+         if (is_null($tiempoEspera)) {
+             $tiempoEspera = 30;
+         } 
             // Inicializar cURL
             $ch = curl_init();
 
             // Configuración de la solicitud cURL
             curl_setopt($ch, CURLOPT_URL, $wsdl); // Reemplaza con el endpoint correcto
             curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_TIMEOUT, $tiempoEspera); // Espera máximo 30 segundos para la respuesta completa
+            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10); // Espera máximo 10 segundos para conectarse
             curl_setopt($ch, CURLOPT_POSTFIELDS, $xmlData);
             curl_setopt($ch, CURLOPT_HTTPHEADER, [
                 'Content-Type: text/xml; charset=utf-8',
@@ -396,14 +518,60 @@ class SiatCuisCufdControlador extends Controller
 
             // Ejecutar la solicitud y obtener la respuesta
             $response = curl_exec($ch);
-           
+            
             // Verificar si hubo un error en cURL
             if (curl_errno($ch)) {
-                throw new \Exception(curl_error($ch));
+                $cadena_22=curl_error($ch);
+                return "Error: ".$cadena_22;
+               // throw new \Exception(curl_error($ch));
             }
-
-            // Cerrar la sesión de cURL
-            curl_close($ch);
+                     
+            $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            if ($http_code != 200) {
+                switch ($http_code) {
+                     
+                    case 500:
+                        return "500 Internal Server Error” - Es un error genérico que indica que el servidor encontró una condición inesperada y no puede cumplir con la solicitud. El servidor te dice que hay algo mal, pero no está seguro de cuál es el problema.";
+                        break;        
+                    case 501:
+                        return "501 Not Implemented” - El servidor no admite el método de solicitud o no tiene la capacidad de cumplir con la solicitud.";
+                        break;
+                    case 502:
+                        return "502 Bad Gateway - Este error indica que el servidor actuó como puerta de enlace o proxy y recibió una respuesta no válida del servidor ascendente. Esta es la descripción oficial, pero hay varios factores que pueden causar este error.";
+                        break;
+                    case 503:
+                        return "503 Service Unavailable - El servidor no puede manejar la solicitud. Esto suele ser una condición temporal causada por una sobrecarga o mantenimiento continuo en el servidor.";
+                        break;
+                    case 504:
+                        return "504 “Gateway Timeout” - El servidor actuó como puerta de enlace y no recibió una respuesta oportuna del servidor ascendente. En la mayoría de los casos, este error es causado por scripts PHP que no terminan a tiempo y exceden el límite de tiempo de espera.";
+                        break;
+                    case 505:
+                        return "505 “HTTP Version Not Supported” - El servidor no es compatible con la versión HTTP utilizada en la solicitud.";
+                        break;
+                    case 506:
+                        return "506 Variant Also Negotiates - Este error ocurre cuando el cliente y el servidor entran en Negociación de Contenido Transparente, que permite al cliente recuperar la mejor variante de un recurso cuando el servidor soporta múltiples versiones.";
+                        break;
+                    case 507:
+                        return "507 Insufficient Storage (WebDAV) - El servidor no puede almacenar la representación requerida para completar la solicitud.";
+                        break;
+                    case 508:
+                        return "508 Loop Detected (WebDAV) - El servidor detectó un bucle infinito al procesar la solicitud.";
+                        break;  
+                    case 510:
+                        return "510 Not Extended - Se requieren más extensiones a la solicitud para que el servidor la cumpla. Este código ya no está disponible.";
+                        break;
+                    case 511:
+                        return "511 Network Authentication Required - Esta respuesta se envía cuando necesitas ser autenticado para que la red pueda enviar tu solicitud a un servidor. Más comúnmente, se ve al intentar usar una red Wi-Fi, y debe aceptar sus Términos de acuerdo.";
+                        break;           
+                       
+                    default:
+                    return "Error 1: ".$http_code;
+                        break;
+                }
+               
+            }
+             // Cerrar la sesión de cURL
+             curl_close($ch);
           
             return $response; 
                      
@@ -512,8 +680,13 @@ class SiatCuisCufdControlador extends Controller
                         </soapenv:Body>
                     </soapenv:Envelope>
                     EOD;
-                 
-                    
+                    $tiempoEspera = DB::table('siat__configuracions')
+                    ->where('id', 1)
+                    ->value('tiempo_espera'); // Obtiene directamente el valor de la columna
+                    if (is_null($tiempoEspera)) {
+                        $tiempoEspera = 30;
+                    } 
+            
                         // Inicializar cURL
                         $ch = curl_init();
             
@@ -521,6 +694,8 @@ class SiatCuisCufdControlador extends Controller
                         curl_setopt($ch, CURLOPT_URL, $wsdl); // Reemplaza con el endpoint correcto
                         curl_setopt($ch, CURLOPT_POST, 1);
                         curl_setopt($ch, CURLOPT_POSTFIELDS, $xmlData);
+                        curl_setopt($ch, CURLOPT_TIMEOUT, $tiempoEspera); // Espera máximo 30 segundos para la respuesta completa
+                        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10); // Espera máximo 10 segundos para conectarse
                         curl_setopt($ch, CURLOPT_HTTPHEADER, [
                             'Content-Type: text/xml; charset=utf-8',
                             'SOAPAction: ""', // Si el SOAPAction es requerido, inclúyelo aquí
@@ -532,15 +707,18 @@ class SiatCuisCufdControlador extends Controller
                         $response = curl_exec($ch);
                        
                         // Verificar si hubo un error en cURL
-                        if (curl_errno($ch)) {
-                            throw new \Exception(curl_error($ch));
-                        }
+            if (curl_errno($ch)) {
+                $cadena_22=curl_error($ch);
+                return "Error: ".$cadena_22;
+               // throw new \Exception(curl_error($ch));
+            }
             
                         // Cerrar la sesión de cURL
                         curl_close($ch);
-                    // Convertir la respuesta en un objeto SimpleXMLElement
+            
+                  
                     $xml = simplexml_load_string($response);
-                    
+            
                     $respuesta=$response;
                   
                     // Usar XPath para encontrar el nodo <transaccion>    
@@ -587,7 +765,7 @@ class SiatCuisCufdControlador extends Controller
                                 $actualizar->save();              
                                 $tamaño--;
                                
-                        }                
+                        }              
                 }             
                 }
             

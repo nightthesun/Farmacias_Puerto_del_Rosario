@@ -134,7 +134,7 @@
                         <td class="col-md-1" v-text="v.num_documento"></td>
                         <td class="col-md-1" v-text="v.nro_comprobante_venta"></td>
                         <td class="col-md-1" v-text="v.tipo_venta_reci_fac"></td>
-                        <td class="col-md-1" v-text="v.total_venta"></td>
+                        <td class="col-md-1" v-text="v.monto_apagar"></td>
                         <td class="col-md-1" v-text="v.efectivo_venta"></td>
                         <td class="col-md-1" v-text="v.cambio_venta"></td>
                         <td class="col-md-2" v-text="v.created_at"></td>
@@ -240,7 +240,8 @@
       <tbody>
         <tr>
           <td class="col-md-2" style="font-size: 11px; text-align: center;">
-            <span class="badge badge-pill badge-primary" style="font-size: 11px;">{{data_factura_tipo}}</span></td>
+            <span class="badge badge-pill badge-primary" style="font-size: 11px;">{{data_factura_tipo}}</span>
+            <span class="badge badge-pill badge-success " style="font-size: 11px;">{{tipo_venta_1}}</span></td>
           <td class="col-md-2" style="font-size: 11px; text-align: center;">{{data_factura_tipo_docuemnto}}</td>
           <td class="col-md-2" style="font-size: 11px; text-align: center;">{{data_factura_nro_factura}}</td>
           <td class="col-md-2" style="font-size: 11px; text-align: center;">{{data_factura_cod_control}}</td>
@@ -318,6 +319,14 @@
         <tr>
           <th colspan="7" style="font-size: 11px; text-align:right">Total:</th>
           <th style="font-size: 11px; text-align:right">{{total_1}} Bs</th>
+        </tr>
+        <tr>
+          <th colspan="7" style="font-size: 11px; text-align:right">GiftCard:</th>
+          <th style="font-size: 11px; text-align:right">{{monto_vale_1}} Bs</th>
+        </tr>
+        <tr>
+          <th colspan="7" style="font-size: 11px; text-align:right">Total a pagar:</th>
+          <th style="font-size: 11px; text-align:right">{{monto_apagar_1}} Bs</th>
         </tr>
         <tr>
           <th colspan="7" style="font-size: 11px; text-align:right">Efectivo:</th>
@@ -469,6 +478,12 @@ export default {
        data_factura_nro_factura:'',
        data_factura_cod_control:'',
        data_factura_nro_auto:'',
+       
+       monto_apagar_1:'',
+       monto_vale_1:'',
+       tipo_venta_1:'',
+
+
               
       
        //---
@@ -995,7 +1010,7 @@ tableBody.push(
 
 
             ///////////////////////////////funciones para la venta///////////////////////////////////////////////////////
-    generarPDF(nom_empresa,direccionMayusculas,nomsucursal,nuevoComprobante,fecha,hora,num_documento,nom_a_facturar,array_recibo,total_sin_des,descuento_venta,total_venta,efectivo_venta,cambio_venta,fechaMas7Dias,numero_referencia,nombreCompleto_1,anulado) {
+    generarPDF(nom_empresa,direccionMayusculas,nomsucursal,nuevoComprobante,fecha,hora,num_documento,nom_a_facturar,array_recibo,total_sin_des,descuento_venta,total_venta,efectivo_venta,cambio_venta,fechaMas7Dias,numero_referencia,nombreCompleto_1,anulado,tipo_venta_1,monto_apagar_1,monto_vale_1) {
       // Define el contenido del PDF
       let watermark = {};      
       if (anulado===1) { // Aquí puedes poner tu condición
@@ -1076,6 +1091,11 @@ tableBody.push(
         margin: [ 6, 1, 6, 1 ]
       },
       {
+        text: 'TIPO VENTA:'+'              '+tipo_venta_1,    
+        style: 'datos_f',
+        margin: [ 6, 1, 6, 1 ]
+      },
+      {
         canvas: [
           { type: 'line', x1: 0, y1: 0, x2: 226.8, y2: 0, lineWidth: 1, dash: { length: 1, space: 2 } } // Línea punteada
         ],
@@ -1105,7 +1125,15 @@ tableBody.push(
         style: 'header_1',margin: [0, 0, 8, 0]
       },
       {
-        text: 'IMPORTE A PAGAR: Bs.   '+total_venta,      
+        text: 'TOTAL CON DESC.: Bs.   '+total_venta,      
+        style: 'header_1',margin: [0, 0, 8, 0]
+      },      
+      {
+        text: 'VALE: Bs.   '+monto_vale_1,      
+        style: 'header_1',margin: [0, 0, 8, 0]
+      },
+      {
+        text: 'IMPORTE A PAGAR: Bs.   '+monto_apagar_1,      
         style: 'header_1',margin: [0, 0, 8, 0]
       },
       
@@ -1200,7 +1228,7 @@ tableBody.push(
       pdfMake.createPdf(documentDefinition).open();
     },
   
-    generarFacPlana(cod_cliente,numero_identificacion,respuesta_total,nom_empresa,direccionMayusculas,nomsucursal,nuevoComprobante,fecha,hora,num_documento,nom_a_facturar,array_recibo,total_sin_des,descuento_venta,total_venta,efectivo_venta,cambio_venta,fechaMas7Dias,numero_referencia,nombreCompleto_1,venta_con_descuento,resultado_descuento_2,anulado) {
+    generarFacPlana(cod_cliente,numero_identificacion,respuesta_total,nom_empresa,direccionMayusculas,nomsucursal,nuevoComprobante,fecha,hora,num_documento,nom_a_facturar,array_recibo,total_sin_des,descuento_venta,total_venta,efectivo_venta,cambio_venta,fechaMas7Dias,numero_referencia,nombreCompleto_1,venta_con_descuento,resultado_descuento_2,anulado,tipo_venta_1,monto_apagar_1,monto_vale_1) {
   
   // Crea el cuerpo de la tabla dinámicamente
   // Define el contenido del PDF
@@ -1256,6 +1284,16 @@ tableBody.push(
     { text: 'Total', colSpan: 9, fontSize: 7, alignment: 'right', border: [false, false, true, false] },
     {}, {}, {}, {}, {}, {}, {}, {},
     { text: total_venta , fontSize: 7, alignment: 'right' }
+  ],
+  [
+    { text: 'GiftCard', colSpan: 9, fontSize: 7, alignment: 'right', border: [false, false, true, false] },
+    {}, {}, {}, {}, {}, {}, {}, {},
+    { text: monto_vale_1 , fontSize: 7, alignment: 'right' }
+  ],
+  [
+    { text: 'Monto a pagar', colSpan: 9, fontSize: 7, alignment: 'right', border: [false, false, true, false] },
+    {}, {}, {}, {}, {}, {}, {}, {},
+    { text: monto_apagar_1 , fontSize: 7, alignment: 'right' }
   ]
 );
       const docDefinition = {
@@ -1284,7 +1322,7 @@ tableBody.push(
       layout: 'noBorders'
 		},
    
-    {text: 'RECIBO', style: 'header' },
+    {text: 'RECIBO TIPO '+tipo_venta_1, style: 'header' },
     {			
 			table: {
 				widths: [90,120,'*',60,105],
@@ -1392,8 +1430,10 @@ listarDetalle_producto_x(id,tipo_per_emp) {
                 .get(url)
                 .then(function (response) {
                     var respuesta = response.data;
+                   
                     me.pagination = respuesta.pagination;
-                    me.arrayVentas = respuesta.ventas_show.data;                    
+                    me.arrayVentas = respuesta.ventas_show.data;    
+                    console.log(me.arrayVentas);                
                 })
                 .catch(function (error) {
                     error401(error);
@@ -1468,7 +1508,7 @@ listarDetalle_producto_x(id,tipo_per_emp) {
         
         detalleVenta(cod_cliente,validor_12,id,tipo,direccion,razon_social,nro_comprobante_venta,fecha_formateada,hora_formateada,
         num_documento,nom_a_facturar,total_sin_des,descuento_venta,total_venta,efectivo_venta,cambio_venta,fecha_mas_siete,
-        numero_referencia,nombre_completo,anulado,dosificacion_o_electronica,ciudad,departamento){
+        numero_referencia,nombre_completo,anulado,dosificacion_o_electronica,ciudad,departamento,tipo_venta_1,monto_apagar_1,monto_vale_1){
           let me=this;      
         var url = "/detalle_venta_2/re_imprecion?id_venta="+id+"&tipofactura="+tipo+"&venta="+total_venta+"&total_sin_des="+total_sin_des+"&plana_ticket="+validor_12;
         axios
@@ -1505,7 +1545,7 @@ listarDetalle_producto_x(id,tipo_per_emp) {
                      
                           me.generarPDF(nom_empresa,direccion,razon_social,nro_comprobante_venta,fecha_formateada,
                      hora_formateada,num_documento,nom_a_facturar,me.arrayDetalle_venta,total_sin_des,descuento_venta,total_venta,
-                    efectivo_venta,cambio_venta,fecha_mas_siete,numero_referencia,nombre_completo,anulado);  
+                    efectivo_venta,cambio_venta,fecha_mas_siete,numero_referencia,nombre_completo,anulado,tipo_venta_1,monto_apagar_1,monto_vale_1);  
                        }
                        //factura tipo ticket dosificacion 
                        if (validor_12===1&&dosificacion_o_electronica===2) {
@@ -1522,7 +1562,7 @@ listarDetalle_producto_x(id,tipo_per_emp) {
                     me.reimprecionFactura_dosificaicion(cod_cliente,id,respuesta_total,nom_empresa,direccion,razon_social,nro_comprobante_venta,fecha_formateada,
                      hora_formateada,num_documento,nom_a_facturar,me.arrayDetalle_venta,total_sin_des,descuento_venta,total_venta,
                     efectivo_venta,cambio_venta,fecha_mas_siete,numero_referencia,nombre_completo,respuesta_descuento_1,me.decuento_sin_venta,anulado,actividad_economica,nro_celular,ciudad,departamento,
-                    codigo_control_dosifi,estado_factura_dosifi,fecha_e_dosifi,nro_autorizacion_dosifi,numero_factura_dosifi,nit,descuento_final,total_literal);
+                    codigo_control_dosifi,estado_factura_dosifi,fecha_e_dosifi,nro_autorizacion_dosifi,numero_factura_dosifi,nit,descuento_final,total_literal,tipo_venta_1,monto_apagar_1,monto_vale_1);
                     }
                     }
                     // plana tipo dosificacion
@@ -1540,7 +1580,7 @@ listarDetalle_producto_x(id,tipo_per_emp) {
                       me.reimprecionFactura_dosificaicion_plana(cod_cliente,id,respuesta_total,nom_empresa,direccion,razon_social,nro_comprobante_venta,fecha_formateada,
                      hora_formateada,num_documento,nom_a_facturar,me.arrayDetalle_venta,total_sin_des,descuento_venta,total_venta,
                     efectivo_venta,cambio_venta,fecha_mas_siete,numero_referencia,nombre_completo,respuesta_descuento_1,me.decuento_sin_venta,anulado,actividad_economica,nro_celular,ciudad,departamento,
-                    codigo_control_dosifi,estado_factura_dosifi,fecha_e_dosifi,nro_autorizacion_dosifi,numero_factura_dosifi,nit,descuento_final,total_literal,base64);
+                    codigo_control_dosifi,estado_factura_dosifi,fecha_e_dosifi,nro_autorizacion_dosifi,numero_factura_dosifi,nit,descuento_final,total_literal,base64,tipo_venta_1,monto_apagar_1,monto_vale_1);
                   
                       }
                      }
@@ -1548,7 +1588,7 @@ listarDetalle_producto_x(id,tipo_per_emp) {
                      if (validor_12===2&&dosificacion_o_electronica===0) {
                       me.generarFacPlana(cod_cliente,id,respuesta_total,nom_empresa,direccion,razon_social,nro_comprobante_venta,fecha_formateada,
                      hora_formateada,num_documento,nom_a_facturar,me.arrayDetalle_venta,total_sin_des,descuento_venta,total_venta,
-                    efectivo_venta,cambio_venta,fecha_mas_siete,numero_referencia,nombre_completo,respuesta_descuento_1,me.decuento_sin_venta,anulado);
+                    efectivo_venta,cambio_venta,fecha_mas_siete,numero_referencia,nombre_completo,respuesta_descuento_1,me.decuento_sin_venta,anulado,tipo_venta_1,monto_apagar_1,monto_vale_1);
                      }
                      
                                   
@@ -1619,7 +1659,29 @@ listarDetalle_producto_x(id,tipo_per_emp) {
                   me.anulado_x="ACTIVO";    
                   }else{
                     me.anulado_x="ANULADO";  
-                  }                  
+                  }  
+
+                  me.monto_apagar_1=data.monto_apagar;
+                  me.monto_vale_1=data.monto_vale;
+                  me.tipo_venta_1="S/N";
+switch (data.tipo_venta) {
+  case 1:
+  me.tipo_venta_1="EFECTIVO";
+    break;
+    case 2:
+  me.tipo_venta_1="QR";
+    break;
+    case 3:
+    me.tipo_venta_1="TARJETA";
+    break;
+    case 4:
+    me.tipo_venta_1="GIFTCARD";
+    break;  
+  default:
+    me.tipo_venta_1="OTROS";
+    break;
+}
+                 
             
                   me.descuento=data.descuento_venta;
                   me.total_1=data.total_venta;
@@ -1635,20 +1697,41 @@ listarDetalle_producto_x(id,tipo_per_emp) {
                 }
 
                 case "recibo_r": {
+                  let monto_apagar_1=data.monto_apagar;
+                  let monto_vale_1=data.monto_vale;
+                  let tipo_venta_1="S/N";
+switch (data.tipo_venta) {
+  case 1:
+    tipo_venta_1="EFECTIVO";
+    break;
+    case 2:
+    tipo_venta_1="QR";
+    break;
+    case 3:
+    tipo_venta_1="TARJETA";
+    break;
+    case 4:
+    tipo_venta_1="GIFTCARD";
+    break;  
+  default:
+    tipo_venta_1="OTROS";
+    break;
+}
                   me.recibo_ticket_plana=1;
          
                     if (data.tipo_venta_reci_fac==="RECIBO") {
                       me.detalleVenta(data.id_cliente,me.recibo_ticket_plana,data.id,data.tipo_venta_reci_fac,data.direccion,data.razon_social,data.nro_comprobante_venta,
                     data.fecha_formateada,data.hora_formateada,data.num_documento,data.nom_a_facturar,data.total_sin_des,
                     data.descuento_venta,data.total_venta,data.efectivo_venta,data.cambio_venta,data.fecha_mas_siete,
-                    data.numero_referencia,data.nombre_completo_empleado,data.anulado,data.dosificacion_o_electronica,data.ciudad,data.departamento
+                    data.numero_referencia,data.nombre_completo_empleado,data.anulado,data.dosificacion_o_electronica,data.ciudad,data.departamento,tipo_venta_1,monto_apagar_1,monto_vale_1
                     );
                     } else {
+                 
                     if (data.tipo_venta_reci_fac==="FACTURA") {         
                           me.detalleVenta(data.id_cliente,me.recibo_ticket_plana,data.id,data.tipo_venta_reci_fac,data.direccion,data.razon_social,data.nro_comprobante_venta,
                     data.fecha_formateada,data.hora_formateada,data.num_documento,data.nom_a_facturar,data.total_sin_des,
                     data.descuento_venta,data.total_venta,data.efectivo_venta,data.cambio_venta,data.fecha_mas_siete,
-                    data.numero_referencia,data.nombre_completo_empleado,data.anulado,data.dosificacion_o_electronica,data.ciudad,data.departamento
+                    data.numero_referencia,data.nombre_completo_empleado,data.anulado,data.dosificacion_o_electronica,data.ciudad,data.departamento,tipo_venta_1,monto_apagar_1,monto_vale_1
                     );
                         
                     } 
@@ -1659,19 +1742,38 @@ listarDetalle_producto_x(id,tipo_per_emp) {
 
                 case "pdf_plana":{
                   me.recibo_ticket_plana=2;
-           
+                  let monto_apagar_1=data.monto_apagar;
+                  let monto_vale_1=data.monto_vale;
+                  let tipo_venta_1="S/N";
+switch (data.tipo_venta) {
+  case 1:
+    tipo_venta_1="EFECTIVO";
+    break;
+    case 2:
+    tipo_venta_1="QR";
+    break;
+    case 3:
+    tipo_venta_1="TARJETA";
+    break;
+    case 4:
+    tipo_venta_1="GIFTCARD";
+    break;  
+  default:
+    tipo_venta_1="OTROS";
+    break;
+}
                   if (data.tipo_venta_reci_fac==="RECIBO") {
                     me.detalleVenta(data.id_cliente,me.recibo_ticket_plana,data.id,data.tipo_venta_reci_fac,data.direccion,data.razon_social,data.nro_comprobante_venta,
                     data.fecha_formateada,data.hora_formateada,data.num_documento,data.nom_a_facturar,data.total_sin_des,
                     data.descuento_venta,data.total_venta,data.efectivo_venta,data.cambio_venta,data.fecha_mas_siete,
-                    data.numero_referencia,data.nombre_completo_empleado,data.anulado,data.dosificacion_o_electronica,data.ciudad,data.departamento
+                    data.numero_referencia,data.nombre_completo_empleado,data.anulado,data.dosificacion_o_electronica,data.ciudad,data.departamento,tipo_venta_1,monto_apagar_1,monto_vale_1
                     );              
                   } 
                   if (data.tipo_venta_reci_fac==="FACTURA") {         
                           me.detalleVenta(data.id_cliente,me.recibo_ticket_plana,data.id,data.tipo_venta_reci_fac,data.direccion,data.razon_social,data.nro_comprobante_venta,
                     data.fecha_formateada,data.hora_formateada,data.num_documento,data.nom_a_facturar,data.total_sin_des,
                     data.descuento_venta,data.total_venta,data.efectivo_venta,data.cambio_venta,data.fecha_mas_siete,
-                    data.numero_referencia,data.nombre_completo_empleado,data.anulado,data.dosificacion_o_electronica,data.ciudad,data.departamento
+                    data.numero_referencia,data.nombre_completo_empleado,data.anulado,data.dosificacion_o_electronica,data.ciudad,data.departamento,tipo_venta_1,monto_apagar_1,monto_vale_1
                     );                        
                     } 
 
