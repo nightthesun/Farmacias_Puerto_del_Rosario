@@ -118,7 +118,7 @@ class VenGestorVentaController extends Controller
             //-----verifica el tipo de emision 
             $comunicacion = $this->verComunicacion($arrayEstado_dosificacion_facctura['tipo_ambiente'],$arrayEstado_dosificacion_facctura['token_delegado']);
         
-           
+          
             switch ($comunicacion) {
                 case 0:
                     return "Error con la consulta... contacte al administrador";
@@ -163,23 +163,24 @@ class VenGestorVentaController extends Controller
             $numero__=$queryNumeroFactura;
             }else{ $numero__=1; }
             //----------------CUF      
-          
+            
             // Obtener la fecha actual con milisegundos
             $fechaFormateada = $fechaHora->format('YmdHisv'); // yyyyMMddHHmmssSSS 
             $nitEmisor = $arrayEstado_dosificacion_facctura['nit']; //<----------------------------------------1 cabecera
             $sucursal = $arrayQuery_siat_['id_sucursal_siat'];//<----------------------------------------8 cabecera
             $modalidad = $arrayEstado_dosificacion_facctura['tipo_modalidad'];
             $tipoEmision = $queryEmision->codigo;
+            $token_delegado= $arrayEstado_dosificacion_facctura['token_delegado'];
             $tipoFactura = $request->id_tipo_doc;//<----------------------------------------13 cabecera
             $tipoDocumentoSector = $querytipoSector->codigo;
             $numeroFactura = $numero__;//<----------------------------------------5 cabecera
             $puntoVenta = $arrayQuery_siat_['punto_venta'];//<----------------------------------------10 cabecera
             $codigoControl = $arrayQuery_siat_['codigo_control_cufd']; // Este valor lo obtienes del WebService de la SIN              
-    
+        
             $cuf = CufHelper::generarCUF($nitEmisor, $fechaFormateada, $sucursal, $modalidad, $tipoEmision, $tipoFactura, $tipoDocumentoSector, $numeroFactura, $puntoVenta, $codigoControl);//<----------------------------------------6 cabecera
             //----------------------
         
-            $razonSocialEmisor=$request->nom_a_facturar;////<----------------------------------------2 cabecera         
+            $razonSocialEmisor=$request->emisor_razon_soc;////<----------------------------------------2 cabecera         
             $id_sucursal_sistemas__=$arrayQuery_siat_['id_sucursal_sistemas'];
             $departamento = DB::table('adm__sucursals as s')
             ->join('adm__departamentos as d', 'd.id', '=', 's.departamento')
@@ -193,8 +194,8 @@ class VenGestorVentaController extends Controller
             $municipio=$departamento->nombre;//<----------------------------------------3 cabecera
             $telefono=$arrayEstado_dosificacion_facctura['nro_celular'];//<----------------------------------------4 cabecera
             $cufd=$arrayQuery_siat_['cufd'];//<----------------------------------------7 cabecera
-          //  $cuis=$arrayQuery_siat_['cuis'];
-         
+            $cuis=$arrayQuery_siat_['cuis'];
+          
             $direccion=$arrayQuery_siat_['direccion_cufd'];//<----------------------------------------9 cabecera
             $fechaEmision=$fechaHora->format('Y-m-d\TH:i:s.v');//<----------------------------------------11 cabecera
             $nombreRazonSocial=$request->nom_a_facturar;//<----------------------------------------12 cabecera
@@ -217,6 +218,90 @@ class VenGestorVentaController extends Controller
             $codigoMoneda=$moneda_siat_x->codigo;//<----------------------------------------21 cabecera 
             $tipoCambio=$moneda_siat_x->codigo;//<----------------------------------------22 cabecera 
             $montoTotalMoneda=$montoTotal;
+            $montoTotalSujetoIva_real=$request->importe_fiscal;
+            $montoTotal_real=$request->monto_a_pagar;
+            $montoTotalMoneda_real=$request->monto_a_pagar;
+            $descuentoAdicional=number_format($request->descuento_a_total, 2, '.', '');
+            $montoGiftCard=number_format($request->gift_value, 2, '.', '');
+            $codigoExcepcion=0;//<---------------solo cuando Solo cuando se desee autorizar al SIN el registro de una factura emitida a un NIT inválido se debe enviar el valor de uno (1) en el mismo .
+            $leyenda=$request->leyenda;
+            $id_user2 = session('id_user2'); 
+            $nombreCompletoObj = DB::table('rrh__empleados as re')
+            ->join('users as u', 're.id', '=', 'u.idempleado')
+            ->where('u.id', $id_user2)
+            ->value(DB::raw('UPPER(re.nombre)'));
+            
+            //==================================================
+            //------------------etapa 4-------------------------
+            //==================================================
+            $tipo_ambiente=$request->tipo_ambiente;
+            $endPoints = DB::table('siat__endpoints as se')    
+            ->select('se.id', 'se.Descripcion', 'se.Url', 'se.Version')
+            ->where('se.tipo', intval($tipo_ambiente))
+            ->where('se.id',4)
+            ->get(); 
+            $codigoDocumentoSector=1;// configurar depedeniendo de laf actura comoe s combra y venta es 1
+            $actividadEconomica=$request->actividadEconomica;
+            
+            $cadena_url=$endPoints[0]->Url; 
+            $wsdl = $cadena_url;
+                // Asignación de la URL y API key
+                $wsdl = $cadena_url; 
+                $apikeyValue = 'TokenApi ' .$token_delegado; // Concatenar correctamente el valor del API key
+// Crear el cuerpo del mensaje SOAP, sustituyendo los valores con los parámetros correspondientes      
+//    <codigoPuntoVenta>0</codigoPuntoVenta>  <codigoPuntoVenta xsi:nil="true"/>   <complemento xsi:nil="true"/> <numeroTarjeta xsi:nil="true"/>  <montoGiftCard xsi:nil="true"/>
+$xmlData = <<<EOD
+<?xml version="1.0" encoding="UTF-8"?>
+<facturaElectronicaCompraVenta xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="facturaElectronicaCompraVenta.xsd">
+    <cabecera>
+        <nitEmisor>{$nitEmisor}</nitEmisor>
+        <razonSocialEmisor>{$razonSocialEmisor}</razonSocialEmisor>
+        <municipio>{$municipio}</municipio>
+        <telefono>{$telefono}</telefono>
+        <numeroFactura>{$numeroFactura}</numeroFactura>
+        <cuf>{$cuis}</cuf>
+        <cufd>{$cufd}</cufd>
+        <codigoSucursal>{$sucursal}</codigoSucursal>
+        <direccion>{$direccion}</direccion>
+        <codigoPuntoVenta>{$puntoVenta}</codigoPuntoVenta>       
+        <fechaEmision>{$fechaEmision}</fechaEmision>
+        <nombreRazonSocial>{$nombreRazonSocial}</nombreRazonSocial>
+        <codigoTipoDocumentoIdentidad>{$tipoFactura}</codigoTipoDocumentoIdentidad>
+        <numeroDocumento>$numeroDocumento</numeroDocumento>
+        <complemento xsi:nil="true"/>
+        <codigoCliente>{$codigoCliente}</codigoCliente>
+        <codigoMetodoPago>{$codigoMetodoPago}</codigoMetodoPago>
+        <numeroTarjeta xsi:nil="true"/>
+        <montoTotal>{$montoTotal_real}</montoTotal>
+        <montoTotalSujetoIva>{$montoTotalSujetoIva_real}</montoTotalSujetoIva>
+        <codigoMoneda>{$codigoMoneda}</codigoMoneda>
+        <tipoCambio>{$tipoCambio}</tipoCambio>
+        <montoTotalMoneda>{$montoTotalMoneda_real}</montoTotalMoneda>
+        <montoGiftCard>{$montoGiftCard}</montoGiftCard>      
+        <descuentoAdicional>{$descuentoAdicional}</descuentoAdicional>
+        <codigoExcepcion>{$codigoExcepcion}</codigoExcepcion>
+        <cafc xsi:nil="true"/>
+        <leyenda>{$leyenda}</leyenda>
+        <usuario>{$nombreCompletoObj}</usuario>
+        <codigoDocumentoSector>{$codigoDocumentoSector}</codigoDocumentoSector>
+    </cabecera>
+    <detalle>
+        <actividadEconomica>{$actividadEconomica}</actividadEconomica>
+        <codigoProductoSin>123456</codigoProductoSin>
+        <codigoProducto>ABC123</codigoProducto>
+        <descripcion>Producto de ejemplo</descripcion>
+        <cantidad>1</cantidad>
+        <unidadMedida>1</unidadMedida>
+        <precioUnitario>100.00</precioUnitario>
+        <montoDescuento>0.00</montoDescuento>
+        <subTotal>100.00</subTotal>
+        <numeroSerie xsi:nil="true"/>
+        <numeroImei xsi:nil="true"/>
+    </detalle>
+</facturaElectronicaCompraVenta>
+EOD;
+            
             
            
           
@@ -1388,8 +1473,8 @@ if ($hoy->greaterThan($fechaA)) {
     if ($cod_exito>=2) {
         $datos = [
             'nit' => $query_1->nit,
-            'nro_celular' => $query_1->nro_celular,
-    
+            'nro_celular' => $query_1->nro_celular,    
+            'emisor_razon_soc' =>$query_1->nom_empresa, 
             'cod_sis' => $query_2->cod_sis, 
             'name' => $query_2->name,
             'password' => $query_2->password,

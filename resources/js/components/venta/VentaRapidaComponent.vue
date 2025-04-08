@@ -999,6 +999,9 @@ export default {
     tipo_qr_s:0,
     tipo_tarjeta:0, 
     tipo_gift_:0,
+
+    actividadEco_v2:'',
+    leyenda_v2:'',
             
         };
     },
@@ -2434,7 +2437,7 @@ me.importe_fiscal=me.monto_a_pagar;
             let may_leyenda=(me.selected.leyenda).toUpperCase();
             me.codigo_tienda_almacen=me.selected.codigo_tienda_almacen;
             me.array_vetasQuery.push({id_contador:me.controlador_venta_id,descuento: descuento,es_lista: es_lista,id_ges_pre:me.selected.id,id_ingreso:me.selected.id_ingreso,id_producto:me.selected.id_prod,id_linea:me.selected.id_linea,precio_venta:me.selected.precio_lista_gespreventa,cantidad_venta:me.numero,codigo_tienda_almacen:me.selected.codigo_tienda_almacen});
-            me.arrayProducto_recibo_1.push({id_contador:me.controlador_venta_id,cant:me.numero,descrip:may_leyenda,p_u:me.selected.precio_lista_gespreventa,unidad_medida:me.selected.unidad_medida,descuento: descuento});
+            me.arrayProducto_recibo_1.push({id_contador:me.controlador_venta_id,cant:me.numero,descrip:may_leyenda,p_u:me.selected.precio_lista_gespreventa,unidad_medida:me.selected.unidad_medida,descuento: descuento,cod_pro:me.selected.codigo_prod});
             if (me.validadorPersonal===7 || me.existe_final>0) {
             let sumador_21_sub = 0;
             let sumador_21_des = 0;
@@ -2774,6 +2777,7 @@ me.importe_fiscal=me.monto_a_pagar;
                 .then(function (response) {
                     var respuesta = response.data;
                     me.arrayProducto = respuesta;
+                    console.log(me.arrayProducto);
                 })
                 .catch(function (error) {
                     error401(error);
@@ -3398,6 +3402,9 @@ me.descuento_1=totalDescuento+me.descuento_final;
           tipo_tarjeta:me.tipo_tarjeta, 
           tipo_gift_:me.tipo_gift_,
           tipo_pago_siat:me.selectPago_,
+          descuento_a_total:me.descuento_final,
+          actividadEconomica:me.actividadEco_v2,
+          leyenda:me.leyenda_v2,
 
           total_venta:me.tota_del_total,
           efectivo_venta:me.efectivo,
@@ -3541,6 +3548,36 @@ me.descuento_1=totalDescuento+me.descuento_final;
           let me=this;      
           me.numeroTarjeta_siat="";
         }, 
+
+        actividadEconomica(){
+          let me=this;
+          var url = "/actividadEconomica";          
+            axios.get(url)
+                .then(function (response) {
+                    var respuesta_1 = (response.data).actividad; 
+                    var respuesta_2 = (response.data).leyenda; 
+                    me.actividadEco_v2=respuesta_1.codigo;
+                    me.leyenda_v2=respuesta_2.descripcion;
+                    if (me.actividadEco_v2==null||me.actividadEco_v2=="") {
+                      Swal.fire("Error", "Actividad economina sin datos contacte al administrador", "error",);
+                      me.actividadEco_v2=0;
+                    } else {
+                      me.actividadEco_v2=respuesta_1.codigo;
+                    }
+                    if (me.leyenda_v2==null||me.leyenda_v2=="") {
+                      Swal.fire("Error", "leyednda sin configurar", "error",);
+                      me.leyenda_v2=0;
+                    } else {
+                      me.leyenda_v2=respuesta_2.descripcion;
+                    }
+       
+                    
+                })
+                .catch(function (error) {
+                    error401(error);
+                    console.log(error);
+                });
+        },
     },
 
     
@@ -3557,6 +3594,7 @@ me.descuento_1=totalDescuento+me.descuento_final;
         this.classModal.addModal("registrar_cliente");
         this.classModal.addModal("vista_bloque");
         this.listarPago_();   
+        this.actividadEconomica();
     },
 };
 </script>

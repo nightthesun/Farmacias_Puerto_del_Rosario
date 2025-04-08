@@ -80,6 +80,7 @@ use App\Http\Controllers\TdaIngresoProducto2Controller;
 use App\Http\Controllers\VenCaducidadController;
 use App\Http\Controllers\VenGestorVentaController;
 use App\Http\Controllers\VenGestorVentaVistaController;
+use App\Http\Controllers\SiatHomologacionController;
 use App\Models\Alm_IngresoProducto;
 use App\Models\Tda_Tienda;
 use Database\Seeders\SiatConfiguracion;
@@ -188,7 +189,8 @@ Route::group(['middleware' => 'auth'], function () {
 
     /********************************************* impuestos**************************************/
     Route::get('/listar_conceptos_v3', [GetController::class, 'getConceptos']); 
-    Route::get('/listar_config_siat_sis_v3', [GetController::class, 'getCredencialesData']);       
+    Route::get('/listar_config_siat_sis_v3', [GetController::class, 'getCredencialesData']);     
+    Route::get('/actividadEconomica', [GetController::class, 'getActividadEconomica']);   
     
     //adm///////////////////////////////////////////////////////////////////////////////////
 
@@ -814,6 +816,10 @@ Route::group(['middleware' => 'auth'], function () {
     
     Route::post('/siat_sincronizacion/parametros', [SiatParamatrosSincronizacionController::class, 'store']); 
     Route::get('/siat_sincronizacion/listarInicio', [SiatParamatrosSincronizacionController::class, 'index']); 
+
+    //Homologacion siat 
+    Route::get('/siat_homologacion/listarLista', [SiatHomologacionController::class, 'getCodigoActividadProducto']);
+    Route::get('/siat_homologacion/listarProdH', [SiatHomologacionController::class, 'getProductoHomo']);
     
  
 });

@@ -374,6 +374,24 @@ return $result;
             'config_sistema' => $query_1,
             'config_siat' => $query_2, 
         ]);
-
     }
+
+    public function getActividadEconomica(){
+        $actividad = DB::table('excel__emision')
+        ->where('id_catalogo', 15)
+        ->where('id_erp', 1)
+        ->first();
+
+        $leyenda = DB::table('excel__emision')
+        ->where('id_catalogo', 11)
+        ->where('codigo', 41)
+        ->first();
+
+        return response()->json([                        
+            'actividad' => $actividad,
+            'leyenda' => $leyenda, 
+        ]);
+       
+    }
+    
 }

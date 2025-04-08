@@ -78,7 +78,8 @@ class CreateProdProductosTable extends Migration
             $table->smallInteger('id_usuario_registra')->unsigned()->nullable()->comment('identificador del usuario que registro el producto');
             $table->smallInteger('id_usuario_modifica')->unsigned()->nullable()->comment('identificador del usuario que modifico el producto');
             $table->timestamps();
-
+            $table->smallInteger('codigoActividad')->nullable();        
+            $table->smallInteger('codigoProducto')->nullable();                
             $table->foreign('idlinea')->references('id')->on('prod__lineas');
             // $table->foreign('iddispenserprimario')->references('id')->on('prod__dispensers');
             // $table->foreign('iddispensersecundario')->references('id')->on('prod__dispensers');
