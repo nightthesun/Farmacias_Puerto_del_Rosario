@@ -250,6 +250,26 @@ class VenGestorVentaController extends Controller
                 $apikeyValue = 'TokenApi ' .$token_delegado; // Concatenar correctamente el valor del API key
 // Crear el cuerpo del mensaje SOAP, sustituyendo los valores con los parámetros correspondientes      
 //    <codigoPuntoVenta>0</codigoPuntoVenta>  <codigoPuntoVenta xsi:nil="true"/>   <complemento xsi:nil="true"/> <numeroTarjeta xsi:nil="true"/>  <montoGiftCard xsi:nil="true"/>
+
+$detalles = ''; // Aquí se guardarán todos los detalles
+
+foreach ($arrayProRecibo as $item) {
+    $detalles .= "
+    <detalle>
+        <actividadEconomica>{$actividadEconomica}</actividadEconomica>
+        <codigoProductoSin>{$item['cod_pro']}</codigoProductoSin>
+        <codigoProducto>{$item['cod_pro']}</codigoProducto>
+        <descripcion>{$item['descripcion']}</descripcion>
+        <cantidad>{$item['cantidad']}</cantidad>
+        <unidadMedida>{$item['unidadMedida']}</unidadMedida>
+        <precioUnitario>{$item['precioUnitario']}</precioUnitario>
+        <montoDescuento>{$item['montoDescuento']}</montoDescuento>
+        <subTotal>{$item['subTotal']}</subTotal>
+        <numeroSerie xsi:nil=\"true\"/>
+        <numeroImei xsi:nil=\"true\"/>
+    </detalle>";
+}
+
 $xmlData = <<<EOD
 <?xml version="1.0" encoding="UTF-8"?>
 <facturaElectronicaCompraVenta xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"

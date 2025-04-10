@@ -151,7 +151,7 @@ class CajaAperturaCierreController extends Controller
         $suma_venta_qr = DB::table('ven__recibos')
         ->where('id_usuario', auth()->user()->id)
         ->where('id_apertura', $request->id_apertura) 
-        ->where('tipo_venta', 3) 
+        ->where('tipo_venta', 2) 
         ->selectRaw('COALESCE(SUM(total_venta), 0) as total_qr')
         ->value('total_qr');
        

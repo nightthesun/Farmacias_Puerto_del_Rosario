@@ -820,6 +820,8 @@ Route::group(['middleware' => 'auth'], function () {
     //Homologacion siat 
     Route::get('/siat_homologacion/listarLista', [SiatHomologacionController::class, 'getCodigoActividadProducto']);
     Route::get('/siat_homologacion/listarProdH', [SiatHomologacionController::class, 'getProductoHomo']);
+    Route::post('/siat_homologacion/añadir', [SiatHomologacionController::class, 'store']); 
+    Route::get('/siat_homologacion/listarInicio', [SiatHomologacionController::class, 'index']);    
+    Route::post('/siat_homologacion/desactivar', [SiatHomologacionController::class, 'desactivar']); 
     
- 
 });

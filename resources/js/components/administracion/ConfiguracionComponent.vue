@@ -937,8 +937,7 @@ puedeEditar:2,
 
 
         añadirOquitar_Responsable(data){
-            let me = this;
-      
+            let me = this;      
             axios.put("/responsable/añadir_quitar", {
                     id:(me.selectedUser).id,
                     data:data                   
