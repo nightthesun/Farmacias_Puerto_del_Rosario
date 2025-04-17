@@ -306,6 +306,7 @@ return $result;
     public function getBancos(){
         $bancos = DB::table('adm__bancos')
     ->select('id', 'nombre', 'activo')
+    ->where('activo', 1)
     ->orderBy('id', 'desc')
     ->get();
     return $bancos;
@@ -355,6 +356,11 @@ return $result;
     return $empleados;
     }
 
+    public function superUsuario(){
+         $user = Auth()->user()->super_usuario;
+         return $user;
+    }
+
 //---------------------------impuestos------------------------------------
     public function getConceptos(Request $request){
         $resultado = DB::table('excel__emision')
@@ -376,21 +382,22 @@ return $result;
         ]);
     }
 
-    public function getActividadEconomica(){
-        $actividad = DB::table('excel__emision')
-        ->where('id_catalogo', 15)
-        ->where('id_erp', 1)
-        ->first();
-
+    public function getLeyenda(){
+   
         $leyenda = DB::table('excel__emision')
-        ->where('id_catalogo', 11)
-        ->where('codigo', 41)
-        ->first();
+        ->where('id_catalogo', 11)        
+        ->get();
 
-        return response()->json([                        
-            'actividad' => $actividad,
-            'leyenda' => $leyenda, 
-        ]);
+        return $leyenda;
+       
+    }
+    public function getsectorFactura(){
+   
+        $fac = DB::table('excel__emision')
+        ->where('id_catalogo', 3)     
+        ->get();
+
+        return $fac;
        
     }
     

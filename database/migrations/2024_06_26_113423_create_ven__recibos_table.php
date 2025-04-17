@@ -37,6 +37,7 @@ return new class extends Migration
             $table->tinyInteger('tipo_venta')->nullable()->default(1)->comment('1=efectivo,2=tarjeta,3=qr,4=vales');  
             $table->decimal('monto_vale',11,2)->nullable()->default(0.00);
             $table->decimal('monto_apagar',20,2)->nullable()->default(0.00);
+            $table->tinyInteger('moneda')->nullable();
  
         });
     }

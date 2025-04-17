@@ -122,13 +122,7 @@ class SiatHomologacionController extends Controller
     }
 
   
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Siat_Homologacion $siat_Homologacion)
-    {
-        return $request->all();
-    }
+ 
 
     public function getCodigoActividadProducto(){
         $homo = DB::table('excel__emision')

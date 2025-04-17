@@ -108,13 +108,13 @@ class VenGestorVentaController extends Controller
 
     public function ventaFacturaSiat(Request $request){
         try {
-            return $request->all();
+          
             DB::beginTransaction();
             $fechaHora = Carbon::now(); // Se usará automáticamente el formato correcto
             $arrayEstado_dosificacion_facctura=$request->arrayEstado_dosificacion_facctura;
             $arrayQuery_siat_=$request->arrayQuery_siat_;
-      
-          //  return $request->all();
+            $arrayProRecibo=$request->arrayProRecibo;
+            
             //-----verifica el tipo de emision 
             $comunicacion = $this->verComunicacion($arrayEstado_dosificacion_facctura['tipo_ambiente'],$arrayEstado_dosificacion_facctura['token_delegado']);
         
@@ -179,7 +179,7 @@ class VenGestorVentaController extends Controller
         
             $cuf = CufHelper::generarCUF($nitEmisor, $fechaFormateada, $sucursal, $modalidad, $tipoEmision, $tipoFactura, $tipoDocumentoSector, $numeroFactura, $puntoVenta, $codigoControl);//<----------------------------------------6 cabecera
             //----------------------
-        
+          
             $razonSocialEmisor=$request->emisor_razon_soc;////<----------------------------------------2 cabecera         
             $id_sucursal_sistemas__=$arrayQuery_siat_['id_sucursal_sistemas'];
             $departamento = DB::table('adm__sucursals as s')
@@ -230,7 +230,7 @@ class VenGestorVentaController extends Controller
             ->join('users as u', 're.id', '=', 'u.idempleado')
             ->where('u.id', $id_user2)
             ->value(DB::raw('UPPER(re.nombre)'));
-            
+         
             //==================================================
             //------------------etapa 4-------------------------
             //==================================================
@@ -240,10 +240,11 @@ class VenGestorVentaController extends Controller
             ->where('se.tipo', intval($tipo_ambiente))
             ->where('se.id',4)
             ->get(); 
-            $codigoDocumentoSector=1;// configurar depedeniendo de laf actura comoe s combra y venta es 1
-            $actividadEconomica=$request->actividadEconomica;
+            $codigoDocumentoSector=1;// configurar depedeniendo de laf actura comoe s compra y venta es 1
+            
             
             $cadena_url=$endPoints[0]->Url; 
+            return $request->all();
             $wsdl = $cadena_url;
                 // Asignación de la URL y API key
                 $wsdl = $cadena_url; 
@@ -252,25 +253,30 @@ class VenGestorVentaController extends Controller
 //    <codigoPuntoVenta>0</codigoPuntoVenta>  <codigoPuntoVenta xsi:nil="true"/>   <complemento xsi:nil="true"/> <numeroTarjeta xsi:nil="true"/>  <montoGiftCard xsi:nil="true"/>
 
 $detalles = ''; // Aquí se guardarán todos los detalles
-
+return "todo bien";
 foreach ($arrayProRecibo as $item) {
+    // Convertir a decimal y asegurar dos decimales en el resultado final
+$montoDecimal = round((float)$item['p_u'], 2);
+
+// Sumar ambos montos
+$subTotal = round($montoDecimal - $item['descuento'], 2);
     $detalles .= "
     <detalle>
-        <actividadEconomica>{$actividadEconomica}</actividadEconomica>
-        <codigoProductoSin>{$item['cod_pro']}</codigoProductoSin>
+        <actividadEconomica>{$item['codigoActividad']}</actividadEconomica>
+        <codigoProductoSin>{$item['codigoProducto']}</codigoProductoSin>
         <codigoProducto>{$item['cod_pro']}</codigoProducto>
-        <descripcion>{$item['descripcion']}</descripcion>
-        <cantidad>{$item['cantidad']}</cantidad>
-        <unidadMedida>{$item['unidadMedida']}</unidadMedida>
-        <precioUnitario>{$item['precioUnitario']}</precioUnitario>
-        <montoDescuento>{$item['montoDescuento']}</montoDescuento>
-        <subTotal>{$item['subTotal']}</subTotal>
+        <descripcion>{$item['descrip']}</descripcion>
+        <cantidad>{$item['cant']}</cantidad>
+        <unidadMedida>{$item['unidad_medida']}</unidadMedida>
+        <precioUnitario>{$item['p_u']}</precioUnitario>
+        <montoDescuento>{$item['descuento']}</montoDescuento>
+        <subTotal>{$subTotal}</subTotal>
         <numeroSerie xsi:nil=\"true\"/>
         <numeroImei xsi:nil=\"true\"/>
     </detalle>";
 }
-
-$xmlData = <<<EOD
+return $detalles;
+$factura = <<<EOD
 <?xml version="1.0" encoding="UTF-8"?>
 <facturaElectronicaCompraVenta xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="facturaElectronicaCompraVenta.xsd">
@@ -358,13 +364,14 @@ EOD;
     ->value('contador');
 
     $credencial = DB::table('adm__credecial_correos')
-    ->select('nro_celular', 'nom_empresa', 'actividad_economica','nit')
+    ->select('nro_celular', 'nom_empresa', 'actividad_economica','nit','moneda')
     ->get();
     
 $nombre_e = $credencial[0]->nom_empresa;
 $num_e = $credencial[0]->nro_celular;       
 $actividad_economica = strtoupper($credencial[0]->actividad_economica);
 $nit_2=$credencial[0]->nit;
+$moneda=$credencial[0]->moneda;
     $currentDateTime = Carbon::now();
 if (is_null($ultimoComprobante)) {
     // La tabla está vacía, iniciar con 1    
@@ -432,7 +439,8 @@ $nombre_empresa = strtoupper($nombre_e);
         'id_apertura'=>$id_apertura_cierre,
         'tipo_venta'=>$tipo_venta,
         'monto_vale'=>$monto_vale,
-        'monto_apagar'=>$monto_apagar
+        'monto_apagar'=>$monto_apagar,
+        'moneda'=>$moneda,
        ];   
       
        $id_recibo = DB::table('ven__recibos')->insertGetId($data_recibo);
@@ -480,8 +488,11 @@ $nombre_empresa = strtoupper($nombre_e);
             'total' => $total_venta,
             'codigo_control' => $cod_autorizacion,             
            ];  
+
            
             DB::table('ven__factura_dosi')->insert($data_fac_dosi);
+      
+
      
     }
     
@@ -542,8 +553,48 @@ $nombre_empresa = strtoupper($nombre_e);
            $cantidad_v3=$update->stock_ingreso;
            $update->stock_ingreso = $cantidad_v3-$cantidad_venta;
            $update->save();    
-        }       
-            
+        }
+        $validador_1="";
+        $valor_2=0;
+        $numeroTarjeta="";
+       
+        switch ($tipo_venta) {
+            case 2:
+            $validador_1="QR";
+            $numeroTarjeta=$request->numeroTarjeta;
+            $valor_2=1;
+                break;
+            case 3:
+            $validador_1="TRJ";      
+          
+            if($request->numeroTarjeta==null || $request->numeroTarjeta==''){
+                $numeroTarjeta=$request->numeroTarjeta;  
+            } else{ 
+                $numeroTarjeta = $this->ofuscarTarjeta($request->numeroTarjeta); 
+            } 
+            $valor_2=1;
+                break;
+            case 0:
+                $validador_1="ERROR";
+                $numeroTarjeta=0;
+                break;    
+            default:
+                $validador_1="ERROR";
+                $numeroTarjeta=0;
+                break;
+        }   
+
+        if($valor_2==1){
+            $data_transaccion = [
+                'id_venta'=>$id_recibo,
+                'tipo' => $validador_1,          
+                'num_tar_o_boleto' => $numeroTarjeta,
+                'mas_datos' => $request->cadenaOtros,  
+                'id_banco' => $request->tipoBanco           
+               ];  
+            DB::table('ven__trasferencias')->insert($data_transaccion);
+        }   
+        
     DB::commit();
         // Llamar a create_recibo
         //$reciboData = $this->create_recibo($idsuc,$id_user2,$nuevoComprobante,$nomsucursal,$num_documento,$currentDateTime,$nom_a_facturar,$numero_referencia,$request->arrayProRecibo,$total_sin_des,$descuento_venta, $total_venta,$efectivo_venta,$cambio_venta);
@@ -734,7 +785,7 @@ $nombre_empresa = strtoupper($nombre_e);
     'pd2.activo as descuento_activo',
     'pad2.id_sucursal as id_11','pppl.id as id_linea',
      'pd2.id as id_descuento',
-            'pd2.id_tipo_tabla as id_tabla','tip.prioridad_caducidad'
+            'pd2.id_tipo_tabla as id_tabla','tip.prioridad_caducidad','pp.codigoActividad','pp.codigoProducto'  
             )
             ->where('ass.id', $id_suc)
             ->where('gpv.listo_venta', 1)
@@ -815,7 +866,7 @@ $nombre_empresa = strtoupper($nombre_e);
     'pd2.activo as descuento_activo',
     'pad2.id_sucursal as id_11','pppl.id as id_linea',
     'pd2.id as id_descuento',
-    'pd2.id_tipo_tabla as id_tabla','tip.prioridad_caducidad'         
+    'pd2.id_tipo_tabla as id_tabla','tip.prioridad_caducidad','pp.codigoActividad','pp.codigoProducto'         
             )
             ->where('ass.id', $idsuc)
             ->where('gpv.listo_venta', 1)
@@ -921,7 +972,7 @@ $nombre_empresa = strtoupper($nombre_e);
     'pd2.activo as descuento_activo',
     'pad2.id_sucursal as id_11','pppl.id as id_linea',
      'pd2.id as id_descuento',
-            'pd2.id_tipo_tabla as id_tabla','tip.prioridad_caducidad'
+            'pd2.id_tipo_tabla as id_tabla','tip.prioridad_caducidad','pp.codigoActividad','pp.codigoProducto'
             )
             ->where('ass.id', $id_suc)
             ->where('gpv.listo_venta', 1)
@@ -1001,7 +1052,7 @@ $nombre_empresa = strtoupper($nombre_e);
     'pd2.activo as descuento_activo',
     'pad2.id_sucursal as id_11','pppl.id as id_linea',
     'pd2.id as id_descuento',
-    'pd2.id_tipo_tabla as id_tabla','tip.prioridad_caducidad'         
+    'pd2.id_tipo_tabla as id_tabla','tip.prioridad_caducidad','pp.codigoActividad','pp.codigoProducto'         
             )
             ->where('ass.id', $idsuc)
             ->where('gpv.listo_venta', 1)
@@ -1430,8 +1481,10 @@ $nombre_empresa = strtoupper($nombre_e);
             switch ($credencialesCorreos[0]->factura_dosificacion) {
                 case 1:
                        ///---- falta datos de factura en linea siat
-                       $query_1 = DB::table('adm__credecial_correos')
-                        ->where('id', 1)->first();
+                       $query_1 =  DB::table('adm__credecial_correos as a')
+                       ->join('adm__nacionalidads as n', 'a.moneda', '=', 'n.id')
+                       ->where('a.id', 1)
+                       ->first();
                        
                         $query_2 = DB::table('siat__configuracions')
                         ->where('id', 1)
@@ -1502,7 +1555,8 @@ if ($hoy->greaterThan($fechaA)) {
             'tipo_ambiente' => $query_2->tipo_ambiente,
             'tipo_certificado' => $query_2->tipo_certificado,
             'tipo_modalidad' => $query_2->tipo_modalidad,
-            'token_delegado' => $query_2->token_delegado,        
+            'token_delegado' => $query_2->token_delegado,  
+            'moneda' => $query_1->simbolo,       
             ];
     
         return response()->json(['estado' => 1, 'consulta' => $datos,'query'=>$query_emisor]); 

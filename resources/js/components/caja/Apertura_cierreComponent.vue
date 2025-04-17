@@ -559,22 +559,21 @@
                         <table class="table table-bordered table-striped table-sm table-responsive">                           
                             <thead>
                                 <tr>
-                                    <th class="col-md-2">Codigo</th>
+                                    <th class="col-md-3">Codigo</th>
                                     <th class="col-md-3">Usuario</th>
                                     <th class="col-md-2">Monto de apertura</th>                                      
-                                    <th class="col-md-1">Simbolo</th> 
-                                    <th class="col-md-2">Otros montos</th>                                    
-                                    <th class="col-md-2">Turno</th>                                
+                                    <th class="col-md-1">Simbolo</th>                                                                 
+                                    <th class="col-md-3">Turno</th>                                
                                  </tr>
                             </thead>  
                             <tbody>  
                                 <tr>                    
-                                    <td class="col-md-2" style="text-align: right">{{codigo_cerrar_apertura}}</td>
+                                    <td class="col-md-3" style="text-align: right">{{codigo_cerrar_apertura}}</td>
                                     <td class="col-md-3">{{usuario_cerrar_apertura}}</td>
                                     <td class="col-md-2" style="text-align: right">{{monto_cerrar_apertura}}</td>
                                     <td class="col-md-1">{{SimboloB}}</td>
-                                    <td class="col-md-2" style="text-align: right; background-color: burlywood; color: black;">{{suma_venta_Qr}}</td>
-                                    <td class="col-md-2">{{Turno_cerrar_apertura}}</td>                                    
+                                   
+                                    <td class="col-md-3">{{Turno_cerrar_apertura}}</td>                                    
                                                                    
                                 </tr>    
                             </tbody>  
@@ -704,22 +703,21 @@
                         <table class="table table-bordered table-striped table-sm table-responsive">                           
                             <thead>
                                 <tr>
-                                    <th class="col-md-2">Codigo</th>
+                                    <th class="col-md-3">Codigo</th>
                                     <th class="col-md-3">Usuario</th>
                                     <th class="col-md-2">Monto de apertura</th>                                          
                                     <th class="col-md-1">Simbolo</th>              
-                                    <th class="col-md-2">Otros montos</th>                       
-                                    <th class="col-md-2">Turno</th>                                
+                                                
+                                    <th class="col-md-3">Turno</th>                                
                                  </tr>
                             </thead>  
                             <tbody>  
                                 <tr>                    
-                                    <td class="col-md-2" style="text-align: right">{{codigo_cerrar_apertura}}</td>
+                                    <td class="col-md-3" style="text-align: right">{{codigo_cerrar_apertura}}</td>
                                     <td class="col-md-3">{{usuario_cerrar_apertura}}</td>
                                     <td class="col-md-2" style="text-align: right">{{monto_cerrar_apertura}}</td>
                                     <td class="col-md-1">{{SimboloB}}</td>
-                                    <td class="col-md-2" style="text-align: right; background-color: burlywood; color: black;">{{suma_venta_Qr}}</td>
-                                    <td class="col-md-2">{{Turno_cerrar_apertura}}</td>                                    
+                                   <td class="col-md-3">{{Turno_cerrar_apertura}}</td>                                    
                                                                    
                                 </tr>    
                             </tbody>  
@@ -971,7 +969,7 @@ export default {
             suma_venta:'',
             sumaEntrada:'',
             sumaSalida:'',
-            suma_venta_Qr:'',
+          
 
             selectCajaxUsuario:0,
 
@@ -1349,9 +1347,9 @@ swalWithBootstrapButtons.fire({
                 let suma_venta = parseFloat(me.suma_venta) || 0;
 let sumaEntrada = parseFloat(me.sumaEntrada) || 0;
 let sumaSalida = parseFloat(me.sumaSalida) || 0;
-let suma_venta_Qr=parseFloat(me.suma_venta_Qr) || 0;
+
 let monto_cerrar_apertura = parseFloat(me.monto_cerrar_apertura) || 0;
-let operacion_acciones = (suma_venta + sumaEntrada + suma_venta_Qr) - sumaSalida;
+let operacion_acciones = (suma_venta + sumaEntrada) - sumaSalida;
 let operacion_apertura = operacion_acciones + monto_cerrar_apertura;
 
             //------------------algoritmo-------------------------
@@ -1488,7 +1486,7 @@ let operacion_apertura = operacion_acciones + monto_cerrar_apertura;
                     me.suma_venta=respuesta.suma_venta;
                     me.sumaEntrada=respuesta.sumaEntrada;
                     me.sumaSalida=respuesta.sumaSalida;
-                    me.suma_venta_Qr=respuesta.suma_venta_qr;                
+                             
                 })
                 .catch(function (error) {
                     error401(error);
@@ -1805,7 +1803,7 @@ me.isSubmitting = true; // Deshabilita el botón
                     me.suma_venta="";
                     me.sumaEntrada="";
                     me.sumaSalida="";
-                    me.suma_venta_Qr="";            
+                           
                     me.get_operacion_v2(data.id);     
                     me.codigo_cerrar_apertura=data.id;               
                     me.monto_cerrar_apertura=data.total_arqueo_caja;
@@ -1844,7 +1842,7 @@ me.isSubmitting = true; // Deshabilita el botón
                     me.suma_venta="";
                     me.sumaEntrada="";
                     me.sumaSalida="";
-                    me.suma_venta_Qr="";            
+                          
                     me.get_operacion_v2(data.id);     
                     me.codigo_cerrar_apertura=data.id;               
                     me.monto_cerrar_apertura=data.total_arqueo_caja;
@@ -2027,7 +2025,7 @@ me.isSubmitting = true; // Deshabilita el botón
                 me.suma_venta="";
                 me.sumaEntrada="";
                 me.sumaSalida="";
-                me.suma_venta_Qr="";
+            
                         me.totalMonedas="0.00";
                         me.SimboloM="S/N";
                         me.SimboloB="S/N";            
@@ -2052,7 +2050,7 @@ me.isSubmitting = true; // Deshabilita el botón
                 me.suma_venta="";
                 me.sumaEntrada="";
                 me.sumaSalida="";
-                me.suma_venta_Qr="";
+          
                         me.totalMonedas="0.00";
                         me.SimboloM="S/N";
                         me.SimboloB="S/N";            

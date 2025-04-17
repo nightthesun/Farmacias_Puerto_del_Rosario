@@ -20,7 +20,13 @@
                 </li>       
                 <li class="nav-item">
                     <a class="nav-link" id="pills-concepto-tab" data-toggle="pill" href="#pills-concepto" role="tab" aria-controls="pills-concepto" aria-selected="false" @click="listar_catalogo()">Conceptos</a>
-                </li>                   
+                </li>    
+                <li class="nav-item">
+                    <a class="nav-link" id="pills-tipoFactura-tab" data-toggle="pill" href="#pills-tipoFactura" role="tab" aria-controls="pills-tipoFactura" aria-selected="false" @click="listar_factura_v()">Tipo Factura</a>
+                </li>  
+                <li class="nav-item">
+                    <a class="nav-link" id="pills-tipoLeyenda-tab" data-toggle="pill" href="#pills-tipoLeyenda" role="tab" aria-controls="pills-tipoLeyenda" aria-selected="false" @click="listar_leyenda()">Leyenda</a>
+                </li>              
             </ul>
         </div>
         <div class="card-body">           
@@ -281,6 +287,76 @@
 
 </div>
 </div>        
+
+     <!-----------------------------------------------------------------TIPO FACTURA ----------------------------------------------------------->
+             
+     <div class="tab-pane fade" id="pills-tipoFactura" role="tabpanel" aria-labelledby="pills-tipoFactura-tab">
+<div class="card">
+    <div class="card-header">
+        codigo Documento Sector
+    </div>
+    
+<div class="card-body">    
+        <div class="row">
+        <div class="form-group col-sm-2">
+            <strong >Sector:</strong>
+        </div> 
+        <div class="form-group col-sm-4">
+            <select class="form-control" v-model="selectFactura_v">
+    <option value="0" disabled selected>Seleccionar...</option>    
+    <option v-for="i in arrayFactura_v" :key="i.codigo" :value="i.codigo">{{ i.descripcion}}</option>
+</select>
+        </div>
+        <div class="form-group col-sm-2">
+                                
+        </div> 
+        
+        
+                                      
+        </div>    
+         <!---inserte tabla-->
+ 
+      
+  
+    </div>
+
+</div>
+</div>   
+ <!-----------------------------------------------------------------TIPO LEYENDA ----------------------------------------------------------->
+             
+ <div class="tab-pane fade" id="pills-tipoLeyenda" role="tabpanel" aria-labelledby="pills-tipoLeyenda-tab">
+<div class="card">
+    <div class="card-header">
+        codigo Documento Sector
+    </div>
+    
+<div class="card-body">    
+        <div class="row">
+        <div class="form-group col-sm-2">
+            <strong >Leyenda:</strong>
+        </div> 
+        <div class="form-group col-sm-4">
+            <select class="form-control" v-model="selectLeyenda">
+    <option value="0" disabled selected>Seleccionar...</option>
+    
+    <option v-for="i in arrayLeyenda" :key="i.codigo" :value="i.codigo">{{ i.descripcion }}</option>
+</select>
+        </div>
+        <div class="form-group col-sm-2">
+                        
+        </div> 
+       
+        
+                                      
+        </div>    
+         <!---inserte tabla-->
+ 
+      
+  
+    </div>
+
+</div>
+</div>           
 <!---------------------------------------------------------------------------------------------------------------------------->
             </div>            
         </div>
@@ -424,6 +500,12 @@ export default {
             ActivarCambioFirma:0,
             name_firma:'',
             path_firma:'',
+            //--leyenda
+            arrayLeyenda:[],
+            selectLeyenda:"0",
+            //--factura
+            arrayFactura_v:[],
+            selectFactura_v:"0",
 
         };
     },
@@ -896,6 +978,34 @@ validateFileExcel() {
                 axios.get(url).then(function(response){
                     var respuesta = response.data; 
                     me.arrayCatalogo=respuesta;                                                 
+                })
+                .catch(function(error){
+                    error401(error);
+                });
+        },
+
+         ///-------inicio leyenda-------------        
+         listar_leyenda(){
+            let me=this;     
+                me.arrayLeyenda=[];         
+                    var url='/leyenda_siat';                         
+                axios.get(url).then(function(response){
+                    var respuesta = response.data; 
+                    me.arrayLeyenda=respuesta;                                                 
+                })
+                .catch(function(error){
+                    error401(error);
+                });
+        },
+
+         ///-------inicio factura_v-------------        
+         listar_factura_v(){
+            let me=this;     
+                me.arrayFactura_v=[];         
+                    var url='/tipoSector_siat';                         
+                axios.get(url).then(function(response){
+                    var respuesta = response.data; 
+                    me.arrayFactura_v=respuesta;                                                 
                 })
                 .catch(function(error){
                     error401(error);

@@ -5,9 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Siat_Homologacion extends Model
+class Ven_Trasferencia extends Model
 {
     use HasFactory;
-    protected $table='siat__homologacions';  
+    protected $table='ven__trasferencias';   
     
 }

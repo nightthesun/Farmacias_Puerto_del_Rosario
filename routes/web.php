@@ -81,6 +81,7 @@ use App\Http\Controllers\VenCaducidadController;
 use App\Http\Controllers\VenGestorVentaController;
 use App\Http\Controllers\VenGestorVentaVistaController;
 use App\Http\Controllers\SiatHomologacionController;
+use App\Http\Controllers\VenTrasferenciaController;
 use App\Models\Alm_IngresoProducto;
 use App\Models\Tda_Tienda;
 use Database\Seeders\SiatConfiguracion;
@@ -182,6 +183,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/listarUser', [GetController::class, 'getUser']);   
     Route::get('/getEmpelado', [GetController::class, 'getEmpelado']); 
     Route::get('/listarUserNomal', [GetController::class, 'getUserNomal']); 
+    Route::get('/usuarioEspecial', [GetController::class, 'superUsuario']); 
+    
     
     /**********************verificador de apertura cierre retornod e datos****************************** */
     Route::get('/verificacionAperturaCierre', [GetController::class, 'listarAperturaCierre']);
@@ -190,8 +193,8 @@ Route::group(['middleware' => 'auth'], function () {
     /********************************************* impuestos**************************************/
     Route::get('/listar_conceptos_v3', [GetController::class, 'getConceptos']); 
     Route::get('/listar_config_siat_sis_v3', [GetController::class, 'getCredencialesData']);     
-    Route::get('/actividadEconomica', [GetController::class, 'getActividadEconomica']);   
-    
+    Route::get('/leyenda_siat', [GetController::class, 'getLeyenda']);   
+    Route::get('/tipoSector_siat', [GetController::class, 'getsectorFactura']);  
     //adm///////////////////////////////////////////////////////////////////////////////////
 
     Route::get('/rubro', [AdmRubroController::class, 'index']);
@@ -683,6 +686,10 @@ Route::group(['middleware' => 'auth'], function () {
     Route::put('/caducida/prioridad', [VenCaducidadController::class, 'prioridad']); 
     Route::post('/caducida/darDeBaja', [VenCaducidadController::class, 'darDeBaja']);
 
+    //venta transaccion---
+    Route::get('/ven_trasnferencia/listarInicio', [VenTrasferenciaController::class, 'index']);
+    Route::put('/ven_trasnferencia/modificar', [VenTrasferenciaController::class, 'update']);
+    
     //////////////////////////////////////////////////CAJA/////////////////////////////////////////////////////////////////////
     
     //moneda--
