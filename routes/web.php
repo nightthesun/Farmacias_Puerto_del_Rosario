@@ -184,7 +184,10 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/getEmpelado', [GetController::class, 'getEmpelado']); 
     Route::get('/listarUserNomal', [GetController::class, 'getUserNomal']); 
     Route::get('/usuarioEspecial', [GetController::class, 'superUsuario']); 
-    
+    Route::get('/listarConfig_v2', [GetController::class, 'getConfiguracion_v2']);   
+    Route::get('/listarTipoActividad', [GetController::class, 'getTipoActividad']);  
+    Route::get('/listarRubro_venta', [GetController::class, 'getRubro']);  
+   
     
     /**********************verificador de apertura cierre retornod e datos****************************** */
     Route::get('/verificacionAperturaCierre', [GetController::class, 'listarAperturaCierre']);
@@ -280,6 +283,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/credenciales_correo/limite_2', [AdmCredecialCorreoController::class, 'añadirLimite']);   
     Route::put('/super_usuario/añadir_quitar', [AdmCredecialCorreoController::class, 'añadir_quitar_superUsuario']);
     Route::post('/credenciales_correo/modal_apertura', [AdmCredecialCorreoController::class, 'editar_modal_apertura']);  
+    Route::post('/credenciales_correo/transaccion_data', [AdmCredecialCorreoController::class, 'editar_transaccion_v2']);  
            
     Route::get('/dosificacion/getDataSucursal', [AdmCredecialCorreoController::class, 'getDataSucursal']);
     Route::post('/dosificacion/store_dosificacion', [AdmCredecialCorreoController::class, 'store_dosificacion']);
@@ -710,6 +714,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/apertura_cierre/get_operacion', [CajaAperturaCierreController::class, 'suma_operacion_v2']); 
     Route::get('/apertura_cierre/listarCaja_usuario', [CajaAperturaCierreController::class, 'getCaja_x_usuario']); 
     Route::get('/apertura_cierre/modal_apertura', [CajaAperturaCierreController::class, 'getModalApertura']);     
+    Route::get('/apertura_cierre/listarImpTrans', [CajaAperturaCierreController::class, 'getImpTrans']); 
     
     //entrada_salida
     Route::post('/entrada_salida/store', [CajaEntradaSalidaController::class, 'store']); 
@@ -830,5 +835,6 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/siat_homologacion/añadir', [SiatHomologacionController::class, 'store']); 
     Route::get('/siat_homologacion/listarInicio', [SiatHomologacionController::class, 'index']);    
     Route::post('/siat_homologacion/desactivar', [SiatHomologacionController::class, 'desactivar']); 
+    Route::get('/siat_homologacion/listarRubro', [SiatHomologacionController::class, 'getRubro']);
     
 });

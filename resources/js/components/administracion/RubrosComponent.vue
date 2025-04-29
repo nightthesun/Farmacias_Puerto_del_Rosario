@@ -31,6 +31,7 @@
                                 <th>Nombre</th>
                                 <th>Descripcion</th>
                                 <th>Productos Perecederos</th>
+                                <th>Tiene actividad economica</th>
                                 <th>Estado</th>
                             </tr>
                         </thead>
@@ -72,6 +73,16 @@
                                     <td v-text="rubro.descripcion"></td>
                                     <td v-if="rubro.areamedica">Si</td>
                                     <td v-else>No</td>
+                                    <td>
+                                        <span v-if="rubro.codigo_activdad_siat===0 || rubro.codigo_activdad_siat===null">
+                                            No tiene actividad
+                                            <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background-color: yellow; margin-left: 5px;"></span>
+                                        </span>
+                                        <span v-else>
+                                            Si tiene actividad
+                                            <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background-color: green; margin-left: 5px;"></span>
+                                        </span>
+                                    </td>
                                 <td>
                                     <div v-if="rubro.activo==1">
                                         <span class="badge badge-success">Activo</span>
@@ -102,19 +113,26 @@
             </div>
             <!-- Fin ejemplo de tabla Listado -->
         </div>
-        <!--Inicio del modal agregar/actualizar-->
-        <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" id="registrar" aria-hidden="true" data-backdrop="static" data-keyboard="false">
-            <div class="modal-dialog modal-primary modal-lg" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
+         <!--Inicio del modal agregar/actualizar-->
+         <transition name="fade">
+            <div v-if="showModal" class="modal d-block" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-primary modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
                         <h4 class="modal-title">{{ tituloModal }}</h4>
-                        <button type="button" class="close"  aria-label="Close" @click="cerrarModal('registrar')">
-                            <span aria-hidden="true">×</span>
+                        <button type="button" class="close" @click="cerrarModal('registrar')">
+                            <span>&times;</span>
                         </button>
                     </div>
                     <div class="modal-body">
-                        <form action=""  class="form-horizontal">
-                            <div class="form-group row">
+                        <div class="alert alert-warning" role="alert">
+                            Todos los campos con (*) son requeridos
+                        </div>
+                        <form action="" class="form-horizontal">                        
+                            <!-- insertar datos -->
+                            <div class="container">
+                                
+                                <div class="form-group row">
                                 <label class="col-md-3 form-control-label" for="text-input">Nombre <span  v-if="!sinombre" class="error">(*)</span></label>
                                 <div class="col-md-9">
                                     <input type="text" id="nombre" name="nombre" class="form-control" placeholder="Nombre de la Rubro" v-model="nombre" v-on:focus="selectAll" >
@@ -134,11 +152,32 @@
                                 <div class="col-md-2">
                                     <input type="checkbox"   v-model="areamedica" name="areamedica" checked  >
                                 </div>
+                            </div>                         
+                               
                             </div>
-                            
-                            
+                        <!----------------------------------------datos añadidos para impuestos------------------------------------------->
+                            <div class="card">
+                                <div class="alert alert-warning" role="alert">
+                            Esta parte solo es necesaria para homologar productos para siat de impuestos nacionales
+                        </div>
+                                <div class="card-body" v-if="arrayActEco.length>0">
+                                    <div class="form-group row">
+                                <label class="col-md-3 form-control-label" for="text-input">Asociar Actividad ecomica:</label>
+                                <div class="col-md-9">
+                                    <select name="" id="" v-model="selectActEco" class="form-control">
+                                        <option value="0" disabled>Seleccionar...</option>
+                                        <option v-for="a in arrayActEco" :key="a.codigo" :value="a.codigo" v-text="a.descripcion"></option>
+                                    </select>                                 
+                                </div>
+                            </div>
+                                </div>
+                                <div v-else class="alert alert-danger" role="alert">
+                                    No existe datos para esta seleccion, debe configurar en modulo de siat en conceptos 
+                                </div>
+                            </div>
                         </form>
                     </div>
+                
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary"  @click="cerrarModal('registrar')">Cerrar</button>
                         <div  class="d-flex justify-content-start">
@@ -153,13 +192,11 @@
                         </div>
                     
                     </div>
+                    </div>    
                 </div>
-                <!-- /.modal-content -->
-            </div>
-            <!-- /.modal-dialog -->
-        </div>
-        <!--Fin del modal-->
-        
+            </div> 
+    </transition>
+      
         
     </main>
 </template>
@@ -193,6 +230,17 @@ import {error401} from '../../errores.js';
                 idrubro:'',
                 buscar:'',
                 areamedica:true,
+                 //---permisos_R_W_S
+                 puedeEditar:2,
+                puedeActivar:2,
+                puedeHacerOpciones_especiales:2,
+                puedeCrear:2,
+                //-----------
+
+                showModal: false,
+
+                arrayActEco:[],
+                selectActEco:'0',
             }
 
         },
@@ -266,14 +314,29 @@ import {error401} from '../../errores.js';
         });
 },
 //--------------------------------------------------------------  
+
+            listarTipoActividad(){              
+                let me=this;
+                var url='/listarTipoActividad';
+                axios.get(url).then(function(response){
+                    var respuesta=response.data;                   
+                    me.arrayActEco=respuesta;
+                   
+                })
+                .catch(function(error){
+                    error401(error);                    
+                });
+            },
+
             listarRubros(page){
                 // obj.methods.actualizarTiempoSessionUsuario();    
                 let me=this;
                 var url='/rubro?page='+page+'&buscar='+me.buscar;
                 axios.get(url).then(function(response){
                     var respuesta=response.data;
-                    me.pagination=respuesta.pagination;
+                    me.pagination=respuesta.pagination;                  
                     me.arrayRubros=respuesta.rubros.data;
+                    console.log( me.arrayRubros);
                 })
                 .catch(function(error){
                     error401(error);                    
@@ -293,12 +356,19 @@ import {error401} from '../../errores.js';
                     'nombre':me.nombre,
                     'descripcion':me.descripcion,
                     'areamedica':me.areamedica,
+                    'selectActEco':me.selectActEco,
                 }).then(function(response){
+                    let respuesta =response.data;
+                    if (respuesta.length>0) {
+                        Swal.fire("Error",""+respuesta,"error");
+                    } else {
+                        Swal.fire("Exitoso","Se registro corectamente.","success"); 
+                    }
                     me.cerrarModal('registrar');
                     me.listarRubros();
                 }).catch(function(error){
                     error401(error);
-                    console.log(error);
+                 
                 }).finally(() => {
           me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
         });
@@ -407,7 +477,8 @@ import {error401} from '../../errores.js';
                     'id':me.idrubro,
                     'nombre':me.nombre,
                     'descripcion':me.descripcion,
-                    'areamedica':me.areamedica
+                    'areamedica':me.areamedica,
+                    'selectActEco':me.selectActEco,
                     
                 }).then(function (response) {
                     if(response.data.length){
@@ -436,6 +507,8 @@ import {error401} from '../../errores.js';
                         me.nombre='';
                         me.descripcion='';
                         me.areamedica=true;
+                        me.showModal = true;
+                        me.selectActEco="0";
                         me.classModal.openModal('registrar');
                         break;
                     }
@@ -449,6 +522,9 @@ import {error401} from '../../errores.js';
                         me.nombre=data.nombre;
                         me.descripcion=data.descripcion;
                         me.areamedica=(data.areamedica === 1);
+                        me.showModal = true;
+                        me.selectActEco = data.codigo_activdad_siat == null ? "0" : String(data.codigo_activdad_siat);   
+                               
                         me.classModal.openModal('registrar');
                         break;
                     }
@@ -464,6 +540,8 @@ import {error401} from '../../errores.js';
                 me.descripcion='';
                 me.tipoAccion=1;
                 me.areamedica=true;
+                me.showModal = false;
+                me.selectActEco=="0";
                 
             },
             selectAll: function (event) {
@@ -479,6 +557,7 @@ import {error401} from '../../errores.js';
              this.listarPerimsoxyz();
             //-----------------------
             this.listarRubros(1);
+            this.listarTipoActividad();
             this.classModal = new _pl.Modals();
             this.classModal.addModal('registrar');
             //console.log('Component mounted.')
@@ -490,5 +569,18 @@ import {error401} from '../../errores.js';
     color: red;
     font-size: 10px;
     
+}
+</style>
+<style scoped>
+.modal {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter, .fade-leave-to /* .fade-leave-active en versiones de Vue < 2.1.8 */ {
+  opacity: 0;
 }
 </style>

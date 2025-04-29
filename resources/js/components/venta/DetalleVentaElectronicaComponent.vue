@@ -54,8 +54,10 @@
                         </div>
             </div>             
        
-         
-  <br>
+            <div class="alert alert-primary" role="alert">
+  Para re imprimir se debe ser super usaurio y debe ser cerrado la apertura.
+</div>
+
             <!---inserte tabla-->
             <table class="table table-bordered table-striped table-sm table-responsive" >
                 <thead>
@@ -81,10 +83,9 @@
     <i class="fa fa-bars" aria-hidden="true"></i>
   </button>
   <div class="dropdown-menu">
-  
-      <a  v-if="i.contador==1 ||superUser==1" @click="subirCambio(1,i.id,i.id_apertura,i.contador)" class="dropdown-item" href="#"><i style="color: black;" class="fa fa-file-pdf-o" aria-hidden="true"></i>Imprimir ticket</a>
+      <a  v-if="i.contador==0 && superUser==1" @click="subirCambio(1,i.id,i.id_apertura)" class="dropdown-item" href="#"><i style="color: black;" class="fa fa-file-pdf-o" aria-hidden="true"></i>Imprimir ticket</a>
       <a  v-else class="dropdown-item" href="#" style="color: white;"><i style="color: white;" class="fa fa-file-pdf-o" aria-hidden="true"></i>Imprimir ticket</a>
-    <a  v-if="i.contador==1 ||superUser==1"  @click="subirCambio(2,i.id,i.id_apertura,i.contador)" class="dropdown-item" href="#"><i style="color: black;" class="fa fa-file-pdf-o" aria-hidden="true"></i>Imprimir apertura</a>
+    <a  v-if="i.contador==0  && superUser==1"  @click="subirCambio(2,i.id,i.id_apertura)" class="dropdown-item" href="#"><i style="color: black;" class="fa fa-file-pdf-o" aria-hidden="true"></i>Imprimir apertura</a>
     <a  v-else class="dropdown-item" href="#" style="color: white;"><i style="color: white;" class="fa fa-file-pdf-o" aria-hidden="true"></i>Imprimir apertura</a>
      </div>
 </div>
@@ -214,6 +215,13 @@ export default {
             tipoAccion:1,
             startDate: '',
       endDate: '',
+      
+      arraySis:[],
+      simbolo_v2:'',
+      nombreEmpresa:'',
+
+      nombreSucursal:'', 
+
         };
     },
     watch: {
@@ -222,7 +230,8 @@ export default {
         let sucursal = this.arraySucursal.find(element => element.codigo === valor);
 
         if (sucursal) {
-          this.id_seleccionada_sucursal = sucursal.id_sucursal;        
+          this.id_seleccionada_sucursal = sucursal.id_sucursal;    
+          this.nombreSucursal = sucursal.razon_social;    
         }
 
       }
@@ -268,163 +277,171 @@ export default {
     },
 
     methods: {
-////////--------------------- STAR PDF--------------------///////////////
-general_pdf(razon_social,direccion,lugar,tipo_venta,array_pdf,tipo_imprecion,valor_total,simbolo,user){
-    
-    // Crea el cuerpo de la tabla dinámicamente
- const tableBody = [
-    // Agrega los encabezados de la tabla
-    [
-      { text: 'Num. VEN.', style: 'tableHeader_2' }, 
-      { text: 'MONTO', style: 'tableHeader_2' }, 
-      { text: 'FECHA.', style: 'tableHeader_2' }, 
-      { text: 'TIPO.', style: 'tableHeader_2' }
-    ]
-  ];
+     ////////--------------------- STAR PDF--------------------///////////////
+     general_pdf(razon_social,sucursal,direccion,lugar,array_pdf,id_apertura,valor_total,simbolo,name){
+   
+   // Crea el cuerpo de la tabla dinámicamente
+const tableBody = [
+   // Agrega los encabezados de la tabla
+   [
+     { text: 'NUM.', style: 'tableHeader_2' }, 
+     { text: 'MONTO', style: 'tableHeader_2' }, 
+     { text: 'DOC.', style: 'tableHeader_2' }, 
+     { text: 'TIPO.', style: 'tableHeader_2' },
+     { text: 'FECHA.', style: 'tableHeader_2' }, 
+   ]
+ ];
 
-  // Itera sobre los datos y agrega filas a la tabla
-  array_pdf.forEach(item => {
-    tableBody.push([
-      { text: item.cant, fontSize: 7, alignment: 'center' },
-      { text: item.descrip, fontSize: 7, alignment: 'left' },
-      { text: item.p_u, fontSize: 7, alignment: 'center' },
-      { text: (item.cant * item.p_u).toFixed(2), fontSize: 7, alignment: 'center' } // Operación y formato
-    ]);
-  });
-    
-    const documentDefinition = {
-        pageMargins: [6, 8, 6, 4], // Configura los márgenes en cero
-        pageSize: {
-    width: 80 * 2.83465, // Ancho en puntos (conversión a puntos desde mm)
-    height: 'auto',
-    columnGap: 2,
-  },
-  content: [
-    { text: razon_social.toUpperCase(), style: 'header'},
-    { text: direccion.toUpperCase(), style: 'header_2'},
-    { text: lugar.toUpperCase(), style: 'header_2'},
-    {
-       text: '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -',    
-       style:'linea_2' 
-    },
-    { text: 'TRANSACCIÓN TIPO '+tipo_venta, style: 'header_2'},
-    {
-       text: '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -',    
-       style:'linea_2' 
-    },
-    {
-        style: 'tableExample',
-        table: {
-          headerRows: 1,
-          widths: ['12%', '54%', '17%', '17%'], // Ajusta los anchos de las columnas
-          body: tableBody
-        },
-        layout: 'noBorders'
-		},
-        
-        {
-       text: '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -',    
-       style:'linea_2' 
-    },
-    {style: 'datos_f',
-		table: {
-				body: [
-					['TIPO IMPRECION: ',tipo_imprecion],
-					['MONTO TOTAL: ', valor_total+' '+simbolo],  
-                    ['USUARIO: ', user.toUpperCase()]               
-				]
-			},
-            	layout: 'noBorders'
-		},
-      
-  ],
-  styles: {
-          header: {
-            fontSize: 7,
-            bold: true,
-            alignment: 'center',         
-          },
-          header_2: {
-            fontSize: 7,            
-            alignment: 'center',         
-          },
-          linea_2: {
-            fontSize: 9,
-            margin: [1, 1, 1, 1],
-            alignment: 'center',  
-            },
-        datos_f: {
-            fontSize: 7,         
-            alignment: 'left',         
-          },  
-    }    
-   }; 
-   // Genera el PDF y abre una nueva ventana con el documento
-      pdfMake.createPdf(documentDefinition).open(); 
+ // Itera sobre los datos y agrega filas a la tabla
+ array_pdf.forEach(item => {
+   tableBody.push([
+     { text: item.nro_comprobante_venta, fontSize: 6, alignment: 'center' },
+     { text: item.monto_apagar+' '+simbolo, fontSize: 6, alignment: 'center' },
+     { text: item.tipo_venta, fontSize: 6, alignment: 'center' },
+     { text: item.tipo, fontSize: 6, alignment: 'center' },
+     { text: item.created_at, fontSize: 6, alignment: 'center' },
+   ]);
+ });
+
+   const documentDefinition = { 
+       pageMargins: [6, 8, 6, 4], // Configura los márgenes en cero
+       pageSize: {
+   width: 80 * 2.83465, // Ancho en puntos (conversión a puntos desde mm)
+   height: 'auto',
+   columnGap: 2,
+ },
+ content: [
+   { text: razon_social.toUpperCase(), style: 'header'},
+   { text: sucursal.toUpperCase(), style: 'header_2'},
+   { text: direccion.toUpperCase()+" "+lugar.toUpperCase(), style: 'header_2'},
+   {
+      text: '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -',    
+      style:'linea_2' 
+   },
+   { text: 'CAJA TRANSACCIÓN', style: 'header_2'},
+   {
+      text: '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -',    
+      style:'linea_2' 
+   },
+   {
+       style: 'tableExample',
+       table: {
+         headerRows: 1,
+         widths: ['13%', '25%', '20%', '10%','32%'], // Ajusta los anchos de las columnas
+         body: tableBody
+       },
+       layout: 'noBorders'
+       },
+       
+       {
+      text: '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -',    
+      style:'linea_2' 
+   },
+   {style: 'datos_f',
+       table: {
+               body: [
+                   ['NUM. APERTURA: ',id_apertura],
+                   ['MONTO TOTAL: ', valor_total+' '+simbolo],  
+                   ['USUARIO: ', name]               
+               ]
+           },
+               layout: 'noBorders'
+       },
+     
+ ],
+ styles: {
+         header: {
+           fontSize: 7,
+           bold: true,
+           alignment: 'center',         
+         },
+         header_2: {
+           fontSize: 7,            
+           alignment: 'center',         
+         },
+         linea_2: {
+           fontSize: 9,
+           margin: [1, 1, 1, 1],
+           alignment: 'center',  
+           },
+       datos_f: {
+           fontSize: 7,         
+           alignment: 'left',         
+         },  
+         tableHeader_2: {
+       bold: true,
+       fontSize: 7,
+           bold: true,
+           alignment: 'center',
+     }
+   }    
+  }; 
+  // Genera el PDF y abre una nueva ventana con el documento
+     pdfMake.createPdf(documentDefinition).open(); 
 },
 /////////////////////////////END PDF/////////////////////////////////////
       
-        subirCambio(data,id,id_apertura,contador) {
-            let me = this;   
+        subirCambio(data,id,id_apertura) {
+            let me = this;  
+        
             var cadena_tipo_imprecion="";   
-            const arrayResultado = [];      
-            if (contador===0) {
+            const arrayResultado = [];  
+          
+            var ciudad_v2="";
+            var lugar_v2="";
+            var nombre_v2="";
+            let totalMonto = 0;
+        
                 if (data==1) {
                     cadena_tipo_imprecion="TICKET";
                     const array = me.arrayIndex.find(element => element.id === id);
-                    console.log(array);
+                  
                   if (array) {
+                    ciudad_v2=array.ciudad;
+                    lugar_v2=array.direccion;
+                    nombre_v2=array.nom_empleado;
+                    totalMonto=array.monto_apagar;
+                    console.log(ciudad_v2);
                     arrayResultado.push({
-                        comprova: array.nro_comprobante_venta,
+                        nro_comprobante_venta: array.nro_comprobante_venta,
                         monto_apagar: array.monto_apagar,
-                        fecha: array.impre_fecha,
                         tipo_venta: array.tipo_venta,
+                        tipo:array.tipo,
+                        created_at: array.venta_fecha,                       
                     });
+                  
                     }
-                    
+                  
+                me.general_pdf(me.nombreEmpresa,me.nombreSucursal,lugar_v2,ciudad_v2,arrayResultado,id_apertura,totalMonto,me.simbolo_v2,nombre_v2);          
+             //  me.general_pdf(dato_seelccionado.nombre_sucursal,dato_seelccionado.direccion,dato_seelccionado.ciudad,dato_seelccionado.tipo,arrayResultado,cadena_tipo_imprecion,dato_seelccionado.monto_apagar,dato_seelccionado.simbolo,dato_seelccionado.user_name,dato_seelccionado.nom_empleado,dato_seelccionado.tipo_venta);   
                 } else {
                     cadena_tipo_imprecion="APERTURA";
                     const array = me.arrayIndex.filter(element => element.id_apertura === id_apertura);
-                    for (let index = 0; index < array.length; index++) {
-                        const element = array[index];
-                        console.log("-"+index+"-");
-                        console.log(element.nro_comprobante_venta);
-                    }
-                  
-                }
-
-                 
-             
-                  console.log(arrayResultado);
-              //  general_pdf(razon_social,direccion,lugar,tipo_venta,array_pdf,cadena_tipo_imprecion,valor_total,simbolo,user);  
-            } else {
-                axios.put("/ven_trasnferencia/modificar", {
-                    data:data,
-                    id: id,
-                    id_apertura: id_apertura           
-                })
-                .then(function (response) {
-                      if (response.data===null || response.data==="" || (response.data).length<=0) {
-                        me.listarIndex();
-                            Swal.fire(
-                            "Registrado exitosamente",
-                            "Haga click en Ok",
-                            "success",
-                        ); 
-                        } else {
-                            Swal.fire(
-                            " "+response.data,
-                            "Haga click en Ok",
-                            "error",
-                        );   
-                        }
-          
+                    if(array){
+                        ciudad_v2 = array[0].ciudad;
+                        lugar_v2 = array[0].direccion;
+                        nombre_v2=array[0].nom_empleado;
                         
-                })
-                .catch(function (error) {           
-                    console.log(error);                          
-            });  
-            }                       
+                        for (let index = 0; index < array.length; index++) {
+                        const element = array[index];                     
+                        arrayResultado.push({
+                        nro_comprobante_venta: array[index].nro_comprobante_venta,
+                        monto_apagar: array[index].monto_apagar,
+                        tipo_venta: array[index].tipo_venta,
+                        tipo:array[index].tipo,
+                        created_at: array[index].venta_fecha, 
+                    });
+                    totalMonto += parseFloat(element.monto_apagar); // asegúrate que es número
+                        }
+                        console.log("----------------------------*");
+                        console.log(arrayResultado);
+                        console.log("---------------------------*");
+                        
+                        totalMonto = totalMonto.toFixed(2);
+                    }  
+                   
+                    me.general_pdf(me.nombreEmpresa,me.nombreSucursal,lugar_v2,ciudad_v2,arrayResultado,id_apertura,totalMonto,me.simbolo_v2,nombre_v2);
+                }                                                      
         },
        
         listarIndex(page){
@@ -482,6 +499,24 @@ general_pdf(razon_social,direccion,lugar,tipo_venta,array_pdf,tipo_imprecion,val
                     console.log(error);
                 });
         },
+        listarConfigsis() {
+            let me = this;   
+           var url = "/listarConfig_v2";
+            axios.get(url)
+                .then(function (response) {
+                    var respuesta = response.data;   
+                    me.simbolo_v2=respuesta.simbolo;
+                    me.nombreEmpresa=respuesta.nom_empresa;
+       
+                
+                })
+                .catch(function (error) {
+                    error401(error);
+                    console.log(error);
+                });
+        },
+
+        
         
         cambiarPagina(page) {
             let me = this;
@@ -553,6 +588,7 @@ general_pdf(razon_social,direccion,lugar,tipo_venta,array_pdf,tipo_imprecion,val
         this.classModal = new _pl.Modals();
         this.sucursalFiltro();
         this.fecha_inicial();
+        this.listarConfigsis();
         this.classModal.addModal("registrar");
         this.usuarioEspecial();
     

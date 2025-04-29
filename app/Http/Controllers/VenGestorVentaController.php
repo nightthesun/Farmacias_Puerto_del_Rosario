@@ -108,7 +108,7 @@ class VenGestorVentaController extends Controller
 
     public function ventaFacturaSiat(Request $request){
         try {
-          
+          return $request->all();
             DB::beginTransaction();
             $fechaHora = Carbon::now(); // Se usará automáticamente el formato correcto
             $arrayEstado_dosificacion_facctura=$request->arrayEstado_dosificacion_facctura;
@@ -179,8 +179,8 @@ class VenGestorVentaController extends Controller
         
             $cuf = CufHelper::generarCUF($nitEmisor, $fechaFormateada, $sucursal, $modalidad, $tipoEmision, $tipoFactura, $tipoDocumentoSector, $numeroFactura, $puntoVenta, $codigoControl);//<----------------------------------------6 cabecera
             //----------------------
-          
-            $razonSocialEmisor=$request->emisor_razon_soc;////<----------------------------------------2 cabecera         
+            
+            $razonSocialEmisor=$request->arrayEstado_dosificacion_facctura['emisor_razon_soc'];////<----------------------------------------2 cabecera         
             $id_sucursal_sistemas__=$arrayQuery_siat_['id_sucursal_sistemas'];
             $departamento = DB::table('adm__sucursals as s')
             ->join('adm__departamentos as d', 'd.id', '=', 's.departamento')
@@ -203,11 +203,22 @@ class VenGestorVentaController extends Controller
             $codigoCliente=$request->cliente_id;//---- revisar si es null //<----------------------------------------16 cabecera
             $numeroDocumento=$request->num_documento;//<----------------------------------------14 cabecera         
             $codigoMetodoPago=$request->tipoPago;//<----------------------------------------17 cabecera
-            if($request->numeroTarjeta==null || $request->numeroTarjeta==''){
-                $numeroTarjeta=$request->numeroTarjeta;  //<----------------------------------------18 casos nulo cabecera
-            } else{ 
-                $numeroTarjeta = $this->ofuscarTarjeta($request->numeroTarjeta); //<----------------------------------------18 filtrar informacion cabecera
-            }           
+            if($codigoMetodoPago=="2"){
+                if($request->numeroTarjeta==null || $request->numeroTarjeta==''){
+                    //<----------------------------------------18 casos nulo cabecera
+                    $numeroTarjeta_sis='<numeroTarjeta xsi:nil="true"/>';
+                } else{ 
+                    $numeroTarjeta_op = $this->ofuscarTarjeta($request->numeroTarjeta); //<----------------------------------------18 filtrar informacion cabecera
+                    if($numeroTarjeta_op==null){
+                    $numeroTarjeta_sis='<numeroTarjeta xsi:nil="true"/>'; 
+                    }else{
+                    $numeroTarjeta_sis="<numeroTarjeta>{$numeroTarjeta_op}</numeroTarjeta>";  
+                    }
+                }
+            }else{
+                $numeroTarjeta_sis='<numeroTarjeta xsi:nil="true"/>';
+            }
+                       
             $montoTotal=number_format($request->total_venta, 2, '.', '');  //<----------------------------------------19 cabecera 
             $montoTotalSujetoIva=number_format($request->total_venta, 2, '.', '');  //<----------------------------------------20 cabecera 
             $moneda_siat_x = DB::table('excel__emision')
@@ -222,7 +233,17 @@ class VenGestorVentaController extends Controller
             $montoTotal_real=$request->monto_a_pagar;
             $montoTotalMoneda_real=$request->monto_a_pagar;
             $descuentoAdicional=number_format($request->descuento_a_total, 2, '.', '');
-            $montoGiftCard=number_format($request->gift_value, 2, '.', '');
+            if ($request->descuento_a_total==null||$request->descuento_a_total==""||$request->descuento_a_total==" "||$request->descuento_a_total==0) {
+                $descuentoAdicional=0;
+            } else {
+                $descuentoAdicional=number_format($request->descuento_a_total, 2, '.', '');
+            }
+            
+            if($request->gift_value==null||$request->gift_value==""||$request->gift_value==" "||$request->gift_value==0){
+                $montoGiftCard=0;
+            }else{
+                $montoGiftCard=number_format($request->gift_value, 2, '.', '');  
+            }
             $codigoExcepcion=0;//<---------------solo cuando Solo cuando se desee autorizar al SIN el registro de una factura emitida a un NIT inválido se debe enviar el valor de uno (1) en el mismo .
             $leyenda=$request->leyenda;
             $id_user2 = session('id_user2'); 
@@ -244,13 +265,25 @@ class VenGestorVentaController extends Controller
             
             
             $cadena_url=$endPoints[0]->Url; 
-            return $request->all();
+         
+
+
             $wsdl = $cadena_url;
                 // Asignación de la URL y API key
                 $wsdl = $cadena_url; 
                 $apikeyValue = 'TokenApi ' .$token_delegado; // Concatenar correctamente el valor del API key
 // Crear el cuerpo del mensaje SOAP, sustituyendo los valores con los parámetros correspondientes      
 //    <codigoPuntoVenta>0</codigoPuntoVenta>  <codigoPuntoVenta xsi:nil="true"/>   <complemento xsi:nil="true"/> <numeroTarjeta xsi:nil="true"/>  <montoGiftCard xsi:nil="true"/>
+if ($complemento_siat == null) {
+    $complemento_siat_sis = '<complemento xsi:nil="true"/>';
+} else {
+    $complemento_siat_sis = "<complemento>{$complemento_siat}</complemento>";
+}
+
+
+
+
+    
 
 $detalles = ''; // Aquí se guardarán todos los detalles
 return "todo bien";
@@ -286,7 +319,7 @@ $factura = <<<EOD
         <municipio>{$municipio}</municipio>
         <telefono>{$telefono}</telefono>
         <numeroFactura>{$numeroFactura}</numeroFactura>
-        <cuf>{$cuis}</cuf>
+        <cuf>{$cuf}</cuf>
         <cufd>{$cufd}</cufd>
         <codigoSucursal>{$sucursal}</codigoSucursal>
         <direccion>{$direccion}</direccion>
@@ -295,10 +328,10 @@ $factura = <<<EOD
         <nombreRazonSocial>{$nombreRazonSocial}</nombreRazonSocial>
         <codigoTipoDocumentoIdentidad>{$tipoFactura}</codigoTipoDocumentoIdentidad>
         <numeroDocumento>$numeroDocumento</numeroDocumento>
-        <complemento xsi:nil="true"/>
+        {$complemento_siat_sis}
         <codigoCliente>{$codigoCliente}</codigoCliente>
         <codigoMetodoPago>{$codigoMetodoPago}</codigoMetodoPago>
-        <numeroTarjeta xsi:nil="true"/>
+        {$numeroTarjeta_sis}
         <montoTotal>{$montoTotal_real}</montoTotal>
         <montoTotalSujetoIva>{$montoTotalSujetoIva_real}</montoTotalSujetoIva>
         <codigoMoneda>{$codigoMoneda}</codigoMoneda>

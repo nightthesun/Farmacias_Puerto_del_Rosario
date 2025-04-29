@@ -74,14 +74,28 @@ class AdmRubroController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
-    {
-        $rubro = new Adm_Rubro();
-       
+    {   try {
+        DB::beginTransaction();
+        $codigo =$request->selectActEco;
+
+        if ($codigo=="0"||$codigo==null) {
+            $codigo =0;
+        }else{
+            $codigo = intval($codigo);
+        }
+        $rubro = new Adm_Rubro();       
         $rubro->nombre=$request->nombre;
         $rubro->descripcion=$request->descripcion;
         $rubro->areamedica=$request->areamedica;
         $rubro->id_usuario_registra=auth()->user()->id;
+        $rubro->codigo_activdad_siat=$codigo;
+        
         $rubro->save();
+        DB::commit();
+    } catch (\Throwable $th) {
+       return $th;
+    }
+       
     }
 
     /**
@@ -115,12 +129,20 @@ class AdmRubroController extends Controller
      */
     public function update(Request $request, Adm_Rubro $adm_Rubro)
     {
-        $rubro = Adm_Rubro::findOrFail($request->id);
+        $codigo =$request->selectActEco;
 
+        if ($codigo=="0"||$codigo==null) {
+            $codigo =0;
+        }else{
+            $codigo = intval($request->selectActEco);
+        }
+
+        $rubro = Adm_Rubro::findOrFail($request->id);
         $rubro->nombre=$request->nombre;
         $rubro->descripcion=$request->descripcion;
         $rubro->areamedica=$request->areamedica;
         $rubro->id_usuario_modifica=auth()->user()->id;
+        $rubro->codigo_activdad_siat=$codigo;
         $rubro->save();
     }
 
@@ -210,4 +232,6 @@ class AdmRubroController extends Controller
         
 
     }
+
+
 }

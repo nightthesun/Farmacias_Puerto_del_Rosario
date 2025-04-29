@@ -30,6 +30,8 @@ return new class extends Migration
     $table->integer('tiempo_limite')->default(0)->nullable();
     $table->decimal('monto_limite',11,2)->default(0)->nullable();
     $table->tinyInteger('modal_apertura')->default(0)->comment('0=no tiene, 1=normal,  2=modal modificado');
+    $table->tinyInteger('imprimir_trans')->default(0)->comment('1=imprime el qr desde apertura o cierre');
+    
         });
     }
 

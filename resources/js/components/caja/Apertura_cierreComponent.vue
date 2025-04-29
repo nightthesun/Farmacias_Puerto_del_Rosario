@@ -884,7 +884,8 @@
 <script>
 import Swal from "sweetalert2";
 import { error401 } from "../../errores";
-//Vue.use(VeeValidate);
+import pdfMake from 'pdfmake/build/pdfmake';
+import pdfFonts from 'pdfmake/build/vfs_fonts';
 export default {
     data() {
         return {
@@ -1058,6 +1059,110 @@ export default {
 
     methods: {
                
+        ////////--------------------- STAR PDF--------------------///////////////
+general_pdf(razon_social,sucursal,direccion,lugar,array_pdf,id_apertura,valor_total,simbolo,name){
+   
+    // Crea el cuerpo de la tabla dinámicamente
+ const tableBody = [
+    // Agrega los encabezados de la tabla
+    [
+      { text: 'NUM.', style: 'tableHeader_2' }, 
+      { text: 'MONTO', style: 'tableHeader_2' }, 
+      { text: 'DOC.', style: 'tableHeader_2' }, 
+      { text: 'TIPO.', style: 'tableHeader_2' },
+      { text: 'FECHA.', style: 'tableHeader_2' }, 
+    ]
+  ];
+
+  // Itera sobre los datos y agrega filas a la tabla
+  array_pdf.forEach(item => {
+    tableBody.push([
+      { text: item.nro_comprobante_venta, fontSize: 6, alignment: 'center' },
+      { text: item.monto_apagar+' '+simbolo, fontSize: 6, alignment: 'center' },
+      { text: item.tipo_venta, fontSize: 6, alignment: 'center' },
+      { text: item.tipo, fontSize: 6, alignment: 'center' },
+      { text: item.created_at, fontSize: 6, alignment: 'center' },
+    ]);
+  });
+    
+    const documentDefinition = {
+        pageMargins: [6, 8, 6, 4], // Configura los márgenes en cero
+        pageSize: {
+    width: 80 * 2.83465, // Ancho en puntos (conversión a puntos desde mm)
+    height: 'auto',
+    columnGap: 2,
+  },
+  content: [
+    { text: razon_social.toUpperCase(), style: 'header'},
+    { text: sucursal.toUpperCase(), style: 'header_2'},
+    { text: direccion.toUpperCase()+" "+lugar.toUpperCase(), style: 'header_2'},
+    {
+       text: '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -',    
+       style:'linea_2' 
+    },
+    { text: 'CAJA TRANSACCIÓN', style: 'header_2'},
+    {
+       text: '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -',    
+       style:'linea_2' 
+    },
+    {
+        style: 'tableExample',
+        table: {
+          headerRows: 1,
+          widths: ['13%', '25%', '20%', '10%','32%'], // Ajusta los anchos de las columnas
+          body: tableBody
+        },
+        layout: 'noBorders'
+		},
+        
+        {
+       text: '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -',    
+       style:'linea_2' 
+    },
+    {style: 'datos_f',
+		table: {
+				body: [
+					['NUM. APERTURA: ',id_apertura],
+					['MONTO TOTAL: ', valor_total+' '+simbolo],  
+                    ['USUARIO: ', name]               
+				]
+			},
+            	layout: 'noBorders'
+		},
+      
+  ],
+  styles: {
+          header: {
+            fontSize: 7,
+            bold: true,
+            alignment: 'center',         
+          },
+          header_2: {
+            fontSize: 7,            
+            alignment: 'center',         
+          },
+          linea_2: {
+            fontSize: 9,
+            margin: [1, 1, 1, 1],
+            alignment: 'center',  
+            },
+        datos_f: {
+            fontSize: 7,         
+            alignment: 'left',         
+          },  
+          tableHeader_2: {
+        bold: true,
+        fontSize: 7,
+            bold: true,
+            alignment: 'center',
+      }
+    }    
+   }; 
+   // Genera el PDF y abre una nueva ventana con el documento
+      pdfMake.createPdf(documentDefinition).open(); 
+},
+/////////////////////////////END PDF/////////////////////////////////////
+
         modalMoneda(id) {
             let me = this;           
             var url ="/apertura_cierre/monedaModal?id_arqueo="+id;
@@ -1414,7 +1519,8 @@ let operacion_apertura = operacion_acciones + monto_cerrar_apertura;
                 }
                 if (me.isSubmitting) return;
                 me.isSubmitting = true; // Deshabilita el botón
-        
+                var id_apertura=me.codigo_cerrar_apertura;
+                
                 axios.post("/apertura_cierre/cierre", {
                         user:me.usuario_cerrar_apertura,
                         id_apertura:me.codigo_cerrar_apertura,
@@ -1450,6 +1556,7 @@ let operacion_apertura = operacion_acciones + monto_cerrar_apertura;
                             "error",
                         );
                         } else {
+                            me.listar_tras_operacion(id_apertura,me.id_sucursal);
                             Swal.fire(
                             "Registrado exitosamente",
                             "Haga click en Ok",
@@ -1467,6 +1574,9 @@ let operacion_apertura = operacion_acciones + monto_cerrar_apertura;
 
         abrirModalCerrar(data){
             let me=this;
+            console.log("//////////////////");
+            console.log(data);
+            console.log("//////////////////");
             me.verificador_moneda_sistemas();
             if (me.verificador===1) {       
                 me.abrirModal('cerrar_apertura', data); 
@@ -1487,6 +1597,22 @@ let operacion_apertura = operacion_acciones + monto_cerrar_apertura;
                     me.sumaEntrada=respuesta.sumaEntrada;
                     me.sumaSalida=respuesta.sumaSalida;
                              
+                })
+                .catch(function (error) {
+                    error401(error);
+                });
+        },
+
+       listar_tras_operacion(id_apertura,id_sucursal){
+            let me = this;           
+            var url ="/apertura_cierre/listarImpTrans?id_apertura="+id_apertura+"&id_sucursal="+id_sucursal+"&data="+1;
+            axios.get(url)
+                .then(function (response) {
+                    var respuesta = response.data; 
+                  
+                    if ((respuesta.array_v).length>0) {
+                    me.general_pdf(respuesta.nomEmpresa,respuesta.nombre_sucursal,respuesta.direccion,respuesta.ciudad,respuesta.array_v,id_apertura,respuesta.total,respuesta.simbolo,respuesta.nombre);  
+                    }                             
                 })
                 .catch(function (error) {
                     error401(error);
@@ -1821,7 +1947,7 @@ me.isSubmitting = true; // Deshabilita el botón
                                 }
                             }
                         }                            
-
+           
                         me.totalMonedas="0.00";
                         me.SimboloM="S/N";
                         me.SimboloB="S/N";            
@@ -1870,7 +1996,7 @@ me.isSubmitting = true; // Deshabilita el botón
                         me.cantidadBilletes=0; 
                         me.password="";
                         me.input={};   
-                        
+                   
                         me.ini0_=0;
                         me.input_v2=0;
                         me.arrayNext=[];

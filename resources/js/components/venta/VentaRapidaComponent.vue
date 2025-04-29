@@ -2975,6 +2975,8 @@ me.importe_fiscal=me.monto_a_pagar;
 
         realizarVenta() {
         let me = this;
+        var validador=0;
+        console.log(me.TipoComprobate);
           if (me.tipo_pago_Qr_con_tar<=0) {
             Swal.fire("Tipo de pago sin seleccionar","Debe seleccionar tipo de pago, que esta debajo de detalle de cliente","error");
           } else {
@@ -2993,11 +2995,25 @@ me.importe_fiscal=me.monto_a_pagar;
                 );
                          
                 }else{
-                    me.EnviarRecibo();
+                  if (me.selectPago_==="7") {
+                    if (me.numeroTarjeta===""||me.numeroTarjeta===null||me.selectBanco_v==="0") {
+                      validador=1;
+              Swal.fire("Error","Tipo QR debe llenar los datos que en datos extra.","error");
+                    } else {
+              validador=0;
+                    }
+                  }  
+
+              if(validador===0){
+                me.EnviarRecibo();
+              }
+
+                  
                 }
                     break;
             
                 case "2":
+                  console.log("factura");
                     if ("000"===cadena) {
                         Swal.fire(
                     "No pudo realizar la venta",
@@ -3005,18 +3021,42 @@ me.importe_fiscal=me.monto_a_pagar;
                     "error"
                 ); 
                     } else {
+                      console.log(me.estado_dosificacion_facctura);
                         //----facturacion
                         if(me.estado_dosificacion_facctura===1){
-                          me.EnviarFactura();
+                          if (me.selectPago_==="7") {
+                    if (me.numeroTarjeta===""||me.numeroTarjeta===null||me.selectBanco_v==="0") {
+                      validador=1;
+              Swal.fire("Error","Tipo QR debe llenar los datos que en datos extra.","error");
+                    } else {
+              validador=0;
+                    }
+                  }  
+
+              if(validador===0){
+                me.EnviarFactura();
+              }
+                        
                      
                         } else {
                             if (me.estado_dosificacion_facctura===2) {
-                                me.EnviarRecibo(); 
+                              if (me.selectPago_==="7") {
+                    if (me.numeroTarjeta===""||me.numeroTarjeta===null||me.selectBanco_v==="0") {
+                      validador=1;
+              Swal.fire("Error","Tipo QR debe llenar los datos que en datos extra.","error");
+                    } else {
+              validador=0;
+                    }
+                  }  
+
+              if(validador===0){
+                me.EnviarRecibo();
+              }
+                            
                             } else {
                                 Swal.fire("Acción no valida","Error inesperado","error"); 
                             }
-                        }
-                   
+                        }                   
                     }
                     break;    
                 default:
@@ -3032,11 +3072,8 @@ me.importe_fiscal=me.monto_a_pagar;
       },
 
     EnviarRecibo(){
-        let me = this;  
-         if (me.selectPago_==="7") {
-            if (me.numeroTarjeta===""||me.numeroTarjeta===null||me.selectBanco_v==="0") {
-              Swal.fire("Error","Tipo QR debe llenar los datos que en datos extra.","error");
-            } else {
+        let me = this; 
+    
               if (me.validadorPersonal===3) {           
             me.array_ven__detalle_descuentos.push({id_contador:0,id_tabla:0,id_descuento:0,cantidad_descuento:0.00,tipo:1});            
           }
@@ -3235,8 +3272,8 @@ total_sin_des,descuento_venta,total_venta,efectivo_venta,cambio_venta,fechaMas7D
                   );
               }
           });
-            }
-         }   
+            
+           
     },
     
    // tieneApertura() {
@@ -3399,11 +3436,9 @@ if (!correoRegex.test(me.correo)) {
         ////////////////////////////////////SIAT/////////////////////////////////////////
 
         EnviarFactura(){
-        let me = this;    
-        if (me.selectPago_==="7") {
-            if (me.numeroTarjeta===""||me.numeroTarjeta===null||me.selectBanco_v==="0") {
-              Swal.fire("Error","Tipo QR debe llenar los datos extra.","error");
-            } else {
+        let me = this;  
+      
+          
               me.isSubmitting = true; // Deshabilita el botón   
         if (me.validadorPersonal===3) {           
             me.array_ven__detalle_descuentos.push({id_contador:0,id_tabla:0,id_descuento:0,cantidad_descuento:0.00,tipo:1});            
@@ -3487,8 +3522,8 @@ me.descuento_1=totalDescuento+me.descuento_final;
             me.isSubmitting = false; // Deshabilita el botón
             console.log(error);
           });
-            }
-         }        
+            
+               
     },
 
  listarPago_() {

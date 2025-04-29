@@ -36,6 +36,9 @@
                 <li class="nav-item">
                     <a class="nav-link" id="pills-modal-tab" data-toggle="pill" href="#pills-modal" role="tab" aria-controls="pills-modal" aria-selected="false">Modal de apertura</a>
                 </li> 
+                <li class="nav-item">
+                    <a class="nav-link" id="pills-imp_tras-tab" data-toggle="pill" href="#pills-imp_tras" role="tab" aria-controls="pills-imp_tras" aria-selected="false">Imprecion transacción</a>
+                </li> 
                        
             </ul>
         </div>
@@ -619,8 +622,50 @@
                             </div>
                         </div>
                     </div>
-
-           <!------------------------------------------------------------------------------------------------------------------------->         
+            <!-------------------------------------------------------------------------------------------------------------------->
+            <div class="tab-pane fade" id="pills-imp_tras" role="tabpanel" aria-labelledby="pills-imp_tras-tab">                    
+                    <div class="card">
+                        <div class="card-header">Impreción de transaccion</div>
+                        <div class="alert alert-warning" role="alert">
+                          Esta configuración solo afecta a acpertura y cierre de cajas donde, imprime despues del cierre automaticamente un ticket en la impresora termica con los datos de los traspasos electronicas. 
+</div>
+                        <div class="card-body">
+                            <div class="form-group row">
+                                <label class="col-md-1 form-control-label" for="text-input" style="font-size: 12px;"><strong>Tipo:</strong> 
+                                </label>
+                                <div class="col-md-3">
+                                    <select v-if="puedeHacerOpciones_especiales===1" class="form-control"  v-model="transaccion_banco" >
+                                        <option value="2" disabled selected>Seleccionar...</option>
+                                        <option value="0" >Desactivar</option>
+                                        <option value="1" >Activar</option>
+                                    </select>
+                                    <select v-else class="form-control">
+                                        <option value="0" disabled selected>Sin permiso...</option>                                    
+                                    </select>
+                                 </div>
+                                 <div class="col-md-1">
+                                    <button v-if="transaccion_banco==='1'" type="button" class="btn btn-primary" @click="actulizar_transaccion(1)">Actulizar</button> 
+                                    <button v-else-if="transaccion_banco==='0'" type="button" style="color: white;" class="btn btn-warning" @click="actulizar_transaccion(0)">Actulizar</button>  
+                                    <button v-else="transaccion_banco==='2'" type="button" class="btn btn-light">Actulizar</button> 
+                                 </div>
+                                 
+                                 <div class="col-md-6">
+                                        <div v-if="transaccion_data===0" class="alert alert-warning" role="alert">
+                                           SIN ACTIVACION ACCIÓN DE IMPRECIÓN DE TRANSACCION
+                                        </div>
+                                        <div v-else class="alert alert-primary" role="alert">
+                                            ACTIVACION ACCIÓN DE IMPRECIÓN DE TRANSACCION
+                                        </div>
+                                       
+                                     </div>
+                               
+          
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+            <!-------------------------------------------------------------------------------------------------------------------------->
 
                 </div>
             
@@ -796,6 +841,8 @@ puedeEditar:2,
 
                 modalApertura:'No tiene ninguna configuración',
                 selectModalApertura:0,
+                transaccion_banco:'2',
+                transaccion_data:'',
 
         };
     },
@@ -1769,6 +1816,26 @@ puedeEditar:2,
             }); 
             },
 
+            actulizar_transaccion(data){
+                let me = this;
+                axios.post("/credenciales_correo/transaccion_data", {
+                    id: me.id_credencial,                   
+                    tras:data,
+
+                    id_modulo: me.idmodulo,
+                id_sub_modulo:me.codventana, 
+                des:"actualziacion modal de transaccion con el dato "+data,                
+                }).then(function (response) { 
+                    me.transaccion_banco="2";   
+                    me.listarCredencial();                
+                        Swal.fire("Se registro exitosamente","Haga click en Ok", "success",);                                            
+                    })                
+                  .catch(function (error) { 
+                    error401(error);
+                    console.log(error);                         
+            }); 
+            },
+
  listarCredencial() {
             let me = this;
             var url = "/credenciales_correo";
@@ -1793,6 +1860,7 @@ puedeEditar:2,
                     me.limite_monto=response.data[0].monto_limite;
                     me.limite_horas=response.data[0].tiempo_limite;  
                     me.selectModalApertura=response.data[0].modal_apertura;
+                    me.transaccion_data=response.data[0].imprimir_trans;
                     me.cambioModalApertura(me.selectModalApertura);
                 })
                 .catch(function (error) {

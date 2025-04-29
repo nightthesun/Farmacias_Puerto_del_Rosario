@@ -221,6 +221,15 @@ return response()->json([
                     $apertura_cierre = Caja_AperturaCierre::findOrFail($request->id_apertura);
                     $apertura_cierre->id_cierre = $id_1;
                     $apertura_cierre->save(); 
+                    //// para imprimir boleta QR o tarjeta
+                  
+                        $fechaHora = Carbon::now(); // Se usará automáticamente el formato correcto
+                        DB::table('ven__trasferencias as t')   
+                        ->join('ven__recibos as r', 'r.id', '=', 't.id_venta')
+                        ->where('r.id_apertura', $request->id_apertura) 
+                        ->update(['t.contador' => 0,'t.updated_at' => $fechaHora]);
+                             
+                    
                     DB::commit();
                 } else {
                     return "La operacióm debe ser relziada por el mismo usuario";
@@ -429,6 +438,73 @@ $data_1 = $moneda;
         'usuario' => $usuario, 
     ]);
     
+    }
+
+    public function getImpTrans(Request $request){
+       
+        $data = DB::table('adm__credecial_correos as cc')
+        ->join('adm__nacionalidads as n', 'cc.moneda', '=', 'n.id')
+        ->select('cc.nom_empresa', 'cc.imprimir_trans', 'n.simbolo')
+        ->where('cc.id', 1)
+        ->first();
+    
+    $nomEmpresa = $data->nom_empresa;
+    $imprimirTrans = $data->imprimir_trans;
+    $simbolo = $data->simbolo;
+
+
+        if ($imprimirTrans==1) {
+            $user_id=auth()->user()->id;
+            $array_v = DB::table('ven__recibos as v')
+        ->join('ven__trasferencias as t', 't.id_venta', '=', 'v.id')
+        ->select('v.nro_comprobante_venta','v.monto_apagar',
+            DB::raw("CASE 
+                    WHEN v.tipo_venta_reci_fac = 1 THEN 'RECIBO'
+                    WHEN v.tipo_venta_reci_fac = 2 THEN 'FACTURA'
+                    ELSE 'OTRO'
+                END AS tipo_venta"),
+            't.tipo','v.created_at',
+            DB::raw('SUM(v.monto_apagar) OVER () AS suma_total')
+        )
+        ->where('v.id_usuario', $user_id)
+        ->where('v.id_apertura', $request->id_apertura)
+        ->where('v.anulado', 0)        
+        ->get();
+        if( count($array_v)>0){
+            $sucursal = DB::table('adm__sucursals')
+            ->select('razon_social', 'direccion' ,'ciudad')
+            ->where('id', $request->id_sucursal)
+            ->first();
+    
+            
+    
+            $usuario = DB::table('users as u')
+        ->join('rrh__empleados as e', 'e.id', '=', 'u.idempleado')
+        ->select('u.name', 'e.nombre')
+        ->where('u.id', $user_id)
+        ->first();
+        $nombre_sucursal = $sucursal->razon_social;
+        $direccion = $sucursal->direccion;
+        $ciudad = $sucursal->ciudad;
+        $user_name = $usuario->name;
+        $nombre = $usuario->nombre;
+        $total=$array_v[0]->suma_total;
+        return response()->json([                        
+            'nomEmpresa' => $nomEmpresa,'imprimirTrans' => $imprimirTrans, 'simbolo' => $simbolo,'array_v' => $array_v, 
+            'nombre_sucursal' => $nombre_sucursal,'direccion' => $direccion,'ciudad' => $ciudad,'user_name' => $user_name,'nombre' => $nombre,'total' => $total   
+        ]);
+        }else{
+            return response()->json([                        
+               'array_v' => $array_v                 
+            ]); 
+        }
+            }else{
+                $array_v=null;
+                return response()->json([                        
+                    'array_v' => $array_v                 
+                 ]); 
+            }
+
     }
 
 }

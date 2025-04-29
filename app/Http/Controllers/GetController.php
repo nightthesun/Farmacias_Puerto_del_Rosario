@@ -400,5 +400,28 @@ return $result;
         return $fac;
        
     }
+
+    public function getTipoActividad(){
+        $fac = DB::table('excel__emision')
+        ->where('id_catalogo', 15)     
+        ->get();
+        return $fac;
+    }
+
+    public function getConfiguracion_v2(){
+        $data = DB::table('adm__credecial_correos as cc')
+    ->join('adm__nacionalidads as n', 'cc.moneda', '=', 'n.id')
+    ->select('cc.*', 'n.simbolo') // o cualquier campo específico de `n` que necesites
+    ->where('cc.id', 1)
+    ->first();
+    return $data;  
+    }
+
+    public function getRubro(){
+        $rubros = DB::table('adm__rubros')
+            ->where('activo', 1)
+            ->get();
+        return $rubros;    
+    }
     
 }

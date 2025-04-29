@@ -64,13 +64,14 @@ class VenTrasferenciaController extends Controller
         'u.name as user_name',
         's.razon_social as nombre_sucursal',
         's.ciudad','bb.nombre as nombre_banco',
-        's.direccion','nac.simbolo'
+        's.direccion','nac.simbolo','em.nombre as nom_empleado'
     )
     ->join('ven__recibos as r', 'r.id', '=', 't.id_venta')
     ->join('users as u', 'u.id', '=', 'r.id_usuario')
+    ->join('rrh__empleados as em', 'em.id', '=', 'u.idempleado') 
     ->join('adm__sucursals as s', 's.id', '=', 'r.id_sucursal')  
-    ->join('adm__bancos as bb', 'bb.id', '=', 't.id_banco')  
-    ->join('adm__nacionalidads as nac', 'nac.id', '=', 'r.moneda')      
+    ->leftJoin('adm__bancos as bb', 'bb.id', '=', 't.id_banco')  
+    ->leftJoin('adm__nacionalidads as nac', 'nac.id', '=', 'r.moneda')      
     ->whereRaw($where)
     ->whereRaw($sqls)    
     ->orderByDesc('t.id')
@@ -115,13 +116,14 @@ class VenTrasferenciaController extends Controller
                 'u.name as user_name',
                 's.razon_social as nombre_sucursal',
                 's.ciudad','bb.nombre as nombre_banco',
-                's.direccion','nac.simbolo'
+                's.direccion','nac.simbolo','em.nombre as nom_empleado'
             )
             ->join('ven__recibos as r', 'r.id', '=', 't.id_venta')
             ->join('users as u', 'u.id', '=', 'r.id_usuario')
+            ->join('rrh__empleados as em', 'em.id', '=', 'u.idempleado')            
             ->join('adm__sucursals as s', 's.id', '=', 'r.id_sucursal')  
-            ->join('adm__bancos as bb', 'bb.id', '=', 't.id_banco')  
-            ->join('adm__nacionalidads as nac', 'nac.id', '=', 'r.moneda')     
+            ->leftJoin('adm__bancos as bb', 'bb.id', '=', 't.id_banco')  
+            ->leftJoin('adm__nacionalidads as nac', 'nac.id', '=', 'r.moneda')     
             ->whereRaw($where)            
             ->orderByDesc('t.id')
             ->paginate(10);
@@ -168,9 +170,25 @@ class VenTrasferenciaController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Ven_Trasferencia $ven_Trasferencia)
+    public function edit(Request $request, Ven_Trasferencia $ven_Trasferencia)
     {
-        //
+        try {
+            DB::beginTransaction();
+          
+            //data es  el valor para imprimir un datos si es 2 es para lote de datos
+            $fechaHora = Carbon::now(); // Se usará automáticamente el formato correcto
+           
+            
+                DB::table('ven__trasferencias as t')   
+                ->join('ven__recibos as r', 'r.id', '=', 't.id_venta')
+                ->where('r.id_apertura', $request->id_apertura) 
+                ->update(['t.contador' => 0,'t.updated_at' => $fechaHora]);
+                     
+     
+            DB::commit();
+        } catch (\Throwable $th) {
+            return $th;
+        }  
     }
 
     /**
@@ -183,17 +201,17 @@ class VenTrasferenciaController extends Controller
           
             //data es  el valor para imprimir un datos si es 2 es para lote de datos
             $fechaHora = Carbon::now(); // Se usará automáticamente el formato correcto
-          
-            $user_id = Auth()->user()->idempleado;
-
-            $resultado = DB::table('rrh__empleados')
-                ->where('id', $user_id)
-                ->value('id');
+            $idCierre = DB::table('caja__apertura_cierres')
+            ->where('id', $request->id_apertura)
+            ->value('id_cierre');
+            if ($idCierre===0 || $idCierre===null) {
+                return "DEBE CERRAR LA CAJA ANTES DE HACER ESTA ACCIÓN O LA APERTURA NO EXISTE.";
+            }
+            
             if ($request->data==1) {
                 $data = Ven_Trasferencia::findOrFail($request->id);
                 $data->contador=0;
-                $data->updated_at=$fechaHora;
-                $data->user_name=strtoupper($resultado);
+                $data->updated_at=$fechaHora;             
                 $data->save();
             }
             
@@ -202,7 +220,7 @@ class VenTrasferenciaController extends Controller
                 DB::table('ven__trasferencias as t')   
                 ->join('ven__recibos as r', 'r.id', '=', 't.id_venta')
                 ->where('r.id_apertura', $request->id_apertura) 
-                ->update(['t.contador' => 0,'t.updated_at' => $fechaHora,'user_name'=>strtoupper($resultado)]);
+                ->update(['t.contador' => 0,'t.updated_at' => $fechaHora]);
             }           
      
             DB::commit();

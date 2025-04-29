@@ -11,17 +11,25 @@
             <div class="card">
                 <div class="card-header">
                     <i class="fa fa-align-justify"></i> Homologación               
-                    <button v-if="puedeCrear===1" type="button" class="btn btn-secondary" @click="abrirModal('registrar');listarProducto_homo();">
+                    <button v-if="puedeCrear===1" :disabled="selectRubro==='0'" type="button" class="btn btn-secondary" @click="abrirModal('registrar');listarProducto_homo(id_rubro);listarlistaActividad(selectRubro);">
                         <i class="icon-plus"></i>&nbsp;Nuevo
                     </button>  
                       
                 </div>
         <div class="card-body">
             <div class="form-group row">
-                <div class="col-md-2">
-                    <span>Datos a buscar</span>
-                </div>    
-                        <div class="col-md-6">
+                <div class="col-md-2" style="text-align: center">
+                     <label for="">Rubro:</label>
+                </div>
+                        <div class="col-md-4">
+                            <div class="input-group">
+                                <select class="form-control" v-model="selectRubro" @change="listarIndex();">
+                                    <option value="0" disabled selected>Seleccionar...</option>
+                                    <option  v-for="r in arrayRubro" :key="r.id" :value="r.codigo_activdad_siat">{{r.nombre}}</option>  
+                                </select>
+                            </div>
+                        </div>    
+                        <div class="col-md-6" v-show="selectRubro!='0'">
                             <div class="input-group">
                                 <input type="text" id="texto" name="texto"   @keyup.enter="listarIndex(1)"  class="form-control" placeholder="Texto a buscar por codigo, nombre prodcuto y linea" v-model="buscar"/>
                                 <button type="submit" class="btn btn-primary" @click="listarIndex(1)">
@@ -35,13 +43,11 @@
                         
                        
 
-            </div>
-             
-
-       
+            </div>   
   <br>
             <!---inserte tabla-->
-            <table class="table table-bordered table-striped table-sm table-responsive" >
+            <div v-show="selectRubro!='0'">
+                <table class="table table-bordered table-striped table-sm table-responsive" >
                 <thead>
                     <tr>
                         <th class="col-md-1">Opciones</th>
@@ -94,6 +100,9 @@
                 </ul>
             </nav>
             <!-----fin de tabla------->
+            </div>
+      
+ 
         </div>
 
 
@@ -104,7 +113,6 @@
            <!--Inicio del modal agregar/actualizar-->
            <transition name="fade">
            <div v-if="showModal" class="modal d-block" tabindex="-1" role="dialog">
-
             <div class="modal-dialog modal-primary modal-lg" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -118,7 +126,8 @@
                         <form action="" class="form-horizontal">
                         
                             <!-- insertar datos -->
-                            <div class="container">                                
+                            <div class="container">  
+                                                             
                                 <div class="form-group row">
                                     <div class="col-md-2 input-group mb-3">
                                         Actividad:
@@ -277,6 +286,10 @@ export default {
                 puedeHacerOpciones_especiales:2,
                 puedeCrear:2,
                 //-----------
+
+                arrayRubro:[],
+                selectRubro:"0",
+                id_rubro:'',
      
         };
     },
@@ -310,6 +323,22 @@ export default {
         },
     },
 
+    watch: {
+        selectRubro: function (newValue) {
+            
+                this.id_rubro='';
+                let selector = this.arrayRubro.find(
+                    (element) => element.codigo_activdad_siat === newValue,
+                   
+                );
+          console.log(selector);
+               if (selector) {
+                 
+                   this.id_rubro = selector.id;                                 
+                }          
+        },
+    },
+    
     methods: {
 
         //-----------------------------------permisos_R_W_S        
@@ -336,8 +365,13 @@ listarPerimsoxyz() {
              })
              .catch(function(error) {
                  error401(error);
-                 console.log(error);
+        
              });
+     },
+
+     cambioSelectRubro(){
+        let me=this;
+        me.selected_modal=null;
      },
 
         eliminar(id) {
@@ -387,7 +421,7 @@ listarPerimsoxyz() {
                                 }                                                          
                             })                          
                            .catch(function (error) {           
-                            console.log(error);
+                            error401(error);
 
             });
                     } else if (
@@ -406,7 +440,7 @@ listarPerimsoxyz() {
 
         listarIndex(page){
         let me=this;       
-        var url = "/siat_homologacion/listarInicio?page="+page+"&buscar=" +me.buscar;
+        var url = "/siat_homologacion/listarInicio?page="+page+"&buscar=" +me.buscar+"&actividad="+me.selectRubro;
         axios.get(url)
                 .then(function (response) {
                     var respuesta = response.data;
@@ -416,18 +450,42 @@ listarPerimsoxyz() {
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
+                
                 });
     },
    
 
         añadir_homo(){
             let me = this; 
-            if (me.selected_modal===null || me.selectModo_vmodal==='0' || me.denotador_1===1) {
-                me.cerrarModal('registrar');
-                Swal.fire("Error!","Datos de insercción incorrecto","error",);
-            } else {
-                let array_enviar=[];
+            let validador=0;
+            
+            if (me.selected_modal===null || me.denotador_1!=0 ||me.selectModo_vmodal==='0' ) {      
+                me.cerrarModal('registrar');         
+                Swal.fire("Error!","Inseccion de datos.","error");
+            }else{
+                if (me.selectModo_vmodal==='1') {
+                    if (me.arrayFalso.length>0 || me.array_prod.length===0) {
+                        me.cerrarModal('registrar');
+                        Swal.fire("Error!","En el modo automatico puede tener estos dos errores: la tabla no debe estar llena, o no existe productos para homologar","error");
+                    }else{
+                        validador=1;
+                    }
+                }else{
+                    if (me.selectModo_vmodal=='2') {
+                        if (me.arrayFalso.length===0) {
+                            me.cerrarModal('registrar');
+                            Swal.fire("Error!","En el modo manual, la tabla debe tener al menos un registro.","error");
+                        }else{
+                        validador=1; 
+                        }
+                    } else {
+                        me.cerrarModal('registrar');
+                        Swal.fire("Error!","En el seleccionador de modo","error");     
+                    }
+                }               
+            }
+          if (validador===1) {
+            let array_enviar=[];
                 let cadena="";
                 if (me.selectModo_vmodal==="1") {
                     array_enviar=me.array_prod;
@@ -450,7 +508,7 @@ listarPerimsoxyz() {
 
                 }).then(function (response) {
                     var respuesta = response.data;
-                    console.log(respuesta);
+                 
                     me.cerrarModal('registrar'); 
                     if (respuesta.length>0) {                                    
                     Swal.fire(
@@ -469,9 +527,10 @@ listarPerimsoxyz() {
                    
                 })
                 .catch(function (error) {                    
-                    console.log(error401(error));
+                    error401(error);
                 }); 
-            }                  
+          }
+                           
         },
 
         añadirArray(data){
@@ -505,9 +564,9 @@ listarPerimsoxyz() {
     }
         },
 
-        listarlistaActividad() {
-            let me = this;
-           var url = "/siat_homologacion/listarLista";
+        listarlistaActividad(act) {
+            let me = this;    
+           var url = "/siat_homologacion/listarLista?act="+act;
             axios
                 .get(url)
                 .then(function (response) {
@@ -517,13 +576,13 @@ listarPerimsoxyz() {
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
+             
                 });
         },
 
-        listarProducto_homo() {
+        listarProducto_homo(id) {
             let me = this;
-           var url = "/siat_homologacion/listarProdH";
+           var url = "/siat_homologacion/listarProdH?id_rubro="+id;
             axios
                 .get(url)
                 .then(function (response) {
@@ -533,9 +592,27 @@ listarPerimsoxyz() {
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
+          
                 });
         },
+
+        listarRubro() {
+            let me = this;
+           var url = "/siat_homologacion/listarRubro";
+            axios
+                .get(url)
+                .then(function (response) {
+                    var respuesta = response.data;
+                    me.arrayRubro=respuesta;             
+                
+                })
+                .catch(function (error) {
+                    error401(error);
+          
+                });
+        },
+
+        
         
         cambioManuAuto(data){
             let me = this;
@@ -582,6 +659,7 @@ listarPerimsoxyz() {
                     me.showModal = true;
                     me.selectModo_vmodal="0";
                     me.denotador_1=0;
+                
                    // me.classModal.openModal("registrar");
                     break;
                 }
@@ -611,6 +689,7 @@ listarPerimsoxyz() {
                     me.selectProd="0";
                     me.selectModo_vmodal="0";
                     me.denotador_1=0;
+                
           
             }
         },
@@ -627,10 +706,11 @@ listarPerimsoxyz() {
 
     mounted() {
         this.classModal = new _pl.Modals();    
-        this.listarIndex();
-        this.listarlistaActividad();
+       // this.listarIndex();
+       // this.listarlistaActividad();
         this.classModal.addModal("registrar");
         this.listarPerimsoxyz();
+        this.listarRubro();
     
     },
 };

@@ -42,6 +42,7 @@ class SiatHomologacionController extends Controller
     })
     ->join('prod__lineas as l', 'l.id', '=', 'p.idlinea')
     ->where('e.id_catalogo', '=', 16)
+    ->where('p.codigoActividad', '=', $request->actividad)    
     ->whereRaw($sqls)
     ->paginate(10); 
             } 
@@ -66,7 +67,8 @@ class SiatHomologacionController extends Controller
                      ->on('p.codigoProducto', '=', 'e.codigo');
             })
             ->join('prod__lineas as l', 'l.id', '=', 'p.idlinea')
-            ->where('e.id_catalogo', '=', 16)          
+            ->where('e.id_catalogo', '=', 16)   
+            ->where('p.codigoActividad', '=', $request->actividad)         
             ->paginate(10);  
             return 
             [
@@ -124,18 +126,23 @@ class SiatHomologacionController extends Controller
   
  
 
-    public function getCodigoActividadProducto(){
+    public function getCodigoActividadProducto(Request $request){
+     
         $homo = DB::table('excel__emision')
         ->where('id_catalogo', 16)
+        ->where('id_erp', $request->act)
         ->get();
+     
         return $homo;    
     }
 
-    public function getProductoHomo(){
+    public function getProductoHomo(Request $request){
     $productos = DB::table('prod__productos')
     ->select('id', 'codigo', 'nombre')
+    ->where('idrubro',$request->id_rubro)
     ->whereNull('codigoActividad')
     ->whereNull('codigoProducto')
+  
     ->where('estado', 1)
     ->where('activo', 1)
     ->get();
@@ -167,5 +174,14 @@ return $productos;
         } catch (\Throwable $th) {
             return $th;
         }
-       } 
+       }
+       
+       public function getRubro(){
+        $rubros = DB::table('adm__rubros')
+            ->select('id', 'nombre', 'codigo_activdad_siat')
+            ->where('activo', 1)
+            ->where('codigo_activdad_siat', '<>', 0)
+            ->get();
+         return $rubros;   
+       }
 }
