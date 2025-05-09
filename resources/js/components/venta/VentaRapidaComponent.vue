@@ -1015,6 +1015,7 @@ export default {
             selectPago_:'0',
             numeroTarjeta_siat:'',
             cadenaOtros:'',  
+            arrayUnidadMedida_2:[],
 
             
           
@@ -2467,7 +2468,7 @@ me.importe_fiscal=me.monto_a_pagar;
             let may_leyenda=(me.selected.leyenda).toUpperCase();
             me.codigo_tienda_almacen=me.selected.codigo_tienda_almacen;
             me.array_vetasQuery.push({id_contador:me.controlador_venta_id,descuento: descuento,es_lista: es_lista,id_ges_pre:me.selected.id,id_ingreso:me.selected.id_ingreso,id_producto:me.selected.id_prod,id_linea:me.selected.id_linea,precio_venta:me.selected.precio_lista_gespreventa,cantidad_venta:me.numero,codigo_tienda_almacen:me.selected.codigo_tienda_almacen});
-            me.arrayProducto_recibo_1.push({id_contador:me.controlador_venta_id,cant:me.numero,descrip:may_leyenda,p_u:me.selected.precio_lista_gespreventa,unidad_medida:me.selected.unidad_medida,descuento: descuento,cod_pro:me.selected.codigo_prod,codigoActividad:me.selected.codigoActividad,codigoProducto:me.selected.codigoProducto});
+            me.arrayProducto_recibo_1.push({id_contador:me.controlador_venta_id,cant:me.numero,descrip:may_leyenda,p_u:me.selected.precio_lista_gespreventa,unidad_medida:me.selected.unidad_medida,descuento: descuento,cod_pro:me.selected.codigo_prod,codigoActividad:me.selected.codigoActividad,codigoProducto:me.selected.codigoProducto,id_unidad_me:me.selected.id_unidad_medida});
             if (me.validadorPersonal===7 || me.existe_final>0) {
             let sumador_21_sub = 0;
             let sumador_21_des = 0;
@@ -2806,11 +2807,13 @@ me.importe_fiscal=me.monto_a_pagar;
             axios
                 .get(url)
                 .then(function (response) {
-                    var respuesta = response.data;
-                    me.arrayProducto = respuesta;
-                    console.log("****************ini*******************");
-                    console.log(me.arrayProducto);
-                    console.log("*****************fin******************");
+                    var respuesta = response.data;                   
+                    if (respuesta==="000") {
+                      Swal.fire("Error","El usuario debe tener rubro, contacte al administrador...","warning",);
+                    }else{
+                      me.arrayProducto = respuesta;
+                    }                   
+                
                 })
                 .catch(function (error) {
                     error401(error);
@@ -2996,13 +2999,21 @@ me.importe_fiscal=me.monto_a_pagar;
                          
                 }else{
                   if (me.selectPago_==="7") {
-                    if (me.numeroTarjeta===""||me.numeroTarjeta===null||me.selectBanco_v==="0") {
+                    if (me.numeroTarjeta_siat===""||me.numeroTarjeta_siat===null||me.selectBanco_v==="0") {
                       validador=1;
               Swal.fire("Error","Tipo QR debe llenar los datos que en datos extra.","error");
                     } else {
               validador=0;
                     }
-                  }  
+                  }
+                  if (me.selectPago_==="2") {
+                    if (me.numeroTarjeta_siat===""||me.numeroTarjeta_siat===null) {
+                      validador=1;
+              Swal.fire("Error","Debe llenar el numero de tarjeta con un numero 16 digitos ejemplo 4797123456727896.","error");
+                    } else {
+              validador=0;
+                    }
+                  }    
 
               if(validador===0){
                 me.EnviarRecibo();
@@ -3025,9 +3036,19 @@ me.importe_fiscal=me.monto_a_pagar;
                         //----facturacion
                         if(me.estado_dosificacion_facctura===1){
                           if (me.selectPago_==="7") {
-                    if (me.numeroTarjeta===""||me.numeroTarjeta===null||me.selectBanco_v==="0") {
+                    if (me.numeroTarjeta_siat===""||me.numeroTarjeta_siat===null||me.selectBanco_v==="0") {
                       validador=1;
               Swal.fire("Error","Tipo QR debe llenar los datos que en datos extra.","error");
+                    } else {
+              validador=0;
+                    }
+                  }  
+
+                  if (me.selectPago_==="2") {
+                    console.log(me.numeroTarjeta_siat);
+                    if (me.numeroTarjeta_siat===""||me.numeroTarjeta_siat===null||(!/^\d{16}$/.test(me.numeroTarjeta_siat))) {
+                      validador=1;
+                      Swal.fire("Error","Debe llenar el numero de tarjeta con un numero 16 digitos ejemplo 4797123456727896.","error");
                     } else {
               validador=0;
                     }
@@ -3041,7 +3062,7 @@ me.importe_fiscal=me.monto_a_pagar;
                         } else {
                             if (me.estado_dosificacion_facctura===2) {
                               if (me.selectPago_==="7") {
-                    if (me.numeroTarjeta===""||me.numeroTarjeta===null||me.selectBanco_v==="0") {
+                    if (me.numeroTarjeta_siat===""||me.numeroTarjeta_siat===null||me.selectBanco_v==="0") {
                       validador=1;
               Swal.fire("Error","Tipo QR debe llenar los datos que en datos extra.","error");
                     } else {
@@ -3106,7 +3127,7 @@ me.descuento_1=totalDescuento+me.descuento_final;
           cliente_id: me.cliente_id,
           nom_a_facturar: me.nom_a_facturar,
           correo_cliente: me.correo_cliente,
-          tipoPago:me.selectPago_,
+          tipoPago:me.selectPago_,        
 
           numeroTarjeta:me.numeroTarjeta_siat,
           cadenaOtros:me.cadenaOtros,
@@ -3436,10 +3457,24 @@ if (!correoRegex.test(me.correo)) {
         ////////////////////////////////////SIAT/////////////////////////////////////////
 
         EnviarFactura(){
-        let me = this;  
-      
-          
-              me.isSubmitting = true; // Deshabilita el botón   
+        let me = this;          
+   
+        let tamaño_array=me.arrayProducto_recibo_1.length;
+        let ini=0;
+        let contador=0;
+        while (ini < tamaño_array) {
+  let newTipo = me.arrayUnidadMedida_2.find(
+    (element) => element.id_erp === me.arrayProducto_recibo_1[ini].id_unidad_me
+  );
+
+  if (newTipo) {
+    me.arrayProducto_recibo_1[ini].id_unidad_me = newTipo.codigo;
+    contador++;
+  }
+  ini++;
+}
+        if (contador===tamaño_array) {
+          me.isSubmitting = true; // Deshabilita el botón   
         if (me.validadorPersonal===3) {           
             me.array_ven__detalle_descuentos.push({id_contador:0,id_tabla:0,id_descuento:0,cantidad_descuento:0.00,tipo:1});            
           }
@@ -3522,8 +3557,23 @@ me.descuento_1=totalDescuento+me.descuento_final;
             me.isSubmitting = false; // Deshabilita el botón
             console.log(error);
           });
-            
-               
+        } else {
+          Swal.fire("Error","No existe el producto homologado","error"); 
+        }        
+    },
+
+    verificarUnidadMedida(){
+      let me = this;          
+           var url = "/listarUnidadMedidaExcell";          
+            axios.get(url)
+                .then(function (response) {
+                    var respuesta = response.data;
+                    me.arrayUnidadMedida_2 =respuesta;                                    
+                })
+                .catch(function (error) {
+                    error401(error);
+              
+                });
     },
 
  listarPago_() {
@@ -3532,10 +3582,8 @@ me.descuento_1=totalDescuento+me.descuento_final;
             axios.get(url)
                 .then(function (response) {
                     var respuesta = response.data;
-                    me.arrayPago_=respuesta;    
-                                 
-                   me.selectPago_="0";
-                   
+                    me.arrayPago_=respuesta;                                
+                   me.selectPago_="0";                  
                 })
                 .catch(function (error) {
                     error401(error);
@@ -3669,6 +3717,23 @@ me.descuento_1=totalDescuento+me.descuento_final;
                     console.log(error);
                 });
         },
+        
+        listarRubro(){//---eliminar
+          let me=this;
+          var url = "/listarRubro_venta";          
+            axios.get(url)
+                .then(function (response) {                
+                    var respuesta_2 = (response.data); 
+                    console.log("102--");
+                    console.log(respuesta_2);
+                       
+                    
+                })
+                .catch(function (error) {
+                    error401(error);
+                    console.log(error);
+                });
+        },
     },
 
     
@@ -3677,7 +3742,7 @@ me.descuento_1=totalDescuento+me.descuento_final;
         this.classModal = new _pl.Modals();
         this.listarDescuentos_listas();
         this.listarSucursalGet();
-       
+        this.verificarUnidadMedida();       
         this.listarBanco();
         this.verificadorAperturaCierre();
         this.classModal.addModal("registrar");

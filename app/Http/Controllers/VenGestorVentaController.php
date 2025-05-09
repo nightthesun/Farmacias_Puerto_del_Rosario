@@ -14,6 +14,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Helpers\converso_numero_a_texto;
 use App\Helpers\CufHelper;
+use Exception;
+use Illuminate\Support\Facades\Storage;
+use RobRichards\XMLSecLibs\XMLSecurityDSig;
+use RobRichards\XMLSecLibs\XMLSecurityKey;
+
+use SimpleXMLElement;
 
 class VenGestorVentaController extends Controller
 {
@@ -84,6 +90,7 @@ class VenGestorVentaController extends Controller
                     // Convertir la respuesta en un objeto SimpleXMLElement
                     $xml = simplexml_load_string($response);                    
                     $respuesta=$response;
+
                    // Usar XPath para encontrar el nodo <transaccion>    
                    $transaccion = $xml->xpath('//transaccion');
                    if ($transaccion && isset($transaccion[0])) {
@@ -108,7 +115,7 @@ class VenGestorVentaController extends Controller
 
     public function ventaFacturaSiat(Request $request){
         try {
-          return $request->all();
+          
             DB::beginTransaction();
             $fechaHora = Carbon::now(); // Se usará automáticamente el formato correcto
             $arrayEstado_dosificacion_facctura=$request->arrayEstado_dosificacion_facctura;
@@ -148,7 +155,7 @@ class VenGestorVentaController extends Controller
                 break;
             }
         
-                  
+            
         $querytipoSector = DB::table('excel__emision')
             ->where('id_catalogo', 3)
             ->where('codigo', 1)
@@ -163,7 +170,7 @@ class VenGestorVentaController extends Controller
             $numero__=$queryNumeroFactura;
             }else{ $numero__=1; }
             //----------------CUF      
-            
+            $codigoSistema=$arrayEstado_dosificacion_facctura['cod_sis']; 
             // Obtener la fecha actual con milisegundos
             $fechaFormateada = $fechaHora->format('YmdHisv'); // yyyyMMddHHmmssSSS 
             $nitEmisor = $arrayEstado_dosificacion_facctura['nit']; //<----------------------------------------1 cabecera
@@ -218,7 +225,8 @@ class VenGestorVentaController extends Controller
             }else{
                 $numeroTarjeta_sis='<numeroTarjeta xsi:nil="true"/>';
             }
-                       
+                   
+          
             $montoTotal=number_format($request->total_venta, 2, '.', '');  //<----------------------------------------19 cabecera 
             $montoTotalSujetoIva=number_format($request->total_venta, 2, '.', '');  //<----------------------------------------20 cabecera 
             $moneda_siat_x = DB::table('excel__emision')
@@ -245,28 +253,48 @@ class VenGestorVentaController extends Controller
                 $montoGiftCard=number_format($request->gift_value, 2, '.', '');  
             }
             $codigoExcepcion=0;//<---------------solo cuando Solo cuando se desee autorizar al SIN el registro de una factura emitida a un NIT inválido se debe enviar el valor de uno (1) en el mismo .
-            $leyenda=$request->leyenda;
+            $valor_ca=$arrayProRecibo[0]['codigoActividad'];
+            $leyenda = DB::table('excel__emision')
+    ->where('id_erp', $valor_ca)
+    ->where('id_catalogo', 11)
+    ->limit(1)
+    ->value('descripcion');
+      
+  
+          
             $id_user2 = session('id_user2'); 
+            $user_nom=auth()->user()->id;
             $nombreCompletoObj = DB::table('rrh__empleados as re')
             ->join('users as u', 're.id', '=', 'u.idempleado')
-            ->where('u.id', $id_user2)
+            ->where('u.id', $user_nom)
             ->value(DB::raw('UPPER(re.nombre)'));
          
             //==================================================
             //------------------etapa 4-------------------------
             //==================================================
-            $tipo_ambiente=$request->tipo_ambiente;
+            $tipo_ambiente=$arrayEstado_dosificacion_facctura['tipo_ambiente'];
             $endPoints = DB::table('siat__endpoints as se')    
             ->select('se.id', 'se.Descripcion', 'se.Url', 'se.Version')
             ->where('se.tipo', intval($tipo_ambiente))
             ->where('se.id',4)
             ->get(); 
-            $codigoDocumentoSector=1;// configurar depedeniendo de laf actura comoe s compra y venta es 1
-            
-            
+         
+            $codigoDocumentoSectorQuery = DB::table('excel__emision')
+    ->where('id_catalogo', 3)
+    ->where('codigo', 1)// como es factura compra venta se usa esa 
+    ->first();
+
+    $tipoFacturaDocumento = DB::table('excel__emision')
+    ->where('id_catalogo', 2)
+    ->where('codigo', 1)// como es factura compra venta se usa esa 
+    ->first();
+    $docFactura=$tipoFacturaDocumento->codigo;
+   
+            $codigoDocumentoSector=$codigoDocumentoSectorQuery->codigo;// configurar depedeniendo de laf actura comoe s compra y venta es 1            
+          //  return $request->all();
             $cadena_url=$endPoints[0]->Url; 
          
-
+ 
 
             $wsdl = $cadena_url;
                 // Asignación de la URL y API key
@@ -286,33 +314,39 @@ if ($complemento_siat == null) {
     
 
 $detalles = ''; // Aquí se guardarán todos los detalles
-return "todo bien";
-foreach ($arrayProRecibo as $item) {
-    // Convertir a decimal y asegurar dos decimales en el resultado final
-$montoDecimal = round((float)$item['p_u'], 2);
 
-// Sumar ambos montos
-$subTotal = round($montoDecimal - $item['descuento'], 2);
-    $detalles .= "
-    <detalle>
-        <actividadEconomica>{$item['codigoActividad']}</actividadEconomica>
-        <codigoProductoSin>{$item['codigoProducto']}</codigoProductoSin>
-        <codigoProducto>{$item['cod_pro']}</codigoProducto>
-        <descripcion>{$item['descrip']}</descripcion>
-        <cantidad>{$item['cant']}</cantidad>
-        <unidadMedida>{$item['unidad_medida']}</unidadMedida>
-        <precioUnitario>{$item['p_u']}</precioUnitario>
-        <montoDescuento>{$item['descuento']}</montoDescuento>
-        <subTotal>{$subTotal}</subTotal>
-        <numeroSerie xsi:nil=\"true\"/>
-        <numeroImei xsi:nil=\"true\"/>
-    </detalle>";
+foreach ($arrayProRecibo as $item) {
+    // Convertir cantidad a entero
+    $cantidad_array = intval($item['cant']);
+    
+    // Convertir precios a float
+    $precioUnitario = (float)$item['p_u'];
+    $montoDescuento = (float)$item['descuento'];
+ 
+    // Calcular subtotal y luego formatear
+    $subTotalCalculado = ($cantidad_array * $precioUnitario) - $montoDescuento;
+    $subTotal = number_format($subTotalCalculado, 2, '.', '');
+
+    $detalles .= '
+<detalle>
+    <actividadEconomica>' . $item['codigoActividad'] . '</actividadEconomica>
+    <codigoProductoSin>' . $item['codigoProducto'] . '</codigoProductoSin>
+    <codigoProducto>' . $item['cod_pro'] . '</codigoProducto>
+    <descripcion>' . $item['descrip'] . '</descripcion>
+    <cantidad>' . $item['cant'] . '</cantidad>
+    <unidadMedida>' . $item['id_unidad_me'] . '</unidadMedida>
+    <precioUnitario>' . $precioUnitario . '</precioUnitario>
+    <montoDescuento>' . $montoDescuento . '</montoDescuento>
+    <subTotal>' . $subTotal . '</subTotal>
+    <numeroSerie xsi:nil="true"/>
+    <numeroImei xsi:nil="true"/>        
+</detalle>';
 }
-return $detalles;
+
+
+
 $factura = <<<EOD
-<?xml version="1.0" encoding="UTF-8"?>
-<facturaElectronicaCompraVenta xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:noNamespaceSchemaLocation="facturaElectronicaCompraVenta.xsd">
+<facturaElectronicaCompraVenta xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="facturaElectronicaCompraVenta.xsd">
     <cabecera>
         <nitEmisor>{$nitEmisor}</nitEmisor>
         <razonSocialEmisor>{$razonSocialEmisor}</razonSocialEmisor>
@@ -327,7 +361,7 @@ $factura = <<<EOD
         <fechaEmision>{$fechaEmision}</fechaEmision>
         <nombreRazonSocial>{$nombreRazonSocial}</nombreRazonSocial>
         <codigoTipoDocumentoIdentidad>{$tipoFactura}</codigoTipoDocumentoIdentidad>
-        <numeroDocumento>$numeroDocumento</numeroDocumento>
+        <numeroDocumento>{$numeroDocumento}</numeroDocumento>
         {$complemento_siat_sis}
         <codigoCliente>{$codigoCliente}</codigoCliente>
         <codigoMetodoPago>{$codigoMetodoPago}</codigoMetodoPago>
@@ -345,24 +379,118 @@ $factura = <<<EOD
         <usuario>{$nombreCompletoObj}</usuario>
         <codigoDocumentoSector>{$codigoDocumentoSector}</codigoDocumentoSector>
     </cabecera>
-    <detalle>
-        <actividadEconomica>{$actividadEconomica}</actividadEconomica>
-        <codigoProductoSin>123456</codigoProductoSin>
-        <codigoProducto>ABC123</codigoProducto>
-        <descripcion>Producto de ejemplo</descripcion>
-        <cantidad>1</cantidad>
-        <unidadMedida>1</unidadMedida>
-        <precioUnitario>100.00</precioUnitario>
-        <montoDescuento>0.00</montoDescuento>
-        <subTotal>100.00</subTotal>
-        <numeroSerie xsi:nil="true"/>
-        <numeroImei xsi:nil="true"/>
-    </detalle>
-</facturaElectronicaCompraVenta>
+    {$detalles}
+  </facturaElectronicaCompraVenta>
 EOD;
-            
-            
-           
+//$xmlString = view('factura_template', $factura)->render(); 
+ // 2. Firma digital con .p12
+
+
+ // 1. Obtener archivo .p12 desde storage/app/firma
+ $archivoP12 = collect(Storage::files('firma'))->first();
+ if (!$archivoP12) {
+     throw new \Exception('No se encontró ningún archivo .p12 en storage/app/firma');
+ }
+ 
+ // 2. Obtener clave y desencriptarla
+ $claveEncriptada = $arrayEstado_dosificacion_facctura['password'];
+ $claveReducida = preg_replace('/^.{2}(.*).{3}$/', '$1', $claveEncriptada);
+ $claveP12 = Crypt::decrypt($claveReducida);
+ 
+ // 3. Leer contenido del archivo .p12
+ $contenidoP12 = Storage::get($archivoP12);
+ 
+ // 4. Extraer claves y certificado
+ $certs = [];
+ if (!openssl_pkcs12_read($contenidoP12, $certs, $claveP12)) {
+     throw new \Exception("No se pudo leer el archivo .p12 o la clave es incorrecta.");
+ }
+ $privateKey = $certs['pkey'];
+ $publicCert = $certs['cert'];
+ 
+ // 5. Cargar el XML
+ $doc = new \DOMDocument();
+ $doc->preserveWhiteSpace = false;
+ $doc->formatOutput = false;
+ $doc->loadXML($factura);
+ 
+ // 6. Crear la firma digital
+ $objDSig = new XMLSecurityDSig();
+ // Cambiar método de canonicalización a Exclusivo con Comentarios
+ $objDSig->setCanonicalMethod(XMLSecurityDSig::EXC_C14N_COMMENTS);
+
+ 
+ // 7. Agregar referencia con algoritmos correctos
+ $objDSig->addReference(
+     $doc,
+     XMLSecurityDSig::SHA256,
+    [
+        'http://www.w3.org/2000/09/xmldsig#enveloped-signature',
+        'http://www.w3.org/2001/10/xml-exc-c14n#WithComments'
+    ],
+    [
+        'uri' => '',
+        'force_uri' => true
+    ]
+ );
+ 
+ // 8. Crear clave RSA SHA256
+ $objKey = new XMLSecurityKey(XMLSecurityKey::RSA_SHA256, ['type' => 'private']);
+ $objKey->loadKey($privateKey, false);
+ 
+ // 9. Firmar con la clave privada
+ $objDSig->sign($objKey);
+ 
+ // 10. Incluir certificado público en la firma
+ $objDSig->add509Cert($publicCert);
+ 
+ // 11. Agregar firma al XML
+ $objDSig->appendSignature($doc->documentElement);
+ 
+ // 12. Guardar el XML firmado
+ $xmlFirmado = $doc->saveXML();
+
+ // 13. GZIP + Base64
+ $gzipped = gzencode($xmlFirmado);
+ $archivo = base64_encode($gzipped);
+ 
+ // 14. Calcular el HASH SHA256
+ $hashArchivo = hash('sha256', $gzipped);
+ 
+ // 15. Enviar al SIAT
+ $soap_llamada = $this->enviarFactura_siat(
+     $tipo_ambiente, $token_delegado, $codigoDocumentoSector, $tipoEmision,
+     $modalidad, $puntoVenta, $codigoSistema, $sucursal,
+     $cufd, $cuis, $nitEmisor, $docFactura, $archivo, $fechaEmision, $hashArchivo
+ );
+ 
+ return $soap_llamada;
+ 
+
+
+
+
+ $certData = file_get_contents($archivoP12);
+ return $certData;
+
+//return $xmlString;
+      // Comprimir el XML en GZIP
+$gzippedFactura = gzencode($factura);
+
+// Codificar en base64 para el campo <archivo>
+$archivo = base64_encode($gzippedFactura);
+
+// Calcular el hash del archivo comprimido para <hashArchivo>
+$hashArchivo = hash('sha256', $gzippedFactura);
+ // 5. Armar el cuerpo SOAP
+ $soap_llamada = $this->enviarFactura_siat($tipo_ambiente,$token_delegado,$codigoDocumentoSector,$tipoEmision,$modalidad,$puntoVenta
+ ,$codigoSistema,$sucursal,$cufd,$cuis,$nitEmisor,$docFactura,$archivo,$fechaEmision,$hashArchivo);
+  
+ return $soap_llamada;
+
+ 
+     // 6. Enviar a SIN
+         
           
             DB::commit();
         } catch (\Throwable $th) {
@@ -806,7 +934,15 @@ $nombre_empresa = strtoupper($nombre_e);
                     WHEN tip.envase = 'terciario' THEN UPPER(CONCAT(COALESCE(ff_3.nombre, '')))
                     ELSE NULL
                 END AS unidad_medida
-             "),   
+             "),  
+             DB::raw("
+             CASE 
+                    WHEN tip.envase = 'primario' THEN pp.idformafarmaceuticaprimario
+                    WHEN tip.envase = 'secundario' THEN pp.idformafarmaceuticasecundario
+                    WHEN tip.envase = 'terciario' THEN pp.idformafarmaceuticaterciario
+                    ELSE NULL
+                END AS id_unidad_medida
+             "), 
                 'gpv.id_lista','pppl.nombre as nombre_linea','pp.id as id_prod',
                 DB::raw('DATEDIFF(fecha_vencimiento, NOW()) AS dias'),
                 DB::raw("CASE 
@@ -888,6 +1024,14 @@ $nombre_empresa = strtoupper($nombre_e);
                     ELSE NULL
                 END AS unidad_medida
              "),  
+             DB::raw("
+             CASE 
+                    WHEN tip.envase = 'primario' THEN pp.idformafarmaceuticaprimario
+                    WHEN tip.envase = 'secundario' THEN pp.idformafarmaceuticasecundario
+                    WHEN tip.envase = 'terciario' THEN pp.idformafarmaceuticaterciario
+                    ELSE NULL
+                END AS id_unidad_medida
+             "),
                 'gpv.id_lista','pppl.nombre as nombre_linea','pp.id as id_prod',
                 DB::raw('DATEDIFF(fecha_vencimiento, NOW()) AS dias'),
                 DB::raw("CASE 
@@ -920,6 +1064,11 @@ $nombre_empresa = strtoupper($nombre_e);
         
         $user_1 = auth()->user()->id;
         $user_2 = auth()->user()->name;
+        $user_rubro = auth()->user()->rubro_x_usuario;
+        if($user_rubro==null || $user_rubro==""){
+            return "000";
+        }
+        $idrubro = explode(',', $user_rubro);
         //dd(session()->all());
         if ($user_1==1) {
             $idsuc=1;
@@ -993,6 +1142,14 @@ $nombre_empresa = strtoupper($nombre_e);
                     WHEN tip.envase = 'terciario' THEN UPPER(CONCAT(COALESCE(ff_3.nombre, '')))
                     ELSE NULL
                 END AS unidad_medida
+             "),
+             DB::raw("
+             CASE 
+                    WHEN tip.envase = 'primario' THEN pp.idformafarmaceuticaprimario
+                    WHEN tip.envase = 'secundario' THEN pp.idformafarmaceuticasecundario
+                    WHEN tip.envase = 'terciario' THEN pp.idformafarmaceuticaterciario
+                    ELSE NULL
+                END AS id_unidad_medida
              "),   
                 'gpv.id_lista','pppl.nombre as nombre_linea','pp.id as id_prod',
                 DB::raw('DATEDIFF(fecha_vencimiento, NOW()) AS dias'),
@@ -1005,13 +1162,14 @@ $nombre_empresa = strtoupper($nombre_e);
     'pd2.activo as descuento_activo',
     'pad2.id_sucursal as id_11','pppl.id as id_linea',
      'pd2.id as id_descuento',
-            'pd2.id_tipo_tabla as id_tabla','tip.prioridad_caducidad','pp.codigoActividad','pp.codigoProducto'
+            'pd2.id_tipo_tabla as id_tabla','tip.prioridad_caducidad','pp.codigoActividad','pp.codigoProducto','pp.idrubro'
             )
             ->where('ass.id', $id_suc)
             ->where('gpv.listo_venta', 1)
             ->where('pl.id', $id_lista)
             ->where('pp.activo', 1)
             ->where('tip.activo', 1)
+            ->whereIn('pp.idrubro', $idrubro)
             ->where('tip.fecha_vencimiento', '>=', DB::raw('CURDATE()'))
             ->orderBy('tip.prioridad_caducidad', 'desc')
             ->get(); 
@@ -1074,6 +1232,14 @@ $nombre_empresa = strtoupper($nombre_e);
                     ELSE NULL
                 END AS unidad_medida
              "),  
+             DB::raw("
+             CASE 
+                    WHEN tip.envase = 'primario' THEN pp.idformafarmaceuticaprimario
+                    WHEN tip.envase = 'secundario' THEN pp.idformafarmaceuticasecundario
+                    WHEN tip.envase = 'terciario' THEN pp.idformafarmaceuticaterciario
+                    ELSE NULL
+                END AS id_unidad_medida
+             "),
                 'gpv.id_lista','pppl.nombre as nombre_linea','pp.id as id_prod',
                 DB::raw('DATEDIFF(fecha_vencimiento, NOW()) AS dias'),
                 DB::raw("CASE 
@@ -1085,12 +1251,13 @@ $nombre_empresa = strtoupper($nombre_e);
     'pd2.activo as descuento_activo',
     'pad2.id_sucursal as id_11','pppl.id as id_linea',
     'pd2.id as id_descuento',
-    'pd2.id_tipo_tabla as id_tabla','tip.prioridad_caducidad','pp.codigoActividad','pp.codigoProducto'         
+    'pd2.id_tipo_tabla as id_tabla','tip.prioridad_caducidad','pp.codigoActividad','pp.codigoProducto','pp.idrubro'         
             )
             ->where('ass.id', $idsuc)
             ->where('gpv.listo_venta', 1)
             ->where('pp.activo', 1)
             ->where('tip.activo', 1)
+            ->whereIn('pp.idrubro', $idrubro)
             ->where('tip.fecha_vencimiento', '>=', DB::raw('CURDATE()'))
             ->orderBy('tip.prioridad_caducidad', 'desc')
             ->get();
@@ -1713,6 +1880,83 @@ if ($hoy->greaterThan($fechaA)) {
         return $primeros4 . $ceros . $ultimos4;
     }
 
+    private function enviarFactura_siat($codigo_ambiente,$token_delegado,$codigoDocumentoSector,$codigoEmision,$codigoModalidad,$codigoPuntoVenta
+    ,$codigoSistema,$codigoSucursal,$cufd,$cuis,$nit,$tipoFacturaDocumento,$archivo,$fechaEnvio,$hashArchivo){
+        $endPoints = DB::table('siat__endpoints as se')    
+        ->select('se.id', 'se.Descripcion', 'se.Url', 'se.Version')
+        ->where('se.tipo', intval($codigo_ambiente))
+        ->where('se.id',4)
+        ->first(); 
+
+
+        $cadena_url = $endPoints->Url;
+              
+                        // Asignación de la URL y API key
+                        $wsdl = $cadena_url; 
+                        $apikeyValue = 'TokenApi ' .$token_delegado; // Concatenar correctamente el valor del API key
+                    
+                    // Crear el cuerpo del mensaje SOAP, sustituyendo los valores con los parámetros correspondientes        
+                    $xmlData = <<<EOD
+                    <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:siat="https://siat.impuestos.gob.bo/">
+                       <soapenv:Header/>
+                       <soapenv:Body>
+                          <siat:recepcionFactura>
+                             <SolicitudServicioRecepcionFactura>
+                                <codigoAmbiente>{$codigo_ambiente}</codigoAmbiente>
+                                <codigoDocumentoSector>{$codigoDocumentoSector}</codigoDocumentoSector>
+                                <codigoEmision>{$codigoEmision}</codigoEmision>
+                                <codigoModalidad>{$codigoModalidad}</codigoModalidad>
+                                <codigoPuntoVenta>{$codigoPuntoVenta}</codigoPuntoVenta>
+                                <codigoSistema>{$codigoSistema}</codigoSistema>
+                                <codigoSucursal>{$codigoSucursal}</codigoSucursal>
+                                <cufd>{$cufd}</cufd>
+                                <cuis>{$cuis}</cuis>
+                                <nit>{$nit}</nit>
+                                <tipoFacturaDocumento>{$tipoFacturaDocumento}</tipoFacturaDocumento>
+                                <archivo>{$archivo}</archivo>
+                                <fechaEnvio>{$fechaEnvio}</fechaEnvio>
+                                <hashArchivo>{$hashArchivo}</hashArchivo>
+                             </SolicitudServicioRecepcionFactura>
+                          </siat:recepcionFactura>
+                       </soapenv:Body>
+                    </soapenv:Envelope>
+                    EOD;
+                               
+                   // return $xmlData;
+                        // Inicializar cURL
+                        $ch = curl_init();
+            
+                        // Configuración de la solicitud cURL
+                        curl_setopt($ch, CURLOPT_URL, $wsdl); // Reemplaza con el endpoint correcto
+                        curl_setopt($ch, CURLOPT_POST, 1);
+                        curl_setopt($ch, CURLOPT_POSTFIELDS, $xmlData);
+                        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                            'Content-Type: text/xml; charset=utf-8',
+                            'SOAPAction: ""', // Si el SOAPAction es requerido, inclúyelo aquí
+                            'apikey: ' . $apikeyValue // Incluye la API key con el valor correspondiente
+                        ]);
+                        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            
+                        // Ejecutar la solicitud y obtener la respuesta
+                        $response = curl_exec($ch);
+                       
+                        // Verificar si hubo un error en cURL
+                        if (curl_errno($ch)) {
+                            throw new \Exception(curl_error($ch));
+                        }            
+                        // Cerrar la sesión de cURL
+                        curl_close($ch);
+                    // Convertir la respuesta en un objeto SimpleXMLElement
+                    $xml = simplexml_load_string($response);                    
+                    $respuesta=$response;
+
+                    return $respuesta;
+
+
+
+    }
+ 
+  
 
     
 }

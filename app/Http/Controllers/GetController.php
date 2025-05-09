@@ -316,7 +316,7 @@ return $result;
     public function getUser(){
         $usuario = DB::table('users as u')
             ->join('rrh__empleados as re', 're.id', '=', 'u.idempleado')
-            ->select('u.id','u.name','u.responsable',DB::raw("CONCAT(COALESCE(re.nombre, ''), ' ', COALESCE(re.papellido, ''), ' ', COALESCE(re.sapellido, '')) AS nom_completo"),'re.ci','u.super_usuario')
+            ->select('u.id','u.name','u.responsable',DB::raw("CONCAT(COALESCE(re.nombre, ''), ' ', COALESCE(re.papellido, ''), ' ', COALESCE(re.sapellido, '')) AS nom_completo"),'re.ci','u.super_usuario','u.rubro_x_usuario')
             ->where('u.activo', 1)
             ->get();
         return $usuario;     
@@ -422,6 +422,13 @@ return $result;
             ->where('activo', 1)
             ->get();
         return $rubros;    
+    }
+
+    public function getUnidadMedida(){
+        $registros = DB::table('excel__emision')
+    ->where('id_catalogo', 12)
+    ->get();
+        return $registros;
     }
     
 }

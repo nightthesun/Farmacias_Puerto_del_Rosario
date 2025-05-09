@@ -650,6 +650,27 @@ class AdmCredecialCorreoController extends Controller
         }
     }
 
+    public function añadir_quitar_rubro(Request $request)
+    {   
+        //data 1= tiene permiso   0= sin permisos
+        try {
+            $data=$request->data;
+            if ($data==0) {
+                $datos=['rubro_x_usuario' => $request->id_cadena];
+            }else{
+                if ($data==1) {
+                $datos=['rubro_x_usuario' => null];
+                } else {
+                    dd("error...");
+                }               
+            }           
+            DB::table('users')->where('id', $request->id)->update($datos);
+        
+        } catch (\Throwable $th) {            
+            return $th;
+        }
+    }
+
     public function editar_modal_apertura(Request $request){        
         try {
             $fechaActual = Carbon::now(); // Obtiene la fecha y hora actual

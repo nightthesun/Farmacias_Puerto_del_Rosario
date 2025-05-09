@@ -38,7 +38,10 @@
                 </li> 
                 <li class="nav-item">
                     <a class="nav-link" id="pills-imp_tras-tab" data-toggle="pill" href="#pills-imp_tras" role="tab" aria-controls="pills-imp_tras" aria-selected="false">Imprecion transacción</a>
-                </li> 
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="pills-add_user_rubro-tab" data-toggle="pill" href="#pills-add_user_rubro" role="tab" aria-controls="pills-add_user_rubro" aria-selected="false"  @click="listarUser();rubro_2();">Añadir usuario a rubro</a>
+                </li>  
                        
             </ul>
         </div>
@@ -665,7 +668,85 @@
                     </div>
                 </div>
                 
-            <!-------------------------------------------------------------------------------------------------------------------------->
+             <!--------------------------------------RUBRO---------------------------------------------------->
+             <div class="tab-pane fade" id="pills-add_user_rubro" role="tabpanel" aria-labelledby="pills-add_user_rubro-tab">
+    <div class="card-body">
+        <!-- insertar datos -->    
+        <div class="alert alert-warning" role="alert">
+  La configuración afecta solo al modulo de ventas. <h4><strong>Es necesario añadir al usuario para que vea los productos en modulo de ventas</strong></h4>
+</div>
+        <div class="container">
+                                
+                                <div class="form-group row">
+                                    
+                                <div class="col-md-5 input-group mb-3">                                                   
+                                    <VueMultiselect
+                                
+                        v-model="selectedUser"
+                        :options="arrayUser_2"
+                        :max-height="150"                   
+                        :block-keys="['Tab', 'Enter']"                       
+                        placeholder="Seleccione una opción"
+                        label="nom_completo" 
+                        :custom-label="nameWithLang"                     
+                        track-by="id"
+                        class="w-250"
+                        selectLabel="Añadir a seleccion"
+                        deselectLabel="Quitar seleccion"
+                        selectedLabel="Seleccionado"
+                       >
+                       <template #noResult>
+                        No se encontraron elementos. Considere cambiar la consulta de búsqueda.
+                      </template>
+                    </VueMultiselect>            
+                     </div>
+                    
+                    <div class="col-md-5 input-group mb-3" v-show="selectedUser!=null">   
+                        <select class="form-control"  v-model="selectRubro" >
+                                        <option value="0" disabled selected>Seleccionar...</option>
+                                        <option v-for="o in arrayRubro" :key="o.id" :value="o.id">
+                                            {{ o.nombre }}
+                                        </option>
+                                       
+                        </select>
+
+
+                    </div>  
+
+                        <div class="col-md-2 input-group mb-3">
+                            <div v-if="puedeActivar===1">
+                                <button   v-if="selectedUser==null" type="button" class="btn btn-light">Añadir</button>
+                                <button   v-else-if="selectedUser.rubro_x_usuario===null" @click="añadirOquitar_rubroUsuario(0)" type="button" class="btn btn-success">Añadir</button>
+                                <button   v-else @click="añadirOquitar_rubroUsuario(1)"  type="button" class="btn btn-danger">Quitar</button>                              
+                            </div>
+                            <div v-else>
+                            <button   type="button" class="btn btn-light">Sin permiso</button>                       
+                            </div>
+                                          
+                        </div>        
+                    </div>
+                    <table class="table table-bordered table-striped table-sm table-responsive">
+                            <thead>
+                                 <tr>                                  
+                                    <th class="col-md-3" style="font-size: 13px; text-align: center">User</th>
+                                    <th class="col-md-5" style="font-size: 13px; text-align: center">Nombre</th>
+                                    <th class="col-md-4" style="font-size: 13px; text-align: center">id rubro</th>                                                       
+                                </tr>
+                            </thead>
+                            <tbody>                                  
+                                <tr v-for="u in arrayUser_2" :key="u.id" :hidden="u.rubro_x_usuario===null">                                   
+                                    <td class="col-md-3" style="font-size: 13px; text-align: center">{{ u.name }}</td>
+                                    <td class="col-md-5" style="font-size: 13px; text-align: center">{{ u.nom_completo }}</td>
+                                    <td class="col-md-4" style="font-size: 13px; text-align: center">{{ u.rubro_x_usuario }}</td>
+                                </tr>
+                            </tbody>   
+                        </table>                
+                    
+
+                  </div>
+        </div>
+                    </div>
+            <!-------------------------------------------------------------------------------------------------------------------->
 
                 </div>
             
@@ -773,10 +854,11 @@
 import Swal from "sweetalert2";
 import { error401 } from "../../errores";
 import VueMultiselect from 'vue-multiselect';
+import Multiselect from 'vue-multiselect'
 //Vue.use(VeeValidate);
 
 export default {
-    components: { VueMultiselect},
+    components: { VueMultiselect,Multiselect},
      //---permisos_R_W_S
      props: ['codventana','idmodulo'],
         //-------------------
@@ -844,6 +926,15 @@ puedeEditar:2,
                 transaccion_banco:'2',
                 transaccion_data:'',
 
+                //------------------rubro
+                arrayRubro:[],
+                selectRubro:'0',
+                cadenaRubro:'',
+                cadenaId_rubro:'',
+              
+
+              
+
         };
     },
 
@@ -893,19 +984,19 @@ puedeEditar:2,
             
         },
     },
+    
     methods: {
           //-----------------------------------permisos_R_W_S        
     listarPerimsoxyz() {
                 //console.log(this.codventana);
-    let me = this;
-   
+    let me = this;   
         
     var url = '/gestion_permiso_editar_eliminar?win='+me.codventana;
   
     axios.get(url)
         .then(function(response) {
             var respuesta = response.data;
-            console.log(respuesta);
+        
             if(respuesta=="root"){
             me.puedeEditar=1; 
             me.puedeActivar=1;
@@ -920,12 +1011,11 @@ puedeEditar:2,
            
         })
         .catch(function(error) {
-            error401(error);
-            console.log(error);
+            error401(error);      
         });
 },
 //-------------------------------------------------------------- 
-
+  
         añadirlimite(){
             let me = this;            
             if (me.limite_monto===null || me.limite_monto==="" || me.limite_horas===null || me.limite_horas==="") {
@@ -935,7 +1025,7 @@ puedeEditar:2,
                     text: "datos nulos",
                 });
             } else {
-                console.log("*id"+me.id_credencial+" "+me.limite_monto+" "+me.limite_horas);
+      
                 axios
                 .post("/credenciales_correo/limite_2", {
                     id: me.id_credencial,                   
@@ -964,7 +1054,6 @@ puedeEditar:2,
        
         cambioModalApertura(data){
             let me = this;
-          console.log(data);
           let numero = Number(data); // 123
           switch (numero) {
             case 0: {
@@ -998,7 +1087,7 @@ puedeEditar:2,
                     );
                 })
                 .catch(function (error) {                    
-                    console.log(error401(error));
+                    error401(error);
                 });             
         },
 
@@ -1017,8 +1106,43 @@ puedeEditar:2,
                     );
                 })
                 .catch(function (error) {                    
-                    console.log(error401(error));
+                    error401(error);
                 });             
+        },
+
+        añadirOquitar_rubroUsuario(data){
+            let me = this; 
+            let bandera=1;
+            let idRubro = parseInt(me.selectRubro);
+            if (data==0) {
+                if (me.selectRubro=="0") {
+                    bandera=0;
+                }
+            }
+                
+ 
+             if (bandera===0) {
+                Swal.fire("Error!","Debe seleccionar al menos un rubro.","error",);
+             } else {
+           
+            axios.put("/user_rubro/añadir_quitar", {
+                    id:(me.selectedUser).id,
+                    data:data,  
+                    id_cadena:idRubro                 
+                }).then(function (response) {
+                    me.listarUser();  
+                     me.selectRubro="0";
+                    me.selectedUser=null;                
+                    Swal.fire(
+                        "Accion!",
+                        "Realizada correctamente",
+                        "success",
+                    );
+                })
+                .catch(function (error) {                    
+                    error401(error);
+                });
+             }            
         },
 
         listarUser(){
@@ -1029,13 +1153,26 @@ puedeEditar:2,
                     me.arrayUser_2=respuesta;
                     // me.arrayUser_2 = respuesta.filter(user => user.responsable === 0);
                    // me.arrayUserResponsable = respuesta.filter(user => user.responsable === 1);
-                   console.log(me.arrayUser_2);          
+         
+                })
+                .catch(function (error) {
+                    error401(error);       
+                });
+        },
+
+        rubro_2(){
+            let me = this;        
+            var url = "/listarRubro_venta";
+            axios.get(url).then(function (response) {
+                    var respuesta = response.data;
+                    me.arrayRubro=respuesta;  
+                              
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
+        
 
         nameWithLang ({name, nom_completo,}) {
             
@@ -1167,19 +1304,16 @@ puedeEditar:2,
                 .then(function (response) {
                     var respuesta = response.data;
                     me.arrayMoneda = respuesta;
-                    console.log( me.arrayMoneda);
                     let p = me.arrayMoneda.find(
                     (element) => element.id_nacionalidad_pais === me.estado_cambio_moneda);
                 if (p) {
                     me.nombre_pais =p.pais;                    
                 } else {
                     me.nombre_pais ="0";  
-                }
-                    console.log(me.nombre_pais);           
+                }          
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
 
@@ -1448,7 +1582,6 @@ puedeEditar:2,
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });  
         },
 
@@ -1524,8 +1657,7 @@ puedeEditar:2,
                         "success",
                     );                           
                 })               
-                .catch(function (error) {    
-                    console.log(error);           
+                .catch(function (error) {             
                     me.cerrarModal('regcuenta');                
             });
             }
@@ -1561,7 +1693,6 @@ puedeEditar:2,
                         me.listarCuenta(); 
                     }).catch(function (error) {
                         error401(error);
-                        console.log(error);
                     });
                         
                 } else if (
@@ -1608,7 +1739,6 @@ puedeEditar:2,
                         me.listarCuenta(); 
                     }).catch(function (error) {
                         error401(error);
-                        console.log(error);
                     });       
                 } else if (
                     /* Read more about handling dismissals below */
@@ -1633,7 +1763,6 @@ puedeEditar:2,
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });  
          },   
 
@@ -1736,7 +1865,6 @@ puedeEditar:2,
                         me.listarBanco(); 
                     }).catch(function (error) {
                         error401(error);
-                        console.log(error);
                     });
                         
                 } else if (
@@ -1783,7 +1911,6 @@ puedeEditar:2,
                         me.listarBanco();
                     }).catch(function (error) {
                         error401(error);
-                        console.log(error);
                     });       
                 } else if (
                     /* Read more about handling dismissals below */
@@ -1811,8 +1938,7 @@ puedeEditar:2,
                         Swal.fire("Se registro exitosamente","Haga click en Ok", "success",);                                            
                     })                
                   .catch(function (error) { 
-                    error401(error);
-                    console.log(error);                         
+                    error401(error);                        
             }); 
             },
 
@@ -1831,8 +1957,7 @@ puedeEditar:2,
                         Swal.fire("Se registro exitosamente","Haga click en Ok", "success",);                                            
                     })                
                   .catch(function (error) { 
-                    error401(error);
-                    console.log(error);                         
+                    error401(error);                        
             }); 
             },
 
@@ -1865,7 +1990,6 @@ puedeEditar:2,
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
         cambiarPestana(idPestana) {

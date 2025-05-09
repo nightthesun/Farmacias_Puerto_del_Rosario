@@ -1,0 +1,48 @@
+<facturaElectronicaCompraVenta xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="facturaElectronicaCompraVenta.xsd">
+    <cabecera>
+        <nitEmisor>4836949011</nitEmisor>
+        <razonSocialEmisor>COCARICO PEREZ ALVARO</razonSocialEmisor>
+        <municipio>La Paz</municipio>
+        <telefono>69910577</telefono>
+        <numeroFactura>1</numeroFactura>
+        <cuf>14AF51D822EFFA0994B20D12703069333B3B19E06A4328B4385DAB1F74</cuf>
+        <cufd>BQUtCeMK/LEVBN0UQwRDY0MjJFMDY=QlVVVHdKSkZaVUFNCM0UzRDEzRTNGN</cufd>
+        <codigoSucursal>0</codigoSucursal>
+        <direccion>AVENIDA SAN GERONIMO NRO. 3064 ZONA/BARRIO: NUEVOS HORIZONTES II</direccion>
+        <codigoPuntoVenta>0</codigoPuntoVenta>       
+        <fechaEmision>2025-05-08T10:15:02.910</fechaEmision>
+        <nombreRazonSocial>CALLE</nombreRazonSocial>
+        <codigoTipoDocumentoIdentidad>1</codigoTipoDocumentoIdentidad>
+        <numeroDocumento>132487441</numeroDocumento>
+        <complemento xsi:nil="true"/>
+        <codigoCliente>71</codigoCliente>
+        <codigoMetodoPago>1</codigoMetodoPago>
+        <numeroTarjeta xsi:nil="true"/>
+        <montoTotal>100.00</montoTotal>
+        <montoTotalSujetoIva>100.00</montoTotalSujetoIva>
+        <codigoMoneda>1</codigoMoneda>
+        <tipoCambio>1</tipoCambio>
+        <montoTotalMoneda>100.00</montoTotalMoneda>
+        <montoGiftCard>0</montoGiftCard>      
+        <descuentoAdicional>0</descuentoAdicional>
+        <codigoExcepcion>0</codigoExcepcion>
+        <cafc xsi:nil="true"/>
+        <leyenda>Ley N° 453: El proveedor debe brindar atención sin discriminación, con respeto, calidez y cordialidad a los usuarios y consumidores.</leyenda>
+        <usuario>ADMIN</usuario>
+        <codigoDocumentoSector>1</codigoDocumentoSector>
+    </cabecera>
+    
+    <detalle>
+        <actividadEconomica>477311</actividadEconomica>
+        <codigoProductoSin>35270</codigoProductoSin>
+        <codigoProducto>L003004</codigoProducto>
+        <descripcion>NOVALDOL CAJA X 100 UNIDAD (BIENES)</descripcion>
+        <cantidad>1</cantidad>
+        <unidadMedida>57</unidadMedida>
+        <precioUnitario>100.00</precioUnitario>
+        <montoDescuento>0.00</montoDescuento>
+        <subTotal>100.00</subTotal>
+        <numeroSerie xsi:nil='true'/>
+        <numeroImei xsi:nil='true'/>        
+    </detalle>
+</facturaElectronicaCompraVenta>

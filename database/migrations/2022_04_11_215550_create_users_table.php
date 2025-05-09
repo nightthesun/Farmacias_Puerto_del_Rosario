@@ -27,6 +27,7 @@ class CreateUsersTable extends Migration
             $table->timestamps();
             $table->tinyInteger('responsable')->default(0)->nullable()->comment('0=no es responsable, 1=marca como responsable');
             $table->tinyInteger('super_usuario')->default(0)->nullable()->comment('0 = no tiene persmiso 1 = tiene permiso');
+            $table->integer('rubro_x_usuario')->nullable();           
        
         });
     }

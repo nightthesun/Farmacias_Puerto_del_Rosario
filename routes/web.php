@@ -198,6 +198,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/listar_config_siat_sis_v3', [GetController::class, 'getCredencialesData']);     
     Route::get('/leyenda_siat', [GetController::class, 'getLeyenda']);   
     Route::get('/tipoSector_siat', [GetController::class, 'getsectorFactura']);  
+    Route::get('/listarUnidadMedidaExcell', [GetController::class, 'getUnidadMedida']);  
     //adm///////////////////////////////////////////////////////////////////////////////////
 
     Route::get('/rubro', [AdmRubroController::class, 'index']);
@@ -283,7 +284,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/credenciales_correo/limite_2', [AdmCredecialCorreoController::class, 'añadirLimite']);   
     Route::put('/super_usuario/añadir_quitar', [AdmCredecialCorreoController::class, 'añadir_quitar_superUsuario']);
     Route::post('/credenciales_correo/modal_apertura', [AdmCredecialCorreoController::class, 'editar_modal_apertura']);  
-    Route::post('/credenciales_correo/transaccion_data', [AdmCredecialCorreoController::class, 'editar_transaccion_v2']);  
+    Route::post('/credenciales_correo/transaccion_data', [AdmCredecialCorreoController::class, 'editar_transaccion_v2']); 
+    Route::put('/user_rubro/añadir_quitar', [AdmCredecialCorreoController::class, 'añadir_quitar_rubro']);
+    
            
     Route::get('/dosificacion/getDataSucursal', [AdmCredecialCorreoController::class, 'getDataSucursal']);
     Route::post('/dosificacion/store_dosificacion', [AdmCredecialCorreoController::class, 'store_dosificacion']);
@@ -676,7 +679,7 @@ Route::group(['middleware' => 'auth'], function () {
         //*****SIAT FACTURACION VENTAS */
         Route::post('/gestor_ventas/ventaFacturaSiat', [VenGestorVentaController::class, 'ventaFacturaSiat']);
         Route::get('/gestor_ventas/pago_ex', [VenGestorVentaController::class, 'tipoPago']);    
-        
+      
 
     //mostrar venta,re-imprimir,anular
     Route::get('/detalle_venta_2/index', [VenGestorVentaVistaController::class, 'index']);
