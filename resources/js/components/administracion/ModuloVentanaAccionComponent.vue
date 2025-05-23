@@ -150,15 +150,18 @@
             <!-- Fin ejemplo de tabla Listado -->
         </div>
         <!--Inicio del modal agregar/actualizar-->
-        <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" id="registrar" aria-hidden="true" data-backdrop="static" data-keyboard="false">
-            <div class="modal-dialog modal-primary modal-lg" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h4 class="modal-title">{{ tituloModal }}</h4>
-                        <button type="button" class="close"  aria-label="Close" @click="cerrarModal('registrar')">
-                            <span aria-hidden="true">×</span>
+     
+        <transition name="fade">
+            <div v-if="showModal" class="modal d-block" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-primary modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4 class="modal-title">{{ tituloModal }}</h4>
+                        <button type="button" class="close" @click="cerrarModal('registrar')">
+                            <span>&times;</span>
                         </button>
-                    </div>
+                        </div>
+                   
                     <div class="modal-body">
                         <form action=""  class="form-horizontal">
                             <div class="form-group row">
@@ -210,10 +213,9 @@
                         </div>
                     </div>
                 </div>
-                <!-- /.modal-content -->
-            </div>
-            <!-- /.modal-dialog -->
-        </div>
+                </div>
+            </div>        
+        </transition>
         <!--Fin del modal-->
         
         
@@ -248,6 +250,7 @@ import {error401} from '../../errores.js';
                 idventana:'',
                 idaccion:'',
 
+                showModal: false,
                 //---permisos_R_W_S
                 puedeEditar:2,
                 puedeActivar:2,
@@ -289,16 +292,13 @@ import {error401} from '../../errores.js';
         methods :{
 //-----------------------------------permisos_R_W_S        
     listarPerimsoxyz() {
-                //console.log(this.codventana);
-    let me = this;
-   
         
+    let me = this;       
     var url = '/gestion_permiso_editar_eliminar?win='+me.codventana;
   
     axios.get(url)
         .then(function(response) {
-            var respuesta = response.data;
-            console.log(respuesta);
+            var respuesta = response.data;    
             if(respuesta=="root"){
             me.puedeEditar=1;
             me.puedeActivar=1;
@@ -313,8 +313,7 @@ import {error401} from '../../errores.js';
            
         })
         .catch(function(error) {
-            error401(error);
-            console.log(error);
+            error401(error);       
         });
 },
 //--------------------------------------------------------------
@@ -331,10 +330,7 @@ import {error401} from '../../errores.js';
                         element.mostrarventana=false;
                     
                 });
-                //let resp=me.arrayModulos.find(element=>element.id==id);
-                //console.log(resp);
-                
-
+               
             },
 
 
@@ -347,10 +343,7 @@ import {error401} from '../../errores.js';
                     }
                     
                 });
-                //let resp=me.arrayModulos.find(element=>element.id==id);
-                //console.log(resp);
-                
-
+              
             },
             expandirVentana(idmodulo,idventana){
                 let me=this;
@@ -369,7 +362,6 @@ import {error401} from '../../errores.js';
 
             reducirVentana(idmodulo,idventana){
                 let me=this;
-                //console.log(idmodulo,idventana);
                 me.arrayModulos.forEach(element => {
                     if(element.id==idmodulo){
                         element.ventana.forEach(el=>{
@@ -387,12 +379,11 @@ import {error401} from '../../errores.js';
                 var url='/modulo?page='+page+'&buscar='+me.buscar;
                 axios.get(url).then(function(response){
                     var respuesta=response.data;
-                    console.log(respuesta);
+              
                     me.arrayModulos=respuesta.modulos;
                 })
                 .catch(function(error){
                     error401(error);
-                    console.log(error);
                 });
             },
             registrarModulo(){
@@ -408,7 +399,6 @@ import {error401} from '../../errores.js';
                         me.listarModulos();
                     }).catch(function(error){
                         error401(error);
-                        console.log(error);
                     });
                 }
                 if(me.tipomodal=='ventana')
@@ -425,7 +415,6 @@ import {error401} from '../../errores.js';
                         me.listarModulos();
                     }).catch(function(error){
                         error401(error);
-                        console.log(error);
                     }).finally(() => {
           me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
         });
@@ -442,7 +431,6 @@ import {error401} from '../../errores.js';
                         me.listarModulos();
                     }).catch(function(error){
                         error401(error);
-                        console.log(error);
                     });
                 }
                     
@@ -450,7 +438,6 @@ import {error401} from '../../errores.js';
             },
             eliminarModulo(accion,idmodulo){
                 let me=this;
-                //console.log("prueba");
                 const swalWithBootstrapButtons = Swal.mixin({
                 customClass: {
                     confirmButton: 'btn btn-success',
@@ -503,7 +490,6 @@ import {error401} from '../../errores.js';
                         
                     }).catch(function (error) {
                         error401(error);
-                        console.log(error);
                     });
                     
                     
@@ -572,7 +558,6 @@ import {error401} from '../../errores.js';
                         
                     }).catch(function (error) {
                         error401(error);
-                        console.log(error);
                     });
                     
                     
@@ -600,10 +585,8 @@ import {error401} from '../../errores.js';
                     }).then(function (response) {
                         if(response.data.length){
                         }
-                        // console.log(response)
                         else{
-                                Swal.fire('Actualizado Correctamente')
-
+                                Swal.fire('Actualizado Correctamente');
                             me.listarModulos();
                         } 
                     }).catch(function (error) {
@@ -621,10 +604,8 @@ import {error401} from '../../errores.js';
                     }).then(function (response) {
                         if(response.data.length){
                         }
-                        // console.log(response)
                         else{
-                                Swal.fire('Actualizado Correctamente')
-
+                                Swal.fire('Actualizado Correctamente');
                             me.listarModulos();
                         } 
                     }).catch(function (error) {
@@ -641,10 +622,8 @@ import {error401} from '../../errores.js';
                     }).then(function (response) {
                         if(response.data.length){
                         }
-                        // console.log(response)
                         else{
-                                Swal.fire('Actualizado Correctamente')
-
+                                Swal.fire('Actualizado Correctamente');
                             me.listarModulos();
                         } 
                     }).catch(function (error) {
@@ -666,6 +645,7 @@ import {error401} from '../../errores.js';
                         me.tipomodal='modulo';
                         me.tipoAccion=1;
                         me.modulo='';
+                        me.showModal = true;
                         me.classModal.openModal('registrar');
                         break;
                     }
@@ -673,6 +653,7 @@ import {error401} from '../../errores.js';
                     case 'actualizar':
                     {
                         me.isSubmitting=false;
+                        me.showModal = true;
                         me.idmodulo=data.id;
                         me.tipoAccion=2;
                         me.tituloModal='Actualizar Modulo';
@@ -682,6 +663,7 @@ import {error401} from '../../errores.js';
                     }
                     case 'registrarventana':
                     {
+                        me.showModal = true;
                         me.tituloModal='Registar Ventana'
                         me.tipoAccion=1;
                         me.etiqueta='Nombre Ventana: ';
@@ -695,7 +677,7 @@ import {error401} from '../../errores.js';
                     }
                      case 'actualizarventana':
                     {
-                        console.log(data);
+                        me.showModal = true;
                         me.tituloModal='Actualizar Ventana'
                         me.tipoAccion=2;
                         me.etiqueta='Nombre Ventana: ';
@@ -709,6 +691,7 @@ import {error401} from '../../errores.js';
                     }
                     case 'registraraccion':
                     {
+                        me.showModal = true;
                         me.tituloModal='Registar Accion'
                         me.tipoAccion=1;
                         me.etiqueta='Nombre Accion: ';
@@ -722,6 +705,7 @@ import {error401} from '../../errores.js';
                     }
                      case 'actualizaraccion':
                     {
+                        me.showModal = true;
                         me.tituloModal='Actualizar Accion'
                         me.tipoAccion=2;
                         me.etiqueta='Nombre Accion: ';
@@ -745,7 +729,7 @@ import {error401} from '../../errores.js';
                 me.descripcion='';
                 me.tipoAccion=1;
                 me.templatevue=''
-                
+                me.showModal = false;
                 me.areamedica=true;
                 
             },
@@ -778,5 +762,18 @@ import {error401} from '../../errores.js';
 hr{
     margin-top: 1px;
     margin-bottom: 1px;
+}
+</style>
+<style scoped>
+.modal {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter, .fade-leave-to /* .fade-leave-active en versiones de Vue < 2.1.8 */ {
+  opacity: 0;
 }
 </style>

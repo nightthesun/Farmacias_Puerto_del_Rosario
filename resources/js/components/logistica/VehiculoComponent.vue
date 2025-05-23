@@ -124,16 +124,18 @@
             <!-- Fin ejemplo de tabla Listado -->
         </div>
         <!--Inicio del modal agregar/actualizar-->
-        <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" id="registrar" aria-hidden="true" data-backdrop="static" data-keyboard="false">
-            <div class="modal-dialog modal-primary modal-lg" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
+
+        <transition name="fade">
+            <div v-if="showModal" class="modal d-block" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-primary modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
                         <h4 class="modal-title">{{ tituloModal }}</h4>
-                        <button type="button" class="close"  aria-label="Close" @click="cerrarModal('registrar')">
-                            <span aria-hidden="true">×</span>
+                        <button type="button" class="close" @click="cerrarModal('registrar')">
+                            <span>&times;</span>
                         </button>
-                    </div>
-                    <div class="modal-body">
+                        </div>
+                        <div class="modal-body">
                         <div class="alert alert-warning" role="alert">
                             Todos los campos con (*) son requeridos
                         </div>
@@ -243,24 +245,27 @@
                             </div>
                         </div>
                     </div>
+
+                    </div>
                 </div>
-                <!-- /.modal-content -->
-            </div>
-            <!-- /.modal-dialog -->
-        </div>
+            </div>  
+        </transition>              
+      
         <!--Fin del modal-->
         
          <!--Inicio del modal asignacion -->
-         <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" id="registrar1" aria-hidden="true" data-backdrop="static" data-keyboard="false">
-            <div class="modal-dialog modal-primary modal-lg" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
+
+         <transition name="fade">
+            <div v-if="showModal_2" class="modal d-block" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-primary modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
                         <h4 class="modal-title">{{ tituloModal }}</h4>
-                        <button type="button" class="close"  aria-label="Close" @click="cerrarModal1('registrar1')">
-                            <span aria-hidden="true">×</span>
+                        <button type="button" class="close" @click="cerrarModal1('registrar1')">
+                            <span>&times;</span>
                         </button>
-                    </div>
-                    <div class="container">
+                        </div>
+                        <div class="container">
                         <div class="row">
                             <div class="col-12" >
                                 <div class="modal-body">
@@ -311,11 +316,12 @@
                         <button type="button" v-if="selectAlmTda2==false" class="btn btn-primary" disabled>Asignar</button>
                         <button type="button" v-if="selectAlmTda2!=false" class="btn btn-primary" @click="asignarSucursal()">Asignar</button>
                     </div>
+                    
+                    </div>
                 </div>
-                <!-- /.modal-content -->
             </div>
-            <!-- /.modal-dialog -->
-        </div>
+         </transition>               
+    
         <!--Fin del modal-->
     </main>
 </template>
@@ -350,9 +356,10 @@ import { resolveTransitionHooks } from 'vue';
                 
                 buscar:'',
                
-               
+                showModal: false,
                 telefono:'',
-             
+                showModal: false,
+                showModal_2: false,
                 //------
                 arraySucursalAlmTda:[],
                 selectAlmTda:0,  
@@ -741,6 +748,8 @@ me.isSubmitting = true; // Deshabilita el botón
                     
                 }).then(function (response) {
                     me.listarVehiculo();
+                    me.arrayFalso=[];
+                    me.cerrarModal1('registrar1')
                     Swal.fire(
                         'Asigno Correctamente!',
                         'El Accion realizada Correctamente',
@@ -748,9 +757,10 @@ me.isSubmitting = true; // Deshabilita el botón
                     )
                 }).catch(function (error) {
                     error401(error);
+                    me.arrayFalso=[];
+                    me.cerrarModal1('registrar1')
                 });
-                me.arrayFalso=[];
-                me.cerrarModal('registrar1');
+               
             },
 
              
@@ -767,7 +777,8 @@ me.isSubmitting = true; // Deshabilita el botón
                         me.isSubmitting=false;
                         me.tipoAccion=1;
                         me.tipo=0;
-                
+                        me.showModal = true;
+                        
                         me.telefono='';
                         me.selectAlmTda=0;
                         me.selectTipo=0;                      
@@ -791,6 +802,7 @@ me.isSubmitting = true; // Deshabilita el botón
                         me.isSubmitting=false;
                         me.tipoAccion=2;                        
                         me.tipo=0; 
+                        me.showModal = true;
                         me.telefono=data.telefono;
                         me.id_vehiculo=data.id;
                         me.selectAlmTda=data.codigo==null?0:data.codigo;
@@ -812,7 +824,7 @@ me.isSubmitting = true; // Deshabilita el botón
                                           
                          me.tituloModal='Asignar sucursal';
   
-
+                         me.showModal_2 = true;
                        me.selectAlmTda2=me.arrayFalso;
                         me.id_vehiculo=data.id;
                         me.classModal.openModal('registrar1');
@@ -828,6 +840,7 @@ me.isSubmitting = true; // Deshabilita el botón
             cerrarModal(accion){
                 let me = this;
                 me.isSubmitting=false;
+                me.showModal = false;
                 me.classModal.closeModal(accion);
                 me.tipoAccion=1;
                 me.tipo=0;  
@@ -848,13 +861,15 @@ me.isSubmitting = true; // Deshabilita el botón
             },
             cerrarModal1(accion){
                 let me = this;
-                me.classModal.closeModal(accion);
+                me.showModal_2 = false;
                 me.tipoAccion=1;
                 me.id_vehiculo="";
                 me.arrayFalso=[];
                 me.selectAlmTda2=[];
                 me.arrayVehucloX=[];
-          
+                me.classModal.closeModal(accion);
+              
+             
                
             },
 
@@ -886,5 +901,18 @@ me.isSubmitting = true; // Deshabilita el botón
 .error{
     color: red;
     font-size: 10px;  
+}
+</style>
+<style scoped>
+.modal {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter, .fade-leave-to /* .fade-leave-active en versiones de Vue < 2.1.8 */ {
+  opacity: 0;
 }
 </style>

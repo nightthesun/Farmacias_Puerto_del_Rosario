@@ -544,11 +544,19 @@ class DirClienteController extends Controller
         $tiposDocumento = DB::table('dir__tipo_doc')->get();
         return $tiposDocumento;
     }
+
     public function listarEx()
     {
         $ex = DB::table('adm__departamentos')->get();
         return $ex;
     }
-         
+   
+    public function listarMovimientosCliente(Request $request){
+
+        $count = DB::table('ven__recibos')
+        ->where('id_cliente', $request->id_cliente)
+        ->count();
+        return $count;
+    }
    
 }

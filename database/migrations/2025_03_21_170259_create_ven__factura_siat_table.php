@@ -13,18 +13,21 @@ return new class extends Migration
     {
         Schema::create('ven__factura_siat', function (Blueprint $table) {
             $table->id();
-            $table->integer('id_venta');        
-            $table->integer('id_cufd');
-            $table->integer('id_cuis');
+            $table->bigInteger('id_venta');        
+            $table->bigInteger('id_cufd');
+            $table->bigInteger('id_cuis');
             $table->text('cuf');
-            $table->smallInteger('sucursal_siat'); 
-            $table->smallInteger('id_emisor'); 
-            $table->integer('numero_factura');
-            $table->decimal('total', 11, 2);
-            $table->text('codigo_control')->comment('del codigo cufd');
-            $table->text('codigo_Recepcion')->comment('lo dal en recepcion si todoe sta bien lo da impuestos');
-            $table->smallInteger('id_tipo_pago'); 
-            $table->tinyInteger('estado_factura')->default(0)->comment('0=activo, 1=anulado');
+            $table->integer('id_credenciales'); 
+            $table->integer('sucursal_siat'); 
+            $table->integer('punto_venta');
+            $table->text('direccion');
+            $table->string('municipio',155);
+            $table->bigInteger('numFactura');
+            $table->string('fechaEmision',160)->nullable(); 
+            $table->text('xml')->nullable();
+            $table->integer('id_leyenda')->nullable();
+            $table->tinyInteger('estado')->default(1)->nullable();
+            $table->text('codRecepcion')->nullable();              
         });
         
     }

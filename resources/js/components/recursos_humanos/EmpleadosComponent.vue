@@ -115,16 +115,17 @@
             <!-- Fin ejemplo de tabla Listado -->
         </div>
         <!--Inicio del modal agregar/actualizar-->
-        <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" id="registrar" aria-hidden="true" data-backdrop="static" data-keyboard="false">
-            <div class="modal-dialog modal-primary modal-lg" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
+        <transition name="fade">
+            <div v-if="showModal" class="modal d-block" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-primary modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
                         <h4 class="modal-title">{{ tituloModal }}</h4>
-                        <button type="button" class="close"  aria-label="Close" @click="cerrarModal('registrar')">
-                            <span aria-hidden="true">×</span>
+                        <button type="button" class="close" @click="cerrarModal('registrar')">
+                            <span>&times;</span>
                         </button>
-                    </div>
-                    <div class="modal-body" style="background-color: whitesmoke">
+                        </div>
+                        <div class="modal-body" style="background-color: whitesmoke">
                         <form @submit.prevent="registrarempleado || actualizarempleado" enctype="multipart/form-data" >
 
                        
@@ -364,23 +365,26 @@
         </div>
     </div>
 </div>
+
+                    </div>
                 </div>
-                <!-- /.modal-content -->
             </div>
-            <!-- /.modal-dialog -->
-        </div>
+        </transition>                
+    
         <!--Fin del modal-->
         <!-- modal registro bancos -->
-        <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" id="regbanco" aria-hidden="true" data-backdrop="static" data-keyboard="false">
-            <div class="modal-dialog modal-primary" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h4 class="modal-title">Registrar Banco</h4>
-                        <button type="button" class="close"  aria-label="Close" @click="cerrarModal('regbanco')">
-                            <span aria-hidden="true">×</span>
+        <transition name="fade">
+            <div v-if="showModal_2" class="modal d-block" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-primary modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                        <h4 class="modal-title">{{ tituloModal }}</h4>
+                        <button type="button" class="close" @click="cerrarModal('regbanco')">
+                            <span>&times;</span>
                         </button>
-                    </div>
-                    <div class="modal-body" style="background-color: whitesmoke">
+                        </div>
+
+                        <div class="modal-body" style="background-color: whitesmoke">
                         <div class="form-group">
                             <label>Nombre Banco:<span  v-if="nombrebanco==''" class="error">(*)</span></label>
                             <input type="text" id="nombrebanco" name="nombrebanco" class="form-control rounded" placeholder="Nombre Banco" v-model="nombrebanco" v-on:focus="selectAll" >
@@ -394,23 +398,21 @@
                         <button type="button" class="btn btn-primary rounded" @click="registrarBanco()" :disabled="nombrebanco==''">Guardar</button>
                         
                     </div>
-                </div>
-                <!-- /.modal-content -->
-            </div>
-            <!-- /.modal-dialog -->
-        </div>
-
-        <!-- modal registro ciudades -->
-        <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" id="regciudad" aria-hidden="true" data-backdrop="static" data-keyboard="false">
-            <div class="modal-dialog modal-primary" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h4 class="modal-title">Registrar Ciudad</h4>
-                        <button type="button" class="close"  aria-label="Close" @click="cerrarModal('regciudad')">
-                            <span aria-hidden="true">×</span>
-                        </button>
                     </div>
-                    <div class="modal-body" style="background-color: whitesmoke">
+                </div>
+            </div>
+        </transition>                
+        <transition name="fade">
+            <div v-if="showModal_3" class="modal d-block" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-primary modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                        <h4 class="modal-title">{{ tituloModal }}</h4>
+                        <button type="button" class="close" @click="cerrarModal('regciudad')">
+                            <span>&times;</span>
+                        </button>
+                        </div>
+                        <div class="modal-body" style="background-color: whitesmoke">
                         <div class="form-group col">
                             <div class="form-group">
                                 <label>Departamento: <span  v-if="depselec==0" class="error">(*)</span></label>
@@ -435,11 +437,13 @@
                         <button type="button" class="btn btn-primary rounded" @click="registrarCiudad()" :disabled="nomciudad=='' && depselec==0">Guardar</button>
                         
                     </div>
+
+                    </div>
                 </div>
-                <!-- /.modal-content -->
             </div>
-            <!-- /.modal-dialog -->
-        </div>
+        </transition>                
+        <!-- modal registro ciudades -->
+    
         
     </main>
 </template>
@@ -524,6 +528,9 @@ import { error401 } from '../../errores';
                 puedeHacerOpciones_especiales:2,
                 puedeCrear:2,
                 //-----------
+                showModal: false,
+                showModal_2: false,
+                showModal_3: false,
             }
 
         },
@@ -888,6 +895,7 @@ import { error401 } from '../../errores';
                 switch(accion){
                     case 'registrar':
                     {me.isSubmitting=false;
+                        me.showModal = true;
                         if(data[0]==1)
                             me.classModal.openModal('registrar');
                         if(data[0]==2)
@@ -932,6 +940,7 @@ import { error401 } from '../../errores';
                     case 'actualizar':
                     {
                         me.isSubmitting=false;
+                        me.showModal = true;
                         me.idempleado=data.id;
                         me.tipoAccion=2;
                         me.tituloModal='Actualizar empleado';
@@ -978,6 +987,8 @@ import { error401 } from '../../errores';
                     }
                     case 'regbanco':
                     {
+                        me.tituloModal='Registro de banco';
+                        me.showModal_2 = true;
                         //me.classModal.closeModal('registrar');
                         me.classModal.openModal('regbanco');
                         me.nombrebanco='';
@@ -985,6 +996,8 @@ import { error401 } from '../../errores';
                     }
                     case 'regciudad':
                     {
+                        me.tituloModal='Registro de ciudad';
+                        me.showModal_3 = true;
                         //me.classModal.closeModal('registrar');
                         me.classModal.openModal('regciudad');
                         me.nomciudad='';
@@ -1002,13 +1015,11 @@ import { error401 } from '../../errores';
                 }).then(function(response){
                     me.selectBancos();
                     me.bancoselected=response.data.idbanco;
-                    //console.log(response);
-                    //me.classModal.closeModal('regbanco');
+                 
                     me.abrirModal('registrar',arr);
                     
                 }).catch(function(error){
                     error401(error);
-                    console.log(error);
                 });
 
             },
@@ -1039,9 +1050,10 @@ import { error401 } from '../../errores';
             cerrarModal(accion){
                 let me = this;
                 me.isSubmitting=false;
-                if(accion=='regmodal'){
+                if(accion=='regbanco'){
                     me.classModal.closeModal(accion);
                     //me.bancoselected=0;
+                    me.showModal_2 = false; 
                     me.nombrebanco='';
                 }
                 else
@@ -1049,13 +1061,14 @@ import { error401 } from '../../errores';
                     if(accion=='regciudad'){
                         me.classModal.closeModal(accion);
                         me.depselec=0;
+                        me.showModal_3 = false; 
                         me.nomciudad='';
                     }
                     else    
                     {
                         
                         me.classModal.closeModal(accion);
-                                            
+                        me.showModal = false;                   
                         me.tipoAccion=1;
                         me.nombre='';
                         me.papellido='';
@@ -1225,4 +1238,17 @@ label{
         filter:drop-shadow(1px 0px 2px #333);
         width:35px;
     }
+</style>
+<style scoped>
+.modal {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter, .fade-leave-to /* .fade-leave-active en versiones de Vue < 2.1.8 */ {
+  opacity: 0;
+}
 </style>

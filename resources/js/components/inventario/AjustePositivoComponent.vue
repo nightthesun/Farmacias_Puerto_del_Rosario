@@ -14,7 +14,7 @@
                     <button v-if="puedeCrear==1"
                         type="button"
                         class="btn btn-secondary"
-                        @click="abrirModal('registrar'); ProductoLineaIngreso(); "
+                        @click="abrirModal('registrar');"
                         :disabled="sucursalSeleccionada == 0"
                     >
                         <i class="icon-plus"></i>&nbsp;Nuevo
@@ -123,17 +123,7 @@
                             <tr v-for="AjusteNegativos in arrayAjusteNegativos" :key="AjusteNegativos.id">
                                 <td class="col-md-1">
                                     <div  class="d-flex justify-content-start">
-                                        <div  v-if="puedeEditar==1">
-                                            <button type="button" class="btn btn-warning btn-sm" @click="abrirModal('actualizar',AjusteNegativos);
-                                            ProductoLineaIngreso();" style="margin-right: 5px;">
-                                            <i class="icon-pencil"></i>
-                                            </button>
-                                        </div>
-                                        <div v-else>
-                                            <button type="button" class="btn btn-light btn-sm"  style="margin-right: 5px;">
-                                            <i class="icon-pencil"></i>
-                                            </button>
-                                        </div>
+                                        
                                         <div v-if="puedeActivar==1">
                                             <button v-if="AjusteNegativos.activo == 1" type="button" class="btn btn-danger btn-sm"
                                             @click="eliminarAjusteNegativos(AjusteNegativos.id)" tyle="margin-right: 5px;">
@@ -239,30 +229,18 @@
             <!-- Fin ejemplo de tabla Listado -->
         </div>
         <!--Inicio del modal agregar/actualizar-->
-        <div
-            class="modal fade"
-            tabindex="-1"
-            role="dialog"
-            arial-labelledby="myModalLabel"
-            id="registrar"
-            aria-hidden="true"
-            data-backdrop="static"
-            data-key="false"
-        >
-            <div class="modal-dialog modal-primary modal-lg" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
+        <transition name="fade">
+            <div v-if="showModal" class="modal d-block" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-primary modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
                         <h4 class="modal-title">{{ tituloModal }}</h4>
-                        <button
-                            type="button"
-                            class="close"
-                            aria-label="Close"
-                            @click="cerrarModal('registrar')"
-                        >
-                            <span aria-hidden="true">x</span>
+                        <button type="button" class="close" @click="cerrarModal('registrar')">
+                            <span>&times;</span>
                         </button>
-                    </div>
-                    <div class="modal-body">
+                        </div>
+
+                        <div class="modal-body">
                         <div class="alert alert-warning" role="alert">
                             Todos los campos con (*) son requeridos
                         </div>
@@ -270,54 +248,61 @@
                             <!-- insertar datos -->
                             <div class="container">
                                 <div class="form-group row">
+                                    <div v-if="op===1">
+                                         <button class="btn btn-Secondary" type="button" @click="consultaProducto(2)">Productos mayores a cero</button>
+                                         <button class="btn btn-Secondary" type="button" @click="consultaProducto(3)">Productos en cero</button>                                    
+                                    </div>
+                                    <div v-if="op===2">
+                                        <button class="btn btn-primary" type="button" @click="consultaProducto(2)">Productos mayores a cero</button>
+                                        <button class="btn btn-Secondary" type="button" @click="consultaProducto(3)">Productos en cero</button>  
+                                    </div>
+                                    <div v-if="op===3">
+                                        <button class="btn btn-Secondary" type="button" @click="consultaProducto(2)">Productos mayores a cero</button>
+                                        <button class="btn btn-primary" type="button" @click="consultaProducto(3)">Productos en cero</button>  
+                                    </div>                                  
+                                </div>
+                                <div class="form-group row" v-if="op!=1">
                                     <label class="col-md-3 form-control-label" for="text-input">Producto:<span
-                                            v-if="ProductoLineaIngreso == '0'" class="error">(*)</span>
+                                            v-if="selected === null" class="error">(*)</span>
                                     </label>
+                                    
                                     <div class="col-md-7 input-group mb-3" v-if="tipoAccion == 1">
-                                        <select v-model="ProductoLineaIngresoSeleccionado" v-if="tipoAccion == 1"
-                                            class="form-control"  @change="cambioDeEstado">
-                                            <option v-bind:value="0" disabled>
-                                                Seleccionar...
-                                            </option>
-                                            <option
-                                                v-for="ProductoLineaIngreso in arrayProductoLineaIngreso"
-                                                :key="
-                                                    ProductoLineaIngreso.id_ingreso
-                                                "
-                                                v-bind:value="
-                                                    ProductoLineaIngreso.id_ingreso
-                                                "
-                                                v-text="'Cod: '+ProductoLineaIngreso.codigo_producto+
-                                                    ProductoLineaIngreso.leyenda +
-                                                    ' | Lote: ' +
-                                                    ProductoLineaIngreso.lote +
-                                                    ' | FI: ' +
-                                                    ProductoLineaIngreso.fecha_ingreso +
-                                                    ' | FV: ' +
-                                                    (ProductoLineaIngreso.fecha_vencimiento ===
-                                                    null
-                                                        ? '| sin registro'
-                                                        : ProductoLineaIngreso.fecha_vencimiento) +
-                                                    ' | Stock: ' +
-                                                    ProductoLineaIngreso.stock_ingreso
-                                                "
-                                            ></option>
-                                        </select>
-                                        <button class="btn btn-primary" v-if="tipoAccion == 1" type="button" id="button-addon1"
-                                            @click="abrirModal('bucarProductoIngreso'); ListarretornarProductosIngreso();"
-                                            data-bs-toggle="tooltip" data-bs-placement="top" title="Muestra los productos mayores a cero">
-                                            <i class="fa fa-search"></i>
-                                        </button>
-                                        <br>
-                                        <!--boton de busqueda de productos en stock 0-->
-                                        <button
-                                            class="btn btn-danger" v-if="tipoAccion == 1" type="button"
-                                            id="button-addon1" @click="abrirModal('stockCero');ListarretornarProductosIngresoCero();"
-                                            data-bs-toggle="tooltip" data-bs-placement="top" title="Muestra los productos en cero" >
-                                            <i class="fa fa-search"></i>
-                                        </button>
+                                       
+                                        <VueMultiselect
+                        v-model="selected"
+                        :disabled="validarBoton==1"
+                        :options="arrayProductoLineaIngreso"
+                        :max-height="190"                   
+                        :block-keys="['Tab', 'Enter']"                       
+                        placeholder="Seleccione una opción"
+                        label="leyenda" 
+                        :custom-label="nameWithLang"                     
+                        track-by="id"
+                        class="w-250"
+                        selectLabel="Añadir a seleccion"
+                        deselectLabel="Quitar seleccion"
+                        selectedLabel="Seleccionado"
+                     
+                       >
+                       <template #noResult>
+                        No se encontraron elementos. Considere cambiar la consulta de búsqueda.
+                      </template>
+                    </VueMultiselect>    
                                        
                                     </div>
+                                    <div class="col-md-2 input-group mb-3 " v-if="tipoAccion == 1">
+                            <div v-if="validarBoton==0">
+                                <button v-if="selected==null " type="button" class="btn btn-Secondary">Validar</button>
+                                <button v-else type="button" class="btn btn-primary"  @click="validarNew(selected.id_ingreso)">Validar</button>
+                            </div>
+                            <div v-else>
+                               
+                                <button type="button" class="btn btn-warning" style="color: white;" @click="validarQuitar()">Quitar</button>
+                            </div>
+                            
+                           </div>
+
+
                                     <div class="col-md-12 input-group mb-3" v-if="tipoAccion == 2">
                                         <select v-model="ProductoLineaIngresoSeleccionado" v-if="tipoAccion == 2"
                                             class="form-control"  :disabled="tipoAccion === 2" @change="cambioDeEstado">
@@ -381,7 +366,7 @@
                                     <input type="text" v-if="tipoAccion == 2"  v-model="cantidad" disabled hidden>  
                                  </div>
 
-                                <div class="form-group row">
+                                <div class="form-group row" v-show="validarBoton==1 && selected!=null">
                                     <label
                                         class="col-md-3 form-control-label"
                                         for="text-input"
@@ -419,7 +404,7 @@
                                     </div>
                                 </div>
 
-                                <div class="form-group row">
+                                <div class="form-group row" v-show="validarBoton==1&&selected!=null">
                                     <label class="col-md-3 form-control-label" for="text-input">
                                         Tipo: <span class="error">(*)</span>
                                     </label>
@@ -466,9 +451,12 @@
                         </div>
                        
                     </div>
+
+                    </div>        
                 </div>
             </div>
-        </div>
+        </transition>                
+
         <!--fin del modal-->
         <!-- Modal para la busqueda de producto por lote -->
         <div
@@ -804,8 +792,10 @@
 <script>
 import Swal from "sweetalert2";
 import { error401 } from "../../errores";
+import VueMultiselect from 'vue-multiselect';
 //Vue.use(VeeValidate);
 export default {
+    components: { VueMultiselect },
     //---permisos_R_W_S
     props: ['codventana'],
         //-------------------
@@ -863,13 +853,13 @@ export default {
                 puedeHacerOpciones_especiales:2,
                 puedeCrear:2,
                 //-----------
-
-
+                selected:null,
+                validarBoton:0,
             inputTextBuscarProductoIngreso: "",
             arrayRetornarProductosIngreso: [],
             leyenda: "",
             stock_ingreso:"",
-
+    showModal: false,
             //retorncero
             arrayRetornarProductosIngresoCero:[],    
             inputTextBuscarProductoIngresoCero:"",
@@ -893,6 +883,8 @@ export default {
                  //limitado                    
             startDate: '',
             endDate: '',
+            op:1,
+
         };
     },
 
@@ -968,8 +960,8 @@ export default {
             if (
               //  me.descripcion != "" &&
                 me.TiposSeleccionado != "" &&
-                me.cantidadS != "" &&
-                me.ProductoLineaIngresoSeleccionado
+                me.cantidadS != "" &&               
+                me.selected != null 
             )
                 return true;
             else return false;
@@ -1036,6 +1028,61 @@ export default {
             // Agrega aquí la lógica adicional que necesites al cambiar la pestaña
         },
 
+        nameWithLang ({codigo_producto,leyenda,fecha_ingreso,lote,fecha_vencimiento,stock_ingreso}) {
+            
+            return `Cod: ${codigo_producto} ${leyenda} FI: ${fecha_ingreso} Lote: ${lote} FV: ${fecha_vencimiento} Stock: ${stock_ingreso}`
+          },
+
+          validarNew(newValue){
+            this.validarBoton=1;
+            if (newValue > 0) {
+                if (this.tipoAccion === 1) {
+                    this.cantidadS = 0;
+                }
+
+                let productoSeleccionado = this.arrayProductoLineaIngreso.find(
+                    (element) => element.id_ingreso === newValue,
+                );
+
+                if (productoSeleccionado) {
+                    this.stock_ingreso=productoSeleccionado.stock_ingreso;
+                    this.cantidadProductoLineaIngreso =
+                        productoSeleccionado.stock_ingreso;
+                    this.codigo = productoSeleccionado.codigo_producto;
+                    this.fecha_ingreso=productoSeleccionado.fecha_ingreso;
+        this.fecha_vencimiento=productoSeleccionado.fecha_ingreso;
+        this.linea=productoSeleccionado.nombre_linea;
+        this.producto=productoSeleccionado.nombre;
+         this.id_sucursal=productoSeleccionado.id_sucursal;
+         this.id_producto=productoSeleccionado.id_producto; 
+         this.id_ingreso=productoSeleccionado.id_ingreso;
+         this.lote=productoSeleccionado.lote;   
+         this.cantidad=productoSeleccionado.cantidad_ingreso;
+                    this.leyenda =
+                        productoSeleccionado.leyenda +                       
+                        "  FI:" +
+                        productoSeleccionado.fecha_ingreso +
+                        "  Lote: " +
+                        productoSeleccionado.lote +
+                        "  FV:" +
+                        productoSeleccionado.fecha_vencimiento;
+                } else {
+                    alert("No se encontro in arrayProductoLineaIngreso.");    
+                }
+            } else {
+                this.cantidadS = "";
+            }
+           
+        }, 
+
+        validarQuitar(){
+            let me=this;
+            me.validarBoton=0;
+            me.selected=null;            
+            me.TiposSeleccionado="0";
+            me.cantidadS="";
+        },
+
         sucursalFiltro() {
             let me = this;
            // var url = "/ajustes-positivo/listarSucursal";
@@ -1083,12 +1130,12 @@ export default {
             if (me.tipoAccion == 1) {
                 var url =
                     "/ajustes-positivo/listarProductoLineaIngreso?respuesta0=" +
-                    this.sucursalSeleccionada+"&tipo="+me.tipoAccion;
+                    this.sucursalSeleccionada+"&tipo="+me.tipoAccion+"&op="+me.op;
             }
             if (me.tipoAccion == 2) {
                 var url =
                     "/ajustes-positivo/listarProductoLineaIngreso?respuesta0=" +
-                    this.id_codigo+"&tipo="+me.tipoAccion;
+                    this.id_codigo+"&tipo="+me.tipoAccion+"&op="+me.op;
             
                 }
             axios
@@ -1157,6 +1204,21 @@ export default {
                 });
         },
 
+        consultaProducto(data){
+            let me=this;
+            me.selected=null;
+            if(data===2){
+                me.op=data; 
+            }
+
+            if(data===3){
+                me.op=data;
+            }
+            me.ProductoLineaIngreso();
+
+        },
+
+
         cambiarPagina(page) {
             let me = this;
             me.pagination.current_page = page;
@@ -1170,11 +1232,14 @@ export default {
             );
              switch (accion) {
                 case "registrar": {
+                    me.showModal = true;
                     me.isSubmitting=false;
+                    me.validarBoton=0;
+                    me.selected=null;
                     me.tipoAccion = 1;
                     me.tituloModal = "Registro para ajuste de positivo ";
                     me.ProductoLineaIngresoSeleccionado = 0;
-
+                    me.op=1;
                     me.id_codigo = me.sucursalSeleccionada;
                     me.cantidadProductoLineaIngreso = "";
                     me.TiposSeleccionado = 0;
@@ -1199,6 +1264,10 @@ export default {
                     break;
                 }
                 case "actualizar": {
+                    me.op=0;
+                    me.validarBoton=0;
+                    me.selected=null;
+                    me.showModal = true;
                     me.isSubmitting=false;
                     me.leyenda = data.leyenda;
                     me.id_codigo = data.cod;
@@ -1266,6 +1335,7 @@ export default {
                     me.id_producto = "";
                     me.id_ingreso = "";
                     me.leyenda = "";
+                    me.showModal = true;
                     me.classModal.openModal("registrar");
                     break;
                 }
@@ -1352,6 +1422,8 @@ export default {
         },
         cerrarModal(accion) {
             let me = this;
+            me.op=1;
+            me.validarBoton=0; 
             if (accion == "registrar") {
                 me.isSubmitting=false;
                 me.classModal.closeModal(accion);
@@ -1372,6 +1444,8 @@ export default {
                 me.id_ingreso = "";
                 me.id_producto = "";
                 me.leyenda = "";
+                me.selected=null;
+                me.showModal = false;
             } else {
                 if (accion == "registrarCeroX") {
                     me.productoX_name="";
@@ -1394,8 +1468,12 @@ export default {
                     me.fecha_vencimiento="";          
                     me.id_sucursal = "";
                     me.id_producto = ""; 
+                    me.selected=null;
+                    me.showModal = false;
                     me.classModal.closeModal(accion);
                 } else {
+                    me.showModal = false;
+                    me.selected=null;
                     me.classModal.closeModal(accion);
                 //me.idproductoselected = me.idproductoselected;
             //    me.classModal.openModal("registrar"); 
@@ -1792,3 +1870,18 @@ me.isSubmitting = true; // Deshabilita el botón
     font-size: 10px;
 }
 </style>
+<style scoped>
+.modal {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter, .fade-leave-to /* .fade-leave-active en versiones de Vue < 2.1.8 */ {
+  opacity: 0;
+}
+</style>
+<style src="vue-multiselect/dist/vue-multiselect.css"></style>
+

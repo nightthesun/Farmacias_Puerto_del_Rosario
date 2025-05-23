@@ -129,16 +129,17 @@
         </div>
 
         <!--Inicio del modal agregar/actualizar-->
-        <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" id="registrar" aria-hidden="true" data-backdrop="static" data-keyboard="false">
-            <div class="modal-dialog modal-primary modal-sm" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
+        <transition name="fade">
+            <div v-if="showModal" class="modal d-block" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-primary modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
                         <h4 class="modal-title">{{ tituloModal }}</h4>
-                        <button type="button" class="close"  aria-label="Close" @click="cerrarModal('registrar')">
-                            <span aria-hidden="true">×</span>
+                        <button type="button" class="close" @click="cerrarModal('registrar')">
+                            <span>&times;</span>
                         </button>
-                    </div>
-                    <div class="modal-body">
+                        </div>
+                        <div class="modal-body">
                         <form action=""  class="form-horizontal">
                             <div class="form-group row">
                                 <label class="col-md-12 form-control-label" for="text-input">Letra Asignada:  <strong style="font-size:40px">{{ letra }}</strong></label>
@@ -177,32 +178,14 @@
                         </div>
                      
                     </div>
+
+                    </div>
                 </div>
-                <!-- /.modal-content -->
             </div>
-            <!-- /.modal-dialog -->
-        </div>
+        </transition>     
+  
         <!--Fin del modal-->
-        
-        <!-- Inicio Modal para la ubicacion de productos en un estante -->
-        <div class="modal fade" role="dialog" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="staticBackdropLabel">{{ tituloModal}}</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    ...
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" @click="cerrarModal('staticBackdrop')">Close</button>
-                    <button type="button" class="btn btn-primary">Understood</button>
-                </div>
-                </div>
-            </div>
-        </div>
-        <!-- Fin modal ubicacion de productos en un estante  -->
+   
         
     </main>
 </template>
@@ -239,7 +222,7 @@ import { error401 } from '../../errores';
                 idestante:'',
                 buscar:'',
                 demora:7,
-
+                showModal: false,
                 arraySucursal:[],
                 sucursalSelected:0,
                 letra:'',
@@ -511,7 +494,8 @@ import { error401 } from '../../errores';
                         me.isSubmitting=false;
                         let resp=me.almacenes.find(element=>element.id==me.almacenSelected);
                         me.codsucursal=resp.codigo;
-                        me.tituloModal='Registar Estante '
+                        me.tituloModal='Registar Estante ';
+                        me.showModal = true;
                         me.tipoAccion=1;
                         me.codestante=me.codsucursal+me.letra;
                         me.numposicion=0;
@@ -525,7 +509,8 @@ import { error401 } from '../../errores';
                         me.isSubmitting=false;
                         me.idestante=data.id;
                         me.tipoAccion=2;
-                        me.tituloModal='Actualizar Estante'
+                        me.tituloModal='Actualizar Estante';
+                        me.showModal = true;
                         me.numposicion=data.numposicion;
                         me.numaltura=data.numaltura;
                         me.letra=data.letraestante;
@@ -560,6 +545,7 @@ import { error401 } from '../../errores';
                 me.numposicion=0;
                 me.numaltura=0;
                 me.letra='';
+                me.showModal = false;
                 
             },
             selectAll: function (event) {
@@ -613,5 +599,18 @@ import { error401 } from '../../errores';
     color: red;
     font-size: 10px;
     
+}
+</style>
+<style scoped>
+.modal {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter, .fade-leave-to /* .fade-leave-active en versiones de Vue < 2.1.8 */ {
+  opacity: 0;
 }
 </style>

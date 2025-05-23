@@ -98,16 +98,17 @@
             <!-- Fin ejemplo de tabla Listado -->
         </div>
         <!--Inicio del modal agregar/actualizar-->
-        <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" id="registrar" aria-hidden="true" data-backdrop="static" data-keyboard="false">
-            <div class="modal-dialog modal-primary modal-lg" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
+        <transition name="fade">
+            <div v-if="showModal" class="modal d-block" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-primary modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
                         <h4 class="modal-title">{{ tituloModal }}</h4>
-                        <button type="button" class="close"  aria-label="Close" @click="cerrarModal('registrar')">
-                            <span aria-hidden="true">×</span>
+                        <button type="button" class="close" @click="cerrarModal('registrar')">
+                            <span>&times;</span>
                         </button>
-                    </div>
-                    <div class="modal-body">
+                        </div>
+                        <div class="modal-body">
                         <form action=""  class="form-horizontal">
                             <div class="form-group row">
                                 <label class="col-md-3 form-control-label" for="text-input">Nivel de Formacion <span  v-if="!sinombre" class="error">(*)</span></label>
@@ -131,11 +132,11 @@
                             </div>
                         </div>
                     </div>
+                    </div>
                 </div>
-                <!-- /.modal-content -->
-            </div>
-            <!-- /.modal-dialog -->
-        </div>
+            </div> 
+        </transition>     
+
         <!--Fin del modal-->
         
         
@@ -176,7 +177,7 @@ import { error401 } from '../../errores';
                 puedeHacerOpciones_especiales:2,
                 puedeCrear:2,
                 //-----------
-                
+                showModal: false,
             }
 
         },
@@ -259,7 +260,6 @@ import { error401 } from '../../errores';
                 })
                 .catch(function(error){
                     error401(error);
-                    console.log(error);
                 });
             },
             cambiarPagina(page){
@@ -281,7 +281,6 @@ import { error401 } from '../../errores';
                     me.listarNivelFormacion();
                 }).catch(function(error){
                     error401(error);
-                    console.log(error);
                 }).finally(() => {
           me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
         });
@@ -320,7 +319,6 @@ import { error401 } from '../../errores';
                         
                     }).catch(function (error) {
                         error401(error);
-                        console.log(error);
                     });
                     
                     
@@ -369,7 +367,6 @@ import { error401 } from '../../errores';
                         
                     }).catch(function (error) {
                         error401(error);
-                        console.log(error);
                     });
                     
                     
@@ -413,6 +410,7 @@ import { error401 } from '../../errores';
                     case 'registrar':
                     {
                         me.isSubmitting=false;
+                        me.showModal = true;
                         me.tituloModal='Registar NivelFormacion'
                         me.tipoAccion=1;
                         me.nombre='';
@@ -423,6 +421,7 @@ import { error401 } from '../../errores';
                     case 'actualizar':
                     {
                         me.isSubmitting=false;
+                        me.showModal = true;
                         me.idnivelformacion=data.id;
                         me.tipoAccion=2;
                         me.tituloModal='Actualizar NivelFormacion'
@@ -440,6 +439,7 @@ import { error401 } from '../../errores';
                 me.classModal.closeModal(accion);
                 me.nombre='';
                 me.demora=7;
+                me.showModal = false;
                 
             },
             selectAll: function (event) {
@@ -457,7 +457,7 @@ import { error401 } from '../../errores';
             this.listarNivelFormacion(1);
             this.classModal = new _pl.Modals();
             this.classModal.addModal('registrar');
-            //console.log('Component mounted.')
+       
         }
     }
 </script>
@@ -466,5 +466,24 @@ import { error401 } from '../../errores';
     color: red;
     font-size: 10px;
     
+}
+</style>
+<style scoped>
+.error {
+    color: red;
+    font-size: 10px;
+}
+</style>
+<style scoped>
+.modal {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter, .fade-leave-to /* .fade-leave-active en versiones de Vue < 2.1.8 */ {
+  opacity: 0;
 }
 </style>

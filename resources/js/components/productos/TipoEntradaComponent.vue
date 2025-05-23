@@ -100,16 +100,18 @@
 
 
         <!--Inicio del modal agregar/actualizar-->
-        <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" id="registrar" aria-hidden="true" data-backdrop="static" data-keyboard="false">
-            <div class="modal-dialog modal-primary modal-lg" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
+
+        <transition name="fade">
+            <div v-if="showModal" class="modal d-block" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-primary modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
                         <h4 class="modal-title">{{ tituloModal }}</h4>
-                        <button type="button" class="close"  aria-label="Close" @click="cerrarModal('registrar')">
-                            <span aria-hidden="true">×</span>
+                        <button type="button" class="close" @click="cerrarModal('registrar')">
+                            <span>&times;</span>
                         </button>
-                    </div>
-                    <div class="modal-body">
+                        </div>
+                        <div class="modal-body">
                         <div class="form-group row">
                             <label class="col-md-3 form-control-label" for="text-input">Nombre: <span  v-if="!sinombre" class="error">(*)</span></label>
                             <div class="col-md-9">
@@ -131,11 +133,12 @@
                             </div>
                         </div>
                     </div>
+
+                    </div>
                 </div>
-                <!-- /.modal-content -->
             </div>
-            <!-- /.modal-dialog -->
-        </div>
+        </transition>
+     
         <!--Fin del modal-->
     </main>
 </template>
@@ -173,7 +176,8 @@ import { error401 } from '../../errores';
                 puedeActivar:2,
                 puedeHacerOpciones_especiales:2,
                 puedeCrear:2,
-                //-----------            
+                //-----------   
+                showModal: false,         
             }
         },
 
@@ -439,6 +443,7 @@ import { error401 } from '../../errores';
                         me.isSubmitting=false;
                         me.tituloModal='Actualizar Nombre de Tipo de Entrada';
                         me.nombre='';
+                        me.showModal = true;
                         me.classModal.openModal('registrar');
                         break;
                     }
@@ -450,6 +455,7 @@ import { error401 } from '../../errores';
                         me.tituloModal='Actualizar Nombre de Tipo de Entrada';
                         me.idtipoentrada=data.id;
                         me.nombre=data.nombre;
+                        me.showModal = true;
                         me.classModal.openModal('registrar');
                         break;
                     }
@@ -459,8 +465,10 @@ import { error401 } from '../../errores';
             cerrarModal(accion){
                 let me = this;
                 me.isSubmitting=false;
-                me.classModal.closeModal(accion);
+                me.showModal = false;
                 me.nombre='';
+                me.classModal.closeModal(accion);
+            
             },
 
             selectAll: function (event) {
@@ -487,5 +495,18 @@ import { error401 } from '../../errores';
 {
     color: red;
     font-size: 10px;    
+}
+</style>
+<style scoped>
+.modal {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter, .fade-leave-to /* .fade-leave-active en versiones de Vue < 2.1.8 */ {
+  opacity: 0;
 }
 </style>

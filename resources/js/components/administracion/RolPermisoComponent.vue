@@ -100,16 +100,18 @@
             <!-- Fin ejemplo de tabla Listado -->
         </div>
         <!--Inicio del modal agregar/actualizar-->
-        <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" id="registrar" aria-hidden="true" data-backdrop="static" data-keyboard="false">
-            <div class="modal-dialog modal-primary modal-lg" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
+                 
+        <transition name="fade">
+            <div v-if="showModal" class="modal d-block" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-primary modal-lg modal-dialog-scrollable" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
                         <h4 class="modal-title">{{ tituloModal }}</h4>
-                        <button type="button" class="close"  aria-label="Close" @click="cerrarModal('registrar')">
-                            <span aria-hidden="true">×</span>
+                        <button type="button" class="close" @click="cerrarModal('registrar')">
+                            <span>&times;</span>
                         </button>
-                    </div>
-                    <div class="modal-body">
+                        </div>
+                        <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
                         <form action=""  class="form-horizontal">
                             <div class="form-group row">
                                 <label class="col-md-3 form-control-label" for="text-input">Nombre del Rol <span  v-if="nombre==''" class="error">(*)</span></label>
@@ -154,11 +156,11 @@
                         </div>
                       
                     </div>
-                </div>
-                <!-- /.modal-content -->
-            </div>
-            <!-- /.modal-dialog -->
-        </div>
+                    </div>    
+                </div>  
+            </div>      
+        </transition>            
+       
         <!--Fin del modal-->
         
         
@@ -198,7 +200,7 @@ import {error401} from '../../errores';
                 seleccionados:[],
                 ventanaseleccionados:[],
                 accionesseleccionados:[],
-
+                showModal: false,
                 //---permisos_R_W_S
                 puedeEditar:2,
                 puedeActivar:2,
@@ -483,6 +485,7 @@ import {error401} from '../../errores';
                     {
                         me.tituloModal='Registar Role';
                         me.isSubmitting=false;
+                        me.showModal = true;
                         me.tipoAccion=1;
                         me.nombre='';
                         me.descripcion='';
@@ -494,6 +497,7 @@ import {error401} from '../../errores';
                     case 'actualizar':
                     {
                         me.isSubmitting=false;
+                        me.showModal = true;
                         me.idrole=data.id;
                         me.tipoAccion=2;
                         me.tituloModal='Actualizar Role'
@@ -512,6 +516,7 @@ import {error401} from '../../errores';
             cerrarModal(accion){
                 let me = this;
                 me.isSubmitting=false;
+                me.showModal = false;
                 me.classModal.closeModal(accion);
                 me.nombre='';
                 me.descripcion='';
@@ -546,5 +551,18 @@ import {error401} from '../../errores';
     color: red;
     font-size: 10px;
     
+}
+</style>
+<style scoped>
+.modal {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter, .fade-leave-to /* .fade-leave-active en versiones de Vue < 2.1.8 */ {
+  opacity: 0;
 }
 </style>

@@ -315,17 +315,19 @@
 
 
         <!--Inicio del modal agregar/actualizar-->
-        <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" id="registrar" aria-hidden="true" data-backdrop="static" data-keyboard="false">
-            <div class="modal-dialog modal-primary modal-lg" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
+         <transition name="fade">
+            <div v-if="showModal" class="modal d-block" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-primary modal-lg modal-dialog-scrollable" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
                         <h4 class="modal-title">{{ tituloModal }}</h4>
-                        <button type="button" class="close"  aria-label="Close" @click="cerrarModal('registrar')">
-                            <span aria-hidden="true">×</span>
+                        <button type="button" class="close" @click="cerrarModal('registrar')">
+                            <span>&times;</span>
                         </button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="alert alert-warning" role="alert">
+                        </div>
+                        <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
+                            <form action=""  class="form-horizontal">
+                                <div class="alert alert-warning" role="alert">
   Todo prodcuto siempre debe tener un envase primario los envases segundario y terciario son opcionales. ya que se debe registrar si o si un envase primario, no se puede registrar un producto sin tener envase primario.
 </div>
                         <div class="row">
@@ -663,6 +665,7 @@
                         <figure>
                             <img width="100" height="100" :src="imagen" alt="">
                         </figure>
+                            </form> 
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" @click="cerrarModal('registrar')">Cerrar</button>
@@ -677,11 +680,12 @@
                             </div>
                         </div>
                     </div>
+
+                    </div>
                 </div>
-                <!-- /.modal-content -->
             </div>
-            <!-- /.modal-dialog -->
-        </div>
+        </transition>                
+     
         <!--Fin del modal-->
     </main>
 </template>
@@ -741,7 +745,7 @@ import QrcodeVue from 'qrcode.vue';
                 accion:'',
                 idproducto:'',
                 //image:'',
-                //imagen:'',
+               // imagen: '',
                 metodoselected:'A',
                 arrayMetodo:['A','B','C'],
                 idcategoria:[],
@@ -812,6 +816,7 @@ import QrcodeVue from 'qrcode.vue';
                 puedeCrear:2,
                 validador_2:0,
                 //-----------
+                showModal: false,
             }
 
         },
@@ -1454,62 +1459,72 @@ import QrcodeVue from 'qrcode.vue';
                 let me=this;
                 switch(accion){
                     case 'registrar':
-                    {
-                        me.tipoAccion = 1;
-                        me.isSubmitting=false;
-                        me.removeImage;
-                        me.tituloModal='Registar Producto'
-                        me.nombre = '';
-                        me.idrubroselected = 0;
-                        me.iddispenserselectedprimario = 0;
-                        me.cantidadprimario = 0;
-                        me.checkformafarmaceuticaprimario = false;
-                        me.idformafarmselectedprimario = 0;
-                        me.preciolistaprimario = 0;
-                        me.precioventaprimario = 0;
-                        me.tiempopedidoselectedprimario = 0;
-                        me.metodoselectedprimario = 'A';
-                        me.tiendaprimario = false;
-                        me.almacenprimario = false;
-                        me.iddispenserselectedsecundario = 0;
-                        me.cantidadsecundario = 0;
-                        me.checkformafarmaceuticasecundario = false;
-                        me.idformafarmselectedsecundario = 0;
-                        me.preciolistasecundario = 0;
-                        me.precioventasecundario = 0;
-                        me.tiempopedidoselectedsecundario = 0;
-                        me.metodoselectedsecundario = 'A';
-                        me.tiendasecundario = false;
-                        me.almacensecundario = false;
-                        me.iddispenserselectedterciario = 0;
-                        me.cantidadterciario = 0;
-                        me.checkformafarmaceuticaterciario = false;
-                        me.idformafarmselectedterciario = 0;
-                        me.preciolistaterciario = 0;
-                        me.precioventaterciario = 0;
-                        me.tiempopedidoselectedterciario = 0;
-                        me.metodoselectedterciario = 'A';
-                        me.tiendaterciario = false;
-                        me.almacenterciario = false;
-                        me.mostrardetalles = false;
-                        me.idcategoriaselected = 0;
-                        me.indicaciones = '';
-                        me.dosificacion = '';
-                        me.principio = '';
-                        me.accion = '';
-                        me.foto = '';
-                        //me.imagen = '';
-                        me.imagenminiatura = '';
-                        document.getElementById('imgproducto').value = '';
-                        me.codigointernacional = '';
+{
+    me.tipoAccion = 1;
+    me.showModal = true;
 
-                        me.classModal.openModal('registrar');
-                        break;
-                    }
+    // Restablecer estado
+    me.isSubmitting = false;
+    me.removeImage;
+    me.tituloModal = 'Registrar Producto';
+    me.nombre = '';
+    me.idrubroselected = 0;
+    me.iddispenserselectedprimario = 0;
+    me.cantidadprimario = 0;
+    me.checkformafarmaceuticaprimario = false;
+    me.idformafarmselectedprimario = 0;
+    me.preciolistaprimario = 0;
+    me.precioventaprimario = 0;
+    me.tiempopedidoselectedprimario = 0;
+    me.metodoselectedprimario = 'A';
+    me.tiendaprimario = false;
+    me.almacenprimario = false;
+    me.iddispenserselectedsecundario = 0;
+    me.cantidadsecundario = 0;
+    me.checkformafarmaceuticasecundario = false;
+    me.idformafarmselectedsecundario = 0;
+    me.preciolistasecundario = 0;
+    me.precioventasecundario = 0;
+    me.tiempopedidoselectedsecundario = 0;
+    me.metodoselectedsecundario = 'A';
+    me.tiendasecundario = false;
+    me.almacensecundario = false;
+    me.iddispenserselectedterciario = 0;
+    me.cantidadterciario = 0;
+    me.checkformafarmaceuticaterciario = false;
+    me.idformafarmselectedterciario = 0;
+    me.preciolistaterciario = 0;
+    me.precioventaterciario = 0;
+    me.tiempopedidoselectedterciario = 0;
+    me.metodoselectedterciario = 'A';
+    me.tiendaterciario = false;
+    me.almacenterciario = false;
+    me.mostrardetalles = false;
+    me.idcategoriaselected = 0;
+    me.indicaciones = '';
+    me.dosificacion = '';
+    me.principio = '';
+    me.accion = '';
+    me.foto = '';
+    me.imagenminiatura = '';
+    me.codigointernacional = '';
+
+    // Espera a que el modal se haya renderizado antes de manipular el DOM
+    me.$nextTick(() => {
+        const imgInput = document.getElementById('imgproducto');
+        if (imgInput) {
+            imgInput.value = '';
+        }
+    });
+
+    me.classModal.openModal('registrar');
+    break;
+}
                     
                     case 'actualizar':
                     {
                         me.tipoAccion=2;
+                        me.showModal = true;
                         me.isSubmitting=false;
                         if (data.id_venta!==null) {
                             me.validador_2=1;
@@ -1602,8 +1617,9 @@ import QrcodeVue from 'qrcode.vue';
                 me.accion='';
                 me.tipoAccion=1;
                 // me.image='';
-                me.imagen='';
+                //me.imagen='';
                 me.metodoselected='A';
+                me.showModal = false;
                 me.listarProducto();  
             },
 

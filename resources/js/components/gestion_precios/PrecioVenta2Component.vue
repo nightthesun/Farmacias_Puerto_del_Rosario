@@ -249,17 +249,18 @@
              <!-- Fin ejemplo de tabla Listado -->
         </div>
             <!-- Modal -->
-        <div class="modal fade" id="calculadoraModal" tabindex="-1" aria-labelledby="calculadoraModalLabel"
-            aria-hidden="true">
-            <div class="modal-dialog modal-primary modal-lg">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="calculadoraModalLabel">{{ tituloModal }}</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
+
+        <transition name="fade">
+            <div v-if="showModal" class="modal d-block" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-primary modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                        <h4 class="modal-title">{{ tituloModal }}</h4>
+                        <button type="button" class="close" @click="cerrarModal('calculadoraModal')">
+                            <span>&times;</span>
                         </button>
-                    </div>
-                    <div class="modal-body">
+                        </div>
+                        <div class="modal-body">
                         <div class="container-fluid">
                             <form action="" class="form-horizontal">
                                 <div class="form-group row">
@@ -491,9 +492,13 @@
                         <!-- <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
                         <button type="button" class="btn btn-primary" :disabled="!sicompleto" @click="actualizarRegistrarPrecioVenta">Guardar Cambios</button> -->
                     </div>
+
+
+                    </div>
                 </div>
             </div>
-        </div>
+        </transition>                    
+       
     </main>
 </template>   
 <script>
@@ -567,7 +572,7 @@ puedeEditar:2,
                 puedeHacerOpciones_especiales:2,
                 puedeCrear:2,
                 //-----------
-
+                showModal: false,
 
             
 
@@ -786,7 +791,7 @@ listarPerimsoxyz() {
                                 console.log("error");
                             }
                         }   
-                             
+                        me.showModal = true;   
                         me.classModal.openModal('calculadoraModal');
                         
                         break;
@@ -803,6 +808,7 @@ listarPerimsoxyz() {
             me.c_disp='';
             me.p_compra='';
             me.p_venta='';
+            me.showModal = false;
             me.id_gespreventa='';
             me.margen_20=0;
             me.listaX='';
@@ -1036,3 +1042,16 @@ table > tbody > tr > td > div {
     font-size: 15px;
 }
 </style>       
+<style scoped>
+.modal {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter, .fade-leave-to /* .fade-leave-active en versiones de Vue < 2.1.8 */ {
+  opacity: 0;
+}
+</style>

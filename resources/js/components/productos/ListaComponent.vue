@@ -106,16 +106,17 @@
             <!-- Fin ejemplo de tabla Listado -->
         </div>
         <!--Inicio del modal agregar/actualizar-->
-        <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" id="registrar" aria-hidden="true" data-backdrop="static" data-keyboard="false">
-            <div class="modal-dialog modal-primary modal-lg" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
+        <transition name="fade">
+            <div v-if="showModal" class="modal d-block" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-primary modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
                         <h4 class="modal-title">{{ tituloModal }}</h4>
-                        <button type="button" class="close"  aria-label="Close" @click="cerrarModal('registrar')">
-                            <span aria-hidden="true">×</span>
+                        <button type="button" class="close" @click="cerrarModal('registrar')">
+                            <span>&times;</span>
                         </button>
-                    </div>
-                    <div class="modal-body">
+                        </div>
+                        <div class="modal-body">
                         <div class="alert alert-warning" role="alert">
                             Todos los campos con (*) son requeridos
                         </div>
@@ -163,11 +164,12 @@
                         </div>
                      
                     </div>
+
+                    </div>
                 </div>
-                <!-- /.modal-content -->
-            </div>
-            <!-- /.modal-dialog -->
-        </div>
+            </div>            
+        </transition>    
+
         <!--Fin del modal-->
         
         
@@ -211,6 +213,7 @@ import { error401 } from '../../errores';
                 puedeHacerOpciones_especiales:2,
                 puedeCrear:2,
                 //-----------
+                showModal: false,
             }
 
         },
@@ -485,7 +488,7 @@ me.isSubmitting = true; // Deshabilita el botón
                         me.nombreLista='';
                         me.codigo='';
                         me.lista_id_almacen_id_tienda='';
-                        
+                        me.showModal = true;
                         me.classModal.openModal('registrar');
                         break;
                     }
@@ -498,7 +501,7 @@ me.isSubmitting = true; // Deshabilita el botón
                         me.selectAlmTienda=data.codigo_tda_alm==null?0:data.codigo_tda_alm;
                         me.nombreLista=data.nombre_lista;
                         me.id_o=data.id;          
-                        
+                        me.showModal = true;
                         me.lista_id_almacen_id_tienda=data.id_tda_alm;
                         me.classModal.openModal('registrar');
                         
@@ -549,6 +552,7 @@ me.isSubmitting = true; // Deshabilita el botón
                 me.classModal.closeModal(accion);
                 me.tipoAccion=1;
                 me.isSubmitting=false;
+                me.showModal = false;
                         me.tipo=0;
                         me.selectAlmTienda=0;
                         me.nombreLista='';
@@ -582,5 +586,18 @@ me.isSubmitting = true; // Deshabilita el botón
 .error{
     color: red;
     font-size: 10px;  
+}
+</style>
+<style scoped>
+.modal {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter, .fade-leave-to /* .fade-leave-active en versiones de Vue < 2.1.8 */ {
+  opacity: 0;
 }
 </style>

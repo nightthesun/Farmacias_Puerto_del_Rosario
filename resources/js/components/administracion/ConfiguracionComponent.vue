@@ -754,47 +754,48 @@
     </div>
 </div>
   <!-- modal registro bancos -->
-  <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" id="regbanco" aria-hidden="true" data-backdrop="static" data-keyboard="false">
-            <div class="modal-dialog modal-primary" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h4 class="modal-title">BANCO</h4>
-                        <button type="button" class="close"  aria-label="Close" @click="cerrarModal('regbanco')">
-                            <span aria-hidden="true">×</span>
+  <transition name="fade">
+            <div v-if="showModal" class="modal d-block" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-primary modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4 class="modal-title">BANCO</h4>
+                        
+                        <button type="button" class="close" @click="cerrarModal('regbanco')">
+                            <span>&times;</span>
                         </button>
-                    </div>
-                    <div class="modal-body" style="background-color: whitesmoke">
+                        </div>
+                        <div class="modal-body" style="background-color: whitesmoke">
                         <div class="form-group">
                             <label>Nombre Banco:</label>
                             <input type="text" id="nombrebanco" name="nombrebanco" class="form-control rounded" placeholder="Nombre Banco" v-model="nombrebanco_0">
                  
                         </div>
-                    </div>    
-                    
-
+                    </div> 
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary rounded"  @click="cerrarModal('regbanco')">Cerrar</button>
                         <button type="button" class="btn btn-primary rounded" @click="editarBanco()" :disabled="nombrebanco_0==''">Guardar</button>
                         
                     </div>
+                    </div>
                 </div>
-                <!-- /.modal-content -->
             </div>
-            <!-- /.modal-dialog -->
-        </div>
+    </transition>                    
+
          
         <!--fin del modal-->
           <!-- modal registro cuenta -->
-  <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" id="regcuenta" aria-hidden="true" data-backdrop="static" data-keyboard="false">
-            <div class="modal-dialog modal-primary" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h4 class="modal-title">CUENTA</h4>
-                        <button type="button" class="close"  aria-label="Close" @click="cerrarModal('regcuenta')">
-                            <span aria-hidden="true">×</span>
+          <transition name="fade">
+            <div v-if="showModal_2" class="modal d-block" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-primary modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h4 class="modal-title">CUENTA</h4>
+                        <button type="button" class="close" @click="cerrarModal('regcuenta')">
+                            <span>&times;</span>
                         </button>
-                    </div>
-                    <div class="modal-body" style="background-color: whitesmoke">
+                        </div>
+                        <div class="modal-body" style="background-color: whitesmoke">
                         <div class="card-body">
     <div class="row">
                                     <div class="form-group col-sm-6">
@@ -842,11 +843,11 @@
                         </div>
                                              
                     </div>
+                    </div>
                 </div>
-                <!-- /.modal-content -->
             </div>
-            <!-- /.modal-dialog -->
-        </div>
+        </transition>                
+
     </main>
 </template>
 
@@ -931,7 +932,9 @@ puedeEditar:2,
                 selectRubro:'0',
                 cadenaRubro:'',
                 cadenaId_rubro:'',
-              
+                //-----------------
+                showModal: false,              
+                showModal_2: false,
 
               
 
@@ -2008,7 +2011,7 @@ puedeEditar:2,
             let me = this;     
          switch (accion) {
                 case "regbanco": {
-                
+                    me.showModal = true;
                     me.nombrebanco_0= (data.nombre).toUpperCase();
                     me.id_banco=data.id;
                     me.classModal.openModal("regbanco");
@@ -2017,7 +2020,7 @@ puedeEditar:2,
                 case "regcuenta": {
                     me.tipoAccion = 1;
                     me.isSubmitting=false;
-   
+                    me.showModal_2 = true;
                     me.titular_cuenta="";
                     me.num_cuenta="";
                     me.nom_cuenta="";
@@ -2027,6 +2030,7 @@ puedeEditar:2,
                 }
                 case "regcuenta_edit":{
                     me.tipoAccion = 2;
+                    me.showModal_2 = true;
                     me.isSubmitting=false;                  
                     me.id_cuenta=data.id;
                     me.selectBanco_cuenta=data.id_banco=== null ? 0 :data.id_banco;
@@ -2045,6 +2049,7 @@ puedeEditar:2,
                 me.tituloModal = "";
                 me.nombrebanco_0="";
                 me.id_banco="";
+                me.showModal = false;
                 me.classModal.closeModal(accion);         
             }
             if (accion == "regcuenta") {
@@ -2056,6 +2061,7 @@ puedeEditar:2,
                 me.nom_cuenta="";
                 me.selectBanco_cuenta=0;
                 me.id_cuenta="";
+                me.showModal_2 = false;
                 me.classModal.closeModal(accion);         
             }
         },

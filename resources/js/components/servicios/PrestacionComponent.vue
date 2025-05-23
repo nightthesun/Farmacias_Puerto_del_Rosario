@@ -107,16 +107,17 @@
             <!-- Fin ejemplo de tabla Listado -->
         </div>
         <!--Inicio del modal agregar/actualizar-->
-        <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" id="registrar" aria-hidden="true" data-backdrop="static" data-keyboard="false">
-            <div class="modal-dialog modal-primary modal-lg" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
+        <transition name="fade">
+            <div v-if="showModal" class="modal d-block" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-primary modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
                         <h4 class="modal-title">{{ tituloModal }}</h4>
-                        <button type="button" class="close"  aria-label="Close" @click="cerrarModal('registrar')">
-                            <span aria-hidden="true">×</span>
+                        <button type="button" class="close" @click="cerrarModal('registrar')">
+                            <span>&times;</span>
                         </button>
-                    </div>
-                    <div class="modal-body">
+                        </div>
+                        <div class="modal-body">
                         <form action="" method="post" enctype="multipart/form-data" class="form-horizontal">
                             <div class="form-group row">
                                 <label class="col-md-3" for="" >Area: <span  v-if="areaselected==0" class="error">(*)</span></label>
@@ -166,11 +167,12 @@
                             </div>
                         </div>
                     </div>
+
+                    </div>
                 </div>
-                <!-- /.modal-content -->
             </div>
-            <!-- /.modal-dialog -->
-        </div>
+        </transition>
+
         <!--Fin del modal-->
         
         
@@ -210,6 +212,14 @@ import { error401 } from '../../errores';
                 arrayPrestacion:[],
                 areaselected:0,
                 precio:'',
+
+                    //---permisos_R_W_S
+                    puedeEditar:2,
+                puedeActivar:2,
+                puedeHacerOpciones_especiales:2,
+                puedeCrear:2,
+                //-----------
+                showModal: false,
                 
             }
 
@@ -483,6 +493,7 @@ import { error401 } from '../../errores';
                         me.tipoAccion=1;
                         me.nombre='';
                         me.precio='';
+                        me.showModal = true;
                         me.descripcion='';
                         me.classModal.openModal('registrar');
                        
@@ -496,6 +507,7 @@ import { error401 } from '../../errores';
                         me.tipoAccion=2;
                         me.tituloModal='Actualizar Prestacion';                         me.nombre=data.nombre;
                         me.precio=data.precio;
+                        me.showModal = true;
                         me.descripcion=data.descripcion;
                         me.classModal.openModal('registrar');
                         break;
@@ -509,7 +521,8 @@ import { error401 } from '../../errores';
                 me.isSubmitting=false;
                 me.classModal.closeModal(accion);
                 me.nombre='';
-                me.precio=''
+                me.precio='';
+                me.showModal = false;
                 me.descripcion='';
                 me.tipoAccion=1;
                 
@@ -541,5 +554,18 @@ import { error401 } from '../../errores';
     color: red;
     font-size: 10px;
     
+}
+</style>
+<style scoped>
+.modal {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter, .fade-leave-to /* .fade-leave-active en versiones de Vue < 2.1.8 */ {
+  opacity: 0;
 }
 </style>

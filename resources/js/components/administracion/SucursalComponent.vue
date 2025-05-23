@@ -135,17 +135,17 @@
             <!-- Fin ejemplo de tabla Listado -->
         </div>
         <!--Inicio del modal agregar/actualizar-->
-        <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" id="registrar" aria-hidden="true" data-backdrop="static" data-keyboard="false">
-            <div class="modal-dialog modal-primary modal-lg" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
+        <transition name="fade">
+            <div v-if="showModal" class="modal d-block" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-primary modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
                         <h4 class="modal-title">{{ tituloModal }}</h4>
-                        <button type="button" class="close"  aria-label="Close" @click="cerrarModal('registrar')">
-                            <span aria-hidden="true">×</span>
+                        <button type="button" class="close" @click="cerrarModal('registrar')">
+                            <span>&times;</span>
                         </button>
-                    </div>
-                    <div class="modal-body">
-                    
+                        </div>
+                        <div class="modal-body">                    
                         <form action=""  class="form-horizontal">
                             <div class="form-group row">
                                 <label class="col-md-2 form-control-label" for="text-input">Tipo <span  v-if="tipo==0" class="error">(*)</span></label>
@@ -242,26 +242,28 @@
                             </div>
                         </div>
                       
+                    </div> 
+
                     </div>  
                 </div>
-                <!-- /.modal-content -->
             </div>
-            <!-- /.modal-dialog -->
-        </div>
+        </transition>                
+        
         <!--Fin del modal-->
         
          <!---------------------------------------Inicio del modal de listas--------------->
-         <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" id="modal_listas" aria-hidden="true" data-backdrop="static" data-keyboard="false">
-            <div class="modal-dialog modal-primary modal-lg" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
+
+         <transition name="fade">
+            <div v-if="showModal_2" class="modal d-block" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-primary modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
                         <h4 class="modal-title">{{ tituloModal }}</h4>
-                        
-                        <button type="button" class="close"  aria-label="Close" @click="cerrarModal('modal_listas')">
-                            <span aria-hidden="true">×</span>
+                        <button type="button" class="close" @click="cerrarModal('modal_listas')">
+                            <span>&times;</span>
                         </button>
-                    </div>
-                    <div class="modal-body">
+                        </div>
+                        <div class="modal-body">
                         <div class="alert alert-success" role="alert">
                             Esta opcion solo es para el modulo de ventas caso gestor de ventas  y venta rapida 
                         </div>
@@ -391,11 +393,11 @@
                         <button type="button"  class="btn btn-primary" @click="regsitrarlista()">Guardar</button>
                      
                     </div>
+                    </div>
                 </div>
-                <!-- /.modal-content -->
-            </div>
-            <!-- /.modal-dialog -->
-        </div>
+            </div>            
+        </transition>
+
         <!--Fin del modal-->
         
         
@@ -438,6 +440,8 @@ import { error401 } from '../../errores';
                 telefono:'',
                 departamento:0,
                 ciudad:'',
+                showModal: false,
+                showModal_2: false,
                 arrayDepartamentos:[],
                 arrayciudad:[
                                 {'id':1,'valor':'La Paz'},
@@ -564,7 +568,7 @@ import { error401 } from '../../errores';
         })
         .catch(function(error) {
             error401(error);
-            console.log(error);
+          
         });
 },
 //-------------------------------------------------------------- 
@@ -649,7 +653,6 @@ import { error401 } from '../../errores';
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });           
             },
             
@@ -667,7 +670,6 @@ import { error401 } from '../../errores';
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });  
                    
             
@@ -725,7 +727,6 @@ import { error401 } from '../../errores';
                     me.controlEnvio=1;
                 }).catch(function(error){
                     error401(error);
-                    console.log(error);
                     me.controlEnvio=1;
                 }).finally(() => {
           me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
@@ -765,7 +766,6 @@ import { error401 } from '../../errores';
                         
                     }).catch(function (error) {
                         error401(error);
-                        console.log(error);
                     });
                     
                     
@@ -815,7 +815,6 @@ import { error401 } from '../../errores';
                         
                     }).catch(function (error) {
                         error401(error);
-                        console.log(error);
                     });
                     
                     
@@ -885,6 +884,7 @@ import { error401 } from '../../errores';
                         me.departamento=0;
                         me.ciudad='';
                         me.idrubro=0;
+                        me.showModal = true;
                         me.classModal.openModal('registrar');
                         break;
                     }
@@ -902,6 +902,7 @@ import { error401 } from '../../errores';
                         me.tipoAccion=2;
                         me.tituloModal='Actualizar Sucursal'
                         me.tipoAccion=2;
+                        me.showModal = true;
                         me.tipo=data.tipo;
                         me.razonsocial=data.razon_social;
                         me.nombrecomercial=data.nombre_comercial;
@@ -916,6 +917,7 @@ import { error401 } from '../../errores';
                     }
                     case 'modal_listas':
                     {
+                        me.showModal_2 = true;
                         me.tituloModalSub='Codigo de almacen: '+data.codalmacen+' Codigo tienda: '+data.codigo_tienda;
                         me.tituloModal='Añadir lista a '+data.razon_social
                         me.id_sucursal_z=data.id;
@@ -931,6 +933,8 @@ import { error401 } from '../../errores';
             cerrarModal(accion){
                 let me = this;
                 me.isSubmitting=false;
+                me.showModal = false;
+                me.showModal_2 = false;
                 me.classModal.closeModal(accion);
                 me.tipoAccion=1;
                 me.tipo=0;
@@ -967,7 +971,6 @@ import { error401 } from '../../errores';
                 })
                 .catch(function(error){
                     error401(error);
-                    console.log(error);
                 });
             },
 
@@ -980,7 +983,6 @@ import { error401 } from '../../errores';
                 })
                 .catch(function(error){
                     error401(error);
-                    console.log(error);
                 });
             },
 
@@ -993,7 +995,6 @@ import { error401 } from '../../errores';
                 })
                 .catch(function(error){
                     error401(error);
-                    console.log(error);
                 });
                 
             }

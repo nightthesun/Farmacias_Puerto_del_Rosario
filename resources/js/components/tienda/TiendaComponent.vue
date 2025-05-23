@@ -14,7 +14,7 @@
                 </div>
                 <div class="card-body">
                     <div class="form-group row">
-                        <div class="col-md-4" v-if="tiendaselected != 0">
+                        <div class="col-md-4">
                             <div class="input-group">
                                 <input type="text" id="texto" name="texto" class="form-control" placeholder="Texto a buscar" v-model="buscar"  @keyup.enter="buscarTienda(1)">
                                 <button type="submit" class="btn btn-primary" @click="buscarTienda(1)"><i class="fa fa-search" ></i> Buscar</button>
@@ -150,6 +150,7 @@ export default {
             arrayTiendas: [],
             arrayTiendaCopy:[],
             buscar:'',
+          
               //---permisos_R_W_S
               puedeEditar:2,
                 puedeActivar:2,
@@ -193,7 +194,6 @@ export default {
 
                 //-----------------------------------permisos_R_W_S        
     listarPerimsoxyz() {
-                //console.log(this.codventana);
     let me = this;
    
         
@@ -218,7 +218,6 @@ export default {
         })
         .catch(function(error) {
             error401(error);
-            console.log(error);
         });
 },
 //--------------------------------------------------------------   
@@ -229,7 +228,7 @@ export default {
             axios.get(url).then(function (response) {
                 me.pagination = response.data.pagination;
                 me.arrayTiendas = response.data.tiendas.data;
-                console.log(me.arrayTiendas);
+       
                 // La copia se hace para facilitar la busqueda
                 me.arrayTiendaCopy = me.arrayTiendas;  
             })
@@ -299,7 +298,6 @@ export default {
                         me.listarTiendas(1);
                     }).catch(function (error) {
                         error401(error);
-                        console.log(error);
                     });
 
                 } else if (
@@ -347,7 +345,6 @@ export default {
                         me.listarTiendas(1);
                     }).catch(function (error) {
                         error401(error);
-                        console.log(error);
                     });
 
 
@@ -364,81 +361,11 @@ export default {
             })
         },
 
-        actualizarTienda() {
-            let me = this;
-            axios.put('/tienda/actualizar', {
-                'id': me.idtdaingresoproducto,
-                'id_prod_producto': me.idproductoRealSeleccionado,
-                'envase': me.envaseProductoSelecionadoIngresoAlmacen,
-                'idtienda': me.tiendaselected,
-                'cantidad': me.cantidad,
-                'id_tipo_entrada': me.tipo_entrada,
-                'fecha_vencimiento': me.fecha_vencimiento,
-                'lote': me.lote,
-                'registro_sanitario': me.registrosanitario,
-            }).then(function (response) {
-                Swal.fire('Actualizado Correctamente')
-                me.listarProductosTienda(1);
-            }).catch(function (error) {
-                console.log(error);
-            });
-            me.cerrarModal('registrar');
-        },
+      
 
-        abrirModal(accion, data = []) {
-            let me = this;
-            let respuesta = me.arrayTiendas.find(tienda => tienda.id_tienda == me.tiendaselected);
-            switch (accion) {
-                case 'registrar':
-                    {
-                        if (me.sucursalselected != 0) {
-                            me.tituloModal = 'Registar Producto: ' + respuesta.codigo_sucursal + ' ' + respuesta.razon_social + ' -> Tienda ' + respuesta.codigo_tienda;//+' '+respuesta.nombre_almacen;
-                            me.tipoAccion = 1;
-                            me.idproductoselected = 0;
-                            me.tipo_entrada = 3;
-                            me.cantidad = 0;
-                            me.lote = '';
-                            me.fecha_vencimiento = '';
-                            me.registrosanitario = '';
-                            me.productoperecedero = 0;
-                            me.classModal.openModal('registrar');
-                        }
-                        else {
-                            Swal.fire('Debe Seleccionar un Sucursal')
-                        }
-                        break;
-                    }
+       
 
-                case 'actualizar':
-                    {
-                        console.log(data);
-                        console.log(me.arrayRubro);
-                        me.tituloModal = 'Actualizar Producto';
-                        me.tipoAccion = 2;
-                        me.idtdaingresoproducto = data.id;
-                        me.idproductoselected = me.opciones2.find((opcion) => (opcion.idproduc == data.id_prod_producto && opcion.envase == data.envaseregistrado)).value;
-                        me.idproductoRealSeleccionado = data.id_prod_producto;//me.opciones2.find((opcion) => (opcion.idproduc == data.id_prod_producto && opcion.envase == data.envaseregistrado)).idproduc;
-                        me.envaseProductoSelecionadoIngresoAlmacen = data.envaseregistrado;
-                        me.cantidad = data.cantidad;
-                        me.tipo_entrada = data.id_tipoentrada;
-                        me.fecha_vencimiento = data.fecha_vencimiento;
-                        me.lote = data.lote;
-                        me.registrosanitario = data.registro_sanitario;
-                        me.codigo = JSON.stringify
-                            ({
-                                idproducto: me.idproductoselected,
-                                cantidad: me.cantidad,
-                                lote: me.lote,
-                                fechaVencimiento: me.fecha_vencimiento,
-                                registroSanitario: me.registrosanitario
-                            });
-                        me.productoperecedero = me.arrayRubro.find((rubro) => rubro.id == data.id_rubro_producto).areamedica;
-                        me.classModal.openModal('registrar');
-                        break;
-                    }
-            }
-
-        },
+        
 
         cerrarModal(accion) {
             let me = this;

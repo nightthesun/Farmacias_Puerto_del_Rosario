@@ -106,16 +106,17 @@
             <!-- Fin ejemplo de tabla Listado -->
         </div>
         <!--Inicio del modal agregar/actualizar-->
-        <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" id="registrar" aria-hidden="true" data-backdrop="static" data-keyboard="false">
-            <div class="modal-dialog modal-primary modal-lg" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
+        <transition name="fade">
+            <div v-if="showModal" class="modal d-block" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-primary modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
                         <h4 class="modal-title">{{ tituloModal }}</h4>
-                        <button type="button" class="close"  aria-label="Close" @click="cerrarModal('registrar')">
-                            <span aria-hidden="true">×</span>
+                        <button type="button" class="close" @click="cerrarModal('registrar')">
+                            <span>&times;</span>
                         </button>
-                    </div>
-                    <div class="modal-body">
+                        </div>
+                        <div class="modal-body">
                         <!-- <form action="" method="post" enctype="multipart/form-data" class="form-horizontal"> -->
                             <div class="form-group row" v-if="tipoAccion==2">
                                 <label class="col-md-3 form-control-label">Rubro:</label>
@@ -141,11 +142,11 @@
                         <button type="button" v-if="tipoAccion==1" class="btn btn-primary" @click="registrarCategoria()" :disabled="!sicompleto">Guardar</button>
                         <button type="button" v-if="tipoAccion==2" class="btn btn-primary" @click="actualizarCategoria()" :disabled="!sicompleto">Actualizar</button>
                     </div>
+                    </div>
                 </div>
-                <!-- /.modal-content -->
             </div>
-            <!-- /.modal-dialog -->
-        </div>
+        </transition>               
+    
         <!--Fin del modal-->  
     </main>
 </template>
@@ -185,6 +186,7 @@ import { error401 } from '../../errores';
                 puedeHacerOpciones_especiales:2,
                 puedeCrear:2,
                 //-----------
+                showModal: false,
             }
         },
 
@@ -456,6 +458,7 @@ import { error401 } from '../../errores';
                         me.isSubmitting=false;
                         me.idrubroselected=0;
                         me.nombre='';
+                        me.showModal = true;
                         me.classModal.openModal('registrar');
                         break;
                     }
@@ -465,6 +468,7 @@ import { error401 } from '../../errores';
                         me.isSubmitting=false;
                         me.idcategoria=data.id;
                         me.tipoAccion=2;
+                        me.showModal = true;
                         me.tituloModal='Actualizar Categoria'
                         me.idrubroselected=data.idrubro;
                         me.nombre=data.nombre;
@@ -480,6 +484,7 @@ import { error401 } from '../../errores';
                 me.classModal.closeModal(accion);
                 me.idrubroselected=0;
                 me.nombre='';
+                me.showModal = false;
                 me.tipoAccion=1;
                 
             },
@@ -509,5 +514,18 @@ import { error401 } from '../../errores';
     color: red;
     font-size: 10px;
     
+}
+</style>
+<style scoped>
+.modal {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter, .fade-leave-to /* .fade-leave-active en versiones de Vue < 2.1.8 */ {
+  opacity: 0;
 }
 </style>

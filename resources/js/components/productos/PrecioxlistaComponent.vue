@@ -174,17 +174,17 @@
             <!-- Fin ejemplo de tabla Listado -->
         </div>
         <!--Inicio del modal agregar/actualizar-->
-        <div class="modal fade" tabindex="-1" role="dialog" arial-labelledby="myModalLabel" id="registrar" aria-hidden="true" data-backdrop="static" data-key="false">
-            <div class="modal-dialog modal-primary modal-lg" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                    <h4 class="modal-title">{{ tituloModal }}</h4>
-                    <button  type="button" class="close" aria-label="Close" @click="cerrarModal('registrar')">
-                        <span aria-hidden="true">x</span>
-                    </button>
-                    
-                </div>
-                <div class="modal-body">
+        <transition name="fade">
+            <div v-if="showModal" class="modal d-block" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-primary modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                        <h4 class="modal-title">{{ tituloModal }}</h4>
+                        <button type="button" class="close" @click="cerrarModal('registrar')">
+                            <span>&times;</span>
+                        </button>
+                        </div>
+                        <div class="modal-body">
                     <div class="alert alert-warning" role="alert">
                         Todos los campos con (*) son requeridos
                     </div>
@@ -192,7 +192,7 @@
                     <form action="" class="form-horizontal">
                         <!-- insertar datos accion 1-->
                         <div class="container" v-if="tipoAccion==1">
-                         
+                    
                             <div class="form-group row">
                                 <label class="col-md-3 form-control-label" for="text-input">
                                     Envase:
@@ -211,31 +211,52 @@
                                 </div>
                             </div>
                             <div class="form-group row" v-if="selectEnvase != 0">
-                           
-                                <label class="col-md-3 form-control-label" for="text-input">
-                                    Producto:
-                                    <span  v-if="selectProducto == 0" class="error">(*)</span>
-                                </label>
-                                <div class="col-md-9 input-group mb-3 ">
-                                    <select name="" id="" v-model="selectProducto" @change="listarLista()"  class="form-control">
-                                        <option v-bind:value="0" disabled>-Seleccionar... </option>
-                                        <option v-for="(prod, index) in arrayProducto" :key="index" :value="prod.id">
-                                        {{ index }} - {{ prod.prod_cod }} {{ prod.leyenda }} C:{{ prod.cantidad }} L:{{ prod.lote }}
-                                    </option>
-                                   <!--     <option v-for="prod in arrayProducto" :key="prod.id" v-bind:value="prod.id" v-text="prod.prod_cod+' '+prod.leyenda+' C:'+prod.cantidad+' L:'+prod.lote"></option>  -->                                     
-                                    </select>
-                                    <button class="btn btn-primary" 
-                                  v-if="tipoAccion== 1 || tipoAccion== 0"
-                                  type="button" id="button-addon1"
-                                  @click="abrirModal('bucarProducto');listarProductoRetorno();">                                           
-                                                                                
-                                      <i class="fa fa-search"></i>                                            
-                                  </button> 
-                                </div>
-                                
+                          
+                           <label class="col-md-3 form-control-label" for="text-input">
+                               Producto:
+                               <span  v-if="selected == null" class="error">(*)</span>
+                           </label>
+                           <div class="col-md-7 input-group mb-3 " >
+                            <VueMultiselect
+                        v-model="selected"
+                        :disabled="validarBoton==1"
+                        :options="arrayProducto"
+                        :max-height="190"                   
+                        :block-keys="['Tab', 'Enter']"                       
+                        placeholder="Seleccione una opción"
+                        label="leyenda" 
+                        :custom-label="nameWithLang"                     
+                        track-by="id"
+                        class="w-250"
+                        selectLabel="Añadir a seleccion"
+                        deselectLabel="Quitar seleccion"
+                        selectedLabel="Seleccionado"
+                     
+                       >
+                       <template #noResult>
+                        No se encontraron elementos. Considere cambiar la consulta de búsqueda.
+                      </template>
+                    </VueMultiselect>           
+                   
+
+                           </div>
+     
+                           <div class="col-md-2 input-group mb-3 ">
+                            <div v-if="validarBoton==0">
+                                <button v-if="selected==null " type="button" class="btn btn-Secondary">Validar</button>
+                                <button v-else type="button" class="btn btn-primary"  @click="validarNew(selected.id)">Validar</button>
                             </div>
+                            <div v-else>
+                               
+                                <button type="button" class="btn btn-warning" style="color: white;" @click="validarQuitar()">Quitar</button>
+                            </div>
+                            
+                           </div>
+                           
+                       </div>
+                         
                 
-                            <div class="form-group row" v-if="selectEnvase != 0 && selectProducto !=0">
+                            <div class="form-group row" v-if="selectEnvase != 0 && selected !=null && validarBoton==1">
                                       <label class="col-md-3 form-control-label" for="text-input">Lista
                                         <span v-if="selectLista == 0"  class="error">(*)</span>
                                       </label>
@@ -252,7 +273,7 @@
                                     </select>
                                       </div>
                                   </div>  
-                            <div v-if="selectEnvase != 0 && selectProducto !=0">
+                            <div v-if="selectEnvase != 0 && selected !=null && validarBoton==1">
                                 <div class="row">
                                             <div class="form-group col-sm-4">
                                                 <strong>Precio de Lista:</strong>     
@@ -404,21 +425,26 @@
     
                    
                 </div>
+
+                    </div>
                 </div>
-                
             </div>
-        </div>
+        </transition>    
+    
         <!--fin del modal-->
 
                <!-- Modal para la busqueda de producto por lote -->
- <div class="modal fade" id="staticBackdrop" tabindex="-2" aria-labelledby="exampleModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-scrollable modal-primary">
-                <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Busqueda de producto</h5>
-                    <button type="button" @click="cerrarModal('staticBackdrop')" class="btn-close" data-bs-dismiss="modal" aria-label="Close">X</button>
-                </div>
-                <div class="modal-body">
+    <transition name="fade">
+            <div v-if="showModal_2" class="modal d-block" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-primary modal-lg modal-dialog-scrollable" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLabel">Busqueda de producto</h5>
+                        <button type="button" class="close" @click="cerrarModal('staticBackdrop')">
+                            <span>&times;</span>
+                        </button>
+                        </div>
+                        <div class="modal-body">
                     <form>
                         <div class="mb-3">
                             <label for="exampleInputEmail1" class="form-label">Introdusca descripcion a buscar: </label>
@@ -462,9 +488,12 @@
                     
                     <!-- <button type="button" class="btn btn-primary">Save changes</button> -->
                 </div>
+
+                    </div>
                 </div>
-            </div>
-     </div>
+            </div>            
+    </transition>  
+
      <!---fin de modal 2-->
     </main>
 </template>
@@ -472,9 +501,11 @@
 <script>
     import Swal from 'sweetalert2';
     import { error401 } from '../../errores';
+    import VueMultiselect from 'vue-multiselect';
      //Vue.use(VeeValidate);
      export default{
         //---permisos_R_W_S
+        components: { VueMultiselect },
         props: ['codventana'],
         //-------------------
         data(){
@@ -488,6 +519,8 @@
                 to: 0,
             },
             offset:3,
+            showModal: false,
+            showModal_2: false,
             isSubmitting: false, // Controla el estado del botón de envío
                 tituloModal:'',    
                 tipoAccion:1,   
@@ -518,7 +551,8 @@
                 metodoabcEnvase:'',
                 selectLista:0,
                 arrayLista:[],
-
+ //-------multiselector
+ selected: null,
                 tiempopedidoselectedprimario:0,
                 metodoselectedprimario:0,
                 inputTextBuscar:'',
@@ -539,6 +573,8 @@
                 puedeHacerOpciones_especiales:2,
                 puedeCrear:2,
                 //-----------
+                validarBoton:0,
+                id_guardado:'',
             }
         },
         
@@ -577,7 +613,7 @@
       sicompleto() {
       let me = this;
            if (
-          
+            me.selected != null &&
                me.selectEnvase != 0 &&
                me.selectProducto != 0 &&
                me.selectLista !=0
@@ -614,7 +650,6 @@
 
         //-----------------------------------permisos_R_W_S        
  listarPerimsoxyz() {
-                //console.log(this.codventana);
     let me = this;
         
     var url = '/gestion_permiso_editar_eliminar?win='+me.codventana;
@@ -638,10 +673,37 @@
         })
         .catch(function(error) {
             error401(error);
-            console.log(error);
         });
 },
 //--------------------------------------------------------------  
+
+        validarNew(id){
+            this.validarBoton=1;
+            this.id_guardado=this.selected;
+            this.listarLista();
+            let prodcutoAbuscar = this.arrayProducto.find(
+                    (element) => element.id === id);
+                    if (prodcutoAbuscar) {  
+                        this.id_ingreso=prodcutoAbuscar.id_ingreso;               
+                        this.id_prod=prodcutoAbuscar.id;
+                       this.rubro=prodcutoAbuscar.rubro_name;
+                       this.linea_cod=prodcutoAbuscar.linea_cod;
+                       this.linea=prodcutoAbuscar.linea_name;
+                       this.lineaS=prodcutoAbuscar.lineaS;
+                       this.preciolistaEnvase=prodcutoAbuscar.preciolistaEnvase;
+                       this.precioventaEnvase=prodcutoAbuscar.precioventaEnvase;
+                       this.tiempopedidoEnvase=prodcutoAbuscar.tiempopedidoEnvase;
+                       this.metodoabcEnvase=prodcutoAbuscar.metodoabcEnvase;
+                       this.tiempopedidoselectedprimario=this.tiempopedidoEnvase;
+                       this.metodoselectedprimario=this.metodoabcEnvase;
+                    }
+        }, 
+
+        validarQuitar(){
+            let me=this;
+            me.validarBoton=0;
+            me.selected=null;
+        },
 
         cambioAccion(){
         let me = this;
@@ -681,13 +743,11 @@
                  
                 })                    
                 .catch(function (error) {
-                    error401(error);
-                    console.log(error);
+                    error401(error);                 
                 });
             }
             else{
-                error401(error);
-                console.log(error); 
+                error401(error);        
             } 
         },
         listarLista(){
@@ -698,12 +758,12 @@
                 .get(url)
                 .then(function (response) {
                     var respuesta = response.data;
+
                     me.arrayLista = respuesta;
                  
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
         listarProducto() {
@@ -735,12 +795,10 @@
                     
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
             }
             else{
                 error401(error);
-                console.log(error); 
             } 
             
          
@@ -758,7 +816,6 @@
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
         cambiarPagina(page){
@@ -839,7 +896,13 @@ me.isSubmitting = true; // Deshabilita el botón
           me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
         });
              }
-        },    
+        }, 
+        
+        nameWithLang ({prod_cod,leyenda,cantidad,lote}) {
+            
+            return `${prod_cod} ${leyenda} ${cantidad} ${lote}`
+          },
+
         actualizar() {
             let me = this;
             var numero_lista = 0;
@@ -920,6 +983,8 @@ me.isSubmitting = true; // Deshabilita el botón
                     {   
                        me.tipoAccion=1;
                        me.isSubmitting=false;
+                       me.showModal = true;
+                       me.selected=null;
                         me.tituloModal='Lista de precios en '+me.selectAlmTienda;
                         me.selectEnvase=0;
                         me.selectProducto=0;
@@ -936,16 +1001,19 @@ me.isSubmitting = true; // Deshabilita el botón
                         me.tiempopedidoselectedprimario=0;
                         me.metodoselectedprimario=0;
                         me.id_ingreso="";
+                        me.validarBoton=0;
                         me.classModal.openModal('registrar');
                         break;
                     }
                     case 'actualizar':
                         {
+                          
                             me.tipoAccion=2;
                             me.isSubmitting=false;
+                            me.showModal = true;
                             me.id_ingreso="";                       
                             me.tituloModal='Lista de precios en '+me.selectAlmTienda;                            
-                           
+           
                             me.selectEnvase=data.envase;                         
                             me.selectProducto=data.leyenda;                           
                             me.selectLista=data.id_lista==null?0:data.id_lista;
@@ -970,6 +1038,7 @@ me.isSubmitting = true; // Deshabilita el botón
                     case 'bucarProducto':{
                         me.inputTextBuscar="";
                         me.tipoAccion=1;
+                        me.showModal_2 = true;
                         me.classModal.openModal('staticBackdrop');
                     break;
                     } 
@@ -993,7 +1062,7 @@ me.isSubmitting = true; // Deshabilita el botón
                         me.selectLista=0;
                         me.tiempopedidoselectedprimario=0;
                         me.metodoselectedprimario=0;
-                        
+                        me.showModal = true;
                         me.classModal.openModal('registrar');
                         break;
                     }  
@@ -1033,7 +1102,6 @@ me.isSubmitting = true; // Deshabilita el botón
                         
                     }).catch(function (error) {
                         error401(error);
-                        console.log(error);
                     });
                 } else if (
                     /* Read more about handling dismissals below */
@@ -1078,7 +1146,6 @@ me.isSubmitting = true; // Deshabilita el botón
                         )
                     }).catch(function (error) {
                         error401(error);
-                        console.log(error);
                     });
                     
                     
@@ -1102,6 +1169,7 @@ me.isSubmitting = true; // Deshabilita el botón
                 me.tipoAccion=1;
                 me.id_pre_x="";
                 me.id_ingreso="";
+                me.validarBoton=0;
                         me.tipo_tienda_almacen="";
                         me.selectProducto=0;
                         me.id_prod="";
@@ -1116,6 +1184,9 @@ me.isSubmitting = true; // Deshabilita el botón
                         me.selectLista=0;
                         me.tiempopedidoselectedprimario=0;
                         me.metodoselectedprimario=0;
+                        me.showModal = false;
+                        me.showModal_2 = false;
+                        me.selected=null;
                 me.classModal.closeModal(accion);
                            
             },
@@ -1146,3 +1217,17 @@ me.isSubmitting = true; // Deshabilita el botón
     font-size: 10px;  
 }
 </style>
+<style scoped>
+.modal {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter, .fade-leave-to /* .fade-leave-active en versiones de Vue < 2.1.8 */ {
+  opacity: 0;
+}
+</style>
+<style src="vue-multiselect/dist/vue-multiselect.css"></style>

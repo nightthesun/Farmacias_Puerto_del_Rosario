@@ -189,28 +189,18 @@
         <!-- fin de index -->
         </div>   
            <!--Inicio del modal agregar/actualizar-->
-        <div class="modal fade"
-            tabindex="-1"
-            role="dialog"
-            arial-labelledby="myModalLabel"
-            id="registrar"
-            aria-hidden="true"
-            data-backdrop="static"
-            data-key="false" >
-            <div class="modal-dialog modal-primary modal-lg" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
+
+           <transition name="fade">
+            <div v-if="showModal" class="modal d-block" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-primary modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
                         <h4 class="modal-title">{{ tituloModal }}</h4>
-                        <button
-                            type="button"
-                            class="close"
-                            aria-label="Close"
-                            @click="cerrarModal('registrar')"
-                        >
-                            <span aria-hidden="true">x</span>
+                        <button type="button" class="close" @click="cerrarModal('registrar')">
+                            <span>&times;</span>
                         </button>
-                    </div>
-                    <div class="modal-body">
+                        </div>
+                        <div class="modal-body">
                         <div class="alert alert-warning" role="alert">
                             Todos los campos con (*) son requeridos
                         </div>
@@ -313,9 +303,12 @@
                         </div>
                     
                     </div>
+
+                    </div>
                 </div>
-            </div>
-        </div>
+            </div> 
+        </transition>             
+       
         <!--fin del modal-->
     </main>
 </template>
@@ -375,6 +368,7 @@ export default {
         fechamin:'',
         fechaactual:'',
        arrayIndex:[],
+       showModal: false,
 //---permisos_R_W_S
 puedeEditar:2,
                 puedeActivar:2,
@@ -602,6 +596,7 @@ tiene_movimiento(id_almacen,id_index,ingresoProducto){
                     me.tituloModal = "Ingreso de productos a almacen";
                     me.selectEntrada=0;
                     me.lote='';
+                    me.showModal = true;
                     me.fecha_vencimiento='';
                     me.registrosanitario='';
                     me.selected=null;
@@ -617,7 +612,8 @@ tiene_movimiento(id_almacen,id_index,ingresoProducto){
                 }
                 case "actualizar": {
                     me.isSubmitting=false;
-                    me.tipoAccion = 2;            
+                    me.tipoAccion = 2;   
+                    me.showModal = true;         
                     me.tituloModal = "Ingreso de productos a almacen";
                    // Find the product with the matching id_prod_producto in arrayProductos
             let producto = me.arrayProductos.find(producto => producto.id === data.id_prod_producto);
@@ -678,6 +674,7 @@ tiene_movimiento(id_almacen,id_index,ingresoProducto){
                     me.fecha_vencimiento='';
                     me.registrosanitario='';
                     me.selected=null;
+                    me.showModal = false;
                     me.cantidad=0;
                     me.id_almacen='';
                     me.idalmacen_v='';
@@ -900,6 +897,19 @@ tiene_movimiento(id_almacen,id_index,ingresoProducto){
 .error {
     color: red;
     font-size: 10px;
+}
+</style>
+<style scoped>
+.modal {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter, .fade-leave-to /* .fade-leave-active en versiones de Vue < 2.1.8 */ {
+  opacity: 0;
 }
 </style>
 <style src="vue-multiselect/dist/vue-multiselect.css"></style>

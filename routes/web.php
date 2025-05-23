@@ -648,6 +648,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::put('/directorio/desactivar', [DirClienteController::class, 'desactivar']);
     Route::put('/directorio/activar', [DirClienteController::class, 'activar']);
     Route::put('/directorio/actualizar', [DirClienteController::class, 'update']);
+    Route::get('/directorio/getMovimientoCliente', [DirClienteController::class, 'listarMovimientosCliente']);     
     //---------proveedor
     Route::get('/proveedor/get', [DirProveedorController::class, 'cliente']);
     Route::post('/proveedor/registrar', [DirProveedorController::class, 'store']);    

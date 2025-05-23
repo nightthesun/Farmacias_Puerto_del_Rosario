@@ -115,7 +115,7 @@
                                 <div  class="d-flex justify-content-start">
                                         
                                         <div  v-if="puedeEditar==1">
-                                            <button type="button" class="btn btn-warning btn-sm" @click="abrirModal('actualizar',c);listarTipoDoc();listarEX();" style="margin-right: 5px;">
+                                            <button type="button" class="btn btn-warning btn-sm" @click="listarSitieneMovimientoCliente(c.id,c);" style="margin-right: 5px;">
                                             <i class="icon-pencil"></i>
                                             </button>
                                         </div>
@@ -125,7 +125,7 @@
                                             </button>  
                                         </div>
                                         <div v-if="puedeActivar==1">
-                                            <button v-if="c.activo==1" type="button" class="btn btn-danger btn-sm" @click="eliminar(c.id)" style="margin-right: 5px;">
+                                            <button v-if="c.activo==1 " type="button" class="btn btn-danger btn-sm" @click="eliminar(c.id)" style="margin-right: 5px;">
                                             <i class="icon-trash"></i>
                                             </button>
                                             <button v-else type="button" class="btn btn-info btn-sm" @click="activar(c.id)" style="margin-right: 5px;">
@@ -133,7 +133,7 @@
                                             </button> 
                                         </div>
                                         <div v-else>
-                                            <button v-if="c.activo==1" type="button" class="btn btn-light btn-sm"  style="margin-right: 5px;">
+                                            <button v-if="c.activo==1 " type="button" class="btn btn-light btn-sm"  style="margin-right: 5px;">
                                             <i class="icon-trash"></i>
                                             </button>
                                             <button v-else type="button" class="btn btn-light btn-sm" style="margin-right: 5px;">
@@ -466,6 +466,7 @@
                 puedeCrear:2,
                 //-----------
                 id_max_2:0,
+                tieneMovimiento:0,
                 
             }
         },
@@ -583,7 +584,52 @@
                     error401(error);
                     console.log(error);
                 })
-        },       
+        },  
+        
+        listarSitieneMovimientoCliente(id,contenido){
+            let me=this;
+            var url='/directorio/getMovimientoCliente?id_cliente='+id;
+            me.tieneMovimiento=0;
+            axios.get(url).then(function(response){
+                var respuesta=response.data;
+                if (respuesta==0) {
+                    me.abrirModal('actualizar',contenido); me.listarTipoDoc();me.listarEX();
+                } else {
+                    const swalWithBootstrapButtons = Swal.mixin({
+  customClass: {
+    confirmButton: "btn btn-primary",
+    cancelButton: "btn btn-secondary"
+  },
+  buttonsStyling: false
+});
+swalWithBootstrapButtons.fire({
+  title: "El cliente ya tiene movimiento",
+  text: "Si modifica afectara hasta en la facturacion de registros",
+  icon: "warning",
+  showCancelButton: true,
+  confirmButtonText: "Si, modifica!",
+  cancelButtonText: "No, cancelar!",
+  reverseButtons: true
+}).then((result) => {
+  if (result.isConfirmed) {
+    me.abrirModal('actualizar',contenido); me.listarTipoDoc();me.listarEX();
+  } else if (
+    /* Read more about handling dismissals below */
+    result.dismiss === Swal.DismissReason.cancel
+  ) {
+   //cancelar
+
+  }
+});
+                    
+                }                
+                   
+            }).catch(function(error){
+                    error401(error);
+                    console.log(error);
+                })
+        },   
+        
 
         cambiarPagina(page){
                 let me =this;

@@ -261,28 +261,18 @@
         <!-- fin de index -->
         </div>   
            <!--Inicio del modal agregar/actualizar-->
-        <div class="modal fade"
-            tabindex="-1"
-            role="dialog"
-            arial-labelledby="myModalLabel"
-            id="registrar"
-            aria-hidden="true"
-            data-backdrop="static"
-            data-key="false" >
-            <div class="modal-dialog modal-primary modal-lg" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
+
+           <transition name="fade">
+            <div v-if="showModal_1" class="modal d-block" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-primary modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
                         <h4 class="modal-title">{{ tituloModal }}</h4>
-                        <button
-                            type="button"
-                            class="close"
-                            aria-label="Close"
-                            @click="cerrarModal('registrar')"
-                        >
-                            <span aria-hidden="true">x</span>
+                        <button type="button" class="close" @click="cerrarModal('registrar')">
+                            <span>&times;</span>
                         </button>
-                    </div>
-                    <div class="modal-body">
+                        </div>
+                        <div class="modal-body">
                         <div class="alert alert-warning" role="alert">
                             Todos los campos con (*) son requeridos
                         </div>
@@ -440,22 +430,25 @@
                             </div>
                         </div>                       
                     </div>
+                    </div>
                 </div>
             </div>
-        </div>
+        </transition>               
+       
         <!--fin del modal-->
 
          <!--Inicio del modal asignacion -->
-         <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" id="registrar1" aria-hidden="true" data-backdrop="static" data-keyboard="false">
-            <div class="modal-dialog modal-primary modal-lg" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
+         <transition name="fade">
+            <div v-if="showModal_2" class="modal d-block" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-primary modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
                         <h4 class="modal-title">{{ tituloModal }}</h4>
-                        <button type="button" class="close"  aria-label="Close" @click="cerrarModal1('registrar1')">
-                            <span aria-hidden="true">×</span>
+                        <button type="button" class="close" @click="cerrarModal1('registrar1')">
+                            <span>&times;</span>
                         </button>
-                    </div>
-                    <div class="container">
+                        </div>
+                        <div class="container">
                         <div class="row">
                             <div class="col-12" >
                                 <div class="modal-body">
@@ -510,25 +503,28 @@
                         <button  v-if="tipoAccion===3" :disabled="selectAlmTda2.length===0" type="button" class="btn btn-primary" @click="quitarSucursal()" >Quitar</button>
                         
                     </div>
+
+                    </div>
                 </div>
-                <!-- /.modal-content -->
             </div>
-            <!-- /.modal-dialog -->
-        </div>
+        </transition>               
+  
         <!--Fin del modal-->
 
 
          <!--Inicio del modal vista de descuentos -->
-         <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" id="vista_descuento" aria-hidden="true" data-backdrop="static" data-keyboard="false">
-            <div class="modal-dialog modal-primary modal-lg" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
+
+         <transition name="fade">
+            <div v-if="showModal_3" class="modal d-block" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-primary modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
                         <h4 class="modal-title">{{ tituloModal }}</h4>
-                        <button type="button" class="close"  aria-label="Close" @click="cerrarModal1('vista_descuento')">
-                            <span aria-hidden="true">×</span>
+                        <button type="button" class="close" @click="cerrarModal1('vista_descuento')">
+                            <span>&times;</span>
                         </button>
-                    </div>
-                    <div class="container">
+                        </div>
+                        <div class="container">
                         <div class="row">
                             <div class="col-12" >
                                 <div class="modal-body">
@@ -581,27 +577,28 @@
                         <button type="button" class="btn btn-secondary"  @click="cerrarModal1('vista_descuento')">Cerrar</button>
  
                     </div>
+
+                    </div>
                 </div>
-                <!-- /.modal-content -->
             </div>
-            <!-- /.modal-dialog -->
-        </div>
+        </transition>               
+     
         <!--Fin del modal-->
 
     <!------------------------MODAL DE COLORES-------------------------->
     <!-- Modal -->
+    <transition name="fade">
+            <div v-if="showModal_4" class="modal d-block" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-primary modal-lm" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                        <h4 class="modal-title">{{ tituloModal }}</h4>
+                        <button type="button" class="close" @click="cerrarModal1('registrar1')">
+                            <span>&times;</span>
+                        </button>
+                        </div>
 
-    <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" id="colores_venta" aria-hidden="true" data-backdrop="static" data-keyboard="false">
-        <div class="modal-dialog modal-primary modal-sm" role="document">
-
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">{{ tituloModal }}</h4>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
+                        <div class="modal-body">
                 <div class="table-responsive">
                     <table class="table">
                         <thead>
@@ -645,26 +642,31 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal"  @click="cerrarModal1('registrar1')">Cerrar</button>
             </div>
-        </div>
-    </div>
-</div>
+                    </div>
+                </div>
+            </div>
+    </transition>       
+
+
 
 
     <!-----------------------------FIN DE COLORES MODAL-------------------------------->
 <!-----------------------------------MODAL DE ELIMINACION DE DESCUENTO-------------------------------->
 <!-- Modal -->
-<div class="modal fade" id="del_descuento" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-primary " role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h4 class="modal-title">{{ tituloModal }}</h4>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
+
+<transition name="fade">
+            <div v-if="showModal_5" class="modal d-block" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-primary modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                        <h4 class="modal-title">{{ tituloModal }}</h4>
+                        <button type="button" class="close" @click="cerrarModal('registrar')">
+                            <span>&times;</span>
+                        </button>
+                        </div>
+                        <div class="modal-body">
         <div class="alert alert-danger" role="alert">
   <h4 class="alert-heading">Desea eliminar!</h4>
   <p>Recuerde que eliminara todas las asignaciones de descuentos en todas la sucursales, tiendas o almacenes.</p>
@@ -673,12 +675,15 @@
 </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal" @click="cerrarModal('registrar')">Cerrar</button>
         <button type="button" class="btn btn-danger" @click="eliminacion_descuento()">Realizar</button>
       </div>
-    </div>
-  </div>
-</div>
+                    </div>
+                </div>
+            </div>
+    </transition>  
+
+
 <!--------------------FIN DE MODAL DECUENTO ELIMINACION ------------------------->
     </main>
 </template>
@@ -753,6 +758,12 @@ export default {
 
                 personalizado:0,
                 id_personalizado:'',
+
+                showModal_1: false,
+                showModal_2: false,
+                showModal_3: false,
+                showModal_4: false,
+                showModal_5: false,
             
         };
     },
@@ -1577,6 +1588,7 @@ axios.put('/descuento2/actualizar', data)
          switch (accion) {
                 case "registrar": {
                     me.tipoAccion = 1;
+                    me.showModal_1 = true;
                     me.isSubmitting=false;
                     if(me.selectTabla==1){
                         me.tituloModal = "Registro de descuento normal";
@@ -1630,7 +1642,7 @@ axios.put('/descuento2/actualizar', data)
                     break;
                 }
                 case "actualizar": {
-                    
+                    me.showModal_1 = true;
                     me.tipoAccion = 2;
                     me.isSubmitting=false;
                     me.id_index=data.id;
@@ -1699,7 +1711,8 @@ axios.put('/descuento2/actualizar', data)
                 }
 
             case 'asignar':
-                    {                                            
+                    {       
+                        me.showModal_2 = true;                                     
                         me.tituloModal='Asignar sucursal';
                         me.tipoAccion=1;
                         me.selectAlmTda2=me.arrayFalso;                        
@@ -1711,11 +1724,13 @@ axios.put('/descuento2/actualizar', data)
                     }
                     
             case 'vista_descuento':{
+                me.showModal_3 = true;
                 me.tituloModal='Vista total de descuentos';
                 me.classModal.openModal('vista_descuento');
                 break;
             }   
             case 'quitar_d':{
+                me.showModal_2 = true;
                 me.selectAlmTda2=[];
                 me.tipoAccion = 3;
                 me.tituloModal='Quitar descuentos';
@@ -1724,11 +1739,13 @@ axios.put('/descuento2/actualizar', data)
             }
 
             case 'colores':{
+                me.showModal_4 = true;
                 me.tituloModal='Descuento por colores';
                 me.classModal.openModal('colores_venta');
                 break;
             }
             case 'eliminar_descuento':{
+                me.showModal_5 = true;
                 me.tituloModal='Ventana de eliminacion';
                 me.classModal.openModal('del_descuento');
                 break;
@@ -1764,12 +1781,22 @@ axios.put('/descuento2/actualizar', data)
                         me.arrayRetornarProductosIngreso = "";
                         me.id_descuento_x="";
                         me.arrayDescuentoxSucursal=[];
+                        me.showModal_1 = false;
+                        me.showModal_2 = false;
+                        me.showModal_3 = false;
+                        me.showModal_4 = false;
+                        me.showModal_5 = false;
             
         },
 
         
         cerrarModal1(accion){
                 let me = this;
+                me.showModal_1 = false;
+                        me.showModal_2 = false;
+                        me.showModal_3 = false;
+                        me.showModal_4 = false;
+                        me.showModal_5 = false;
                 me.classModal.closeModal(accion);
                 me.tipoAccion=1;
                me.id_index="";
@@ -1848,6 +1875,19 @@ axios.put('/descuento2/actualizar', data)
 .error {
     color: red;
     font-size: 10px;
+}
+</style>
+<style scoped>
+.modal {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter, .fade-leave-to /* .fade-leave-active en versiones de Vue < 2.1.8 */ {
+  opacity: 0;
 }
 </style>
 <style src="vue-multiselect/dist/vue-multiselect.css"></style>

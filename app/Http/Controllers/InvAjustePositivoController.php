@@ -332,7 +332,17 @@ class InvAjustePositivoController extends Controller
     }
     public function listarProductoLineaIngreso(Request $request)
     {
-      $cod = $request->query('respuesta0');
+        if($request->op==2){
+            $where_1 = "(ai.stock_ingreso > 0)";
+            $where_2 = "(ti.stock_ingreso > 0)";
+        }
+
+        if($request->op==3){
+            $where_1 = "(ai.stock_ingreso <= 0)";
+            $where_2 = "(ti.stock_ingreso <= 0)";  
+        }
+
+        $cod = $request->query('respuesta0');
     
       $productos = DB::table('prod__productos as pp')
       ->join('alm__ingreso_producto as ai', 'pp.id', '=', 'ai.id_prod_producto')
@@ -346,15 +356,15 @@ class InvAjustePositivoController extends Controller
       ->join('alm__almacens as aa', 'aa.id', '=', 'ai.idalmacen')
       ->join('adm__sucursals as ass', 'ass.id', '=', 'aa.idsucursal')
       ->join('prod__lineas as l', 'l.id', '=', 'pp.idlinea')
-      ->when($request->tipo == 1, function ($query) use ($cod) {
-        $query->where('ai.stock_ingreso', '>', 0)
-              ->where('aa.codigo','=', $cod)
+      ->when($request->tipo == 1, function ($query) use ($cod,$where_1) {
+        $query->where('aa.codigo','=', $cod)
               ->where('pp.idrubro','=',1)
+              ->whereRaw($where_1)
               ->where('pp.activo','=',1);
         })
         ->when($request->tipo == 2, function ($query) use ($cod) {
         $query->where('aa.codigo','=', $cod)
-              ->where('pp.idrubro','=',1)
+              ->where('pp.idrubro','=',1)  
               ->where('pp.activo','=',1);
         })
       ->select(
@@ -406,9 +416,9 @@ class InvAjustePositivoController extends Controller
   ->join('adm__sucursals as ass', 'ass.id', '=', 'ti.idtienda')
   ->join('prod__lineas as l', 'l.id', '=', 'pp.idlinea')
   ->join('tda__tiendas as tt', 'tt.id', '=', 'ti.idtienda')
-  ->when($request->tipo == 1, function ($query) use ($cod) {
-    $query->where('ti.stock_ingreso', '>', 0)
-          ->where('tt.codigo', '=' ,$cod)
+  ->when($request->tipo == 1, function ($query) use ($cod,$where_2) {
+    $query->where('tt.codigo', '=' ,$cod)
+          ->whereRaw($where_2)
           ->where('pp.idrubro','=',1)
           ->where('pp.activo','=',1);
     })

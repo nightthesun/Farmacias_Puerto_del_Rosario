@@ -117,6 +117,7 @@ class VenGestorVentaController extends Controller
         try {
           
             DB::beginTransaction();
+            return $request->all();
             $fechaHora = Carbon::now(); // Se usará automáticamente el formato correcto
             $arrayEstado_dosificacion_facctura=$request->arrayEstado_dosificacion_facctura;
             $arrayQuery_siat_=$request->arrayQuery_siat_;
@@ -124,8 +125,7 @@ class VenGestorVentaController extends Controller
             
             //-----verifica el tipo de emision 
             $comunicacion = $this->verComunicacion($arrayEstado_dosificacion_facctura['tipo_ambiente'],$arrayEstado_dosificacion_facctura['token_delegado']);
-        
-          
+                  
             switch ($comunicacion) {
                 case 0:
                     return "Error con la consulta... contacte al administrador";
@@ -289,6 +289,7 @@ class VenGestorVentaController extends Controller
     ->where('codigo', 1)// como es factura compra venta se usa esa 
     ->first();
     $docFactura=$tipoFacturaDocumento->codigo;
+    $docFacturaDescrip=$tipoFacturaDocumento->descripcion;
    
             $codigoDocumentoSector=$codigoDocumentoSectorQuery->codigo;// configurar depedeniendo de laf actura comoe s compra y venta es 1            
           //  return $request->all();
@@ -465,33 +466,27 @@ EOD;
  );
  
  return $soap_llamada;
- 
 
-
-
-
- $certData = file_get_contents($archivoP12);
- return $certData;
-
-//return $xmlString;
-      // Comprimir el XML en GZIP
-$gzippedFactura = gzencode($factura);
-
-// Codificar en base64 para el campo <archivo>
-$archivo = base64_encode($gzippedFactura);
-
-// Calcular el hash del archivo comprimido para <hashArchivo>
-$hashArchivo = hash('sha256', $gzippedFactura);
- // 5. Armar el cuerpo SOAP
- $soap_llamada = $this->enviarFactura_siat($tipo_ambiente,$token_delegado,$codigoDocumentoSector,$tipoEmision,$modalidad,$puntoVenta
- ,$codigoSistema,$sucursal,$cufd,$cuis,$nitEmisor,$docFactura,$archivo,$fechaEmision,$hashArchivo);
-  
- return $soap_llamada;
-
- 
-     // 6. Enviar a SIN
+ $xml = simplexml_load_string($soap_llamada);
+    // Usar XPath para encontrar el nodo <transaccion>    
+    $transaccion = $xml->xpath('//transaccion');
+    if ($transaccion && isset($transaccion[0])) {
+        if ($transaccion[0]== 'true') {  
          
-          
+            $codigoRecepcion = $xml->xpath('//codigoRecepcion');
+            $codigoDescripcion= $xml->xpath('//codigoDescripcion');
+
+        $insertarVenta_v= $this->insertarVenta($codigoCliente,$total_venta,$efectivo_venta,$cambio_venta,$descuento_venta,$total_sin_des,$dato_tipo,$codigo_tienda_almacen_0
+    ,$id_lista_v2,$numero_referencia,$num_documento,$nom_a_facturar,$estado_dosificacion_facctura,$id_apertura_cierre,$tipo_venta,
+    $monto_vale,$monto_apagar,$moneda,$arrayDescuentoOperacion,$arrayDesatlleVenta,$numeroTarjeta,$cadenaOtros,$tipoBanco,$id_cufd,$id_cuis
+    ,$cuf,$id_credenciales,$sucursal_siat,$punto_venta,$direccion,$municipio, $numFactura, $fechaEmision, $xml, $id_leyenda, $codRecepcion);
+                
+        }else{
+            return $soap_llamada;
+        }       
+    }else{
+        return $soap_llamada;
+    }      
             DB::commit();
         } catch (\Throwable $th) {
             return $th;
@@ -1956,7 +1951,190 @@ if ($hoy->greaterThan($fechaA)) {
 
     }
  
-  
+    private function  insertarVenta($cliente_id,$total_venta,$efectivo_venta,$cambio_venta,$descuento_venta,$total_sin_des,$dato_tipo,$codigo_tienda_almacen_0
+    ,$id_lista_v2,$numero_referencia,$num_documento,$nom_a_facturar,$estado_dosificacion_facctura,$id_apertura_cierre,$tipo_venta,
+    $monto_vale,$monto_apagar,$moneda,$arrayDescuentoOperacion,$arrayDesatlleVenta,$numeroTarjeta,$cadenaOtros,$tipoBanco,$id_cufd,$id_cuis
+    ,$cuf,$id_credenciales,$sucursal_siat,$punto_venta,$direccion,$municipio, $numFactura, $fechaEmision, $xml, $id_leyenda, $codRecepcion){
+        DB::beginTransaction();
+        $user_1 = auth()->user()->id;
+        $nomsucursal="";
+        $iduserrolesuc = "";
+        $idsuc = "";
+        $name_user = ""; 
+        if ($user_1==1) {
+         $valor = '1';
+         return response()->json(['data' => $valor]);
+        }else{
+         $nomsucursal= session('nomsucursal');
+         $iduserrolesuc = session('iduserrolesuc');
+         $idsuc = session('idsuc');
+         $id_user2 = session('id_user2'); 
+        } 
+
+        $ultimoComprobante = DB::table('ven__recibos')
+    ->orderBy('contador', 'desc')
+    ->value('contador');
+    if (is_null($ultimoComprobante)) {
+        // La tabla está vacía, iniciar con 1    
+        $contador_2 = 1;
+    } else {
+        // Incrementar el último número de comprobante
+        $contador_2 = $ultimoComprobante + 1;
+    }
+    $currentDateTime = Carbon::now();
+    $year = strval($currentDateTime->year); 
+$contadorCadena=strval($contador_2);
+$controlador_2_1=$year.$contadorCadena;
+
+////tabla recibo
+$data_recibo = [
+    'id_sucursal' => $idsuc,
+    'id_cliente' => $cliente_id,
+    'id_usuario'=>$id_user2,
+    'nro_comprobante_venta' => $controlador_2_1,
+    'total_venta' => $total_venta,
+    'efectivo_venta' => $efectivo_venta, 
+    'cambio_venta' => $cambio_venta,       
+    'descuento_venta' => $descuento_venta,
+    'created_at' => $currentDateTime,
+    'updated_at' => $currentDateTime,
+    'total_sin_des' => $total_sin_des,
+    'tipo_venta_reci_fac' => $dato_tipo,
+    'contador'=> $contador_2,
+    'cod'=> $codigo_tienda_almacen_0,
+    'id_lista'=>$id_lista_v2,
+    'nro_ref'=>$numero_referencia,
+    'nro_doc'=> $num_documento,
+    'razon_social'=>$nom_a_facturar,
+    'dosificacion_o_electronica'=>$estado_dosificacion_facctura,
+    'id_apertura'=>$id_apertura_cierre,
+    'tipo_venta'=>$tipo_venta,
+    'monto_vale'=>$monto_vale,
+    'monto_apagar'=>$monto_apagar,
+    'moneda'=>$moneda,
+   ];     
+   $id_recibo = DB::table('ven__recibos')->insertGetId($data_recibo);
+
+   /////// detalle_descuento
+   $descuento_final_2=0;
+   $bloque_descuento = $arrayDescuentoOperacion;
+   foreach ($bloque_descuento as $item) {
+    $id_tabla = $item['id_tabla'];
+    $id_descuento = $item['id_descuento'];
+    $cantidad_descuento = $item['cantidad_descuento'];
+    $tipo_num_des =$item['id_contador'];
+    $tipo_2=$item['tipo'];
+    $data_descuento = [
+        'id_venta' => $id_recibo,
+        'id_tabla' => $id_tabla,  
+        'id_descuento' => $id_descuento,
+        'cantidad_descuento' => $cantidad_descuento, 
+        'id_detalle_descuento'=> $tipo_num_des,
+        'tipo' => $tipo_2      
+       ];    
+       DB::table('ven__detalle_descuentos')->insert($data_descuento);
+       if($tipo_2==2&&$tipo_num_des==0){
+        $descuento_final_2=$descuento_final_2+$cantidad_descuento;
+       }      
+   }
+
+    /////// detalle_venta
+        //$es_lista si es lita esta por default 0 pero si es lista es 1
+        $bloque_venta_detalle=$arrayDesatlleVenta;
+        foreach ($bloque_venta_detalle as $item) {
+            $id_contador=$item['id_contador'];
+            $es_lista=$item['es_lista'];
+            $id_ges_pre=$item['id_ges_pre'];
+            $id_ingreso=$item['id_ingreso'];
+            $id_producto=$item['id_producto'];
+            $id_linea=$item['id_linea'];
+            $precio_venta=$item['precio_venta'];
+            $cantidad_venta=$item['cantidad_venta'];
+            $codigo_tienda_almacen=$item['codigo_tienda_almacen'];
+            $descuento=$item['descuento'];
+            $data_det_venta = [
+                'id_detalle_descuento'=>$id_contador,
+                'id_venta' => $id_recibo,          
+                'es_lista' => $es_lista,
+                'id_ges_pre' => $id_ges_pre,
+                'id_ingreso' => $id_ingreso, 
+                'id_producto' => $id_producto,       
+                'id_linea' => $id_linea,    
+                'precio_venta' => $precio_venta,
+                'cantidad_venta' => $cantidad_venta,
+                'codigo_tienda_almacen'=>$codigo_tienda_almacen,
+                 'descuento'=>$descuento,
+               ];  
+            DB::table('ven__detalle_ventas')->insert($data_det_venta);
+            // Si todo sale bien, confirmar la transacción
+           $update = Tda_ingresoProducto2::find($id_ingreso);
+           $cantidad_v3=$update->stock_ingreso;
+           $update->stock_ingreso = $cantidad_v3-$cantidad_venta;
+           $update->save();  
+            }
+            $validador_1="";
+        $valor_2=0;
+     
+       
+        switch ($tipo_venta) {
+            case 2:
+            $validador_1="QR";
+        
+            $valor_2=1;
+                break;
+            case 3:
+            $validador_1="TRJ";      
+          
+            if($numeroTarjeta==null || $numeroTarjeta==''){
+                $numeroTarjeta=$numeroTarjeta;  
+            } else{ 
+                $numeroTarjeta = $this->ofuscarTarjeta($numeroTarjeta); 
+            } 
+            $valor_2=1;
+                break;
+            case 0:
+                $validador_1="ERROR";
+                $numeroTarjeta=0;
+                break;    
+            default:
+                $validador_1="ERROR";
+                $numeroTarjeta=0;
+                break;
+        }   
+
+        if($valor_2==1){
+            $data_transaccion = [
+                'id_venta'=>$id_recibo,
+                'tipo' => $validador_1,          
+                'num_tar_o_boleto' => $numeroTarjeta,
+                'mas_datos' => $cadenaOtros,  
+                'id_banco' => $tipoBanco           
+               ];  
+            DB::table('ven__trasferencias')->insert($data_transaccion);
+        }   
+
+
+///////////////////////////insercion a latabla factura siat//////////////////////////////
+$data_siat = [
+    'id_venta'=>$id_recibo,
+    'id_cufd' => $id_cufd,          
+    'id_cuis' => $id_cuis,
+    'cuf' => $cuf,  
+    'id_credenciales' => $id_credenciales,
+    'sucursal_siat'=>$sucursal_siat,
+    'punto_venta' => $punto_venta,          
+    'direccion' => $direccion,
+    'municipio' => $municipio,   
+    'numFactura' => $numFactura,
+    'fechaEmision' => $fechaEmision,
+    'xml'=>$xml,
+    'id_leyenda' => $id_leyenda, 
+    'codRecepcion' => $codRecepcion                  
+   ];       
+   DB::table('ven__factura_siat')->insert($data_siat);
+    DB::commit();
+
+  } 
 
     
 }

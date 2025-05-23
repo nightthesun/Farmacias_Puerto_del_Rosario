@@ -193,28 +193,19 @@
         <!-- fin de index -->
         </div>   
            <!--Inicio del modal agregar/actualizar-->
-        <div class="modal fade"
-            tabindex="-1"
-            role="dialog"
-            arial-labelledby="myModalLabel"
-            id="registrar"
-            aria-hidden="true"
-            data-backdrop="static"
-            data-key="false" >
-            <div class="modal-dialog modal-primary modal-lg" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
+
+           <transition name="fade">
+            <div v-if="showModal" class="modal d-block" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-primary modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
                         <h4 class="modal-title">{{ tituloModal }}</h4>
-                        <button
-                            type="button"
-                            class="close"
-                            aria-label="Close"
-                            @click="cerrarModal('registrar')"
-                        >
-                            <span aria-hidden="true">x</span>
+                        <button type="button" class="close" @click="cerrarModal('registrar')">
+                            <span>&times;</span>
                         </button>
-                    </div>
-                    <div class="modal-body">
+                        </div>
+
+                        <div class="modal-body">
                         <div class="alert alert-warning" role="alert">
                             Todos los campos con (*) son requeridos
                         </div>
@@ -224,80 +215,94 @@
                             <div class="container">
                                 
                                 <div class="form-group row">
-                              
-                              <label class="col-md-3 form-control-label" for="text-input">
-                              <strong>Traspaso:</strong> 
-                                  <span v-if="selectTraspaso == '0'" class="error">(*)</span>
+                                   
+                                        <label class="col-md-3 form-control-label" for="text-input" v-if="tipoAccion == 1">
+                              <strong v-if="tipoAccion == 1">Traspaso:</strong> 
+                                  <span v-if="validarBoton == 0  && tipoAccion == 1" class="error">(*)</span>
                               </label>
-                              <div class="col-md-7 input-group mb-3">
-                                  <select v-model="selectTraspaso" v-if="tipoAccion==1"
-                                      class="form-control">
-                                      <option v-bind:value="0" disabled>
-                                          Seleccionar...
-                                      </option>
-                                      <option
-                                          v-for="traspasoI in arrayTraspaso"
-                                          :key="traspasoI.id"
-                                          v-bind:value="traspasoI.id"
-                                          v-text="'Nro:'+traspasoI.numero_traspaso +
-                                              ' | Des: ' +traspasoI.name_des +
-                                              ' | ' +traspasoI.leyenda +
-                                              ' | C: ' + traspasoI.cantidad  "
-                                      ></option>
-                                  </select>
-                                  
-                                  <button class="btn btn-primary" 
-                                  v-if="tipoAccion == 1"
-                                  type="button" id="button-addon1"
-                                  @click="abrirModal('bucarProductoIngreso');listarRetornoTraspaso();">                                           
-                                                                                
-                                      <i class="fa fa-search"></i>                                            
-                                  </button>  
-                                  <div v-if="tipoAccion == 2">
+                              <div class="col-md-7 input-group mb-3" v-if="tipoAccion == 1">
+                                <VueMultiselect
+                        v-model="selected"
+                        :disabled="validarBoton==1"
+                        :options="arrayTraspaso"
+                        :max-height="190"                   
+                        :block-keys="['Tab', 'Enter']"                       
+                        placeholder="Seleccione una opción"
+                        label="leyenda" 
+                        :custom-label="nameWithLang"                     
+                        track-by="id"
+                        class="w-250"
+                        selectLabel="Añadir a seleccion"
+                        deselectLabel="Quitar seleccion"
+                        selectedLabel="Seleccionado"
+                     
+                       >
+                       <template #noResult>
+                        No se encontraron elementos. Considere cambiar la consulta de búsqueda.
+                      </template>
+                    </VueMultiselect>  
+                          
+                               </div>
+                               
+                                   
+                            
+                               <div class="col-md-2 input-group mb-3 " v-if="tipoAccion == 1">
+                            <div v-if="validarBoton==0">
+                                <button v-if="selected==null " type="button" class="btn btn-Secondary">Validar</button>
+                                <button v-else type="button" class="btn btn-primary"  @click="validarNew(selected.id)">Validar</button>
+                            </div>
+                            <div v-else>                               
+                                <button type="button" class="btn btn-warning" style="color: white;" @click="validarQuitar()">Quitar</button>
+                            </div>
+                            
+                           </div>
+
+                           <div v-if="tipoAccion == 2">
                                             <strong>Nro:{{numero_traspaso}}|{{leyenda}}| Destino:{{destino}}|Cantidad:{{cantidad}}</strong>
                                         </div>
-                                
-                               </div>
+
+                            
                                   <!-- debe ingresar los datos de para asignar datos del array-->
-                                  <div class="form-group col-sm-4" v-if="selectTraspaso!=''">
+                                  <div class="form-group col-sm-4" v-if="validarBoton==1">
                                     <strong>Origen: <span>{{ origen }}</span></strong>   
                                   </div>
-                                  <div class="form-group col-sm-4" v-if="selectTraspaso!=''">
+                                  <div class="form-group col-sm-4" v-if="validarBoton==1">
                                     <strong>Numero de traspaso: <span>{{ numero_traspaso }}</span></strong>   
                                   </div>
-                                  <div class="form-group col-sm-4" v-if="selectTraspaso!=''">
+                                  <div class="form-group col-sm-4" v-if="validarBoton==1">
                                     <strong>Producto: <span>{{ leyenda }}</span></strong>   
                                   </div>
-                                  <div class="form-group col-sm-4" v-if="selectTraspaso!=''">
+                                  <div class="form-group col-sm-4" v-if="validarBoton==1">
                                     <strong>Cantidad: <span>{{ cantidad }}</span></strong>   
                                   </div>
-                                  <div class="form-group col-sm-4" v-if="selectTraspaso!=''">
+                                  <div class="form-group col-sm-4" v-if="validarBoton==1">
                                     <strong>Operario de logística: <span>{{ nom_completo }}</span></strong>   
                                   </div>
-                                  <div class="form-group col-sm-4" v-if="selectTraspaso!=''">
+                                  <div class="form-group col-sm-4" v-if="validarBoton==1">
                                     <strong>Vehiculo: <span>{{ name_vehiculo }}</span></strong>   
                                   </div>
 
-                                  <div class="form-group col-sm-4" v-if="selectTraspaso!=''">
+                                  <div class="form-group col-sm-4" v-if="validarBoton==1">
                                     <strong>Tiempo estimado de entrega: 
                                         <span  >{{tiempo}}</span>
                                      
                                     </strong>   
                                   </div>
           
-                                  <div class="form-group col-sm-4" v-if="selectTraspaso!='' &&estado==1">
+                                  <div class="form-group col-sm-4" v-if="validarBoton==1 &&estado==1">
                                     <strong>Estado: 
                                         <span  style="color: green;">Listo para concluir</span>
                                      
                                     </strong>   
                                   </div>
-                                  <div class="form-group col-sm-4" v-if="selectTraspaso!='' &&estado==0">
+                                  <div class="form-group col-sm-4" v-if="validarBoton==1 &&estado==0">
                                     <strong>Estado: 
                                         <span  style="color: red;">Pendiente</span>
                                     </strong>   
                                   </div>
                                 </div>
-                                <div class="form-group row" v-if="selectTraspaso!='' &&estado==1 &&tipoAccion==1 ">
+
+                                <div class="form-group row" v-if="validarBoton==1 &&estado==1 &&tipoAccion==1 ">
                                       <label class="col-md-3 form-control-label" for="text-input"><strong>Observación: </strong> 
                                         <span v-if="observacion == ''" class="error">(*)</span>
                                       </label>
@@ -305,7 +310,7 @@
                                         <textarea id="" name="" v-model="observacion" class="form-control" placeholder="Debe ingresar una observación"></textarea>
                                         </div>
                                   </div>  
-                                  <div class="form-group row" v-if="selectTraspaso!='' &&tipoAccion==2 ">
+                                  <div class="form-group row" v-if="tipoAccion==2 ">
                                       <label class="col-md-3 form-control-label" for="text-input"><strong>Observación: </strong> 
                                         <span v-if="observacion == ''" class="error">(*)</span>
                                       </label>
@@ -313,27 +318,7 @@
                                         <textarea id="" name="" v-model="observacion" class="form-control" placeholder="Debe ingresar una observación"></textarea>
                                         </div>
                                   </div> 
-                                    <!---
-                                  <div class="row justify-content-center" v-if="selectTraspaso!='' &&estado==1  &&tipoAccion==1">
-                                    <input type="checkbox" id="checkbox" v-model="checked" hidden/>
-                                    <label for="checkbox" v-if="checked === false" style="background-color: rgb(51, 118, 145); color: white; border: 1px solid #ccc; padding: 8px; border-radius: 4px;">
-                                     <strong>Aceptar</strong>
-                                     </label>
-                                     <label for="checkbox" v-else style="background-color: rgb(122, 30, 45); color: white; border: 1px solid #ccc; padding: 8px; border-radius: 4px;">
-                                     <strong>Deshacer</strong>
-                                     </label>
-                                  </div>  
-                                
-                                    <div class="row justify-content-center" v-if="selectTraspaso!='' &&tipoAccion==2">
-                                    <input type="checkbox" id="checkbox" v-model="checked" hidden/>
-                                    <label for="checkbox" v-if="checked === false" style="background-color: rgb(51, 118, 145); color: white; border: 1px solid #ccc; padding: 8px; border-radius: 4px;">
-                                     <strong>Aceptar</strong>
-                                     </label>
-                                     <label for="checkbox" v-else style="background-color: rgb(122, 30, 45); color: white; border: 1px solid #ccc; padding: 8px; border-radius: 4px;">
-                                     <strong>Deshacer</strong>
-                                     </label>
-                                  </div>  
-                                    --->
+                                 
                                   
                               </div>
                         </form>
@@ -352,9 +337,13 @@
                             </div>
                         </div>
                     </div>
+
+                    </div>
                 </div>
             </div>
-        </div>
+        </transition>  
+
+      
         <!--fin del modal-->
          <!-- Modal para la busqueda de producto por lote -->
  <div class="modal fade" id="staticBackdrop" tabindex="-2" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -410,9 +399,10 @@
 <script>
 import Swal from "sweetalert2";
 import { error401 } from "../../errores";
-import { resolveTransitionHooks } from "vue";
+import VueMultiselect from 'vue-multiselect';
 //Vue.use(VeeValidate);
 export default {
+    components: { VueMultiselect },
     //---permisos_R_W_S
     props: ['codventana'],
     //-------------------
@@ -484,6 +474,9 @@ export default {
           //limitado                    
           startDate: '',
             endDate: '',
+            showModal: false,    
+            selected:null,
+            validarBoton:0, 
         };
     },
 
@@ -544,7 +537,7 @@ export default {
       let me = this;
            if (
           
-               me.selectTraspaso != "" &&
+            
                me.observacion != ""
            )
              return true;
@@ -604,6 +597,61 @@ export default {
         });
 },
 //--------------------------------------------------------------  
+
+nameWithLang ({numero_traspaso,name_des,cantidad}) {
+            
+            return `Num: ${numero_traspaso} Des: ${name_des} Cantidad: ${cantidad}`
+          },
+
+          validarNew(newValue){
+            this.validarBoton=1;
+            let traspasO = this.arrayTraspaso.find(
+                    (element) => element.id === newValue,
+                );
+              if(traspasO){              
+                this.id_traspaso=traspasO.id;
+                this.numero_traspaso=traspasO.numero_traspaso;            
+                this.leyenda=traspasO.leyenda;
+                this.origen=traspasO.name_ori; 
+                this.cantidad=traspasO.cantidad;  
+                this.id_traslado=traspasO.id_traslado;  
+                this.nom_completo=traspasO.nom_completo;    
+                this.name_vehiculo=traspasO.name_vehiculo;   
+                this.estado=traspasO.estado;   
+                this.observacion="";
+                this.checked=false;                   
+                this.id_ingreso=traspasO.id_ingreso;            
+                this.cod_1=traspasO.cod_1;
+                this.cod_2=traspasO.cod_2;
+                this.tiempo=traspasO.tiempo;
+                this.id_prod_producto=traspasO.id_prod_producto;
+                this.envase=traspasO.envase;
+                this.id_almacen_tienda=traspasO.id_almacen_tienda;
+                this.id_tipoentrada=traspasO.id_tipoentrada;  
+                this.fecha_vencimiento=traspasO.fecha_vencimiento;
+                this.lote=traspasO.lote; 
+                this.registro_sanitario=traspasO.registro_sanitario;  
+                this.cod_prod=traspasO.cod_prod;
+                this.linea_name=traspasO.linea_name;
+                this.name_prod=traspasO.name_prod;
+                this.fecha_vencimiento=traspasO.fecha_vencimiento;
+                this.lote=traspasO.lote;
+                this.id_sucursal=traspasO.id_sucursal;
+                this.destino=traspasO.name_des;
+                this.id_destino=traspasO.id_destino;                
+        
+              }   
+           
+        }, 
+
+        validarQuitar(){
+            let me=this;
+            me.validarBoton=0;
+            me.selected=null;            
+            me.observacion="";
+       
+        },
+
 
         listarRecepcion(page){
             let me=this;
@@ -682,7 +730,7 @@ export default {
         },
         registrar() {
             let me = this;
-      if (me.selectTraspaso===0 || me.observacion === "" ) {
+      if (me.validarBoton===0 || me.observacion === "" || me.selected==null) {
                 Swal.fire(
                     "No puede ingresar valor vacios.",
                     "Haga click en Ok",
@@ -772,6 +820,8 @@ me.isSubmitting = true; // Deshabilita el botón
            
          switch (accion) {
                 case "registrar": {
+                    me.showModal = true;
+                    me.validarBoton=0;
                     me.tipoAccion = 1;
                     me.isSubmitting=false;
                     me.tituloModal = "Registro de traspaso: "+me.razon_socialAlmTienda;
@@ -817,7 +867,7 @@ me.isSubmitting = true; // Deshabilita el botón
                     break;
                 }
                 case "actualizar": {
-            
+                    me.showModal = true;
                     me.tipoAccion = 2;
                     me.isSubmitting=false;
                     me.id_recepcion= data.id;
@@ -894,6 +944,8 @@ me.isSubmitting = true; // Deshabilita el botón
                 me.tipoEvento=1;
                 me.isSubmitting=false;
                 me.tipoAccion = 1;
+                me.showModal = false;
+                me.validarBoton=0;
                 me.selectTraspaso=0;
                     me.tituloModal = " ";
                     me.id_traspaso="";
@@ -905,7 +957,7 @@ me.isSubmitting = true; // Deshabilita el botón
                    me.nom_completo="",
                    me.name_vehiculo="",
                    me.estado="",
-                  
+               
                    me.checked="",
                    me.id_ingreso="";            
                    me.cod_1="";
@@ -1065,3 +1117,17 @@ me.isSubmitting = true; // Deshabilita el botón
     font-size: 10px;
 }
 </style>
+<style scoped>
+.modal {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter, .fade-leave-to /* .fade-leave-active en versiones de Vue < 2.1.8 */ {
+  opacity: 0;
+}
+</style>
+<style src="vue-multiselect/dist/vue-multiselect.css"></style>

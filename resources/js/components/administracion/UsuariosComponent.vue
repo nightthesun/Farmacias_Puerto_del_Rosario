@@ -145,18 +145,17 @@
             <!-- Fin ejemplo de tabla Listado -->
         </div>
         <!--Inicio del modal agregar/actualizar-->
-        <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" id="registrar" aria-hidden="true" data-backdrop="static" data-keyboard="false">
-            <div class="modal-dialog modal-primary modal-lg" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
+        <transition name="fade">
+            <div v-if="showModal_1" class="modal d-block" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-primary modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
                         <h4 class="modal-title">{{ tituloModal }}</h4>
-                        <button type="button" class="close"  aria-label="Close" @click="cerrarModal('registrar')">
-                            <span aria-hidden="true">×</span>
+                        <button type="button" class="close" @click="cerrarModal('registrar')">
+                            <span>&times;</span>
                         </button>
-                    </div>
-                  
-
-                    <div class="modal-body">
+                        </div>
+                        <div class="modal-body">
                         <form action=""  class="form-horizontal">
                               <!-- insertar datos -->
                             
@@ -252,11 +251,8 @@
                                     <span  v-if="sucursal==0" class="error">Debe seleccionar una opcion</span>
                                 </div>
                             </div>
-                            
-                            
                         </form>
                     </div>
-                  
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary"  @click="cerrarModal('registrar')">Cerrar</button>
                         <div  class="d-flex justify-content-start">
@@ -270,23 +266,27 @@
                             </div>
                         </div>
                     </div>
+                        
+                    </div>
                 </div>
-                <!-- /.modal-content -->
             </div>
-            <!-- /.modal-dialog -->
-        </div>
+        </transition>              
+       
         <!--Fin del modal-->
 
-        <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" id="addrolsuc" aria-hidden="true" data-backdrop="static" data-keyboard="false">
-            <div class="modal-dialog modal-primary modal-lg" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
+        
+        <!--Inicio del modal roles y sucursales-->
+        <transition name="fade">
+            <div v-if="showModal_2" class="modal d-block" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-primary modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
                         <h4 class="modal-title">{{ tituloModal }}</h4>
-                        <button type="button" class="close"  aria-label="Close" @click="cerrarModal('addrolsuc')">
-                            <span aria-hidden="true">×</span>
+                        <button type="button" class="close" @click="cerrarModal('addrolsuc')">
+                            <span>&times;</span>
                         </button>
-                    </div>
-                    <div class="modal-body">
+                        </div>
+                        <div class="modal-body">
                         <table class="table table-bordered table-striped table-sm table-responsive">
                         <thead>
                             <tr>
@@ -337,43 +337,37 @@
                                         Agregar Rol-Sucursal
                                     </button>&nbsp;
                                 </td>
-                               
-                                
-                                
-                                
-                            
                             </tr>
                            
                         </tbody>
                     </table>
                         
                     </div>
-
-
-
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary"  @click="cerrarModal('addrolsuc')">Cerrar</button>
                         <!-- <button type="button" v-if="tipoAccion==1" class="btn btn-primary" @click="registrarRolSuc()" :disabled="!sicompleto">Guardar</button>
                         <button type="button" v-if="tipoAccion==2" class="btn btn-primary" @click="actualizarRolSuc()">Actualizar</button> -->
                     </div>
+
+                    </div>
                 </div>
-                <!-- /.modal-content -->
-            </div>
-            <!-- /.modal-dialog -->
-        </div>
+            </div> 
+        </transition>                   
+      
         <!--Fin del modal-->
 
         <!-----------------------------MODAL AÑADIR PERMISOS EDITAR /ACTIVAR------------------------------------------------>
-        <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" id="registrar_E_A" aria-hidden="true" data-backdrop="static" data-keyboard="false">
-            <div class="modal-dialog modal-primary modal-lg" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
+        <transition name="fade">
+            <div v-if="showModal_3" class="modal d-block" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-primary modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
                         <h4 class="modal-title">{{ tituloModal }}</h4>
-                        <button type="button" class="close"  aria-label="Close" @click="cerrarModal('registrar_E_A')">
-                            <span aria-hidden="true">×</span>
+                        <button type="button" class="close" @click="cerrarModal('registrar_E_A')">
+                            <span>&times;</span>
                         </button>
-                    </div>
-                    <div class="modal-body">
+                        </div>
+                        <div class="modal-body">
                         <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
                             <li class="nav-item" v-for="a in arrayPermisoEditar_Activar" :key="a.id_modelo">
                                 <a class="nav-link" :class="{ 'active': a.id_modelo === arrayPermisoEditar_Activar[0].id_modelo }" :id="'pills-'+a.id_modelo+'-tab'" data-toggle="pill" :href="'#pills-'+a.id_modelo" role="tab" :aria-controls="'pills-'+a.id_modelo" :aria-selected="a.id_modelo === arrayPermisoEditar_Activar[0].id_modelo">{{a.nom_modelo}}</a>
@@ -425,33 +419,29 @@
                       
                         <button type="button"  class="btn btn-primary" @click="registrarEditar_Activar()" >Actualizar</button>
                     </div>
-                </div>
-                <!-- /.modal-content -->
+                    </div>
+                </div>        
             </div>
-            <!-- /.modal-dialog -->
-        </div>
+        </transition>            
+       
         <!--Fin del modal activar editar-->
 
    <!--Inicio del modal asignacion de mas sucusales -->
-   <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" id="registrar_mas_sucursales" aria-hidden="true" data-backdrop="static" data-keyboard="false">
-            <div class="modal-dialog modal-primary modal-lg" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
+   <transition name="fade">
+            <div v-if="showModal_4" class="modal d-block" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-primary modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
                         <h4 class="modal-title">{{ tituloModal }}</h4>
-                        <button type="button" class="close"  aria-label="Close" @click="cerrarModal('registrar_mas_sucursales')">
-                            <span aria-hidden="true">×</span>
+                        <button type="button" class="close" @click="cerrarModal('registrar_mas_sucursales')">
+                            <span>&times;</span>
                         </button>
-                    </div>
-                    <div class="container">
+                        </div>
+                        <div class="container">
                         <div class="row">
                             <div class="col-12" >
                                 <div class="modal-body">
-                     
-
-
-                     <form action=""  class="form-horizontal">
-
-                       
+                                    <form action=""  class="form-horizontal">
                              <label class="col-md-6 form-control-label" for="text-input"><strong>Lista de sucursales:</strong> </label>
                              <div class="col-md-9">
                                 <table class="table table-bordered table-striped table-sm table-responsive">
@@ -482,39 +472,36 @@
                        
 
                      </form>
-                 </div>
+                                 </div>
                             </div>
                          
                             </div>
-                        </div>
+                    </div>
                    
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary"  @click="cerrarModal('registrar_mas_sucursales')">Cerrar</button>
-                      
+                        <button type="button" class="btn btn-secondary"  @click="cerrarModal('registrar_mas_sucursales')">Cerrar</button>                      
                         <button type="button" class="btn btn-primary" @click="asignarSucursal()">Asignar</button>
+                    </div>
 
                     </div>
                 </div>
-                <!-- /.modal-content -->
             </div>
-            <!-- /.modal-dialog -->
-        </div>
+    </transition>                    
+   
         <!--Fin del modal-->
 
 <!-----------------------------------------------MODAL VER PERMISOS PERMISOS------------------------------------------------>
-<div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" id="GetUsersWithRolesAndSucursals" aria-hidden="true" data-backdrop="static" data-keyboard="false">
-    <div class="modal-dialog modal-primary modal-lg" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">{{ tituloModal }}</h4>
-                <button type="button" class="close"  aria-label="Close" @click="cerrarModal('GetUsersWithRolesAndSucursals')">
-                    <span aria-hidden="true">×</span>
-                </button>
-            </div>
-
-            <!-- modal-body -->
-            
-            
+        <transition name="fade">
+            <div v-if="showModal_5" class="modal d-block" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-primary modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                        <h4 class="modal-title">{{ tituloModal }}</h4>
+                        <button type="button" class="close" @click="cerrarModal('registrar')">
+                            <span>&times;</span>
+                        </button>
+                        </div>
+                         <!-- modal-body -->
             <div class="col-md-12 d-flex justify-content-center" style="padding-top: 20px;">
                 <div style="height: 250px; overflow-y: auto;">
                     <table class="table table-bordered table-striped table-sm table-responsive">
@@ -535,20 +522,17 @@
                     </table>
                 </div>
             </div>
-            
-            
-            
             <!---end modal --->
-
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary"  @click="cerrarModal('GetUsersWithRolesAndSucursals')">Cerrar</button>
-              
+                <button type="button" class="btn btn-secondary"  @click="cerrarModal('GetUsersWithRolesAndSucursals')">Cerrar</button>              
              </div>
-        </div>
-        <!-- /.modal-content -->
-    </div>
-    <!-- /.modal-dialog -->
-</div>
+
+
+                    </div>
+                </div>        
+            </div>
+        </transition>                    
+
 <!--Fin del modal activar editar-->
 
     </main>
@@ -611,9 +595,11 @@ import VueMultiselect from 'vue-multiselect';
                 arrayMasSucursales:[],
                 //boton roles y sucursales
                 arrayRoles_Perimos:[],
-
-           
-
+                showModal_1: false,
+                showModal_2: false,
+                showModal_3: false,
+                showModal_4: false,
+                showModal_5: false,
                 //---permisos_R_W_S
                 puedeEditar:2,
                 puedeActivar:2,
@@ -1302,6 +1288,7 @@ me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
                         me.siactualizar=0;
                         me.selected=null;
                         me.isSubmitting=false;
+                        me.showModal_1 = true;
                         me.tituloModal='Registar Usuario'
                         me.tipoAccion=1;
                         me.nombre='';
@@ -1323,6 +1310,7 @@ me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
                     {
           
                         me.cambiarpass=false;
+                        me.showModal_1 = true;
                         me.siactualizar=1;
                         me.isSubmitting=false;
                         me.idusuario=data.id;
@@ -1346,6 +1334,7 @@ me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
                     case 'addrolsuc':
                         {                                
                             me.arrayRolSucursal=data.rolsucursal;
+                            me.showModal_2 = true;
                             me.tituloModal='Editar - Agregar Rol Sucursal';
                             me.idusuario=data.id;
                             me.idsucursal=0;
@@ -1358,7 +1347,7 @@ me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
                         }
                         case 'registrar_E_A':
                         {
-                          
+                            me.showModal_3 = true;
                             me.tituloModal='Permiso de editar y eliminar para '+data.nombre;
                        
                             me.id_user_permiso=data.id;                            
@@ -1401,7 +1390,8 @@ me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
                             break;
                         } 
                         case 'registrar_mas_sucursales':
-                        {        
+                        {      
+                            me.showModal_4 = true;  
                         me.tituloModal='Asignar mas sucursales';
                         me.selectAlmTda2=me.arrayFalso;
                         me.id_user_permiso=data.id;
@@ -1410,7 +1400,8 @@ me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
                         break;
                         } 
                         case 'GetUsersWithRolesAndSucursals':
-                        {        
+                        {       
+                        me.showModal_5 = true; 
                         me.tituloModal='Usuario:'+data.nombre;                   
                         me.classModal.openModal('GetUsersWithRolesAndSucursals');                   
                         break;
@@ -1421,6 +1412,11 @@ me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
             cerrarModal(accion){
                 let me = this;
                 me.isSubmitting=false;
+                me.showModal_1 = false;
+                me.showModal_2 = false;
+                me.showModal_3 = false;
+                me.showModal_4 = false;
+                me.showModal_5 = false;
                 me.classModal.closeModal(accion);
                 me.nombre='';
                 me.email='';
@@ -1530,7 +1526,7 @@ me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
             this.classModal.addModal('registrar_E_A');
             this.classModal.addModal('GetUsersWithRolesAndSucursals');
             this.classModal.addModal('registrar_mas_sucursales');
-            this.classModal.addModal('registrar_sucursal');
+ 
          
             
             //console.log('Component mounted.')
@@ -1545,3 +1541,22 @@ me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
     }
 </style>
 <style src="vue-multiselect/dist/vue-multiselect.css"></style>
+<style scoped>
+.error {
+    color: red;
+    font-size: 10px;
+}
+</style>
+<style scoped>
+.modal {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter, .fade-leave-to /* .fade-leave-active en versiones de Vue < 2.1.8 */ {
+  opacity: 0;
+}
+</style>

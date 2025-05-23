@@ -107,16 +107,17 @@
             <!-- Fin ejemplo de tabla Listado -->
         </div>
         <!--Inicio del modal agregar/actualizar-->
-        <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" id="registrar" aria-hidden="true" data-backdrop="static" data-keyboard="false">
-            <div class="modal-dialog modal-primary modal-lg" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
+        <transition name="fade">
+            <div v-if="showModal" class="modal d-block" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-primary modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
                         <h4 class="modal-title">{{ tituloModal }}</h4>
-                        <button type="button" class="close"  aria-label="Close" @click="cerrarModal('registrar')">
-                            <span aria-hidden="true">×</span>
+                        <button type="button" class="close" @click="cerrarModal('registrar')">
+                            <span>&times;</span>
                         </button>
-                    </div>
-                    <div class="modal-body">
+                        </div>
+                        <div class="modal-body">
                         <form action="" method="post" enctype="multipart/form-data" class="form-horizontal">
                             <div class="form-group row">
                                 <label class="col-md-3 form-control-label" for="text-input">Nombre <span  v-if="!sicompleto" class="error">(*)</span></label>
@@ -166,11 +167,12 @@
                             </div>
                         </div>                      
                     </div>
+
+                    </div>
                 </div>
-                <!-- /.modal-content -->
-            </div>
-            <!-- /.modal-dialog -->
-        </div>
+            </div> 
+        </transition>               
+ 
         <!--Fin del modal-->
         
         
@@ -206,6 +208,7 @@ import Swal from 'sweetalert2'
                 iddescuento:'',
                 buscar:'',
                 siporcentaje:true,
+                showModal: false,
                 monto:'',
                 caracter:'%',
                  //---permisos_R_W_S
@@ -261,7 +264,7 @@ import Swal from 'sweetalert2'
         methods :{
              //-----------------------------------permisos_R_W_S        
  listarPerimsoxyz() {
-                //console.log(this.codventana);
+           
     let me = this;
         
     var url = '/gestion_permiso_editar_eliminar?win='+me.codventana;
@@ -285,7 +288,6 @@ import Swal from 'sweetalert2'
         })
         .catch(function(error) {
             error401(error);
-            console.log(error);
         });
 },
 //--------------------------------------------------------------  
@@ -299,7 +301,6 @@ import Swal from 'sweetalert2'
                 })
                 .catch(function(error){
                     error401(error);
-                    console.log(error);
                 });
             },
             cambiarPagina(page){
@@ -322,7 +323,6 @@ import Swal from 'sweetalert2'
                     me.listarDescuentos();
                 }).catch(function(error){
                     error401(error);
-                    console.log(error);
                 }).finally(() => {
           me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
         });
@@ -330,7 +330,6 @@ import Swal from 'sweetalert2'
             },
             eliminarDescuento(iddescuento){
                 let me=this;
-                //console.log("prueba");
                 const swalWithBootstrapButtons = Swal.mixin({
                 customClass: {
                     confirmButton: 'btn btn-success',
@@ -362,7 +361,6 @@ import Swal from 'sweetalert2'
                         
                     }).catch(function (error) {
                         error401(error);
-                        console.log(error);
                     });
                     
                     
@@ -380,7 +378,6 @@ import Swal from 'sweetalert2'
             },
             activarDescuento(iddescuento){
                 let me=this;
-                //console.log("prueba");
                 const swalWithBootstrapButtons = Swal.mixin({
                 customClass: {
                     confirmButton: 'btn btn-success',
@@ -412,7 +409,6 @@ import Swal from 'sweetalert2'
                         
                     }).catch(function (error) {
                         error401(error);
-                        console.log(error);
                     });
                     
                     
@@ -441,7 +437,7 @@ import Swal from 'sweetalert2'
                 }).then(function (response) {
                     if(response.data.length){
                     }
-                    // console.log(response)
+                 
                     else{
                             Swal.fire('Actualizado Correctamente')
 
@@ -449,7 +445,6 @@ import Swal from 'sweetalert2'
                     } 
                 }).catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
                 me.cerrarModal('registrar');
 
@@ -464,6 +459,7 @@ import Swal from 'sweetalert2'
                         me.isSubmitting=false;
                         me.tipoAccion=1;
                         me.nombre='';
+                        me.showModal = true;
                         me.descripcion='';
                         me.siporcentaje=true;
                         me.monto='';
@@ -475,6 +471,7 @@ import Swal from 'sweetalert2'
                     {
                         me.iddescuento=data.id;
                         me.isSubmitting=false;
+                        me.showModal = true;
                         me.tipoAccion=2;
                         me.tituloModal='Actualizar Descuento'
                         me.nombre=data.nombre;
@@ -494,7 +491,7 @@ import Swal from 'sweetalert2'
                 me.classModal.closeModal(accion);
                 me.nombre='';
                 me.descripcion='';
-                me.siporcentaje=true;
+                me.showModal = false;
                 me.monto=0;
                 me.tipoAccion=1;
                 
@@ -515,7 +512,7 @@ import Swal from 'sweetalert2'
             this.listarDescuentos(1);
             this.classModal = new _pl.Modals();
             this.classModal.addModal('registrar');
-            //console.log('Component mounted.')
+ 
         }
     }
 </script>
@@ -524,5 +521,18 @@ import Swal from 'sweetalert2'
     color: red;
     font-size: 10px;
     
+}
+</style>
+<style scoped>
+.modal {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter, .fade-leave-to /* .fade-leave-active en versiones de Vue < 2.1.8 */ {
+  opacity: 0;
 }
 </style>

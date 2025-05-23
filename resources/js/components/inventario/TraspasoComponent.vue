@@ -333,139 +333,100 @@
             <!-- Fin ejemplo de tabla Listado -->
         </div>
         <!--Inicio del modal agregar/actualizar-->
-        <div class="modal fade"
-            tabindex="-1"
-            role="dialog"
-            arial-labelledby="myModalLabel"
-            id="registrar"
-            aria-hidden="true"
-            data-backdrop="static"
-            data-key="false" >
-            <div class="modal-dialog modal-primary modal-lg" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
+        <transition name="fade">
+            <div v-if="showModal" class="modal d-block" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-primary modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
                         <h4 class="modal-title">{{ tituloModal }}</h4>
-                        <button
-                            type="button"
-                            class="close"
-                            aria-label="Close"
-                            @click="cerrarModal('registrar')"
-                        >
-                            <span aria-hidden="true">x</span>
+                        <button type="button" class="close" @click="cerrarModal('registrar')">
+                            <span>&times;</span>
                         </button>
-                    </div>
-                    <div class="modal-body">
+                        </div>
+                        <div class="modal-body">
                         <div class="alert alert-warning" role="alert">
                             Todos los campos con (*) son requeridos
                         </div>
                        
                         <form action="" class="form-horizontal">
-                            <div class="form-group col-sm-8" v-if="ProductoLineaIngresoSeleccionado!=''">
+                            <div class="form-group col-sm-3" v-if="ProductoLineaIngresoSeleccionado!=''">
                                     <strong>Origen: <span>{{tipoCodigo}} -> </span> <span> {{ razon_social }}</span></strong>
                                      
                                 </div>
                             <!-- insertar datos -->
-                            <div class="container">
-                                
+                            <div class="container">                                
                                 <div class="form-group row">
-                                   
                                     <label class="col-md-3 form-control-label" for="text-input">
-                                    <strong>   Producto:</strong>
-
-                                        <span
-                                            v-if="ProductoLineaIngreso == '0'"
-                                            class="error"
-                                            >(*)</span
-                                        >
+                                    <strong> Producto:</strong>
+                                        <span v-if="ProductoLineaIngreso == '0'"  class="error" >(*)</span>
                                     </label>
                                     <div class="col-md-7 input-group mb-3" v-if="tipoAccion==1">
-                                        <select v-model="ProductoLineaIngresoSeleccionado" 
-                                            class="form-control"  @change="cambioDeEstado">
-                                            <option v-bind:value="0" disabled>
-                                                Seleccionar...
-                                            </option>
-                                            <option
-                                                v-for="ProductoLineaIngreso in arrayProductoLineaIngreso" 
-                                                :key="
-                                                    ProductoLineaIngreso.id_ingreso
-                                                "
-                                                v-bind:value=" ProductoLineaIngreso.id_ingreso" :hidden="ProductoLineaIngreso.stock_ingreso <= 0"
-                                                v-text="
-                                                    ProductoLineaIngreso.leyenda +
-                                                    ' | Lote: ' +
-                                                    ProductoLineaIngreso.lote +
-                                                    ' | FI: ' +
-                                                    ProductoLineaIngreso.fecha_ingreso +
-                                                    ' | FV: ' +
-                                                    (ProductoLineaIngreso.fecha_vencimiento === null? '| sin registro': ProductoLineaIngreso.fecha_vencimiento) +
-                                                    ' | Stock: ' +
-                                                    ProductoLineaIngreso.stock_ingreso
-                                                "
-                                            ></option>
-                                        </select>
-                                        
-                                        <button
-                                            class="btn btn-primary"
-                                       
-                                            type="button"
-                                            id="button-addon1"
-                                            @click="
-                                                abrirModal(
-                                                    'bucarProductoIngreso',
-                                                );
-                                                ListarretornarProductosIngreso();
-                                            "
-                                        >
-                                            <i class="fa fa-search"></i>
-                                        </button>
-                                       <!--
-                                        <input v-if="tipoAccion == 2" type="text" v-model="leyenda" class="form-control"
-                                            placeholder="letenda" disabled />
-                                       --> 
-                                        
+                                        <VueMultiselect
+                        v-model="selected"
+                        :disabled="validarBoton==1"
+                        :options="arrayProductoLineaIngreso"
+                        :max-height="190"                   
+                        :block-keys="['Tab', 'Enter']"                       
+                        placeholder="Seleccione una opción"
+                        label="leyenda" 
+                        :custom-label="nameWithLang"                     
+                        track-by="id"
+                        class="w-250"
+                        selectLabel="Añadir a seleccion"
+                        deselectLabel="Quitar seleccion"
+                        selectedLabel="Seleccionado"
+                     
+                       >
+                       <template #noResult>
+                        No se encontraron elementos. Considere cambiar la consulta de búsqueda.
+                      </template>
+                    </VueMultiselect> 
                                     </div>
+                                    <div class="col-md-2 input-group mb-3 " v-if="tipoAccion == 1">
+                            <div v-if="validarBoton==0">
+                                <button v-if="selected==null " type="button" class="btn btn-Secondary">Validar</button>
+                                <button v-else type="button" class="btn btn-primary"  @click="validarNew(selected.id_ingreso)">Validar</button>
+                            </div>
+                            <div v-else>                               
+                                <button type="button" class="btn btn-warning" style="color: white;" @click="validarQuitar()">Quitar</button>
+                            </div>
+                            
+                           </div>
+
                                     <div class="col-md-7 input-group mb-3" v-if="tipoAccion==2">
                                         <strong><span>{{ leyenda}}&nbsp;| Stock:{{ cantidadProductoLineaIngreso }}</span></strong>
                                     </div>   
                                   
-                                <div class="form-group col-sm-4" v-if="ProductoLineaIngresoSeleccionado!=''&&tipoAccion==1">
+                                <div class="form-group col-sm-4" v-if="validarBoton===1 &&tipoAccion==1">
                                     <strong>Cantidad existente: <span>{{ cantidadProductoLineaIngreso }}</span></strong>
    
                                 </div>
 
-                                <div class="form-group col-sm-4" v-if="ProductoLineaIngresoSeleccionado!=''">
+                                <div class="form-group col-sm-4" v-if="validarBoton===1">
                                     <strong>Tipo Entrada: <span> Traspaso</span></strong>
                                    
                                 </div>
-                                <div class="form-group col-sm-4" v-if="ProductoLineaIngresoSeleccionado!=''&&tipoAccion==1">
+                                <div class="form-group col-sm-4" v-if="validarBoton===1 &&tipoAccion==1">
                                     <strong>Lote: <span> {{ lote }}</span></strong>
                                      
                                 </div>
-                                <div class="form-group col-sm-4" v-if="ProductoLineaIngresoSeleccionado!=''&&tipoAccion==1">
+                                <div class="form-group col-sm-4" v-if="validarBoton===1 &&tipoAccion==1">
                                     <strong>Fecha de vencimiento: <span> {{ fecha_vencimiento }}</span></strong>
                                   
                                 </div>
-                                <div class="form-group col-sm-4" v-if="ProductoLineaIngresoSeleccionado!=''">
+                                <div class="form-group col-sm-4" v-if="validarBoton===1">
                                     <strong>Registro sanitario: <span> {{registro_sanitario}}</span></strong>
                                   
                                 </div>
         
                                       </div>
-                                 <div class="form-group row" v-if="ProductoLineaIngresoSeleccionado!=''"> 
-                                    <label
-                                        class="col-md-3 form-control-label"
-                                        for="text-input"
-                                    >
+                                 <div class="form-group row" v-if="validarBoton===1 "> 
+                                    <label class="col-md-3 form-control-label" for="text-input">
                                     <strong>Destino</strong>    
                                         <span class="error">(*)</span>
                                     </label>
                                     <div class="col-md-7">
-                                        <select
-                                            name=""
-                                            id=""
-                                            v-model="sucursalSeleccionadaDestino"
-                                            class="form-control"
-                                        >
+                                        <select name="" id="" v-model="sucursalSeleccionadaDestino" class="form-control">
                                             <option value="0" disabled>
                                                 Seleccionar...
                                             </option>
@@ -490,7 +451,7 @@
                               
                                     </div>
                                 </div>
-                                <div class="form-group row" v-if="ProductoLineaIngresoSeleccionado!=''">
+                                <div class="form-group row" v-if="validarBoton===1">
                                     <label
                                         class="col-md-3 form-control-label"
                                         for="text-input"
@@ -518,7 +479,7 @@
                                         <strong v-text="cantidadS"></strong>                              
                                     </div>
                                 </div>
-                                <div class="form-group row" v-if="ProductoLineaIngresoSeleccionado!='' && tipoAccion === 2">
+                                <div class="form-group row" v-if="tipoAccion === 2">
                                     <label
                                         class="col-md-3 form-control-label"
                                         for="text-input"
@@ -544,14 +505,9 @@
                                     
                                 </div>
                                 
-                                <div class="form-group row" v-if="ProductoLineaIngresoSeleccionado!=''">
-                                    <label
-                                        class="col-md-3 form-control-label"
-                                        for="text-input"
-                                        ><strong>Glosa</strong> 
-                                        <span v-if="glosa" class="error"
-                                            >(*)</span
-                                        >
+                                <div class="form-group row"  v-if="tipoAccion == 2|| validarBoton===1">
+                                    <label class="col-md-3 form-control-label" for="text-input"><strong>Glosa</strong> 
+                                        <span v-if="glosa" class="error">(*)</span>
                                     </label>
                                     <div class="col-md-9">
                                         <textarea
@@ -588,9 +544,12 @@
                         </div>
                        
                     </div>
+
+                    </div>
                 </div>
-            </div>
-        </div>
+            </div>            
+        </transition>
+      
         <!--fin del modal-->
         <!-- Modal para la busqueda de producto por lote -->
         <div
@@ -761,8 +720,10 @@
 <script>
 import Swal from "sweetalert2";
 import { error401 } from "../../errores";
+import VueMultiselect from 'vue-multiselect';
 //Vue.use(VeeValidate);
 export default {
+    components: { VueMultiselect },
      //---permisos_R_W_S
      props: ['codventana'],
         //-------------------
@@ -803,9 +764,10 @@ export default {
                 fecha_vencimiento:'',
                 lote:'',
                 cantidad:'',
-
+                selected:null,
             buscar: "",
             idAjusteNegativos: 0,
+            validarBoton:0,
             offset: 3,
             isSubmitting: false, // Controla el estado del botón de envío
             tipoAccion: 1,
@@ -845,6 +807,8 @@ export default {
             //limitado                    
             startDate: '',
             endDate: '',    
+            showModal: false,
+            
         };
     },
 
@@ -1000,8 +964,8 @@ sucursalSeleccionadaDestino: function (newValue) {
             if (
           
                 me.glosa != "" &&
-                me.cantidadS != "" &&
-                me.ProductoLineaIngresoSeleccionado
+                me.cantidadS != "" 
+            
             )
                 return true;
             else return false;
@@ -1063,6 +1027,69 @@ sucursalSeleccionadaDestino: function (newValue) {
         });
 },
 //--------------------------------------------------------------  
+nameWithLang ({leyenda,lote,fecha_ingreso,fecha_vencimiento,stock_ingreso}) {
+            
+            return `${leyenda} Lote: ${lote} FI: ${fecha_ingreso}  FV: ${fecha_vencimiento} Stock: ${stock_ingreso}`
+          },
+
+          validarNew(newValue){
+            this.validarBoton=1;
+            if (newValue > 0) {
+                if (this.tipoAccion === 1) {
+                    this.cantidadS = 0;
+                }
+
+                let productoSeleccionado = this.arrayProductoLineaIngreso.find(
+                    (element) => element.id_ingreso === newValue,
+                );
+                
+                if (productoSeleccionado) {
+                    this.cantidadProductoLineaIngreso =
+                        productoSeleccionado.stock_ingreso;
+                   
+                    this.codigo = productoSeleccionado.codigo_producto;
+                    this.fecha_ingreso=productoSeleccionado.fecha_ingreso;
+        this.fecha_vencimiento=productoSeleccionado.fecha_vencimiento;
+        this.linea=productoSeleccionado.nombre_linea;
+        this.producto=productoSeleccionado.nombre;
+         this.id_sucursal=productoSeleccionado.id_sucursal;
+         this.id_producto=productoSeleccionado.id_producto; 
+         this.id_ingreso=productoSeleccionado.id_ingreso;
+         this.lote=productoSeleccionado.lote;   
+         this.cantidad=productoSeleccionado.cantidad_ingreso;
+         this.razon_social=productoSeleccionado.razon_social;
+         this.tipoCodigo=productoSeleccionado.tipoCodigo;
+         this.registro_sanitario=productoSeleccionado.registro_sanitario;
+         this.id_almacen_tienda=productoSeleccionado.id_almacen_tienda;
+         this.envase=productoSeleccionado.envase;
+                    this.leyenda =
+                        productoSeleccionado.leyenda +
+                        " | lote: " +
+                        productoSeleccionado.lote +
+                        " | FI:" +
+                        productoSeleccionado.fecha_ingreso +
+                        " | FV:" +
+                        productoSeleccionado.fecha_vencimiento;
+                } else {
+                    alert("no se encotro el producto.");
+           
+                }
+            } else {
+                this.cantidadS = "";
+            }
+           
+        }, 
+
+validarQuitar(){
+            let me=this;
+            me.validarBoton=0;
+            me.selected=null; 
+            me.cantidadS="";
+
+            me.sucursalSeleccionadaDestino="0";
+            me.glosa="";
+        },
+
 
         cambiarPestana(idPestana) {
             this.pestañaActiva = idPestana;
@@ -1205,6 +1232,8 @@ sucursalSeleccionadaDestino: function (newValue) {
                     me.id_producto = '';
                     me.id_ingreso = '';                    
                     me.leyenda = '';
+                    me.validarBoton=0;
+                    me.selected=null;
                     //
                     me.razon_social='';
                     me.razon_social_des='';
@@ -1217,10 +1246,13 @@ sucursalSeleccionadaDestino: function (newValue) {
                     me.lista_id_almacen_id_tienda='';
                     me.classModal.openModal("registrar");
                     me.cantidadS2="";
+                    me.showModal = true;
                     break;
                 }
                 case "actualizar": {
                  
+                    me.selected=null;
+                    
                     me.tipoAccion = 2;
                     me.isSubmitting=false;
                     me.id_producto = data.id_prod_producto;
@@ -1232,7 +1264,7 @@ sucursalSeleccionadaDestino: function (newValue) {
                     me.id_codigo = data.cod;
                     me.tituloModal = "Traspaso origen "+respuesta.razon_social;
                     me.codigo = data.codigo;                   
-                   
+                    me.showModal = true;
                     me.cantidadProductoLineaIngreso = "";
                     
                     me.linea = data.linea;
@@ -1320,6 +1352,9 @@ sucursalSeleccionadaDestino: function (newValue) {
         },
         cerrarModal(accion) {
             let me = this;
+            me.showModal = false;
+            me.selected=null;
+            me.validarBoton=0;
             if (accion == "registrar") {
                 me.classModal.closeModal(accion);
                 me.isSubmitting=false;
@@ -1367,7 +1402,7 @@ sucursalSeleccionadaDestino: function (newValue) {
             let me = this;
        
             if (
-               me.ProductoLineaIngresoSeleccionado === 0 ||
+                me.validarBoton === 0 ||
                 me.sucursalSeleccionadaDestino === 0 ||
                 me.cantidadS === "" ||
                 me.glosa === ""
@@ -1828,3 +1863,30 @@ me.isSubmitting = true; // Deshabilita el botón
     font-size: 10px;
 }
 </style>
+<style scoped>
+.modal {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter, .fade-leave-to /* .fade-leave-active en versiones de Vue < 2.1.8 */ {
+  opacity: 0;
+}
+</style>
+<style scoped>
+.modal {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter, .fade-leave-to /* .fade-leave-active en versiones de Vue < 2.1.8 */ {
+  opacity: 0;
+}
+</style>
+<style src="vue-multiselect/dist/vue-multiselect.css"></style>
