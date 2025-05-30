@@ -155,21 +155,18 @@
         <!-- fin de index -->
         </div>   
            <!--Inicio del modal agregar/actualizar-->
-        <div class="modal fade" tabindex="-1" role="dialog" arial-labelledby="myModalLabel" id="registrar" aria-hidden="true" data-backdrop="static" data-key="false" >
-            <div class="modal-dialog modal-primary modal-lg" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
+         <transition name="fade">
+            <div v-if="showModal" class="modal d-block" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-primary modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
                         <h4 class="modal-title">{{ tituloModal }}</h4>
-                        <button
-                            type="button"
-                            class="close"
-                            aria-label="Close"
-                            @click="cerrarModal('registrar')"
-                        >
-                            <span aria-hidden="true">x</span>
+                        <button type="button" class="close" @click="cerrarModal('registrar')">
+                            <span>&times;</span>
                         </button>
-                    </div>
-                    <div class="modal-body">
+                        </div>
+
+   <div class="modal-body">
                         <div class="alert alert-warning" role="alert">
                             Todos los campos con (*) son requeridos
                         </div>
@@ -254,26 +251,28 @@
                             </div>
                         </div>
                     </div>
+
+                    </div>
                 </div>
             </div>
-        </div>
+        </transition>                
+
+
         <!--fin del modal-->
 
           <!--Inicio del modal ver-->
-          <div class="modal fade" tabindex="-1" role="dialog" arial-labelledby="myModalLabel" id="ver" aria-hidden="true" data-backdrop="static" data-key="false" >
-            <div class="modal-dialog modal-primary modal-lg" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
+ <transition name="fade">
+            <div v-if="showModal_2" class="modal d-block" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-primary modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
                         <h4 class="modal-title">{{ tituloModal }}</h4>
-                        <button type="button"
-                            class="close"
-                            aria-label="Close"
-                            @click="cerrarModal('ver')"
-                        >
-                            <span aria-hidden="true">x</span>
+                        <button type="button" class="close" @click="cerrarModal('ver')">
+                            <span>&times;</span>
                         </button>
-                    </div>
-                    <div class="modal-body">
+                        </div>
+
+ <div class="modal-body">
                         <table class="table table-bordered table-striped table-sm table-responsive" >
                             <thead>
                                 <tr>
@@ -294,9 +293,14 @@
                         <button type="button" class="btn btn-secondary"  @click="cerrarModal('ver')">Cerrar</button>
                  
                     </div>
+
+                    </div>
                 </div>
-            </div>
-        </div>
+             </div>
+    </transition>                    
+
+
+   
         <!--fin del modal-->
     </main>
 </template>
@@ -349,6 +353,9 @@ export default {
                 puedeHacerOpciones_especiales:2,
                 puedeCrear:2,
                 //-----------
+
+    showModal: false,
+    showModal_2: false,
         };
     },
 
@@ -420,7 +427,6 @@ export default {
            })
            .catch(function(error) {
                error401(error);
-               console.log(error);
            });
    },
    //--------------------------------------------------------------  
@@ -433,11 +439,10 @@ export default {
                     var respuesta = response.data;
                     me.pagination = respuesta.pagination;
                     me.arrayIndex = respuesta.resultado.data;  
-                   // console.log(me.arrayIndex);                              
+                                    
                 })
                 .catch(function (error) {
                     error401(error);
-                 console.log(error);   
                 });          
         },
 
@@ -469,8 +474,7 @@ export default {
                                 Swal.fire(""+a,"Haga click en Ok","error",); 
                             } 
                     })                
-                  .catch(function (error) {                  
-                    console.log(error.response.data);
+                  .catch(function (error) {   
             }).finally(() => {
           me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
         });     
@@ -500,8 +504,7 @@ export default {
                         Swal.fire("Se registro exitosamente","Haga click en Ok", "success",);                                            
                     })                
                   .catch(function (error) { 
-                    error401(error);
-                    console.log(error);                         
+                    error401(error);                     
             }); 
                 
             
@@ -519,7 +522,6 @@ export default {
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
 
@@ -541,11 +543,10 @@ export default {
                     me.options = respuesta;
 
                     if (me.tipoAccion===2) {
-                        console.log("---entro---");
+                      
                         // Convertir la cadena en un array
                         let valores = data.split(",").map(Number); // ["2", "21", "20"]
-                        console.log(valores);
-                      
+                                       
                         for (let i = 0; i < valores.length; i++) {
                             me.options.forEach(element => {
                                 if ( valores[i] === element.id) {                                 
@@ -558,7 +559,6 @@ export default {
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
 
@@ -572,7 +572,6 @@ export default {
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
 
@@ -602,7 +601,7 @@ export default {
                     me.isSubmitting=false;
                     me.tituloModal = "Creación de caja";
                     me.nombreCaja = "";
-             
+               me.showModal = true;
                    me.value = [];
                   me.options =[];
                     me.monto_caja=0;
@@ -611,12 +610,12 @@ export default {
                 }
                 case "actualizar": {
                     me.tipoAccion = 2;
-                    console.log(data);
+                      me.showModal = true;
                     me.isSubmitting=false;
                     me.tituloModal = "Edición de caja";
                     me.nombreCaja = data.nombre_caja;
                    // {{value}}
-                   console.log("***************");
+               
                    me.listarUsuario(data.array_user);
                   //  me.value = [];
                   //  me.options =[];
@@ -630,7 +629,7 @@ export default {
                 }
 
                 case "ver":{
-                    console.log(data);
+                     me.showModal_2 = true;
                     me.tituloModal = "Nombre "+data.nombre_caja;
                     me.classModal.openModal("ver");
                 }
@@ -650,8 +649,10 @@ export default {
                     me.options =[];
                     me.monto_caja=0;
                     me.tipoAccion="";
+                       me.showModal = false;
             }
             if (accion == "ver") {
+                   me.showModal_2 = false;
                 me.classModal.closeModal(accion);
             }
         },
@@ -688,7 +689,6 @@ export default {
                         
                     }).catch(function (error) {
                         error401(error);
-                        console.log(error);
                     });
                 } else if (
                     /* Read more about handling dismissals below */
@@ -733,7 +733,6 @@ export default {
                         )
                     }).catch(function (error) {
                         error401(error);
-                        console.log(error);
                     });
                     
                     
@@ -779,6 +778,19 @@ export default {
 .error {
     color: red;
     font-size: 10px;
+}
+</style>
+<style scoped>
+.modal {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter, .fade-leave-to /* .fade-leave-active en versiones de Vue < 2.1.8 */ {
+  opacity: 0;
 }
 </style>
 <style src="vue-multiselect/dist/vue-multiselect.css"></style>

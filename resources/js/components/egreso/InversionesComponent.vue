@@ -14,7 +14,7 @@
                     <button
                         type="button"
                         class="btn btn-secondary"
-                        @click="get_tiene_tesoreria(0);"
+                        @click=" listarDistribuidor();get_tiene_tesoreria(0);"
                         :disabled="sucursalSeleccionada == 0"
                     >
                         <i class="icon-plus"></i>&nbsp;Nuevo
@@ -174,28 +174,17 @@
         <!-- fin de index -->
         </div>   
            <!--Inicio del modal agregar/actualizar-->
-        <div class="modal fade"
-            tabindex="-1"
-            role="dialog"
-            arial-labelledby="myModalLabel"
-            id="registrar"
-            aria-hidden="true"
-            data-backdrop="static"
-            data-key="false" >
-            <div class="modal-dialog modal-primary modal-lg" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
+<transition name="fade">
+            <div v-if="showModal" class="modal d-block" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-primary modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
                         <h4 class="modal-title">{{ tituloModal }}</h4>
-                        <button
-                            type="button"
-                            class="close"
-                            aria-label="Close"
-                            @click="cerrarModal('registrar')"
-                        >
-                            <span aria-hidden="true">x</span>
+                        <button type="button" class="close" @click="cerrarModal('registrar')">
+                            <span>&times;</span>
                         </button>
-                    </div>
-                    <div class="modal-body">
+                        </div>
+  <div class="modal-body">
                         <div class="alert alert-warning" role="alert">
                             Todos los campos con (*) son requeridos
                         </div>
@@ -336,7 +325,7 @@
                                      
                                         </div>
                                         <div class="col-md-4 input-group ">
-                                            <input type="text"  class="form-control" placeholder="Debe el codigo del producto"  style="text-align: right;" v-model="producto_selector_uno" >
+                                            <input type="text"  class="form-control" placeholder="Codigo producto"  style="text-align: right;" v-model="producto_selector_uno" >
                                             <button type="button" class="btn btn-primary" @click="listarProductos(0)"><i class="fa fa-search-plus" aria-hidden="true"></i></button>  
                                      </div>
                                 </div>
@@ -416,7 +405,7 @@
                                 <div class="form-group col-sm-12">
                                     <strong>Descripción:</strong>
                                     <textarea class="form-control" id="exampleFormControlTextarea1" rows="3" placeholder="Describa la inversion"  v-model="descripcion"></textarea>
-                                    <span  v-if="descripcion==''" class="error">Debe descripción</span>   
+                                    <span  v-if="descripcion==''" class="error">Descripción</span>   
                                 </div>                
                             </div> 
                             
@@ -437,21 +426,27 @@
                             </div>
                         </div>
                     </div>
+
+                    </div>
                 </div>
             </div>
-        </div>
+        </transition>                
+
+       
         <!--fin del modal-->
          <!--Inicio del modal VER-->
-         <div class="modal fade" tabindex="-1" role="dialog" arial-labelledby="myModalLabel" id="ver" aria-hidden="true" data-backdrop="static" data-key="false">
-            <div class="modal-dialog modal-primary modal-lg" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
+         <transition name="fade">
+            <div v-if="showModal_2" class="modal d-block" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-primary modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
                         <h4 class="modal-title">{{ tituloModal }}</h4>
-                        <button type="button" class="close" aria-label="Close" @click="cerrarModal('ver')">
-                            <span aria-hidden="true">x</span>
+                        <button type="button" class="close" @click="cerrarModal('ver')">
+                            <span>&times;</span>
                         </button>
-                    </div>
-                    <div class="modal-body">                      
+                        </div>
+
+<div class="modal-body">                      
                         <table class="table table-bordered table-striped table-sm table-responsive">
                             <thead>
                                 <tr>
@@ -527,9 +522,13 @@
                             Cerrar
                         </button>
                     </div>
+
+                    </div>
                 </div>
             </div>
-        </div>
+        </transition>
+        
+   
         <!--fin del modal-->
     </main>
 </template>
@@ -610,7 +609,8 @@ export default {
       ids_producto:'', 
 
       array_pro_2:[],
-
+  showModal: false,
+    showModal_2: false,
       //ver--
   
       nombre_x2:'',
@@ -704,7 +704,6 @@ startDate: '',
         })
         .catch(function(error) {
             error401(error);
-            console.log(error);
         });
 },
 //--------------------------------------------------------------  
@@ -740,7 +739,6 @@ startDate: '',
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
 
@@ -782,7 +780,6 @@ startDate: '',
                                
                 }).catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
 
@@ -807,18 +804,16 @@ startDate: '',
                     var respuesta=response.data;
                     me.pagination = respuesta.pagination;
                     me.arrayIndex = respuesta.resultado.data;
-                    console.log("****************************");
-                    console.log(me.arrayIndex);             
+                          
                 })
                 .catch(function(error){
                     error401(error);
-                    console.log(error);
                 });
         }, 
 
          crear(){
-            let me = this;  
-            if (me.valor_suma_v3<0) {
+            let me = this; 
+              if (me.valor_suma_v3<0) {
                 Swal.fire("Saldo insuficiente.","Haga click en Ok","warning",); 
             } else {
                  // Si ya está enviando, no permitas otra solicitud
@@ -828,7 +823,7 @@ startDate: '',
 
         const arrayCombinado = me.array_uno_2.concat(me.value);
         const ids = arrayCombinado.map(item => item.id).join(',');
-                console.log(ids);
+        
                 axios.post("/inversion/crear", {
                 id_dis: (me.selected).id, 
                 tipo_persona_empresa: (me.selected).tipo_persona_empresa,         
@@ -855,13 +850,12 @@ startDate: '',
                                 Swal.fire(""+a,"Haga click en Ok","error",); 
                             } 
                     })                
-                  .catch(function (error) {                  
-                    console.log(error.response.data);
+                  .catch(function (error) {  
             }).finally(() => {
           me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
         });
             } 
-           
+          
         },
 
         eliminar(id){
@@ -896,7 +890,6 @@ startDate: '',
                         
                     }).catch(function (error) {
                         error401(error);
-                        console.log(error);
                     });
                 } else if (
                     /* Read more about handling dismissals below */
@@ -940,7 +933,6 @@ startDate: '',
                         )
                     }).catch(function (error) {
                         error401(error);
-                        console.log(error);
                     });
                     
                     
@@ -1000,8 +992,7 @@ startDate: '',
                             }                          
                     })                
                   .catch(function (error) { 
-                    error401(error);
-                    console.log(error);                         
+                    error401(error);                         
             }); 
                 }
             
@@ -1022,7 +1013,6 @@ startDate: '',
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
          },
         
@@ -1036,12 +1026,10 @@ startDate: '',
                 .then(function (response) {
                     var respuesta = response.data;
                     me.array_pro_2 = respuesta;
-                    console.log("------------------");   
-                    console.log(me.array_pro_2);
+              
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
 
@@ -1057,7 +1045,6 @@ startDate: '',
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
 
@@ -1095,6 +1082,7 @@ startDate: '',
                     me.producto_selector_uno="";
                     me.producto_selector_uno_2="";
                     me.ids_producto="";
+                       me.showModal = true;
                     me.classModal.openModal("registrar");
                     break;
                 }
@@ -1115,12 +1103,13 @@ startDate: '',
                     me.id_inversion=data.id;
                     me.monto_editado=data.total;
                     me.ids_producto=data.ids_producto;
+                       me.showModal = true;
                     me.classModal.openModal("registrar");
                     break;
                 }
 
                 case "ver":{
-                    console.log(data);
+                       me.showModal_2 = true;
                     me.tipoAccion = 2;
 
                     me.id_inversion=data.id;
@@ -1178,7 +1167,7 @@ startDate: '',
                 .then(function (response) {
 
                     var respuesta = response.data;
-                    console.log(respuesta);
+        
                     if (data===1) {
                         me.options = respuesta;  
                     } else {
@@ -1197,7 +1186,6 @@ startDate: '',
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
       
@@ -1222,7 +1210,8 @@ startDate: '',
 
         cerrarModal(accion) {
             let me = this;
-    
+              me.showModal = false;
+      me.showModal_2 = false;
                 me.classModal.closeModal(accion);
                 me.selected=null; 
                 me.isSubmitting=false;                    
@@ -1308,6 +1297,19 @@ startDate: '',
 .error {
     color: red;
     font-size: 10px;
+}
+</style>
+<style scoped>
+.modal {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter, .fade-leave-to /* .fade-leave-active en versiones de Vue < 2.1.8 */ {
+  opacity: 0;
 }
 </style>
 <style src="vue-multiselect/dist/vue-multiselect.css"></style>

@@ -148,21 +148,18 @@
         <!-- fin de index -->
         </div>   
            <!--Inicio del modal agregar/actualizar-->
-        <div class="modal fade" tabindex="-1" role="dialog" arial-labelledby="myModalLabel" id="registrar" aria-hidden="true" data-backdrop="static" data-key="false" >
-            <div class="modal-dialog modal-primary modal-lg" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
+ <transition name="fade">
+            <div v-if="showModal" class="modal d-block" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-primary modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
                         <h4 class="modal-title">{{ tituloModal }}</h4>
-                        <button
-                            type="button"
-                            class="close"
-                            aria-label="Close"
-                            @click="cerrarModal('registrar')"
-                        >
-                            <span aria-hidden="true">x</span>
+                        <button type="button" class="close" @click="cerrarModal('registrar')">
+                            <span>&times;</span>
                         </button>
-                    </div>
-                    <div class="modal-body">
+                        </div>
+
+                        <div class="modal-body">
                         <div class="alert alert-warning" role="alert">
                             Todos los campos con (*) son requeridos
                         </div>
@@ -225,9 +222,12 @@
                             </div>
                         </div>
                     </div>
+
+                    </div>
                 </div>
             </div>
-        </div>
+        </transition>                
+
         <!--fin del modal-->
     </main>
 </template>
@@ -250,6 +250,7 @@ export default {
             },
           
             offset: 3,
+            showModal: false,
             isSubmitting: false, // Controla el estado del botón de envío
             tituloModal:'',
             arrayPais:[],
@@ -550,12 +551,14 @@ me.isSubmitting = true; // Deshabilita el botón
                     me.unidad=0;
                     me.valor="";
                     me.valor_entero="";
+                         me.showModal = true;
                     me.classModal.openModal("registrar");
                     break;
                 }
                 case "actualizar": {
                     me.tipoAccion = 2;
                     me.isSubmitting=false;
+                         me.showModal = true;
                     me.tituloModal = "Registro de tipo de moneda";
                     me.id_=data.id;          
                     me.tipoMoneda=data.tipo_corte === null ? 0 : data.tipo_corte;
@@ -574,7 +577,8 @@ me.isSubmitting = true; // Deshabilita el botón
             let me = this;
             if (accion == "registrar") {
                 me.classModal.closeModal(accion);
-                me.isSubmitting=false;   
+                me.isSubmitting=false; 
+                   me.showModal = false;  
                     me.tituloModal = " ";
                     me.tipoMoneda=0;
                     me.valor="";
@@ -737,5 +741,18 @@ me.isSubmitting = true; // Deshabilita el botón
 .error {
     color: red;
     font-size: 10px;
+}
+</style>
+<style scoped>
+.modal {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter, .fade-leave-to /* .fade-leave-active en versiones de Vue < 2.1.8 */ {
+  opacity: 0;
 }
 </style>

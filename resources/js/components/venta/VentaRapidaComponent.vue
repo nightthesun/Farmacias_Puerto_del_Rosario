@@ -345,7 +345,7 @@
 
           <!-----------------------------tabla extra---------------------------------------------->
 
-          <div v-show="estado_dosificacion_facctura===1" class="card w-100" style="border-left: 3px solid #9b111e;">
+          <div  class="card w-100" style="border-left: 3px solid #9b111e;">
          
          <div class="card-body">
           <a class="btn btn-outline-secondary" data-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
@@ -495,50 +495,53 @@ Si no selecciona alguna opción automaticamente marca como efectivo en caso de o
                  </div>
                  <!--fin del modal-->
                    <!-- MODAL CLIENTE MODAL CLIENTE MODAL CLIENTE MODAL CLIENTE MODAL CLIENTE  -->
-                   <div class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" id="cliente_modal"  data-backdrop="static" data-keyboard="false">
-                     <div class="modal-dialog modal-primary">
-                         <div class="modal-content animated fadeIn">
-                             <div class="modal-header">
-                                 <h4 class="modal-title">Datos de cliente</h4>
-                                 <button class="close" @click="cerrarModal('cliente_modal')">x</button>
-                             </div>
-                       
-                                 <div  class="alert alert-warning alert-dismissible fade show" role="alert">
+
+          <transition name="fade">
+            <div v-if="showModal" class="modal d-block" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-primary modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                     <h4 class="modal-title">Datos de cliente</h4>
+                        <button type="button" class="close" @click="cerrarModal('registrar')">
+                            <span>&times;</span>
+                        </button>
+                        </div>
+                         <div  class="alert alert-warning alert-dismissible fade show" role="alert">
                                      <strong>NO ESCRITO EN EL PADRÓN</strong> <br>
-                                    <p>{{name_moda}}</p> 
-                                    
-                                </div>
-                                   <div class="row justify-content-center">
+                                    <p>{{name_moda}}</p>                                     
+                          </div>
+   <div class="row justify-content-center">
                                      <div class="form-group col-sm-6">
                                          <strong>Razon social:</strong>
                                          <input type="text" class="form-control" v-model="razon_social_99001">
                                      </div>
                                  </div>                    
                              
-                            
-                             
-                             <div class="modal-footer">
+ <div class="modal-footer">
                                  <button type="button" class="btn btn-secondary" @click="cerrarModal('cliente_modal')">Cerrar</button>
                                  <button  :disabled="razon_social_99001==''" class="btn btn-primary" @click="caso_99001();">Guardar</button>
                               </div>
-                         </div>
-                     </div>
-                 </div>
+
+                      </div>
+                  </div>
+              </div>
+          </transition>           
+          
                  <!-- fin modal add cliente -->
                    <!-- Modal para la busqueda de clientes por lote -->
-                   <div class="modal fade" id="lote_cliete" tabindex="-2" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                   <div class="modal-dialog modal-dialog-scrollable modal-primary">
-                       <div class="modal-content">
-                           <div class="modal-header">
-                               <h5 class="modal-title" id="exampleModalLabel">
-                                   Busqueda de clientes
-                               </h5>
-                               <button type="button" @click="cerrarModal('lote_cliete')" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
-                                   X
-                               </button>
-                           </div>
-         
-                           <div class="modal-body">
+
+          <transition name="fade">
+            <div v-if="showModal_2" class="modal d-block" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-primary modal-md" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                         <h5 class="modal-title" id="exampleModalLabel">Busqueda de clientes</h5>
+                        <button type="button" class="close" @click="cerrarModal('lote_cliete')">
+                            <span>&times;</span>
+                        </button>
+                        </div>
+
+                          <div class="modal-body">
                                <form>
                                    <div class="mb-3">
                                        <label for="exampleInputEmail1" class="form-label">Introduzca numero de documento: </label>
@@ -591,22 +594,28 @@ Si no selecciona alguna opción automaticamente marca como efectivo en caso de o
          
                                <!-- <button type="button" class="btn btn-primary">Save changes</button> -->
                            </div>
-                       </div>
-                   </div>
-               </div>
+
+                    </div> 
+                  </div>
+            </div>
+          </transition>             
+
+          
                <!-- Fun Modal para la busqueda de clientes por lote -->
                <!--Inicio del modal de registro de-->
-               <div class="modal fade" tabindex="-1" role="dialog" arial-labelledby="myModalLabel" id="registrar_cliente" aria-hidden="true" data-backdrop="static" data-key="false">
-                 <div class="modal-dialog modal-primary modal-lg" role="document">
-                     <div class="modal-content">
-                         <div class="modal-header">
-                         <h4 class="modal-title">{{ tituloModal }}</h4>
-                         <button  type="button" class="close" aria-label="Close" @click="cerrarModal('registrar_cliente')">
-                             <span aria-hidden="true">x</span>
-                         </button>
-                         
-                     </div>
-                     <div class="modal-body">
+
+          <transition name="fade">
+            <div v-if="showModal_3" class="modal d-block" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-primary modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                        <h4 class="modal-title">{{ tituloModal }}</h4>
+                        <button type="button" class="close" @click="cerrarModal('registrar_cliente')">
+                            <span>&times;</span>
+                        </button>
+                        </div>
+
+ <div class="modal-body">
                          <div class="alert alert-warning" role="alert">
                              Todos los campos con (*) son requeridos
                          </div>
@@ -786,24 +795,27 @@ Si no selecciona alguna opción automaticamente marca como efectivo en caso de o
                          <button type="button"  class="btn btn-primary"  @click="registrar_cliente_modal()">Guardar</button>              
                         
                      </div>
-                     </div>
-                     
-                 </div>
-             </div>
+
+                      </div>
+                    </div>
+              </div>
+          </transition>
+
              <!--fin del modal-->
             <!---------------------------inicio de vista modal bloque venta precio--------------------------->
 
              <!--Inicio del modal de registro de-->
-             <div class="modal fade" tabindex="-1" role="dialog" arial-labelledby="myModalLabel" id="vista_bloque" aria-hidden="true" data-backdrop="static" data-key="false">
-                 <div class="modal-dialog modal-primary modal-lg" role="document">
-                     <div class="modal-content">
-                         <div class="modal-header">
-                         <h4 class="modal-title">{{ tituloModal }}</h4>
-                         <button  type="button" class="close" aria-label="Close" @click="cerrarModal('vista_bloque')">
-                             <span aria-hidden="true">x</span>
-                         </button>                         
+          <transition name="fade">
+            <div v-if="showModal_4" class="modal d-block" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-primary modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                        <h4 class="modal-title">{{ tituloModal }}</h4>
+                        <button type="button" class="close" @click="cerrarModal('vista_bloque')">
+                            <span>&times;</span>
+                        </button>
                         </div>
-                            <div class="modal-body">                         
+   <div class="modal-body">                         
                               <form action="" class="form-horizontal">
                                 <div class="modal-body"> 
                                   <div class="alert alert-secondary" v-if="arrayProducto_2.length<=0" role="alert">Sin datos</div>                     
@@ -842,10 +854,13 @@ Si no selecciona alguna opción automaticamente marca como efectivo en caso de o
                             <div class="modal-footer">
                               <button type="button" class="btn btn-secondary" @click="cerrarModal('vista_bloque')">Cerrar</button>                       
                             </div>
-                     </div>
-                     
-                 </div>
-             </div>
+
+
+                    </div>
+                  </div>
+              </div>
+          </transition>            
+
              <!--fin del modal-->
             <!-------------------------fin de modal vista precio----------------------------->
              </main>
@@ -1003,6 +1018,10 @@ export default {
      cadenaProducto_2:'',      
 
      tieneApertura_0:'',
+      showModal: false,
+      showModal_2: false,
+      showModal_3: false,
+      showModal_4: false,
 
      //-apertura
      id_apertura_cierre:'',
@@ -1855,9 +1874,7 @@ if (tipo_can_valor==='BS') {
             axios
                 .get(url)
                 .then(function (response){
-                    let respuesta = response.data; 
-                    console.log("***xx****");     
-                    console.log(respuesta);                                
+                    let respuesta = response.data;                                               
                     me.estado_dosificacion_facctura=respuesta.estado;
                     switch (me.estado_dosificacion_facctura) {
                       case 0:
@@ -1866,16 +1883,13 @@ if (tipo_can_valor==='BS') {
                       break;
                       case 1:
                       me.key_Activacion=1;
-                        
+                   
                         switch (me.estado_dosificacion_facctura) {
                           case 1:
                             //----------para facturacion  en linea
                             me.arrayEstado_dosificacion_facctura=respuesta.consulta;  
                             me.arrayQuery_siat_=respuesta.query; 
-                            console.log("***--ini---***");
-                            console.log(me.arrayEstado_dosificacion_facctura);  
-                            console.log(me.arrayQuery_siat_);  
-                            console.log("***---fin---***");
+              
                           break;
                           case 10:  
                           Swal.fire({title: "Token caducado",text: "revicé: en configuración siat y actualice las fechas con su token de legado, si el error persite revise en la configuracion de impuestos nacionales y pida otro token.",icon: "error",});  
@@ -1945,7 +1959,6 @@ if (tipo_can_valor==='BS') {
                    
                 }).catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
 
@@ -2040,7 +2053,6 @@ if (tipo_can_valor==='BS') {
                     
             }).catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
         
@@ -2080,7 +2092,6 @@ if (tipo_can_valor==='BS') {
 
             }).catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
 
@@ -2566,7 +2577,7 @@ me.importe_fiscal=me.monto_a_pagar;
                     me.arrayEX=respuesta;
             }).catch(function(error){
                     error401(error);
-                    console.log(error);
+                    
                 })
         },
         
@@ -2579,7 +2590,7 @@ me.importe_fiscal=me.monto_a_pagar;
                 me.arrayTipoDocumento=respuesta;
             }).catch(function(error){
                     error401(error);
-                    console.log(error);
+           
                 })
         },  
 
@@ -2628,7 +2639,6 @@ me.importe_fiscal=me.monto_a_pagar;
                     me.arrayClienteLote = respuesta;
             }).catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
 
@@ -2684,11 +2694,10 @@ me.importe_fiscal=me.monto_a_pagar;
 
         listarUsuario() {
             let me = this;
-            var url = "/gestor_ventas/listarUsuario?num_doc="+me.buscarCliente;
-         
+            var url = "/gestor_ventas/listarUsuario?num_doc="+me.buscarCliente;         
             var opcion=me.buscarCliente;
             switch(opcion) {
-    case '99001':
+    case '99001': 
       if (me.key_Activacion==1) {
         me.abrirModal('cliente_modal');
       }else{
@@ -2779,7 +2788,6 @@ me.importe_fiscal=me.monto_a_pagar;
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         break;
         }
@@ -2817,7 +2825,6 @@ me.importe_fiscal=me.monto_a_pagar;
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
 
@@ -2839,11 +2846,9 @@ me.importe_fiscal=me.monto_a_pagar;
                 .then(function (response) {
                     var respuesta = response.data;
                     me.arrayProducto_2  = respuesta;
-                    console.log(me.arrayProducto_2);
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
 
@@ -2870,7 +2875,7 @@ me.importe_fiscal=me.monto_a_pagar;
          switch (accion) {
                 case "registrar": {
                     me.tipoAccion = 1;
-                    me.tituloModal = "Registro de traspaso origen ";
+                    me.tituloModal = "sin usar";
             
                     me.classModal.openModal("registrar");
                     break;
@@ -2885,6 +2890,7 @@ me.importe_fiscal=me.monto_a_pagar;
                  
                     me.name_moda='OD-OTRO DOCUMENTO DE IDENTIDAD 99001.';
                     me.v99001='';
+                      me.showModal = true;
                     me.id_tipo_doc='';
                     me.razon_social_99001="";
                     me.cliente_id="";
@@ -2895,6 +2901,7 @@ me.importe_fiscal=me.monto_a_pagar;
                 
                 case "lote_cliete":{
                     me.buscar='';
+                       me.showModal_2 = true;
                     me.id_tipo_doc=''
                     me.cliente_id='';
                     me.nom_a_facturar='';
@@ -2927,12 +2934,14 @@ me.importe_fiscal=me.monto_a_pagar;
                     me.num_documento2='';
                     me.TipoComprobate=0;
                     me.complemento_siat='';
+                        me.showModal_3 = true;
                     me.classModal.openModal("registrar_cliente");
                     break;
                 } 
                 case "vista_bloque":{
                   me.tituloModal = "Vista por producto precio";
                   me.cadenaProducto_2="";
+                      me.showModal_4 = true;
                   me.classModal.openModal("vista_bloque");
                   break;
                 }           
@@ -2948,7 +2957,12 @@ me.importe_fiscal=me.monto_a_pagar;
 
 
         cerrarModal(accion) {
-            let me = this;   
+            let me = this;  
+              me.showModal = false; 
+              me.showModal_2 = false; 
+              me.showModal_3 = false; 
+              me.showModal_4 = false; 
+
             if (accion == "vista_bloque") {
                 me.arrayProducto_2=[];
                 me.cadenaProducto_2="";
@@ -2979,7 +2993,6 @@ me.importe_fiscal=me.monto_a_pagar;
         realizarVenta() {
         let me = this;
         var validador=0;
-        console.log(me.TipoComprobate);
           if (me.tipo_pago_Qr_con_tar<=0) {
             Swal.fire("Tipo de pago sin seleccionar","Debe seleccionar tipo de pago, que esta debajo de detalle de cliente","error");
           } else {
@@ -3024,7 +3037,6 @@ me.importe_fiscal=me.monto_a_pagar;
                     break;
             
                 case "2":
-                  console.log("factura");
                     if ("000"===cadena) {
                         Swal.fire(
                     "No pudo realizar la venta",
@@ -3032,7 +3044,6 @@ me.importe_fiscal=me.monto_a_pagar;
                     "error"
                 ); 
                     } else {
-                      console.log(me.estado_dosificacion_facctura);
                         //----facturacion
                         if(me.estado_dosificacion_facctura===1){
                           if (me.selectPago_==="7") {
@@ -3045,7 +3056,6 @@ me.importe_fiscal=me.monto_a_pagar;
                   }  
 
                   if (me.selectPago_==="2") {
-                    console.log(me.numeroTarjeta_siat);
                     if (me.numeroTarjeta_siat===""||me.numeroTarjeta_siat===null||(!/^\d{16}$/.test(me.numeroTarjeta_siat))) {
                       validador=1;
                       Swal.fire("Error","Debe llenar el numero de tarjeta con un numero 16 digitos ejemplo 4797123456727896.","error");
@@ -3297,24 +3307,7 @@ total_sin_des,descuento_venta,total_venta,efectivo_venta,cambio_venta,fechaMas7D
            
     },
     
-   // tieneApertura() {
-   //         let me = this;     
-   //        var url = "/gestor_ventas/tieneApertura";           
-   //         axios.get(url)
-   //             .then(function (response) {
-   //                 var respuesta = response.data;             
-   //                 if(respuesta.length>0){
-   //                   me.tieneApertura_0=1;
-   //                 }else{
-   //                   me.tieneApertura_0=0;
-   //                   Swal.fire(
-   //                   "Error", "No existe apertura", "error"); }                  
-   //             })
-   //             .catch(function (error) {
-   //                 error401(error);
-   //                 console.log(error);
-   //             });
-   //     },
+   
 
         verificadorAperturaCierre(){
             let me=this;
@@ -3342,7 +3335,6 @@ total_sin_des,descuento_venta,total_venta,efectivo_venta,cambio_venta,fechaMas7D
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
 
@@ -3378,9 +3370,7 @@ if (!correoRegex.test(me.correo)) {
 } else {
    
     if (me.num_documento!=99001&&me.num_documento!=99002&&me.num_documento!=99003&&me.num_documento!=0&&me.num_documento!="000") {
-      // console.log("tipo:"+me.selectTipo+" tipo11: "+me.selectTipoDoc+" nombres: "+me.nombres
-     //   +" apellidos: "+me.apellidos+" numero_d "+me.num_documento+" complemento: "+me.complemento_+" name: "+
-    //    me.nombre_a_facturar+" telefono: "+me.telefono+" dir: "+me.direccion+" pais: "+me.pais+" ciudad: "+me.ciudad);
+
         axios
         .post("/directorio/registrar", {
             tipo_per_emp: me.selectTipo,
@@ -3548,9 +3538,7 @@ me.descuento_1=totalDescuento+me.descuento_final;
       axios.post("/gestor_ventas/ventaFacturaSiat", data)
           .then(response => {
             var respuesta = response.data;  
-            console.log("-----respuesta- siat----");
-            console.log(respuesta);
-            console.log("-----respuesta- fin siat----");
+     
             me.isSubmitting = false;
           })
           .catch(error => {
@@ -3587,7 +3575,6 @@ me.descuento_1=totalDescuento+me.descuento_final;
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
 
@@ -3601,7 +3588,6 @@ me.descuento_1=totalDescuento+me.descuento_final;
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
 
@@ -3707,10 +3693,7 @@ me.descuento_1=totalDescuento+me.descuento_final;
             axios.get(url)
                 .then(function (response) {                
                     var respuesta_2 = (response.data); 
-                    console.log("102--");
-                    console.log(respuesta_2);
-                       
-                    
+                      
                 })
                 .catch(function (error) {
                     error401(error);
@@ -3718,22 +3701,7 @@ me.descuento_1=totalDescuento+me.descuento_final;
                 });
         },
         
-        listarRubro(){//---eliminar
-          let me=this;
-          var url = "/listarRubro_venta";          
-            axios.get(url)
-                .then(function (response) {                
-                    var respuesta_2 = (response.data); 
-                    console.log("102--");
-                    console.log(respuesta_2);
-                       
-                    
-                })
-                .catch(function (error) {
-                    error401(error);
-                    console.log(error);
-                });
-        },
+       
     },
 
     
@@ -3800,3 +3768,29 @@ me.descuento_1=totalDescuento+me.descuento_final;
 </style>
 
 <style src="vue-multiselect/dist/vue-multiselect.css"></style>
+<style scoped>
+.modal {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter, .fade-leave-to /* .fade-leave-active en versiones de Vue < 2.1.8 */ {
+  opacity: 0;
+}
+</style>
+<style scoped>
+.modal {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter, .fade-leave-to /* .fade-leave-active en versiones de Vue < 2.1.8 */ {
+  opacity: 0;
+}
+</style>

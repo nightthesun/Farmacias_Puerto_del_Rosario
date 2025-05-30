@@ -241,21 +241,20 @@
 
     
            <!--Inicio del modal agregar/actualizar-->
-        <div class="modal fade" tabindex="-1" role="dialog" arial-labelledby="myModalLabel" id="registrar" aria-hidden="true" data-backdrop="static" data-key="false">
-            <div class="modal-dialog modal-primary modal-lg" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
+
+        <transition name="fade">
+            <div v-if="showModal" class="modal d-block" tabindex="-1" role="dialog">
+                  <div class="modal-dialog modal-primary modal-lg modal-dialog-scrollable" role="document">
+                    
+                    <div class="modal-content">
+                        <div class="modal-header">
                         <h4 class="modal-title">{{ tituloModal }}</h4>
-                        <button type="button" class="close" aria-label="Close" @click="cerrarModal('registrar')">
-                            <span aria-hidden="true">x</span>
+                        <button type="button" class="close" @click="cerrarModal('registrar')">
+                            <span>&times;</span>
                         </button>
-                    </div>
-                     <!--   <div v-show="bandera_aperturaCierre!=0" class="alert alert-danger" role="alert">                        
-                        <strong style="font-size: 18px;">{{ "Estado: "+estado_aperturaCierre+" Monto: "+monto_aperturaCierre }}</strong>                                               
-                    </div>
-                    --> 
-                   
-                    <div class="modal-body">                      
+                        </div>
+
+                     <div class="modal-body" style="max-height: 90vh; overflow-y: auto;">                    
                         <table class="table table-bordered table-striped table-sm table-responsive">
                             <thead>
                                 <tr>
@@ -279,11 +278,7 @@
                                 </tr>
                             </tbody>
                         </table>
-
-            
-                    </div>
-                    <div class="modal-body">                      
-                        <table class="table table-bordered table-striped table-sm table-responsive">
+<table class="table table-bordered table-striped table-sm table-responsive">
                             <thead>
                                 <tr>
                                     <th class="col-md-2">Tipo caja</th>
@@ -310,9 +305,7 @@
                                 </tr>    
                             </tbody>          
                         </table>
-                    </div> 
-                    <div class="modal-body" >                      
-                        <table class="table table-bordered table-striped table-sm table-responsive">
+            <table class="table table-bordered table-striped table-sm table-responsive">
                             <thead>
                                 <tr>
                                     <th class="col-md-2">Cant. Moneda</th>
@@ -339,7 +332,8 @@
                                 </tr>    
                             </tbody>          
                         </table>
-                    </div> 
+                    </div>
+                 
                              
                     <div class="modal-footer">
                         <button  type="button" class="btn btn-secondary" @click="cerrarModal('registrar')">Cerrar</button>
@@ -354,27 +348,37 @@
                             </div>
                         </div>                        
                     </div>
+
+
+                    </div>
                 </div>
             </div>
-        </div>
+        </transition>                   
+
         <!--fin del modal-->
 
          <!--Inicio del modal agregar/actualizar dos para modal diferente -->
-         <div class="modal fade" tabindex="-1" role="dialog" arial-labelledby="myModalLabel" id="registrar_2" aria-hidden="true" data-backdrop="static" data-key="false">
-            <div class="modal-dialog modal-primary modal-lg" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
+         <transition name="fade">
+            <div v-if="showModal_2" class="modal d-block" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-primary modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
                         <h4 class="modal-title">{{ tituloModal }}</h4>
-                        <button type="button" class="close" aria-label="Close" @click="cerrarModal('registrar_2')">
-                            <span aria-hidden="true">x</span>
+                        <button type="button" class="close" @click="cerrarModal('registrar_2')">
+                            <span>&times;</span>
                         </button>
-                    </div>
-                     <!--   <div v-show="bandera_aperturaCierre!=0" class="alert alert-danger" role="alert">                        
-                        <strong style="font-size: 18px;">{{ "Estado: "+estado_aperturaCierre+" Monto: "+monto_aperturaCierre }}</strong>                                               
-                    </div>
-                    --> 
-                   
-                    <div class="modal-body">  
+                        </div>
+                         <!-- Pantalla de carga -->
+          <div v-if="loading" class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+              <span class="sr-only">Cargando...</span>
+            </div>
+            <p class="mt-3">Cargando datos, por favor espera...</p>
+          </div>
+
+          <!-- Contenido del modal cuando ya cargó -->
+          <div v-else>
+  <div class="modal-body">  
 
                         <table class="table table-bordered table-striped table-sm table-responsive">
                             <thead>
@@ -516,23 +520,32 @@
                             </div>
                         </div>                        
                     </div>
+          </div>
+
+
+
+
+                    </div>
                 </div>
             </div>
-        </div>
+        </transition>          
+
         <!--fin del modal-->
 
         <!--Inicio del modal cerrar_apertura -->
-        <div class="modal fade" tabindex="-1" role="dialog" arial-labelledby="myModalLabel" id="cerrar_apertura" aria-hidden="true" data-backdrop="static" data-key="false" >
-            <div class="modal-dialog modal-primary modal-lg" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
+
+        <transition name="fade">
+            <div v-if="showModal_3" class="modal d-block" tabindex="-1" role="dialog">
+               <div class="modal-dialog modal-primary modal-lg modal-dialog-scrollable" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
                         <h4 class="modal-title">{{ tituloModal }}</h4>
-                        <button type="button" class="close" aria-label="Close" @click="cerrarModal('cerrar_apertura')">
-                            <span aria-hidden="true">x</span>
+                        <button type="button" class="close" @click="cerrarModal('cerrar_apertura')">
+                            <span>&times;</span>
                         </button>
-                    </div>
-          
-                    <div class="modal-body">   
+                        </div>
+
+     <div class="modal-body" style="max-height: 90vh; overflow-y: auto;"> 
                
                         <table class="table table-bordered table-striped table-sm table-responsive">
                             <thead>
@@ -614,22 +627,37 @@
                                 <button type="button" v-if="tipoAccion == 3" @click="cerrar_apertura()" class="btn btn-primary">Guardar</button>                           
                  
                     </div>
+
+                    </div>
                 </div>
             </div>
-        </div>
+        </transition>                
+                        
+    
         <!--fin del modal-->
         <!--Inicio del modal cerrar_apertura dos ******2 -->
-        <div class="modal fade" tabindex="-1" role="dialog" arial-labelledby="myModalLabel" id="cerrar_apertura_2" aria-hidden="true" data-backdrop="static" data-key="false" >
-            <div class="modal-dialog modal-primary modal-lg" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
+
+        <transition name="fade">
+            <div v-if="showModal_4" class="modal d-block" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-primary modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
                         <h4 class="modal-title">{{ tituloModal }}</h4>
-                        <button type="button" class="close" aria-label="Close" @click="cerrarModal('cerrar_apertura_2')">
-                            <span aria-hidden="true">x</span>
+                        <button type="button" class="close" @click="cerrarModal('cerrar_apertura_2')">
+                            <span>&times;</span>
                         </button>
-                    </div>
-          
-                    <div class="modal-body">   
+                        </div>
+                         <!-- Pantalla de carga -->
+          <div v-if="loading" class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+              <span class="sr-only">Cargando...</span>
+            </div>
+            <p class="mt-3">Cargando datos, por favor espera...</p>
+          </div>
+
+          <!-- Contenido del modal cuando ya cargó -->
+          <div v-else>
+  <div class="modal-body">   
                
                       
                         <table class="table table-bordered table-striped table-sm table-responsive">
@@ -757,22 +785,32 @@
                         <button type="button" v-if="tipoAccion == 3 && tamaño_v2<0" @click="cerrar_apertura()" class="btn btn-primary">Guardar</button>                           
                         <button type="button" v-else class="btn btn-secondary">Guardar</button>   
                     </div>
+          </div>
+
+
+
+                    </div>
                 </div>
             </div>
-        </div>
+        </transition>                
+
+  
         <!--fin del modal-->
 
         <!--Inicio del modal VER-->
-        <div class="modal fade" tabindex="-1" role="dialog" arial-labelledby="myModalLabel" id="ver" aria-hidden="true" data-backdrop="static" data-key="false">
-            <div class="modal-dialog modal-primary modal-lg" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
+
+<transition name="fade">
+            <div v-if="showModal_5" class="modal d-block" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-primary modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
                         <h4 class="modal-title">{{ tituloModal }}</h4>
-                        <button type="button" class="close" aria-label="Close" @click="cerrarModal('ver')">
-                            <span aria-hidden="true">x</span>
+                        <button type="button" class="close" @click="cerrarModal('ver')">
+                            <span>&times;</span>
                         </button>
-                    </div>
-                    <div class="modal-body">                      
+                        </div>
+
+  <div class="modal-body">                      
                         <table class="table table-bordered table-striped table-sm table-responsive">
                             <thead>
                                 <tr>
@@ -872,9 +910,13 @@
                             Cerrar
                         </button>
                     </div>
+
+                    </div>
                 </div>
             </div>
-        </div>
+        </transition>                
+
+        
         <!--fin del modal-->
         </div>      
      
@@ -898,6 +940,7 @@ export default {
                 to: 0,
             },
             offset:3,
+             loading: true,
             isSubmitting: false, // Controla el estado del botón de envío
             valor_entero:0,
           
@@ -997,7 +1040,13 @@ export default {
             arrayFalso_:[],
             arraySiguiente:[],
             bloqueador_v2:0,
-            sepuede_guardar:0,          
+            sepuede_guardar:0,    
+            
+            showModal: false,
+            showModal_2: false,
+            showModal_3: false,
+            showModal_4: false,
+            showModal_5: false,
 
            
         };
@@ -1283,7 +1332,7 @@ general_pdf(razon_social,sucursal,direccion,lugar,array_pdf,id_apertura,valor_to
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
+                   
                 });            
         },
             
@@ -1574,9 +1623,7 @@ let operacion_apertura = operacion_acciones + monto_cerrar_apertura;
 
         abrirModalCerrar(data){
             let me=this;
-            console.log("//////////////////");
-            console.log(data);
-            console.log("//////////////////");
+        
             me.verificador_moneda_sistemas();
             if (me.verificador===1) {       
                 me.abrirModal('cerrar_apertura', data); 
@@ -1591,8 +1638,7 @@ let operacion_apertura = operacion_acciones + monto_cerrar_apertura;
             axios.get(url)
                 .then(function (response) {
                     var respuesta = response.data; 
-                    console.log("---------------");
-                    console.log(respuesta);                
+                                 
                     me.suma_venta=respuesta.suma_venta;
                     me.sumaEntrada=respuesta.sumaEntrada;
                     me.sumaSalida=respuesta.sumaSalida;
@@ -1789,7 +1835,6 @@ me.isSubmitting = true; // Deshabilita el botón
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
       
@@ -1803,7 +1848,6 @@ me.isSubmitting = true; // Deshabilita el botón
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
       
@@ -1837,7 +1881,6 @@ me.isSubmitting = true; // Deshabilita el botón
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
 
@@ -1853,7 +1896,6 @@ me.isSubmitting = true; // Deshabilita el botón
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
 
@@ -1876,7 +1918,7 @@ me.isSubmitting = true; // Deshabilita el botón
                 case "registrar": {
                     me.tipoAccion = 1;
                     me.isSubmitting=false;
-                  
+                    me.showModal = true;
                         me.tituloModal = "Registro de apertura de caja";
                         me.selectTurno="0";
                         me.totalMonedas="0.00";
@@ -1897,7 +1939,7 @@ me.isSubmitting = true; // Deshabilita el botón
                 case "registrar_2": {
                     me.tipoAccion = 1;
                     me.isSubmitting=false;
-                  
+                    me.showModal_2 = true;
                         me.tituloModal = "Registro de apertura de caja";
                         me.selectTurno="0";
                         me.totalMonedas="0.00";
@@ -1916,7 +1958,14 @@ me.isSubmitting = true; // Deshabilita el botón
                         me.arrayFalso_=[];
                         me.arraySiguiente=[];
                         me.bloqueador_v2=0;
-                        me.sepuede_guardar=0;   
+                        me.sepuede_guardar=0;  
+                        
+                         me.loading = true;
+ 
+    // Simula una carga de datos (puedes usar axios aquí también)
+    setTimeout(() => {
+      this.loading = false;
+    }, 1500); // 1.5 segundos de carga simulada
 
                     me.classModal.openModal("registrar_2");
                     break;
@@ -1929,7 +1978,7 @@ me.isSubmitting = true; // Deshabilita el botón
                     me.suma_venta="";
                     me.sumaEntrada="";
                     me.sumaSalida="";
-                           
+                    me.showModal_3 = true;
                     me.get_operacion_v2(data.id);     
                     me.codigo_cerrar_apertura=data.id;               
                     me.monto_cerrar_apertura=data.total_arqueo_caja;
@@ -1962,13 +2011,19 @@ me.isSubmitting = true; // Deshabilita el botón
                 }
 
                 case "cerrar_apertura_2":{
-                    me.tipoAccion = 3;               
+                    me.tipoAccion = 3;   
+                      me.loading = true;
+ 
+    // Simula una carga de datos (puedes usar axios aquí también)
+    setTimeout(() => {
+      this.loading = false;
+    }, 1500); // 1.5 segundos de carga simulada            
                     me.tituloModal = "Cerrar caja del usuario "+data.name;
                     me.isSubmitting=false;   
                     me.suma_venta="";
                     me.sumaEntrada="";
                     me.sumaSalida="";
-                          
+                       me.showModal_4 = true;       
                     me.get_operacion_v2(data.id);     
                     me.codigo_cerrar_apertura=data.id;               
                     me.monto_cerrar_apertura=data.total_arqueo_caja;
@@ -2019,6 +2074,7 @@ me.isSubmitting = true; // Deshabilita el botón
                 }
 
                 case "ver": {
+                        me.showModal_5 = true;
                     if (data.id_apertura_cierre===0) {               
                         me.tituloModal = "Apertura de caja vista";
                         me.id_modal="000"+data.id;
@@ -2082,6 +2138,7 @@ me.isSubmitting = true; // Deshabilita el botón
             me.respuesta_inicio="";
             if (accion == "registrar") {
                 me.isSubmitting=false;
+                me.showModal = false;
                 me.selectTurno="0";
                         me.totalMonedas="0.00";
                         me.SimboloM="S/N";
@@ -2097,6 +2154,8 @@ me.isSubmitting = true; // Deshabilita el botón
             }
             if (accion == "registrar_2") {
                 me.isSubmitting=false;
+                    me.showModal_2 = false;
+                     me.loading = true;
                 me.selectTurno="0";
                         me.totalMonedas="0.00";
                         me.SimboloM="S/N";
@@ -2121,6 +2180,7 @@ me.isSubmitting = true; // Deshabilita el botón
             
             if(accion=== "ver"){
             me.id_modal="";
+                me.showModal_5 = false;
             me.id_arqueo_modal="";
             me.turno_modal="";
             me.tipo_modal="";
@@ -2151,7 +2211,7 @@ me.isSubmitting = true; // Deshabilita el botón
                 me.suma_venta="";
                 me.sumaEntrada="";
                 me.sumaSalida="";
-            
+                me.showModal_3 = false;
                         me.totalMonedas="0.00";
                         me.SimboloM="S/N";
                         me.SimboloB="S/N";            
@@ -2176,7 +2236,8 @@ me.isSubmitting = true; // Deshabilita el botón
                 me.suma_venta="";
                 me.sumaEntrada="";
                 me.sumaSalida="";
-          
+              me.showModal_4 = false;
+                   me.loading = true;
                         me.totalMonedas="0.00";
                         me.SimboloM="S/N";
                         me.SimboloB="S/N";            
@@ -2241,5 +2302,18 @@ me.isSubmitting = true; // Deshabilita el botón
 .error {
     color: red;
     font-size: 10px;
+}
+</style>
+<style scoped>
+.modal {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter, .fade-leave-to /* .fade-leave-active en versiones de Vue < 2.1.8 */ {
+  opacity: 0;
 }
 </style>

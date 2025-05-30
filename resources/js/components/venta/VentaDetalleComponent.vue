@@ -183,30 +183,22 @@
         <!-- fin de index -->
         </div>   
            <!--Inicio del modal agregar/actualizar-->
-        <div class="modal fade"
-            tabindex="-1"
-            role="dialog"
-            arial-labelledby="myModalLabel"
-            id="ver_detalle"
-            aria-hidden="true"
-            data-backdrop="static"
-            data-key="false" >
-            <div class="modal-dialog modal-primary modal-lg" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
+
+          <transition name="fade">
+            <div v-if="showModal" class="modal d-block" tabindex="-1" role="dialog">
+                       <div class="modal-dialog modal-primary modal-lg modal-dialog-scrollable" role="document">
+                  
+                    <div class="modal-content">
+                        <div class="modal-header">
                         <h4 class="modal-title">{{ tituloModal }}</h4>
-                        <button
-                            type="button"
-                            class="close"
-                            aria-label="Close"
-                            @click="cerrarModal('ver_detalle')"
-                        >
-                            <span aria-hidden="true">x</span>
+                        <button type="button" class="close" @click="cerrarModal('ver_detalle')">
+                            <span>&times;</span>
                         </button>
-                    </div>
-                    <div class="modal-body">
-                      
-                      <table class="table table-bordered table-striped table-sm table-responsive">
+                        </div>
+
+     <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
+       <form action=""  class="form-horizontal">
+                 <table class="table table-bordered table-striped table-sm table-responsive">
       <thead>
         <tr>
           <th  class="col-md-1" style="font-size: 11px; text-align: center">Cod. Cliente</th>
@@ -396,7 +388,9 @@
     <i class="fa fa-arrow-circle-up" aria-hidden="true"></i> Subir
   </button>
 </div>
-               
+       </form>
+                      
+     
                     </div>
                    <!---- acoordion ----> 
               
@@ -411,9 +405,12 @@
                         </button>
                        
                     </div>
+
+                    </div>
                 </div>
-            </div>
-        </div>
+             </div>
+          </transition>             
+
         <!--fin del modal-->
     </main>
 </template>
@@ -500,6 +497,7 @@ export default {
                 puedeHacerOpciones_especiales:2,
                 puedeCrear:2,
                 //-----------
+                  showModal: false,
         };
     },
 
@@ -1643,7 +1641,7 @@ listarDetalle_producto_x(id,tipo_per_emp) {
                 case "ver_detalle_venta":{
                   me.tituloModal = "Detalle de venta de la sucursal "+data.razon_social+" codigo "+data.cod;
                   me.factura_dosificacion(data.id);
-             
+               me.showModal = true;
                   me.cod_cliente=data.id_cliente;
                   me.nom_cliente=data.nombre_completo_cliente;
                   me.nom_facturar=data.nom_a_facturar;
@@ -1906,7 +1904,8 @@ const isInRange = today >= startDate && today <= endDate;
         },
 
         cerrarModal(accion) {
-            let me = this;           
+            let me = this;          
+               me.showModal = false; 
                 me.classModal.closeModal(accion);               
                 me.tituloModal = "";
                 me.cod_cliente="";
@@ -1968,5 +1967,18 @@ const isInRange = today >= startDate && today <= endDate;
 .error {
     color: red;
     font-size: 10px;
+}
+</style>
+<style scoped>
+.modal {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter, .fade-leave-to /* .fade-leave-active en versiones de Vue < 2.1.8 */ {
+  opacity: 0;
 }
 </style>

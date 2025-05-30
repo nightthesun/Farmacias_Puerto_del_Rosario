@@ -206,17 +206,18 @@
             <!-- Fin ejemplo de tabla Listado -->
         </div>
         <!--Inicio del modal agregar/actualizar-->
-        <div class="modal fade" tabindex="-1" role="dialog" arial-labelledby="myModalLabel" id="registrar" aria-hidden="true" data-backdrop="static" data-key="false">
-            <div class="modal-dialog modal-primary modal-lg" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                    <h4 class="modal-title">{{ tituloModal }}</h4>
-                    <button  type="button" class="close" aria-label="Close" @click="cerrarModal('registrar')">
-                        <span aria-hidden="true">x</span>
-                    </button>
-                    
-                </div>
-                <div class="modal-body">
+        <transition name="fade">
+            <div v-if="showModal" class="modal d-block" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-primary modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                        <h4 class="modal-title">{{ tituloModal }}</h4>
+                        <button type="button" class="close" @click="cerrarModal('registrar')">
+                            <span>&times;</span>
+                        </button>
+                        </div>
+
+                          <div class="modal-body">
                     <div class="alert alert-warning" role="alert">
                         Todos los campos con (*) son requeridos
                     </div>
@@ -393,10 +394,12 @@
                             </div>
                         </div>
                 </div>
+
+                    </div>
                 </div>
-                
             </div>
-        </div>
+        </transition>                
+
         <!--fin del modal-->
     </main>
 </template>
@@ -426,6 +429,8 @@
                 tituloModal:'',    
                 tipoAccion:1, 
                 
+                  showModal: false,
+
             //limitado 
             startDate: '',
             endDate: '',
@@ -653,6 +658,7 @@ swalWithBootstrapButtons.fire({
                         me.num_documento="";
                         me.razon_social="";
                         me.nom_local="",  
+                           me.showModal = true;
                         //datos de cliente
                         me.cod_cliente="";                
                         me.correo="";
@@ -672,6 +678,7 @@ swalWithBootstrapButtons.fire({
                     me.tituloModal='Registro de cliente';
                         me.tipoAccion=2;
                         me.isSubmitting=false;
+                           me.showModal = true;
                         if (data.id_max===null) {
                             me.id_max_2=0;
                         } else {
@@ -714,6 +721,7 @@ swalWithBootstrapButtons.fire({
                 let me = this;
                 me.tipoAccion=1;
                 me.isSubmitting=false;
+                        me.showModal = false;
                         me.selectTipoDoc=0;              
                         me.complemento_='';
                         me.nombres="";
@@ -1049,5 +1057,18 @@ swalWithBootstrapButtons.fire({
 .error{
     color: red;
     font-size: 10px;  
+}
+</style>
+<style scoped>
+.modal {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter, .fade-leave-to /* .fade-leave-active en versiones de Vue < 2.1.8 */ {
+  opacity: 0;
 }
 </style>

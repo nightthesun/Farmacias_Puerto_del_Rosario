@@ -135,28 +135,18 @@
         <!-- fin de index -->
         </div>   
            <!--Inicio del modal agregar/actualizar-->
-        <div class="modal fade"
-            tabindex="-1"
-            role="dialog"
-            arial-labelledby="myModalLabel"
-            id="registrar"
-            aria-hidden="true"
-            data-backdrop="static"
-            data-key="false" >
-            <div class="modal-dialog modal-primary modal-lg" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
+
+           <transition name="fade">
+            <div v-if="showModal" class="modal d-block" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-primary modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
                         <h4 class="modal-title">{{ tituloModal }}</h4>
-                        <button
-                            type="button"
-                            class="close"
-                            aria-label="Close"
-                            @click="cerrarModal('registrar')"
-                        >
-                            <span aria-hidden="true">x</span>
+                        <button type="button" class="close" @click="cerrarModal('registrar')">
+                            <span>&times;</span>
                         </button>
-                    </div>
-                    <div class="modal-body">
+                        </div>
+   <div class="modal-body">
                         <div class="alert alert-warning" role="alert">
                             Todos los campos con (*) son requeridos
                         </div>
@@ -245,31 +235,28 @@
                         </div>
                                              
                     </div>
+
+                    </div>
                 </div>
             </div>
-        </div>
+        </transition>                
+
+   
         <!--fin del modal-->
 
            <!--Inicio del modal VER-->
-           <div class="modal fade" tabindex="-1" role="dialog" arial-labelledby="myModalLabel"
-            id="ver"
-            aria-hidden="true"
-            data-backdrop="static"
-            data-key="false" >
-            <div class="modal-dialog modal-primary modal-lg" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
+           <transition name="fade">
+            <div v-if="showModal_2" class="modal d-block" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-primary modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
                         <h4 class="modal-title">{{ tituloModal }}</h4>
-                        <button
-                            type="button"
-                            class="close"
-                            aria-label="Close"
-                            @click="cerrarModal('ver')"
-                        >
-                            <span aria-hidden="true">x</span>
+                        <button type="button" class="close" @click="cerrarModal('registrar')">
+                            <span>&times;</span>
                         </button>
-                    </div>
-                    <div class="modal-body">
+                        </div>
+
+  <div class="modal-body">
                        
 
                         <form action="" class="form-horizontal">
@@ -303,9 +290,12 @@
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary rounded"  @click="cerrarModal('ver')">Cerrar</button>                          
                     </div>
+
+                    </div>
                 </div>
             </div>
-        </div>
+           </transition>             
+          
         <!--fin del modal-->
     </main>
 </template>
@@ -354,6 +344,9 @@ puedeEditar:2,
                 puedeHacerOpciones_especiales:2,
                 puedeCrear:2,
                 //-----------
+    showModal: false,
+        showModal_2: false,
+
 
         };
     },
@@ -735,6 +728,7 @@ puedeEditar:2,
                     me.codSiat="";
                     me.selectDepartamento="0";
                     me.selectSucursal="0";
+                    me.showModal = true;
                     me.classModal.openModal("registrar");
                     break;
                 }
@@ -742,13 +736,13 @@ puedeEditar:2,
              
                     me.tipoAccion = 1;
                     me.tituloModal = "Nombre siat: "+data.nombre_suc_siat+" Codigo siat: "+data.codigo_siat;
-                    
+                    me.showModal_2 = true;
                     me.classModal.openModal("ver");
                     break;
                 }
                 case "actualizar": {
                     me.tipoAccion = 2;
-                 
+                 me.showModal = true;
                     me.isSubmitting=false;
                     me.tituloModal = "Actualización de sucursal a siat";     
                     me.nomsucursalSiat=data.nombre_suc_siat;
@@ -777,9 +771,11 @@ puedeEditar:2,
                     me.selectSucursal="0";
                     me.id_sucursalSiat="";
                     me.controlador_v1=0;
+                           me.showModal = false;
             }
             if (accion== "ver") {
                 me.arrayVer=[];
+                       me.showModal_2 = false;
                 me.classModal.closeModal(accion); 
             }
         },
@@ -811,5 +807,18 @@ puedeEditar:2,
 .error {
     color: red;
     font-size: 10px;
+}
+</style>
+<style scoped>
+.modal {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter, .fade-leave-to /* .fade-leave-active en versiones de Vue < 2.1.8 */ {
+  opacity: 0;
 }
 </style>

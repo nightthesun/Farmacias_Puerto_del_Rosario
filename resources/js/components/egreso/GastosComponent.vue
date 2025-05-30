@@ -176,28 +176,18 @@
         <!-- fin de index -->
         </div>   
            <!--Inicio del modal agregar/actualizar-->
-        <div class="modal fade"
-            tabindex="-1"
-            role="dialog"
-            arial-labelledby="myModalLabel"
-            id="registrar"
-            aria-hidden="true"
-            data-backdrop="static"
-            data-key="false" >
-            <div class="modal-dialog modal-primary modal-lg" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
+
+            <transition name="fade">
+            <div v-if="showModal" class="modal d-block" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-primary modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
                         <h4 class="modal-title">{{ tituloModal }}</h4>
-                        <button
-                            type="button"
-                            class="close"
-                            aria-label="Close"
-                            @click="cerrarModal('registrar')"
-                        >
-                            <span aria-hidden="true">x</span>
+                        <button type="button" class="close" @click="cerrarModal('registrar')">
+                            <span>&times;</span>
                         </button>
-                    </div>
-                    <div class="modal-body">
+                        </div>
+      <div class="modal-body">
                         <div class="alert alert-warning" role="alert">
                             Todos los campos con (*) son requeridos
                         </div>
@@ -332,9 +322,14 @@
                             </div>
                         </div>
                     </div>
+
+
+                    </div>
                 </div>
             </div>
-        </div>
+        </transition>                
+
+
         <!--fin del modal-->
     </main>
 </template>
@@ -369,6 +364,8 @@ export default {
             id_gasto:'',
             total_s:0,
 
+
+
             tituloModal: '',
             sucursalSeleccionada:0,
             arraySucursal:[],
@@ -393,7 +390,7 @@ export default {
                 puedeHacerOpciones_especiales:2,
                 puedeCrear:2,
                 //-----------
-
+    showModal: false,
                 monto_actual:'',
                 monto_editado:'',
                 valor_suma_v3:'',
@@ -471,7 +468,6 @@ export default {
         })
         .catch(function(error) {
             error401(error);
-            console.log(error);
         });
 },
 //--------------------------------------------------------------  
@@ -519,7 +515,6 @@ export default {
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
 
@@ -534,7 +529,6 @@ export default {
                 })
                 .catch(function(error){
                     error401(error);
-                    console.log(error);
                 });
         }, 
 
@@ -569,7 +563,6 @@ export default {
                                
                 }).catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
 
@@ -605,7 +598,6 @@ export default {
                         
                     }).catch(function (error) {
                         error401(error);
-                        console.log(error);
                     });
                 } else if (
                     /* Read more about handling dismissals below */
@@ -649,7 +641,6 @@ export default {
                         )
                     }).catch(function (error) {
                         error401(error);
-                        console.log(error);
                     });
                     
                     
@@ -699,8 +690,7 @@ export default {
                             }                          
                     })                
                   .catch(function (error) { 
-                    error401(error);
-                    console.log(error);                         
+                    error401(error);                        
             });
             }    
         },
@@ -728,6 +718,7 @@ export default {
         id_sucursal: me.id_sucursal,
         id_apertura_cierre:me.id_apertura_cierre, 
         valor_suma_v3:me.valor_suma_v3,
+        descripcion:me.descripcion,
       };
 
       axios.post("/gasto/crear", requestData)
@@ -743,7 +734,6 @@ export default {
         })
         .catch(function (error) {
           error401(error);
-          console.log(error);
         })
         .finally(() => {
           me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
@@ -764,7 +754,6 @@ export default {
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
          },
 
@@ -784,7 +773,6 @@ export default {
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
         cambiarPestana(idPestana) {
@@ -820,12 +808,14 @@ export default {
                     me.valor_suma_v3="";
                     me.total_s=0.00;
                     me.monto_editado="0.00";
+                                     me.showModal = true;
                     me.classModal.openModal("registrar");
                     break;
                 }
                 case "actualizar": {
                     me.isSubmitting=false;
                     me.tipoAccion = 2;
+                                     me.showModal = true;
                     me.tituloModal = "Edición de gasto";
                     let provee = me.arrayProveedores.find(c => c.id === data.id_proveedor);
                         if (provee) {
@@ -882,8 +872,9 @@ export default {
                     me.id_gasto="";   
                     me.total_s=0.00;
                     me.valor_suma_v3="";
+                     me.showModal = false;
                     me.monto_editado="";
-                me.classModal.openModal("registrar");
+                
             }
         },
 
@@ -933,6 +924,19 @@ export default {
 .error {
     color: red;
     font-size: 10px;
+}
+</style>
+<style scoped>
+.modal {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter, .fade-leave-to /* .fade-leave-active en versiones de Vue < 2.1.8 */ {
+  opacity: 0;
 }
 </style>
 <style src="vue-multiselect/dist/vue-multiselect.css"></style>

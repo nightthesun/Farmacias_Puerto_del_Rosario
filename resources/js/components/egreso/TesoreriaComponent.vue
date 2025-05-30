@@ -164,28 +164,18 @@
         <!-- fin de index -->
         </div>   
            <!--Inicio del modal agregar/actualizar-->
-        <div class="modal fade"
-            tabindex="-1"
-            role="dialog"
-            arial-labelledby="myModalLabel"
-            id="registrar"
-            aria-hidden="true"
-            data-backdrop="static"
-            data-key="false" >
-            <div class="modal-dialog modal-primary modal-lg" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
+<transition name="fade">
+            <div v-if="showModal" class="modal d-block" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-primary modal-lg modal-dialog-scrollable" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
                         <h4 class="modal-title">{{ tituloModal }}</h4>
-                        <button
-                            type="button"
-                            class="close"
-                            aria-label="Close"
-                            @click="cerrarModal('registrar')"
-                        >
-                            <span aria-hidden="true">x</span>
+                        <button type="button" class="close" @click="cerrarModal('registrar')">
+                            <span>&times;</span>
                         </button>
-                    </div>
-                    <div class="modal-body">                      
+                        </div>
+
+ <div class="modal-body" style="max-height: 90vh; overflow-y: auto;">  
                         <table class="table table-bordered table-striped table-sm table-responsive">
                             <thead>
                                 <tr>
@@ -267,21 +257,26 @@
                             Actualizar
                         </button>
                     </div>
+
+                    </div>
                 </div>
             </div>
-        </div>
+        </transition>                
+
         <!--fin del modal-->
           <!--Inicio del modal VER-->
-          <div class="modal fade" tabindex="-1" role="dialog" arial-labelledby="myModalLabel" id="ver" aria-hidden="true" data-backdrop="static" data-key="false">
-            <div class="modal-dialog modal-primary modal-lg" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
+
+          <transition name="fade">
+            <div v-if="showModal_2" class="modal d-block" tabindex="-1" role="dialog">
+               <div class="modal-dialog modal-primary modal-lg modal-dialog-scrollable" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
                         <h4 class="modal-title">{{ tituloModal }}</h4>
-                        <button type="button" class="close" aria-label="Close" @click="cerrarModal('ver')">
-                            <span aria-hidden="true">x</span>
+                        <button type="button" class="close" @click="cerrarModal('ver')">
+                            <span>&times;</span>
                         </button>
-                    </div>
-                    <div class="modal-body">                      
+                        </div>
+    <div class="modal-body" style="max-height: 90vh; overflow-y: auto;">                      
                         <table class="table table-bordered table-striped table-sm table-responsive">
                             <thead>
                                 <tr>
@@ -358,9 +353,15 @@
                             Cerrar
                         </button>
                     </div>
+
+
+                    </div>
                 </div>
             </div>
-        </div>
+        </transition>                
+
+
+      
         <!--fin del modal-->
     </main>
 </template>
@@ -434,6 +435,9 @@ export default {
       ver_monto_billete:'',
       ver_monto_total:'',
       arrayMonedaModal:[],
+
+          showModal: false,
+              showModal_2: false,
     
         };
     },
@@ -629,7 +633,7 @@ export default {
                         me.cantidadMonedas=0;
                         me.cantidadBilletes=0; 
                         me.input={}; 
-                  
+                        me.showModal = true;
                 if ((me.arrayExiste).length <= 0) {
                     me.monto_anteriror_X=(0).toFixed(2);       
                    } else {
@@ -644,7 +648,7 @@ export default {
                 case "actualizar": {
                     me.tipoAccion = 2;                
                     me.id_index=data.id;
-                 
+                       me.showModal = true;
                     me.isSubmitting=false;
                     me.tituloModal = "Registro para cerrar caja de codigo "+data.id;
 
@@ -666,7 +670,7 @@ export default {
                     break;
                 }
                 case "ver": {
-           
+                 me.showModal_2 = true;
                  if (data.abrir_cerrar===0) {
                     me.tituloModal = "Vista de inicio de caja";
                     me.fecha_v3=data.created_at;    
@@ -748,6 +752,7 @@ me.isSubmitting = true; // Deshabilita el botón
                         arrayMoneda:me.arrayMoneda,  
                     })
                     .then(function (response) {
+                         me.get_tiene_tesoreria(); 
                         me.listarIndex();                       
                         let respuesta = response.data;  
                         console.log(respuesta);                                    
@@ -823,8 +828,10 @@ me.isSubmitting = true; // Deshabilita el botón
                         arrayMoneda:me.arrayMoneda,  
                     })
                     .then(function (response) {
+                         me.get_tiene_tesoreria(); 
                         me.listarIndex(); 
-                        me.get_tiene_tesoreria();                      
+                       
+                                             
                         let respuesta = response.data;  
                         console.log(respuesta);                                    
                     me.cerrarModal('registrar');                        
@@ -933,9 +940,11 @@ me.isSubmitting = true; // Deshabilita el botón
                 me.tituloModal = "";          
                 me.inputTextBuscarProductoIngreso = "";
                 me.arrayRetornarProductosIngreso = "";
+                  me.showModal = false;
             
         }
         if (accion == "ver") {
+              me.showModal_2 = false;
             me.id_index="";
             me.fecha_v3="";
             me.cogigo_arqueo_v3="";
@@ -980,5 +989,18 @@ me.isSubmitting = true; // Deshabilita el botón
 .error {
     color: red;
     font-size: 10px;
+}
+</style>
+<style scoped>
+.modal {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter, .fade-leave-to /* .fade-leave-active en versiones de Vue < 2.1.8 */ {
+  opacity: 0;
 }
 </style>

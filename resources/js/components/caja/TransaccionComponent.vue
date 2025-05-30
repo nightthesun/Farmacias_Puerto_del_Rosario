@@ -155,23 +155,17 @@
         <!-- fin de index -->
         </div>   
            <!--Inicio del modal agregar/actualizar-->
-        <div class="modal fade"
-            tabindex="-1"
-            role="dialog"
-            arial-labelledby="myModalLabel"
-            id="registrar"
-            aria-hidden="true"
-            data-backdrop="static"
-            data-key="false" >
-            <div class="modal-dialog modal-primary modal-lg" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
+<transition name="fade">
+            <div v-if="showModal" class="modal d-block" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-primary modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
                         <h4 class="modal-title">{{ tituloModal }}</h4>
-                        <button type="button" class="close" aria-label="Close" @click="cerrarModal('registrar')">
-                            <span aria-hidden="true">x</span>
+                        <button type="button" class="close" @click="cerrarModal('registrar')">
+                            <span>&times;</span>
                         </button>
-                    </div>
-                    <div class="modal-body">                   
+                        </div>
+  <div class="modal-body">                   
                         
                         <form action="" class="form-horizontal">                        
                             <!-- insertar datos -->
@@ -305,22 +299,29 @@
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
-        </div>
+
+
+                    </div>
+                </div>        
+            </div>    
+</transition>
+        
         <!--fin del modal-->
 
          <!--Inicio del modal show-->
-         <div class="modal fade" tabindex="-1" role="dialog" arial-labelledby="myModalLabel" id="show" aria-hidden="true" data-backdrop="static" data-key="false" >
-            <div class="modal-dialog modal-primary modal-lg" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
+
+         <transition name="fade">
+            <div v-if="showModal_2" class="modal d-block" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-primary modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
                         <h4 class="modal-title">{{ tituloModal }}</h4>
-                        <button type="button" class="close" aria-label="Close" @click="cerrarModal('show')">
-                            <span aria-hidden="true">x</span>
+                        <button type="button" class="close" @click="cerrarModal('show')">
+                            <span>&times;</span>
                         </button>
-                    </div>
-                    <div class="modal-body">                   
+                        </div>
+
+  <div class="modal-body">                   
                         
                         <form action="" class="form-horizontal">                        
                             <!-- insertar datos -->
@@ -394,9 +395,12 @@
                         <button type="button" class="btn btn-secondary" @click="cerrarModal('show')">Cerrar</button>
                    
                     </div>
+
+                    </div>
                 </div>
             </div>
-        </div>
+        </transition>                
+  
         <!--fin del modal-->
 
     </main>
@@ -450,7 +454,8 @@ export default {
 
             observacion:"",
             simbolo_s:"",
-
+            showModal: false,
+            showModal_2: false,
             arrayIndex:[],
             id_transaccion:"",
 
@@ -875,6 +880,7 @@ if (me.arrayAñadir.length>0) {
                     me.valor_total=0;
                     me.id_salida_SS="";
                     me.monto_total_SS="";
+                       me.showModal = true;
                     me.classModal.openModal("registrar");
                     break;
                 }
@@ -895,7 +901,7 @@ if (me.arrayAñadir.length>0) {
                         }
                        
                     }  
-                   
+                      me.showModal = true;
                     me.id_salida_SS=data.id_salida;
                     me.monto_total_SS=data.monto_total;  
                     me.tituloModal = "Registro de transacción";
@@ -910,9 +916,10 @@ if (me.arrayAñadir.length>0) {
                     break;
                 }
                 case "show":{
-               
+                 me.showModal_2 = true;
                     me.tituloModal = "Vista";
-                    me.e_id=data.id;       
+                    me.e_id=data.id;   
+                                      me.verArray(data.id_salida);    
                     me.e_comprobante=data.comprobante;  
                     me.e_tipo_deposito=data.tipo_deposito;  
                     me.e_name_all=data.name_all;
@@ -920,7 +927,7 @@ if (me.arrayAñadir.length>0) {
                     me.e_created_at=data.created_at; 
                     me.e_monto_total=data.monto_total;
                     me.classModal.openModal("show");
-                    me.verArray(data.id_salida);
+  
                     break;
                 }    
             
@@ -934,7 +941,7 @@ if (me.arrayAñadir.length>0) {
             let me = this;
             if (accion == "registrar") {
                 me.isSubmitting=false;     
-                me.classModal.closeModal(accion);
+                
                 me.selectUser_2=0;        
                 me.comprobante="";
                 me.selectEntradasSalidas="";
@@ -944,9 +951,12 @@ if (me.arrayAñadir.length>0) {
                 me.id_salida_SS="";
                 me.monto_total_SS="";
                 me.sub_total="";
+                 me.showModal = false;
+                  me.classModal.closeModal(accion);
             }
             if (accion === "show") {
-                me.classModal.closeModal(accion);  
+             me.showModal_2 = false;
+                
                 me.e_id="";       
                 me.e_comprobante="";  
                 me.e_tipo_deposito="";  
@@ -955,6 +965,7 @@ if (me.arrayAñadir.length>0) {
                 me.e_created_at=""; 
                 me.e_monto_total="";
                 me.e2_array_show=[];
+              me.classModal.closeModal(accion);   
             }
         },
 
@@ -1003,5 +1014,18 @@ if (me.arrayAñadir.length>0) {
 .error {
     color: red;
     font-size: 10px;
+}
+</style>
+<style scoped>
+.modal {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter, .fade-leave-to /* .fade-leave-active en versiones de Vue < 2.1.8 */ {
+  opacity: 0;
 }
 </style>

@@ -228,17 +228,17 @@
 </div>
    
  <!--Inicio del modal manual-->
- <div class="modal fade" tabindex="-1" role="dialog" arial-labelledby="myModalLabel" id="manual" aria-hidden="true"
-            data-backdrop="static" data-key="false">
-            <div class="modal-dialog modal-primary modal-lg" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
+  <transition name="fade">
+            <div v-if="showModal" class="modal d-block" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-primary modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
                         <h4 class="modal-title">{{ tituloModal }}</h4>
-                        <button type="button" class="close" aria-label="Close" @click="cerrarModal('manual')">
-                            <span aria-hidden="true">x</span>
+                        <button type="button" class="close" @click="cerrarModal('manual')">
+                            <span>&times;</span>
                         </button>
-                    </div>
-                    <div class="modal-body">                       
+                        </div>
+    <div class="modal-body">                       
                         <form action="" class="form-horizontal">                        
                             <!-- insertar datos -->
                             <div class="container">  
@@ -283,23 +283,27 @@
                         </form>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary rounded"  @click="cerrarModal('manual')">Cerrar</button>                                            </div>
+                        <button type="button" class="btn btn-secondary rounded"  @click="cerrarModal('manual')">Cerrar</button>    
+                    </div>
+
+                    </div>
                 </div>
             </div>
-        </div>
+     </transition>                   
+
         <!--fin del modal-->
         <!--Inicio del modal AUTOMATICO-->
- <div class="modal fade" tabindex="-1" role="dialog" arial-labelledby="myModalLabel" id="auto_v" aria-hidden="true"
-            data-backdrop="static" data-key="false">
-            <div class="modal-dialog modal-primary modal-lg" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
+         <transition name="fade">
+            <div v-if="showModal_2" class="modal d-block" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-primary modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
                         <h4 class="modal-title">{{ tituloModal }}</h4>
-                        <button type="button" class="close" aria-label="Close" @click="cerrarModal('auto_v')">
-                            <span aria-hidden="true">x</span>
+                        <button type="button" class="close" @click="cerrarModal('auto_v')">
+                            <span>&times;</span>
                         </button>
-                    </div>
-                    <div class="modal-body">                       
+                        </div>
+   <div class="modal-body">                       
                      
                         <form action="" class="form-horizontal">  
                             <table class="table table-bordered table-striped table-sm table-responsive" >
@@ -359,9 +363,12 @@
                         <button type="button" class="btn btn-primary rounded"  @click="cambiarSicronizacion()">Actualizar</button>                
                                           
                     </div>
+
+                    </div>
                 </div>
             </div>
-        </div>
+         </transition>               
+
         <!--fin del modal-->
         
     </main>
@@ -413,7 +420,8 @@ export default {
                 token_delegado:'',
                 //-----------
                 id_estado:'',
-
+ showModal: false,
+  showModal_2: false,
 //////////////////////sincronizacion////////////////////////////////////////
                 evento_manual_automatico:'',
                 selectAutoManual:'0',
@@ -889,6 +897,7 @@ if (data===1) {
          switch (accion) {
               
                 case "manual": {
+                                  me.showModal = true;
                     me.tipoAccion = 1; 
                     me.tituloModal="Sincronización manual"; 
                     me.classModal.openModal("manual");
@@ -896,6 +905,8 @@ if (data===1) {
                     break;
                 }
                 case "auto_v": {
+                                  me.showModal_2 = true;
+
                     me.tipoAccion = 1; 
                     me.tituloModal="Sincronización automatica"; 
                     me.classModal.openModal("auto_v");
@@ -915,12 +926,14 @@ if (data===1) {
               
                 me.tituloModal="";
                 me.isSubmitting=false;
+                        me.showModal = false;
                 me.selectEmisor_v="0";
                 me.classModal.closeModal(accion);         
             }
             if (accion == "auto_v") {
                 me.tipoAccion=1;
                 me.tituloModal="";
+                        me.showModal_2 = false;
                 me.classModal.closeModal(accion);
             }
         },
@@ -1246,5 +1259,18 @@ insertar_cufd(codigo_siat,cuis,id,id_emisor,cufd){
 .error {
     color: red;
     font-size: 10px;
+}
+</style>
+<style scoped>
+.modal {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter, .fade-leave-to /* .fade-leave-active en versiones de Vue < 2.1.8 */ {
+  opacity: 0;
 }
 </style>

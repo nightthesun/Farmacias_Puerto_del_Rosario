@@ -151,23 +151,17 @@
         </div> 
         
              <!--Inicio del modal agregar/actualizar-->
-        <div class="modal fade"
-            tabindex="-1"
-            role="dialog"
-            arial-labelledby="myModalLabel"
-            id="registrar"
-            aria-hidden="true"
-            data-backdrop="static"
-            data-key="false" >
-            <div class="modal-dialog modal-primary modal-lg" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
+<transition name="fade">
+            <div v-if="showModal" class="modal d-block" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-primary modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
                         <h4 class="modal-title">{{ tituloModal }}</h4>
-                        <button type="button" class="close" aria-label="Close" @click="cerrarModal('registrar')">
-                            <span aria-hidden="true">x</span>
+                        <button type="button" class="close" @click="cerrarModal('registrar')">
+                            <span>&times;</span>
                         </button>
-                    </div>
-                    <div class="modal-body">                      
+                        </div>
+ <div class="modal-body">                      
                         <table class="table table-bordered table-striped table-sm table-responsive">
                             <thead>
                                 <tr>
@@ -277,21 +271,28 @@
                    
                   
                     </div>
+
+
+                    </div>
                 </div>
             </div>
-        </div>
+        </transition>                
+
+     
         <!--fin del modal-->
          <!--Inicio del modal VER-->
-         <div class="modal fade" tabindex="-1" role="dialog" arial-labelledby="myModalLabel" id="ver" aria-hidden="true" data-backdrop="static" data-key="false">
-            <div class="modal-dialog modal-primary modal-lg" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
+
+         <transition name="fade">
+            <div v-if="showModal_2" class="modal d-block" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-primary modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
                         <h4 class="modal-title">{{ tituloModal }}</h4>
-                        <button type="button" class="close" aria-label="Close" @click="cerrarModal('ver')">
-                            <span aria-hidden="true">x</span>
+                        <button type="button" class="close" @click="cerrarModal('ver')">
+                            <span>&times;</span>
                         </button>
-                    </div>
-                    <div class="modal-body">                      
+                        </div>
+<div class="modal-body">                      
                         <table class="table table-bordered table-striped table-sm table-responsive">
                             <thead>
                                 <tr>
@@ -364,9 +365,13 @@
                             Cerrar
                         </button>
                     </div>
+
+
+                    </div>
                 </div>
             </div>
-        </div>
+        </transition>                
+       
         <!--fin del modal-->
     </main>
 </template>
@@ -389,6 +394,8 @@ export default {
                 to: 0,
             },
             offset:3,
+            showModal: false,
+            showModal_2: false,
             isSubmitting: false, // Controla el estado del botón de envío
             tituloModal: "",
             sucursalSeleccionada:0,
@@ -925,6 +932,7 @@ me.isSubmitting = true; // Deshabilita el botón
                 case "registrar": {
                     me.tipoAccion = 1;  
                     me.isSubmitting=false;
+                    me.showModal = true;
                     if (me.selectEntradaSalida==="1") {
                             me.titulo_ ="Emisor";
                             me.tituloModal = "Registro de entradas";
@@ -953,7 +961,7 @@ me.isSubmitting = true; // Deshabilita el botón
                 }
                 case "actualizar": {
                     me.tipoAccion = 2;       
-            
+            me.showModal = true;
                     me.classModal.openModal("registrar");
 
                     break;
@@ -980,7 +988,7 @@ me.isSubmitting = true; // Deshabilita el botón
                    break;
                 }
                 case "ver": {
-          
+                    me.showModal_2 = true;
                     let cadena_A="";
                     if (data.cadena_A===1) {
                         cadena_A="ENTRADA";
@@ -1020,6 +1028,7 @@ me.isSubmitting = true; // Deshabilita el botón
             let me = this;
             if (accion == "registrar") {
                 me.isSubmitting=false;
+                  me.showModal = false;
                 me.totalMonedas="0.00";
             me.SimboloM='S/N';
             me.SimboloB='S/N';            
@@ -1038,7 +1047,7 @@ me.isSubmitting = true; // Deshabilita el botón
 
             }
             if (accion == "ver") {
-
+  me.showModal_2 = false;
                 me.ver_created_at="";
             me.ver_codigo_E_S="";
             me.ver_codigo_arqueo="";
@@ -1099,5 +1108,18 @@ me.isSubmitting = true; // Deshabilita el botón
 .error {
     color: red;
     font-size: 10px;
+}
+</style>
+<style scoped>
+.modal {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter, .fade-leave-to /* .fade-leave-active en versiones de Vue < 2.1.8 */ {
+  opacity: 0;
 }
 </style>

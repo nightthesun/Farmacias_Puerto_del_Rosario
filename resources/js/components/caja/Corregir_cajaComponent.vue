@@ -86,7 +86,7 @@
                     <td>
                         <div  class="d-flex justify-content-start">    
                             <button type="button" v-if="i.numero_edicion!=null || i.numero_edicion===0" class="btn btn-light btn-sm" style="margin-right: 5px;"><i class="icon-pencil"></i></button>                      
-                            <button type="button" v-else  class="btn btn-warning btn-sm" @click="abrirModal('registrar',i )" style="margin-right: 5px;"><i class="icon-pencil"></i></button>           
+                            <button type="button" v-else  class="btn btn-warning btn-sm" @click="verificador_moneda_sistemas();abrirModal('registrar',i );" style="margin-right: 5px;"><i class="icon-pencil"></i></button>           
                           
                             <button type="button" v-if="i.numero_edicion==null" class="btn btn-light btn-sm" style="margin-right: 5px; color: white;"><i class="fa fa-eye" aria-hidden="true"></i></button>
                             <button type="button" v-else class="btn btn-info btn-sm" @click="abrirModal('show',i )" style="margin-right: 5px; color: white;"><i class="fa fa-eye" aria-hidden="true"></i></button>
@@ -131,17 +131,18 @@
         <!-- fin de index -->
         </div>   
            <!--Inicio del modal agregar/actualizar-->
-        <div class="modal fade" tabindex="-1" role="dialog" arial-labelledby="myModalLabel" id="registrar" aria-hidden="true"
-            data-backdrop="static" data-key="false" >
-            <div class="modal-dialog modal-primary modal-lg" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
+  <transition name="fade">
+            <div v-if="showModal" class="modal d-block" tabindex="-1" role="dialog">
+                  <div class="modal-dialog modal-primary modal-lg modal-dialog-scrollable" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
                         <h4 class="modal-title">{{ tituloModal }}</h4>
-                        <button type="button" class="close" aria-label="Close" @click="cerrarModal('registrar')">
-                            <span aria-hidden="true">x</span>
+                        <button type="button" class="close" @click="cerrarModal('registrar')">
+                            <span>&times;</span>
                         </button>
-                    </div>
-                    <div class="modal-body">
+                        </div>
+
+       <div class="modal-body" style="max-height: 90vh; overflow-y: auto;">  
                    
                <table class="table table-bordered table-striped table-sm table-responsive">
                    <thead>
@@ -241,22 +242,27 @@
                             </div>
                         </div>                        
                     </div>
+
+                    </div>
                 </div>
             </div>
-        </div>
+        </transition>                
+
+       
         <!--fin del modal-->
         <!--Inicio del modal ver-->
-        <div class="modal fade" tabindex="-1" role="dialog" arial-labelledby="myModalLabel" id="show" aria-hidden="true"
-            data-backdrop="static" data-key="false" >
-            <div class="modal-dialog modal-primary modal-lg" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
+        <transition name="fade">
+            <div v-if="showModal_2" class="modal d-block" tabindex="-1" role="dialog">
+               <div class="modal-dialog modal-primary modal-lg modal-dialog-scrollable" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
                         <h4 class="modal-title">{{ tituloModal }}</h4>
-                        <button type="button" class="close" aria-label="Close" @click="cerrarModal('show')">
-                            <span aria-hidden="true">x</span>
+                        <button type="button" class="close" @click="cerrarModal('show')">
+                            <span>&times;</span>
                         </button>
-                    </div>
-                    <div class="modal-body">
+                        </div>
+
+       <div class="modal-body" style="max-height: 90vh; overflow-y: auto;">  
                         <table class="table table-bordered table-striped table-sm table-responsive">
                             <thead>
                                 <tr>
@@ -333,9 +339,12 @@
                         <button  type="button" class="btn btn-secondary" @click="cerrarModal('show')">Cerrar</button>
                                                
                     </div>
+
+                    </div>
                 </div>
             </div>
-        </div>
+        </transition>                
+     
         <!--fin del modal-->
     </main>
 </template>
@@ -393,6 +402,9 @@ export default {
             motivo_v2:'',
             fecha_mas_reciente:'',
             simbolo_v2:'',
+
+            showModal: false,
+            showModal_2: false,
         };
     },
 
@@ -455,14 +467,13 @@ export default {
                 .then(function (response) {
                     var respuesta_1 = (response.data).array_arqueo;
                     var respuesta_2 = (response.data).arqueo;
-                   // me.arraySucursal = respuesta;
+      
                    me.array_array_arqueo=respuesta_1;
                    me.array_arqueo=respuesta_2;
-                   // console.log(respuesta);
+           
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
 
@@ -497,9 +508,7 @@ export default {
 
                     }).then(function (response) {                                            
                         let a=response.data;
-                        console.log("**************");
-                        console.log(a);
-
+                     
                         me.cerrarModal("registrar");                  
                            me.listarIndex();  
                             if (a===null || a==="" ) {
@@ -508,8 +517,7 @@ export default {
                                 Swal.fire(""+a,"Haga click en Ok","error",); 
                             } 
                     })                
-                  .catch(function (error) {                  
-                    console.log(error.response.data);
+                  .catch(function (error) {   
             }).finally(() => {
           me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
         });
@@ -590,12 +598,10 @@ export default {
                 .get(url)
                 .then(function (response) {
                     var respuesta = response.data;
-                    me.arraySucursal = respuesta;
-                    console.log(me.arraySucursal);
+                    me.arraySucursal = respuesta;          
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
 
@@ -628,7 +634,6 @@ export default {
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
 
@@ -650,7 +655,7 @@ export default {
                     me.tipoAccion = 1;
                     me.isSubmitting=false;
                     me.tituloModal = "Registro de "+data.nombre_caja;
-                    console.log(data);                      
+                                        
                     me.id_cierre_modal=data.id;
                     me.diferencia_modal=data.diferencia_caja;
                     me.estado_modal=data.estado_caja;
@@ -663,19 +668,19 @@ export default {
                         me.totalMonto="0.00";
                         me.cantidadMonedas=0;
                         me.cantidadBilletes=0; 
-                
+                me.showModal = true;
                         me.input={};
                     me.classModal.openModal("registrar");
                     break;
                 }
                 case "actualizar": {
                     me.tipoAccion = 2;
+                    me.showModal = true;
                     me.classModal.openModal("registrar");
                     break;
                 }
                 case "show":{
-                    me.tituloModal="Ver "+data.nombre_caja+" codigo "+data.codigo ;
-                    console.log(data);
+                    me.tituloModal="Ver "+data.nombre_caja+" codigo "+data.codigo ;                
                     me.fecha_creacion=data.fecha_mas_reciente;
                     me.id_mod_v2=data.id_mod_v2;
                     me.monto_v2=data.monto_v2;
@@ -684,7 +689,7 @@ export default {
                     me.fecha_mas_reciente=data.fecha_mas_reciente;
                     me.simbolo_v2=data.moneda;
                     me.listaArqueo(data.id_arqueo_mod);
-                    
+                    me.showModal_2 = true;
                     me.classModal.openModal("show");
                     break;
                 }
@@ -702,7 +707,7 @@ export default {
                     me.diferencia_modal="";
                     me.estado_modal="";
                     me.textArea_modal="";
-
+     me.showModal = false;
                     me.totalMonedas="0.00";
                         me.SimboloM="S/N";
                         me.SimboloB="S/N";            
@@ -723,6 +728,7 @@ export default {
                     me.array_array_arqueo="";
                     me.array_arqueo="";
                     me.simbolo_v2="";
+                         me.showModal_2 = false;
             }
         },
 
@@ -768,5 +774,18 @@ export default {
 .error {
     color: red;
     font-size: 10px;
+}
+</style>
+<style scoped>
+.modal {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter, .fade-leave-to /* .fade-leave-active en versiones de Vue < 2.1.8 */ {
+  opacity: 0;
 }
 </style>
