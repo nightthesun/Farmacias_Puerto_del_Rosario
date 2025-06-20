@@ -66,6 +66,7 @@ use App\Http\Controllers\LogVehiculoController;
 use App\Http\Controllers\GesPreVenta2Controller;
 use App\Http\Controllers\GestionPerimsoController;
 use App\Http\Controllers\GetController;
+use App\Http\Controllers\InvGestionStockController;
 use App\Http\Controllers\ParDescuentoController;
 use App\Http\Controllers\ProdListaController;
 use App\Http\Controllers\ProdRegistroPreXListController;
@@ -618,6 +619,11 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/procesar-traspaso', [InvProcesarTraspasoController::class, 'index']);
     Route::get('/procesar-traspaso/listarSucursal', [InvProcesarTraspasoController::class, 'listarSucursal']);
     Route::get('/procesar-traspaso/listarUsuario', [InvProcesarTraspasoController::class, 'listarUsuario']);
+
+    //---gestor stock
+    Route::get('/gestor-stock/listarDistribuidor', [InvGestionStockController::class, 'get_distribuidor_gesSctock']);
+    Route::get('/gestor-stock/listarGestorStockModal', [InvGestionStockController::class, 'getGestorStockModal']);    
+    
     /////////////////////////////////LOGISTICO///////////////////////////////////////
     Route::get('/vehiculo/listarSucursal', [LogVehiculoController::class, 'listarSucursal']);
     Route::get('/vehiculo/listarUsuario', [LogVehiculoController::class, 'listarUsuario']);

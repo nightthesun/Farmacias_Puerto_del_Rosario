@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Alm_IngresoProducto2;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use PhpParser\Node\Expr\FuncCall;
@@ -219,6 +220,16 @@ try {
             ];
         
     DB::table('pivot__modulo_tienda_almacens')->insert($datos);
+
+$fechaHoy = Carbon::now()->format('Y-m-d');
+
+            $datos_2=[
+                'id_producto' => $request->id_prod_producto,
+                'stock' => $request->cantidad,
+                'fecha_ingreso' => $fechaHoy,
+                'tipo' =>2,
+            ];
+           DB::table('sis_bitacora_stock')->insert($datos_2);  
    // $pivote = new Pivot_Modulo_tienda_almacen();
    // $pivote->id_tienda_almacen = $request->idalmacen;
    // $pivote->id_ingreso = $nuevoProductoID;

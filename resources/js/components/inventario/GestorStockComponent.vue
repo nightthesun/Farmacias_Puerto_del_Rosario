@@ -10,16 +10,17 @@
         <div class="container-fluid">
             <div class="card">
                 <div class="card-header">
-                    <i class="fa fa-align-justify"></i> Ejemplo               
-                    <button
-                        type="button"
-                        class="btn btn-secondary"
-                        @click="abrirModal('registrar');"
-                        :disabled="selectAlmTienda == 0"
-                    >
-                        <i class="icon-plus"></i>&nbsp;Nuevo
+                    <i class="fa fa-align-justify"></i> Gestor de sctock               
+                    <button type="button" class="btn btn-secondary" style="color:white;" @click="abrirModal('registrar');iniciarOperacio();" :disabled="sucursalSeleccionada == 0" :hidden="sucursalSeleccionada == 0">
+                        <i class="icon-plus"></i>&nbsp;Generar
+                    </button>&nbsp;
+                    <button type="button" class="btn btn-info"  style="color:white;" @click="abrirModal('registrar');" :disabled="sucursalSeleccionada == 0" :hidden="sucursalSeleccionada == 0">
+                        <i class="fa fa-file-pdf-o" aria-hidden="true"></i>&nbsp;Exportar PDF
+                    </button>&nbsp;
+                    <button type="button" class="btn btn-primary"  @click="abrirModal('registrar');" :disabled="sucursalSeleccionada == 0" :hidden="sucursalSeleccionada == 0">
+                       <i class="fa fa-file-excel-o" aria-hidden="true"></i>&nbsp;Exportar Excel
                     </button>
-                    <span v-if="selectAlmTienda == 0" class="error"
+                    <span v-if="sucursalSeleccionada == 0" class="error"
                         >&nbsp; &nbsp;Debe Seleccionar un almacen o
                         tienda.</span >
                 </div>
@@ -27,6 +28,146 @@
             <div class="form-group row">
                 <div class="col-md-2" style="text-align: center">
                      <label for="">Almacen o Tienda:</label>
+                </div>
+                        <div class="col-md-4">
+                            <div class="input-group">
+                                <select class="form-control" v-model="sucursalSeleccionada">
+                                    <option value="0" disabled selected>Seleccionar...</option>
+                                    <option v-for="sucursal in arraySucursal" :key="sucursal.id"  :value="sucursal.codigo"
+                                        v-text="
+                                            sucursal.codigoS +
+                                            ' -> ' +
+                                            sucursal.codigo+
+                                            ' ' +
+                                            sucursal.razon_social
+                                        "
+                                    ></option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="input-group">
+                                <input
+                                    type="text"
+                                    id="texto"
+                                    name="texto"
+                                    class="form-control"
+                                    placeholder="Texto a buscar"
+                                    v-model="buscar"
+                               
+                                    :hidden="sucursalSeleccionada == 0"
+                                    :disabled="sucursalSeleccionada == 0"
+                                />
+                                <button
+                                    type="submit"
+                                    class="btn btn-primary"
+                              
+                                    :hidden="sucursalSeleccionada == 0"
+                                    :disabled="sucursalSeleccionada == 0"
+                                >
+                                    <i class="fa fa-search"></i> Buscar
+                                </button>
+                            </div>
+                        </div>
+                        
+                       
+
+            </div>
+             
+
+            <div class="row">
+                <div class="col-md-2" >
+                     <label for="">&nbsp;</label>
+                </div>
+    
+        <div class="col-md-2" v-if="sucursalSeleccionada !== 0">
+          <label for="start-date">Fecha inicial:</label>
+          <input id="start-date" type="date" class="form-control" v-model="startDate">
+        </div>
+        <div class="col-md-2" v-if="sucursalSeleccionada !== 0">
+          <label for="end-date">Fecha final:</label>
+          <input id="end-date" type="date" class="form-control" v-model="endDate">
+        </div>
+     
+         <div class="col-md-2" v-if="sucursalSeleccionada !== 0">
+            <div class="d-flex flex-column">
+            <label for="end-date">Usar fecha:</label>
+            <button type="button" class="btn btn-success mt-1" style="color: white;">
+                <i class="fa fa-calendar-plus-o" aria-hidden="true"></i>
+            </button>
+            </div>
+        </div>
+
+        <div class="col-md-2" v-if="sucursalSeleccionada !== 0">
+            <div class="d-flex flex-column">
+            <label for="end-date">No usar fecha:</label>
+            <button type="button" class="btn btn-warning mt-1" style="color: white;">
+                <i class="fa fa-calendar-times-o" aria-hidden="true"></i>
+            </button>
+            </div>
+        </div>
+
+
+  </div>
+  <br>
+            <!---inserte tabla-->
+            <table class="table table-bordered table-striped table-sm table-responsive" >
+                <thead>
+                    <tr>
+                        <th>Opciones</th>
+                        <th>Nro</th>
+                        <th>Distribuidor</th>
+                        <th>Fecha de pedigo</th>
+                        <th>Total</th>
+                        <th>Fecha de pago</th>
+                        <th>Formato de pago</th>
+                        <th>Turno de entrega</th>
+                        <th>Plazo</th>
+                        <th>Obs.</th>
+                        <th>Tipo</th>
+                        <th>Usuario</th>
+                        <th>Estado</th>       
+                    </tr>
+                </thead>
+            </table>    
+
+            <!-----fin de tabla------->
+        </div>
+
+
+            </div>   
+  
+        <!-- fin de index -->
+        </div>   
+           <!--Inicio del modal agregar/actualizar-->
+         <transition name="fade">
+  <div v-if="showModal" class="modal d-block fullscreen-modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-primary" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">{{ tituloModal }}</h4>
+          <button type="button" class="close" @click="cerrarModal('registrar')">
+            <span>Cerrar</span>
+          </button>
+        </div>
+        <div class="modal-body">     
+    <div class="card-header">
+        <br>
+                    <i class="fa fa-list-alt" aria-hidden="true"></i> Opciones:            
+                    
+                    <button type="button" class="btn btn-info"  style="color:white;">
+                        <i class="fa fa-file-pdf-o" aria-hidden="true"></i>&nbsp;Exportar PDF
+                    </button>&nbsp;
+                    <button type="button" class="btn btn-primary"   >
+                       <i class="fa fa-file-excel-o" aria-hidden="true"></i>&nbsp;Exportar Excel
+                    </button>
+             
+                </div>
+                <br>
+                 <div class="form-group row">
+                  
+                <div class="col-md-2" style="text-align: center">
+                     <label for="">Distribuidor:</label>
                 </div>
                         <div class="col-md-6">
                             <div class="input-group">
@@ -73,102 +214,101 @@
 
             </div>
              
-
-            <div class="row justify-content-center">
-    <div class="col-md-8">
-      <div class="row">
-        <div class="col-md-4" v-if="sucursalSeleccionada !== 0">
-          <label for="start-date">Fecha inicial:</label>
-          <input id="start-date" type="date" class="form-control" v-model="startDate">
+          <!-- Formulario -->
+          <form class="form-horizontal">
+            <div class="container-fluid">
+              <div class="form-group row">
+                <table class="table table-bordered table-striped table-sm table-responsive" >
+                    <thead>
+                        <tr>
+                            <th>Linea</th>
+                            <th>Producto</th>
+                            <th>Ciclo de Stock</th>
+                            <th>Consumo promedio mensual</th>
+                            <th>Plazo de entrega</th>
+                            <th>Consumo promedio venta</th>
+                            <th>Stock Maximo</th>
+                            <th>Stock Medio</th>
+                            <th>Stock Actual</th>
+                            <th>Stock pedido</th>
+                            <th>Indice de rotacion</th>
+                            <th>Indice de cobertura</th>
+                            <th>Rentabilidad</th>
+                        </tr>                        
+                    </thead>
+                    <tbody>
+                        <tr v-for="i in arrayModalOperacionGestor" :key="i.id_producto">
+                            <td>{{i.linea}}</td>
+                            <td>{{i.producto}}</td>
+                            <td>{{i.consumo_mensual}}</td>
+                            <td>{{i.plazo}}</td>
+                            <td>{{i.consumo_dia}}</td>
+                            <td>{{i.stmax}}</td>
+                            <td>{{i.stmedio}}</td>
+                            <td>{{i.stock_total}}</td>
+                            <td>{{i.indicerot}}</td>
+                            <td>{{i.indicecober}}</td>
+                            <td>{{i.rentabilidad}}</td>
+                           
+                        </tr>
+                    </tbody>
+                </table>
+              </div>
+            </div>
+          </form>
         </div>
-        <div class="col-md-4" v-if="sucursalSeleccionada !== 0">
-          <label for="end-date">Fecha final:</label>
-          <input id="end-date" type="date" class="form-control" v-model="endDate">
+
+        <div class="card-header">
+            <div class="container">                               
+                <div class="form-group row">
+                    <label class="col-md-2 form-control-label" for="text-input">
+                     <strong>Distribuidor:</strong>                                
+                    </label>
+                        <div class="col-md-5 input-group mb-3">
+                        <VueMultiselect
+                        v-model="selected"
+                        
+                        :options="arrayDistribuidor"
+                        :max-height="190"                   
+                        :block-keys="['Tab', 'Enter']"                       
+                        placeholder="Seleccione una opción"
+                        label="id" 
+                        :custom-label="nameWithLang"                     
+                        track-by="id"
+                        class="w-250"
+                        selectLabel="Añadir a seleccion"
+                        deselectLabel="Quitar seleccion"
+                        selectedLabel="Seleccionado">
+                       <template #noResult>
+                        No se encontraron elementos. Considere cambiar la consulta de búsqueda.
+                      </template>
+                    </VueMultiselect> 
+                        </div>
+                        <div class="col-md-5 input-group mb-3">
+<button type="button" class="btn" style="background-color: orange; color: white;">Stock alerta</button>&nbsp;
+<button type="button" class="btn" style="background-color: yellow; color: black;">Stock minimo</button>&nbsp;
+<button type="button" class="btn" style="background-color: red; color: white;">Stock cero</button>&nbsp;
+<button type="button" class="btn btn-secondary">Cerrar modal</button>
+                        </div>
+                </div>        
+            </div>
+        </div>    
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" @click="cerrarModal('registrar')">
+            Cerrar
+          </button>
+          <button type="button" v-if="tipoAccion == 1" class="btn btn-primary">
+            Guardar
+          </button>
+          <button type="button" v-if="tipoAccion == 2" class="btn btn-primary">
+            Actualizar
+          </button>
         </div>
       </div>
     </div>
   </div>
-  <br>
-            <!---inserte tabla-->
-            <table class="table table-bordered table-striped table-sm table-responsive" >
-                <thead>
-                    <tr>
-                        <th>Opciones</th>
-                        <th class="col-md-1">Cliente</th>
-                        <th class="col-md-5">Nro docuemnto</th>
-                        <th>Tipo de comprobante</th>
-                        <th>Numero de comprobante</th>
-                        <th class="col-md-1">Total</th>
-                        <th class="col-md-1">Destino</th>
-                        <th>Vehiculo</th>
-                        <th class="col-md-3">Observación</th>
-                        <th class="col-md-2">Per. Enviada</th>
-                        <th>Usuario</th>
-                        <th>Estado</th>       
-                    </tr>
-                </thead>
-            </table>    
+</transition>
 
-            <!-----fin de tabla------->
-        </div>
-
-
-            </div>   
-  
-        <!-- fin de index -->
-        </div>   
-           <!--Inicio del modal agregar/actualizar-->
-           <transition name="fade">
-            <div v-if="showModal" class="modal d-block" tabindex="-1" role="dialog">
-                <div class="modal-dialog modal-primary modal-lg" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                        <h4 class="modal-title">{{ tituloModal }}</h4>
-                        <button type="button" class="close" @click="cerrarModal('registrar')">
-                            <span>&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="alert alert-warning" role="alert">
-                            Todos los campos con (*) son requeridos
-                        </div>
-                        <form action="" class="form-horizontal">
-                        
-                            <!-- insertar datos -->
-                            <div class="container">
-                                
-                                <div class="form-group row">
-                                   
-                                   
-        
-                                </div>
-                              
-                            
-                               
-                            </div>
-                        </form>
-                    </div>
-                  
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" @click="cerrarModal('registrar')">
-                            Cerrar
-                        </button>
-                        <button type="button" v-if="tipoAccion == 1" class="btn btn-primary" :disabled="!sicompleto">
-                            Guardar
-                        </button>
-                        <button type="button" v-if="tipoAccion == 2" class="btn btn-primary">
-                            Actualizar
-                        </button>
-                    </div>
-                    </div>    
-                </div>
-            </div>      
-                  
-                   
-             
-      
-      
-    </transition>
         <!--fin del modal-->
     </main>
 </template>
@@ -176,8 +316,10 @@
 <script>
 import Swal from "sweetalert2";
 import { error401 } from "../../errores";
-//Vue.use(VeeValidate);
+import VueMultiselect from 'vue-multiselect';
+
 export default {
+     components: { VueMultiselect},
     data() {
         return {
             pagination: {
@@ -188,9 +330,10 @@ export default {
                 from: 0,
                 to: 0,
             },
+     
             showModal: false,
             //offset:3,
-
+  selected:null,
             tituloModal: "",
             sucursalSeleccionada:0,
             arraySucursal:[],
@@ -198,6 +341,10 @@ export default {
             tipoAccion:1,
             startDate: '',
       endDate: '',
+
+            arrayDistribuidor:[],
+
+            arrayModalOperacionGestor:[],
         };
     },
 
@@ -241,9 +388,37 @@ export default {
     },
 
     methods: {
+
+        iniciarOperacio(){
+            let me=this;
+            me.listarModalGestorOperacion();
+            me.listarDistribuidor();
+        },
+
+        listarModalGestorOperacion(){
+            
+            let me=this;
+            me.arrayModalOperacionGestor=[];
+            var url = "/gestor-stock/listarGestorStockModal";
+            axios
+                .get(url)
+                .then(function (response) {
+                    var respuesta = response.data;
+                    me.arrayModalOperacionGestor = respuesta;
+                    console.log("*******************");
+                    console.log(respuesta);
+                 console.log("*******************");
+                })
+                .catch(function (error) {
+                    error401(error);
+                    console.log(error);
+                });
+
+        },
+
         sucursalFiltro() {
             let me = this;
-           // var url = "/traspaso/listarSucursal";
+      
            var url = "/listar_tienda_alamce_generico_lista_x_rol_usuario";
             axios
                 .get(url)
@@ -257,12 +432,33 @@ export default {
                     console.log(error);
                 });
         },
+       
+        nameWithLang ({nom_a_facturar,nom_linea_array}) {            
+            return `Dist: ${nom_a_facturar} Linea: ${nom_linea_array}`
+          },
+
+        listarDistribuidor() {
+            let me = this;       
+           var url = "/gestor-stock/listarDistribuidor";
+            axios
+                .get(url)
+                .then(function (response) {
+                    var respuesta = response.data;
+                    me.arrayDistribuidor = respuesta;
+                    console.log(me.arrayDistribuidor);
+                 
+                })
+                .catch(function (error) {
+                    error401(error);
+                    console.log(error);
+                });
+        },
+
         cambiarPestana(idPestana) {
             this.pestañaActiva = idPestana;
 
             // Agrega aquí la lógica adicional que necesites al cambiar la pestaña
         },
-
 
 
         cambiarPagina(page) {
@@ -280,8 +476,10 @@ export default {
          switch (accion) {
                 case "registrar": {
                     me.tipoAccion = 1;
-                    me.tituloModal = "Ejemplo titulo";
+              
+                    me.tituloModal = "Ventana gestor de stock";
                     me.showModal = true;
+                    me.selected0null;
                     me.classModal.openModal("registrar");
                     break;
                 }
@@ -299,6 +497,7 @@ export default {
         },
 
         fecha_inicial(){
+         
             // Obtener la fecha actual
     const today = new Date();
     // Obtener el año, mes y día actual
@@ -316,9 +515,8 @@ export default {
             if (accion == "registrar") {
                 me.classModal.closeModal(accion);
                 me.showModal = false;
-                me.tituloModal = " ";
-             
-             
+                me.tituloModal = " ";            
+               me.selected=null;
             }
         },
 
@@ -348,6 +546,21 @@ export default {
 }
 </style>
 <style scoped>
+.fullscreen-modal .modal-dialog {
+  max-width: 100%;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.fullscreen-modal .modal-content {
+  height: 100%;
+  border-radius: 0;
+}
+</style>
+
+<style scoped>
 .modal {
   transition: opacity 0.5s ease;
 }
@@ -360,3 +573,4 @@ export default {
   opacity: 0;
 }
 </style>
+<style src="vue-multiselect/dist/vue-multiselect.css"></style>
