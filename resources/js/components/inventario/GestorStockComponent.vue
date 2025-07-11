@@ -140,9 +140,9 @@
         <!-- fin de index -->
         </div>   
            <!--Inicio del modal agregar/actualizar-->
-         <transition name="fade">
+         <transition name="fade"> 
   <div v-if="showModal" class="modal d-block fullscreen-modal" tabindex="-1" role="dialog">
-    <div class="modal-dialog modal-primary" role="document">
+    <div class="modal-dialog modal-primary modal-lg modal-dialog-scrollable" role="document">
       <div class="modal-content">
         <div class="modal-header">
           <h4 class="modal-title">{{ tituloModal }}</h4>
@@ -155,10 +155,10 @@
         <br>
                     <i class="fa fa-list-alt" aria-hidden="true"></i> Opciones:            
                     
-                    <button type="button" class="btn btn-info"  style="color:white;">
+                    <button type="button" class="btn btn-info"  style="color:white;" @click="accionDescargarPDF()">
                         <i class="fa fa-file-pdf-o" aria-hidden="true"></i>&nbsp;Exportar PDF
                     </button>&nbsp;
-                    <button type="button" class="btn btn-primary"   >
+                    <button type="button" class="btn btn-primary" @click="descargarExcell()"   >
                        <i class="fa fa-file-excel-o" aria-hidden="true"></i>&nbsp;Exportar Excel
                     </button>
              
@@ -166,33 +166,24 @@
                 <br>
                  <div class="form-group row">
                   
-                <div class="col-md-2" style="text-align: center">
-                     <label for="">Distribuidor:</label>
+                <div class="col-md-1" style="text-align: center">
+                     <label for="">Accion:</label>
                 </div>
                         <div class="col-md-6">
-                            <div class="input-group">
-                                <select class="form-control" v-model="sucursalSeleccionada">
-                                    <option value="0" disabled selected>Seleccionar...</option>
-                                    <option v-for="sucursal in arraySucursal" :key="sucursal.id"  :value="sucursal.codigo"
-                                        v-text="
-                                            sucursal.codigoS +
-                                            ' -> ' +
-                                            sucursal.codigo+
-                                            ' ' +
-                                            sucursal.razon_social
-                                        "
-                                    ></option>
-                                </select>
-                            </div>
+                           <button type="button" @click="datosFiltrados(10)" class="btn" style="background-color: darkseagreen; color: white;"><i class="fa fa-eye" aria-hidden="true"></i> Ver todo</button>&nbsp;
+<button type="button" class="btn" @click="datosFiltrados(2)" style="background-color: darkseagreen; color: white;"><i class="fa fa-eye" aria-hidden="true"></i> Ver stock alerta</button>&nbsp;
+<button type="button" class="btn" @click="datosFiltrados(1)"  style="background-color: darkseagreen; color: white;"><i class="fa fa-eye" aria-hidden="true"></i> Ver stock minimo </button>&nbsp;
+<button type="button" class="btn" @click="datosFiltrados(0)"  style="background-color: darkseagreen; color: white;"><i class="fa fa-eye" aria-hidden="true"></i> Ver stock cero </button>&nbsp;
+
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-5">
                             <div class="input-group">
                                 <input
                                     type="text"
                                     id="texto"
                                     name="texto"
                                     class="form-control"
-                                    placeholder="Texto a buscar"
+                                    placeholder="Texto a buscar por liena o nombre de producto"
                                     v-model="buscar"
                                
                                     :hidden="sucursalSeleccionada == 0"
@@ -201,7 +192,7 @@
                                 <button
                                     type="submit"
                                     class="btn btn-primary"
-                              
+                                    @click="buscarProductos()"
                                     :hidden="sucursalSeleccionada == 0"
                                     :disabled="sucursalSeleccionada == 0"
                                 >
@@ -218,7 +209,9 @@
           <form class="form-horizontal">
             <div class="container-fluid">
               <div class="form-group row">
-                <table class="table table-bordered table-striped table-sm table-responsive" >
+                <div class="modal-body" style="max-height: 120vh; overflow-y: auto;">                    
+          
+                <table class="table table-bordered table-striped table-sm table-responsive" >                    
                     <thead>
                         <tr>
                             <th>Linea</th>
@@ -237,29 +230,40 @@
                         </tr>                        
                     </thead>
                     <tbody>
-                        <tr v-for="i in arrayModalOperacionGestor" :key="i.id_producto">
-                            <td>{{i.linea}}</td>
-                            <td>{{i.producto}}</td>
-                            <td>{{i.consumo_mensual}}</td>
-                            <td>{{i.plazo}}</td>
-                            <td>{{i.consumo_dia}}</td>
-                            <td>{{i.stmax}}</td>
-                            <td>{{i.stmedio}}</td>
-                            <td>{{i.stock_total}}</td>
-                            <td>{{i.indicerot}}</td>
-                            <td>{{i.indicecober}}</td>
-                            <td>{{i.rentabilidad}}</td>
+                        <tr v-for="i in arrayModalOperacionGestor" :key="i.id_producto"
+                        :style="{ backgroundColor: i.color === 0 ? 'red' : 
+                     i.color === 1 ? '#f5d033' : 
+                     i.color === 2 ? 'orange' :
+                     i.color ===3 ? 'transparent': 'transparent'}" >
+                            <td style="text-align: left;">{{i.linea}}</td>
+                            <td style="text-align: left;">{{i.producto}}</td>
+                            <td style="text-align: right;">{{ i.ciclo }}</td>
+                            <td style="text-align: right;">{{i.consumo_mensual}}</td>
+                            <td style="text-align: right;">{{i.plazo}}</td>
+                            <td style="text-align: right;">{{i.consumo_dia}}</td>
+                            <td style="text-align: right;">{{i.stmax}}</td>
+                            <td style="text-align: right;">{{i.stmedio}}</td>
+                            <td style="text-align: right;">{{i.stock_total}}</td>
+                            <td style="text-align: right;">{{i.stpedido}}</td> 
+                            <td style="text-align: right;">{{i.indicerot}}</td>
+                            <td style="text-align: right;">{{i.indicecober}}</td>
+                            <td style="text-align: right;">{{i.rentabilidad}}</td>
                            
                         </tr>
                     </tbody>
                 </table>
-              </div>
+                </div>
+            </div>
             </div>
           </form>
         </div>
 
-        <div class="card-header">
-            <div class="container">                               
+      
+       
+            <div class="card">
+  <h5 class="card-header">Crear gestor stock</h5>
+  <div class="card-body">
+    <div class="container">                               
                 <div class="form-group row">
                     <label class="col-md-2 form-control-label" for="text-input">
                      <strong>Distribuidor:</strong>                                
@@ -292,18 +296,10 @@
                         </div>
                 </div>        
             </div>
-        </div>    
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" @click="cerrarModal('registrar')">
-            Cerrar
-          </button>
-          <button type="button" v-if="tipoAccion == 1" class="btn btn-primary">
-            Guardar
-          </button>
-          <button type="button" v-if="tipoAccion == 2" class="btn btn-primary">
-            Actualizar
-          </button>
-        </div>
+  </div>
+</div>
+      
+      
       </div>
     </div>
   </div>
@@ -317,7 +313,11 @@
 import Swal from "sweetalert2";
 import { error401 } from "../../errores";
 import VueMultiselect from 'vue-multiselect';
-
+import * as XLSX from 'xlsx';
+import pdfMake from 'pdfmake/build/pdfmake';
+import pdfFonts from 'pdfmake/build/vfs_fonts';
+// Asigna los fonts a pdfmake
+pdfMake.vfs = pdfFonts.pdfMake.vfs;
 export default {
      components: { VueMultiselect},
     data() {
@@ -345,6 +345,9 @@ export default {
             arrayDistribuidor:[],
 
             arrayModalOperacionGestor:[],
+            arrayModalFalso:[],
+            ocualto:0,
+              filtroColor: 'todos' // puede ser: 'todos', 1, 2
         };
     },
 
@@ -385,14 +388,207 @@ export default {
             }
             return pagesArray;
         },
+
+        
     },
 
     methods: {
+
+        accionDescargarPDF(){
+            let me=this;
+            me.descargaPDF(me.arrayModalOperacionGestor);
+        },
+
+        descargaPDF(array_reporte){
+
+            const tableBody =[
+                //agregar encabezados de la tabla
+                [
+                    {text: 'Linea', style: 'tableHeader_2', alignment: 'center', fillColor: '#d3d3d3'},
+                    {text: 'Producto', style: 'tableHeader_2', alignment: 'center', fillColor:'#d3d3d3'},
+                    {text: 'Ciclo de stock', style: 'tableHeader_2', alignment: 'center', fillColor:'#d3d3d3'},
+                    {text: 'Consumo promedio mensual', style: 'tableHeader_2', alignment: 'center', fillColor:'#d3d3d3'},
+                    {text: 'Plazo de entrega', style: 'tableHeader_2', alignment: 'center', fillColor:'#d3d3d3'},
+                    {text: 'Consumo promedio venta', style: 'tableHeader_2', alignment: 'center', fillColor:'#d3d3d3'},
+                    {text: 'Stock maximo', style: 'tableHeader_2', alignment: 'center', fillColor:'#d3d3d3'},
+                    {text: 'Stock medio actual', style: 'tableHeader_2', alignment: 'center', fillColor:'#d3d3d3'},
+                    {text: 'Stock pedido', style: 'tableHeader_2', alignment: 'center', fillColor:'#d3d3d3'},
+                    {text: 'Indice rotación', style: 'tableHeader_2', alignment: 'center', fillColor:'#d3d3d3'},
+                    {text: 'Indice de cobertura', style: 'tableHeader_2', alignment: 'center', fillColor:'#d3d3d3'},
+                    {text: 'Rentabilidad', style: 'tableHeader_2', alignment: 'center', fillColor:'#d3d3d3'},
+                ]
+            ];
+            // Itera sobre los datos y agrega fila a la tabla 
+            array_reporte.forEach(item =>{
+               tableBody.push([
+  {text: item.linea, fontSize:8, alignment: 'left'},
+  {text: item.producto, fontSize:8, alignment: 'left'},
+  {text: item.ciclo, fontSize:8, alignment: 'left'},
+  {text: item.consumo_mensual, fontSize:8, alignment: 'left'},
+  {text: item.plazo, fontSize:8, alignment: 'left'}, // ← FALTABA ESTA
+  {text: item.consumo_dia, fontSize:8, alignment: 'left'},
+  {text: item.stmax, fontSize:8, alignment: 'left'},
+  {text: item.stmedio, fontSize:8, alignment: 'left'},
+  {text: item.stpedido, fontSize:8, alignment: 'left'},
+  {text: item.indicerot, fontSize:8, alignment: 'left'},
+  {text: item.indicecober, fontSize:8, alignment: 'left'},
+  {text: item.rentabilidad, fontSize:8, alignment: 'left'},
+]);
+
+            });
+
+            const docDefinition ={
+                pageSize: 'LETTER',
+                pageMargins: [25, 30, 25, 30],
+                content:[
+                  {text: 'INFORME GESTOR DE STOCK', style:'header'},
+                  {
+                    style: 'tableExample',
+                    margin:[0,10,0,0],
+                    table:{
+                         headerRows: 1,
+                        widths: [30,'*',30,34,30,30,30,30,30,30,30,30], // Ajusta los anchos de las columnas
+                        body: tableBody
+                    }
+                  },
+                ],
+      
+                styles: {
+                    header: {
+                        fontSize: 12,
+                        bold: true,
+                        color: 'black',
+                        alignment: 'center',
+                        margin:[0,10,0,10]
+                    },
+                    tableExample:{
+                        fontSize: 8,
+                        bold: true,
+                    },
+                    tableHeader2 : {
+			            bold: true,
+			            fontSize: 7,
+			            color: 'black',
+                        margin:[ 180, 0, 20,0] 
+		            },
+                    tableHeader_2: {
+                        bold: true,
+                        fontSize: 7,
+                        bold: true,
+                        alignment: 'center',
+                    },
+                }
+                };    
+                  // Generar y abrir el PDF
+  pdfMake.createPdf(docDefinition).open();   
+        },
+
+        descargarExcell(){
+           let me = this;
+
+// 1. Define columnas con títulos bonitos
+const columnas = [
+  { key: 'id_producto', titulo: 'ID Producto' },
+  { key: 'linea', titulo: 'Linea' },
+  { key: 'ciclo', titulo: 'Ciclo de stock' },
+  { key: 'consumo_mensual', titulo: 'Consumo promedio mensual' },
+  { key: 'plazo', titulo: 'Plazo de entrega' },
+  { key: 'consumo_dia', titulo: 'Consumo promedio venta' },
+  { key: 'stmax', titulo: 'Stock maximo' },
+  { key: 'stmedio', titulo: 'Stock medio' },
+  { key: 'stock_total', titulo: 'Stock actual' },
+  { key: 'stpedido', titulo: 'Stock pedido' }, // corregido aquí
+  { key: 'indicerot', titulo: 'Indice de rotación' },
+  { key: 'indicecober', titulo: 'Indice de cobertura' },
+  { key: 'rentabilidad', titulo: 'Rentabilidad' }
+];
+
+// 2. Filtra y renombra columnas
+const datosFiltrados = me.arrayModalOperacionGestor.map(item => {
+  const fila = {};
+  columnas.forEach(col => {
+    fila[col.titulo] = item[col.key];
+  });
+  return fila;
+});
+
+// 3. Crear hoja vacía
+const ws = XLSX.utils.json_to_sheet([]);
+
+// 4. Agrega un título grande en la primera fila
+XLSX.utils.sheet_add_aoa(ws, [['Informe']], { origin: 'A1' });
+
+// 5. Agrega los datos debajo del título (desde fila 3)
+XLSX.utils.sheet_add_json(ws, datosFiltrados, {
+  origin: 'A3',
+  skipHeader: false
+});
+
+// 6. Crear libro y exportar
+const wb = XLSX.utils.book_new();
+XLSX.utils.book_append_sheet(wb, ws, 'Emisiones');
+XLSX.writeFile(wb, 'informe_emisiones.xlsx'); 
+
+
+    // Convertir los datos a un formato que XLSX pueda entender
+      //  const ws = XLSX.utils.json_to_sheet(nuevo);
+         // Crear un libro de trabajo de Excel con esos datos
+      //   const wb = XLSX.utils.book_new();
+      //  XLSX.utils.book_append_sheet(wb, ws, 'Emisiones');
+      //  let archivo="gestion_stock";    
+        // Generar un archivo Excel y forzar la descarga
+     //   XLSX.writeFile(wb, archivo+'.xlsx');
+        },
+        
+        buscarProductos() {
+        let me=this;       
+        const texto = me.buscar.toLowerCase(); 
+        const existe = me.arrayModalFalso.some(item =>
+        (item.linea && item.linea.toLowerCase().includes(texto)) ||
+        (item.producto && item.producto.toLowerCase().includes(texto))
+        ); 
+        if (existe) {
+            // Filtra por coincidencias en línea o producto
+    me.arrayModalOperacionGestor = me.arrayModalFalso.filter(item =>
+      (item.linea && item.linea.toLowerCase().includes(texto)) ||
+      (item.producto && item.producto.toLowerCase().includes(texto))
+    );
+        } else {
+            me.arrayModalOperacionGestor=me.arrayModalFalso; 
+        }
+        console.log(existe);    
+    },
+  
+
+datosFiltrados(data) {
+           let me=this;
+            if (data===10) {
+                 console.log(data);
+                me.arrayModalOperacionGestor=me.arrayModalFalso; 
+            }
+            if (data===1) {
+                 console.log(data);
+              me.arrayModalOperacionGestor=me.arrayModalFalso.filter(item => item.color === data);              
+            }
+            if (data===2) {
+                 console.log(data);
+              me.arrayModalOperacionGestor=me.arrayModalFalso.filter(item => item.color === data); 
+            }
+            if (data===0) {
+                 console.log(data);
+              me.arrayModalOperacionGestor=me.arrayModalFalso.filter(item => item.color === data); 
+            }   
+  },
 
         iniciarOperacio(){
             let me=this;
             me.listarModalGestorOperacion();
             me.listarDistribuidor();
+        },
+
+        verTodo(){
+            let me = this;
+            me.ocualto=0;
         },
 
         listarModalGestorOperacion(){
@@ -405,6 +601,8 @@ export default {
                 .then(function (response) {
                     var respuesta = response.data;
                     me.arrayModalOperacionGestor = respuesta;
+                    me.arrayModalFalso = respuesta; 
+            
                     console.log("*******************");
                     console.log(respuesta);
                  console.log("*******************");

@@ -228,6 +228,7 @@ $fechaHoy = Carbon::now()->format('Y-m-d');
                 'stock' => $request->cantidad,
                 'fecha_ingreso' => $fechaHoy,
                 'tipo' =>2,
+                'id_tienda_almacen' => $request->idalmacen
             ];
            DB::table('sis_bitacora_stock')->insert($datos_2);  
    // $pivote = new Pivot_Modulo_tienda_almacen();

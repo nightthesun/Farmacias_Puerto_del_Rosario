@@ -318,6 +318,7 @@ $terciario = DB::table('prod__productos as pp')
                 'stock' => $request->cantidad,
                 'fecha_ingreso' => $fechaHoy,
                 'tipo' =>1,
+                 'id_tienda_almacen' => $request->idtienda
             ];
            DB::table('sis_bitacora_stock')->insert($datos_2);  
             DB::commit();
