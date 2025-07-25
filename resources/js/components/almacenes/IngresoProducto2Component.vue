@@ -263,8 +263,7 @@
                                     <span  v-if="lote==''" class="error">Debe Ingresar el lote</span>
                                 </div>
                             </div>
-                            <div class="row">
-                               
+                            <div class="row">                               
                                 <div class="form-group col-sm-4" v-if="selected != null">
                                     <strong>Fecha de Vencimiento: <span  v-if="fecha_vencimiento==''" class="error">(*)</span></strong>
                                     <input type="date" :min="fechamin" class="form-control" v-model="fecha_vencimiento">

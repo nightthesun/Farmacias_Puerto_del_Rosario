@@ -139,6 +139,7 @@
   
         <!-- fin de index -->
         </div>   
+        
            <!--Inicio del modal agregar/actualizar-->
          <transition name="fade"> 
   <div v-if="showModal" class="modal d-block fullscreen-modal" tabindex="-1" role="dialog">
@@ -150,7 +151,7 @@
             <span>Cerrar</span>
           </button>
         </div>
-        <div class="modal-body">     
+        <div class="modal-body"  style="max-height: 70vh; overflow-y: auto;">     
     <div class="card-header">
         <br>
                     <i class="fa fa-list-alt" aria-hidden="true"></i> Opciones:            
@@ -288,11 +289,11 @@
                       </template>
                     </VueMultiselect> 
                         </div>
-                        <div class="col-md-5 input-group mb-3">
-<button type="button" class="btn" style="background-color: orange; color: white;">Stock alerta</button>&nbsp;
-<button type="button" class="btn" style="background-color: yellow; color: black;">Stock minimo</button>&nbsp;
-<button type="button" class="btn" style="background-color: red; color: white;">Stock cero</button>&nbsp;
-<button type="button" class="btn btn-secondary">Cerrar modal</button>
+                        <div class="col-md-5 input-group mb-3">                            
+                            <button type="button" class="btn" style="background-color: orange; color: white;" @click="modalAlerta_open();" :disabled="selected==null">Stock alerta</button>&nbsp;
+                            <button type="button" class="btn" style="background-color: yellow; color: black;">Stock minimo</button>&nbsp;
+                            <button type="button" class="btn" style="background-color: red; color: white;">Stock cero</button>&nbsp;
+                            <button type="button" class="btn btn-secondary">Cerrar modal</button>
                         </div>
                 </div>        
             </div>
@@ -306,6 +307,291 @@
 </transition>
 
         <!--fin del modal-->
+
+<!---modal de alerta----->
+   <transition name="fade">
+            <div v-if="showModal_2" class="modal d-block fullscreen-modal" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-secondary modal-lg modal-dialog-scrollable" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                        <h4 class="modal-title">{{ tituloModal }}</h4>
+                        <button type="button" class="close" @click="cerrarModal('alerta')">
+                            <span>&times;</span>
+                        </button>
+                        </div>
+
+                        <div class="modal-body" style="max-height: 80vh; overflow-y: auto;">
+                  
+                                        <div id="accordion">
+  <div class="card">
+    <div class="card-header" id="headingOne">
+      <h5 class="mb-0">
+        <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne" @click="estadoBotton(1)">
+          Vista normal, automatica y auto designada
+        </button>
+      </h5>
+    </div>
+
+    <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
+        <div class="card-body">
+               <table class="table table-bordered table-striped table-sm table-responsive" >                    
+                    <thead>
+                        <tr style="background-color: darkgray;">
+                            <th>Opciones</th>
+                            <th>Linea</th>
+                            <th class="col-md-3">Producto</th>
+                            <th>Ciclo de Stock</th>
+                            <th>Consumo promedio mensual</th>
+                            <th>Plazo de entrega</th>
+                            <th>Consumo promedio venta</th>
+                            <th>Stock Maximo</th>
+                            <th>Stock Actual</th>
+                            <th>Stock Pedido</th>
+                            <th class="col-md-2">Candidad Dispenser</th>
+                            <th class="col-md-2">Precio de lista</th>
+                            <th class="col-md-2">Precio Importe</th>
+                        </tr>                        
+                    </thead>
+                    <tbody>
+                        <tr v-for="(a, index) in arrayModalSuperiror_naranja" :key="a.id">
+                            <td>
+                        
+<button type="button" class="btn btn-danger" @click="quitarEleArray(a.id,index)">
+    <i class="fa fa-minus" aria-hidden="true"></i>
+</button>
+
+                            </td>
+                            <td>
+                                <span>{{a.linea}}</span>
+                            </td>
+                            <td class="col-md-3">
+                                <span>{{ a.producto }}</span>
+                            </td>
+                            <td style="text-align: right;">
+                                <span>{{a.ciclo}}</span>
+                            </td>
+                         <td style="text-align: right;">
+                                <span>{{ a.consumo_mensual }}</span>
+                            </td>
+                            <td style="text-align: right;">
+                                <span>{{ a.plazo }}</span>
+                            </td>
+                           <td style="text-align: right;">
+                                <span>{{ a.consumo_dia }}</span>
+                            </td>
+                          <td style="text-align: right;">
+                                <span>{{ a.stmax }}</span>
+                            </td>
+                           <td style="text-align: right;">
+                                <span>{{ a.stock_total }}</span>
+                            </td>
+                           <td style="text-align: right;">
+                                <span>{{ a.stpedido }}</span>
+                            </td>
+                            <td class="col-md-2">
+                       
+                             <input style="text-align: right;" class="form-control form-control-sm" type="number" v-model.number="arrayModalSuperiror_naranja[index].dispedido" @keyup="sumar_top(index)">
+                            </td>
+                            <td class="col-md-2" style="text-align: right;">
+                                <span>{{ a.precio_lista+" "+simbolo }}</span>
+                            </td>
+                             <td class="col-md-2" style="text-align: right;">
+                                <span>{{ a.subtotal+" "+simbolo }}</span>
+                            </td>
+                          
+                        </tr>
+                        <tr style="background-color: darkgray;">
+                            <td colspan="12" style="text-align: center;">                          
+                                    <strong style="text-align: center;">SUB TOTAL</strong>                                                       
+                            </td>
+                            <td class="col-md-2" style="text-align: right;">
+                                <span>{{subTotal_modal_superior+" "+simbolo}}</span>
+                            </td>
+                        </tr>
+                    </tbody>    
+          
+                </table>    
+        </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header" id="headingTwo">
+      <h5 class="mb-0">
+        <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo" @click="estadoBotton(2)">
+          Vista especifica, manual designada y adicionada
+        </button>
+      </h5>
+    </div>
+    <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion">
+      <div class="card-body">
+         <table class="table table-bordered table-striped table-sm table-responsive" >                    
+                    <thead>
+                        <tr style="background-color: darkgray;">
+                            <th class="col-md-7">Producto</th>                           
+                            <th class="col-md-2">Precio de lista</th>
+                            <th class="col-md-3">Cantidad</th>                            
+                        </tr>                        
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td  class="col-md-7">
+                                    <VueMultiselect
+                        v-model="select_distribuidor_x_producto"
+                        
+                        :options="arraySelect_distribuidor_x_producto"
+                        :max-height="190"                   
+                        :block-keys="['Tab', 'Enter']"                       
+                        placeholder="Seleccione una opción"
+                        label="id" 
+                        :custom-label="nameWithLang_2"                     
+                        track-by="id"
+                        class="w-250"
+                        selectLabel="Añadir a seleccion"
+                        deselectLabel="Quitar seleccion"
+                        selectedLabel="Seleccionado">
+                       <template #noResult>
+                        No se encontraron elementos. Considere cambiar la consulta de búsqueda.
+                      </template>
+                    </VueMultiselect> 
+                            </td>
+                            <td  class="col-md-2">
+                                <span v-if="select_distribuidor_x_producto" style="text-align: right;">
+                                    {{select_distribuidor_x_producto.preciolista+" "+simbolo}}
+                                </span>
+                                <span style="text-align: right;" v-else>
+                                    0.00
+                                </span>
+                            </td>
+                            <td  class="col-md-3">
+                                <div v-if="select_distribuidor_x_producto" class="d-flex align-items-center gap-2">
+                                    <input style="text-align: right;" class="form-control form-control-sm" type="number" v-model="input_bot">
+                                    <button type="button" class="btn btn-primary" @click="añadir_elemento_array_bot()"><i class="fa fa-plus" aria-hidden="true"></i></button>   
+                                </div>
+                                <div v-else>
+                                    <span style="text-align: right;">0</span>
+                                </div>                                                   
+                               
+                            </td>
+                        </tr>
+                      
+                    </tbody>    
+                </table>    
+                <table class="table table-bordered table-striped table-sm table-responsive" >                    
+                    <thead>
+                        <tr style="background-color: darkgray;">
+                            <th>Opciones</th>
+                            <th class="col-md-2">Linea</th>
+                            <th class="col-md-1">Cod. Producto</th>
+                            <th class="col-md-4">Producto</th>
+                            <th class="col-md-1">Precio lista</th>
+                            <th class="col-md-1">Cantidad</th>
+                            <th class="col-md-3">Sub Total</th>
+                        </tr>                        
+                    </thead>
+                    <tbody>
+                        <tr v-for="f in arrayInferior_falso" :key="f.id">
+                            <td>
+                                <button type="button" class="btn btn-danger" @click="quitarArrayFalsoBot(f.contador)">
+                                <i class="fa fa-minus" aria-hidden="true"></i>
+                                </button>
+                            </td>
+                            <td class="col-md-2">
+                                {{f.linea_nombre}}
+                            </td>
+                            <td class="col-md-1">
+                                {{f.codigoProducto}}
+                            </td>
+                            <td class="col-md-4">
+                                {{f.nom_prod}}
+                            </td>
+                            <td class="col-md-1">
+                                {{f.preciolista+" "+simbolo}}
+                            </td>    
+                            <td class="col-md-1">
+                                {{f.cantidadFalsa}}
+                            </td>    
+                            <td class="col-md-3">
+                                {{f.subTotal_falso+" "+simbolo}}
+                            </td>                       
+                        </tr>
+                        <tr style="background-color: darkgray;">
+                            <td colspan="6" style="align-items: center;">
+                                <strong style="text-align: center;">SUMATORIA</strong>
+                            </td>
+                            <th class="col-md-3">
+                                <span>{{sumatoriaBot+" "+simbolo}}</span>
+                            </th>
+                        </tr>                      
+                    </tbody>    
+                </table>   
+      </div>
+    </div>
+  </div>
+ 
+</div>
+<div class="card">
+  <div class="card-header">
+     <strong>Detalle de pago</strong>
+  </div>
+  <div class="card-body">
+    <blockquote class="blockquote mb-0">
+         <div class="row">
+                                <div class="form-group col-sm-4">
+                                    <span style="font-size: 12px;">Forma de pago:</span>
+                                      <select v-model="selectFormaPago" class="form-control">
+                                        <option value="0" disabled>Seleccionar...</option>
+                                        <option v-for="a in array_forma_pago" :key="a.id" :value="a.id" v-text="a.tipo"></option>
+                                    </select>
+                                </div>
+                                <div class="form-group col-sm-4">
+                                    <span style="font-size: 12px;">Fecha de pago:</span>
+                                    <input type="date" class="form-control" v-model="fechaPago">
+                              
+                                </div>
+                                <div class="form-group col-sm-4" >
+                                    <span style="font-size: 12px;">Plazo de pago:</span>
+                                    <input type="text" class="form-control" placeholder=""  v-model="plazoPago">
+                                
+                                </div>
+                            </div>
+                            <div class="row">                                
+                                <div class="form-group col-sm-4">
+                                    <span style="font-size: 12px;">Entrega de pedido:</span>
+                                      <select v-model="selectEntregaPedido" class="form-control">
+                                        <option value="0" disabled>Seleccionar...</option>
+                                        <option v-for="a in array_entrega_pedido" :key="a.id" :value="a.id" v-text="a.tipo"></option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group col-sm-4">
+                                  <span style="font-size: 12px;">Observación:</span>
+                                    <input type="text" class="form-control" placeholder=""  v-model="observacion">
+                                </div>
+                            </div>
+    </blockquote>
+  </div>
+</div>
+                        <form action="" class="form-horizontal">
+                        
+                            <!-- insertar datos -->
+                            <div class="container">
+                  
+                              </div>
+                        </form>
+                    </div>
+                  
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" @click="cerrarModal('alerta')">Cerrar</button>
+                       
+                              <button type="button"  class="btn btn-primary">Guardar</button>
+                     
+                    </div>
+
+                    </div>
+                </div>
+            </div>
+        </transition>  
+<!--finde modal alerta-->
     </main>
 </template>
 
@@ -316,6 +602,7 @@ import VueMultiselect from 'vue-multiselect';
 import * as XLSX from 'xlsx';
 import pdfMake from 'pdfmake/build/pdfmake';
 import pdfFonts from 'pdfmake/build/vfs_fonts';
+import { toInteger } from "lodash";
 // Asigna los fonts a pdfmake
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 export default {
@@ -332,22 +619,42 @@ export default {
             },
      
             showModal: false,
+            showModal_2:false,
             //offset:3,
   selected:null,
-            tituloModal: "",
+            tituloModal: '',
             sucursalSeleccionada:0,
             arraySucursal:[],
-            buscar:"",
+            buscar:'',
             tipoAccion:1,
             startDate: '',
       endDate: '',
 
+    selectFormaPago:'0',      
+    array_forma_pago: [{ id: 1, tipo: "CHEQUE" },{ id: 2, tipo: "CONTADO" },{ id: 3, tipo: "CREDITO" },{ id: 4, tipo: "TRASFERENCIA BANCARIA" }],
+    fechaPago:'',
+    plazoPago:'',
+    selectEntregaPedido:'0',      
+    array_entrega_pedido: [{ id: 1, tipo: "MAÑANA" },{ id: 2, tipo: "TARDE" }],
+    observacion:'',
+            button_estado:0,
             arrayDistribuidor:[],
+            subTotal_modal_superior:0,
 
             arrayModalOperacionGestor:[],
             arrayModalFalso:[],
-            ocualto:0,
-              filtroColor: 'todos' // puede ser: 'todos', 1, 2
+    
+            arrayModalSuperiror_naranja:[],
+    
+            simbolo:'',
+            arraySelect_distribuidor_x_producto:[],
+            select_distribuidor_x_producto: null,
+            input_bot:1,
+            inputTop: [],
+            arrayInferior_falso:[],
+            count:0,
+            sumatoriaBot:0,
+          
         };
     },
 
@@ -423,16 +730,16 @@ export default {
                tableBody.push([
   {text: item.linea, fontSize:8, alignment: 'left'},
   {text: item.producto, fontSize:8, alignment: 'left'},
-  {text: item.ciclo, fontSize:8, alignment: 'left'},
-  {text: item.consumo_mensual, fontSize:8, alignment: 'left'},
-  {text: item.plazo, fontSize:8, alignment: 'left'}, // ← FALTABA ESTA
-  {text: item.consumo_dia, fontSize:8, alignment: 'left'},
-  {text: item.stmax, fontSize:8, alignment: 'left'},
-  {text: item.stmedio, fontSize:8, alignment: 'left'},
-  {text: item.stpedido, fontSize:8, alignment: 'left'},
-  {text: item.indicerot, fontSize:8, alignment: 'left'},
+  {text: item.ciclo, fontSize:8, alignment: 'right'},
+  {text: item.consumo_mensual, fontSize:8, alignment: 'right'},
+  {text: item.plazo, fontSize:8, alignment: 'right'}, // ← FALTABA ESTA
+  {text: item.consumo_dia, fontSize:8, alignment: 'right'},
+  {text: item.stmax, fontSize:8, alignment: 'right'},
+  {text: item.stmedio, fontSize:8, alignment: 'right'},
+  {text: item.stpedido, fontSize:8, alignment: 'right'},
+  {text: item.indicerot, fontSize:8, alignment: 'right'},
   {text: item.indicecober, fontSize:8, alignment: 'left'},
-  {text: item.rentabilidad, fontSize:8, alignment: 'left'},
+  {text: item.rentabilidad, fontSize:8, alignment: 'right'},
 ]);
 
             });
@@ -447,7 +754,7 @@ export default {
                     margin:[0,10,0,0],
                     table:{
                          headerRows: 1,
-                        widths: [30,'*',30,34,30,30,30,30,30,30,30,30], // Ajusta los anchos de las columnas
+                        widths: [28,'*',24,34,30,30,30,29,29,29,34,30], // Ajusta los anchos de las columnas
                         body: tableBody
                     }
                   },
@@ -540,6 +847,13 @@ XLSX.writeFile(wb, 'informe_emisiones.xlsx');
      //   XLSX.writeFile(wb, archivo+'.xlsx');
         },
         
+        modalAlerta_open(){
+            let me = this;
+            me.listarModalAlerta_superior();
+            me.listarModalAlerta_inferior();
+            me.abrirModal('alerta');            
+        },
+
         buscarProductos() {
         let me=this;       
         const texto = me.buscar.toLowerCase(); 
@@ -582,17 +896,72 @@ datosFiltrados(data) {
 
         iniciarOperacio(){
             let me=this;
-            me.listarModalGestorOperacion();
+            me.listarModalGestorOperacion();        
             me.listarDistribuidor();
         },
 
-        verTodo(){
-            let me = this;
-            me.ocualto=0;
+      
+
+        quitarEleArray(id,i){
+            let me=this;         
+            me.arrayModalSuperiror_naranja = me.arrayModalSuperiror_naranja.filter(item => item.id !== id);
+             let suma = 0;
+            for (let ii = 0; ii < me.arrayModalSuperiror_naranja.length; ii++) {
+                suma += Number(me.arrayModalSuperiror_naranja[ii].subtotal || 0);
+            }
+         me.subTotal_modal_superior=parseFloat(suma).toFixed(2);
         },
 
-        listarModalGestorOperacion(){
-            
+       añadir_elemento_array_bot() {
+    let me = this;    
+    if (me.count<0 || me.input_bot<=0 || me.input_bot==""|| me.input_bot==null ) {
+        me.cerrarModal('alerta');
+        alert("error de entrada valor negativo o nulos");
+    }
+    me.count=me.count+1;
+    let subTotal_falso=(me.select_distribuidor_x_producto).preciolista * me.input_bot;
+    me.arrayInferior_falso.push({ 
+        contador:me.count,
+        id_prod: (me.select_distribuidor_x_producto).id_prod,
+        id_linea: (me.select_distribuidor_x_producto).id_linea,
+        linea_nombre: (me.select_distribuidor_x_producto).linea_nombre,
+        codigoProducto: (me.select_distribuidor_x_producto).codigoProducto,
+        nom_prod: (me.select_distribuidor_x_producto).nom_prod,
+        distribuidor_nom: (me.select_distribuidor_x_producto).distribuidor_nom,
+        id_dispenser: (me.select_distribuidor_x_producto).id_dispenser,
+        cantidad: (me.select_distribuidor_x_producto).cantidad,
+        tiempo_pedido: (me.select_distribuidor_x_producto).tiempo_pedido,
+        dis_nom: (me.select_distribuidor_x_producto).dis_nom,
+        nom_for_farmaceutica: (me.select_distribuidor_x_producto).nom_for_farmaceutica,
+        preciolista: (me.select_distribuidor_x_producto).preciolista,
+        precioventa: (me.select_distribuidor_x_producto).precioventa,
+        tipo: (me.select_distribuidor_x_producto).tipo,
+        cantidadFalsa:me.input_bot,
+        subTotal_falso: parseFloat(subTotal_falso).toFixed(2),
+        moneda:me.simbolo
+    });
+    me.select_distribuidor_x_producto=null;
+   
+        me.input_bot=1;
+         let suma = 0;
+            for (let ii = 0; ii < me.arrayInferior_falso.length; ii++) {
+                suma += Number(me.arrayInferior_falso[ii].subTotal_falso || 0);
+            }
+ me.sumatoriaBot=parseFloat(suma).toFixed(2);
+},
+
+ quitarArrayFalsoBot(id){
+            let me=this;         
+            me.arrayInferior_falso = me.arrayInferior_falso.filter(item => item.contador !== id);
+             let suma = 0;
+            for (let ii = 0; ii < me.arrayInferior_falso.length; ii++) {
+                suma += Number(me.arrayInferior_falso[ii].subTotal_falso || 0);
+            }
+         me.sumatoriaBot=parseFloat(suma).toFixed(2);
+        },
+
+
+        listarModalGestorOperacion(){            
             let me=this;
             me.arrayModalOperacionGestor=[];
             var url = "/gestor-stock/listarGestorStockModal";
@@ -611,7 +980,75 @@ datosFiltrados(data) {
                     error401(error);
                     console.log(error);
                 });
+        },
 
+         listarModalAlerta_inferior(){            
+            let me=this;
+            me.arraySelect_distribuidor_x_producto=[];
+            me.select_distribuidor_x_producto=null;
+            var url = "/gestor-stock/listar_Producto_x_distribuidor?id_distribuidor="+me.selected.id;
+            axios
+                .get(url)
+                .then(function (response) {
+                    var respuesta = response.data;                 
+                    me.arraySelect_distribuidor_x_producto=respuesta;
+                    console.log("*********2222**********");
+                    console.log(respuesta);
+                 console.log("*******************");
+                })
+                .catch(function (error) {
+                    error401(error);
+                    console.log(error);
+                });
+        },
+
+      sumar_top(id){
+        let me=this;
+        console.log(id);
+        console.log(me.inputTop[id]);
+        const element=0;
+        if( me.inputTop[id]!="" || me.inputTop[id]!=null || me.inputTop[id]>=0){
+             parseFloat(me.arrayModalSuperiror_naranja[id].subtotal=(me.arrayModalSuperiror_naranja[id].dispedido)*me.arrayModalSuperiror_naranja[id].precio_lista).toFixed(2);
+            let suma = 0;
+    for (let i = 0; i < me.arrayModalSuperiror_naranja.length; i++) {
+      suma += Number(me.arrayModalSuperiror_naranja[i].subtotal || 0);
+    }
+         me.subTotal_modal_superior=parseFloat(suma).toFixed(2);
+        }
+      },
+
+        listarModalAlerta_superior(){
+            
+            let me=this;
+            me.arrayModalSuperiror_naranja=[];
+            me.subTotal_modal_superior=0;
+            var url = "/gestor-stock/listarAlertaModalSuperior?id_distri_lista="+me.selected.id_linea_array;
+            axios
+                .get(url)
+                .then(function (response) {
+                    var respuesta = response.data;
+                 
+                    me.subTotal_modal_superior=respuesta.importe_total;
+                    me.arrayModalSuperiror_naranja=respuesta.arrayMostrar;
+                    if ((respuesta.simbolos).simbolo==null||(respuesta.simbolos).simbolo=="") {
+                         me.simbolo="Bs";
+                    }else{
+ me.simbolo=(respuesta.simbolos).simbolo;
+                    }
+                   
+
+                   
+                })
+                .catch(function (error) {
+                    error401(error);
+                    console.log(error);
+                });
+        },
+
+        estadoBotton(data){
+            let me=this;
+            me.button_estado=data;
+            console.log(data);
         },
 
         sucursalFiltro() {
@@ -635,6 +1072,10 @@ datosFiltrados(data) {
             return `Dist: ${nom_a_facturar} Linea: ${nom_linea_array}`
           },
 
+        nameWithLang_2 ({linea_nombre,nom_prod,dis_nom,cantidad,nom_for_farmaceutica,tipo}) {            
+            return `${linea_nombre}: ${nom_prod} - ${dis_nom} X ${cantidad} ${nom_for_farmaceutica} ${tipo}`
+          },
+
         listarDistribuidor() {
             let me = this;       
            var url = "/gestor-stock/listarDistribuidor";
@@ -643,6 +1084,7 @@ datosFiltrados(data) {
                 .then(function (response) {
                     var respuesta = response.data;
                     me.arrayDistribuidor = respuesta;
+                    console.log("---distribuidor---");
                     console.log(me.arrayDistribuidor);
                  
                 })
@@ -690,6 +1132,22 @@ datosFiltrados(data) {
 
                     break;
                 }
+
+                case "alerta":{
+                    me.tituloModal="Orden de pedido alerta  naranja";
+                    me.selectFormaPago="0";
+                    me.button_estado=0;
+                    me.showModal_2=true;
+                    me.fechaPago="";
+                    me.plazoPago="";
+                    me.selectEntregaPedido="0";
+                    me.observacion="NINGUNO";
+                    me.input_bot=1;
+                    me.count=0;
+                    me.sumatoriaBot=0;
+                    me.classModal.openModal("alerta");
+                    break;
+                }
             
             }
         },
@@ -716,6 +1174,20 @@ datosFiltrados(data) {
                 me.tituloModal = " ";            
                me.selected=null;
             }
+
+            if (accion == "alerta") {
+                me.showModal_2 = false;
+                me.subTotal_modal_superior=0;
+                me.arrayModalSuperiror_naranja=[];
+                me.button_estado=0;
+                me.select_distribuidor_x_producto=null;
+                me.arraySelect_distribuidor_x_producto=[];
+                me.input_bot=1;
+                 me.count=0;
+                me.arrayInferior_falso=[];
+                me.classModal.closeModal(accion);
+                me.me.sumatoriaBot=0;
+            }
         },
 
      
@@ -732,7 +1204,7 @@ datosFiltrados(data) {
         this.sucursalFiltro();
         this.fecha_inicial();
         this.classModal.addModal("registrar");
-    
+        this.classModal.addModal("alerta");    
     
     },
 };
