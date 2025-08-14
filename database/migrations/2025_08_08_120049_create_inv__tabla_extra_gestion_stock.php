@@ -11,12 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('sis_bitacora_stock', function (Blueprint $table) {
-            $table->id();
+        Schema::create('inv__tabla_extra_gestion_stock', function (Blueprint $table) {
+        
+            $table->bigInteger('id_gestion_stock');
             $table->bigInteger('id_producto');
-            $table->integer('stock');
-            $table->string('fecha_ingreso');        
-            $table->smallInteger('id_sucursal')->nullable();
+             $table->string('envase');            
+            $table->smallInteger('cantidad_extra');
+             $table->decimal('precio_extra',25,2);
+            
         });
     }
 
@@ -25,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('sis_bitacora_stock');
+        Schema::dropIfExists('inv__tabla_extra_gestion_stock');
     }
 };

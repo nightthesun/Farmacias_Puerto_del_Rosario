@@ -28,28 +28,37 @@ class InvGestionStockController extends Controller
     public function alerta_modal_parte_superior(Request $request){
         $cont = 0;
         $importe_total =0;
+        
         $id_linea_array=$request->id_distri_lista;
+        $tipo_modal=$request->tipo;
+        
         $arrayMostrar=[];
-
+$id_sucursal=$request->id_sucursal;
+   
     $simbolos = DB::table('adm__credecial_correos as a')
     ->join('adm__nacionalidads as b', 'a.moneda', '=', 'b.id')
     ->select('b.simbolo')
     ->first();
 // Convertir la cadena a array
 $elementos = array_filter(explode(',', $id_linea_array));
-
+    
 // Recorrer con foreach (más flexible)
     foreach ($elementos as $valor) {
         $id_linea = $valor;
+   
         //obtenemos el resultado del metodo total venta
           $rspta = $this->alerta_query($id_linea);
+           
           foreach ($rspta as $key => $value) {
+        
             $id_producto = $value->id_prod_producto;
             $total_venta = $value->total_veta;
-
-            $rspta1 = $this->listarControl($id_producto); 
+        
+            $rspta1 = $this->listarControl($id_producto,$id_sucursal); 
+       
             foreach ($rspta1 as $key => $value_2) {
                    $linea = $value_2->nombre_linea;
+                   $envase = $value_2->envase;
                 if(is_numeric($value_2->cantidad_dispenser_producto)){
                   
                     $producto = $value_2->nombre_producto." - ".$value_2->nombre_dis." X ".$value_2->cantidad_dispenser_producto." ".$value_2->nombre_forma_farmaceutica;
@@ -58,6 +67,7 @@ $elementos = array_filter(explode(',', $id_linea_array));
                     $producto = $value_2->nombre_producto." - ".$value_2->nombre_dis." ".$value_2->cantidad_dispenser_producto." ".$value_2->nombre_forma_farmaceutica;
                     $dis=1;
                 }
+                 
                 $precio_lista = $value_2->precio_lista_producto;
                 $stock_total = $value_2->stock_total;
                 $utilidad_neta = $value_2->utilidad_neta;
@@ -82,6 +92,7 @@ $elementos = array_filter(explode(',', $id_linea_array));
                         $rentabilidad = $utilidad_neta * $indicerot;
                         //para el color del label
                         $color = 3;
+                        
                         // colores 0=rojo peligro, 1=minimo amarillo ,2=alerta naranja
                         if($stock_total == 0){
                             $color = 0;
@@ -94,7 +105,10 @@ $elementos = array_filter(explode(',', $id_linea_array));
                                 }
                             }
                         }
-                        if($stock_total <= $alerta){
+                  
+                        if($tipo_modal==1){
+                          
+                            if($stock_total <= $alerta){
                             //LISTADO FINAL
                             $dispedido=round($stpedido / $dis);
                             $subtotal=$precio_lista * $dispedido;
@@ -114,10 +128,39 @@ $elementos = array_filter(explode(',', $id_linea_array));
                             'stpedido' => round($stpedido),
                             'dispedido'=>round($dispedido),
                             'precio_lista'=>$precio_lista,  
-                            'subtotal'=>$subtotal                 
+                            'subtotal'=>$subtotal,
+                            'envase'=>$envase                 
                             ]; 
                             $cont=$cont+1;
-                        }                             
+                        }   
+                        }
+                        if($tipo_modal==2){
+                            $importe_total=0;
+                            if(0 <= $minimo){
+                                 $dispedido=round($stpedido / $dis);
+                            $subtotal=$precio_lista * $dispedido;
+                            $importe_total = $importe_total + $subtotal;
+                            $arrayMostrar[] = [
+                            'id' => $cont,    
+                            'id_producto' => $id_producto,  
+                            'linea' => $linea,
+                            'producto' => $producto, 
+                            'ciclo' => $ciclo,
+                            'consumo_mensual' => round($consumo_mensual),
+                            'plazo' => $plazo,
+                            'consumo_dia' => round($consumo_dia),
+                            'stmax' => round($stmax),
+                            'stmedio' => round($stmedio),
+                            'stock_total' => $stock_total,
+                            'stpedido' => round($stpedido),
+                            'dispedido'=>round($dispedido),
+                            'precio_lista'=>$precio_lista,  
+                            'subtotal'=>$subtotal,
+                            'envase'=>$envase                  
+                            ]; 
+                            $cont=$cont+1;
+                            }
+                        }                                                  
                     }
                  }
 
@@ -131,26 +174,20 @@ $elementos = array_filter(explode(',', $id_linea_array));
 
     }
 
-    private function lineasDist($id_distribuidor){
-    
-    $distribuidores = DB::table('dir__distribuidors')
-    ->select('id_linea_array','nom_linea_array')
-    ->whereRaw('FIND_IN_SET(?, id_linea_array)', [$id_distribuidor])
-    ->get();
-    return $distribuidores;
-    }
-
+   
     public function getGestorStockModal(Request $request){
 
         $arrayMostrar=[];
-        $getStock=$this->get_totalventa();        
+        $id_sucursal=$request->id_sucursal;
+        $getStock=$this->get_totalventa($id_sucursal);        
         if (count($getStock)>0) {
             foreach ($getStock as $key => $value) {
                 $id_producto = $value->id_producto;
                 $total_venta = $value->total_venta_cantidad;
               
                 //OBTENEMOS DATOS DEL METODO LISTARCONTROL
-                 $rspta1 = $this->listarControl($id_producto);                          
+                 $rspta1 = $this->listarControl($id_producto,$id_sucursal);      
+
                  foreach ($rspta1 as $key => $value_2) {
                    $linea = $value_2->nombre_linea;
                 if(is_numeric($value_2->cantidad_dispenser_producto)){
@@ -239,7 +276,7 @@ $elementos = array_filter(explode(',', $id_linea_array));
        
     }
     
-    private function get_totalventa(){
+    private function get_totalventa($id_sucursal){
         
 
     $hoy = Carbon::now()->toDateString();
@@ -253,8 +290,9 @@ $ventaTienda = DB::table('ven__recibos as vr')
         'vdv.id_producto',
         DB::raw('COALESCE(SUM(vdv.cantidad_venta), 0) AS total_venta_cantidad'),
         DB::raw('COALESCE(COUNT(vdv.id_ingreso), 0) AS cantidad_ingresada')
-    )
+    )    
     ->whereRaw('DATE(vr.created_at) <= CURDATE()')
+    ->where('vr.id_sucursal',$id_sucursal)
     ->where('pp.activo', 1)
     ->where(DB::raw('LEFT(vr.cod,3)'), '=', 'TDA')
     ->whereRaw("
@@ -280,6 +318,7 @@ $ventaAlmacen = DB::table('ven__recibos as vr')
         DB::raw('COALESCE(COUNT(vdv.id_ingreso), 0) AS cantidad_ingresada')
     )
     ->whereRaw('DATE(vr.created_at) <= CURDATE()')
+    ->where('vr.id_sucursal',$id_sucursal)
     ->where('pp.activo', 1)
     ->where(DB::raw('LEFT(vr.cod,3)'), '=', 'ALM')
     ->whereRaw("
@@ -313,12 +352,14 @@ $resultado = DB::table(DB::raw("({$ventasCombinadas->toSql()}) as ventas_combina
         return $resultado;
     }
 
-private function  listarControl($id_producto){
+private function  listarControl($id_producto,$id_sucursal){
 
   
 // Subconsulta gettion_tienda
 $gettionTienda = DB::table('prod__productos as pp')
     ->join('tda__ingreso_productos as tip', 'tip.id_prod_producto', '=', 'pp.id')
+    ->join('tda__tiendas as tt','tt.id','=','tip.idtienda')
+    ->join('adm__sucursals as ass','tt.idsucursal','=','ass.id') 
     ->join('pivot__modulo_tienda_almacens as pivot', function ($join) {
         $join->on('pivot.id_ingreso', '=', 'tip.id')
              ->where('pivot.tipo', '=', 'TDA');
@@ -373,13 +414,19 @@ $gettionTienda = DB::table('prod__productos as pp')
         'tip.stock_ingreso',
         'gpv2.utilidad_neto_gespreventa',
         'gpv2.costo_compra_gespreventa',
+        'tip.envase as envase',
         DB::raw("'Tienda' as tipo")
     )
+        ->where('ass.id',$id_sucursal)
         ->where('pp.id', $id_producto);
+        
 
 // Subconsulta gettion_almacen
 $gettionAlmacen = DB::table('prod__productos as pp')
     ->join('alm__ingreso_producto as aip', 'aip.id_prod_producto', '=', 'pp.id')
+    ->join('alm__almacens as aa', 'aip.idalmacen', '=', 'aa.id')
+    ->join('adm__sucursals as ass', 'aa.idsucursal', '=', 'ass.id')
+
     ->join('pivot__modulo_tienda_almacens as pivot', function ($join) {
         $join->on('pivot.id_ingreso', '=', 'aip.id')
              ->where('pivot.tipo', '=', 'ALM');
@@ -434,8 +481,10 @@ $gettionAlmacen = DB::table('prod__productos as pp')
         'aip.stock_ingreso',
         'gpv2.utilidad_neto_gespreventa',
         'gpv2.costo_compra_gespreventa',
+        'aip.envase as envase',
         DB::raw("'Almacen' as tipo")
     )
+    ->where('ass.id',$id_sucursal)
     ->where('pp.id', $id_producto);
 
 // Unión de tienda y almacén
@@ -457,6 +506,7 @@ $resultado = DB::table(DB::raw("({$combinado->toSql()}) as sub"))
         DB::raw('SUM(sub.stock_ingreso) AS stock_total'),
         DB::raw('AVG(sub.utilidad_neto_gespreventa) AS utilidad_neta'),
         DB::raw('AVG(sub.costo_compra_gespreventa) AS precio_unitario'),
+        'sub.envase',
         'sub.tipo'
     )
     ->groupBy(
@@ -469,6 +519,7 @@ $resultado = DB::table(DB::raw("({$combinado->toSql()}) as sub"))
         'sub.cantidad_dispenser_producto',
         'sub.nombre_forma_farmaceutica',
         'sub.precio_lista_producto',
+        'sub.envase',
         'sub.tipo'
     )
     ->get();
@@ -652,5 +703,114 @@ $terciario = DB::table('prod__productos as pp')
 $resultado = $primario->unionAll($secundario)->unionAll($terciario)->get();
 return $resultado;
     
+    }
+
+    public function register_modal(Request $request){
+        try {
+
+       
+
+         DB::beginTransaction();
+         $arrayInferior_falso=$request->arrayInferior_falso;
+         $arrayModalSuperiror_naranja=$request->arrayModalSuperiror_naranja;
+         if(count($arrayInferior_falso)<=0&&count($arrayModalSuperiror_naranja)<=0){
+            return 0;
+         }
+         
+            $id_user=auth()->user()->id;
+            $id_sucursal=$request->id_sucursal;
+            $id_distribuidor=$request->id_distribuidor;
+            $subTotal_modal_superior=floatval($request->subTotal_modal_superior);
+            $sumatoriaBot=floatval($request->sumatoriaBot);
+            $total_programacion=$subTotal_modal_superior+$sumatoriaBot;
+            $fecha_pago=$request->fechaPago;
+            $forma_pago=$request->selectFormaPago;
+            $turno_pedido=$request->turno_pedido;
+            $plazo_pedido=$request->plazoPago;
+            $observacion=$request->observacion;
+            $tipo=$request->tipo;
+            $simbolo=$request->simbolo;
+
+            $nuevoItem = new Inv_GestionStock();
+            $nuevoItem->id_sucursal=$id_sucursal;
+            $nuevoItem->id_usuario=$id_user;
+            $nuevoItem->id_distribuidor=$id_distribuidor;
+            $nuevoItem->total_programacion=$total_programacion;   
+            $nuevoItem->fecha_pago=$fecha_pago;    
+            $nuevoItem->forma_pago=$forma_pago; 
+            $nuevoItem->turno_pedido=$turno_pedido;              
+            $nuevoItem->plazo_pedido=$plazo_pedido;  
+            $nuevoItem->observacion=$observacion;  
+            $nuevoItem->tipo=$tipo; 
+            $nuevoItem->simbolo=$simbolo;
+            $nuevoItem->save();
+
+               // Obtener el ID recién creado
+             $id_nuevoItem = $nuevoItem->id;
+      
+             if(count($arrayModalSuperiror_naranja)>0){
+            
+            $bloque_superior = $request->arrayModalSuperiror_naranja;
+           foreach ($bloque_superior as $item) {
+           
+            $lineas = $item['linea'];
+            $id_producto = $item['id_producto'];
+            $envase=$item['envase'];
+            $ciclo_pedido = $item['ciclo'];
+            $consumo_pedido = $item['consumo_mensual'];
+            $plazo_medio = $item['plazo'];
+            $consumo_dia_pedido = $item['consumo_dia'];
+            $maximo_pedido = $item['stmax'];
+            $actual_pedido = $item['stock_total'];
+            $stock_pedido =$item['stpedido'];
+            $cantidad_pedido =$item['dispedido'];
+            $precio_pedido =$item['subtotal'];            
+
+            $datos = [
+                'id_gestion_stock' => $id_nuevoItem,
+                'lineas' => $lineas,
+                'id_producto' => $id_producto,
+                'envase' => $envase,
+                'ciclo_pedido' => $ciclo_pedido,
+                'consumo_pedido' => $consumo_pedido,
+                'plazo_medio' => $plazo_medio,
+                'consumo_dia_pedido' => $consumo_dia_pedido,
+                'maximo_pedido' => $maximo_pedido,
+                'actual_pedido' => $actual_pedido,
+                'stock_pedido' => $stock_pedido,
+                'cantidad_pedido' => $cantidad_pedido,
+                'precio_pedido' => $precio_pedido,
+            ];
+        
+            DB::table('inv__pedido_gestion_stock')->insert($datos);
+            }          
+        } 
+        
+        if(count($arrayInferior_falso)>0){
+             $bloque_inferior = $request->arrayInferior_falso;
+              foreach ($bloque_inferior as $item) {
+                $id_producto = $item['id_prod'];
+                $envase = $item['tipo'];
+                $cantidad_extra = $item['cantidadFalsa'];
+                $precio_extra = $item['subTotal_falso'];
+
+                $datos = [
+                'id_gestion_stock' => $id_nuevoItem,
+                'id_producto' => $id_producto, 
+                'envase' => $envase,  
+                'cantidad_extra' => $cantidad_extra,  
+                'precio_extra' => $precio_extra,                
+            ];
+        
+            DB::table('inv__tabla_extra_gestion_stock')->insert($datos);
+
+              }
+        }
+
+         DB::commit(); 
+        }
+        catch (\Throwable $th) {
+         return $th;
+        }
     }
 }

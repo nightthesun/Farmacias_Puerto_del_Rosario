@@ -1588,7 +1588,8 @@ let operacion_apertura = operacion_acciones + monto_cerrar_apertura;
                         arrayMoneda:me.arrayMoneda,
                         diferencia:c,
                         estado:estado,
-                        moneda_s1:me.moneda_s1
+                        moneda_s1:me.moneda_s1,
+                        id_sucursal:me.id_sucursal,
                     }).then(function (response) {
                       
                         me.listarIndex();

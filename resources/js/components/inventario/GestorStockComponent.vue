@@ -33,14 +33,8 @@
                             <div class="input-group">
                                 <select class="form-control" v-model="sucursalSeleccionada">
                                     <option value="0" disabled selected>Seleccionar...</option>
-                                    <option v-for="sucursal in arraySucursal" :key="sucursal.id"  :value="sucursal.codigo"
-                                        v-text="
-                                            sucursal.codigoS +
-                                            ' -> ' +
-                                            sucursal.codigo+
-                                            ' ' +
-                                            sucursal.razon_social
-                                        "
+                                    <option v-for="sucursal in arraySucursal" :key="sucursal.id"  :value="sucursal.id"
+                                        v-text="sucursal.razon_social"
                                     ></option>
                                 </select>
                             </div>
@@ -231,11 +225,14 @@
                         </tr>                        
                     </thead>
                     <tbody>
-                        <tr v-for="i in arrayModalOperacionGestor" :key="i.id_producto"
-                        :style="{ backgroundColor: i.color === 0 ? 'red' : 
-                     i.color === 1 ? '#f5d033' : 
-                     i.color === 2 ? 'orange' :
-                     i.color ===3 ? 'transparent': 'transparent'}" >
+                        <tr v-for="(i, index)  in arrayModalOperacionGestor" :key="index"
+                      :style="i.color === 0 || i.color === 1 || i.color === 2 ? {
+  backgroundColor: i.color === 0 ? 'red' :
+                   i.color === 1 ? '#FFE300' :
+                   '#FF7300',
+  color: 'white',
+  fontWeight: 'bold'
+} : {}" >
                             <td style="text-align: left;">{{i.linea}}</td>
                             <td style="text-align: left;">{{i.producto}}</td>
                             <td style="text-align: right;">{{ i.ciclo }}</td>
@@ -290,10 +287,10 @@
                     </VueMultiselect> 
                         </div>
                         <div class="col-md-5 input-group mb-3">                            
-                            <button type="button" class="btn" style="background-color: orange; color: white;" @click="modalAlerta_open();" :disabled="selected==null">Stock alerta</button>&nbsp;
-                            <button type="button" class="btn" style="background-color: yellow; color: black;">Stock minimo</button>&nbsp;
-                            <button type="button" class="btn" style="background-color: red; color: white;">Stock cero</button>&nbsp;
-                            <button type="button" class="btn btn-secondary">Cerrar modal</button>
+                            <button type="button" class="btn" :style="selected == null ?{backgroundColor: '#eeeeee', color: 'white'}:{backgroundColor: '#FF7300', color: 'white'}"  @click="selected != null && modalAlerta_open(selected.id, selected.id_linea_array, 1)"><strong>Stock alerta</strong></button>&nbsp;
+                            <button type="button" class="btn" :style="selected == null ?{backgroundColor: '#eeeeee', color: 'white'}:{backgroundColor: '#FFE300', color: 'white'}" @click="selected != null && modalAlerta_open(selected.id,selected.id_linea_array,2);"><strong>Stock minimo</strong></button>&nbsp;
+                            <button type="button" class="btn" style="background-color: red; color: white;" @click="abrirModal('saldo_cero')" ><strong>Stock cero</strong></button>&nbsp;
+                            <button type="button" class="btn btn-primary" @click="cerrarModal('registrar')"><strong>Cerrar modal</strong></button>              
                         </div>
                 </div>        
             </div>
@@ -314,7 +311,7 @@
                 <div class="modal-dialog modal-secondary modal-lg modal-dialog-scrollable" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
-                        <h4 class="modal-title">{{ tituloModal }}</h4>
+                        <h4 class="modal-title">{{ tituloModal_2 }}</h4>
                         <button type="button" class="close" @click="cerrarModal('alerta')">
                             <span>&times;</span>
                         </button>
@@ -583,8 +580,96 @@
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" @click="cerrarModal('alerta')">Cerrar</button>
                        
-                              <button type="button"  class="btn btn-primary">Guardar</button>
+                              <button :disabled="isSubmitting==true" type="button"  class="btn btn-primary" @click="guardarModal()">Guardar</button>
                      
+                    </div>
+
+                    </div>
+                </div>
+            </div>
+        </transition>  
+<!--finde modal alerta-->
+
+<!---modal de saldo cero----->
+   <transition name="fade">
+            <div v-if="showModal_3" class="modal d-block" tabindex="-1" role="dialog">
+                 <div class="modal-dialog modal-secondary modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                        <h4 class="modal-title">{{ tituloModal_3 }}</h4>
+                        <button type="button" class="close" @click="cerrarModal('saldo_cero')">
+                            <span>&times;</span>
+                        </button>
+                        </div>
+                        <div class="card-header">
+                        <br>
+                            <button type="button" class="btn btn-info"  style="color:white;">
+                                <i class="fa fa-file-pdf-o" aria-hidden="true"></i>&nbsp;Exportar PDF
+                            </button>&nbsp;
+                            <button type="button" class="btn btn-primary">
+                                <i class="fa fa-file-excel-o" aria-hidden="true"></i>&nbsp;Exportar Excel
+                            </button>
+             
+                        </div>
+                       <br>
+                    
+                            <div class="form-group row">
+                                <div class="col-md-1">
+
+                                </div>
+                        <div class="col-md-1">
+                     <label for="">Accion: </label>
+                </div>
+                  <div class="col-sm-2">
+                                     <select v-model="selectModa_saldoCero" class="form-control">
+                                        <option value="0" disabled>Seleccionar...</option>
+                                        <option v-for="a in arrayModal_saldoCero" :key="a.id" :value="a.id" v-text="a.tipo"></option>
+                                    </select>
+                    </div> 
+                    <div class="col-sm-1">
+
+                    </div>
+                      <div class="col-md-6">
+                            <div class="input-group">
+                                <input type="text" id="texto" name="texto" class="form-control" placeholder="Texto a buscar por liena o nombre de producto"
+                                    v-model="buscar_saldoCero"/>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fa fa-search"></i>  Buscar
+                                </button>
+                            </div>
+                        </div>
+                         <div class="col-md-1">
+                                </div>
+                </div>
+                          
+                        
+
+                        <div class="modal-body" style="max-height: 80vh; overflow-y: auto;">
+
+                  
+                        <form action="" class="form-horizontal">
+                        
+                            <!-- insertar datos -->
+                            <div class="container">
+                                <table class="table table-bordered table-striped table-sm table-responsive" >                    
+                                    <thead>
+                                        <tr>
+                                        <th class="col-md-2">Linea</th>
+                                        <th class="col-md-2">Cod. Producto</th>
+                                        <th class="col-md-4">Producto</th>
+                                        <th class="col-md-1">Envase</th>
+                                        <th class="col-md-1">Stock actual</th>
+                                        <th class="col-md-1">Rotura de stock</th>
+                                        <th class="col-md-1">Prospesctos pedidos</th>
+                                        </tr>                        
+                                    </thead>
+                                </table>
+                            </div>
+                        </form>
+                    </div>
+                  
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" @click="cerrarModal('saldo_cero')">Cerrar</button>                     
                     </div>
 
                     </div>
@@ -620,9 +705,12 @@ export default {
      
             showModal: false,
             showModal_2:false,
+            showModal_3:false,
             //offset:3,
   selected:null,
             tituloModal: '',
+            tituloModal_2: '',
+            tituloModal_3: '',
             sucursalSeleccionada:0,
             arraySucursal:[],
             buscar:'',
@@ -630,7 +718,11 @@ export default {
             startDate: '',
       endDate: '',
 
-    selectFormaPago:'0',      
+    selectModa_saldoCero:'',
+    arrayModal_saldoCero:[{id:1,tipo:"10"},{id:2,tipo:"30"},{id:3,tipo:"50"},{id:4,tipo:"100"},{id:5,tipo:"Todos"}],
+    buscar_saldoCero:'',
+      selectFormaPago:'0',    
+
     array_forma_pago: [{ id: 1, tipo: "CHEQUE" },{ id: 2, tipo: "CONTADO" },{ id: 3, tipo: "CREDITO" },{ id: 4, tipo: "TRASFERENCIA BANCARIA" }],
     fechaPago:'',
     plazoPago:'',
@@ -654,6 +746,10 @@ export default {
             arrayInferior_falso:[],
             count:0,
             sumatoriaBot:0,
+            isSubmitting:false,
+            id_distribuidor:0, 
+            id_lineas:"",
+            tipo_modal:0,
           
         };
     },
@@ -847,11 +943,18 @@ XLSX.writeFile(wb, 'informe_emisiones.xlsx');
      //   XLSX.writeFile(wb, archivo+'.xlsx');
         },
         
-        modalAlerta_open(){
+        modalAlerta_open(id_distri,lineas,tipo){
             let me = this;
-            me.listarModalAlerta_superior();
+            me.id_distribuidor=id_distri;
+            me.id_lineas=lineas;
+            me.tipo_modal=tipo;
+          
+            me.listarModalAlerta_superior(me.tipo_modal);
             me.listarModalAlerta_inferior();
-            me.abrirModal('alerta');            
+            me.abrirModal('alerta'); 
+            
+     
+                      
         },
 
         buscarProductos() {
@@ -870,28 +973,25 @@ XLSX.writeFile(wb, 'informe_emisiones.xlsx');
         } else {
             me.arrayModalOperacionGestor=me.arrayModalFalso; 
         }
-        console.log(existe);    
+     
     },
   
 
 datosFiltrados(data) {
            let me=this;
-            if (data===10) {
-                 console.log(data);
+            if (data===10) {            
                 me.arrayModalOperacionGestor=me.arrayModalFalso; 
             }
             if (data===1) {
-                 console.log(data);
               me.arrayModalOperacionGestor=me.arrayModalFalso.filter(item => item.color === data);              
             }
             if (data===2) {
-                 console.log(data);
               me.arrayModalOperacionGestor=me.arrayModalFalso.filter(item => item.color === data); 
             }
             if (data===0) {
-                 console.log(data);
               me.arrayModalOperacionGestor=me.arrayModalFalso.filter(item => item.color === data); 
             }   
+             console.log(me.arrayModalOperacionGestor);
   },
 
         iniciarOperacio(){
@@ -960,11 +1060,76 @@ datosFiltrados(data) {
          me.sumatoriaBot=parseFloat(suma).toFixed(2);
         },
 
+        guardarModal(){      
+            let me = this;  
+           
+            if (me.id_distribuidor === 0 || me.id_lineas === "" ||
+             me.selectFormaPago === "0" || me.fechaPago ==="" ||
+                me.plazoPago === "" ||me.selectEntregaPedido==="0"|| me.observacion===""    
+            ) {
+                Swal.fire(
+                    "No puede ingresar valor nulos  o vacios",
+                    "Haga click en Ok",
+                    "warning",
+                );
+            } else {
+                // Si ya está enviando, no permitas otra solicitud
+            me.isSubmitting=true;
+                axios.post("/gestor-stock/registrar_naranja", {
+                        'id_distribuidor': me.id_distribuidor,
+                        'id_lineas': me.id_lineas,
+                        'arrayModalSuperiror_naranja': me.arrayModalSuperiror_naranja,
+                        'subTotal_modal_superior': parseFloat(me.subTotal_modal_superior).toFixed(2),
+                        'arrayInferior_falso': me.arrayInferior_falso,
+                        'sumatoriaBot': me.sumatoriaBot,
+                        'selectFormaPago': me.selectFormaPago,
+                        'fechaPago': me.fechaPago,
+                        'plazoPago': me.plazoPago,
+                        'turno_pedido': me.selectEntregaPedido,
+                        'observacion': me.observacion,  
+                        'simbolo': me.simbolo,
+                        'id_sucursal':me.sucursalSeleccionada,
+                        'tipo':me.tipo_modal                    
+                    })
+                    .then(function (response) {
+                        me.cerrarModal("alerta");
+                          me.isSubmitting=false;
+                          var respuesta = response.data;
+                          if (respuesta.length>0) {
+                                if (respuesta===0) {
+                                    Swal.fire("Al menos debe estar lleno una lista de de productos.","Haga click en Ok","warning",);
+                                }else{
+                                    Swal.fire(""+respuesta,"Haga click en Ok","error",);
+                                }
+                          }else{
+                            Swal.fire("Se guardo correctamente.","Haga click en Ok","success",);
+                          }
+                       
+                        
+                      //  Swal.fire(
+                      //      "Registrado exitosamente",
+                      //      "Haga click en Ok",
+                      //      "success",
+                      //  );
+
+                      //  me.listarAjusteNegativos();
+                      //  me.sucursalFiltro();
+                    })
+                   // .catch(function (error) {
+                   //     error401(error);
+                   //     console.log(error);
+                   // });
+                   .catch(function (error) {                
+                                  
+            });
+            }
+        },
+
 
         listarModalGestorOperacion(){            
             let me=this;
             me.arrayModalOperacionGestor=[];
-            var url = "/gestor-stock/listarGestorStockModal";
+            var url = "/gestor-stock/listarGestorStockModal?id_sucursal="+me.sucursalSeleccionada;
             axios
                 .get(url)
                 .then(function (response) {
@@ -972,9 +1137,6 @@ datosFiltrados(data) {
                     me.arrayModalOperacionGestor = respuesta;
                     me.arrayModalFalso = respuesta; 
             
-                    console.log("*******************");
-                    console.log(respuesta);
-                 console.log("*******************");
                 })
                 .catch(function (error) {
                     error401(error);
@@ -991,10 +1153,7 @@ datosFiltrados(data) {
                 .get(url)
                 .then(function (response) {
                     var respuesta = response.data;                 
-                    me.arraySelect_distribuidor_x_producto=respuesta;
-                    console.log("*********2222**********");
-                    console.log(respuesta);
-                 console.log("*******************");
+               
                 })
                 .catch(function (error) {
                     error401(error);
@@ -1004,8 +1163,7 @@ datosFiltrados(data) {
 
       sumar_top(id){
         let me=this;
-        console.log(id);
-        console.log(me.inputTop[id]);
+ 
         const element=0;
         if( me.inputTop[id]!="" || me.inputTop[id]!=null || me.inputTop[id]>=0){
              parseFloat(me.arrayModalSuperiror_naranja[id].subtotal=(me.arrayModalSuperiror_naranja[id].dispedido)*me.arrayModalSuperiror_naranja[id].precio_lista).toFixed(2);
@@ -1017,12 +1175,12 @@ datosFiltrados(data) {
         }
       },
 
-        listarModalAlerta_superior(){
+        listarModalAlerta_superior(tipo){
             
             let me=this;
             me.arrayModalSuperiror_naranja=[];
             me.subTotal_modal_superior=0;
-            var url = "/gestor-stock/listarAlertaModalSuperior?id_distri_lista="+me.selected.id_linea_array;
+            var url = "/gestor-stock/listarAlertaModalSuperior?id_distri_lista="+me.selected.id_linea_array+"&tipo="+tipo+"&id_sucursal="+me.sucursalSeleccionada;
             axios
                 .get(url)
                 .then(function (response) {
@@ -1048,7 +1206,6 @@ datosFiltrados(data) {
         estadoBotton(data){
             let me=this;
             me.button_estado=data;
-            console.log(data);
         },
 
         sucursalFiltro() {
@@ -1059,13 +1216,28 @@ datosFiltrados(data) {
                 .get(url)
                 .then(function (response) {
                     var respuesta = response.data;
-                    me.arraySucursal = respuesta;
-                 
+                    me.arraySucursal = respuesta;                 
                 })
                 .catch(function (error) {
                     error401(error);
                     console.log(error);
                 });
+        },
+
+        sucursalFiltro_v2(){
+            let me  = this;
+            var url = "/listar_sucursal_x_usuario";
+            axios
+                .get(url)
+                .then(function (response) {
+                    var respuesta = response.data;
+                    me.arraySucursal = respuesta;                 
+                })
+                .catch(function (error) {
+                    error401(error);
+                    console.log(error);
+                });
+            
         },
        
         nameWithLang ({nom_a_facturar,nom_linea_array}) {            
@@ -1083,10 +1255,7 @@ datosFiltrados(data) {
                 .get(url)
                 .then(function (response) {
                     var respuesta = response.data;
-                    me.arrayDistribuidor = respuesta;
-                    console.log("---distribuidor---");
-                    console.log(me.arrayDistribuidor);
-                 
+                    me.arrayDistribuidor = respuesta;                 
                 })
                 .catch(function (error) {
                     error401(error);
@@ -1133,8 +1302,13 @@ datosFiltrados(data) {
                     break;
                 }
 
-                case "alerta":{
-                    me.tituloModal="Orden de pedido alerta  naranja";
+                case "alerta":{ 
+                    if (me.tipo_modal===1) {
+                        me.tituloModal_2="Orden de pedido alerta naranja";
+                    } 
+                    if (me.tipo_modal===2) {
+                        me.tituloModal_2="Orden de pedido minimo";
+                    } 
                     me.selectFormaPago="0";
                     me.button_estado=0;
                     me.showModal_2=true;
@@ -1146,6 +1320,15 @@ datosFiltrados(data) {
                     me.count=0;
                     me.sumatoriaBot=0;
                     me.classModal.openModal("alerta");
+                    me.isSubmitting=false;
+                   
+                    break;
+                }
+                case "saldo_cero":{
+                    me.showModal_3 = true;  
+                    me.tituloModal_3 = "Reporte saldo cero"; 
+                    me.selectModa_saldoCero = 1;
+                    me.classModal.openModal("saldo_cero");
                     break;
                 }
             
@@ -1186,7 +1369,19 @@ datosFiltrados(data) {
                  me.count=0;
                 me.arrayInferior_falso=[];
                 me.classModal.closeModal(accion);
-                me.me.sumatoriaBot=0;
+                me.isSubmitting=false;
+                me.sumatoriaBot=0;
+                me.id_distribuidor=0;
+                me.id_lineas="";
+                me.tipo_modal=0;
+                me.tituloModal_2="";
+            }
+
+            if (accion == "saldo_cero") {
+               me.showModal_3 = false;  
+               me.tituloModal_3 = " "; 
+               me.selectModa_saldoCero="";
+               me.classModal.closeModal(accion);
             }
         },
 
@@ -1201,11 +1396,12 @@ datosFiltrados(data) {
 
     mounted() {
         this.classModal = new _pl.Modals();
-        this.sucursalFiltro();
+       // this.sucursalFiltro();
+        this.sucursalFiltro_v2();
         this.fecha_inicial();
         this.classModal.addModal("registrar");
         this.classModal.addModal("alerta");    
-    
+        this.classModal.addModal("saldo_cero");       
     },
 };
 </script>

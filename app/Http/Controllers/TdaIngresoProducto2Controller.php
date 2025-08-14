@@ -311,16 +311,7 @@ $terciario = DB::table('prod__productos as pp')
             ];
             DB::table('pivot__modulo_tienda_almacens')->insert($datos);
             // Si llegamos aquí sin errores, confirmamos la transacción
-            $fechaHoy = Carbon::now()->format('Y-m-d');
-
-            $datos_2=[
-                'id_producto' => $request->id_prod_producto,
-                'stock' => $request->cantidad,
-                'fecha_ingreso' => $fechaHoy,
-                'tipo' =>1,
-                 'id_tienda_almacen' => $request->idtienda
-            ];
-           DB::table('sis_bitacora_stock')->insert($datos_2);  
+         
             DB::commit();
         } catch (\Throwable $th) {
             // Si el primer guardado fue exitoso y ocurre un error, revertimos la transacción

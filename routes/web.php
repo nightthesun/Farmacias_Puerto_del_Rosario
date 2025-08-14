@@ -171,6 +171,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/bloqueado', [GestionPerimsoController::class, 'bloqueado']);
     Route::get('/listar_alamcen_tienda_permisos', [GestionPerimsoController::class, 'listar_alamcen_tienda_permisos']);
     Route::get('/listar_tienda_alamce_generico_lista_x_rol_usuario', [GestionPerimsoController::class, 'listar_tienda_alamce_generico_lista_x_rol_usuario']);
+    Route::get('/listar_sucursal_x_usuario', [GestionPerimsoController::class, 'listar_sucursal_x_usuario']);    
         
     /*****************tipo vista**************** */
     Route::get('/listarSucursal', [GetController::class, 'listarSucursal']);
@@ -624,7 +625,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/gestor-stock/listarDistribuidor', [InvGestionStockController::class, 'get_distribuidor_gesSctock']);
     Route::get('/gestor-stock/listarGestorStockModal', [InvGestionStockController::class, 'getGestorStockModal']);   
     Route::get('/gestor-stock/listarAlertaModalSuperior', [InvGestionStockController::class, 'alerta_modal_parte_superior']); 
-    Route::get('/gestor-stock/listar_Producto_x_distribuidor', [InvGestionStockController::class, 'getProducto_x_distribuidor']);     
+    Route::get('/gestor-stock/listar_Producto_x_distribuidor', [InvGestionStockController::class, 'getProducto_x_distribuidor']);   
+    Route::post('/gestor-stock/registrar_naranja', [InvGestionStockController::class, 'register_modal']);  
          
     /////////////////////////////////LOGISTICO///////////////////////////////////////
     Route::get('/vehiculo/listarSucursal', [LogVehiculoController::class, 'listarSucursal']);

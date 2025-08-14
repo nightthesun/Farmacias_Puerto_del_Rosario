@@ -221,17 +221,7 @@ try {
         
     DB::table('pivot__modulo_tienda_almacens')->insert($datos);
 
-$fechaHoy = Carbon::now()->format('Y-m-d');
 
-            $datos_2=[
-                'id_producto' => $request->id_prod_producto,
-                'stock' => $request->cantidad,
-                'fecha_ingreso' => $fechaHoy,
-                'tipo' =>2,
-                'id_tienda_almacen' => $request->idalmacen
-            ];
-           DB::table('sis_bitacora_stock')->insert($datos_2);  
-   // $pivote = new Pivot_Modulo_tienda_almacen();
    // $pivote->id_tienda_almacen = $request->idalmacen;
    // $pivote->id_ingreso = $nuevoProductoID;
    // $pivote->save();

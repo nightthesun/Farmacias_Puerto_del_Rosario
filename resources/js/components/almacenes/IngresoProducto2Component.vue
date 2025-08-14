@@ -379,13 +379,25 @@ puedeEditar:2,
             codigo_alm:'',
 
              //limitado                    
-             startDate: '',
+            startDate: '',
             endDate: '',
-
+            id_sucursal:0,
         };
     },
 
-    
+  watch: {
+        selectAlmTienda: function (newValue) {            
+
+                let sucursal = this.arrayAlmTienda.find(
+                    (element) => element.id_almacen === newValue,
+                );
+
+                if (sucursal) {
+                    this.id_sucursal =  sucursal.id_sucursal;                 
+                }   
+                 
+        },
+    },    
 
     computed: {      
         codigoQr() {
@@ -517,6 +529,7 @@ tiene_movimiento(id_almacen,id_index,ingresoProducto){
                     console.log(error);
                 });
         },
+     
 
         listarProductos_almacen() {
             let me = this;
@@ -543,6 +556,7 @@ tiene_movimiento(id_almacen,id_index,ingresoProducto){
                 .then(function (response) {
                     var respuesta = response.data;
                     me.arrayAlmTienda = respuesta;
+          
                  
                 })
                 .catch(function (error) {
@@ -685,6 +699,7 @@ tiene_movimiento(id_almacen,id_index,ingresoProducto){
                     //me.ProductoLineaIngresoSeleccionado = 0;
                     me.inputTextBuscarProductoIngreso = "";
                         me.arrayRetornarProductosIngreso = "";
+                        me.id_sucursal=0;
               
             } else {
                 me.classModal.closeModal(accion);
@@ -707,6 +722,7 @@ tiene_movimiento(id_almacen,id_index,ingresoProducto){
                     'fecha_vencimiento':me.fecha_vencimiento,
                     'lote':me.lote,
                     'registro_sanitario':me.registrosanitario,
+                    'id_sucursal':me.id_sucursal
               
                 }).then(function(response){
                     Swal.fire('Registrado Correctamente');
@@ -746,6 +762,7 @@ tiene_movimiento(id_almacen,id_index,ingresoProducto){
                     'fecha_vencimiento':me.fecha_vencimiento,
                     'lote':me.lote,
                     'registro_sanitario':me.registrosanitario,
+                    'id_sucursal':me.id_sucursal
                 }).then(function (response) {
                     Swal.fire('Actualizado Correctamente')
                     me.listarIndex(1); 

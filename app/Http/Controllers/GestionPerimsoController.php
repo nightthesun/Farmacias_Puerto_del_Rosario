@@ -166,7 +166,7 @@ class GestionPerimsoController extends Controller
             // Consultas para otros usuarios
             $asignaciones = DB::table('adm__asig_mas_sucursales')
                 ->where('id_user_role_sucu', $id_user2)
-                ->get();
+                ->get();               
             
             $codigos = [];
             $where1 = '';
@@ -174,7 +174,7 @@ class GestionPerimsoController extends Controller
             
             if ($asignaciones->isNotEmpty()) {
                 foreach ($asignaciones as $value) {
-                    $codigos[] = "'" . $value->cod . "'";
+                    $codigos[] = "'" . $value->id_sucursal . "'";
                 }
                 $where1 = 'aa.codigo IN (' . implode(',', $codigos) . ')';
                 $where2 = 'tda__tiendas.codigo IN (' . implode(',', $codigos) . ')';
@@ -219,6 +219,48 @@ class GestionPerimsoController extends Controller
             return $resultadoConsulta;
         }
     }
-    
+    ///////////////////////////sucursal x usuario//////////////////////////////////////////
+    public function listar_sucursal_x_usuario(){
+     
+        $idsuc = session('idsuc');
+        $id_user2 = session('id_user2'); 
+        $user_1 = auth()->user()->id;
+        $user_2 = auth()->user()->name;
+         if ($user_1 == 1 && $user_2 == 'admin') {
+           $sucursal = DB::table('adm__sucursals as ass')
+            ->join('adm__departamentos as ad', 'ass.departamento', '=', 'ad.id')
+            ->select('ass.id','ass.razon_social','ass.telefonos','ass.nit','ass.direccion','ass.nombre_comercial','ad.nombre as departamento')
+            ->where('ass.activo', 1)->get();
+            return $sucursal;
+         }else{
+            $asignaciones = DB::table('adm__asig_mas_sucursales')
+            ->where('id_user_role_sucu', $id_user2)
+            ->distinct()
+            ->get();
+
+            $codigos = [];
+            $where1 = '';
+          
+            
+            if ($asignaciones->isNotEmpty()) {
+                foreach ($asignaciones as $value) {
+                    $codigos[] = "'" . $value->id_sucursal . "'";
+                }
+                $where1 = 'ass.id IN (' . implode(',', $codigos) . ')';
+               
+            } else {
+                $where1 = 'ass.id = ' . $idsuc;                            
+            }
+             $sucursal = DB::table('adm__sucursals as ass')
+            ->join('adm__departamentos as ad', 'ass.departamento', '=', 'ad.id')
+            ->select('ass.id','ass.razon_social','ass.telefonos','ass.nit','ass.direccion','ass.nombre_comercial','ad.nombre as departamento')
+            ->where('ass.activo', 1)
+             ->whereRaw($where1)
+             ->get();  
+               return $sucursal;
+         }    
+
+
+    }
 
 }

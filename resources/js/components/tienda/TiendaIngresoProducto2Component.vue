@@ -84,10 +84,11 @@
             <table class="table table-bordered table-striped table-sm table-responsive">
                 <thead>
                     <tr>
-                        <th class="col-md-1">Opciones</th>
-                        <th class="col-md-1">Codigo</th>
-                        <th class="col-md-1">Linea o Marca</th>
-                        <th class="col-md-2">Producto</th>
+                        <th>Opciones</th>
+                        <th>Codigo</th>
+                        <th>Linea</th>
+                        <th class="col-md-3">Producto</th>
+                        <th class="col-md-1">Envase</th>
                         <th class="col-md-1">Cantidad</th>
                         <th class="col-md-1">Lote</th>
                         <th class="col-md-1">Vencimiento</th>
@@ -95,12 +96,12 @@
                         <th class="col-md-2">Fecha y Hora</th>
                         <th class="col-md-1">Usuario</th>
                         <th class="col-md-1">Traspaso</th>
-                        <th class="col-md-1">Estado</th>
+                        <th>Estado</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr v-for="ingresoProducto in arrayIndex" :key="ingresoProducto.id">
-                        <td class="col-md-1">
+                        <td>
                             <div  class="d-flex justify-content-start">
                                 <div  v-if="puedeEditar==1">
                                 <button type="button" class="btn btn-warning btn-sm" @click="tiene_movimiento(ingresoProducto.idtienda,ingresoProducto.id,ingresoProducto)"  style="margin-right: 5px;">
@@ -131,9 +132,10 @@
                             </div>
                            
                         </td>
-                        <td class="col-md-1" v-text="ingresoProducto.codigo_prod"></td>
-                        <td class="col-md-1" v-text="ingresoProducto.nombre_linea"></td>
+                        <td v-text="ingresoProducto.codigo_prod"></td>
+                        <td v-text="ingresoProducto.nombre_linea"></td>                       
                         <td class="col-md-2" v-text="ingresoProducto.leyenda "></td>
+                         <td class="col-md-1"  v-text="ingresoProducto.envase"></td>
                         <td class="col-md-1" v-text="ingresoProducto.cantidad" style="text-align:right"></td>
                         <td v-text="ingresoProducto.lote" class="col-md-1"></td>
                         <td  v-text="ingresoProducto.fecha_vencimiento" class="col-md-1"></td>
@@ -155,7 +157,7 @@
                                 {{ ingresoProducto.num_traspaso }}
                             </div>
                         </td>
-                        <td class="col-md-1">
+                        <td>
                             <div v-if="ingresoProducto.activo==1">
                                 <span class="badge badge-success">Activo</span>
                             </div>
@@ -567,6 +569,7 @@ tiene_movimiento(id_almacen,id_index,ingresoProducto){
                     var respuesta = response.data;
                     me.pagination = respuesta.pagination;
                     me.arrayIndex = respuesta.tienda.data;
+                    console.log(me.arrayIndex);
                     
                 })
                 .catch(function(error){
