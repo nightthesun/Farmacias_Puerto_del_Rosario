@@ -125,15 +125,17 @@
                             <div class="form-group row">
                                 <div class="col-md-12">
                                     <table class="table table-responsive">
-                                    <tr style="background-color: antiquewhite;">
-                                        <td ><b>Cliente:</b> <br />  {{ cliente }}</td>
-                                        <td ><b>Fecha de Venta:</b> <br />  {{ fechaventa }}</td>
-                                    </tr>
-                                    </table>
+  <tbody>
+    <tr style="background-color: antiquewhite;">
+      <td><b>Cliente:</b> <br /> {{ cliente }}</td>
+      <td><b>Fecha de Venta:</b> <br /> {{ fechaventa }}</td>
+    </tr>
+  </tbody>
+</table>
+
                                     <table class="table table-bordered table-striped table-sm table-responsive">
-                                    
-                                    
-                                        <tr style="background-color: bisque;">
+                                     <thead>
+                                         <tr style="background-color: bisque;">
                                             <th>#</th>
                                             <th>Codigo</th>
                                             <th>Prestacion</th>
@@ -141,7 +143,9 @@
                                             <th>Descuento</th>
                                             <th>Total Cancelado</th>
                                         </tr>
-                                        <tr v-for="ventadetalle in arrayVentasDetalle" :key="ventadetalle.id">
+                                    </thead>
+                                    <tbody>
+<tr v-for="ventadetalle in arrayVentasDetalle" :key="ventadetalle.id">
                                             <td>1</td>
                                             <td v-text="ventadetalle.cod"></td>
                                             <td v-text="ventadetalle.nompres"></td>
@@ -161,9 +165,7 @@
                                             <td colspan="5" style="text-align:right"><b>Cambio:</b> </td>
                                             <td style="text-align:right">{{ cambio + ' Bs.' }}</td>
                                         </tr>
-
-                                        
-
+                                    </tbody>
                                     </table>
 
                                 </div>

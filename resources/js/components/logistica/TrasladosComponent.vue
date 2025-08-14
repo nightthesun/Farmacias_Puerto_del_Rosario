@@ -394,27 +394,27 @@
                                        </tr>
                                     </thead>
                                     <tbody>  
-                                        <tr v-for="RetornarProductosIngreso  in arrayRetornarTraspaso" :key="RetornarProductosIngreso.id" @click="abrirModal('registrar',RetornarProductosIngreso);listarTraspaso();" >
-                                        <td v-text="RetornarProductosIngreso.numero_traspaso"></td>
-                                        <td v-text="RetornarProductosIngreso.leyenda"></td>
-                                        <div v-if="RetornarProductosIngreso.procesado==='0'">
-                                        <td>Pendiente</td>  
-                                        </div>
-                                        <div v-if="RetornarProductosIngreso.procesado==='1'">
-                                        <td>En Camino</td>  
-                                        </div>
-                                        <div v-if="RetornarProductosIngreso.procesado==='2'">
-                                        <td>Concluido</td>  
-                                        </div>
-                                        <div v-if="RetornarProductosIngreso.procesado==='3'">
-                                        <td>Anulado</td>  
-                                        </div>
-                                        <div v-if="RetornarProductosIngreso.procesado==='4'">
-                                        <td>Listo</td>  
-                                        </div>
-                                        <td v-text="RetornarProductosIngreso.cantidad"></td>
-                                      </tr>
-                                    </tbody>
+  <tr v-for="RetornarProductosIngreso in arrayRetornarTraspaso" 
+      :key="RetornarProductosIngreso.id" 
+      @click="abrirModal('registrar', RetornarProductosIngreso); listarTraspaso();">
+    
+    <td v-text="RetornarProductosIngreso.numero_traspaso"></td>
+    <td v-text="RetornarProductosIngreso.leyenda"></td>
+    
+    <!-- Evaluar estado directamente dentro de un td -->
+    <td>
+      <span v-if="RetornarProductosIngreso.procesado==='0'">Pendiente</span>
+      <span v-else-if="RetornarProductosIngreso.procesado==='1'">En Camino</span>
+      <span v-else-if="RetornarProductosIngreso.procesado==='2'">Concluido</span>
+      <span v-else-if="RetornarProductosIngreso.procesado==='3'">Anulado</span>
+      <span v-else-if="RetornarProductosIngreso.procesado==='4'">Listo</span>
+    </td>
+
+    <td v-text="RetornarProductosIngreso.cantidad"></td>
+    
+  </tr>
+</tbody>
+
                             </table>
                         </div>
                     </form>

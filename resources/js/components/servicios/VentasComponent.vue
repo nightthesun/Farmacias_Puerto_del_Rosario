@@ -24,46 +24,13 @@
                                 <th>Agregar</th>
                            </tr>
                         </thead>
-                        <!--<tr>
-                            <td>
-                                <form action="form-inline ml-3">
-                                    <div class="input-group input-group-sm">
-                                        <input  class="form-control form-control navbar" type="search" placeholder="Buscar" 
-                                        aria-label="Buscar"
-                                        name="prestacionbus"
-                                        v-model="prestacionBuscar"
-                                        v-on:keyup="selectPrestaciones()"
-                                        >
-                                    </div>
-                                </form>
-                                <div class="panel-footer" v-if="arrayPresAutocomplete.length>0">
-                                    <ul class="list-group">
-                                        <li class="list-group-item" v-for="presbus in arrayPresAutocomplete" :key="presbus.id">
-                                           <a href="#" class="dropdown-item" v-on:click.prevent="presbus.nombre">
-                                                <span>{{ presbus.nombre}}</span>   
-                                            </a> 
-                                        </li>
-                                        
-                                    </ul>
-
-                                </div>
-                            </td>
-                        </tr>-->
-                        <tr>
+                      <tbody>
+ <tr>
                             <td>
                                 <select name="" id="" v-model="prestacionselected" class="form-control" @change="selectPres()">
                                     <option value="0" disabled>Seleccionar...</option>
                                     <option v-for="prestacion in arrayPrestaciones" :key="prestacion.id" :value="prestacion.id" v-text="prestacion.cod"></option>
                                 </select>
-                                <!-- <Ajaxselect  v-if="clearSelected"
-                                    ruta="/prestacion/selectprestaciones?buscar=" @found="prestaciones" @cleaning="cleanprestaciones"
-                                    resp_ruta="prestaciones"
-                                    labels="cod"
-                                    placeholder="Ingrese Texto..." 
-                                    idtabla="id"
-                                    :id="idprestacionselected"
-                                    :clearable='true'>
-                                </Ajaxselect> -->
                             </td>
                             
                             <td v-if="siprestacion" @change="presfinal">{{ idprestaciones.precio }} Bs.</td>
@@ -78,6 +45,7 @@
                                 </button>
                             </td>
                         </tr>
+                      </tbody>                      
 
                     </table>
                    

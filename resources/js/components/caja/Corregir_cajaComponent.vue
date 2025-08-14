@@ -210,12 +210,15 @@
                                  </tr>
                             </thead>
                             <tbody>
-                                <td class="col-md-2" style=" text-align: center">{{id_cierre_modal}}</td>
+                                <tr>
+ <td class="col-md-2" style=" text-align: center">{{id_cierre_modal}}</td>
                                 <td class="col-md-2" style=" text-align: center">{{diferencia_modal}}</td>
                                 <td class="col-md-2" style=" text-align: center">{{estado_modal}}</td>                        
                                 <td class="col-md-6" >
                                 <textarea v-model="textArea_modal" class="form-control" id="exampleFormControlTextarea1" rows="2"></textarea>
                                 </td>
+                                </tr>
+                               
                             </tbody> 
                       
                         </table>
