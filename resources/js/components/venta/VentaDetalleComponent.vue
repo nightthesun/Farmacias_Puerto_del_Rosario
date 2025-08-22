@@ -1416,7 +1416,7 @@ listarDetalle_producto_x(id,tipo_per_emp) {
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
+       
                 });
         },
 
@@ -1431,11 +1431,11 @@ listarDetalle_producto_x(id,tipo_per_emp) {
                    
                     me.pagination = respuesta.pagination;
                     me.arrayVentas = respuesta.ventas_show.data;    
-                    console.log(me.arrayVentas);                
+                              
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
+               
                 });
     },    
 

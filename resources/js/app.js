@@ -91,6 +91,7 @@ createApp ({
     .component('venta-detalle-component', require('./components/venta/VentaDetalleComponent.vue').default)
     .component('caducidad-component', require('./components/venta/CaducidadComponent.vue').default)
     .component('transaccion-electronica-component', require('./components/venta/DetalleVentaElectronicaComponent.vue').default)
+    .component('prospecto-component', require('./components/venta/ProspectoComponent.vue').default)
     //Cajas
     .component('apertura_cierre-component', require('./components/caja/Apertura_cierreComponent.vue').default)
     .component('moneda-component', require('./components/caja/MonedaComponent.vue').default)

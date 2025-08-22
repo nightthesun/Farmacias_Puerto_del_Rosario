@@ -453,7 +453,7 @@ const tableBody = [
                  
                     me.pagination = respuesta.pagination;
                     me.arrayIndex = respuesta.resultado.data;  
-                    console.log(me.arrayIndex);              
+                               
                 })
                 .catch(function (error) {
                     error401(error);

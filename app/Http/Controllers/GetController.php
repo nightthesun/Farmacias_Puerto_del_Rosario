@@ -430,5 +430,136 @@ return $result;
     ->get();
         return $registros;
     }
+
+    public function producto_x_envase(Request $request){
+
+       switch ($request->envase) {
+    case 1:
+        $query1 = DB::table('prod__productos as pp')
+            ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
+            ->join('prod__dispensers as pd', 'pd.id', '=', 'pp.iddispenserprimario')
+            ->join('prod__forma_farmaceuticas as pff', 'pff.id', '=', 'pp.idformafarmaceuticaprimario')
+            ->select(
+                'pp.id as id_producto',
+                'pp.codigo as cod_prod',
+                'pl.nombre as linea',
+                'pp.nombre as nom_prod',
+                'pp.cantidadprimario as cantidad_dispenser',
+                'pp.tiempopedidoprimario as tiempo_prod',
+                'pd.nombre as nom_dispenser',
+                'pff.nombre',
+                DB::raw("'Primero' as envase")
+            )
+            ->where('pp.iddispenserprimario', '>', 0)
+            ->where('pp.activo', 1)
+            ->get();
+
+        return $query1;
+    case 2:
+         $query2 = DB::table('prod__productos as pp')
+    ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
+    ->join('prod__dispensers as pd', 'pd.id', '=', 'pp.iddispensersecundario')
+    ->join('prod__forma_farmaceuticas as pff', 'pff.id', '=', 'pp.idformafarmaceuticasecundario')
+    ->select(
+        'pp.id as id_producto',
+        'pp.codigo as cod_prod',
+        'pl.nombre as linea',
+        'pp.nombre as nom_prod',
+        'pp.cantidadsecundario as cantidad_dispenser',
+        'pp.tiempopedidosecundario as tiempo_prod',
+        'pd.nombre as nom_dispenser',
+        'pff.nombre',
+        DB::raw("'Segundo' as envase")
+    )
+    ->where('pp.iddispensersecundario', '>', 0)
+    ->where('pp.activo', 1)->get();  
+        return $query2;
+        case 3:
+            $query3 = DB::table('prod__productos as pp')
+    ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
+    ->join('prod__dispensers as pd', 'pd.id', '=', 'pp.iddispenserterciario')
+    ->join('prod__forma_farmaceuticas as pff', 'pff.id', '=', 'pp.idformafarmaceuticaterciario')
+    ->select(
+        'pp.id as id_producto',
+        'pp.codigo as cod_prod',
+        'pl.nombre as linea',
+        'pp.nombre as nom_prod',
+        'pp.cantidadterciario as cantidad_dispenser',
+        'pp.tiempopedidoterciario as tiempo_prod',
+        'pd.nombre as nom_dispenser',
+        'pff.nombre',
+        DB::raw("'Tercero' as envase")
+    )
+    ->where('pp.iddispenserterciario', '>', 0)
+    ->where('pp.activo', 1)->get();
+
+            return $query3;
+    case 4:
+          $query1 = DB::table('prod__productos as pp')
+    ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
+    ->join('prod__dispensers as pd', 'pd.id', '=', 'pp.iddispenserprimario')
+    ->join('prod__forma_farmaceuticas as pff', 'pff.id', '=', 'pp.idformafarmaceuticaprimario')
+    ->select(
+        'pp.id as id_producto',
+        'pp.codigo as cod_prod',
+        'pl.nombre as linea',
+        'pp.nombre as nom_prod',
+        'pp.cantidadprimario as cantidad_dispenser',
+        'pp.tiempopedidoprimario as tiempo_prod',
+        'pd.nombre as nom_dispenser',
+        'pff.nombre',
+        DB::raw("'Primero' as envase")
+    )
+    ->where('pp.iddispenserprimario', '>', 0)
+    ->where('pp.activo', 1);
+
+$query2 = DB::table('prod__productos as pp')
+    ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
+    ->join('prod__dispensers as pd', 'pd.id', '=', 'pp.iddispensersecundario')
+    ->join('prod__forma_farmaceuticas as pff', 'pff.id', '=', 'pp.idformafarmaceuticasecundario')
+    ->select(
+        'pp.id as id_producto',
+        'pp.codigo as cod_prod',
+        'pl.nombre as linea',
+        'pp.nombre as nom_prod',
+        'pp.cantidadsecundario as cantidad_dispenser',
+        'pp.tiempopedidosecundario as tiempo_prod',
+        'pd.nombre as nom_dispenser',
+        'pff.nombre',
+        DB::raw("'Segundo' as envase")
+    )
+    ->where('pp.iddispensersecundario', '>', 0)
+    ->where('pp.activo', 1);
+
+$query3 = DB::table('prod__productos as pp')
+    ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
+    ->join('prod__dispensers as pd', 'pd.id', '=', 'pp.iddispenserterciario')
+    ->join('prod__forma_farmaceuticas as pff', 'pff.id', '=', 'pp.idformafarmaceuticaterciario')
+    ->select(
+        'pp.id as id_producto',
+        'pp.codigo as cod_prod',
+        'pl.nombre as linea',
+        'pp.nombre as nom_prod',
+        'pp.cantidadterciario as cantidad_dispenser',
+        'pp.tiempopedidoterciario as tiempo_prod',
+        'pd.nombre as nom_dispenser',
+        'pff.nombre',
+        DB::raw("'Tercero' as envase")
+    )
+    ->where('pp.iddispenserterciario', '>', 0)
+    ->where('pp.activo', 1);
+
+$resultado = $query1
+    ->unionAll($query2)
+    ->unionAll($query3)
+    ->get();
+    return $resultado;     
+
+    default:
+        return response()->json(['error' => 'Opción no válida'], 400);
+}
+       
+      
+    }
     
 }

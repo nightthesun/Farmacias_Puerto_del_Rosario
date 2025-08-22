@@ -82,6 +82,7 @@ use App\Http\Controllers\VenCaducidadController;
 use App\Http\Controllers\VenGestorVentaController;
 use App\Http\Controllers\VenGestorVentaVistaController;
 use App\Http\Controllers\SiatHomologacionController;
+use App\Http\Controllers\VenProspectoController;
 use App\Http\Controllers\VenTrasferenciaController;
 use App\Models\Alm_IngresoProducto;
 use App\Models\Tda_Tienda;
@@ -189,7 +190,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/listarConfig_v2', [GetController::class, 'getConfiguracion_v2']);   
     Route::get('/listarTipoActividad', [GetController::class, 'getTipoActividad']);  
     Route::get('/listarRubro_venta', [GetController::class, 'getRubro']);  
-   
+    Route::get('/listarProducto_x_envase', [GetController::class, 'producto_x_envase']);     
     
     /**********************verificador de apertura cierre retornod e datos****************************** */
     Route::get('/verificacionAperturaCierre', [GetController::class, 'listarAperturaCierre']);
@@ -707,6 +708,9 @@ Route::group(['middleware' => 'auth'], function () {
     //venta transaccion---
     Route::get('/ven_trasnferencia/listarInicio', [VenTrasferenciaController::class, 'index']);
     Route::put('/ven_trasnferencia/modificar', [VenTrasferenciaController::class, 'update']);
+
+    Route::post('/prospeto/crear', [VenProspectoController::class, 'store']);
+    Route::get('/prospeto/index', [VenProspectoController::class, 'index']);
     
     //////////////////////////////////////////////////CAJA/////////////////////////////////////////////////////////////////////
     

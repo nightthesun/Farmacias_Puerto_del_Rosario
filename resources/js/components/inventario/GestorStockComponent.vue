@@ -654,12 +654,12 @@
                                 <table class="table table-bordered table-striped table-sm table-responsive" >                    
                                     <thead>
                                         <tr>
-                                        <th class="col-md-2">Linea</th>
-                                        <th class="col-md-2">Cod. Producto</th>
+                                        <th class="col-md-1">Linea</th>
+                                        <th class="col-md-1">Cod. Producto</th>
                                         <th class="col-md-4">Producto</th>
                                         <th class="col-md-1">Envase</th>
                                         <th class="col-md-1">Stock actual</th>
-                                        <th class="col-md-1">Rotura de stock</th>
+                                        <th class="col-md-2">Rotura de stock</th>
                                         <th class="col-md-1">Prospesctos pedidos</th>
                                         </tr>                        
                                     </thead>
@@ -1104,21 +1104,7 @@ datosFiltrados(data) {
                           }else{
                             Swal.fire("Se guardo correctamente.","Haga click en Ok","success",);
                           }
-                       
-                        
-                      //  Swal.fire(
-                      //      "Registrado exitosamente",
-                      //      "Haga click en Ok",
-                      //      "success",
-                      //  );
-
-                      //  me.listarAjusteNegativos();
-                      //  me.sucursalFiltro();
                     })
-                   // .catch(function (error) {
-                   //     error401(error);
-                   //     console.log(error);
-                   // });
                    .catch(function (error) {                
                                   
             });
