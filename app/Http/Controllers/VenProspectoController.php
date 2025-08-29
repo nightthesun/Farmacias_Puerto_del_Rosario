@@ -115,28 +115,22 @@ class VenProspectoController extends Controller
          }
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
+    
     /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
     {
         try {
-            DB::beginTransaction();          
+         DB::beginTransaction();         
             $id_user=auth()->user()->id;
             $nuevoItem = new Ven_prospecto();
             $nuevoItem->id_usuario=$id_user;
             $nuevoItem->id_producto=$request->id_producto;
             $nuevoItem->envase=$request->envase;
             $nuevoItem->descripcion=$request->descripcion;  
-            $nuevoItem->id_sucursal=$request->id_sucursal; 
+            $nuevoItem->id_sucursal=$request->id_sucursal;
+        
             $nuevoItem->save();
             DB::commit(); 
         } catch (\Throwable $th) {
@@ -151,7 +145,31 @@ class VenProspectoController extends Controller
      */
     public function update(Request $request, Ven_prospecto $ven_prospecto)
     {
-        //
+        try {
+            DB::beginTransaction(); 
+            $id_user=auth()->user()->id;
+           $update=Ven_prospecto::find($request->id);
+           $update->descripcion=$request->descripcion;
+           $update->id_usuario=$id_user; 
+           $update->save();
+            DB::commit();    
+        } catch (\Throwable $th) {
+            return $th;
+        }          
+    }
+
+      public function desactivar(Request $request)
+    {         
+        $update = Ven_prospecto::findOrFail($request->id);
+        $update->activo = 0;           
+        $update->save();                    
+    }
+
+    public function activar(Request $request)
+    {
+        $update = Ven_prospecto::findOrFail($request->id);
+        $update->activo = 1;           
+        $update->save();         
     }
 
     

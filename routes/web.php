@@ -628,6 +628,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/gestor-stock/listarAlertaModalSuperior', [InvGestionStockController::class, 'alerta_modal_parte_superior']); 
     Route::get('/gestor-stock/listar_Producto_x_distribuidor', [InvGestionStockController::class, 'getProducto_x_distribuidor']);   
     Route::post('/gestor-stock/registrar_naranja', [InvGestionStockController::class, 'register_modal']);  
+    Route::get('/gestor-stock/saldoCero', [InvGestionStockController::class, 'get_modal_saldo_cero']);
+    
          
     /////////////////////////////////LOGISTICO///////////////////////////////////////
     Route::get('/vehiculo/listarSucursal', [LogVehiculoController::class, 'listarSucursal']);
@@ -711,6 +713,10 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::post('/prospeto/crear', [VenProspectoController::class, 'store']);
     Route::get('/prospeto/index', [VenProspectoController::class, 'index']);
+    Route::put('/prospeto/modificar', [VenProspectoController::class, 'update']); 
+    Route::put('/prospeto/activar', [VenProspectoController::class, 'activar']); 
+    Route::put('/prospeto/desactivar', [VenProspectoController::class, 'desactivar']); 
+    
     
     //////////////////////////////////////////////////CAJA/////////////////////////////////////////////////////////////////////
     

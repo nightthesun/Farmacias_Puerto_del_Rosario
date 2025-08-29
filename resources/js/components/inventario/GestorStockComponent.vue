@@ -11,7 +11,7 @@
             <div class="card">
                 <div class="card-header">
                     <i class="fa fa-align-justify"></i> Gestor de sctock               
-                    <button type="button" class="btn btn-secondary" style="color:white;" @click="abrirModal('registrar');iniciarOperacio();" :disabled="sucursalSeleccionada == 0" :hidden="sucursalSeleccionada == 0">
+                    <button type="button" class="btn btn-secondary" style="color:white;" @click="abrirModal('registrar');iniciarOperacio();otra();" :disabled="sucursalSeleccionada == 0" :hidden="sucursalSeleccionada == 0">
                         <i class="icon-plus"></i>&nbsp;Generar
                     </button>&nbsp;
                     <button type="button" class="btn btn-info"  style="color:white;" @click="abrirModal('registrar');" :disabled="sucursalSeleccionada == 0" :hidden="sucursalSeleccionada == 0">
@@ -165,10 +165,10 @@
                      <label for="">Accion:</label>
                 </div>
                         <div class="col-md-6">
-                           <button type="button" @click="datosFiltrados(10)" class="btn" style="background-color: darkseagreen; color: white;"><i class="fa fa-eye" aria-hidden="true"></i> Ver todo</button>&nbsp;
-<button type="button" class="btn" @click="datosFiltrados(2)" style="background-color: darkseagreen; color: white;"><i class="fa fa-eye" aria-hidden="true"></i> Ver stock alerta</button>&nbsp;
-<button type="button" class="btn" @click="datosFiltrados(1)"  style="background-color: darkseagreen; color: white;"><i class="fa fa-eye" aria-hidden="true"></i> Ver stock minimo </button>&nbsp;
-<button type="button" class="btn" @click="datosFiltrados(0)"  style="background-color: darkseagreen; color: white;"><i class="fa fa-eye" aria-hidden="true"></i> Ver stock cero </button>&nbsp;
+                           <button type="button" @click="datosFiltradosF(10)" class="btn" style="background-color: darkseagreen; color: white;"><i class="fa fa-eye" aria-hidden="true"></i> Ver todo</button>&nbsp;
+<button type="button" class="btn" @click="datosFiltradosF(2)" style="background-color: darkseagreen; color: white;"><i class="fa fa-eye" aria-hidden="true"></i> Ver stock alerta</button>&nbsp;
+<button type="button" class="btn" @click="datosFiltradosF(1)"  style="background-color: darkseagreen; color: white;"><i class="fa fa-eye" aria-hidden="true"></i> Ver stock minimo </button>&nbsp;
+<button type="button" class="btn" @click="datosFiltradosF(0)"  style="background-color: darkseagreen; color: white;"><i class="fa fa-eye" aria-hidden="true"></i> Ver stock cero </button>&nbsp;
 
                         </div>
                         <div class="col-md-5">
@@ -289,7 +289,7 @@
                         <div class="col-md-5 input-group mb-3">                            
                             <button type="button" class="btn" :style="selected == null ?{backgroundColor: '#eeeeee', color: 'white'}:{backgroundColor: '#FF7300', color: 'white'}"  @click="selected != null && modalAlerta_open(selected.id, selected.id_linea_array, 1)"><strong>Stock alerta</strong></button>&nbsp;
                             <button type="button" class="btn" :style="selected == null ?{backgroundColor: '#eeeeee', color: 'white'}:{backgroundColor: '#FFE300', color: 'white'}" @click="selected != null && modalAlerta_open(selected.id,selected.id_linea_array,2);"><strong>Stock minimo</strong></button>&nbsp;
-                            <button type="button" class="btn" style="background-color: red; color: white;" @click="abrirModal('saldo_cero')" ><strong>Stock cero</strong></button>&nbsp;
+                            <button type="button" class="btn" style="background-color: red; color: white;" @click="modalCero_open()" ><strong>Stock cero</strong></button>&nbsp;
                             <button type="button" class="btn btn-primary" @click="cerrarModal('registrar')"><strong>Cerrar modal</strong></button>              
                         </div>
                 </div>        
@@ -578,10 +578,8 @@
                     </div>
                   
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" @click="cerrarModal('alerta')">Cerrar</button>
-                       
-                              <button :disabled="isSubmitting==true" type="button"  class="btn btn-primary" @click="guardarModal()">Guardar</button>
-                     
+                        <button type="button" class="btn btn-secondary" @click="cerrarModal('alerta')">Cerrar</button>                       
+                        <button :disabled="isSubmitting==true" type="button"  class="btn btn-primary" @click="guardarModal()">Guardar</button>                     
                     </div>
 
                     </div>
@@ -603,10 +601,10 @@
                         </div>
                         <div class="card-header">
                         <br>
-                            <button type="button" class="btn btn-info"  style="color:white;">
+                            <button type="button" class="btn btn-info"  style="color:white;" @click="descargaPDF_cero()">
                                 <i class="fa fa-file-pdf-o" aria-hidden="true"></i>&nbsp;Exportar PDF
                             </button>&nbsp;
-                            <button type="button" class="btn btn-primary">
+                            <button type="button" class="btn btn-primary" @click="descargarExcell_cero()">
                                 <i class="fa fa-file-excel-o" aria-hidden="true"></i>&nbsp;Exportar Excel
                             </button>
              
@@ -618,10 +616,10 @@
 
                                 </div>
                         <div class="col-md-1">
-                     <label for="">Accion: </label>
+                     <label for="">Mostrar: </label>
                 </div>
                   <div class="col-sm-2">
-                                     <select v-model="selectModa_saldoCero" class="form-control">
+                                     <select v-model="selectModa_saldoCero" class="form-control" @change="listarSaldoCero()">
                                         <option value="0" disabled>Seleccionar...</option>
                                         <option v-for="a in arrayModal_saldoCero" :key="a.id" :value="a.id" v-text="a.tipo"></option>
                                     </select>
@@ -632,8 +630,8 @@
                       <div class="col-md-6">
                             <div class="input-group">
                                 <input type="text" id="texto" name="texto" class="form-control" placeholder="Texto a buscar por liena o nombre de producto"
-                                    v-model="buscar_saldoCero"/>
-                                <button type="submit" class="btn btn-primary">
+                                    v-model="buscarCero"/>
+                                <button type="submit" class="btn btn-primary" @click="buscarProductos_modal_cero()">
                                     <i class="fa fa-search"></i>  Buscar
                                 </button>
                             </div>
@@ -663,6 +661,17 @@
                                         <th class="col-md-1">Prospesctos pedidos</th>
                                         </tr>                        
                                     </thead>
+                                    <tbody>                                        
+                                        <tr v-for="(a, index) in arraySaldoCero" :key="index">
+                                            <td class="col-md-1">{{a.linea}}</td>
+                                            <td class="col-md-1">{{a.codigo}}</td>
+                                            <td class="col-md-4">{{a.producto}}</td>
+                                            <td class="col-md-1">{{a.envase}}</td>
+                                            <td class="col-md-1">{{a.stock}}</td>
+                                            <td class="col-md-1">{{a.dias}}</td>                                          
+                                            <td class="col-md-1">{{a.perdido}}</td>
+                                        </tr>
+                                    </tbody>
                                 </table>
                             </div>
                         </form>
@@ -719,8 +728,8 @@ export default {
       endDate: '',
 
     selectModa_saldoCero:'',
-    arrayModal_saldoCero:[{id:1,tipo:"10"},{id:2,tipo:"30"},{id:3,tipo:"50"},{id:4,tipo:"100"},{id:5,tipo:"Todos"}],
-    buscar_saldoCero:'',
+    arrayModal_saldoCero:[{id:1,tipo:"50"},{id:2,tipo:"100"},{id:3,tipo:"200"},{id:4,tipo:"300"},{id:5,tipo:"Todos"}],
+    buscarCero:'',
       selectFormaPago:'0',    
 
     array_forma_pago: [{ id: 1, tipo: "CHEQUE" },{ id: 2, tipo: "CONTADO" },{ id: 3, tipo: "CREDITO" },{ id: 4, tipo: "TRASFERENCIA BANCARIA" }],
@@ -748,8 +757,14 @@ export default {
             sumatoriaBot:0,
             isSubmitting:false,
             id_distribuidor:0, 
-            id_lineas:"",
+            id_lineas:'',
             tipo_modal:0,
+            
+            arraySaldoCero:[],
+            arrayFalsoCero:[],
+            buscarCero:'',
+
+            arrayLiena:[],
           
         };
     },
@@ -886,9 +901,82 @@ export default {
   pdfMake.createPdf(docDefinition).open();   
         },
 
+        descargaPDF_cero(){
+            let me=this;
+            const tableBody =[
+                //agregar encabezados de la tabla
+                [
+                    {text: 'Linea', style: 'tableHeader_2', alignment: 'center', fillColor: '#d3d3d3'},
+                    {text: 'Cod. Producto', style: 'tableHeader_2', alignment: 'center', fillColor:'#d3d3d3'},
+                    {text: 'Producto', style: 'tableHeader_2', alignment: 'center', fillColor:'#d3d3d3'},
+                    {text: 'Envase', style: 'tableHeader_2', alignment: 'center', fillColor:'#d3d3d3'},
+                    {text: 'Stock actual', style: 'tableHeader_2', alignment: 'center', fillColor:'#d3d3d3'},
+                    {text: 'Rotura de stock', style: 'tableHeader_2', alignment: 'center', fillColor:'#d3d3d3'},
+                    {text: 'pedidos', style: 'tableHeader_2', alignment: 'center', fillColor:'#d3d3d3'}                   
+                ]
+            ];
+            // Itera sobre los datos y agrega fila a la tabla 
+            me.arraySaldoCero.forEach(item =>{
+               tableBody.push([
+  {text: item.linea, fontSize:8, alignment: 'center'},
+  {text: item.codigo, fontSize:8, alignment: 'center'},
+  {text: item.producto, fontSize:8, alignment: 'center'},
+  {text: item.envase, fontSize:8, alignment: 'center'},
+  {text: item.stock, fontSize:8, alignment: 'center'}, // ← FALTABA ESTA
+  {text: item.dias, fontSize:8, alignment: 'center'},
+  {text: item.perdido, fontSize:8, alignment: 'center'}
+]);
+
+            });
+
+            const docDefinition ={
+                pageSize: 'LETTER',
+                pageMargins: [25, 30, 25, 30],
+                content:[
+                  {text: 'INFORME STOCK CERO', style:'header'},
+                  {
+                    style: 'tableExample',
+                    margin:[0,10,0,0],
+                    table:{
+                         headerRows: 1,
+                        widths: [37,37,'*',35,31,31,31,29], // Ajusta los anchos de las columnas
+                        body: tableBody
+                    }
+                  },
+                ],
+      
+                styles: {
+                    header: {
+                        fontSize: 12,
+                        bold: true,
+                        color: 'black',
+                        alignment: 'center',
+                        margin:[0,10,0,10]
+                    },
+                    tableExample:{
+                        fontSize: 8,
+                        bold: true,
+                    },
+                    tableHeader2 : {
+			            bold: true,
+			            fontSize: 7,
+			            color: 'black',
+                        margin:[ 180, 0, 20,0] 
+		            },
+                    tableHeader_2: {
+                        bold: true,
+                        fontSize: 7,
+                        bold: true,
+                        alignment: 'center',
+                    },
+                }
+                };    
+                  // Generar y abrir el PDF
+  pdfMake.createPdf(docDefinition).open();   
+        },
+
         descargarExcell(){
            let me = this;
-
 // 1. Define columnas con títulos bonitos
 const columnas = [
   { key: 'id_producto', titulo: 'ID Producto' },
@@ -942,19 +1030,64 @@ XLSX.writeFile(wb, 'informe_emisiones.xlsx');
         // Generar un archivo Excel y forzar la descarga
      //   XLSX.writeFile(wb, archivo+'.xlsx');
         },
+
+         descargarExcell_cero(){
+           let me = this;
+// 1. Define columnas con títulos bonitos
+const columnas = [
+  { key: 'linea', titulo: 'Linea' },
+  { key: 'codigo', titulo: 'Cod. Producto' },
+  { key: 'producto', titulo: 'Producto' },
+  { key: 'envase', titulo: 'Envase' },
+  { key: 'stock', titulo: 'Stock actual' },
+  { key: 'dias', titulo: 'Rotura de stock' },
+  { key: 'perdido', titulo: 'Prospesctos pedidos' }
+];
+
+// 2. Filtra y renombra columnas
+const datosFiltrados = me.arraySaldoCero.map(item => {
+  const fila = {};
+  columnas.forEach(col => {
+    fila[col.titulo] = item[col.key];
+  });
+  return fila;
+});
+
+// 3. Crear hoja vacía
+const ws = XLSX.utils.json_to_sheet([]);
+
+// 4. Agrega un título grande en la primera fila
+XLSX.utils.sheet_add_aoa(ws, [['Stock en cero']], { origin: 'A1' });
+
+// 5. Agrega los datos debajo del título (desde fila 3)
+XLSX.utils.sheet_add_json(ws, datosFiltrados, {
+  origin: 'A3',
+  skipHeader: false
+});
+
+// 6. Crear libro y exportar
+const wb = XLSX.utils.book_new();
+XLSX.utils.book_append_sheet(wb, ws, 'Emisiones');
+XLSX.writeFile(wb, 'informe_stock_cero.xlsx'); 
+        },
         
         modalAlerta_open(id_distri,lineas,tipo){
             let me = this;
             me.id_distribuidor=id_distri;
             me.id_lineas=lineas;
             me.tipo_modal=tipo;
-          
+         
             me.listarModalAlerta_superior(me.tipo_modal);
             me.listarModalAlerta_inferior();
-            me.abrirModal('alerta'); 
-            
-     
-                      
+            me.abrirModal('alerta');           
+        },
+
+        modalCero_open(){
+            let me = this;
+            me.selectModa_saldoCero=1
+            me.listarSaldoCero();
+            me.abrirModal('saldo_cero');
+
         },
 
         buscarProductos() {
@@ -976,8 +1109,29 @@ XLSX.writeFile(wb, 'informe_emisiones.xlsx');
      
     },
   
+    buscarProductos_modal_cero() {
+        let me=this;       
+        const texto = me.buscarCero.toLowerCase(); 
+        const existe = me.arrayFalsoCero.some(item =>
+        (item.linea && item.linea.toLowerCase().includes(texto)) ||
+        (item.producto && item.producto.toLowerCase().includes(texto)) || (item.codigo && item.codigo.toLowerCase().includes(texto)) || (item.envase && item.envase.toLowerCase().includes(texto))
+        ); 
+        if (existe) {
+            // Filtra por coincidencias en línea o producto
+    me.arraySaldoCero = me.arrayFalsoCero.filter(item =>
+      (item.linea && item.linea.toLowerCase().includes(texto)) ||
+      (item.producto && item.producto.toLowerCase().includes(texto)) || 
+      (item.codigo && item.codigo.toLowerCase().includes(texto)) ||
+       (item.envase && item.envase.toLowerCase().includes(texto))
+    );
+        } else {
+            me.arraySaldoCero=me.arrayFalsoCero; 
+        }
+     
+    },
 
-datosFiltrados(data) {
+
+datosFiltradosF(data) {
            let me=this;
             if (data===10) {            
                 me.arrayModalOperacionGestor=me.arrayModalFalso; 
@@ -990,17 +1144,20 @@ datosFiltrados(data) {
             }
             if (data===0) {
               me.arrayModalOperacionGestor=me.arrayModalFalso.filter(item => item.color === data); 
-            }   
-             console.log(me.arrayModalOperacionGestor);
-  },
-
-        iniciarOperacio(){
-            let me=this;
-            me.listarModalGestorOperacion();        
-            me.listarDistribuidor();
+            }
         },
 
-      
+        iniciarOperacio() {
+            let me=this;  
+     me.listarModalGestorOperacion();  // espera que termine TODO
+     me.listarDistribuidor();          // recién ejecuta la segunda
+    
+},
+      otra(){
+         let me=this;  
+console.log("----1----");
+    console.log(me.arrayLiena);
+      },
 
         quitarEleArray(id,i){
             let me=this;         
@@ -1119,9 +1276,13 @@ datosFiltrados(data) {
             axios
                 .get(url)
                 .then(function (response) {
-                    var respuesta = response.data;
+                    let respuesta = (response.data).arrayMostrar;
+                    let respuesta_2 = (response.data).arrayLinea;
                     me.arrayModalOperacionGestor = respuesta;
                     me.arrayModalFalso = respuesta; 
+                    me.arrayLiena=respuesta_2;
+                console.log("----2----");
+                        console.log(me.arrayLiena);
             
                 })
                 .catch(function (error) {
@@ -1210,6 +1371,31 @@ datosFiltrados(data) {
                 });
         },
 
+        listarSaldoCero() {
+            let me = this;      
+           var url = "/gestor-stock/saldoCero?id_sucursal="+me.sucursalSeleccionada+"&limitador="+me.selectModa_saldoCero;
+            axios
+                .get(url)
+                .then(function (response) {
+                    let respuesta = response.data;
+                    if (respuesta.length>0) {
+                        me.arraySaldoCero=[];
+                        me.arrayFalsoCero=[];   
+                        me.arraySaldoCero=respuesta;
+                        me.arrayFalsoCero=respuesta;    
+                    } else {
+                        me.arraySaldoCero=[];
+                        me.arrayFalsoCero=[];   
+                    }
+                           
+                               
+                })
+                .catch(function (error) {
+                    error401(error);
+              
+                });
+        },
+
         sucursalFiltro_v2(){
             let me  = this;
             var url = "/listar_sucursal_x_usuario";
@@ -1241,7 +1427,9 @@ datosFiltrados(data) {
                 .get(url)
                 .then(function (response) {
                     var respuesta = response.data;
-                    me.arrayDistribuidor = respuesta;                 
+                    me.arrayDistribuidor = respuesta;  
+                    console.log("------------------------3------");
+                    console.log(me.arrayLiena);              
                 })
                 .catch(function (error) {
                     error401(error);
@@ -1314,6 +1502,7 @@ datosFiltrados(data) {
                     me.showModal_3 = true;  
                     me.tituloModal_3 = "Reporte saldo cero"; 
                     me.selectModa_saldoCero = 1;
+                    me.buscarCero="";
                     me.classModal.openModal("saldo_cero");
                     break;
                 }
@@ -1367,6 +1556,9 @@ datosFiltrados(data) {
                me.showModal_3 = false;  
                me.tituloModal_3 = " "; 
                me.selectModa_saldoCero="";
+               me.arrayFalsoCero=[];
+               me.arraySaldoCero=[];
+               me.buscarCero="";
                me.classModal.closeModal(accion);
             }
         },

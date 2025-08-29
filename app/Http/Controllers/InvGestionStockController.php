@@ -6,6 +6,7 @@ use App\Models\Inv_GestionStock;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Ramsey\Uuid\Type\Integer;
 
 class InvGestionStockController extends Controller
 {
@@ -24,6 +25,8 @@ class InvGestionStockController extends Controller
     {
         //
     }
+
+
 
     public function alerta_modal_parte_superior(Request $request){
         $cont = 0;
@@ -129,7 +132,8 @@ $elementos = array_filter(explode(',', $id_linea_array));
                             'dispedido'=>round($dispedido),
                             'precio_lista'=>$precio_lista,  
                             'subtotal'=>$subtotal,
-                            'envase'=>$envase                 
+                            'envase'=>$envase,
+                                          
                             ]; 
                             $cont=$cont+1;
                         }   
@@ -156,7 +160,7 @@ $elementos = array_filter(explode(',', $id_linea_array));
                             'dispedido'=>round($dispedido),
                             'precio_lista'=>$precio_lista,  
                             'subtotal'=>$subtotal,
-                            'envase'=>$envase                  
+                            'envase'=>$envase,               
                             ]; 
                             $cont=$cont+1;
                             }
@@ -178,6 +182,7 @@ $elementos = array_filter(explode(',', $id_linea_array));
     public function getGestorStockModal(Request $request){
 
         $arrayMostrar=[];
+        $arrayLinea=[];
         $id_sucursal=$request->id_sucursal;
         $getStock=$this->get_totalventa($id_sucursal);        
         if (count($getStock)>0) {
@@ -190,6 +195,7 @@ $elementos = array_filter(explode(',', $id_linea_array));
 
                  foreach ($rspta1 as $key => $value_2) {
                    $linea = $value_2->nombre_linea;
+                   $id_linea=$value_2->id_linea;
                 if(is_numeric($value_2->cantidad_dispenser_producto)){
                     $producto = $value_2->nombre_producto." - ".$value_2->nombre_forma_farmaceutica." X ".$value_2->nombre_dis." ".$value_2->nombre_forma_farmaceutica;
                 }else{
@@ -225,9 +231,11 @@ $elementos = array_filter(explode(',', $id_linea_array));
                         }else{
                             if($stock_total <= $minimo){
                                 $color = 1;
+                                $arrayLinea[] = ['id_linea'=> $id_linea,'color'=>'amarillo'];
                             }else{
                                 if($stock_total <= $alerta && $stock_total > $minimo){
                                     $color = 2;
+                                $arrayLinea[] = ['id_linea'=> $id_linea,'color'=>'naranja'];
                                 }
                             }
                         }
@@ -256,9 +264,16 @@ $elementos = array_filter(explode(',', $id_linea_array));
                  }
             
             }
-            return $arrayMostrar;
+            return response()->json([
+                'arrayMostrar' => $arrayMostrar,
+                'arrayLinea' => $arrayLinea      
+            ]);
+           
         }else{
-            return $arrayMostrar;
+            return response()->json([
+                'arrayMostrar' => $arrayMostrar,
+                'arrayLinea' => $arrayLinea      
+            ]);
         }
       
     }
@@ -382,6 +397,7 @@ $gettionTienda = DB::table('prod__productos as pp')
     ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
     ->select(
         'pp.id as id_producto',
+        'pl.id as id_linea',
         'pl.nombre as nombre_linea',
         'pl.tiempo_demora',
         'pp.nombre as nombre_producto',
@@ -449,6 +465,7 @@ $gettionAlmacen = DB::table('prod__productos as pp')
     ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
     ->select(
         'pp.id as id_producto',
+        'pl.id as id_linea',
         'pl.nombre as nombre_linea',
         'pl.tiempo_demora',
         'pp.nombre as nombre_producto',
@@ -495,6 +512,7 @@ $resultado = DB::table(DB::raw("({$combinado->toSql()}) as sub"))
     ->mergeBindings($combinado)
     ->select(
         'sub.id_producto',
+        'sub.id_linea',
         'sub.nombre_linea',
         'sub.tiempo_demora',
         'sub.nombre_producto',
@@ -511,6 +529,7 @@ $resultado = DB::table(DB::raw("({$combinado->toSql()}) as sub"))
     )
     ->groupBy(
         'sub.id_producto',
+        'sub.id_linea',
         'sub.nombre_linea',
         'sub.tiempo_demora',
         'sub.nombre_producto',
@@ -815,7 +834,7 @@ return $resultado;
     }
 
     /// llisato para stock cero 
-public function  saldocero($id_producto,$id_sucursal){
+public function saldocero($id_sucursal){
   
 // Subconsulta gettion_tienda
 $gettionTienda = DB::table('prod__productos as pp')
@@ -847,6 +866,7 @@ $gettionTienda = DB::table('prod__productos as pp')
         'pl.nombre as nombre_linea',
         'pl.tiempo_demora',
         'pp.nombre as nombre_producto',
+        'pp.codigo',
         DB::raw("
             CASE
                 WHEN tip.envase = 'primario' THEN pp.tiempopedidoprimario
@@ -913,6 +933,7 @@ $gettionAlmacen = DB::table('prod__productos as pp')
         'pl.nombre as nombre_linea',
         'pl.tiempo_demora',
         'pp.nombre as nombre_producto',
+        'pp.codigo',
         DB::raw("
             CASE
                 WHEN aip.envase = 'primario' THEN pp.tiempopedidoprimario
@@ -967,6 +988,7 @@ $resultado = DB::table(DB::raw("({$combinado->toSql()}) as sub"))
         DB::raw('AVG(sub.utilidad_neto_gespreventa) AS utilidad_neta'),
         DB::raw('AVG(sub.costo_compra_gespreventa) AS precio_unitario'),
         'sub.envase',
+        'sub.codigo',
         'sub.tipo'
     )
     ->groupBy(
@@ -980,6 +1002,7 @@ $resultado = DB::table(DB::raw("({$combinado->toSql()}) as sub"))
         'sub.nombre_forma_farmaceutica',
         'sub.precio_lista_producto',
         'sub.envase',
+        'sub.codigo',
         'sub.tipo'
     )
     ->get();
@@ -994,9 +1017,110 @@ $resultado = DB::table(DB::raw("({$combinado->toSql()}) as sub"))
     ->where('s.id_producto', $id_producto)
     ->where('s.stock', '<>', 0)
     ->where('s.id_sucursal', $id_sucursal)
-    ->first();
+    ->get();
         return $fecha;
     }
 
+   public function diascero($id_producto, $id_sucursal, $fecha_inicial)
+{
+    $dias = DB::table('sis_bitacora_stock as s')
+        ->where('s.id_producto', $id_producto)
+        ->where('s.id_sucursal', $id_sucursal)
+        ->whereBetween('s.fecha_ingreso', [
+            DB::raw("DATE_ADD('$fecha_inicial', INTERVAL 1 DAY)"),
+            DB::raw("CURRENT_DATE()")
+        ])
+        ->select(DB::raw('COUNT(s.stock) as dias'))
+        ->get();
+
+    return $dias;
+}
+
+public function prospecto($id_producto, $id_sucursal, $fecha_inicial){
+    $perdido = DB::table('ven_prospectos as v')
+    ->where('v.id_producto', $id_producto)
+    ->where('v.id_sucursal', $id_sucursal)
+    ->whereBetween('v.created_at', [
+        DB::raw("DATE_ADD('$fecha_inicial', INTERVAL 1 DAY)"),
+        DB::raw("CURRENT_DATE()")
+    ])
+    ->select(DB::raw('COUNT(v.id_producto) as perdido'))
+    ->get();
+
+return $perdido;
+}
+
+public function get_modal_saldo_cero(Request $request){
+    $id_sucursal=$request->id_sucursal;
+    $limitador=intval($request->limitador);
+    $limter_=0;
+    switch ($limitador) {
+        case 1:
+            $limter_=50;
+        break;
+        case 2:
+            $limter_=100;
+        break;
+        case 3:
+            $limter_=200;
+        break;
+        case 4:
+            $limter_=300;
+        break;
+        default:
+            $limter_=10;
+        break;
+    }
+ 
+    $rspta = $this->saldocero($id_sucursal);
+     //declaramos un array
+        $data = Array();
+        foreach ($rspta as $key => $value) {
+           $id_producto = $value->id_producto;
+           $codigo=$value->codigo;
+           $envase=$value->envase;
+            $stock = intval($value->stock_total);
+            $linea = $value->nombre_linea;
+           
+            if(is_numeric($value->cantidad_dispenser_producto)){
+                $producto = $value->nombre_producto." - ".$value->nombre_dis." X ".$value->cantidad_dispenser_producto." ".$value->nombre_forma_farmaceutica;
+            }else{
+                $producto = $value->nombre_producto." - ".$value->nombre_dis." ".$value->cantidad_dispenser_producto." ".$value->nombre_forma_farmaceutica;
+            }
+             if($stock == 0){
+                $rspta1 = $this->fechascero($id_producto,$id_sucursal);  
+                         
+                foreach ($rspta1 as $key_2 => $value_2) {            
+                    $fecha_inicial = $value_2->fecha;
+                     $rspta2 = $this->diascero($id_producto, $id_sucursal, $fecha_inicial); 
+                     foreach ($rspta2 as $key_3 => $value_3) {
+                        $dias = $value_3->dias;
+                        $rspta3 = $this->prospecto($id_producto, $id_sucursal, $fecha_inicial);
+                            foreach ($rspta3 as $key_4 => $value_4) {
+                            $perdido = $value_4->perdido;
+                            //RESULTADO
+                            $data[] = array(
+                                "linea"=>$linea,
+                                "codigo"=>$codigo,
+                                "envase"=>$envase,
+                                "producto"=>$producto,
+                                "stock"=>$stock,
+                                "dias"=>$dias,
+                                "perdido"=>$perdido
+                            );
+                            }                       
+                     }
+                     
+                     
+                }
+               
+            }
+        }
+        if($limitador==5){
+            return $data;
+        }else{
+        return array_slice($data, 0, $limter_);
+        }      
+}
 
 }

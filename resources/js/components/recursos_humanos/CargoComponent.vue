@@ -444,6 +444,7 @@ import { error401 } from '../../errores';
                     
                 }).then(function (response) {
                     if(response.data.length){
+                       Swal.fire('error');  
                     }
                  
                     else{

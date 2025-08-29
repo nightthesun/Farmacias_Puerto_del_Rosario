@@ -107,12 +107,40 @@
                 <tbody>
                     <tr v-for="i in arrayIndex" :key="i.id"> 
                         <td>
-                            <button type="button" class="btn btn-warning btn-sm" style="margin-right: 5px;" @click="listarProducto(i.envase);abrirModal('actualizar',i);">
-                                <i class="icon-pencil"></i>
-                            </button>
-                            <button type="button" class="btn btn-danger btn-sm" style="margin-right: 5px;">
-                                <i class="icon-trash"></i>
-                            </button>
+                            <div class="button-container">
+                                <div  class="d-flex justify-content-start">
+                                    <div  v-if="puedeEditar==1">
+                                    <button type="button" class="btn btn-warning btn-sm" style="margin-right: 5px;" @click="listarProducto(i.envase);abrirModal('actualizar',i);">
+                                         <i class="icon-pencil"></i>
+                                        </button>
+                                    </div>
+                                    <div v-else>
+                                    <button type="button" class="btn btn-light btn-sm" style="margin-right: 5px;">
+                                    <i class="icon-pencil"></i>
+                                    </button>               
+                                    </div>
+                                     <div v-if="puedeActivar==1">
+   <button v-if="i.activo == 1" type="button" class="btn btn-danger btn-sm"
+                @click="eliminar(i.id)" style="margin-right: 5px;">
+                <i class="icon-trash"></i>
+            </button>
+            <button v-else type="button" class="btn btn-info btn-sm" @click="activar(i.id)" style="margin-right: 5px;">
+                <i class="icon-check"></i>
+            </button>
+                                     </div>
+                                    <div v-else>
+ <button v-if="i.activo == 1" type="button" class="btn btn-light btn-sm"
+                 style="margin-right: 5px;">
+                <i class="icon-trash"></i>
+            </button>
+            <button v-else type="button" class="btn btn-light btn-sm"  style="margin-right: 5px;">
+                <i class="icon-check"></i>
+            </button>
+                                    </div> 
+                                </div>
+                            </div>            
+                      
+                        
                         </td>
                         <td class="col-md-1">{{i.nom_linea}}</td>
                         <td class="col-md-1">{{i.codigoProducto}}</td>
@@ -232,9 +260,11 @@
                         </form>
                     </div>
                     <div class="modal-body" v-show="tipoAccion===2">
-                        <br><h4>
-<strong   >Producto: {{cadenaTexto}}</strong>
-                        </h4>
+                        <br>
+                        <div class="alert alert-primary" role="alert">
+                            <span style="font-size: 15px;">Producto: {{cadenaTexto}}</span>                    
+                        </div>
+                   
                         
                         <br>
                         <div class="form-group row ">                                  
@@ -255,7 +285,7 @@
                         <button type="button" v-if="tipoAccion == 1" class="btn btn-primary" :disabled="isSubmitting === true" @click="crear()">
                             Guardar
                         </button>
-                        <button type="button" v-if="tipoAccion == 2" :disabled="isSubmitting === true" @click="modificar()" class="btn btn-primary">
+                        <button type="button" v-if="tipoAccion == 2" @click="modificar()" class="btn btn-primary">
                             Actualizar
                         </button>
                     </div>
@@ -280,6 +310,9 @@ import * as XLSX from 'xlsx';
 
 export default {
      components: { VueMultiselect},
+     //---permisos_R_W_S
+        props: ['codventana'],
+        //-------------------
     data() {
         return {
             pagination: {
@@ -311,6 +344,13 @@ export default {
             id_producto:'',
             cadenaTexto:'',
             id_index:'',
+
+            //---permisos_R_W_S
+            puedeEditar:2,
+            puedeActivar:2,
+            puedeHacerOpciones_especiales:2,
+            puedeCrear:2,
+            //-----------
           
             
         };
@@ -357,6 +397,33 @@ export default {
 
     methods: {
 
+        //-----------------------------------permisos_R_W_S        
+listarPerimsoxyz() {          
+    let me = this;        
+    var url = '/gestion_permiso_editar_eliminar?win='+me.codventana;  
+    axios.get(url)
+        .then(function(response) {
+            var respuesta = response.data;
+     
+            if(respuesta=="root"){
+            me.puedeEditar=1;
+            me.puedeActivar=1;
+            me.puedeHacerOpciones_especiales=1;
+            me.puedeCrear=1; 
+            }else{
+            me.puedeEditar=respuesta.edit;
+            me.puedeActivar=respuesta.activar;
+            me.puedeHacerOpciones_especiales=respuesta.especial;
+            me.puedeCrear=respuesta.crear;        
+            }           
+        })
+        .catch(function(error) {
+            error401(error);
+        });
+},
+
+//-------------------------------------------------------------
+
           listarVentas(page){
         let me=this;       
         var url = "/prospeto/index?page="+page+"&buscar=" +me.buscar+"&id_sucursal="+me.sucursalSeleccionada+"&startDate="+me.startDate+"&endDate="+me.endDate;
@@ -366,7 +433,7 @@ export default {
                     var respuesta = response.data;                   
                     me.pagination = respuesta.pagination;
                     me.arrayIndex = respuesta.prospectos.data;  
-                    console.log(me.arrayIndex);  
+                  
                               
                 })
                 .catch(function (error) {
@@ -383,13 +450,10 @@ export default {
                 .get(url)
                 .then(function (response) {
                     var respuesta = response.data;
-                    me.arraySucursal = respuesta;
-                    console.log(me.arraySucursal);
-                 
+                    me.arraySucursal = respuesta;                 
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
 
@@ -410,12 +474,12 @@ export default {
 
         crear(){
             let me=this;
-             if (me.selectProducto === null || me.tipoEnvase <= 0 || me.descripcion === "") {
-                Swal.fire(
-                    "No puede ingresar valor nulos  o vacios",
-                    "Haga click en Ok",
-                    "warning",
-                );
+             if (!me.selectProducto || !me.selectProducto.id_producto || me.tipoEnvase <= 0 || me.descripcion.trim() === "") {
+    Swal.fire(
+        "No puede ingresar valores nulos o vacíos",
+        "Haga click en Ok",
+        "warning"
+    );
             } else {
                  // Si ya está enviando, no permitas otra solicitud
             me.isSubmitting=true;
@@ -426,14 +490,15 @@ export default {
                         'descripcion':me.descripcion                                 
                     })
                     .then(function (response) {
-                        me.cerrarModal("registrar");
-                          me.isSubmitting=false;
-                          var respuesta = response.data;
+                        me.listarVentas(1);
+                      var respuesta = response.data;                      
+                          me.isSubmitting=false; 
                           if (respuesta.length>0) {                             
                             Swal.fire(""+respuesta,"Haga click en Ok","error",);                                
                           }else{
                             Swal.fire("Se guardo correctamente.","Haga click en Ok","success",);
                           }
+                            me.cerrarModal("registrar");
                     })
                    .catch(function (error) {                
                                   
@@ -443,7 +508,7 @@ export default {
 
         modificar(){
             let me=this;
-             if (me.tipoEnvase <= 0 || me.descripcion === "") {
+             if ( me.descripcion === "") {
                 Swal.fire(
                     "No puede ingresar valor nulos  o vacios",
                     "Haga click en Ok",
@@ -451,26 +516,128 @@ export default {
                 );
             } else {
                  // Si ya está enviando, no permitas otra solicitud
-            me.isSubmitting=true;
+     
                 axios.put("/prospeto/modificar", {
-                        'id':id,
-                        'id_producto': me.id_producto,                        
+                        'id':me.id_index,                     
                         'descripcion':me.descripcion                                 
                     })
                     .then(function (response) {
-                        me.cerrarModal("registrar");
-                          me.isSubmitting=false;
+                      
+                    
+                           me.listarVentas(1);
                           var respuesta = response.data;
                           if (respuesta.length>0) {                             
                             Swal.fire(""+respuesta,"Haga click en Ok","error",);                                
                           }else{
                             Swal.fire("Se guardo correctamente.","Haga click en Ok","success",);
                           }
+                            me.cerrarModal("registrar");
                     })
                    .catch(function (error) {                
                                   
             });
             }    
+        },
+
+        eliminar(id) {
+            let me = this;           
+            const swalWithBootstrapButtons = Swal.mixin({
+                customClass: {
+                    confirmButton: "btn btn-success",
+                    cancelButton: "btn btn-danger",
+                },
+                buttonsStyling: false,
+            });
+
+            swalWithBootstrapButtons
+                .fire({
+                    title: "Esta Seguro de Desactivar?",
+                    text: "Es una eliminacion logica",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Si, Desactivar",
+                    cancelButtonText: "No, Cancelar",
+                    reverseButtons: true,
+                })
+                .then((result) => {
+                    if (result.isConfirmed) {
+                        axios
+                            .put("/prospeto/desactivar", {
+                                id: id,                                
+                            })
+                            .then(function (response) {
+                               me.listarVentas(1);
+                                swalWithBootstrapButtons.fire(
+                                    "Desactivado!",
+                                    "El registro a sido desactivado Correctamente",
+                                    "success",
+                                );
+                               
+                            })
+                           .catch(function (error) { 
+            });
+                    } else if (
+                        /* Read more about handling dismissals below */
+                        result.dismiss === Swal.DismissReason.cancel
+                    ) {
+                        /* swalWithBootstrapButtons.fire(
+                    'Cancelado!',
+                    'El Registro no fue desactivado',
+                    'error'
+                    ) */
+                    }
+                });
+        },
+        
+        
+        activar(id) {
+            let me = this;
+            const swalWithBootstrapButtons = Swal.mixin({
+                customClass: {
+                    confirmButton: "btn btn-success",
+                    cancelButton: "btn btn-danger",
+                },
+                buttonsStyling: false,
+            });
+            swalWithBootstrapButtons
+                .fire({
+                    title: "Esta Seguro de Activar?",
+                    text: "Es una Activacion logica",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Si, Activar",
+                    cancelButtonText: "No, Cancelar",
+                    reverseButtons: true,
+                })
+                .then((result) => {
+                    if (result.isConfirmed) {
+                        axios
+                            .put("/prospeto/activar", {
+                                id: id,
+                            })
+                            .then(function (response) {
+                               me.listarVentas(1);
+                                swalWithBootstrapButtons.fire(
+                                    "Activado!",
+                                    "El registro a sido Activado Correctamente",
+                                    "success",
+                                );
+                            })
+                           .catch(function (error) {          
+                error401(error);
+               
+            });
+                    } else if (
+                        /* Read more about handling dismissals below */
+                        result.dismiss === Swal.DismissReason.cancel
+                    ) {
+                        /* swalWithBootstrapButtons.fire(
+                    'Cancelado!',
+                    'El Registro no fue Activado',
+                    'error'
+                    ) */
+                    }
+                });
         },
 
         listarProducto(data){
@@ -480,9 +647,7 @@ export default {
                 .get(url)
                 .then(function (response) {
                     var respuesta = response.data;
-                    me.arrayProducto = respuesta;
-                    console.log(me.arrayProducto);
-                 
+                    me.arrayProducto = respuesta;                 
                 })
                 .catch(function (error) {
                     error401(error);
@@ -518,7 +683,6 @@ export default {
                 }
                 case "actualizar": {
                     me.tipoAccion = 2;
-                    console.log(data);
                     me.tituloModal = "Actualizar producto consultado";
                     me.showModal = true;
                     me.isSubmitting=null;              
@@ -527,13 +691,13 @@ export default {
                     
                     me.id_producto=data.id_producto;                      
                     if (data.envase===1) {
-                        me.cadenaTexto =  "Linea: "+data.nom_linea+" "+data.codigoProducto+" - "+data.nom_prod+" Envase: Primario";
+                        me.cadenaTexto =  "Linea "+data.nom_linea+" "+data.codigoProducto+" - "+data.nom_prod+" Envase Primario";
                     }
                     if (data.envase===2) {
-                        me.cadenaTexto =  "Linea: "+data.nom_linea+" "+data.codigoProducto+" - "+data.nom_prod+" Envase: Segundario";
+                        me.cadenaTexto =  "Linea "+data.nom_linea+" "+data.codigoProducto+" - "+data.nom_prod+" Envase Segundario";
                     }
                     if (data.envase===3) {
-                        me.cadenaTexto =  "Linea: "+data.nom_linea+" "+data.codigoProducto+" - "+data.nom_prod+" Envase: Terciario";
+                        me.cadenaTexto =  "Linea "+data.nom_linea+" "+data.codigoProducto+" - "+data.nom_prod+" Envase Terciario";
                     }                   
                     me.tipoEnvase=data.envase;   
                 
@@ -585,6 +749,9 @@ export default {
 
     mounted() {
         this.classModal = new _pl.Modals();
+          //-------permiso E_W_S-----
+             this.listarPerimsoxyz();
+            //-----------------------
         this.sucursalFiltro();
         this.fecha_inicial();
         this.classModal.addModal("registrar");
