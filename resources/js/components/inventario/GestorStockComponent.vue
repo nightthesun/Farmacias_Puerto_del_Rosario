@@ -11,27 +11,19 @@
             <div class="card">
                 <div class="card-header">
                     <i class="fa fa-align-justify"></i> Gestor de sctock               
-                    <button type="button" class="btn btn-secondary" style="color:white;" @click="abrirModal('registrar');iniciarOperacio();otra();" :disabled="sucursalSeleccionada == 0" :hidden="sucursalSeleccionada == 0">
+                    <button type="button" class="btn btn-secondary" style="color:white;" @click="abrirModal('registrar');iniciarOperacio();" :disabled="sucursalSeleccionada == 0" :hidden="sucursalSeleccionada == 0">
                         <i class="icon-plus"></i>&nbsp;Generar
                     </button>&nbsp;
-                    <button type="button" class="btn btn-info"  style="color:white;" @click="abrirModal('registrar');" :disabled="sucursalSeleccionada == 0" :hidden="sucursalSeleccionada == 0">
-                        <i class="fa fa-file-pdf-o" aria-hidden="true"></i>&nbsp;Exportar PDF
-                    </button>&nbsp;
-                    <button type="button" class="btn btn-primary"  @click="abrirModal('registrar');" :disabled="sucursalSeleccionada == 0" :hidden="sucursalSeleccionada == 0">
-                       <i class="fa fa-file-excel-o" aria-hidden="true"></i>&nbsp;Exportar Excel
-                    </button>
-                    <span v-if="sucursalSeleccionada == 0" class="error"
-                        >&nbsp; &nbsp;Debe Seleccionar un almacen o
-                        tienda.</span >
+             
                 </div>
         <div class="card-body">
             <div class="form-group row">
                 <div class="col-md-2" style="text-align: center">
-                     <label for="">Almacen o Tienda:</label>
+                     <label for="">Sucursal:</label>
                 </div>
                         <div class="col-md-4">
                             <div class="input-group">
-                                <select class="form-control" v-model="sucursalSeleccionada">
+                                <select class="form-control" v-model="sucursalSeleccionada" @change="listarIndex()">
                                     <option value="0" disabled selected>Seleccionar...</option>
                                     <option v-for="sucursal in arraySucursal" :key="sucursal.id"  :value="sucursal.id"
                                         v-text="sucursal.razon_social"
@@ -48,14 +40,14 @@
                                     class="form-control"
                                     placeholder="Texto a buscar"
                                     v-model="buscar"
-                               
+                                 @keyup.enter="listarIndex(1)"
                                     :hidden="sucursalSeleccionada == 0"
                                     :disabled="sucursalSeleccionada == 0"
                                 />
                                 <button
                                     type="submit"
                                     class="btn btn-primary"
-                              
+                                     @click="listarIndex(1)"
                                     :hidden="sucursalSeleccionada == 0"
                                     :disabled="sucursalSeleccionada == 0"
                                 >
@@ -76,27 +68,28 @@
     
         <div class="col-md-2" v-if="sucursalSeleccionada !== 0">
           <label for="start-date">Fecha inicial:</label>
-          <input id="start-date" type="date" class="form-control" v-model="startDate">
+          <input id="start-date" type="date" class="form-control" v-model="startDate" @change="listarIndex()">
         </div>
         <div class="col-md-2" v-if="sucursalSeleccionada !== 0">
           <label for="end-date">Fecha final:</label>
-          <input id="end-date" type="date" class="form-control" v-model="endDate">
+          <input id="end-date" type="date" class="form-control" v-model="endDate" @change="listarIndex()">
         </div>
      
-         <div class="col-md-2" v-if="sucursalSeleccionada !== 0">
+        
+        <div class="col-md-2" v-if="sucursalSeleccionada !== 0">
             <div class="d-flex flex-column">
-            <label for="end-date">Usar fecha:</label>
-            <button type="button" class="btn btn-success mt-1" style="color: white;">
-                <i class="fa fa-calendar-plus-o" aria-hidden="true"></i>
+            <label for="end-date">Exportar PDF:</label>
+            <button type="button" class="btn btn-info mt-1" style="color: white;">
+           <i class="fa fa-file-pdf-o" aria-hidden="true"></i>
             </button>
             </div>
         </div>
 
         <div class="col-md-2" v-if="sucursalSeleccionada !== 0">
             <div class="d-flex flex-column">
-            <label for="end-date">No usar fecha:</label>
-            <button type="button" class="btn btn-warning mt-1" style="color: white;">
-                <i class="fa fa-calendar-times-o" aria-hidden="true"></i>
+            <label for="end-date">Exportar Excel:</label>
+            <button type="button" class="btn btn-primary mt-1" style="color: white;">
+            <i class="fa fa-file-excel-o" aria-hidden="true"></i>
             </button>
             </div>
         </div>
@@ -104,27 +97,76 @@
 
   </div>
   <br>
+  <div class="alert alert-warning" role="alert" v-if="sucursalSeleccionada=='0'">
+  Debe seleccionar una <strong>sucursal</strong> 
+</div>
             <!---inserte tabla-->
-            <table class="table table-bordered table-striped table-sm table-responsive" >
+            <table class="table table-bordered table-striped table-sm table-responsive" v-else>
                 <thead>
                     <tr>
                         <th>Opciones</th>
                         <th>Nro</th>
                         <th>Distribuidor</th>
-                        <th>Fecha de pedigo</th>
+                        <th>Linea</th>
+                        <th>Fecha de pedido</th>
                         <th>Total</th>
                         <th>Fecha de pago</th>
                         <th>Formato de pago</th>
                         <th>Turno de entrega</th>
                         <th>Plazo</th>
                         <th>Obs.</th>
-                        <th>Tipo</th>
                         <th>Usuario</th>
                         <th>Estado</th>       
                     </tr>
                 </thead>
+                <tbody>
+                    <tr v-for="(a, index) in arrayInicio" :key="index">
+                        <td>  
+                            <button type="button" class="btn btn-info btn-sm" style="margin-right: 5px; color: white;">
+                                <i class="fa fa-file-pdf-o" aria-hidden="true"></i>
+                            </button>
+                            <button type="button" class="btn btn-warning btn-sm" style="margin-right: 5px; color: white;">
+                                <i class="fa fa-eye" aria-hidden="true"></i>
+                            </button>
+                            <button v-if="a.activo==1" type="button" class="btn btn-danger btn-sm" style="margin-right: 5px; color: white;" @click="eliminar(a.id)">
+                                <i class="fa fa-trash" aria-hidden="true"></i>
+                            </button>                            
+                            <button v-else type="button" class="btn btn-info btn-sm" style="margin-right: 5px;"  @click="activar(a.id)">
+                                <i class="icon-check"></i>
+                            </button>
+                        </td>
+                        <td>{{a.id}}</td>
+                        <td>{{a.nom_distribuidor}}</td>
+                        <td>{{a.linea}}</td>
+                        <td>{{(a.fecha_pedido).split(" ")[0]}}</td>
+                        <td>{{a.total_programacion+" "+a.simbolo}}</td>
+                        <td>{{a.fecha_pago}}</td>
+                        <td>{{a.formato_pago}}</td>
+                        <td>{{a.formato_turno}}</td>
+                        <td>{{a.plazo_pedido}}</td>
+                        <td>{{a.observacion}}</td>
+                        <td>{{a.nom_user}}</td>
+                
+                           <td>                              
+                                     <span  v-if="a.activo==1" class="badge badge-success" >Activo</span>                              
+                                     <span v-else class="badge badge-warning">Desactivado</span>   
+                            </td>
+                    </tr>
+                </tbody>
             </table>    
-
+  <nav>
+                        <ul class="pagination">
+                            <li class="page-item" v-if="pagination.current_page > 1">
+                                <a class="page-link" href="#" @click.prevent="cambiarPagina(pagination.current_page - 1)">Ant</a>
+                            </li>
+                            <li class="page-item" v-for="page in pagesNumber" :key="page" :class="[page == isActived ? 'active':'']">
+                                <a class="page-link" href="#" @click.prevent="cambiarPagina(page)" v-text="page"></a>
+                            </li>
+                            <li class="page-item" v-if="pagination.current_page< pagination.last_page">
+                                <a class="page-link" href="#" @click.prevent="cambiarPagina(pagination.current_page + 1)">Sig</a>
+                            </li>
+                        </ul>
+                    </nav>
             <!-----fin de tabla------->
         </div>
 
@@ -261,38 +303,95 @@
             <div class="card">
   <h5 class="card-header">Crear gestor stock</h5>
   <div class="card-body">
-    <div class="container">                               
-                <div class="form-group row">
-                    <label class="col-md-2 form-control-label" for="text-input">
-                     <strong>Distribuidor:</strong>                                
-                    </label>
-                        <div class="col-md-5 input-group mb-3">
-                        <VueMultiselect
-                        v-model="selected"
-                        
-                        :options="arrayDistribuidor"
-                        :max-height="190"                   
-                        :block-keys="['Tab', 'Enter']"                       
-                        placeholder="Seleccione una opción"
-                        label="id" 
-                        :custom-label="nameWithLang"                     
-                        track-by="id"
-                        class="w-250"
-                        selectLabel="Añadir a seleccion"
-                        deselectLabel="Quitar seleccion"
-                        selectedLabel="Seleccionado">
-                       <template #noResult>
-                        No se encontraron elementos. Considere cambiar la consulta de búsqueda.
-                      </template>
-                    </VueMultiselect> 
-                        </div>
-                        <div class="col-md-5 input-group mb-3">                            
-                            <button type="button" class="btn" :style="selected == null ?{backgroundColor: '#eeeeee', color: 'white'}:{backgroundColor: '#FF7300', color: 'white'}"  @click="selected != null && modalAlerta_open(selected.id, selected.id_linea_array, 1)"><strong>Stock alerta</strong></button>&nbsp;
-                            <button type="button" class="btn" :style="selected == null ?{backgroundColor: '#eeeeee', color: 'white'}:{backgroundColor: '#FFE300', color: 'white'}" @click="selected != null && modalAlerta_open(selected.id,selected.id_linea_array,2);"><strong>Stock minimo</strong></button>&nbsp;
-                            <button type="button" class="btn" style="background-color: red; color: white;" @click="modalCero_open()" ><strong>Stock cero</strong></button>&nbsp;
-                            <button type="button" class="btn btn-primary" @click="cerrarModal('registrar')"><strong>Cerrar modal</strong></button>              
-                        </div>
-                </div>        
+    
+   
+    <div class="container"> 
+         <div class="form-check">
+  <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios1" value="option1" @click="cambioSelecto(1)">
+  <label class="form-check-label" style="font-size: 15px;">
+    Seleccionar por linea en la tabla
+  </label>
+</div>
+<div class="form-check">
+  <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios2" value="option2" @click="cambioSelecto(2)">
+  <label class="form-check-label" style="font-size: 15px;">
+    Seleccionar por distribuidor 
+  </label>
+</div>
+                             
+               <div class="form-group row align-items-center">     
+    <!-- Selector línea -->
+    <div class="col-md-6 input-group mb-0" >  
+
+        <select class="form-control" v-model="selectEspecifico" v-show="showSelector==1">
+            <option value="0" disabled selected>Seleccionar linea</option>
+            <option v-for="(a, index) in arrayLiena" 
+                    :key="index" 
+                    :value="a.id_linea"
+                    v-text="'Linea: '+a.linea+' Color: '+a.color">
+            </option>
+        </select>                          
+          
+
+    <!-- Selector distribuidor -->
+    
+        <VueMultiselect v-show="showSelector==2"
+            v-model="selected"
+            :options="arrayDistribuidor"
+            :max-height="190"                   
+            :block-keys="['Tab', 'Enter']"                       
+            placeholder="Seleccione un distribuidor"
+            label="id" 
+            :custom-label="nameWithLang"                     
+            track-by="id"
+            class="w-100"
+            selectLabel="Añadir a seleccion"
+            deselectLabel="Quitar seleccion"
+            selectedLabel="Seleccionado">
+            <template #noResult>
+                No se encontraron elementos. Considere cambiar la consulta de búsqueda.
+            </template>
+        </VueMultiselect> 
+    </div>
+                       
+    <!-- Botones -->
+    <div class="col-md-6 d-flex gap-2 flex-wrap">
+        <div v-if="showSelector==1">
+            <button type="button" class="btn"
+                :style="selectEspecifico =='0'?{backgroundColor: '#eeeeee', color: 'white'}:{backgroundColor: '#FF7300', color: 'white'}"
+                @click="selectEspecifico !='0' && modalAlerta_open(0, 0, 1, selectEspecifico)">
+                <strong>Stock alerta</strong>
+            </button>
+            <button type="button" class="btn"
+                :style="selectEspecifico =='0'?{backgroundColor: '#eeeeee', color: 'white'}:{backgroundColor: '#FFE300', color: 'white'}"
+                @click="selectEspecifico !='0' && modalAlerta_open(0, 0, 2, selectEspecifico)">
+                <strong>Stock minimo</strong>
+            </button>
+        </div>
+        <div v-else>
+            <button type="button" class="btn"
+                :style="selected == null ? {backgroundColor: '#eeeeee', color: 'white'}:{backgroundColor: '#FF7300', color: 'white'}"
+                @click="selected != null && modalAlerta_open(selected.id, selected.id_linea_array, 1, selectEspecifico)">
+                <strong>Stock alerta</strong>
+            </button>
+            <button type="button" class="btn"
+                :style="selected == null ? {backgroundColor: '#eeeeee', color: 'white'}:{backgroundColor: '#FFE300', color: 'white'}"
+                @click="selected != null && modalAlerta_open(selected.id, selected.id_linea_array, 2, selectEspecifico)">
+                <strong>Stock minimo</strong>
+            </button>
+        </div>
+
+        <button type="button" class="btn" style="background-color: red; color: white;" 
+            @click="modalCero_open()">
+            <strong>Stock cero</strong>
+        </button>
+        <button type="button" class="btn btn-primary" 
+            @click="cerrarModal('registrar')">
+            <strong>Cerrar modal</strong>
+        </button>              
+    </div>
+</div>
+     
             </div>
   </div>
 </div>
@@ -715,7 +814,7 @@ export default {
             showModal: false,
             showModal_2:false,
             showModal_3:false,
-            //offset:3,
+            offset:3,
   selected:null,
             tituloModal: '',
             tituloModal_2: '',
@@ -765,6 +864,11 @@ export default {
             buscarCero:'',
 
             arrayLiena:[],
+            filtrados:[],
+            selectEspecifico:'0',     
+            showSelector:0,  
+            
+            arrayInicio:[],
           
         };
     },
@@ -1070,16 +1174,49 @@ const wb = XLSX.utils.book_new();
 XLSX.utils.book_append_sheet(wb, ws, 'Emisiones');
 XLSX.writeFile(wb, 'informe_stock_cero.xlsx'); 
         },
+
+
+listarIndex(page){
+            let me=this;
+                var url='/gestor-stock/index?page='+page+'&buscar='+me.buscar+'&id_sucursal='+me.sucursalSeleccionada+"&ini="+me.startDate+"&fini="+me.endDate;
+             
+                axios.get(url)
+                .then(function(response){
+                    var respuesta = response.data;
+                    me.pagination = respuesta.pagination;
+                    me.arrayInicio = respuesta.resultados.data;
+                    console.log(me.arrayInicio);
+                })
+                .catch(function(error){
+                    error401(error);
+                });
+        },
+
+        cambioSelecto(data){
+             let me=this;
+                me.selected=null;
+                me.selectEspecifico="0";
+                me.showSelector=data;
+        }, 
         
-        modalAlerta_open(id_distri,lineas,tipo){
+        modalAlerta_open(id_distri,lineas,tipo,linea_es){
             let me = this;
             me.id_distribuidor=id_distri;
-            me.id_lineas=lineas;
+           
             me.tipo_modal=tipo;
-         
-            me.listarModalAlerta_superior(me.tipo_modal);
-            me.listarModalAlerta_inferior();
-            me.abrirModal('alerta');           
+            
+            if (me.showSelector==1) {           
+                 me.id_lineas=linea_es;
+            me.listarModalAlerta_superior(me.tipo_modal,linea_es);
+            me.listarModalAlerta_inferior(linea_es);
+            me.abrirModal('alerta'); 
+            }
+            if (me.showSelector==2) {
+                 me.id_lineas=lineas;
+            me.listarModalAlerta_superior(me.tipo_modal,0);
+            me.listarModalAlerta_inferior(0);
+            me.abrirModal('alerta');   
+            }                   
         },
 
         modalCero_open(){
@@ -1153,13 +1290,8 @@ datosFiltradosF(data) {
      me.listarDistribuidor();          // recién ejecuta la segunda
     
 },
-      otra(){
-         let me=this;  
-console.log("----1----");
-    console.log(me.arrayLiena);
-      },
-
-        quitarEleArray(id,i){
+    
+quitarEleArray(id,i){
             let me=this;         
             me.arrayModalSuperiror_naranja = me.arrayModalSuperiror_naranja.filter(item => item.id !== id);
              let suma = 0;
@@ -1220,7 +1352,7 @@ console.log("----1----");
         guardarModal(){      
             let me = this;  
            
-            if (me.id_distribuidor === 0 || me.id_lineas === "" ||
+            if ( me.id_lineas === "" ||
              me.selectFormaPago === "0" || me.fechaPago ==="" ||
                 me.plazoPago === "" ||me.selectEntregaPedido==="0"|| me.observacion===""    
             ) {
@@ -1268,10 +1400,105 @@ console.log("----1----");
             }
         },
 
+         activar(id){
+                let me=this;
+                const swalWithBootstrapButtons = Swal.mixin({
+                customClass: {
+                    confirmButton: 'btn btn-success',
+                    cancelButton: 'btn btn-danger'
+                },
+                buttonsStyling: false
+                })
+                swalWithBootstrapButtons.fire({
+                title: 'Esta Seguro de Activar?',
+                text: "Es una Activacion logica",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Si, Activar',
+                cancelButtonText: 'No, Cancelar',
+                reverseButtons: true
+                }).then((result) => {
+                if (result.isConfirmed) {
+                     axios.put('/gestor-stock/activar',{
+                        id: id
+                    }).then(function (response) {
+                        me.listarIndex();
+                    
+                        swalWithBootstrapButtons.fire(
+                            'Activado!',
+                            'El registro a sido Activado Correctamente',
+                            'success'
+                        )
+                    }).catch(function (error) {
+                        error401(error);
+                    });
+                    
+                    
+                } else if (
+                    /* Read more about handling dismissals below */
+                    result.dismiss === Swal.DismissReason.cancel
+                ) {
+                    /* swalWithBootstrapButtons.fire(
+                    'Cancelado!',
+                    'El Registro no fue Activado',
+                    'error'
+                    ) */
+                }
+                })
+            },
+
+             eliminar(id){
+                let me=this;
+                const swalWithBootstrapButtons = Swal.mixin({
+                customClass: {
+                    confirmButton: 'btn btn-success',
+                    cancelButton: 'btn btn-danger'
+                },
+                buttonsStyling: false
+                })
+
+                swalWithBootstrapButtons.fire({
+                title: '¿Esta Seguro de Desactivar?',
+                text: "Es una eliminacion logica",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Si, Desactivar',
+                cancelButtonText: 'No, Cancelar',
+                reverseButtons: true
+                }).then((result) => {
+                if (result.isConfirmed) {
+                     axios.put('/gestor-stock/desactivar',{
+                        id: id
+                    }).then(function (response) {
+                        me.listarIndex();
+                        swalWithBootstrapButtons.fire(
+                            'Desactivado!',
+                            'El registro a sido desactivado Correctamente',
+                            'success'
+                        )
+                   
+                     
+                        
+                    }).catch(function (error) {
+                        error401(error);
+                    });
+                } else if (
+                    /* Read more about handling dismissals below */
+                    result.dismiss === Swal.DismissReason.cancel
+                ) {
+                    /* swalWithBootstrapButtons.fire(
+                    'Cancelado!',
+                    'El Registro no fue desactivado',
+                    'error'
+                    ) */
+                }
+                })
+            },
 
         listarModalGestorOperacion(){            
             let me=this;
             me.arrayModalOperacionGestor=[];
+            
             var url = "/gestor-stock/listarGestorStockModal?id_sucursal="+me.sucursalSeleccionada;
             axios
                 .get(url)
@@ -1280,31 +1507,39 @@ console.log("----1----");
                     let respuesta_2 = (response.data).arrayLinea;
                     me.arrayModalOperacionGestor = respuesta;
                     me.arrayModalFalso = respuesta; 
-                    me.arrayLiena=respuesta_2;
-                console.log("----2----");
-                        console.log(me.arrayLiena);
-            
+                    let filtro=respuesta_2;
+                     
+                        me.arrayLiena = filtro.filter((item, index, self) =>
+  index === self.findIndex((t) => (
+    t.id_linea === item.id_linea && t.color === item.color
+  ))
+);
+              
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
 
-         listarModalAlerta_inferior(){            
+         listarModalAlerta_inferior(data){            
             let me=this;
+     
             me.arraySelect_distribuidor_x_producto=[];
             me.select_distribuidor_x_producto=null;
-            var url = "/gestor-stock/listar_Producto_x_distribuidor?id_distribuidor="+me.selected.id;
+            if (data==0) {
+                 var url = "/gestor-stock/listar_Producto_x_distribuidor?id_distribuidor="+me.selected.id+"&data="+data;
+            } else {
+                 var url = "/gestor-stock/listar_Producto_x_distribuidor?id_distribuidor="+0+"&data="+data;
+            }
+           
             axios
                 .get(url)
                 .then(function (response) {
                     var respuesta = response.data;                 
-               
+                me.arraySelect_distribuidor_x_producto=respuesta;
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
 
@@ -1322,12 +1557,17 @@ console.log("----1----");
         }
       },
 
-        listarModalAlerta_superior(tipo){
+        listarModalAlerta_superior(tipo,lineaA){
             
             let me=this;
             me.arrayModalSuperiror_naranja=[];
             me.subTotal_modal_superior=0;
-            var url = "/gestor-stock/listarAlertaModalSuperior?id_distri_lista="+me.selected.id_linea_array+"&tipo="+tipo+"&id_sucursal="+me.sucursalSeleccionada;
+            if (lineaA==0) {
+                var url = "/gestor-stock/listarAlertaModalSuperior?id_distri_lista="+me.selected.id_linea_array+"&tipo="+tipo+"&id_sucursal="+me.sucursalSeleccionada;
+            } else {
+                var url = "/gestor-stock/listarAlertaModalSuperior?id_distri_lista="+lineaA+"&tipo="+tipo+"&id_sucursal="+me.sucursalSeleccionada; 
+            }
+           
             axios
                 .get(url)
                 .then(function (response) {
@@ -1346,7 +1586,6 @@ console.log("----1----");
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
 
@@ -1367,7 +1606,6 @@ console.log("----1----");
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
 
@@ -1407,7 +1645,6 @@ console.log("----1----");
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
             
         },
@@ -1427,13 +1664,10 @@ console.log("----1----");
                 .get(url)
                 .then(function (response) {
                     var respuesta = response.data;
-                    me.arrayDistribuidor = respuesta;  
-                    console.log("------------------------3------");
-                    console.log(me.arrayLiena);              
+                    me.arrayDistribuidor = respuesta;            
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
 
@@ -1447,7 +1681,7 @@ console.log("----1----");
         cambiarPagina(page) {
             let me = this;
             me.pagination.current_page = page;
-        //    me.listarAjusteNegativos(page);
+            me.listarIndex(page);
         },
 
         abrirModal(accion, data = []) {
@@ -1579,7 +1813,9 @@ console.log("----1----");
         this.fecha_inicial();
         this.classModal.addModal("registrar");
         this.classModal.addModal("alerta");    
-        this.classModal.addModal("saldo_cero");       
+        this.classModal.addModal("saldo_cero");   
+         this.classModal.addModal("show"); 
+       // this.listarIndex();    
     },
 };
 </script>

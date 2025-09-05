@@ -13,9 +13,258 @@ class InvGestionStockController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $buscararray = array();
+        $ini=$request->ini;
+        $fini=$request->fini;
+        $id_sucursal=$request->id_sucursal;
+          if (!empty($request->buscar)) {
+            $buscararray = explode(" ", $request->buscar);
+            $valor = sizeof($buscararray);
+              if ($valor > 0) {
+                $sqls = '';
+                
+                foreach ($buscararray as $valor) {
+                    if (empty($sqls)) {
+                        $sqls = "(
+                                dc.nom_a_facturar like '%" . $valor . "%' 
+                                or dd.nom_linea_array like '%" . $valor . "%' 
+                                or u.name like '%" . $valor . "%'
+                                or igs.plazo_pedido like '%" . $valor . "%' 
+                               )";
+                    } else {
+                        $sqls .= "and (
+                            dc.nom_a_facturar like '%" . $valor . "%' 
+                            or dd.nom_linea_array like '%" . $valor . "%' 
+                            or u.name like '%" . $valor . "%'
+                            or igs.plazo_pedido like '%" . $valor . "%' 
+                       )";
+                    }
+                }
+                // codigo query
+                $consulta1 = DB::table('inv__gestion_stocks as igs')
+    ->select(
+        'igs.id',
+        'igs.id_distribuidor',
+        DB::raw("CASE 
+            WHEN dc.tipo_per_emp = 1 THEN CONCAT(IFNULL(dp.nombres, ''), ' ', IFNULL(dp.apellidos, ''))
+            WHEN dc.tipo_per_emp = 2 THEN IFNULL(de.razon_social, '')
+            ELSE 'Error' END as nom_distribuidor"),
+        'dc.nom_a_facturar',
+        'dd.nom_linea_array as linea',
+        'igs.created_at as fecha_pedido',
+        'igs.total_programacion',
+        'igs.fecha_pago',
+        DB::raw("CASE 
+            WHEN igs.forma_pago=1 THEN 'CHEQUE'
+            WHEN igs.forma_pago=2 THEN 'CONTADO'
+            WHEN igs.forma_pago=3 THEN 'CREDITO'
+            WHEN igs.forma_pago=4 THEN 'TRASFERENCIA BANCARIA'
+            ELSE 'SIN TIPO' END as formato_pago"),
+        DB::raw("CASE 
+            WHEN igs.turno_pedido=1 THEN 'MAÑANA'
+            WHEN igs.forma_pago=2 THEN 'TARDE'
+            ELSE 'SIN FORMATO' END as formato_turno"),
+        'igs.plazo_pedido',
+        'igs.observacion',
+        'igs.tipo as tipo_guardado',
+        'u.name as nom_user',
+        'igs.simbolo',
+        'igs.activo'
+    )
+    ->join('dir__distribuidors as dd', 'igs.id_distribuidor', '=', 'dd.id')
+    ->join('dir__clientes as dc', 'dc.id', '=', 'dd.id_cliente')
+    ->leftJoin('dir__personas as dp', function ($q) {
+        $q->on('dp.id', '=', 'dc.id_per_emp')->where('dc.tipo_per_emp', 1);
+    })
+    ->leftJoin('dir__empresas as de', function ($q) {
+        $q->on('de.id', '=', 'dc.id_per_emp')->where('dc.tipo_per_emp', 2);
+    })
+    ->join('users as u', 'u.id', '=', 'igs.id_usuario')  
+    ->where('igs.id_distribuidor', '>', 0)
+    ->whereRaw($sqls)
+       ->where('igs.id_sucursal', '=', $id_sucursal) ;   
+  
+
+
+$consulta2 = DB::table('inv__gestion_stocks as igs')
+    ->select(
+        'igs.id',
+        'dd.id as id_distribuidor',
+        DB::raw("CASE 
+            WHEN dc.tipo_per_emp = 1 THEN CONCAT(IFNULL(dp.nombres, ''), ' ', IFNULL(dp.apellidos, ''))
+            WHEN dc.tipo_per_emp = 2 THEN IFNULL(de.razon_social, '')
+            ELSE 'Error' END as nom_distribuidor"),
+        'dc.nom_a_facturar',
+        'dd.nom_linea_array as linea',
+        'igs.created_at as fecha_pedido',
+        'igs.total_programacion',
+        'igs.fecha_pago',
+        DB::raw("CASE 
+            WHEN igs.forma_pago=1 THEN 'CHEQUE'
+            WHEN igs.forma_pago=2 THEN 'CONTADO'
+            WHEN igs.forma_pago=3 THEN 'CREDITO'
+            WHEN igs.forma_pago=4 THEN 'TRASFERENCIA BANCARIA'
+            ELSE 'SIN TIPO' END as formato_pago"),
+        DB::raw("CASE 
+            WHEN igs.turno_pedido=1 THEN 'MAÑANA'
+            WHEN igs.forma_pago=2 THEN 'TARDE'
+            ELSE 'SIN FORMATO' END as formato_turno"),
+        'igs.plazo_pedido',
+        'igs.observacion',
+        'igs.tipo as tipo_guardado',
+        'u.name as nom_user',
+        'igs.simbolo',
+        'igs.activo'
+    )
+    ->join('dir__distribuidors as dd', function ($q) {
+        $q->whereRaw("FIND_IN_SET(igs.id_linea, dd.id_linea_array)");
+    })
+    ->join('dir__clientes as dc', 'dc.id', '=', 'dd.id_cliente')
+    ->leftJoin('dir__personas as dp', function ($q) {
+        $q->on('dp.id', '=', 'dc.id_per_emp')->where('dc.tipo_per_emp', 1);
+    })
+    ->leftJoin('dir__empresas as de', function ($q) {
+        $q->on('de.id', '=', 'dc.id_per_emp')->where('dc.tipo_per_emp', 2);
+    })
+    ->join('users as u', 'u.id', '=', 'igs.id_usuario')
+    ->where('igs.id_distribuidor', 0)
+    ->whereRaw($sqls)
+       ->where('igs.id_sucursal', '=', $id_sucursal) ;
+    
+//  Unión
+// Unión
+$resultados = $consulta1
+    ->unionAll($consulta2)
+    ->orderBy('id', 'desc')
+    ->paginate(15);
+
+           }
+             return
+            [
+                'pagination' =>
+                [
+                    'total'         =>    $resultados->total(),
+                    'current_page'  =>    $resultados->currentPage(),
+                    'per_page'      =>    $resultados->perPage(),
+                    'last_page'     =>    $resultados->lastPage(),
+                    'from'          =>    $resultados->firstItem(),
+                    'to'            =>    $resultados->lastItem(),
+                ],
+                'resultados' => $resultados,
+            ];
+          } else {
+                   $consulta1 = DB::table('inv__gestion_stocks as igs')
+    ->select(
+        'igs.id',
+        'igs.id_distribuidor',
+        DB::raw("CASE 
+            WHEN dc.tipo_per_emp = 1 THEN CONCAT(IFNULL(dp.nombres, ''), ' ', IFNULL(dp.apellidos, ''))
+            WHEN dc.tipo_per_emp = 2 THEN IFNULL(de.razon_social, '')
+            ELSE 'Error' END as nom_distribuidor"),
+        'dc.nom_a_facturar',
+        'dd.nom_linea_array as linea',
+        'igs.created_at as fecha_pedido',
+        'igs.total_programacion',
+        'igs.fecha_pago',
+        DB::raw("CASE 
+            WHEN igs.forma_pago=1 THEN 'CHEQUE'
+            WHEN igs.forma_pago=2 THEN 'CONTADO'
+            WHEN igs.forma_pago=3 THEN 'CREDITO'
+            WHEN igs.forma_pago=4 THEN 'TRASFERENCIA BANCARIA'
+            ELSE 'SIN TIPO' END as formato_pago"),
+        DB::raw("CASE 
+            WHEN igs.turno_pedido=1 THEN 'MAÑANA'
+            WHEN igs.forma_pago=2 THEN 'TARDE'
+            ELSE 'SIN FORMATO' END as formato_turno"),
+        'igs.plazo_pedido',
+        'igs.observacion',
+        'igs.tipo as tipo_guardado',
+        'u.name as nom_user',
+        'igs.simbolo',
+        'igs.activo'
+    )
+    ->join('dir__distribuidors as dd', 'igs.id_distribuidor', '=', 'dd.id')
+    ->join('dir__clientes as dc', 'dc.id', '=', 'dd.id_cliente')
+    ->leftJoin('dir__personas as dp', function ($q) {
+        $q->on('dp.id', '=', 'dc.id_per_emp')->where('dc.tipo_per_emp', 1);
+    })
+    ->leftJoin('dir__empresas as de', function ($q) {
+        $q->on('de.id', '=', 'dc.id_per_emp')->where('dc.tipo_per_emp', 2);
+    })
+    ->join('users as u', 'u.id', '=', 'igs.id_usuario')
+    ->where('igs.id_distribuidor', '>', 0)
+     ->whereBetween(DB::raw('DATE(igs.created_at)'), [$ini, $fini]) // usa el alias del SELECT
+    ->where('igs.id_sucursal', '=', $id_sucursal); // asegúrate de que esté en el SELECT
+
+
+$consulta2 = DB::table('inv__gestion_stocks as igs')
+    ->select(
+        'igs.id',
+        'dd.id as id_distribuidor',
+        DB::raw("CASE 
+            WHEN dc.tipo_per_emp = 1 THEN CONCAT(IFNULL(dp.nombres, ''), ' ', IFNULL(dp.apellidos, ''))
+            WHEN dc.tipo_per_emp = 2 THEN IFNULL(de.razon_social, '')
+            ELSE 'Error' END as nom_distribuidor"),
+        'dc.nom_a_facturar',
+        'dd.nom_linea_array as linea',
+        'igs.created_at as fecha_pedido',
+        'igs.total_programacion',
+        'igs.fecha_pago',
+        DB::raw("CASE 
+            WHEN igs.forma_pago=1 THEN 'CHEQUE'
+            WHEN igs.forma_pago=2 THEN 'CONTADO'
+            WHEN igs.forma_pago=3 THEN 'CREDITO'
+            WHEN igs.forma_pago=4 THEN 'TRASFERENCIA BANCARIA'
+            ELSE 'SIN TIPO' END as formato_pago"),
+        DB::raw("CASE 
+            WHEN igs.turno_pedido=1 THEN 'MAÑANA'
+            WHEN igs.forma_pago=2 THEN 'TARDE'
+            ELSE 'SIN FORMATO' END as formato_turno"),
+        'igs.plazo_pedido',
+        'igs.observacion',
+        'igs.tipo as tipo_guardado',
+        'u.name as nom_user',
+        'igs.simbolo',
+        'igs.activo'
+    )
+    ->join('dir__distribuidors as dd', function ($q) {
+        $q->whereRaw("FIND_IN_SET(igs.id_linea, dd.id_linea_array)");
+    })
+    ->join('dir__clientes as dc', 'dc.id', '=', 'dd.id_cliente')
+    ->leftJoin('dir__personas as dp', function ($q) {
+        $q->on('dp.id', '=', 'dc.id_per_emp')->where('dc.tipo_per_emp', 1);
+    })
+    ->leftJoin('dir__empresas as de', function ($q) {
+        $q->on('de.id', '=', 'dc.id_per_emp')->where('dc.tipo_per_emp', 2);
+    })
+    ->join('users as u', 'u.id', '=', 'igs.id_usuario')
+    ->where('igs.id_distribuidor', 0)
+     ->whereBetween(DB::raw('DATE(igs.created_at)'), [$ini, $fini]) // usa el alias del SELECT
+    ->where('igs.id_sucursal', '=', $id_sucursal); // asegúrate de que esté en el SELECT
+    
+// Unión
+$resultados = $consulta1
+    ->unionAll($consulta2)
+    ->orderBy('id', 'desc')
+    ->paginate(15);
+
+    return
+            [
+                'pagination' =>
+                [
+                    'total'         =>    $resultados->total(),
+                    'current_page'  =>    $resultados->currentPage(),
+                    'per_page'      =>    $resultados->perPage(),
+                    'last_page'     =>    $resultados->lastPage(),
+                    'from'          =>    $resultados->firstItem(),
+                    'to'            =>    $resultados->lastItem(),
+                ],
+                'resultados' => $resultados,
+            ];
+
+          }
     }
 
      /**
@@ -26,13 +275,28 @@ class InvGestionStockController extends Controller
         //
     }
 
+  public function desactivar(Request $request)
+    {
+      
+        $update = Inv_GestionStock::findOrFail($request->id);
+        $update->activo = 0;
+        $update->id_usuario=auth()->user()->id;
+        $update->save();
+    }
 
+    public function activar(Request $request)
+    {  $update = Inv_GestionStock::findOrFail($request->id);
+        $update->activo = 1;
+        $update->id_usuario=auth()->user()->id;
+        $update->save();
+    }
 
     public function alerta_modal_parte_superior(Request $request){
         $cont = 0;
         $importe_total =0;
         
         $id_linea_array=$request->id_distri_lista;
+      
         $tipo_modal=$request->tipo;
         
         $arrayMostrar=[];
@@ -44,7 +308,7 @@ $id_sucursal=$request->id_sucursal;
     ->first();
 // Convertir la cadena a array
 $elementos = array_filter(explode(',', $id_linea_array));
-    
+
 // Recorrer con foreach (más flexible)
     foreach ($elementos as $valor) {
         $id_linea = $valor;
@@ -231,11 +495,11 @@ $elementos = array_filter(explode(',', $id_linea_array));
                         }else{
                             if($stock_total <= $minimo){
                                 $color = 1;
-                                $arrayLinea[] = ['id_linea'=> $id_linea,'color'=>'amarillo'];
+                                $arrayLinea[] = ['id_linea'=> $id_linea,'color'=>'amarillo','linea'=>$linea];
                             }else{
                                 if($stock_total <= $alerta && $stock_total > $minimo){
                                     $color = 2;
-                                $arrayLinea[] = ['id_linea'=> $id_linea,'color'=>'naranja'];
+                                $arrayLinea[] = ['id_linea'=> $id_linea,'color'=>'naranja','linea'=>$linea];
                                 }
                             }
                         }
@@ -630,6 +894,12 @@ $almacen = DB::table('ven__detalle_ventas as vdv')
 
     public function getProducto_x_distribuidor(Request $request){
         $id_distribuidor=$request->id_distribuidor;
+        $dataInterior=$request->data;
+        if ($dataInterior==0) {
+          $where="dd.id = $id_distribuidor";
+        }else{        
+           $where="pl.id = $dataInterior";
+        }
     // PRIMARIO
 $primario = DB::table('prod__productos as pp')
     ->select([
@@ -657,7 +927,7 @@ $primario = DB::table('prod__productos as pp')
     ->join('prod__forma_farmaceuticas as for_a', 'for_a.id', '=', 'pp.idformafarmaceuticaprimario')
     ->where('pp.activo', 1)
     ->where('pp.iddispenserprimario', '>', 0)
-    ->where('dd.id', $id_distribuidor);
+    ->whereRaw($where);
 
 // SECUNDARIO
 $secundario = DB::table('prod__productos as pp')
@@ -687,7 +957,7 @@ $secundario = DB::table('prod__productos as pp')
     ->join('prod__forma_farmaceuticas as for_a', 'for_a.id', '=', 'pp.idformafarmaceuticasecundario')
     ->where('pp.activo', 1)
     ->where('pp.iddispensersecundario', '>', 0)
-    ->where('dd.id', $id_distribuidor);
+    ->whereRaw($where);
 
 // TERCIARIO
 $terciario = DB::table('prod__productos as pp')
@@ -716,7 +986,7 @@ $terciario = DB::table('prod__productos as pp')
     ->join('prod__forma_farmaceuticas as for_a', 'for_a.id', '=', 'pp.idformafarmaceuticaterciario')
     ->where('pp.activo', 1)
     ->where('pp.iddispenserterciario', '>', 0)
-    ->where('dd.id', $id_distribuidor);
+     ->whereRaw($where);
 
 // UNION ALL de las 3 consultas
 $resultado = $primario->unionAll($secundario)->unionAll($terciario)->get();
@@ -749,6 +1019,7 @@ return $resultado;
             $observacion=$request->observacion;
             $tipo=$request->tipo;
             $simbolo=$request->simbolo;
+            $id_lineas=$request->id_lineas;
 
             $nuevoItem = new Inv_GestionStock();
             $nuevoItem->id_sucursal=$id_sucursal;
@@ -762,9 +1033,10 @@ return $resultado;
             $nuevoItem->observacion=$observacion;  
             $nuevoItem->tipo=$tipo; 
             $nuevoItem->simbolo=$simbolo;
-            $nuevoItem->save();
+            $nuevoItem->id_linea=$id_lineas;
+            $nuevoItem->save();           
 
-               // Obtener el ID recién creado
+            // Obtener el ID recién creado
              $id_nuevoItem = $nuevoItem->id;
       
              if(count($arrayModalSuperiror_naranja)>0){

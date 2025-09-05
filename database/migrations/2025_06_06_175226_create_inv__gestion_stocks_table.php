@@ -24,6 +24,8 @@ return new class extends Migration
             $table->text('observacion')->nullable();           
             $table->tinyInteger('tipo')->nullable()->comment('1:minimi,2:naranja');
             $table->string('simbolo',30)->nullable();
+            $table->smallInteger('id_linea')->nullable();
+            $table->tinyInteger('activo')->nullable()->default(1);
             $table->timestamps();
         });
     }
