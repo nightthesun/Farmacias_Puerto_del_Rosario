@@ -11,10 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('sis_bitacora_stock', function (Blueprint $table) {
+        Schema::create('sis__bitacora_stock_v2', function (Blueprint $table) {
             $table->id();
             $table->bigInteger('id_producto');
             $table->integer('stock');
+            $table->integer('anterior');
+            $table->integer('suma');
+            $table->mediumInteger('contador');
             $table->string('fecha_ingreso');        
             $table->smallInteger('id_sucursal')->nullable();
             $table->string('envase')->nullable();
@@ -26,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('sis_bitacora_stock');
+        Schema::dropIfExists('sis__bitacora_stock_v2');
     }
 };

@@ -632,6 +632,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/gestor-stock/index', [InvGestionStockController::class, 'index']);
     Route::put('/gestor-stock/desactivar', [InvGestionStockController::class, 'desactivar']);
     Route::put('/gestor-stock/activar', [InvGestionStockController::class, 'activar']);
+    Route::get('/gestor-stock/listarModalQuery', [InvGestionStockController::class, 'queryModaltop']);    
     
          
     /////////////////////////////////LOGISTICO///////////////////////////////////////

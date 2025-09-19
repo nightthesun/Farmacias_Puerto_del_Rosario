@@ -77,6 +77,7 @@ createApp ({
     .component('procesar-traspasos-component', require('./components/inventario/ProcesarTraspasoComponent.vue').default)
     .component('recepcion-traspasos-component', require('./components/inventario/RecepcionComponent.vue').default)
     .component('gestor-stock-component', require('./components/inventario/GestorStockComponent.vue').default)
+    .component('configuracion-stock-component', require('./components/inventario/ConfiguracionStockComponent.vue').default)
     
     //Logistica
     .component('vehiculo-component', require('./components/logistica/VehiculoComponent.vue').default)

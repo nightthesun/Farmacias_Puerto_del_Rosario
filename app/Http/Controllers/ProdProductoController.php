@@ -212,7 +212,7 @@ class ProdProductoController extends Controller
                     'prod__categorias.nombre',
                     'prod__categorias.id'
                 ])
-                ->orderBy('prod__productos.nombre', 'ASC')
+                ->orderBy('prod__productos.id', 'DESC')
                                           ->paginate(30);
          
 
@@ -332,7 +332,7 @@ class ProdProductoController extends Controller
                 'prod__categorias.nombre',
                 'prod__categorias.id'
             ])
-            ->orderBy('prod__productos.nombre', 'ASC')
+            ->orderBy('prod__productos.id', 'DESC')
                                       ->paginate(30);
             
         }

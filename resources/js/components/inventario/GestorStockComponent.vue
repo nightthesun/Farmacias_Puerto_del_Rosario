@@ -125,7 +125,7 @@
                             <button type="button" class="btn btn-info btn-sm" style="margin-right: 5px; color: white;">
                                 <i class="fa fa-file-pdf-o" aria-hidden="true"></i>
                             </button>
-                            <button type="button" class="btn btn-warning btn-sm" style="margin-right: 5px; color: white;">
+                            <button type="button" class="btn btn-warning btn-sm" style="margin-right: 5px; color: white;" @click="listarModalQuery_1_2(a.id,a);abrirModal('index_show',a);">
                                 <i class="fa fa-eye" aria-hidden="true"></i>
                             </button>
                             <button v-if="a.activo==1" type="button" class="btn btn-danger btn-sm" style="margin-right: 5px; color: white;" @click="eliminar(a.id)">
@@ -785,6 +785,144 @@
             </div>
         </transition>  
 <!--finde modal alerta-->
+
+<!---modal de show index ----->
+   <transition name="fade">
+            <div v-if="showModal_4" class="modal d-block" tabindex="-1" role="dialog">
+                 <div class="modal-dialog modal-primary modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                        <h4 class="modal-title">{{ tituloModal_4 }}</h4>
+                        <button type="button" class="close" @click="cerrarModal('index_show')">
+                            <span>&times;</span>
+                        </button>
+                        </div>
+                        <div class="card-header">            
+                        </div>                       
+                        <div class="modal-body" style="max-height: 80vh; overflow-y: auto;">
+
+<div class="alert alert-warning" role="alert" v-show="detectorError>1">
+  <h4>!!!El distribuidor tiene dublicidad¡¡¡</h4>
+</div>
+<div class="alert alert-danger" role="alert" v-if="id_distribuidorModal==1">
+  <h2>No tiene distribuidor, tiene que crear el distribuidor en modulo <strong>Directorio/Distribuidor.</strong></h2>
+</div>
+
+                  
+                        <form action="" class="form-horizontal" v-else>                        
+                            <!-- insertar datos -->
+                            <div class="container">
+                             <div class="form-group row">
+                                   <strong class="col-md-2">Usuario: {{nomUsuarioModal}}</strong>  
+                                  <strong class="col-md-2">Distribuidor: {{nomDistribuidorModal}}</strong>  
+                                  <strong class="col-md-2">Facturar: {{nomAfacturarModal}}</strong>  
+                                  <strong class="col-md-3">Formato de Pago: {{formatoPagoModal}}</strong>
+                                   <strong class="col-md-2">Plazo: {{plazoModal}}</strong>    
+                                
+                             </div>
+                             <div class="form-group row">
+                                    
+                                  <strong class="col-md-3">Fecha pago: {{fechaPAgoModal}}</strong>  
+                                   <strong class="col-md-3">Fecha pedido: {{fechaPedidoModal}}</strong>  
+                                  <strong class="col-md-2">Turno entrega: {{turnoEntregaModal}}</strong>  
+                                  <strong class="col-md-4">Observación: {{observacionModal}}</strong>  
+                             </div>
+                            </div>
+                              <div class="container" v-show="tamañoQuery_1==1">
+                                <table class="table table-bordered table-striped table-sm table-responsive" >                    
+                                    <thead>
+                                        <tr style="background-color: dodgerblue; color: white;">
+                                        <th>Linea</th>
+                                        <th>Cod. Producto</th>
+                                        <th class="col-md-3">Producto</th>
+                                        <th>Envase</th>
+                                        <th>Stock maximo</th>
+                                        <th>Stock actual</th>
+                                        <th>Stock pedido</th>
+                                        <th>Cantidad dispenser</th>
+                                        <th>Precio unitario</th>
+                                        <th>Sub total</th>                                        
+                                    </tr>                        
+                                    </thead>
+                                    <tbody>                                        
+                                    <tr v-for="(i, index) in arrayQuery_1Modal" :key="index">
+                                        <td>{{i.lineas}}</td>
+                                        <td>{{i.codigo}}</td>
+                                        <td class="col-md-3">{{i.nombre_prod+" - "+i.nombre_dis+" X "+i.cantidad_dispenser_producto+" "+i.nombre_forma_farmaceutica}}</td>
+                                        <td>{{i.envase}}</td>
+                                        <td>{{i.maximo_pedido}}</td>
+                                        <td>{{i.actual_pedido}}</td>
+                                        <td>{{i.stock_pedido}}</td>
+                                        <td>{{i.cantidad_pedido}}</td>
+                                        <td>{{i.precio_lista_producto+" "+simboloModal}}</td>
+                                        <td>{{i.precio_pedido+" "+simboloModal}}</td>
+                                    </tr>
+                                    </tbody>
+                                    <tfoot>
+                                        <tr style="background-color: dodgerblue; color: white;">
+            <!-- colspan ajusta cuántas columnas se juntan -->
+            <th colspan="9" class="text-end">Total</th>
+            <th>{{sumaTotalModal}}</th>
+        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+
+                            <div class="container">
+                                <table class="table table-bordered table-striped table-sm table-responsive" >                    
+                                    <thead>
+                                        <tr style="background-color: deepskyblue; color: white;">
+                                        <th>Cod. Producto</th>
+                                        <th class="col-md-4">Producto</th>
+                                        <th>Envase</th>
+                                        <th>Cantidad</th>  
+                                        <th>Precio unitario</th>                                     
+                                        <th>Sub total</th>                                        
+                                    </tr>                        
+                                    </thead>
+                                    <tbody>                                        
+                                        <tr v-for="(i2, index2) in arrayQuery_2Modal" :key="index2"> 
+                                            <td>{{i2.codigo}}</td>
+                                            <td>{{"Linea: "+i2.linea+" "+i2.nombre_prod+" - "+i2.nombre_dis+" X "+i2.cantidad_dispenser_producto+" "+i2.nombre_forma_farmaceutica}}</td>
+                                            <td>{{i2.envase}}</td>
+                                            <td>{{i2.cantidad_extra}}</td>
+                                            <td>{{i2.precio_lista_producto+" "+simboloModal}}</td>
+                                            <td>{{i2.precio_extra+" "+simboloModal}}</td>
+                                        </tr>
+                                    </tbody>
+                                    <tfoot>
+                                        <tr style="background-color: deepskyblue; color: white;">
+            <!-- colspan ajusta cuántas columnas se juntan -->
+            <th colspan="5" class="text-end">Total</th>
+            <th>{{sumaTotalModalinferior+" "+simboloModal}}</th>
+        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                              <div class="container">
+                                <table class="table table-bordered table-striped table-sm table-responsive" >                    
+                                    <thead>
+                                        <tr style="background-color: midnightblue; color: white;">
+                                        <th class="col-md-9" style="font-size: 20px;">Total</th>
+                                        <th class="col-md-3" style="font-size: 20px;">{{sumaTotalModalTotal+" "+simboloModal}}</th>                                      
+                                    </tr>                        
+                                    </thead>                       
+                                </table>
+                            </div>
+                        </form>
+                    </div>
+                  
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" @click="cerrarModal('index_show')">Cerrar</button>                     
+                    </div>
+
+                    </div>
+                </div>
+            </div>
+        </transition>  
+<!--finde modal alerta-->
+
+
     </main>
 </template>
 
@@ -869,6 +1007,33 @@ export default {
             showSelector:0,  
             
             arrayInicio:[],
+            tituloModal_4:'',
+            showModal_4 : false, 
+
+            nomUsuarioModal:'',
+            nomDistribuidorModal:'',
+            nomAfacturarModal:'',
+            fechaPedidoModal:'',
+            fechaPAgoModal:'',
+            formatoPagoModal:'',
+            plazoModal:'',
+            turnoEntregaModal:'',
+            observacionModal:'',
+            arrayTopModal:[],
+            arrayBottomModal:[],
+            totalTotalModal:'',
+            simboloModal:'',
+            arrayQuery_1Modal:[],
+            arrayQuery_2Modal:[],
+            tamañoQuery_1:0,
+            tamañoQuery_2:0,
+            sumaQueryModal:0,
+            id_distribuidorModal:0,
+
+            sumaTotalModal:0,
+            sumaTotalModalinferior:0,
+            sumaTotalModalTotal:0,
+            detectorError:0,
           
         };
     },
@@ -1393,6 +1558,7 @@ quitarEleArray(id,i){
                           }else{
                             Swal.fire("Se guardo correctamente.","Haga click en Ok","success",);
                           }
+                          me.listarIndex();
                     })
                    .catch(function (error) {                
                                   
@@ -1572,9 +1738,18 @@ quitarEleArray(id,i){
                 .get(url)
                 .then(function (response) {
                     var respuesta = response.data;
-                 
+                    let count_2=0;
                     me.subTotal_modal_superior=respuesta.importe_total;
                     me.arrayModalSuperiror_naranja=respuesta.arrayMostrar;
+                    me.arrayModalSuperiror_naranja.forEach(e => {
+                        if (count_2==0) {
+                            me.subTotal_modal_superior=e.subtotal;
+                        } else {
+                            me.subTotal_modal_superior=me.subTotal_modal_superior+e.subtotal;
+                        }
+                           count_2=1;
+                    });
+
                     if ((respuesta.simbolos).simbolo==null||(respuesta.simbolos).simbolo=="") {
                          me.simbolo="Bs";
                     }else{
@@ -1671,6 +1846,87 @@ quitarEleArray(id,i){
                 });
         },
 
+         listarModalQuery_1_2(id,data) {
+            let me = this;             
+            let id_dis=data.id_distribuidor;  
+            let id_li=data.id_linea;
+           var url = "/gestor-stock/listarModalQuery?id="+id+"&id_distribuidor="+id_dis+"&id_linea="+id_li;
+            axios
+                .get(url)
+                .then(function (response) {
+                    console.log(response.data);
+                    let respuesta_1 = (response.data).query_1;
+                    let respuesta_2 = (response.data).query_2;  
+                    let respuesta_3 = (response.data).query_3;  
+                    let count_2=0;
+                    let suma=0;
+                    let suma2=0;
+                    console.log(respuesta_1);   
+                    console.log(respuesta_2);   
+                    console.log(respuesta_3); 
+                   
+                    if (respuesta_1.length<=0 || respuesta_3==1) {
+                       me.tamañoQuery_1=0; 
+                    } else { 
+                       me.arrayQuery_1Modal=respuesta_1;  
+                       me.tamañoQuery_1=1;  
+                       me.arrayQuery_1Modal.forEach(e => {
+                        suma=suma+ parseFloat(e.precio_pedido);                    
+                       });                    
+                    }
+                    me.sumaTotalModal=suma.toFixed(2);
+                    if (respuesta_2.length<=0 || respuesta_3==1) {
+                       me.tamañoQuery_2=0; 
+                    } else {
+                       me.arrayQuery_2Modal=respuesta_2;
+                       me.tamañoQuery_2=1; 
+                        me.arrayQuery_2Modal.forEach(e => {
+                        suma2=suma2+ parseFloat(e.precio_extra);                    
+                       });  
+                    }
+                    me.sumaTotalModalinferior=suma2.toFixed(2);
+                        me.sumaTotalModalTotal=parseFloat(me.sumaTotalModalinferior)+parseFloat(me.sumaTotalModal);
+ 
+                    if(respuesta_3==1){
+                       me.id_distribuidorModal=1; 
+                    } else {
+                        if (respuesta_3==0) {                        
+                    me.nomDistribuidorModal=data.nom_distribuidor;
+                    me.nomAfacturarModal=data.nom_a_facturar;
+                    me.fechaPedidoModal=data.fecha_pedido;
+                    me.fechaPAgoModal=data.fecha_pago;
+                    me.formatoPagoModal=data.formato_pago;
+                    me.plazoModal=data.plazo_pedido;
+                    me.turnoEntregaModal=data.formato_turno;
+                    me.observacionModal=data.observacion;
+                    me.simboloModal=data.simbolo;
+                    me.id_distribuidorModal=data.id_distribuidor;
+                    me.nomUsuarioModal=data.nom_user;                
+                        } else {
+                            respuesta_3.forEach(e => {
+                                if (count_2==0) {
+                                me.nomDistribuidorModal=e.nom_distribuidor;
+                                me.nomAfacturarModal=e.nom_a_facturar;  
+                                }else{
+                                me.nomDistribuidorModal= me.nomDistribuidorModal+" / "+e.nom_distribuidor;
+                                me.nomAfacturarModal=  me.nomAfacturarModal+" / "+e.nom_a_facturar;
+                                }                                
+                                count_2++;
+                                
+                            });
+                        }
+                    }
+                    me.detectorError=respuesta_3.length;
+                    me.tituloModal_4="Registro de pedido";
+                    me.showModal_4 = true; 
+                    me.classModal.openModal("index_show");
+                    
+                })
+                .catch(function (error) {
+                    error401(error);
+                });
+        },
+
         cambiarPestana(idPestana) {
             this.pestañaActiva = idPestana;
 
@@ -1740,6 +1996,23 @@ quitarEleArray(id,i){
                     me.classModal.openModal("saldo_cero");
                     break;
                 }
+                case "index_show":{
+                console.log(data);
+                    me.tituloModal_4="Registro de pedido";
+                    me.showModal_4 = true; 
+                    me.nomUsuarioModal=data.nom_user;
+                    me.nomDistribuidorModal=data.nom_distribuidor;
+                    me.nomAfacturarModal=data.nom_a_facturar;
+                    me.fechaPedidoModal=data.fecha_pedido;
+                    me.fechaPAgoModal=data.fecha_pago;
+                    me.formatoPagoModal=data.formato_pago;
+                    me.plazoModal=data.plazo_pedido;
+                    me.turnoEntregaModal=data.formato_turno;
+                    me.observacionModal=data.observacion;
+                    me.simboloModal=data.simbolo;
+                    me.id_distribuidorModal=data.id_distribuidor;
+                    me.classModal.openModal("index_show");
+                }
             
             }
         },
@@ -1795,6 +2068,35 @@ quitarEleArray(id,i){
                me.buscarCero="";
                me.classModal.closeModal(accion);
             }
+
+            if (accion == "index_show") {
+                me.tituloModal_4="";
+                me.showModal_4=false;
+                me.nomUsuarioModal="";
+                me.nomDistribuidorModal="";
+                me.nomAfacturarModal="";
+                me.fechaPedidoModal="";
+                me.fechaPAgoModal="";
+                me.formatoPagoModal="";
+                me.plazoModal="";
+                me.turnoEntregaModal="";
+                me.observacionModal="";
+                me.arrayTopModal=[];
+                me.arrayBottomModal=[];
+                me.totalTotalModal="";
+                me.simboloModal="";
+                me.arrayQuery_1Modal=[];
+                me.arrayQuery_2Modal=[];
+                me.tamañoQuery_1=0;
+                me.tamañoQuery_2=0;
+                me.sumaQueryModal=0,
+                me.id_distribuidorModal=0;
+                me.sumaTotalModal=0;
+                me.sumaTotalModalinferior=0;
+                me.sumaTotalModalTotal=0;
+                me.detectorError=0;
+                 me.classModal.closeModal(accion);
+            }
         },
 
      
@@ -1814,7 +2116,9 @@ quitarEleArray(id,i){
         this.classModal.addModal("registrar");
         this.classModal.addModal("alerta");    
         this.classModal.addModal("saldo_cero");   
-         this.classModal.addModal("show"); 
+        this.classModal.addModal("show"); 
+        this.classModal.addModal("index_show");   
+         
        // this.listarIndex();    
     },
 };

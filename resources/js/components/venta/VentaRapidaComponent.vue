@@ -89,6 +89,7 @@
              <tr>
                
                  <td class="col-md-6">
+               
                      <div class="input-group">
                          <div class="w-100">
                              <VueMultiselect
@@ -115,7 +116,7 @@
                                <template #option="{ option }">
                                  <div :class="{'red-day': option.dias <= 20}">
                                 <i :style="{ color: getColorByPriority(option.prioridad_caducidad) }" class="fa fa-bell" aria-hidden="true"></i> 
-                                {{option.leyenda}} {{option.nombre_linea}} {{ "FV: "+option.fecha_vencimiento}} {{ "Dias: "+option.dias}}
+                                {{option.leyenda}} {{option.nombre_linea}} {{ "FV: "+option.fecha_vencimiento}} {{ "Dias: "+option.dias}} {{ "Stock: "+option.stock_ingreso}}
                                  </div>
                          </template>
                              </VueMultiselect>

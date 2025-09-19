@@ -18,7 +18,9 @@
                 <li class="nav-item">
                     <a class="nav-link" id="pills-profile-tab" @click="resert_0(2);listar_inicio_v2();" data-toggle="pill" href="#pills-profile" role="tab" aria-controls="pills-profile" aria-selected="false">Sincronización SIAT</a>
                 </li>
-                                     
+                <li class="nav-item">
+                    <a class="nav-link" id="pills-bitacora-tab" data-toggle="pill" href="#pills-bitacora" role="tab" aria-controls="pills-bitacora" aria-selected="false">Bitacora stock</a>
+                </li>                         
             </ul>
         </div>
         <div class="card-body">           
@@ -195,7 +197,30 @@
 
                         </div>
                     </div>        
-                  
+                    <!---------------------------------------------------------------------------------------------------------------------------->
+               
+                    <div class="tab-pane fade" id="pills-bitacora" role="tabpanel" aria-labelledby="pills-bitacora-tab">
+                        <div class="card">
+                            <div class="card-header">
+                                Servicios
+                            </div>
+                           
+    <div class="card-body">
+        <div class="row">    
+                                    <div class="form-group col-sm-2">
+                                        <strong>verificar Comunicacion:</strong>
+                                   </div> 
+                                <div class="form-group col-sm-4">
+                                    <button  type="button" class="btn btn-light"  ><i class="fa fa-code-fork" aria-hidden="true"></i> Verificar</button>
+                                </div>     
+                            </div>   
+        <div class="form-group row">
+         
+        </div> 
+    </div>
+  
+                        </div>
+                    </div>        
 <!---------------------------------------------------------------------------------------------------------------------------->
             </div>            
         </div>

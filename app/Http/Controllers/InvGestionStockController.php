@@ -64,14 +64,15 @@ class InvGestionStockController extends Controller
             ELSE 'SIN TIPO' END as formato_pago"),
         DB::raw("CASE 
             WHEN igs.turno_pedido=1 THEN 'MAÑANA'
-            WHEN igs.forma_pago=2 THEN 'TARDE'
+            WHEN igs.turno_pedido=2 THEN 'TARDE'
             ELSE 'SIN FORMATO' END as formato_turno"),
         'igs.plazo_pedido',
         'igs.observacion',
         'igs.tipo as tipo_guardado',
         'u.name as nom_user',
         'igs.simbolo',
-        'igs.activo'
+        'igs.activo',
+        'igs.id_linea'
     )
     ->join('dir__distribuidors as dd', 'igs.id_distribuidor', '=', 'dd.id')
     ->join('dir__clientes as dc', 'dc.id', '=', 'dd.id_cliente')
@@ -91,13 +92,10 @@ class InvGestionStockController extends Controller
 $consulta2 = DB::table('inv__gestion_stocks as igs')
     ->select(
         'igs.id',
-        'dd.id as id_distribuidor',
-        DB::raw("CASE 
-            WHEN dc.tipo_per_emp = 1 THEN CONCAT(IFNULL(dp.nombres, ''), ' ', IFNULL(dp.apellidos, ''))
-            WHEN dc.tipo_per_emp = 2 THEN IFNULL(de.razon_social, '')
-            ELSE 'Error' END as nom_distribuidor"),
-        'dc.nom_a_facturar',
-        'dd.nom_linea_array as linea',
+        'igs.id_distribuidor',
+     DB::raw("'Sin formato' as nom_distribuidor"),
+        DB::raw("'Sin formato' as nom_a_facturar"),
+        'pl.nombre as linea',
         'igs.created_at as fecha_pedido',
         'igs.total_programacion',
         'igs.fecha_pago',
@@ -109,31 +107,22 @@ $consulta2 = DB::table('inv__gestion_stocks as igs')
             ELSE 'SIN TIPO' END as formato_pago"),
         DB::raw("CASE 
             WHEN igs.turno_pedido=1 THEN 'MAÑANA'
-            WHEN igs.forma_pago=2 THEN 'TARDE'
+            WHEN igs.turno_pedido=2 THEN 'TARDE'
             ELSE 'SIN FORMATO' END as formato_turno"),
         'igs.plazo_pedido',
         'igs.observacion',
         'igs.tipo as tipo_guardado',
         'u.name as nom_user',
         'igs.simbolo',
-        'igs.activo'
+        'igs.activo',
+        'igs.id_linea'
     )
-    ->join('dir__distribuidors as dd', function ($q) {
-        $q->whereRaw("FIND_IN_SET(igs.id_linea, dd.id_linea_array)");
-    })
-    ->join('dir__clientes as dc', 'dc.id', '=', 'dd.id_cliente')
-    ->leftJoin('dir__personas as dp', function ($q) {
-        $q->on('dp.id', '=', 'dc.id_per_emp')->where('dc.tipo_per_emp', 1);
-    })
-    ->leftJoin('dir__empresas as de', function ($q) {
-        $q->on('de.id', '=', 'dc.id_per_emp')->where('dc.tipo_per_emp', 2);
-    })
+    ->join('prod__lineas as pl', 'pl.id', '=', 'igs.id_linea')
     ->join('users as u', 'u.id', '=', 'igs.id_usuario')
-    ->where('igs.id_distribuidor', 0)
+    ->where('igs.id_distribuidor','=', 0)
     ->whereRaw($sqls)
-       ->where('igs.id_sucursal', '=', $id_sucursal) ;
-    
-//  Unión
+    ->where('igs.id_sucursal', '=', $id_sucursal);   
+
 // Unión
 $resultados = $consulta1
     ->unionAll($consulta2)
@@ -176,14 +165,15 @@ $resultados = $consulta1
             ELSE 'SIN TIPO' END as formato_pago"),
         DB::raw("CASE 
             WHEN igs.turno_pedido=1 THEN 'MAÑANA'
-            WHEN igs.forma_pago=2 THEN 'TARDE'
+            WHEN igs.turno_pedido=2 THEN 'TARDE'
             ELSE 'SIN FORMATO' END as formato_turno"),
         'igs.plazo_pedido',
         'igs.observacion',
         'igs.tipo as tipo_guardado',
         'u.name as nom_user',
         'igs.simbolo',
-        'igs.activo'
+        'igs.activo',
+        'igs.id_linea'
     )
     ->join('dir__distribuidors as dd', 'igs.id_distribuidor', '=', 'dd.id')
     ->join('dir__clientes as dc', 'dc.id', '=', 'dd.id_cliente')
@@ -202,13 +192,10 @@ $resultados = $consulta1
 $consulta2 = DB::table('inv__gestion_stocks as igs')
     ->select(
         'igs.id',
-        'dd.id as id_distribuidor',
-        DB::raw("CASE 
-            WHEN dc.tipo_per_emp = 1 THEN CONCAT(IFNULL(dp.nombres, ''), ' ', IFNULL(dp.apellidos, ''))
-            WHEN dc.tipo_per_emp = 2 THEN IFNULL(de.razon_social, '')
-            ELSE 'Error' END as nom_distribuidor"),
-        'dc.nom_a_facturar',
-        'dd.nom_linea_array as linea',
+        'igs.id_distribuidor',
+     DB::raw("'Sin formato' as nom_distribuidor"),
+        DB::raw("'Sin formato' as nom_a_facturar"),
+        'pl.nombre as linea',
         'igs.created_at as fecha_pedido',
         'igs.total_programacion',
         'igs.fecha_pago',
@@ -220,29 +207,21 @@ $consulta2 = DB::table('inv__gestion_stocks as igs')
             ELSE 'SIN TIPO' END as formato_pago"),
         DB::raw("CASE 
             WHEN igs.turno_pedido=1 THEN 'MAÑANA'
-            WHEN igs.forma_pago=2 THEN 'TARDE'
+            WHEN igs.turno_pedido=2 THEN 'TARDE'
             ELSE 'SIN FORMATO' END as formato_turno"),
         'igs.plazo_pedido',
         'igs.observacion',
         'igs.tipo as tipo_guardado',
         'u.name as nom_user',
         'igs.simbolo',
-        'igs.activo'
+        'igs.activo',
+        'igs.id_linea'
     )
-    ->join('dir__distribuidors as dd', function ($q) {
-        $q->whereRaw("FIND_IN_SET(igs.id_linea, dd.id_linea_array)");
-    })
-    ->join('dir__clientes as dc', 'dc.id', '=', 'dd.id_cliente')
-    ->leftJoin('dir__personas as dp', function ($q) {
-        $q->on('dp.id', '=', 'dc.id_per_emp')->where('dc.tipo_per_emp', 1);
-    })
-    ->leftJoin('dir__empresas as de', function ($q) {
-        $q->on('de.id', '=', 'dc.id_per_emp')->where('dc.tipo_per_emp', 2);
-    })
+    ->join('prod__lineas as pl', 'pl.id', '=', 'igs.id_linea')
     ->join('users as u', 'u.id', '=', 'igs.id_usuario')
-    ->where('igs.id_distribuidor', 0)
-     ->whereBetween(DB::raw('DATE(igs.created_at)'), [$ini, $fini]) // usa el alias del SELECT
-    ->where('igs.id_sucursal', '=', $id_sucursal); // asegúrate de que esté en el SELECT
+    ->where('igs.id_distribuidor','=', 0)
+    ->whereBetween(DB::raw('DATE(igs.created_at)'), [$ini, $fini]) // usa el alias del SELECT
+    ->where('igs.id_sucursal', '=', $id_sucursal);   
     
 // Unión
 $resultados = $consulta1
@@ -320,8 +299,8 @@ $elementos = array_filter(explode(',', $id_linea_array));
         
             $id_producto = $value->id_prod_producto;
             $total_venta = $value->total_veta;
-        
-            $rspta1 = $this->listarControl($id_producto,$id_sucursal); 
+            $envase=$value->envase;
+            $rspta1 = $this->listarControl($id_producto,$id_sucursal,$envase); 
        
             foreach ($rspta1 as $key => $value_2) {
                    $linea = $value_2->nombre_linea;
@@ -341,10 +320,11 @@ $elementos = array_filter(explode(',', $id_linea_array));
                 $ciclo = $value_2->tiempo_producto;
                 $plazo = $value_2->tiempo_demora;
                  //OBTENEMOS EL STOCK PROMEDIO
-                $rspta2 = $this->promediostock($id_producto);
+                $rspta2 = $this->promediostock($id_producto,$envase);
                     foreach ($rspta2 as $key => $value_3) {
                          $promstock = $value_3->promedioStock;
-                        //PARA LOS CALCULOS DE LA TABLA
+                         if ($promstock>0) {
+                           //PARA LOS CALCULOS DE LA TABLA
                         $consumo_mensual = $total_venta / $ciclo;
                         $mes = $ciclo * 30;
                         $tiempo_retardo = $mes + $plazo;
@@ -428,7 +408,8 @@ $elementos = array_filter(explode(',', $id_linea_array));
                             ]; 
                             $cont=$cont+1;
                             }
-                        }                                                  
+                        }    
+                         }                                                                      
                     }
                  }
 
@@ -453,9 +434,9 @@ $elementos = array_filter(explode(',', $id_linea_array));
             foreach ($getStock as $key => $value) {
                 $id_producto = $value->id_producto;
                 $total_venta = $value->total_venta_cantidad;
-              
+                $envase = $value->envase;   
                 //OBTENEMOS DATOS DEL METODO LISTARCONTROL
-                 $rspta1 = $this->listarControl($id_producto,$id_sucursal);      
+                 $rspta1 = $this->listarControl($id_producto,$id_sucursal,$envase);      
 
                  foreach ($rspta1 as $key => $value_2) {
                    $linea = $value_2->nombre_linea;
@@ -469,20 +450,24 @@ $elementos = array_filter(explode(',', $id_linea_array));
                 $stock_total = $value_2->stock_total;
                 $utilidad_neta = $value_2->utilidad_neta;
                 $ciclo = $value_2->tiempo_producto;
-                $plazo = $value_2->tiempo_demora;
+                $plazo = $value_2->tiempo_demora;                  
+
                  //OBTENEMOS EL STOCK PROMEDIO
-                $rspta2 = $this->promediostock($id_producto);
+                $rspta2 = $this->promediostock($id_producto,$envase);
                     foreach ($rspta2 as $key => $value_3) {
                          $promstock = $value_3->promedioStock;
-                        //PARA LOS CALCULOS DE LA TABLA
+                             if($promstock>0){
+                                //PARA LOS CALCULOS DE LA TABLA
                         $consumo_mensual = $total_venta / $ciclo;
                         $mes = $ciclo * 30;
                         $tiempo_retardo = $mes + $plazo;
                         $consumo_dia = $consumo_mensual / 30;
                         $stmax = $consumo_dia * $tiempo_retardo;
+                        
                         $minimo = $consumo_dia * $plazo;
                         $alerta = $minimo * 2;
                         $stmedio = $promstock;
+                     
                         $indicerot = $consumo_mensual / $stmedio;
                         $stpedido = $stmax - $stock_total;
                         $indicecober = $stock_total / $consumo_mensual;
@@ -524,6 +509,7 @@ $elementos = array_filter(explode(',', $id_linea_array));
                             'rentabilidad' => round($rentabilidad).' %',   
                             'color'=> $color                      
                             ];  
+                            }                        
                     }
                  }
             
@@ -568,7 +554,7 @@ $ventaTienda = DB::table('ven__recibos as vr')
     ->select(
         'vdv.id_producto',
         DB::raw('COALESCE(SUM(vdv.cantidad_venta), 0) AS total_venta_cantidad'),
-        DB::raw('COALESCE(COUNT(vdv.id_ingreso), 0) AS cantidad_ingresada')
+        DB::raw('COALESCE(COUNT(vdv.id_ingreso), 0) AS cantidad_ingresada'),'tip.envase as envase'
     )    
     ->whereRaw('DATE(vr.created_at) <= CURDATE()')
     ->where('vr.id_sucursal',$id_sucursal)
@@ -584,7 +570,7 @@ $ventaTienda = DB::table('ven__recibos as vr')
             END MONTH
         )
     ")
-    ->groupBy('vdv.id_producto');
+   ->groupBy('vdv.id_producto', 'tip.envase');
 
 // Subconsulta: venta_almacen
 $ventaAlmacen = DB::table('ven__recibos as vr')
@@ -594,7 +580,7 @@ $ventaAlmacen = DB::table('ven__recibos as vr')
     ->select(
         'vdv.id_producto',
         DB::raw('COALESCE(SUM(vdv.cantidad_venta), 0) AS total_venta_cantidad'),
-        DB::raw('COALESCE(COUNT(vdv.id_ingreso), 0) AS cantidad_ingresada')
+        DB::raw('COALESCE(COUNT(vdv.id_ingreso), 0) AS cantidad_ingresada'),'aip.envase as envase'
     )
     ->whereRaw('DATE(vr.created_at) <= CURDATE()')
     ->where('vr.id_sucursal',$id_sucursal)
@@ -610,7 +596,7 @@ $ventaAlmacen = DB::table('ven__recibos as vr')
             END MONTH
         )
     ")
-    ->groupBy('vdv.id_producto');
+   ->groupBy('vdv.id_producto', 'aip.envase');
 
 // Unión de ambas subconsultas
 $ventasCombinadas = $ventaTienda
@@ -619,22 +605,23 @@ $ventasCombinadas = $ventaTienda
 // Consulta final con agrupación y suma
 $resultado = DB::table(DB::raw("({$ventasCombinadas->toSql()}) as ventas_combinadas"))
     ->mergeBindings($ventasCombinadas) // importante para que los bindings funcionen
-    ->select(
+     ->select(
         'id_producto',
+        'envase',
         DB::raw('SUM(total_venta_cantidad) AS total_venta_cantidad'),
         DB::raw('SUM(cantidad_ingresada) AS cantidad_ingresada')
     )
-    ->groupBy('id_producto')
+    ->groupBy('id_producto', 'envase')
     ->orderBy('id_producto')
     ->get();
 
         return $resultado;
     }
 
-private function  listarControl($id_producto,$id_sucursal){
+private function  listarControl($id_producto,$id_sucursal,$envase){
 
   
-// Subconsulta gettion_tienda
+// Subconsulta gettion_tienda stock_total
 $gettionTienda = DB::table('prod__productos as pp')
     ->join('tda__ingreso_productos as tip', 'tip.id_prod_producto', '=', 'pp.id')
     ->join('tda__tiendas as tt','tt.id','=','tip.idtienda')
@@ -698,6 +685,7 @@ $gettionTienda = DB::table('prod__productos as pp')
         DB::raw("'Tienda' as tipo")
     )
         ->where('ass.id',$id_sucursal)
+        ->where('tip.envase',$envase)
         ->where('pp.id', $id_producto);
         
 
@@ -766,6 +754,7 @@ $gettionAlmacen = DB::table('prod__productos as pp')
         DB::raw("'Almacen' as tipo")
     )
     ->where('ass.id',$id_sucursal)
+    ->where('aip.envase',$envase)
     ->where('pp.id', $id_producto);
 
 // Unión de tienda y almacén
@@ -811,11 +800,12 @@ $resultado = DB::table(DB::raw("({$combinado->toSql()}) as sub"))
 
     }
 
-    private function promediostock($id_producto){
+    private function promediostock($id_producto,$envase){
 
         $promedioStock = DB::table('sis_bitacora_stock as s')
     ->select('s.id_producto', DB::raw('IFNULL(AVG(s.stock), 0) as promedioStock'))
     ->where('s.id_producto', $id_producto)
+    ->where('s.envase', $envase)
     ->groupBy('s.id_producto')
     ->get();
     return $promedioStock;
@@ -848,11 +838,11 @@ $tienda = DB::table('ven__detalle_ventas as vdv')
                 END MONTH
         )
     ")
-    ->groupBy('tip.id_prod_producto')
+    ->groupBy('tip.id_prod_producto','tip.envase')
     ->select([
         'tip.id_prod_producto',
         DB::raw('COALESCE(SUM(vdv.cantidad_venta), 0) as total_veta'),
-        DB::raw('COALESCE(COUNT(vdv.id_ingreso), 0) as cuanto_venta')
+        DB::raw('COALESCE(COUNT(vdv.id_ingreso), 0) as cuanto_venta'),'tip.envase as envase'
     ]);
 
 // Subconsulta: almacen
@@ -878,11 +868,11 @@ $almacen = DB::table('ven__detalle_ventas as vdv')
                 END MONTH
         )
     ")
-    ->groupBy('aip.id_prod_producto')
+    ->groupBy('aip.id_prod_producto','aip.envase')
     ->select([
         'aip.id_prod_producto',
         DB::raw('COALESCE(SUM(vdv.cantidad_venta), 0) as total_veta'),
-        DB::raw('COALESCE(COUNT(vdv.id_ingreso), 0) as cuanto_venta')
+        DB::raw('COALESCE(COUNT(vdv.id_ingreso), 0) as cuanto_venta'),'aip.envase as envase'
     ]);
 
 // Unión de ambas subconsultas con UNION ALL
@@ -916,7 +906,7 @@ $primario = DB::table('prod__productos as pp')
         'for_a.nombre as nom_for_farmaceutica',
         'pp.preciolistaprimario as preciolista',
         'pp.precioventaprimario as precioventa',
-        DB::raw("'PRIMARIA' as tipo")
+        DB::raw("'primario' as tipo")
     ])
     ->join('prod__lineas as pl', 'pp.idlinea', '=', 'pl.id')
     ->join('dir__distribuidors as dd', function($join) {
@@ -946,7 +936,7 @@ $secundario = DB::table('prod__productos as pp')
         'pp.preciolistasecundario as preciolista',
         'pp.precioventasecundario as precioventa',
         
-        DB::raw("'SECUNDARIO' as tipo")
+        DB::raw("'secundario' as tipo")
     ])
     ->join('prod__lineas as pl', 'pp.idlinea', '=', 'pl.id')
     ->join('dir__distribuidors as dd', function($join) {
@@ -975,7 +965,7 @@ $terciario = DB::table('prod__productos as pp')
         'for_a.nombre as nom_for_farmaceutica',
         'pp.preciolistaterciario as preciolista',
         'pp.precioventaterciario as precioventa',
-        DB::raw("'TERCIARIO' as tipo")
+        DB::raw("'terciario' as tipo")
     ])
     ->join('prod__lineas as pl', 'pp.idlinea', '=', 'pl.id')
     ->join('dir__distribuidors as dd', function($join) {
@@ -1394,5 +1384,160 @@ public function get_modal_saldo_cero(Request $request){
         return array_slice($data, 0, $limter_);
         }      
 }
+
+    public function queryModaltop(Request $request){
+        $id_distribuidor=$request->id_distribuidor;
+        $id_linea=$request->id_linea;
+        $query_3=0; 
+        if(intval($id_distribuidor)==0){
+            $query_3 = DB::table('dir__distribuidors as dd')
+    ->select(
+        DB::raw("
+            CASE 
+                WHEN dc.tipo_per_emp = 1 
+                    THEN CONCAT(IFNULL(dp.nombres, ''), ' ', IFNULL(dp.apellidos, ''))
+                WHEN dc.tipo_per_emp = 2
+                    THEN IFNULL(de.razon_social, '')
+                ELSE 'Error'
+            END AS nom_distribuidor
+        "),
+        'dc.nom_a_facturar',
+        'dd.nom_linea_array as linea'
+    )
+    ->join('dir__clientes as dc', 'dc.id', '=', 'dd.id_cliente')
+    ->leftJoin('dir__personas as dp', function($join) {
+        $join->on('dp.id', '=', 'dc.id_per_emp')
+             ->where('dc.tipo_per_emp', '=', 1);
+    })
+    ->leftJoin('dir__empresas as de', function($join) {
+        $join->on('de.id', '=', 'dc.id_per_emp')
+             ->where('dc.tipo_per_emp', '=', 2);
+    })
+    ->whereRaw('FIND_IN_SET(?, dd.id_linea_array)', [$id_linea])
+    ->get();   
+        $conteo=count($query_3);
+            if($conteo<=0){
+                 $query_3=1;
+            }
+        }
+
+        $query_1 = DB::table('inv__pedido_gestion_stock as ipgs')
+    ->select(
+        'ipgs.id_gestion_stock',
+        'ipgs.lineas',
+        'ipgs.envase',
+        'ipgs.ciclo_pedido',
+        'ipgs.consumo_pedido',
+        'ipgs.plazo_medio',
+        'ipgs.consumo_dia_pedido',
+        'ipgs.maximo_pedido',
+        'ipgs.actual_pedido',
+        'ipgs.stock_pedido',
+        'ipgs.cantidad_pedido',
+        'ipgs.precio_pedido',
+        'pp.codigo',
+        'pp.nombre as nombre_prod',
+        DB::raw("CASE
+            WHEN ipgs.envase = 'primario' THEN pp.tiempopedidoprimario
+            WHEN ipgs.envase = 'secundario' THEN pp.tiempopedidosecundario
+            WHEN ipgs.envase = 'terciario' THEN pp.tiempopedidoterciario
+            ELSE NULL
+        END AS tiempo_producto"),
+        'pd.nombre as nombre_dis',
+        DB::raw("CASE
+            WHEN ipgs.envase = 'primario' THEN pp.cantidadprimario
+            WHEN ipgs.envase = 'secundario' THEN pp.cantidadsecundario
+            WHEN ipgs.envase = 'terciario' THEN pp.cantidadterciario
+            ELSE NULL
+        END AS cantidad_dispenser_producto"),
+        'pff.nombre as nombre_forma_farmaceutica',
+        DB::raw("CASE
+            WHEN ipgs.envase = 'primario' THEN pp.preciolistaprimario
+            WHEN ipgs.envase = 'secundario' THEN pp.preciolistasecundario
+            WHEN ipgs.envase = 'terciario' THEN pp.preciolistaterciario
+            ELSE NULL
+        END AS precio_lista_producto")
+    )
+    ->join('prod__productos as pp', 'pp.id', '=', 'ipgs.id_producto')
+    ->join('prod__dispensers as pd', DB::raw("pd.id"), '=', DB::raw("
+        CASE 
+            WHEN ipgs.envase = 'primario' THEN pp.iddispenserprimario
+            WHEN ipgs.envase = 'secundario' THEN pp.iddispensersecundario
+            WHEN ipgs.envase = 'terciario' THEN pp.iddispenserterciario
+        END
+    "))
+    ->join('prod__forma_farmaceuticas as pff', DB::raw("pff.id"), '=', DB::raw("
+        CASE
+            WHEN ipgs.envase = 'primario' THEN pp.idformafarmaceuticaprimario
+            WHEN ipgs.envase = 'secundario' THEN pp.idformafarmaceuticasecundario
+            WHEN ipgs.envase = 'terciario' THEN pp.idformafarmaceuticaterciario
+        END
+    "))
+    ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
+    ->where('ipgs.id_gestion_stock', $request->id)
+    ->get();
+
+        $query_2 =DB::table('inv__tabla_extra_gestion_stock as itegs')
+    ->select(
+        'itegs.id_gestion_stock',
+        'pl.nombre as linea',
+        'itegs.envase',
+        'itegs.cantidad_extra',
+        'itegs.precio_extra',
+        'pp.codigo',
+        'pp.nombre as nombre_prod',
+        DB::raw("
+            CASE
+                WHEN itegs.envase = 'primario' THEN pp.tiempopedidoprimario
+                WHEN itegs.envase = 'secundario' THEN pp.tiempopedidosecundario
+                WHEN itegs.envase = 'terciario' THEN pp.tiempopedidoterciario
+                ELSE NULL
+            END as tiempo_producto
+        "),
+        'pd.nombre as nombre_dis',
+        DB::raw("
+            CASE
+                WHEN itegs.envase = 'primario' THEN pp.cantidadprimario
+                WHEN itegs.envase = 'secundario' THEN pp.cantidadsecundario
+                WHEN itegs.envase = 'terciario' THEN pp.cantidadterciario
+                ELSE NULL
+            END as cantidad_dispenser_producto
+        "),
+        'pff.nombre as nombre_forma_farmaceutica',
+        DB::raw("
+            CASE
+                WHEN itegs.envase = 'primario' THEN pp.preciolistaprimario
+                WHEN itegs.envase = 'secundario' THEN pp.preciolistasecundario
+                WHEN itegs.envase = 'terciario' THEN pp.preciolistaterciario
+                ELSE NULL
+            END as precio_lista_producto
+        ")
+    )
+    ->join('prod__productos as pp', 'pp.id', '=', 'itegs.id_producto')
+    ->join('prod__dispensers as pd', function ($join) {
+        $join->whereRaw("
+            pd.id = CASE 
+                WHEN itegs.envase = 'primario' THEN pp.iddispenserprimario
+                WHEN itegs.envase = 'secundario' THEN pp.iddispensersecundario
+                WHEN itegs.envase = 'terciario' THEN pp.iddispenserterciario
+            END
+        ");
+    })
+    ->join('prod__forma_farmaceuticas as pff', function ($join) {
+        $join->whereRaw("
+            pff.id = CASE
+                WHEN itegs.envase = 'primario' THEN pp.idformafarmaceuticaprimario
+                WHEN itegs.envase = 'secundario' THEN pp.idformafarmaceuticasecundario
+                WHEN itegs.envase = 'terciario' THEN pp.idformafarmaceuticaterciario
+            END
+        ");
+    })
+    ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
+    ->where('itegs.id_gestion_stock', $request->id)
+    ->get();
+
+     return ['query_1' => $query_1, 'query_2' => $query_2, 'query_3' => $query_3];
+
+    }
 
 }

@@ -238,8 +238,10 @@ return response()->json([
                 'id_producto' => $value->id_producto,
                 'stock' => $value->stock_total,
                 'fecha_ingreso' => $fechaHoy, 
-                'id_sucursal' => $id_sucursal
+                'id_sucursal' => $id_sucursal,
+                'envase' => $value->envase,
             ];
+            
            DB::table('sis_bitacora_stock')->insert($datos_3);  
    // $pivote = new Pivot_Modulo_tienda_almacen();
                     }        
@@ -525,7 +527,7 @@ $data_1 = $moneda;
     ///funcion publica para la funcion caja cierra
 public function  generarstocks($id_sucursal){
   
-// Subconsulta gettion_tienda
+// Subconsulta gettion_tienda stock_total
 $gettionTienda = DB::table('prod__productos as pp')
     ->join('tda__ingreso_productos as tip', 'tip.id_prod_producto', '=', 'pp.id')
     ->join('tda__tiendas as tt','tt.id','=','tip.idtienda')
