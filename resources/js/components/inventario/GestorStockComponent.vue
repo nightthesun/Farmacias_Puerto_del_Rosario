@@ -75,11 +75,10 @@
           <input id="end-date" type="date" class="form-control" v-model="endDate" @change="listarIndex()">
         </div>
      
-        
         <div class="col-md-2" v-if="sucursalSeleccionada !== 0">
             <div class="d-flex flex-column">
             <label for="end-date">Exportar PDF:</label>
-            <button type="button" class="btn btn-info mt-1" style="color: white;">
+            <button type="button" class="btn btn-info mt-1" style="color: white;" @click="descargaPDF_index()"> 
            <i class="fa fa-file-pdf-o" aria-hidden="true"></i>
             </button>
             </div>
@@ -88,8 +87,17 @@
         <div class="col-md-2" v-if="sucursalSeleccionada !== 0">
             <div class="d-flex flex-column">
             <label for="end-date">Exportar Excel:</label>
-            <button type="button" class="btn btn-primary mt-1" style="color: white;">
+            <button type="button" class="btn btn-primary mt-1" style="color: white;" @click="descargarExcellIndex()">
             <i class="fa fa-file-excel-o" aria-hidden="true"></i>
+            </button>
+            </div>
+        </div>
+
+        <div class="col-md-2" v-if="sucursalSeleccionada !== 0">
+            <div class="d-flex flex-column">
+            <label for="end-date">Cambiar nombre:</label>
+            <button type="button" class="btn btn-secondary mt-1" @click="funcionAlias()" style="color: white;">
+            <i class="fa fa-street-view" aria-hidden="true"></i>
             </button>
             </div>
         </div>
@@ -122,18 +130,29 @@
                 <tbody>
                     <tr v-for="(a, index) in arrayInicio" :key="index">
                         <td>  
-                            <button type="button" class="btn btn-info btn-sm" style="margin-right: 5px; color: white;">
+                             <div  class="d-flex justify-content-start">
+                                <button type="button" class="btn btn-info btn-sm" @click="listarModalQuery_1_2(a.id,a,2);"  style="margin-right: 5px; color: white;">
                                 <i class="fa fa-file-pdf-o" aria-hidden="true"></i>
-                            </button>
-                            <button type="button" class="btn btn-warning btn-sm" style="margin-right: 5px; color: white;" @click="listarModalQuery_1_2(a.id,a);abrirModal('index_show',a);">
+                                </button>
+                            <button type="button" class="btn btn-warning btn-sm" style="margin-right: 5px; color: white;" @click="listarModalQuery_1_2(a.id,a,1);abrirModal('index_show',a);">
                                 <i class="fa fa-eye" aria-hidden="true"></i>
                             </button>
-                            <button v-if="a.activo==1" type="button" class="btn btn-danger btn-sm" style="margin-right: 5px; color: white;" @click="eliminar(a.id)">
+                            <div v-if="puedeActivar==1">
+                                    <button v-if="a.activo==1" type="button" class="btn btn-danger btn-sm" style="margin-right: 5px; color: white;" @click="eliminar(a.id)">
                                 <i class="fa fa-trash" aria-hidden="true"></i>
                             </button>                            
                             <button v-else type="button" class="btn btn-info btn-sm" style="margin-right: 5px;"  @click="activar(a.id)">
                                 <i class="icon-check"></i>
                             </button>
+                            </div>
+                            <div v-else>
+                                <button v-if="a.estado == 1" type="button"  class="btn btn-light" style="margin-right: 5px;">
+                                <i class="icon-trash"></i></button>
+                                <button v-else type="button" class="btn btn-light"  style="margin-right: 5px;">
+                                <i class="icon-check"></i></button> 
+                            </div>
+                            
+                             </div>                            
                         </td>
                         <td>{{a.id}}</td>
                         <td>{{a.nom_distribuidor}}</td>
@@ -801,10 +820,10 @@
                         </div>                       
                         <div class="modal-body" style="max-height: 80vh; overflow-y: auto;">
 
-<div class="alert alert-warning" role="alert" v-show="detectorError>1">
-  <h4>!!!El distribuidor tiene dublicidad¡¡¡</h4>
+<div class="alert alert-warning" role="alert" v-show="detectorError==1">
+  <h4>El distribuidor tiene dublicidad.</h4>
 </div>
-<div class="alert alert-danger" role="alert" v-if="id_distribuidorModal==1">
+<div class="alert alert-danger" role="alert" v-if="detectorError==2">
   <h2>No tiene distribuidor, tiene que crear el distribuidor en modulo <strong>Directorio/Distribuidor.</strong></h2>
 </div>
 
@@ -922,6 +941,101 @@
         </transition>  
 <!--finde modal alerta-->
 
+<!---modal de show alias ----->
+   <transition name="fade">
+            <div v-if="showModal_5" class="modal d-block" tabindex="-1" role="dialog">
+                 <div class="modal-dialog modal-primary modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                        <h4 class="modal-title">{{ tituloModal_5 }}</h4>
+                        <button type="button" class="close" @click="cerrarModal('cambioAlias')">
+                            <span>&times;</span>
+                        </button>
+                        </div>
+                        <div class="card-header">            
+                        </div>                       
+                        <div class="modal-body" style="max-height: 80vh; overflow-y: auto;">
+
+<div class="alert alert-warning" role="alert">
+    <span style="font-size: 16px;">Esta parte solo cambia el alias del PDF de pedido</span>
+</div>
+<div class="alert alert-secondary" role="alert" v-show="colorError==0">
+    <span style="font-size: 16px;">Sin acción</span>
+</div>
+<div class="alert alert-danger" role="alert" v-show="colorError==1">
+    <span style="font-size: 16px;">{{errorAliasModal}}</span>
+</div>
+<div class="alert alert-info" role="alert" v-show="colorError==2">
+    <span style="font-size: 16px;">{{errorAliasModal}}</span>
+</div>
+<div class="alert alert-primary" role="alert" v-show="colorError==3">
+    <span style="font-size: 16px;">{{errorAliasModal}}</span>
+</div>
+                  
+                        <form action="" class="form-horizontal"> 
+                            <div class="form-group row">
+                                 <div class="col-md-2">                                
+                            <label for="" >Alias (a modificar):</label>
+                            </div>
+                            <div class="col-md-8">
+                                <input type="text" v-model="inputAlias" class="form-control" placeholder="Esccriba un nombre o dato para modificar el alias"/>                      
+                            </div>
+                            <div class="col-md-2">
+                                 <button type="button" class="btn btn-secondary" v-if="inputAlias==null || inputAlias==''">Modificar</button>
+                                  <button type="button"  @click="ActualizarAlias(1)" class="btn btn-primary" v-else>Modificar</button>
+                            </div> 
+                            </div>
+                            <div class="row">
+                                <div class="col-md-2">                                
+                            <label for="" >Alias: </label>
+                            </div>
+                                <div class="col-md-8">                              
+                                   <select v-model="selectAlias" 
+                                            class="form-control" >
+                                            <option value="100" disabled>
+                                                Seleccionar...
+                                            </option>
+                                            <option  value="1">{{nomEmpresaTabla}}</option>
+                                            <option  value="2">{{aliasTabla}}</option>
+                                        </select>  
+                                    </div>
+                                    <div class="col-md-2">
+                                        <button type="button" class="btn btn-secondary" v-if="selectAlias=='100'">Seleccionar</button>
+                                        <button type="button" @click="ActualizarAlias(2)" class="btn btn-primary" v-else>Seleccionar</button>
+                                    </div>
+                                    
+                            </div>
+                            <br>
+                            <div class="row">
+                                <div class="col-md-2">                                
+                            <label for="" >Alias en uso: </label>
+                            </div>
+                            <div class="col-md-8">
+                                        <div v-show="aliasUse===0" class="alert alert-secondary" role="alert">
+                                            <span>Sin datos.</span>
+                                        </div>
+                                        <div v-show="aliasUse===1" class="alert alert-success" role="alert">
+                                          <strong>{{nomEmpresaTabla}}</strong>
+                                        </div>
+                                        <div v-show="aliasUse===2" class="alert alert-success" role="alert">
+                                            <strong>{{aliasTabla}}</strong>
+                                        </div>  
+                                    </div>
+                            </div>
+                           
+                        </form>
+                    </div>
+                  
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" @click="cerrarModal('cambioAlias')">Cerrar</button>                     
+                    </div>
+
+                    </div>
+                </div>
+            </div>
+        </transition>  
+<!--finde modal show alias-->
+
 
     </main>
 </template>
@@ -934,10 +1048,14 @@ import * as XLSX from 'xlsx';
 import pdfMake from 'pdfmake/build/pdfmake';
 import pdfFonts from 'pdfmake/build/vfs_fonts';
 import { toInteger } from "lodash";
+import { indexOf } from "lodash";
 // Asigna los fonts a pdfmake
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 export default {
      components: { VueMultiselect},
+      //---permisos_R_W_S
+     props: ['codventana','idmodulo'],
+        //-------------------
     data() {
         return {
             pagination: {
@@ -1034,6 +1152,24 @@ export default {
             sumaTotalModalinferior:0,
             sumaTotalModalTotal:0,
             detectorError:0,
+
+            tituloModal_5:'',
+            showModal_5:false,
+            aliasUse:'',
+            nomEmpresaTabla:'',
+            aliasTabla:'',
+            selectAlias:'100',
+            inputAlias:'',
+            id_credencial:'',
+            errorAliasModal:'',
+            colorError:0,
+
+            //---permisos_R_W_S
+                puedeEditar:2,
+                puedeActivar:2,
+                puedeHacerOpciones_especiales:2,
+                puedeCrear:2,
+            //-----------
           
         };
     },
@@ -1080,10 +1216,184 @@ export default {
     },
 
     methods: {
+          //-----------------------------------permisos_R_W_S        
+    listarPerimsoxyz() {             
+    let me = this;   
+        
+    var url = '/gestion_permiso_editar_eliminar?win='+me.codventana;
+  
+    axios.get(url)
+        .then(function(response) {
+            var respuesta = response.data;
+        
+            if(respuesta=="root"){
+            me.puedeEditar=1; 
+            me.puedeActivar=1;
+            me.puedeHacerOpciones_especiales=1;
+            me.puedeCrear=1; 
+            }else{
+            me.puedeEditar=respuesta.edit;
+            me.puedeActivar=respuesta.activar;
+            me.puedeHacerOpciones_especiales=respuesta.especial;
+            me.puedeCrear=respuesta.crear;        
+            }
+           
+        })
+        .catch(function(error) {
+            error401(error);      
+        });
+},
+//-------------------------------------------------------------- 
 
         accionDescargarPDF(){
             let me=this;
             me.descargaPDF(me.arrayModalOperacionGestor);
+        },
+
+         descargaPDF_index(){
+            let me=this;
+            const tableBody =[
+                //agregar encabezados de la tabla
+                [
+                    {text: 'Nro', style: 'tableHeader_2', alignment: 'center', fillColor: '#d3d3d3'},
+                    {text: 'Distribuidor', style: 'tableHeader_2', alignment: 'center', fillColor:'#d3d3d3'},
+                    {text: 'Linea', style: 'tableHeader_2', alignment: 'center', fillColor:'#d3d3d3'},
+                    {text: 'Fecha pedido', style: 'tableHeader_2', alignment: 'center', fillColor:'#d3d3d3'},
+                    {text: 'Total', style: 'tableHeader_2', alignment: 'center', fillColor:'#d3d3d3'},
+                    {text: 'Fecha pago', style: 'tableHeader_2', alignment: 'center', fillColor:'#d3d3d3'},
+                    {text: 'Formato pago', style: 'tableHeader_2', alignment: 'center', fillColor:'#d3d3d3'},                 
+                    {text: 'Turno entrega', style: 'tableHeader_2', alignment: 'center', fillColor:'#d3d3d3'},                  
+                    {text: 'Plazo', style: 'tableHeader_2', alignment: 'center', fillColor:'#d3d3d3'},
+                    {text: 'Obs.', style: 'tableHeader_2', alignment: 'center', fillColor:'#d3d3d3'},
+                    {text: 'Usuario', style: 'tableHeader_2', alignment: 'center', fillColor:'#d3d3d3'} 
+                
+                ]
+            ];
+            // Itera sobre los datos y agrega fila a la tabla 
+         
+            me.arrayInicio.forEach(item =>{
+               tableBody.push([
+  {text: item.id, fontSize:7, alignment: 'center'},
+  {text: item.nom_distribuidor, fontSize:7, alignment: 'center'},
+  {text: item.linea, fontSize:7, alignment: 'center'},
+  {text: (item.fecha_pedido).split(" ")[0], fontSize:7, alignment: 'center'},
+  {text: item.total_programacion+" "+item.simbolo, fontSize:7, alignment: 'center'},
+  {text: item.fecha_pago, fontSize:7, alignment: 'center'}, // ← FALTABA ESTA
+  {text: item.formato_pago, fontSize:7, alignment: 'center'},
+  {text: item.formato_turno, fontSize:7, alignment: 'center'},
+  {text: item.plazo_pedido, fontSize:7, alignment: 'center'},
+ {text: item.observacion, fontSize:7, alignment: 'center'},
+ {text: item.nom_user, fontSize:7, alignment: 'center'}
+]);
+
+            });
+
+            const docDefinition ={
+                pageSize: 'LETTER',
+                pageMargins: [25, 30, 25, 30],
+                content:[
+                  {text: 'INFORME DE DE PEDIDOS', style:'header'},
+                  {text: me.startDate+" - "+ me.endDate, style:'headerF'},
+                  {
+                    style: 'tableExample',
+                    margin:[0,10,0,0],
+                    table:{
+                         headerRows: 1,
+                        widths: [13,49,30,39,35,39,39,33,20,'*',38], // Ajusta los anchos de las columnas
+                        body: tableBody
+                    }
+                  },
+                ],
+      
+                styles: {
+                    header: {
+                        fontSize: 12,
+                        bold: true,
+                        color: 'black',
+                        alignment: 'center',
+                        margin:[0,10,0,10]
+                    },
+                    headerF: {
+                        fontSize: 10,
+                        bold: true,
+                        color: 'black',
+                        alignment: 'center',
+                        margin:[0,10,0,10]
+                    },
+                    tableExample:{
+                        fontSize: 7,
+                        bold: true,
+                    },
+                    tableHeader2 : {
+			            bold: true,
+			            fontSize: 7,
+			            color: 'black',
+                        margin:[ 180, 0, 20,0] 
+		            },
+                    tableHeader_2: {
+                        bold: true,
+                        fontSize: 8,
+                        bold: true,
+                        alignment: 'center',
+                    },
+                }
+                };    
+                  // Generar y abrir el PDF
+  pdfMake.createPdf(docDefinition).open();   
+        },
+
+        descargarExcellIndex(){
+           let me = this;
+// 1. Define columnas con títulos bonitos
+const columnas = [
+  { key: 'id', titulo: 'Nro' },
+  { key: 'nom_distribuidor', titulo: 'Distribuidor' },
+  { key: 'linea', titulo: 'Linea' },
+  { key: 'fecha_pedido', titulo: 'Fecha pedido' },
+  { key: 'total_programacion', titulo: 'Total' },
+  { key: 'fecha_pago', titulo: 'Fecha pago' },
+  { key: 'formato_pago', titulo: 'Formato pago' },
+  { key: 'formato_turno', titulo: 'Formato turno' },
+  { key: 'plazo_pedido', titulo: 'Plazo' },
+  { key: 'observacion', titulo: 'Obs.' }, // corregido aquí
+  { key: 'nom_user', titulo: 'nom_user' }
+];
+
+// 2. Filtra y renombra columnas
+const datosFiltrados = me.arrayInicio.map(item => {
+  const fila = {};
+  columnas.forEach(col => {
+    fila[col.titulo] = item[col.key];
+  });
+  return fila;
+});
+
+// 3. Crear hoja vacía
+const ws = XLSX.utils.json_to_sheet([]);
+
+// 4. Agrega un título grande en la primera fila
+XLSX.utils.sheet_add_aoa(ws, [['INFORME PEDIDOS']], { origin: 'A1' });
+
+// 5. Agrega los datos debajo del título (desde fila 3)
+XLSX.utils.sheet_add_json(ws, datosFiltrados, {
+  origin: 'A3',
+  skipHeader: false
+});
+
+// 6. Crear libro y exportar
+const wb = XLSX.utils.book_new();
+XLSX.utils.book_append_sheet(wb, ws, 'Emisiones');
+XLSX.writeFile(wb, 'informe_pedidos.xlsx'); 
+
+
+    // Convertir los datos a un formato que XLSX pueda entender
+      //  const ws = XLSX.utils.json_to_sheet(nuevo);
+         // Crear un libro de trabajo de Excel con esos datos
+      //   const wb = XLSX.utils.book_new();
+      //  XLSX.utils.book_append_sheet(wb, ws, 'Emisiones');
+      //  let archivo="gestion_stock";    
+        // Generar un archivo Excel y forzar la descarga
+     //   XLSX.writeFile(wb, archivo+'.xlsx');
         },
 
         descargaPDF(array_reporte){
@@ -1340,6 +1650,400 @@ XLSX.utils.book_append_sheet(wb, ws, 'Emisiones');
 XLSX.writeFile(wb, 'informe_stock_cero.xlsx'); 
         },
 
+    descargarPDFmodalIndex(simbolo,array_topModal,array_BottomModal,nom_empresa,numero_identificacion
+            ,fecha_pago,distribuidor,fecha_pedido,NomFacturar,formatoEntrega,plazo,formatoPago,observacion,user,totalSumaModaltop,totalSumaModalbottom,totaltotal,error_v){
+  
+                // Define el contenido del PDF
+  let watermark = {};      
+      if (error_v===2) { // Aquí puedes poner tu condición
+  watermark = { text: 'Error de ditribuidor', color: 'red', angle: -45, opacity: 0.3, bold: true, italics: false, fontSize: 65 };
+}
+                
+    const tableBody = [
+    // Agrega los encabezados de la tabla
+    [
+      { text: 'Linea', style: 'tableHeader_2',alignment: 'center',fillColor: '#d3d3d3' }, 
+      { text: 'Cod. Producto', style: 'tableHeader_2',alignment: 'center',fillColor: '#d3d3d3' }, 
+      { text: 'Producto', style: 'tableHeader_2',alignment: 'center',fillColor: '#d3d3d3' }, 
+      { text: 'Envase', style: 'tableHeader_2',alignment: 'center',fillColor: '#d3d3d3' },
+      { text: 'Stock Maximo', style: 'tableHeader_2',alignment: 'center',fillColor: '#d3d3d3' },
+      { text: 'Stock Actual', style: 'tableHeader_2',alignment: 'center',fillColor: '#d3d3d3' },
+      { text: 'Stock Pedido', style: 'tableHeader_2',alignment: 'center',fillColor: '#d3d3d3' },
+      { text: 'Cantidad Dispenser', style: 'tableHeader_2',alignment: 'center',fillColor: '#d3d3d3' },
+      { text: 'Precio Unitario', style: 'tableHeader_2',alignment: 'center',fillColor: '#d3d3d3' },
+      { text: 'Sub Total' , style: 'tableHeader_2',alignment: 'center',fillColor: '#d3d3d3' },
+    ]
+  ];
+  // Itera sobre los datos y agrega filas a la tabla
+
+  array_topModal.forEach(item => {
+    tableBody.push([
+      { text: item.lineas, fontSize: 8, alignment: 'left' },
+      { text: item.codigo, fontSize: 8, alignment: 'left' },
+      { text: item.nombre_prod+" - "+item.nombre_dis+" X "+item.cantidad_dispenser_producto+" "+item.nombre_forma_farmaceutica, fontSize: 8, alignment: 'left' },
+      { text: item.envase, fontSize: 8, alignment: 'left' },
+      { text: item.maximo_pedido, fontSize: 8, alignment: 'right' },
+      { text: item.actual_pedido, fontSize: 8, alignment: 'right' },
+      { text: item.stock_pedido, fontSize: 8, alignment: 'right' },
+      { text: item.cantidad_pedido, fontSize: 8, alignment: 'right' },
+      { text: item.precio_lista_producto+" "+simbolo, fontSize: 8, alignment: 'right' },      
+      { text: item.precio_pedido+" "+simbolo, fontSize: 8, alignment: 'right' } // Operación y formato
+    ]);
+  });
+    // Agrega las filas con colspan al final del tableBody
+tableBody.push(
+  [
+    { text: 'Total', colSpan: 9, fontSize: 8, alignment: 'right', border: [false, true, true, false] },
+    {}, {}, {}, {}, {}, {}, {}, {},
+    { text: totalSumaModaltop+" "+simbolo, fontSize: 8, alignment: 'right' }
+  ], 
+);
+// tabla bottom------------------------
+const tableBodyBottom = [
+    // Agrega los encabezados de la tabla
+    [
+      { text: 'Cod. Producto', style: 'tableHeader_2',alignment: 'center',fillColor: '#d3d3d3' }, 
+      { text: 'Producto', style: 'tableHeader_2',alignment: 'center',fillColor: '#d3d3d3' }, 
+      { text: 'Envase', style: 'tableHeader_2',alignment: 'center',fillColor: '#d3d3d3' }, 
+      { text: 'Cantidad', style: 'tableHeader_2',alignment: 'center',fillColor: '#d3d3d3' },
+      { text: 'Precio Unitario', style: 'tableHeader_2',alignment: 'center',fillColor: '#d3d3d3' },
+      { text: 'Sub Total', style: 'tableHeader_2',alignment: 'center',fillColor: '#d3d3d3' },
+    ]
+  ];
+  
+  // Itera sobre los datos y agrega filas a la tabla
+  array_BottomModal.forEach(item => {
+    tableBodyBottom.push([
+      { text: item.codigo, fontSize: 8, alignment: 'left' },
+      { text: "Linea: "+item.linea+" "+item.nombre_prod+" - "+item.nombre_dis+" X "+item.cantidad_dispenser_producto+" "+item.nombre_forma_farmaceutica, fontSize: 8, alignment: 'left' },
+      { text: item.envase, fontSize: 8, alignment: 'left' },
+      { text: item.cantidad_extra, fontSize: 8, alignment: 'right' },
+      { text: item.precio_lista_producto+" "+simbolo, fontSize: 8, alignment: 'right' },
+      { text: item.precio_extra+" "+simbolo, fontSize: 8, alignment: 'right' },  
+    ]);
+  });
+  // Agrega las filas con colspan al final del tableBody
+tableBodyBottom.push(
+  [
+    { text: 'Total', colSpan: 5, fontSize: 8, alignment: 'right', border: [false, true, true, false] },
+    {}, {}, {}, {},
+    { text: totalSumaModalbottom+" "+simbolo, fontSize: 8, alignment: 'right' }
+  ], 
+);
+// tabla total de total------------------------
+const tableBodyTotal = [
+    // Agrega los encabezados de la tabla
+    [
+        
+      { text: 'Total', style: 'tableHeader_2',alignment: 'right',  fillColor: '#d3d3d3' }, 
+    
+      { text: totaltotal+" "+simbolo, style: 'tableHeader_2',alignment: 'right',fillColor: '#d3d3d3' },
+    ]
+  ];
+
+                const docDefinition = {
+    pageSize: 'LETTER', // Tamaño carta
+    pageMargins: [25, 30, 25, 30], // Márgenes: [left, top, right, bottom]
+    content: [
+    {        			
+			table: {
+				widths: [90,'*',60, 105],
+				body: [
+				[{text: nom_empresa ,fontSize: 8},
+                { },{text: 'Nº Documento: ',fontSize: 8},{text: numero_identificacion ,fontSize: 8}
+                ],	
+                [{ },
+                { },{text: 'Plazo: ',fontSize: 8},{text: plazo ,fontSize: 8}
+                ],		
+				]
+			},
+      layout: 'noBorders'
+	},   
+    {text: 'SOLICITUD DE PEDIDO', style: 'header' },
+   {			
+			table: {
+				widths: [90,120,'*',60,105],
+				body: [
+					[
+                    {text: 'Fecha Pago:',fontSize: 8},
+                    {text: fecha_pago+' ',fontSize: 8},{ },
+                    {text: 'Distribuidor:',fontSize: 8},
+                    {text: distribuidor,fontSize: 8},         
+                    ],
+					[
+                    {text: 'Fecha Pedido:',fontSize: 8},
+                    {text: fecha_pedido,fontSize: 8},{ },
+                    {text: 'Facturar a:',fontSize: 8},
+                    {text: NomFacturar,fontSize: 8},               
+                    ],
+                    [
+                    {text: 'Entrega:',fontSize: 8},
+                    {text: formatoEntrega,fontSize: 8},{ },
+                    {text: 'formato Pago:',fontSize: 8},
+                    {text: formatoPago,fontSize: 8},               
+                    ],
+				]
+			},
+      layout: 'noBorders'
+	},
+    {
+        style: 'tableExample',
+        margin:[0,10,0,0],
+        table: {
+          headerRows: 1,
+          widths: [41,47,'*',41,30,26,26,38,48,49], // Ajusta los anchos de las columnas
+          body: tableBody         
+        },      
+	},      
+    {
+        
+        style: 'tableExample',
+        margin:[0,10,0,0],
+        table: {
+          headerRows: 1,
+          widths: [50,'*',41,34,48,49], // Ajusta los anchos de las columnas
+          body: tableBodyBottom         
+        },      
+	},   
+     
+    {       
+        style: 'tableExample',
+        margin:[0,10,0,10],
+        table: {
+          headerRows: 1,
+          widths: ['*',49], // Ajusta los anchos de las columnas
+          body: tableBodyTotal         
+        },      
+	},     
+        
+
+   
+    {
+        text: 'Usuario: '+ user,
+        fontSize: 7
+      },
+   
+      {
+        text: 'Observación: '+ observacion,
+        fontSize: 7
+      },
+    ],
+     watermark: watermark, // Agrega la marca de agua condicionalmente
+    styles: {
+      header: {
+        fontSize: 12,
+        bold: true,
+        color: 'black',
+        alignment: 'center',
+        margin:[0,10,0,10]
+      },
+      cabeza: {
+        fontZise: 8,
+
+      },
+      tableExample:{
+        fontSize: 8,
+        bold: true,
+      },
+		tableHeader: {
+			bold: true,
+			fontSize: 9,
+			color: 'black',
+     // margin:[ 0, 0, 100,0]
+		},
+    tableHeader2 : {
+			bold: true,
+			fontSize: 7,
+			color: 'black',
+      margin:[ 180, 0, 20,0] 
+		},
+    tableHeader3 : {
+			bold: true,
+			fontSize: 7,
+			color: 'black',
+      margin:[ 50, 0, 10,0] 
+		}
+    }
+};
+   pdfMake.createPdf(docDefinition).open();   
+    },
+
+     descargarPDFmodalIndex_2(simbolo,array_topModal,nom_empresa,numero_identificacion
+            ,fecha_pago,distribuidor,fecha_pedido,NomFacturar,formatoEntrega,plazo,formatoPago,observacion,user,totalSumaModaltop,totalSumaModalbottom,totaltotal,error_v){
+  
+                // Define el contenido del PDF
+  let watermark = {};      
+      if (error_v===2) { // Aquí puedes poner tu condición
+  watermark = { text: 'Error de ditribuidor', color: 'red', angle: -45, opacity: 0.3, bold: true, italics: false, fontSize: 65 };
+}
+                
+    const tableBody = [
+    // Agrega los encabezados de la tabla
+    [
+      { text: 'Linea', style: 'tableHeader_2',alignment: 'center',fillColor: '#d3d3d3' }, 
+      { text: 'Cod. Producto', style: 'tableHeader_2',alignment: 'center',fillColor: '#d3d3d3' }, 
+      { text: 'Producto', style: 'tableHeader_2',alignment: 'center',fillColor: '#d3d3d3' }, 
+      { text: 'Envase', style: 'tableHeader_2',alignment: 'center',fillColor: '#d3d3d3' },
+      { text: 'Stock Maximo', style: 'tableHeader_2',alignment: 'center',fillColor: '#d3d3d3' },
+      { text: 'Stock Actual', style: 'tableHeader_2',alignment: 'center',fillColor: '#d3d3d3' },
+      { text: 'Stock Pedido', style: 'tableHeader_2',alignment: 'center',fillColor: '#d3d3d3' },
+      { text: 'Cantidad Dispenser', style: 'tableHeader_2',alignment: 'center',fillColor: '#d3d3d3' },
+      { text: 'Precio Unitario', style: 'tableHeader_2',alignment: 'center',fillColor: '#d3d3d3' },
+      { text: 'Sub Total' , style: 'tableHeader_2',alignment: 'center',fillColor: '#d3d3d3' },
+    ]
+  ];
+  // Itera sobre los datos y agrega filas a la tabla
+
+  array_topModal.forEach(item => {
+    tableBody.push([
+      { text: item.lineas, fontSize: 8, alignment: 'left' },
+      { text: item.codigo, fontSize: 8, alignment: 'left' },
+      { text: item.nombre_prod+" - "+item.nombre_dis+" X "+item.cantidad_dispenser_producto+" "+item.nombre_forma_farmaceutica, fontSize: 8, alignment: 'left' },
+      { text: item.envase, fontSize: 8, alignment: 'left' },
+      { text: item.maximo_pedido, fontSize: 8, alignment: 'right' },
+      { text: item.actual_pedido, fontSize: 8, alignment: 'right' },
+      { text: item.stock_pedido, fontSize: 8, alignment: 'right' },
+      { text: item.cantidad_pedido, fontSize: 8, alignment: 'right' },
+      { text: item.precio_lista_producto+" "+simbolo, fontSize: 8, alignment: 'right' },      
+      { text: item.precio_pedido+" "+simbolo, fontSize: 8, alignment: 'right' } // Operación y formato
+    ]);
+  });
+    // Agrega las filas con colspan al final del tableBody
+tableBody.push(
+  [
+    { text: 'Total', colSpan: 9, fontSize: 8, alignment: 'right', border: [false, true, true, false] },
+    {}, {}, {}, {}, {}, {}, {}, {},
+    { text: totalSumaModaltop+" "+simbolo, fontSize: 8, alignment: 'right' }
+  ], 
+);
+
+// tabla total de total------------------------
+const tableBodyTotal = [
+    // Agrega los encabezados de la tabla
+    [        
+      { text: 'Total', style: 'tableHeader_2',alignment: 'right',  fillColor: '#d3d3d3' },     
+      { text: totaltotal+" "+simbolo, style: 'tableHeader_2',alignment: 'right',fillColor: '#d3d3d3' },
+    ]
+  ];
+
+    const docDefinition = {
+    pageSize: 'LETTER', // Tamaño carta
+    pageMargins: [25, 30, 25, 30], // Márgenes: [left, top, right, bottom]
+    content: [
+    {        			
+			table: {
+				widths: [90,'*',60, 105],
+				body: [
+				[{text: nom_empresa ,fontSize: 8},
+                { },{text: 'Nº Documento: ',fontSize: 8},{text: numero_identificacion ,fontSize: 8}
+                ],	
+                [{ },
+                { },{text: 'Plazo: ',fontSize: 8},{text: plazo ,fontSize: 8}
+                ],		
+				]
+			},
+      layout: 'noBorders'
+	},   
+    {text: 'SOLICITUD DE PEDIDO', style: 'header' },
+   {			
+			table: {
+				widths: [90,120,'*',60,105],
+				body: [
+					[
+                    {text: 'Fecha Pago:',fontSize: 8},
+                    {text: fecha_pago+' ',fontSize: 8},{ },
+                    {text: 'Distribuidor:',fontSize: 8},
+                    {text: distribuidor,fontSize: 8},         
+                    ],
+					[
+                    {text: 'Fecha Pedido:',fontSize: 8},
+                    {text: fecha_pedido,fontSize: 8},{ },
+                    {text: 'Facturar a:',fontSize: 8},
+                    {text: NomFacturar,fontSize: 8},               
+                    ],
+                    [
+                    {text: 'Entrega:',fontSize: 8},
+                    {text: formatoEntrega,fontSize: 8},{ },
+                    {text: 'formato Pago:',fontSize: 8},
+                    {text: formatoPago,fontSize: 8},               
+                    ],
+				]
+			},
+      layout: 'noBorders'
+	},
+    {
+        style: 'tableExample',
+        margin:[0,10,0,0],
+        table: {
+          headerRows: 1,
+          widths: [41,47,'*',41,30,26,26,38,48,49], // Ajusta los anchos de las columnas
+          body: tableBody         
+        },      
+	},     
+     
+     
+    {       
+        style: 'tableExample',
+        margin:[0,10,0,10],
+        table: {
+          headerRows: 1,
+          widths: ['*',49], // Ajusta los anchos de las columnas
+          body: tableBodyTotal         
+        },      
+	},     
+        
+
+   
+    {
+        text: 'Usuario: '+ user,
+        fontSize: 7
+      },
+   
+      {
+        text: 'Observación: '+ observacion,
+        fontSize: 7
+      },
+    ],
+     watermark: watermark, // Agrega la marca de agua condicionalmente
+    styles: {
+      header: {
+        fontSize: 12,
+        bold: true,
+        color: 'black',
+        alignment: 'center',
+        margin:[0,10,0,10]
+      },
+      cabeza: {
+        fontZise: 8,
+
+      },
+      tableExample:{
+        fontSize: 8,
+        bold: true,
+      },
+		tableHeader: {
+			bold: true,
+			fontSize: 9,
+			color: 'black',
+     // margin:[ 0, 0, 100,0]
+		},
+    tableHeader2 : {
+			bold: true,
+			fontSize: 7,
+			color: 'black',
+      margin:[ 180, 0, 20,0] 
+		},
+    tableHeader3 : {
+			bold: true,
+			fontSize: 7,
+			color: 'black',
+      margin:[ 50, 0, 10,0] 
+		}
+    }
+};
+   pdfMake.createPdf(docDefinition).open();   
+    },
+
 
 listarIndex(page){
             let me=this;
@@ -1350,7 +2054,7 @@ listarIndex(page){
                     var respuesta = response.data;
                     me.pagination = respuesta.pagination;
                     me.arrayInicio = respuesta.resultados.data;
-                    console.log(me.arrayInicio);
+                 
                 })
                 .catch(function(error){
                     error401(error);
@@ -1513,6 +2217,62 @@ quitarEleArray(id,i){
             }
          me.sumatoriaBot=parseFloat(suma).toFixed(2);
         },
+
+
+         ActualizarAlias(data){
+            let me = this;  
+             let enviar={};
+          
+            if (data==1) {
+               enviar = {
+                    id: me.id_credencial,                   
+                    paquete: me.inputAlias, 
+                    envio:data, 
+                    id_modulo: me.idmodulo,
+                    id_sub_modulo:me.codventana, 
+                    des:"Modifico el alias a: "+me.inputAlias,  
+                    }; 
+            } 
+            if (data==2) {
+                enviar = {
+                    id: me.id_credencial,                   
+                    paquete: me.selectAlias, 
+                    envio:data, 
+                    id_modulo: me.idmodulo,
+                    id_sub_modulo:me.codventana, 
+                    des:"Cambio de alias a usar: "+me.selectAlias,  
+                    }; 
+            }
+            
+axios.post("/gestor-stock/modificarAlias", enviar)
+  .then(function (response) {
+    me.listarAlias();
+  
+    let respuesta=response.data;
+    if(respuesta.length>=1||respuesta===0){
+        me.errorAliasModal="Error: "+respuesta;
+        me.colorError=1;
+    }else{
+        
+        if (data==1) {
+           me.errorAliasModal="Actualización de alias correctamente"; 
+            me.colorError=2;
+        }
+        if (data==2) {
+            me.errorAliasModal="Asignación de alias correctamente";
+             me.colorError=3;
+        }   
+        me.selectAlias="100";     
+    }
+    me.inputAlias="";  
+  })
+  .catch(function (error) {
+    console.error(error);
+      error401(error);
+  });               
+            
+        },
+
 
         guardarModal(){      
             let me = this;  
@@ -1687,6 +2447,46 @@ quitarEleArray(id,i){
                 });
         },
 
+        funcionAlias(){
+            if (this.puedeHacerOpciones_especiales==1) {
+               this.listarAlias();
+           this.abrirModal('cambioAlias');  
+            }else{
+                Swal.fire(
+                        "No tiene permisos!",
+                        "Contacte con el administrador para operaciones especiales",
+                        "warning",
+                    ); 
+            }                        
+        },
+
+        listarAlias(){            
+            let me=this;
+                
+            var url = "/gestor-stock/listarAlias";
+            axios
+                .get(url)
+                .then(function (response) {
+                
+                    let respuesta = response.data;              
+           
+                
+                me.aliasUse=respuesta.uso_alias;
+                me.nomEmpresaTabla=respuesta.nom_empresa;
+                me.aliasTabla=respuesta.alias; 
+                me.id_credencial=respuesta.id;   
+                if (me.aliasTabla==null||me.aliasTabla=="") {
+                  me.aliasTabla="Sin alias."  
+                } 
+                        
+
+              
+                })
+                .catch(function (error) {
+                    error401(error);
+                });
+        },
+
          listarModalAlerta_inferior(data){            
             let me=this;
      
@@ -1846,24 +2646,23 @@ quitarEleArray(id,i){
                 });
         },
 
-         listarModalQuery_1_2(id,data) {
-            let me = this;             
+         listarModalQuery_1_2(id,data,tipoA) {
+            let me = this;    
+            me.listarAlias();         
             let id_dis=data.id_distribuidor;  
             let id_li=data.id_linea;
            var url = "/gestor-stock/listarModalQuery?id="+id+"&id_distribuidor="+id_dis+"&id_linea="+id_li;
             axios
                 .get(url)
                 .then(function (response) {
-                    console.log(response.data);
+               
                     let respuesta_1 = (response.data).query_1;
                     let respuesta_2 = (response.data).query_2;  
                     let respuesta_3 = (response.data).query_3;  
                     let count_2=0;
                     let suma=0;
                     let suma2=0;
-                    console.log(respuesta_1);   
-                    console.log(respuesta_2);   
-                    console.log(respuesta_3); 
+            
                    
                     if (respuesta_1.length<=0 || respuesta_3==1) {
                        me.tamañoQuery_1=0; 
@@ -1885,23 +2684,20 @@ quitarEleArray(id,i){
                        });  
                     }
                     me.sumaTotalModalinferior=suma2.toFixed(2);
-                        me.sumaTotalModalTotal=parseFloat(me.sumaTotalModalinferior)+parseFloat(me.sumaTotalModal);
- 
+                    me.sumaTotalModalTotal=parseFloat(me.sumaTotalModalinferior)+parseFloat(me.sumaTotalModal);
+                    me.sumaTotalModalTotal=me.sumaTotalModalTotal.toFixed(2);
+          
+                        
                     if(respuesta_3==1){
-                       me.id_distribuidorModal=1; 
+                       //me.id_distribuidorModal=1; 
+                       me.detectorError=2;
                     } else {
-                        if (respuesta_3==0) {                        
+                        if (respuesta_3==0) {       
+                                         
                     me.nomDistribuidorModal=data.nom_distribuidor;
                     me.nomAfacturarModal=data.nom_a_facturar;
-                    me.fechaPedidoModal=data.fecha_pedido;
-                    me.fechaPAgoModal=data.fecha_pago;
-                    me.formatoPagoModal=data.formato_pago;
-                    me.plazoModal=data.plazo_pedido;
-                    me.turnoEntregaModal=data.formato_turno;
-                    me.observacionModal=data.observacion;
-                    me.simboloModal=data.simbolo;
-                    me.id_distribuidorModal=data.id_distribuidor;
-                    me.nomUsuarioModal=data.nom_user;                
+                    me.detectorError=0;
+                             
                         } else {
                             respuesta_3.forEach(e => {
                                 if (count_2==0) {
@@ -1914,12 +2710,86 @@ quitarEleArray(id,i){
                                 count_2++;
                                 
                             });
+                            if (count_2>1) {
+                                me.detectorError=1;
+                            }
                         }
                     }
-                    me.detectorError=respuesta_3.length;
-                    me.tituloModal_4="Registro de pedido";
+                    
+                      me.fechaPedidoModal=data.fecha_pedido;
+                    me.fechaPAgoModal=data.fecha_pago;
+                    me.formatoPagoModal=data.formato_pago;
+                    me.plazoModal=data.plazo_pedido;
+                    me.turnoEntregaModal=data.formato_turno;
+                    me.observacionModal=data.observacion;
+                    me.simboloModal=data.simbolo;
+                    me.id_distribuidorModal=data.id_distribuidor;
+                    me.nomUsuarioModal=data.nom_user;     
+                    
+              
+                    if (tipoA==1) {
+                        me.tituloModal_4="Registro de pedido";
                     me.showModal_4 = true; 
                     me.classModal.openModal("index_show");
+                    } 
+                    if (tipoA==2) {
+                        let nom_empresa;
+                   
+                            if(me.aliasUse==0){
+                                nom_empresa="Sin datos";
+                            }else{
+                                if (me.aliasUse==1) {
+                                    nom_empresa=me.nomEmpresaTabla;
+                                } else {
+                                  if (me.aliasUse==2) {
+                                    nom_empresa=me.aliasTabla;
+                                  } else {
+                                    nom_empresa="Sin datos";
+                                  }  
+                                }
+                            }
+                       
+
+                         
+                        let numero_identificacion=id;
+
+                        if (me.tamañoQuery_2==0) {
+                                        me.descargarPDFmodalIndex_2(me.simboloModal,me.arrayQuery_1Modal,nom_empresa,numero_identificacion
+            ,me.fechaPAgoModal,me.nomDistribuidorModal,me.fechaPedidoModal,me.nomAfacturarModal,me.turnoEntregaModal,me.plazoModal,me.formatoPagoModal,me.observacionModal,me.nomUsuarioModal,me.sumaTotalModal,me.sumaTotalModalinferior,me.sumaTotalModalTotal,me.detectorError);
+
+                        } else {
+                                        me.descargarPDFmodalIndex(me.simboloModal,me.arrayQuery_1Modal,me.arrayQuery_2Modal,nom_empresa,numero_identificacion
+            ,me.fechaPAgoModal,me.nomDistribuidorModal,me.fechaPedidoModal,me.nomAfacturarModal,me.turnoEntregaModal,me.plazoModal,me.formatoPagoModal,me.observacionModal,me.nomUsuarioModal,me.sumaTotalModal,me.sumaTotalModalinferior,me.sumaTotalModalTotal,me.detectorError);
+
+                        }
+            
+                        me.nomUsuarioModal="";
+                me.nomDistribuidorModal="";
+                me.nomAfacturarModal="";
+                me.fechaPedidoModal="";
+                me.fechaPAgoModal="";
+                me.formatoPagoModal="";
+                me.plazoModal="";
+                me.turnoEntregaModal="";
+                me.observacionModal="";
+                me.arrayTopModal=[];
+                me.arrayBottomModal=[];
+                me.totalTotalModal="";
+                me.simboloModal="";
+                me.arrayQuery_1Modal=[];
+                me.arrayQuery_2Modal=[];
+                me.tamañoQuery_1=0;
+                me.tamañoQuery_2=0;
+                me.sumaQueryModal=0,
+                me.id_distribuidorModal=0;
+                me.sumaTotalModal=0;
+                me.sumaTotalModalinferior=0;
+                me.sumaTotalModalTotal=0;
+                me.detectorError=0;
+
+                    }
+
+                    
                     
                 })
                 .catch(function (error) {
@@ -1942,10 +2812,7 @@ quitarEleArray(id,i){
 
         abrirModal(accion, data = []) {
             let me = this;
-        //    let respuesta = me.arraySucursal.find(
-        //        (element) => element.codigo == me.sucursalSeleccionada,
-        //    );
-           
+      
          switch (accion) {
                 case "registrar": {
                     me.tipoAccion = 1;
@@ -1997,7 +2864,7 @@ quitarEleArray(id,i){
                     break;
                 }
                 case "index_show":{
-                console.log(data);
+              
                     me.tituloModal_4="Registro de pedido";
                     me.showModal_4 = true; 
                     me.nomUsuarioModal=data.nom_user;
@@ -2012,6 +2879,15 @@ quitarEleArray(id,i){
                     me.simboloModal=data.simbolo;
                     me.id_distribuidorModal=data.id_distribuidor;
                     me.classModal.openModal("index_show");
+                    break;
+                }
+                   case "cambioAlias":{
+                     me.tituloModal_5="Gestion de alias";
+                me.selectAlias="100";
+                me.inputAlias="";
+                me.showModal_5=true;
+                    me.classModal.openModal("cambioAlias");
+                    break;
                 }
             
             }
@@ -2097,6 +2973,18 @@ quitarEleArray(id,i){
                 me.detectorError=0;
                  me.classModal.closeModal(accion);
             }
+            if (accion=="cambioAlias") {
+                me.tituloModal_5="";
+                me.showModal_5=false;
+                me.aliasUse="";
+                me.nomEmpresaTabla="";
+                me.aliasTabla="";   
+                me.selectAlias="0";
+                me.inputAlias=""; 
+                me.id_credencial="";      
+                me.errorAliasModal="";  
+                me.colorError=0;    
+            }
         },
 
      
@@ -2118,8 +3006,10 @@ quitarEleArray(id,i){
         this.classModal.addModal("saldo_cero");   
         this.classModal.addModal("show"); 
         this.classModal.addModal("index_show");   
-         
-       // this.listarIndex();    
+        this.classModal.addModal("cambioAlias");   
+        //-------permiso E_W_S-----
+        this.listarPerimsoxyz();
+        //-----------------------        
     },
 };
 </script>

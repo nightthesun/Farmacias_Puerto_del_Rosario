@@ -1436,7 +1436,7 @@ public function get_modal_saldo_cero(Request $request){
         'ipgs.cantidad_pedido',
         'ipgs.precio_pedido',
         'pp.codigo',
-        'pp.nombre as nombre_prod',
+        'pp.nombre as nombre_prod',  
         DB::raw("CASE
             WHEN ipgs.envase = 'primario' THEN pp.tiempopedidoprimario
             WHEN ipgs.envase = 'secundario' THEN pp.tiempopedidosecundario
@@ -1485,7 +1485,7 @@ public function get_modal_saldo_cero(Request $request){
         'itegs.cantidad_extra',
         'itegs.precio_extra',
         'pp.codigo',
-        'pp.nombre as nombre_prod',
+        'pp.nombre as nombre_prod', 
         DB::raw("
             CASE
                 WHEN itegs.envase = 'primario' THEN pp.tiempopedidoprimario
@@ -1538,6 +1538,55 @@ public function get_modal_saldo_cero(Request $request){
 
      return ['query_1' => $query_1, 'query_2' => $query_2, 'query_3' => $query_3];
 
+    }
+
+    public function alias(){
+        $data = DB::table('adm__credecial_correos as s')
+    ->select('s.id', 's.nom_empresa', 's.alias','s.uso_alias')
+    ->where('s.id', 1)    
+    ->first();
+    return $data;
+    }
+
+    public function modificarAlias(Request $request){
+            try {
+                        DB::beginTransaction();
+                      
+                 $id=$request->id;
+        $data=$request->envio;
+        if($data==1){
+              $datos_1 = [
+                'alias' => $request->paquete,              
+            ];
+        }else{
+            if($data==2){
+                $a= (int)$request->paquete;
+            $datos_1 = [
+                'uso_alias' => $a,              
+            ]; 
+            }else{
+                return 0;
+            }
+        }
+      DB::table('adm__credecial_correos')
+    ->where('id', $id)
+    ->update($datos_1);
+            $fechaActual = Carbon::now(); // Obtiene la fecha y hora actual
+            $datos = [
+                'id_modulo' => $request->id_modulo,
+                'id_sub_modulo' => $request->id_sub_modulo,
+                'accion' => 4,
+                'descripcion' => $request->des,          
+                'user_id' =>auth()->user()->id, 
+                'created_at'=>$fechaActual,
+                'id_movimiento'=>$id,   
+            ];
+        
+            DB::table('log__sistema')->insert($datos);   
+             DB::commit();
+            } catch (\Throwable $th) {
+                return $th;
+            }
     }
 
 }

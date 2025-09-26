@@ -31,6 +31,8 @@ return new class extends Migration
     $table->decimal('monto_limite',11,2)->default(0)->nullable();
     $table->tinyInteger('modal_apertura')->default(0)->comment('0=no tiene, 1=normal,  2=modal modificado');
     $table->tinyInteger('imprimir_trans')->default(0)->comment('1=imprime el qr desde apertura o cierre');
+    $table->string('alias', 255)->nullable();
+    $table->tinyInteger('uso_alias')->default(0)->nullable()->comment('0=no tiene, 1=nombre empresa, 2=alias');
     
         });
     }
