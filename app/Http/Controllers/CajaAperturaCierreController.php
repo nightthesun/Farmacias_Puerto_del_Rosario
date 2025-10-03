@@ -171,8 +171,7 @@ return response()->json([
 
     public function cierre_store(Request $request ){
 
-        try {
-      
+        try {      
                 if ($request->user==auth()->user()->name) {
                     $id_sucursal=$request->id_sucursal;
                     DB::beginTransaction();
@@ -230,6 +229,34 @@ return response()->json([
                         ->where('r.id_apertura', $request->id_apertura) 
                         ->update(['t.contador' => 0,'t.updated_at' => $fechaHora]);
 
+                     // $table->tinyInteger('accion')->comment('1->modulo configuracion manual,2=otros 3....., 0=cierre de caja');
+         $id_user=auth()->user()->id;
+              $name_user=auth()->user()->name;
+              $fechaHoy = Carbon::now()->format('Y-m-d');
+              $hora=Carbon::now()->format('H:i:s');
+              if ($id_user==1||$name_user=='admin') {
+                $idsucursal=1;
+                $nomsucursal="usuario admin";
+              }else{
+                $idsucursal=session('idsuc');
+                $nomsucursal=session('nomsucursal');
+              }            
+              // $table->tinyInteger('accion')->comment('1->modulo configuracion manual,2=otros 3....., 0=cierre de caja');
+              $stockMedio = DB::table('adm_credecial_correos as a')
+    ->select('a.stock_medio')
+    ->limit(1)
+    ->first();
+         $tipoTabla=$stockMedio->stock_medio;    
+                $data_2=[
+                    'id_user' => $id_user,
+                    'id_sucursal' => $idsucursal,
+                    'tipo_tabla' => $tipoTabla,
+                    'fecha' => $fechaHoy,
+                    'hora' => $hora,
+                    'accion' =>1   
+                ];
+                 DB::table('log__tabla_accion_stock')->insert($data_2);  
+
                     $generarstocks=$this->generarstocks($id_sucursal);
                     foreach ($generarstocks as $key => $value) {
                         $fechaHoy = Carbon::now()->format('Y-m-d');
@@ -240,6 +267,7 @@ return response()->json([
                 'fecha_ingreso' => $fechaHoy, 
                 'id_sucursal' => $id_sucursal,
                 'envase' => $value->envase,
+            
             ];
             
            DB::table('sis_bitacora_stock')->insert($datos_3);  
@@ -525,8 +553,7 @@ $data_1 = $moneda;
 
 
     ///funcion publica para la funcion caja cierra
-public function  generarstocks($id_sucursal){
-  
+public function  generarstocks($id_sucursal){  
 // Subconsulta gettion_tienda stock_total
 $gettionTienda = DB::table('prod__productos as pp')
     ->join('tda__ingreso_productos as tip', 'tip.id_prod_producto', '=', 'pp.id')

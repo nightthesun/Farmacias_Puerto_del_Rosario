@@ -155,6 +155,41 @@ class AdmCredecialCorreoController extends Controller
     return $monedas;
     }
 
+
+   public function editar_cambiar_stock(Request $request){
+        try {
+              //1=add, 2=delete, 3=create, 4=edit, 5=show
+    // Truncar la tabla para eliminar todo su contenido
+            /////// detalle_descuento
+            DB::beginTransaction();
+            
+            $fechaActual = Carbon::now(); // Obtiene la fecha y hora actual
+             $id = $request->id;        
+                        
+            $update = adm_CredecialCorreo::find($id);            
+            $update->stock_medio= (int)$request->stock_medio;    
+            $update->save();    
+
+                $datos = [
+                    'id_modulo' => $request->id_modulo,
+                    'id_sub_modulo' => $request->id_sub_modulo,
+                    'accion' => 4,
+                    'descripcion' => $request->des,          
+                    'user_id' =>auth()->user()->id, 
+                    'created_at'=>$fechaActual,
+                    'id_movimiento'=>$id,   
+                ];
+            
+                DB::table('log__sistema')->insert($datos);   
+            DB::commit();
+           
+            
+        } catch (\Throwable $th) {
+            return $th;
+        }
+       
+    } 
+
     public function store_dosificacion(Request $request){
         try {
               //1=add, 2=delete, 3=create, 4=edit, 5=show

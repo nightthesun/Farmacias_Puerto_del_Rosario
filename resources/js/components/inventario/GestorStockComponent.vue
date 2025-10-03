@@ -1384,20 +1384,10 @@ XLSX.utils.sheet_add_json(ws, datosFiltrados, {
 const wb = XLSX.utils.book_new();
 XLSX.utils.book_append_sheet(wb, ws, 'Emisiones');
 XLSX.writeFile(wb, 'informe_pedidos.xlsx'); 
-
-
-    // Convertir los datos a un formato que XLSX pueda entender
-      //  const ws = XLSX.utils.json_to_sheet(nuevo);
-         // Crear un libro de trabajo de Excel con esos datos
-      //   const wb = XLSX.utils.book_new();
-      //  XLSX.utils.book_append_sheet(wb, ws, 'Emisiones');
-      //  let archivo="gestion_stock";    
-        // Generar un archivo Excel y forzar la descarga
-     //   XLSX.writeFile(wb, archivo+'.xlsx');
+  
         },
 
         descargaPDF(array_reporte){
-
             const tableBody =[
                 //agregar encabezados de la tabla
                 [
@@ -2125,7 +2115,7 @@ listarIndex(page){
         if (existe) {
             // Filtra por coincidencias en línea o producto
     me.arraySaldoCero = me.arrayFalsoCero.filter(item =>
-      (item.linea && item.linea.toLowerCase().includes(texto)) ||
+      (item.linea && item.linea.toLowerCase().includes(texto)) || 
       (item.producto && item.producto.toLowerCase().includes(texto)) || 
       (item.codigo && item.codigo.toLowerCase().includes(texto)) ||
        (item.envase && item.envase.toLowerCase().includes(texto))
@@ -2646,6 +2636,20 @@ axios.post("/gestor-stock/modificarAlias", enviar)
                 });
         },
 
+        listarStockMedio() {
+            let me = this;       
+           var url = "/gestor-stock/stockMedio";
+            axios
+                .get(url)
+                .then(function (response) {
+                    var respuesta = response.data;
+                    console.log(respuesta);           
+                })
+                .catch(function (error) {
+                    error401(error);
+                });
+        },
+
          listarModalQuery_1_2(id,data,tipoA) {
             let me = this;    
             me.listarAlias();         
@@ -2802,6 +2806,8 @@ axios.post("/gestor-stock/modificarAlias", enviar)
 
             // Agrega aquí la lógica adicional que necesites al cambiar la pestaña
         },
+
+
 
 
         cambiarPagina(page) {
@@ -3006,7 +3012,8 @@ axios.post("/gestor-stock/modificarAlias", enviar)
         this.classModal.addModal("saldo_cero");   
         this.classModal.addModal("show"); 
         this.classModal.addModal("index_show");   
-        this.classModal.addModal("cambioAlias");   
+        this.classModal.addModal("cambioAlias");  
+        this.listarStockMedio();
         //-------permiso E_W_S-----
         this.listarPerimsoxyz();
         //-----------------------        

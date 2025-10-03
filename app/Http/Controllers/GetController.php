@@ -562,4 +562,13 @@ $resultado = $query1
       
     }
     
+    public function onlySuscursal(){
+       $query = DB::table('adm__sucursals as s')
+    ->select('s.id','s.razon_social','s.nit','s.direccion')
+    ->where('s.activo', 1)
+    ->get();
+
+return response()->json($query); // buena práctica en API
+    }
+    
 }

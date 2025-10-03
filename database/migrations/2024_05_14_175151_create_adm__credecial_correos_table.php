@@ -33,7 +33,7 @@ return new class extends Migration
     $table->tinyInteger('imprimir_trans')->default(0)->comment('1=imprime el qr desde apertura o cierre');
     $table->string('alias', 255)->nullable();
     $table->tinyInteger('uso_alias')->default(0)->nullable()->comment('0=no tiene, 1=nombre empresa, 2=alias');
-    
+    $table->smallInteger('stock_medio')->default(0)->comment('0= defaul, 1=stock normal, 2=stock autmatico,3>etc');   
         });
     }
 

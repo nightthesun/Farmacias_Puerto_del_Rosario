@@ -31,6 +31,7 @@ return new class extends Migration
             $table->text('certificado_x509')->nullable();
             $table->timestamps();
             $table->tinyInteger('id_sincro_auto')->nullable()->default(1);
+            
         });
     }
 

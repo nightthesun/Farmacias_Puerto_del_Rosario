@@ -802,13 +802,22 @@ $resultado = DB::table(DB::raw("({$combinado->toSql()}) as sub"))
 
     private function promediostock($id_producto,$envase){
 
-        $promedioStock = DB::table('sis_bitacora_stock as s')
-    ->select('s.id_producto', DB::raw('IFNULL(AVG(s.stock), 0) as promedioStock'))
-    ->where('s.id_producto', $id_producto)
-    ->where('s.envase', $envase)
-    ->groupBy('s.id_producto')
-    ->get();
-    return $promedioStock;
+        $stockMedio = DB::table('adm__credecial_correos as a')
+    ->select('a.stock_medio')->first(); 
+    
+        if ($stockMedio->stock_medio==0||$stockMedio->stock_medio==1) {
+             $promedioStock = DB::table('sis_bitacora_stock as s')
+            ->select('s.id_producto', DB::raw('IFNULL(AVG(s.stock), 0) as promedioStock'))
+            ->where('s.id_producto', $id_producto)
+            ->where('s.envase', $envase)
+            ->groupBy('s.id_producto')
+            ->get();
+        return $promedioStock;        
+        }else{
+            dd("encontruccion...");
+        }
+        
+       
     }
 
     private function alerta_query($id_linea){ 
@@ -1274,18 +1283,32 @@ $resultado = DB::table(DB::raw("({$combinado->toSql()}) as sub"))
     }
 
     public function fechascero($id_producto,$id_sucursal) {
-        $fecha = DB::table('sis_bitacora_stock as s')
+
+          $stockMedio = DB::table('adm__credecial_correos as a')
+    ->select('a.stock_medio')->first(); 
+    
+        if ($stockMedio->stock_medio==0||$stockMedio->stock_medio==1) {
+ $fecha = DB::table('sis_bitacora_stock as s')
     ->selectRaw('MAX(s.fecha_ingreso) as fecha')
     ->where('s.id_producto', $id_producto)
     ->where('s.stock', '<>', 0)
     ->where('s.id_sucursal', $id_sucursal)
     ->get();
         return $fecha;
+        }else{
+            dd("en contruccion");
+        }
+
+       
     }
 
    public function diascero($id_producto, $id_sucursal, $fecha_inicial)
 {
-    $dias = DB::table('sis_bitacora_stock as s')
+      $stockMedio = DB::table('adm__credecial_correos as a')
+    ->select('a.stock_medio')->first(); 
+    
+        if ($stockMedio->stock_medio==0||$stockMedio->stock_medio==1) {
+  $dias = DB::table('sis_bitacora_stock as s')
         ->where('s.id_producto', $id_producto)
         ->where('s.id_sucursal', $id_sucursal)
         ->whereBetween('s.fecha_ingreso', [
@@ -1294,8 +1317,11 @@ $resultado = DB::table(DB::raw("({$combinado->toSql()}) as sub"))
         ])
         ->select(DB::raw('COUNT(s.stock) as dias'))
         ->get();
-
     return $dias;
+        }else{
+            dd("en contruccion");
+        }
+  
 }
 
 public function prospecto($id_producto, $id_sucursal, $fecha_inicial){
@@ -1587,6 +1613,12 @@ public function get_modal_saldo_cero(Request $request){
             } catch (\Throwable $th) {
                 return $th;
             }
+    }
+
+    public function listarStockMedio(Request $request){
+        $stockMedio = DB::table('adm__credecial_correos as a')
+    ->select('a.stock_medio')->first(); 
+        return $stockMedio;
     }
 
 }

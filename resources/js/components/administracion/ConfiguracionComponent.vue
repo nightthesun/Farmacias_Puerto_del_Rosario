@@ -41,7 +41,10 @@
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" id="pills-add_user_rubro-tab" data-toggle="pill" href="#pills-add_user_rubro" role="tab" aria-controls="pills-add_user_rubro" aria-selected="false"  @click="listarUser();rubro_2();">Añadir usuario a rubro</a>
-                </li>  
+                </li> 
+                <li class="nav-item">
+                    <a class="nav-link" id="pills-stockMedio-tab" data-toggle="pill" href="#pills-stockMedio" role="tab" aria-controls="pills-stockMedio" aria-selected="false">Stock medio</a>
+                </li> 
                        
             </ul>
         </div>
@@ -630,7 +633,7 @@
                     <div class="card">
                         <div class="card-header">Impreción de transaccion</div>
                         <div class="alert alert-warning" role="alert">
-                          Esta configuración solo afecta a acpertura y cierre de cajas donde, imprime despues del cierre automaticamente un ticket en la impresora termica con los datos de los traspasos electronicas. 
+                          Esta configuración solo afecta a apectura y cierre de cajas donde, imprime despues del cierre automaticamente un ticket en la impresora termica con los datos de los traspasos electronicas. 
 </div>
                         <div class="card-body">
                             <div class="form-group row">
@@ -668,7 +671,7 @@
                     </div>
                 </div>
                 
-             <!--------------------------------------RUBRO---------------------------------------------------->
+            <!----------------------------------------------RUBRO---------------------------------------------------------------->
              <div class="tab-pane fade" id="pills-add_user_rubro" role="tabpanel" aria-labelledby="pills-add_user_rubro-tab">
     <div class="card-body">
         <!-- insertar datos -->    
@@ -746,7 +749,60 @@
                   </div>
         </div>
                     </div>
-            <!-------------------------------------------------------------------------------------------------------------------->
+
+            <!-------------------------------------------------STOCK MEDIO------------------------------------------------------------------->
+            <div class="tab-pane fade" id="pills-stockMedio" role="tabpanel" aria-labelledby="pills-stockMedio-tab">                    
+                    <div class="card">
+                        <div class="card-header">Configuración de stock medio</div>
+                        <div class="alert alert-warning" role="alert">
+                         Esta configuración. Del uso de la tabla stock medio como preterminado ya que esta operacion afecta todo con lo dicho con gestion de stock.
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group row">
+                                <label class="col-md-1 form-control-label" for="text-input" style="font-size: 12px;"><strong>Tipo:</strong> 
+                                </label>
+                                <div class="col-md-3">
+                                    <select v-if="puedeHacerOpciones_especiales===1" class="form-control"  v-model="selectStockMedio" >
+                                        <option value="0" disabled selected>Seleccionar...</option>
+                                        <option value="1">Stock medio 1</option>
+                                        <option value="2">Stock medio 2</option>
+                                    </select>
+                                    <select v-else class="form-control">
+                                        <option value="0" disabled selected>Sin permiso...</option>                                    
+                                    </select>
+                                 </div>
+                                 <div class="col-md-1">
+                                    <button v-if="parseInt(selectStockMedio) >= 1" type="button" class="btn btn-primary" @click="updateStockMedio()">Actulizar</button> 
+                                    <button v-else type="button" class="btn btn-light">Actulizar</button> 
+                                 </div>
+                                 
+                                <div class="col-md-6">
+                                        <div v-show="stockMedio===0" class="alert alert-warning" role="alert">
+                                           SIN ACTIVACION DE STOCK MEDIO, EL STOCK MEDIO 1 EN ACTIVACION POR DEFAULT
+                                        </div>
+                                        <div v-show="stockMedio===1" class="alert alert-primary" role="alert">
+                                            STOCK MEDIO 1 ACTIVO
+                                        </div>
+                                        <div v-show="stockMedio===2" class="alert alert-primary" role="alert">
+                                            STOCK MEDIO 2 ACTIVO
+                                        </div>                                       
+                                </div>       
+                            </div>
+                            <div class="form-group row">
+                                <div v-show="selectStockMedio==='0'" class="alert alert-warning" role="alert">
+                                           NO SE SELECCIONAR NINGUNA OPCION.
+                                </div>
+                                <div v-show="selectStockMedio==='1'" class="alert alert-primary" role="alert">
+                                           EL STOCK MEDIO NUMERO 1, SU TABLA GUARDA DESDE EL INICIO HASTA EL FIN LAS VENTAS, A <strong>LARGO TIEMPO DE USO HACE LENTO EL SISTEMA POR LA CARGA DE GUARDADO DE DATOS. CARGA DE LOTES DE DATOS ENORMES Y REPETITIVOS PARA HACER EL PROMEDIO</strong>TIENE UNA MAYOR FIABILIDAD PERO HACE UNA ENORME CARDA DE LOTES DE DATOS A LARGO PLAZO SE TENDRA MILLONES DE DATOS QUE PONDRAN LENTO EL SISTEMA. 
+                                </div>
+                                <div v-show="selectStockMedio==='2'" class="alert alert-info" role="alert">
+                                           EL STOCK MEDIO NUMERO 2, ES UNA TABLA MEJORADA DE LA TABLA 1 YA QUE ESTA GUARDA UN ITEM POR PRODUCTO Y NO LOTES DE DATOS COMO EL ANTERIOR STOCK MEDIO 1. <strong>LO MALO COMO GUARDA CON CONTADORES PARA HACER EL PROMEDIO, PUEDA QUE NO GUARDADE ALGUN DATO SI SE HACE UN USO MAL USO O FALLA HUMANA. </strong>ES OPTIMO PARA USO LARGO POR LA MENOR CARGA DE DATOS. 
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>        
+            <!-------------------------------------------------------------------------------------------------------------------------------->
 
                 </div>
             
@@ -856,6 +912,7 @@ import Swal from "sweetalert2";
 import { error401 } from "../../errores";
 import VueMultiselect from 'vue-multiselect';
 import Multiselect from 'vue-multiselect'
+import { toInteger } from "lodash";
 //Vue.use(VeeValidate);
 
 export default {
@@ -935,8 +992,9 @@ puedeEditar:2,
                 //-----------------
                 showModal: false,              
                 showModal_2: false,
-
-              
+                //stockmedio------
+                selectStockMedio:'0',
+                stockMedio:0,
 
         };
     },
@@ -1242,6 +1300,45 @@ puedeEditar:2,
             });
         },
 
+
+ updateStockMedio(){
+            let me = this;           
+                axios
+                .post("/credenciales_correo/stock_medio", {
+                    id: me.id_credencial,                   
+                    stock_medio:me.selectStockMedio,                 
+
+                    id_modulo: me.idmodulo,
+                    id_sub_modulo:me.codventana, 
+                    des:"cambio de stock medio a selecto numero: "+me.selectStockMedio,  
+                  
+                })
+                .then(function (response) {
+                    me.listarCredencial();
+                    let respuesta=response.data;
+                    console.log(respuesta);
+                    if (respuesta.length>0) {                     
+                    Swal.fire(
+                        "Oops...",
+                        "Error en contrado: "+respuesta,
+                        "error",
+                    );
+                    }else{
+                          Swal.fire(
+                        "Actualizado Correctamente!",
+                        "El registro a sido actualizado Correctamente",
+                        "success",
+                    ); 
+                    }
+                    
+                })
+                .catch(function (error) {
+                    error401(error);
+                });                     
+        },
+
+
+
     update_datos_empresa(){
             let me = this; 
             if (me.nit===""||me.nombre_empresa===""||me.celular===""||me.actividad_eco==="") {
@@ -1297,7 +1394,6 @@ puedeEditar:2,
                
             });
             }
-
         },
         
         listarTipomoneda(){
@@ -1970,7 +2066,8 @@ puedeEditar:2,
             axios.get(url)
                 .then(function (response) {
                     var respuesta = response.data;
-                  
+                    console.log(respuesta);
+                    console.log("******");
                     me.id_credencial=response.data[0].id;
                     me.host=response.data[0].host;                   
                    me.correo=response.data[0].correo;
@@ -1990,6 +2087,8 @@ puedeEditar:2,
                     me.selectModalApertura=response.data[0].modal_apertura;
                     me.transaccion_data=response.data[0].imprimir_trans;
                     me.cambioModalApertura(me.selectModalApertura);
+
+                    me.stockMedio=response.data[0].stock_medio;
                 })
                 .catch(function (error) {
                     error401(error);

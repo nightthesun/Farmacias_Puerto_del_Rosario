@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('fecha_ingreso');        
             $table->smallInteger('id_sucursal')->nullable();
             $table->string('envase')->nullable();
+ 
         });
     }
 

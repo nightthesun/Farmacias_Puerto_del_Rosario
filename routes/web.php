@@ -66,6 +66,7 @@ use App\Http\Controllers\LogVehiculoController;
 use App\Http\Controllers\GesPreVenta2Controller;
 use App\Http\Controllers\GestionPerimsoController;
 use App\Http\Controllers\GetController;
+use App\Http\Controllers\InvConfiguracionStockController;
 use App\Http\Controllers\InvGestionStockController;
 use App\Http\Controllers\ParDescuentoController;
 use App\Http\Controllers\ProdListaController;
@@ -190,7 +191,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/listarConfig_v2', [GetController::class, 'getConfiguracion_v2']);   
     Route::get('/listarTipoActividad', [GetController::class, 'getTipoActividad']);  
     Route::get('/listarRubro_venta', [GetController::class, 'getRubro']);  
-    Route::get('/listarProducto_x_envase', [GetController::class, 'producto_x_envase']);     
+    Route::get('/listarProducto_x_envase', [GetController::class, 'producto_x_envase']);
+    Route::get('/listarSucursalNormal', [GetController::class, 'onlySuscursal']);       
     
     /**********************verificador de apertura cierre retornod e datos****************************** */
     Route::get('/verificacionAperturaCierre', [GetController::class, 'listarAperturaCierre']);
@@ -288,8 +290,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::put('/super_usuario/añadir_quitar', [AdmCredecialCorreoController::class, 'añadir_quitar_superUsuario']);
     Route::post('/credenciales_correo/modal_apertura', [AdmCredecialCorreoController::class, 'editar_modal_apertura']);  
     Route::post('/credenciales_correo/transaccion_data', [AdmCredecialCorreoController::class, 'editar_transaccion_v2']); 
-    Route::put('/user_rubro/añadir_quitar', [AdmCredecialCorreoController::class, 'añadir_quitar_rubro']);
-    
+    Route::put('/user_rubro/añadir_quitar', [AdmCredecialCorreoController::class, 'añadir_quitar_rubro']); 
+    Route::post('/credenciales_correo/stock_medio', [AdmCredecialCorreoController::class, 'editar_cambiar_stock']);   
            
     Route::get('/dosificacion/getDataSucursal', [AdmCredecialCorreoController::class, 'getDataSucursal']);
     Route::post('/dosificacion/store_dosificacion', [AdmCredecialCorreoController::class, 'store_dosificacion']);
@@ -299,7 +301,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/dosificacion/verifica_esta_activo_dosificacacion_x_sucursal', [AdmCredecialCorreoController::class, 'verifica_esta_activo_dosificacacion_x_sucursal']);  
     Route::put('/dosificacion/desactivar_dosificacion', [AdmCredecialCorreoController::class, 'desactivar_dosificacion']);  
     Route::put('/dosificacion/activar_dosificacion', [AdmCredecialCorreoController::class, 'activar_dosificacion']);  
-
+  
 
        //*******para listar si tiene permisos de edicion y activacion usar en todos los reporte o modulos*/
     Route::get('/userrolesuc/listarPermiso_Activacion', [AdmUserRoleSucursalController::class, 'listarPermiso_Activacion']);
@@ -634,7 +636,12 @@ Route::group(['middleware' => 'auth'], function () {
     Route::put('/gestor-stock/activar', [InvGestionStockController::class, 'activar']);
     Route::get('/gestor-stock/listarModalQuery', [InvGestionStockController::class, 'queryModaltop']);  
     Route::get('/gestor-stock/listarAlias', [InvGestionStockController::class, 'alias']); 
-    Route::post('/gestor-stock/modificarAlias', [InvGestionStockController::class, 'modificarAlias']);     
+    Route::post('/gestor-stock/modificarAlias', [InvGestionStockController::class, 'modificarAlias']);
+    Route::get('/gestor-stock/stockMedio', [InvGestionStockController::class, 'listarStockMedio']);    
+    
+    //---configuracion stock 
+    Route::post('/configuracion-stock/añadirBitacora', [InvConfiguracionStockController::class, 'storeBitacora_user_x_sucursal']);
+    Route::get('/configuracion-stock/listarTabla', [InvConfiguracionStockController::class, 'get_tabla_accion_stock']);     
          
     /////////////////////////////////LOGISTICO///////////////////////////////////////
     Route::get('/vehiculo/listarSucursal', [LogVehiculoController::class, 'listarSucursal']);
