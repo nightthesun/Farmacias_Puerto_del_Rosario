@@ -319,8 +319,8 @@ $elementos = array_filter(explode(',', $id_linea_array));
                 $utilidad_neta = $value_2->utilidad_neta;
                 $ciclo = $value_2->tiempo_producto;
                 $plazo = $value_2->tiempo_demora;
-                 //OBTENEMOS EL STOCK PROMEDIO
-                $rspta2 = $this->promediostock($id_producto,$envase);
+                 //OBTENEMOS EL STOCK PROMEDIO 
+                $rspta2 = $this->promediostock($id_producto,$envase,$id_sucursal);
                     foreach ($rspta2 as $key => $value_3) {
                          $promstock = $value_3->promedioStock;
                          if ($promstock>0) {
@@ -453,7 +453,7 @@ $elementos = array_filter(explode(',', $id_linea_array));
                 $plazo = $value_2->tiempo_demora;                  
 
                  //OBTENEMOS EL STOCK PROMEDIO
-                $rspta2 = $this->promediostock($id_producto,$envase);
+                $rspta2 = $this->promediostock($id_producto,$envase,$id_sucursal);
                     foreach ($rspta2 as $key => $value_3) {
                          $promstock = $value_3->promedioStock;
                              if($promstock>0){
@@ -800,7 +800,7 @@ $resultado = DB::table(DB::raw("({$combinado->toSql()}) as sub"))
 
     }
 
-    private function promediostock($id_producto,$envase){
+    private function promediostock($id_producto,$envase,$id_sucursal){
 
         $stockMedio = DB::table('adm__credecial_correos as a')
     ->select('a.stock_medio')->first(); 
@@ -810,11 +810,18 @@ $resultado = DB::table(DB::raw("({$combinado->toSql()}) as sub"))
             ->select('s.id_producto', DB::raw('IFNULL(AVG(s.stock), 0) as promedioStock'))
             ->where('s.id_producto', $id_producto)
             ->where('s.envase', $envase)
+            ->where('s.id_sucursal',$id_sucursal)
             ->groupBy('s.id_producto')
             ->get();
         return $promedioStock;        
         }else{
-            dd("encontruccion...");
+            $promedioStock = DB::table('sis__bitacora_stock_v2 as s')
+    ->select('s.id_producto', DB::raw('(s.suma / s.contador) as promedioStock'))
+    ->where('s.id_producto', $id_producto)
+    ->where('s.envase', $envase)
+    ->where('s.id_sucursal', $id_sucursal)
+    ->get();
+        return $promedioStock;            
         }
         
        
@@ -1282,27 +1289,48 @@ $resultado = DB::table(DB::raw("({$combinado->toSql()}) as sub"))
 
     }
 
-    public function fechascero($id_producto,$id_sucursal) {
+    public function fechascero($id_producto,$id_sucursal,$envase) {
 
           $stockMedio = DB::table('adm__credecial_correos as a')
     ->select('a.stock_medio')->first(); 
-    
+   
         if ($stockMedio->stock_medio==0||$stockMedio->stock_medio==1) {
  $fecha = DB::table('sis_bitacora_stock as s')
     ->selectRaw('MAX(s.fecha_ingreso) as fecha')
     ->where('s.id_producto', $id_producto)
     ->where('s.stock', '<>', 0)
+    ->where('s.envase', $envase)
     ->where('s.id_sucursal', $id_sucursal)
     ->get();
+       return $fecha;  
+        }else{
+             $fecha = DB::table('sis__bitacora_stock_v2 as s')
+    ->select('s.fecha_ingreso as fecha')
+    ->where('s.id_producto', $id_producto)
+    ->where('s.stock', '<>', 0)
+    ->where('s.envase', $envase)
+    ->where('s.id_sucursal', $id_sucursal)
+    ->get();
+  
+     if (count($fecha)>0) {            
         return $fecha;
         }else{
-            dd("en contruccion");
+           $fecha = DB::table('sis__bitacora_stock_v2 as s')
+    ->selectRaw('MAX(s.fecha_ingreso) as fecha')
+    ->where('s.id_producto', $id_producto)
+    ->where('s.stock', '<>', 0)
+    ->where('s.envase', $envase)
+    ->where('s.id_sucursal', $id_sucursal)
+    ->get();
+        return $fecha;     
+        }
+        
         }
 
        
     }
 
-   public function diascero($id_producto, $id_sucursal, $fecha_inicial)
+   public function diascero($id_producto, $id_sucursal, $fecha_inicial, $envase)
 {
       $stockMedio = DB::table('adm__credecial_correos as a')
     ->select('a.stock_medio')->first(); 
@@ -1311,23 +1339,65 @@ $resultado = DB::table(DB::raw("({$combinado->toSql()}) as sub"))
   $dias = DB::table('sis_bitacora_stock as s')
         ->where('s.id_producto', $id_producto)
         ->where('s.id_sucursal', $id_sucursal)
+        ->where('s.envase', $envase)
         ->whereBetween('s.fecha_ingreso', [
             DB::raw("DATE_ADD('$fecha_inicial', INTERVAL 1 DAY)"),
             DB::raw("CURRENT_DATE()")
         ])
         ->select(DB::raw('COUNT(s.stock) as dias'))
-        ->get();
+        ->get();    
     return $dias;
         }else{
-            dd("en contruccion");
+         $dias = DB::table('sis__bitacora_stock_v2 as s')
+        ->where('s.id_producto', $id_producto)
+        ->where('s.id_sucursal', $id_sucursal)
+        ->where('s.envase', $envase)
+        ->whereBetween('s.fecha_ingreso', [
+            DB::raw("DATE_ADD('$fecha_inicial', INTERVAL 1 DAY)"),
+            DB::raw("CURRENT_DATE()")
+        ])
+        ->select('s.contador as dias')
+        ->get();
+        if (count($dias)>0) {            
+        return $dias;
+        }else{
+           $dias = DB::table('sis__bitacora_stock_v2 as s')
+        ->where('s.id_producto', $id_producto)
+        ->where('s.id_sucursal', $id_sucursal)
+        ->where('s.envase', $envase)
+        ->whereBetween('s.fecha_ingreso', [
+            DB::raw("DATE_ADD('$fecha_inicial', INTERVAL 1 DAY)"),
+            DB::raw("CURRENT_DATE()")
+        ])
+        ->select(DB::raw('COUNT(s.contador) as dias'))     
+        ->get();
+        return $dias;     
         }
-  
+
+        }  
 }
 
-public function prospecto($id_producto, $id_sucursal, $fecha_inicial){
+public function prospecto($id_producto, $id_sucursal, $fecha_inicial,$envase){
+    $en="";
+    switch ($envase) {
+        case 'primario':
+            $en=1;
+            break;
+         case 'secundario':
+            $en=2;
+            break;
+             case 'terciario':
+            $en=3;
+            break;    
+        
+        default:
+           $en=0;
+            break;
+    }
     $perdido = DB::table('ven_prospectos as v')
     ->where('v.id_producto', $id_producto)
     ->where('v.id_sucursal', $id_sucursal)
+    ->where('v.envase', $en)
     ->whereBetween('v.created_at', [
         DB::raw("DATE_ADD('$fecha_inicial', INTERVAL 1 DAY)"),
         DB::raw("CURRENT_DATE()")
@@ -1339,7 +1409,7 @@ return $perdido;
 }
 
 public function get_modal_saldo_cero(Request $request){
-    $id_sucursal=$request->id_sucursal;
+    $id_sucursal=intval($request->id_sucursal);
     $limitador=intval($request->limitador);
     $limter_=0;
     switch ($limitador) {
@@ -1361,8 +1431,10 @@ public function get_modal_saldo_cero(Request $request){
     }
  
     $rspta = $this->saldocero($id_sucursal);
+  
      //declaramos un array
         $data = Array();
+        
         foreach ($rspta as $key => $value) {
            $id_producto = $value->id_producto;
            $codigo=$value->codigo;
@@ -1375,16 +1447,24 @@ public function get_modal_saldo_cero(Request $request){
             }else{
                 $producto = $value->nombre_producto." - ".$value->nombre_dis." ".$value->cantidad_dispenser_producto." ".$value->nombre_forma_farmaceutica;
             }
+           
              if($stock == 0){
-                $rspta1 = $this->fechascero($id_producto,$id_sucursal);  
-                         
-                foreach ($rspta1 as $key_2 => $value_2) {            
+                
+                $rspta1 = $this->fechascero($id_producto,$id_sucursal,$envase);                 
+                        
+          
+                foreach ($rspta1 as $key_2 => $value_2) {    
+
                     $fecha_inicial = $value_2->fecha;
-                     $rspta2 = $this->diascero($id_producto, $id_sucursal, $fecha_inicial); 
-                     foreach ($rspta2 as $key_3 => $value_3) {
+                    
+                    $rspta2 = $this->diascero($id_producto, $id_sucursal, $fecha_inicial, $envase); 
+                    
+                        foreach ($rspta2 as $key_3 => $value_3) {
                         $dias = $value_3->dias;
-                        $rspta3 = $this->prospecto($id_producto, $id_sucursal, $fecha_inicial);
+                        $rspta3 = $this->prospecto($id_producto, $id_sucursal, $fecha_inicial,$envase);
+                           
                             foreach ($rspta3 as $key_4 => $value_4) {
+                           
                             $perdido = $value_4->perdido;
                             //RESULTADO
                             $data[] = array(
@@ -1396,12 +1476,12 @@ public function get_modal_saldo_cero(Request $request){
                                 "dias"=>$dias,
                                 "perdido"=>$perdido
                             );
-                            }                       
+                            } 
+  
                      }
-                     
-                     
+                        
                 }
-               
+                            
             }
         }
         if($limitador==5){

@@ -8,6 +8,42 @@ use Illuminate\Support\Facades\DB;
 
 class InvConfiguracionStockController extends Controller
 {
+
+    public function updateSincro(Request $request){
+        try {
+            DB::beginTransaction();  
+                
+ $hora=$request->hora;
+        $activo=$request->activo;
+        $frecuencia=$request->frecuencia;
+        $id=$request->id;  
+        $id_sucursales=$request->id_sucursales;
+       
+       
+        $datos = [
+            'hora' => $hora,
+            'frecuencia' => $frecuencia,            
+            'activo' => $activo,
+            'id_sucursales'=> $id_sucursales          
+        ];
+
+        DB::table('log__sincro_ges_stock')
+            ->where('id', $id)            
+            ->update($datos);
+            DB::commit();
+        } catch (\Throwable $th) {
+            return $th;
+        }    
+    }
+
+    public function get_sincro_ges_stock(){
+        $hora=Carbon::now()->format('H:i:s');
+          $log = DB::table('log__sincro_ges_stock')
+    ->limit(1)
+    ->first();
+    return response()->json(['log' => $log,'hora'=>$hora]);
+    
+    }
      
     public function get_tabla_accion_stock(){
 
@@ -20,18 +56,19 @@ class InvConfiguracionStockController extends Controller
               }else{
                 $idsucursal=session('idsuc');             
               }  
-
+             
               $sucursalX=DB::table('adm__sucursals as s')
               ->select('s.id')
               ->where('s.activo', 1)
               ->where('s.id', $idsucursal)->get();
-              
-              if (count($sucursalX)<=0) {
-                return 0;
+            
+              if (count($sucursalX)<=0) {                
+                return 1000;
               }else{
+              
                      $fechaHoy = Carbon::now()->format('Y-m-d');
         $fechaMenos3 = Carbon::now()->subDays(3)->format('Y-m-d');  
- 
+                  
     $data = DB::table('log__tabla_accion_stock as ltas')
     ->join('users as u', 'u.id', '=', 'ltas.id_user')
     ->join('adm__sucursals as ass', 'ass.id', '=', 'ltas.id_sucursal')
@@ -61,17 +98,203 @@ class InvConfiguracionStockController extends Controller
     ->whereBetween('ltas.fecha', [$fechaMenos3, $fechaHoy])
     ->orderByDesc('ltas.id')
     ->get();
+       
     return $data;
-              }
+        
+        }
     }
 
-    public function storeBitacora_user_x_sucursal(Request $request){
-        try {
-              DB::beginTransaction();
-              $fechaHoy = Carbon::now()->format('Y-m-d');
+    public function storeBitacora_user_x_sucursal(Request $request){      
+            
               $data_sucursal=$request->data_sucursal;
-              $tipoTabla=$request->tipoTabla;
-              if ($data_sucursal==0) {
+              $tipoTabla=$request->tipoTabla;// muestra el tipode tabla stock 1 o stock 2 esto viene de configuracion
+              //0= defaul, 1=stock normal, 2=stock autmatico,3>etc
+              switch ($tipoTabla) {
+                case 1:
+                $a=$this->addTabla_1($data_sucursal,$tipoTabla);
+                return $a;
+                case 2:                
+                $a=$this->addTabla_2($data_sucursal,$tipoTabla);
+                return $a;             
+                default:
+                $a=$this->addTabla_1($data_sucursal,$tipoTabla);
+                return $a;    
+              }
+    }  
+
+    private function addTabla_2($data_sucursal,$tipoTabla){
+        try {
+        DB::beginTransaction();
+       
+        $fechaHoy = Carbon::now()->format('Y-m-d');
+                  if ($data_sucursal==0) {
+                 $id_user=auth()->user()->id;
+              $name_user=auth()->user()->name;
+              
+              $hora=Carbon::now()->format('H:i:s');
+              if ($id_user==1||$name_user=='admin') {
+                $idsucursal=1;
+                $nomsucursal="usuario admin";
+              }else{
+                $idsucursal=session('idsuc');
+                $nomsucursal=session('nomsucursal');
+              }            
+              // $table->tinyInteger('accion')->comment('1->modulo configuracion manual,2=otros 3....., 0=cierre de caja');
+                $data_2=[
+                    'id_user' => $id_user,
+                    'id_sucursal' => $idsucursal,
+                    'tipo_tabla' => $tipoTabla,
+                    'fecha' => $fechaHoy,
+                    'hora' => $hora,
+                    'accion' =>1   
+                ];
+                 DB::table('log__tabla_accion_stock')->insert($data_2);  
+                    
+                 $bd_2=$this->get_bitacora_v2();
+                  $generarstocks=$this->generarstocks($idsucursal);
+
+                  
+
+// Paso 1: Reindexar $bd_2 por id_producto (para búsquedas rápidas O(1))
+$mapaBitacora = [];
+foreach ($bd_2 as $registro) {
+    // Crear clave única combinando id_producto + envase + id_sucursal
+    $key = "{$registro->id_producto}_{$registro->envase}_{$registro->id_sucursal}";
+
+    // Guardar todo el registro en el mapa
+    $mapaBitacora[$key] = $registro;
+}
+
+// Paso 2: Recorrer los productos nuevos
+foreach ($generarstocks as $value) {
+    $idProducto = $value->id_producto;
+    $stockActual = $value->stock_total;
+    $envase=$value->envase;
+    
+    $key = "{$idProducto}_{$envase}_{$idsucursal}";
+    if (isset($mapaBitacora[$key])) {
+          
+        // Ya existe en bitácora
+        $registro_1 = $mapaBitacora[$key];
+            
+               $anterior = $registro_1->stock;
+        $contador = $registro_1->contador + 1;
+        $suma = $stockActual + $anterior;
+        $datos = [
+            'stock' => $stockActual,
+            'anterior' => $anterior,
+            'suma' => $suma,
+            'contador' => $contador,
+            'fecha_ingreso' => $fechaHoy,
+            'id_sucursal' => $idsucursal,
+            'envase' => $envase,
+        ];
+
+        DB::table('sis__bitacora_stock_v2')
+            ->where('id_producto', $idProducto)
+            ->where('id_sucursal', $idsucursal)
+            ->where('envase', $envase)
+            ->update($datos); 
+        
+
+        
+    } else {
+        // No existe → crear nuevo
+        $datos = [
+            'id_producto' => $idProducto,
+            'stock' => $stockActual,
+            'anterior' => 0,
+            'suma' => $stockActual,
+            'contador' => 1,
+            'fecha_ingreso' => $fechaHoy,
+            'id_sucursal' => $idsucursal,
+            'envase' => $value->envase,
+        ];
+
+        DB::table('sis__bitacora_stock_v2')->insert($datos);
+    }
+}
+              }else{
+                //---- caso dos por sucursales----
+                $idsucursal=$data_sucursal;
+                $bd_2=$this->get_bitacora_v2();
+                  $generarstocks=$this->generarstocks($idsucursal);
+
+// Paso 1: Reindexar $bd_2 por id_producto (para búsquedas rápidas O(1))
+$mapaBitacora = [];
+foreach ($bd_2 as $registro) {
+    // Crear clave única combinando id_producto + envase + id_sucursal
+    $key = "{$registro->id_producto}_{$registro->envase}_{$registro->id_sucursal}";
+
+    // Guardar todo el registro en el mapa
+    $mapaBitacora[$key] = $registro;
+}
+// Paso 2: Recorrer los productos nuevos
+foreach ($generarstocks as $value) {
+    $idProducto = $value->id_producto;
+    $stockActual = $value->stock_total;
+    $envase=$value->envase;
+    
+    $key = "{$idProducto}_{$envase}_{$idsucursal}";
+   if (isset($mapaBitacora[$key])) {
+        // Ya existe en bitácora
+        $registro_1 = $mapaBitacora[$key];          
+        $anterior = $registro_1->stock;
+        $contador = $registro_1->contador + 1;
+        $suma = $stockActual + $anterior;
+
+        $datos = [
+            'stock' => $stockActual,
+            'anterior' => $anterior,
+            'suma' => $suma,
+            'contador' => $contador,
+            'fecha_ingreso' => $fechaHoy,
+            'id_sucursal' => $idsucursal,
+            'envase' => $value->envase,
+        ];
+
+         DB::table('sis__bitacora_stock_v2')
+            ->where('id_producto', $idProducto)
+            ->where('id_sucursal', $idsucursal)
+            ->where('envase', $envase)
+            ->update($datos);      
+
+        
+    } else {
+        // No existe → crear nuevo
+        $datos = [
+            'id_producto' => $idProducto,
+            'stock' => $stockActual,
+            'anterior' => 0,
+            'suma' => $stockActual,
+            'contador' => 1,
+            'fecha_ingreso' => $fechaHoy,
+            'id_sucursal' => $idsucursal,
+            'envase' => $value->envase,
+        ];
+
+        DB::table('sis__bitacora_stock_v2')->insert($datos);
+    }
+}
+           
+              }
+        
+        DB::commit();
+        } catch (\Throwable $th) {
+            return $th;
+        }
+    }
+
+    private function get_bitacora_v2(){
+        $datos = DB::table('sis__bitacora_stock_v2')->get();
+        return $datos;    
+    }
+
+    private function addTabla_1($data_sucursal,$tipoTabla){
+           try {
+                  DB::beginTransaction();
+                  $fechaHoy = Carbon::now()->format('Y-m-d');
+                  if ($data_sucursal==0) {
                  $id_user=auth()->user()->id;
               $name_user=auth()->user()->name;
               
@@ -124,17 +347,11 @@ class InvConfiguracionStockController extends Controller
            DB::table('sis_bitacora_stock')->insert($datos_3);   
                     }    
               }
-            
-             
-              DB::commit();
-        } catch (\Throwable $th) {
+                  DB::commit();
+           } catch (\Throwable $th) {
             return $th;
-        }
-    }    
-
-
-
-
+           }
+    }
 
 
     private function  generarstocks($id_sucursal){  
@@ -306,7 +523,6 @@ $resultado = DB::table(DB::raw("({$combinado->toSql()}) as sub"))
     )
     ->get();
 
-    return $resultado;        
-
+    return $resultado;     
     }
 }

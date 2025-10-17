@@ -66,6 +66,7 @@ use App\Http\Controllers\LogVehiculoController;
 use App\Http\Controllers\GesPreVenta2Controller;
 use App\Http\Controllers\GestionPerimsoController;
 use App\Http\Controllers\GetController;
+use App\Http\Controllers\InvAutoGestionStockController;
 use App\Http\Controllers\InvConfiguracionStockController;
 use App\Http\Controllers\InvGestionStockController;
 use App\Http\Controllers\ParDescuentoController;
@@ -641,7 +642,12 @@ Route::group(['middleware' => 'auth'], function () {
     
     //---configuracion stock 
     Route::post('/configuracion-stock/añadirBitacora', [InvConfiguracionStockController::class, 'storeBitacora_user_x_sucursal']);
-    Route::get('/configuracion-stock/listarTabla', [InvConfiguracionStockController::class, 'get_tabla_accion_stock']);     
+    Route::get('/configuracion-stock/listarTabla', [InvConfiguracionStockController::class, 'get_tabla_accion_stock']);   
+    Route::put('/configuracion-stock/cargardatoSincro', [InvConfiguracionStockController::class, 'updateSincro']);  
+    Route::get('/configuracion-stock/listarSincro', [InvConfiguracionStockController::class, 'get_sincro_ges_stock']);  
+    
+    //---autogestion stock
+    Route::get('/auto-gestion-stock/listarGestorStock', [InvAutoGestionStockController::class, 'getGestorStockModal']);    
          
     /////////////////////////////////LOGISTICO///////////////////////////////////////
     Route::get('/vehiculo/listarSucursal', [LogVehiculoController::class, 'listarSucursal']);

@@ -9,19 +9,19 @@
         <!-- inicio de index -->
         <div class="container-fluid">
     <div class="card">
-        <div class="card-header">
-           
-            <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
-                
-              
+        <div class="card-header">           
+            <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">             
                 <li class="nav-item">
                     <a class="nav-link" @click="listarStockMedio();listarTabla();listarSucursalLista();" id="pills-bitacora-tab" data-toggle="pill" href="#pills-bitacora" role="tab" aria-controls="pills-bitacora" aria-selected="false">Bitacora stock</a>
-                </li>                         
+                </li>    
+                <li class="nav-item" v-show="puedeHacerOpciones_especiales==1">
+                    <a class="nav-link" @click="listarSincroGesStock();listarSucursalLista();" id="pills-sincro-tab" data-toggle="pill" href="#pills-sincro" role="tab" aria-controls="pills-sincro" aria-selected="false">Sincronizar hora</a>
+                </li>                     
             </ul>
+           
         </div>
         <div class="card-body">           
-             <div class="tab-content" id="pills-tabContent">
-                  
+             <div class="tab-content" id="pills-tabContent">                  
 <!--------------------------------------------------------------------------------------------------------------------------------------------->
         
                     <div class="tab-pane fade" id="pills-bitacora" role="tabpanel" aria-labelledby="pills-bitacora-tab">
@@ -82,13 +82,13 @@
             </div>
             </div>
             <div class="alert alert-danger" role="alert" v-else>
-                <h3>LA SUCURSAL NO ESTA ACTIVADA CONCTATE CON EL ADMINISTRADOR</h3>
+                <h3>LA SUCURSAL NO ESTA ACTIVADA CONTÁCTESE CON EL ADMINISTRADOR</h3>
             </div>
         </div>
     </div>
   </div>
   <!-------------------sucursales ---------------------------->
-  <div class="card">
+  <div class="card" v-show="puedeHacerOpciones_especiales==1">
     <div class="card-header" id="headingTwo">
       <h5 class="mb-0">
         <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
@@ -133,7 +133,94 @@
                         </div>
                     </div>        
 <!---------------------------------------------------------------------------------------------------------------------------->
-            </div>            
+                    <div class="tab-pane fade" id="pills-sincro" role="tabpanel" aria-labelledby="pills-sincro-tab">
+                        <div class="card">
+                            <div class="card-header">
+                               Sincronizacion de hora
+                            </div>
+                            <div class="card-body">
+                                 <form action="" class="form-horizontal">  
+                            <table class="table table-bordered table-striped table-sm table-responsive" >
+                <thead>
+                    <tr>
+                        <th class="col-md-2">Hora de sincronización</th>
+                        <th class="col-md-2">Frecuencia para la sincronización</th>
+                        <th class="col-md-2">Sucursales</th>
+                        <th class="col-md-2">A en enviar</th> 
+                        <th class="col-md-1">En lista</th>                                               
+                        <th class="col-md-1">Hora server</th>
+                        <th class="col-md-1">Estado</th>                        
+                        <th class="col-md-1">Accion</th>                             
+                    </tr>
+                </thead>
+                <tbody>
+                        <tr>
+                            <td class="col-md-2"><input  type="time" class="form-control" v-model="horaS"></td>
+                            <td class="col-md-2">
+                                <select  class="form-control"  v-model="selectFrecuencia">
+                                            <option value="0" disabled selected>Seleccionar...</option>
+                                            <option value="1">Ejecutar todos los días</option>
+                                            <option value="2">Ejecutar el ultimo dia de la semana laboral</option>
+                                            <option value="3">Ejecutar el último día del mes</option>
+                                            <option value="4">Ejecutar cada trimestre el día 1</option>                                                                                                                          
+                                </select>
+                            </td>
+                            <td  class="col-md-2">
+                         <select class="form-control" v-model="selectSucurlsa">
+                                    <option disabled value="0">Seleccionar...</option>
+                                    <option v-for="(item, index) in arraySucursal" 
+                                        :key="index" 
+                                    :value="item.id">
+                                {{ item.razon_social }}
+                                </option>
+                                </select>
+                             <button  type="button" class="btn btn-secondary btn-sm btn-block" v-if="selectSucurlsa=='0'" > Añadir / Quitar</button>     
+                             <button  type="button" class="btn btn-primary btn-sm btn-block" v-else @click="añadirS(selectSucurlsa)"> Añadir / Quitar</button>     
+                             
+                            </td>
+                            <td class="col-md-2">
+                                {{arrayListaS}}
+                            </td>
+                            <td class="col-md-1">{{ id_sucursales}}</td>
+                            <td class="col-md-1">
+                                <span class="badge badge-pill badge-dark">{{timeServerS}}</span>
+                            </td>
+                            <td class="col-md-1">
+                                <span class="badge badge-pill badge-success" v-if="activoS==1">Activo</span>
+                                <span class="badge badge-pill badge-danger" v-else>Desactivado</span>
+                            </td>
+                            <td class="col-md-1">
+                                <button  type="button" class="btn btn-warning btn-sm btn-block" v-if="activoS==1" style="color: white;" @click="actualziarSincro()"><i class="fa fa-simplybuilt" aria-hidden="true"></i> Sincronización</button>     
+                                <button  type="button" class="btn btn-secondary btn-sm btn-block" v-else style="color: white;" @click="actualziarSincro()"><i class="fa fa-simplybuilt" aria-hidden="true"></i> Sincronización</button>                               
+                            </td>
+                        </tr>
+                </tbody>
+                </table> 
+                            <table class="table table-bordered table-striped table-sm table-responsive" >
+                                <thead>
+                                    <tr>
+                                        <th class="col-md-2">Estado</th>
+                                        <th class="col-md-10">Informe</th>
+                                    </tr>                                    
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="col-md-2">
+                                            <span class="badge badge-pill badge-success" v-if="estadoS==0">Sin errores</span>
+                                            <span class="badge badge-pill badge-danger" v-else>Observado</span>
+                                        </td>
+                                        <td class="col-md-10">{{informeS}}</td>
+                                    </tr>
+                                </tbody>
+                            </table>                   
+                          
+                        </form>
+                              
+                            </div>            
+                        </div>    
+                    </div>       
+            </div>  
+               
         </div>
     </div>
 </div>   
@@ -146,6 +233,7 @@ import Swal from "sweetalert2";
 import { error401 } from "../../errores";
 import VueMultiselect from 'vue-multiselect';
 import { data } from "jquery";
+import { forEach } from "lodash";
 //Vue.use(VeeValidate);
 
 export default {
@@ -174,12 +262,26 @@ export default {
                     tipoStockMedio:100,
                     arrayTabla:[],
                     sucursalNoActivada:0,
+                //---------------sincro-----------------------
+            horaS:'',
+            timeServerS:'',
+            activoS:'',
+            selectFrecuencia:'0',
+            selectSucurlsa:'0',
+            id_S:'',
+            estadoS:'',
+            informeS:'',
+            arrayListaS:[],
+            cadenaEnviar:[],
+            id_sucursales:'',
                 //---permisos_R_W_S
                 puedeEditar:2,
                 puedeActivar:2,
                 puedeHacerOpciones_especiales:2,
                 puedeCrear:2,
                 //-----------   
+
+
                 
 
 
@@ -223,7 +325,7 @@ export default {
     methods: {
           //-----------------------------------permisos_R_W_S        
     listarPerimsoxyz() {
-                //console.log(this.codventana);
+           
     let me = this;   
         
     var url = '/gestion_permiso_editar_eliminar?win='+me.codventana;
@@ -231,7 +333,7 @@ export default {
     axios.get(url)
         .then(function(response) {
             var respuesta = response.data;
-            console.log(respuesta);
+    
             if(respuesta=="root"){
             me.puedeEditar=1; 
             me.puedeActivar=1;
@@ -247,7 +349,7 @@ export default {
         })
         .catch(function(error) {
             error401(error);
-            console.log(error);
+        
         });
 },
 //-------------------------------------------------------------- 
@@ -265,7 +367,34 @@ export default {
             me.pagination.current_page = page;
         //   me.listarIndex(page);
         },
-        
+
+        añadirS(id){
+            let me=this;
+            let nom="";
+            me.id_sucursales="";
+         
+             let seleccion = me.arraySucursal.find(
+                    (element) => element.id === id,
+                );
+   
+                if (seleccion) {                   
+                     nom =seleccion.razon_social;
+                }
+
+if (me.cadenaEnviar.includes(id)) {
+ 
+    me.cadenaEnviar = me.cadenaEnviar.filter(f => f !== id);
+    me.arrayListaS = me.arrayListaS.filter(f => f !== nom);
+}else{
+
+    me.cadenaEnviar.push(id);    
+    me.arrayListaS.push(nom); 
+}
+let cadena = me.cadenaEnviar.join(',');
+me.id_sucursales=cadena;          
+        },
+
+           
         listarSucursalLista() {
             let me = this;   
             me.arraySucursal=[];    
@@ -273,7 +402,8 @@ export default {
             axios.get(url)
                 .then(function (response) {
                     let respuesta = response.data;
-                    me.arraySucursal=respuesta;                                                  
+                    me.arraySucursal=respuesta;    
+                                                       
                 })
                 .catch(function (error) {
                     error401(error);
@@ -282,13 +412,14 @@ export default {
 
         listarTabla() {
             let me = this;   
-            me.arrayTabla=[];    
+            me.arrayTabla=[];   
+            me.sucursalNoActivada=0; 
            var url = "/configuracion-stock/listarTabla";
             axios.get(url)
                 .then(function (response) {
-                    let respuesta = response.data;
-                    if (respuesta==0) {
-                       me.sucursalNoActivada=1; 
+                    let respuesta = response.data;                  
+                    if (respuesta==1000 ) {                                                   
+                        me.sucursalNoActivada=1;                            
                     }else{                        
                        me.arrayTabla=respuesta;
                     }                               
@@ -297,10 +428,65 @@ export default {
                     error401(error);
                 });
         },
+        
+         actualziarSincro(){      
+            let me = this;
+      
+            if (me.id_sucursales==null||me.id_sucursales=="") {  
+                            Swal.fire("Error encontrado: ","Al menos se debe tener una sucursal en la lista","error",);                                
+                          }else{
+                if (me.activoS==1) {
+                    me.activoS=0;
+                } else {
+                    me.activoS=1;
+                }                  
+                axios.put("/configuracion-stock/cargardatoSincro", {                        
+                    'hora':me.horaS,
+                    'activo':me.activoS,
+                    'frecuencia':me.selectFrecuencia,
+                    'id':me.id_S, 
+                    'id_sucursales':me.id_sucursales                                       
+                    })
+                    .then(function (response) {               
+                          var respuesta = response.data;
+                          me.listarSincroGesStock();                        
+                          if (respuesta.length>=1) {  
+                            Swal.fire("Error encontrado: "+respuesta,"Haga click en Ok","error",);                                
+                          }else{
+                            Swal.fire("Operación realizada con exito.","Haga click en Ok","success",); 
+                          }                        
+                    })
+                   .catch(function (error) {                               
+            });
+                          }                            
+        },
+
+        listarSincroGesStock(){          
+            let me = this;   
+           var url = "/configuracion-stock/listarSincro";
+            axios.get(url)
+                .then(function (response) {
+                    let respuesta_1 = (response.data).hora;
+                    let respuesta_2 = (response.data).log;  
+                    me.horaS=respuesta_2.hora;
+                    me.timeServerS=respuesta_1;
+                 
+                    me.activoS=respuesta_2.activo;
+                    me.selectFrecuencia=respuesta_2.frecuencia; 
+                    me.id_S=respuesta_2.id; 
+                    me.estadoS=respuesta_2.error;
+                    me.informeS=respuesta_2.informe;
+                    me.id_sucursales=respuesta_2.id_sucursales;              
+                    
+                                             
+                })
+                .catch(function (error) {
+                    error401(error);
+                });
+        },
 
         actualziarTablaBitacora(data_succursal){      
-            let me = this;
-                  
+            let me = this;                  
                 axios.post("/configuracion-stock/añadirBitacora", {
                         'tipoTabla':  me.tipoStockMedio,
                         'data_sucursal': data_succursal                   
@@ -308,7 +494,7 @@ export default {
                     .then(function (response) {               
                           var respuesta = response.data;
                           me.listarTabla();
-                          console.log(respuesta);
+                      
                           if (respuesta.length>=1) {  
                             Swal.fire("Error encontrado: "+respuesta,"Haga click en Ok","error",);                                
                           }else{
@@ -326,7 +512,7 @@ export default {
                 .then(function (response) {
                     let respuesta = response.data;
                     me.tipoStockMedio=respuesta.stock_medio;
-                    console.log(me.tipoStockMedio);                               
+                                          
                 })
                 .catch(function (error) {
                     error401(error);
@@ -364,7 +550,8 @@ export default {
        
         //-------permiso E_W_S-----
         this.listarPerimsoxyz();      
-        //-------------------------      
+        //-------------------------     
+        this.listarSucursalLista(); 
     },
 };
 </script>

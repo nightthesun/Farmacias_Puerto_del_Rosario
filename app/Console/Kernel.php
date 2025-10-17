@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Models\Siat_Paramatros_sincronizacion;
 
+
 class Kernel extends ConsoleKernel
 {
 
@@ -23,6 +24,75 @@ class Kernel extends ConsoleKernel
     {
 
         
+
+        $tablaSincro_S=DB::table('log__sincro_ges_stock')->where('id', 1)->first();
+      
+        if ($tablaSincro_S->activo==1) {
+            $frecuencia=$tablaSincro_S->frecuencia;
+            $tabla_sucu=$tablaSincro_S->id_sucursales;          
+            $horaDB = Carbon::parse($tablaSincro_S->hora)->format('H:i');             
+              $evento= $schedule->call(function () use ($horaDB,$tabla_sucu) {        
+                    Log::info("Ejecutando tarea programada el  las {$horaDB}");
+                    // Aquí ejecutas la lógica de la tarea
+                     // Convertir a array
+             $tablasincro_23=DB::table('adm__credecial_correos')->where('id', 1)->first();       
+             $tipoTabla=$tablasincro_23->stock_medio;              
+             $cadena_error="";
+            $fechaHoy = Carbon::now()->format('Y-m-d');
+            $hora=Carbon::now()->format('H:i:s');
+            $vector = explode(',', $tabla_sucu);
+         $cadena_error="";
+          $error_z=0;
+            for ($i=0; $i < count($vector); $i++) { 
+                 $idsucursal = trim($vector[$i]); // elimina espacios extra
+                 
+                
+               switch ($tipoTabla) {
+                case 1:               
+                $a=$this->addTabla_1($idsucursal,$tipoTabla);
+                break;             
+                case 2:                
+                $a=$this->addTabla_2($idsucursal,$tipoTabla);
+                break;            
+                default:
+                $a=$this->addTabla_1($idsucursal,$tipoTabla);
+             break; 
+              }
+                $primeraLetra = substr($a, 0, 1); // obtiene el primer carácter
+            if ($primeraLetra=='S') {
+                $error_z=1;
+            }            
+              $cadena_error=$cadena_error." ".$a." Hora:".$hora." Fecha:".$fechaHoy;
+                   
+            } 
+             $datos = [
+            'informe' => $cadena_error,
+            'error' =>$error_z         
+        ];
+        DB::table('log__sincro_ges_stock')
+            ->where('id', 1)            
+            ->update($datos);
+                });   
+                    // Asignar la frecuencia según el valor en la base de datos
+        switch ($frecuencia) {
+            case 1:  // Diaria
+                $evento->dailyAt($horaDB);
+                break;
+            case 2:  // Semanal (Ejemplo: Viernes)
+                $evento->weeklyOn(5, $horaDB); // 5 = Viernes
+                break;
+            case 3:  // Último día del mes
+                $evento->lastDayOfMonth($horaDB);
+                break;
+            case 4:  // Trimestral (día 1 de enero, abril, julio, octubre)
+                $evento->quarterlyOn(1, $horaDB);
+                break;
+            default:
+                Log::info("Frecuencia no válida.");
+        }       
+ 
+        }
+
 
         $tareaActiva = DB::table('auto__sincronizacion')->where('id', 1)->first();
         $intentos=$tareaActiva->intentos;
@@ -253,6 +323,272 @@ class Kernel extends ConsoleKernel
     {
         $this->load(__DIR__.'/Commands'); // Carga los comandos personalizados
         require base_path('routes/console.php'); // Carga las rutas de consola
+    }
+
+     private function get_bitacora_v2(){
+        $datos = DB::table('sis__bitacora_stock_v2')->get();
+        return $datos;    
+    }
+
+    private function addTabla_1($data_sucursal,$tipoTabla){
+            try {
+                $fechaHoy = Carbon::now()->format('Y-m-d');              
+                $idsucursal=$data_sucursal;                
+                 $generarstocks=$this->generarstocks($idsucursal);
+                    foreach ($generarstocks as $key => $value) {   
+            $datos_3=[
+                'id_producto' => $value->id_producto,
+                'stock' => $value->stock_total,
+                'fecha_ingreso' => $fechaHoy, 
+                'id_sucursal' => $idsucursal,
+                'envase' => $value->envase,         
+            ];
+            
+           DB::table('sis_bitacora_stock')->insert($datos_3);  
+                    } 
+                    return "sucursal:".$data_sucursal." OK";
+            } catch (\Throwable $th) {
+                return "Sucursal:".$data_sucursal." Error:".$th;
+            }                    
+    }
+
+    private function addTabla_2($data_sucursal,$tipoTabla){
+       
+       try {
+        $fechaHoy = Carbon::now()->format('Y-m-d');                 
+                //---- caso dos por sucursales----
+                $idsucursal=$data_sucursal;
+                $bd_2=$this->get_bitacora_v2();
+                $generarstocks=$this->generarstocks($idsucursal);
+// Paso 1: Reindexar $bd_2 por id_producto (para búsquedas rápidas O(1))
+$mapaBitacora = [];
+foreach ($bd_2 as $registro) {
+    // Crear clave única combinando id_producto + envase + id_sucursal
+    $key = "{$registro->id_producto}_{$registro->envase}_{$registro->id_sucursal}";
+    // Guardar todo el registro en el mapa
+    $mapaBitacora[$key] = $registro;
+}
+// Paso 2: Recorrer los productos nuevos
+foreach ($generarstocks as $value) {
+    $idProducto = $value->id_producto;
+    $stockActual = $value->stock_total;
+    $envase=$value->envase;
+    
+    $key = "{$idProducto}_{$envase}_{$idsucursal}";
+   if (isset($mapaBitacora[$key])) {
+        // Ya existe en bitácora
+        $registro_1 = $mapaBitacora[$key];          
+        $anterior = $registro_1->stock;
+        $contador = $registro_1->contador + 1;
+        $suma = $stockActual + $anterior;
+
+        $datos = [
+            'stock' => $stockActual,
+            'anterior' => $anterior,
+            'suma' => $suma,
+            'contador' => $contador,
+            'fecha_ingreso' => $fechaHoy,
+            'id_sucursal' => $idsucursal,
+            'envase' => $value->envase,
+        ];
+
+         DB::table('sis__bitacora_stock_v2')
+            ->where('id_producto', $idProducto)
+            ->where('id_sucursal', $idsucursal)
+            ->where('envase', $envase)
+            ->update($datos);  
+    } else {
+        // No existe → crear nuevo
+        $datos = [
+            'id_producto' => $idProducto,
+            'stock' => $stockActual,
+            'anterior' => 0,
+            'suma' => $stockActual,
+            'contador' => 1,
+            'fecha_ingreso' => $fechaHoy,
+            'id_sucursal' => $idsucursal,
+            'envase' => $value->envase,
+        ];
+        DB::table('sis__bitacora_stock_v2')->insert($datos);
+    }
+}
+        return "sucursal:".$data_sucursal." OK";
+       } catch (\Throwable $th) {
+
+        return "Sucursal:".$data_sucursal." Error:".$th;
+       }        
+    }
+
+    private function  generarstocks($id_sucursal){  
+// Subconsulta gettion_tienda stock_total
+$gettionTienda = DB::table('prod__productos as pp')
+    ->join('tda__ingreso_productos as tip', 'tip.id_prod_producto', '=', 'pp.id')
+    ->join('tda__tiendas as tt','tt.id','=','tip.idtienda')
+    ->join('adm__sucursals as ass','tt.idsucursal','=','ass.id') 
+    ->join('pivot__modulo_tienda_almacens as pivot', function ($join) {
+        $join->on('pivot.id_ingreso', '=', 'tip.id')
+             ->where('pivot.tipo', '=', 'TDA');
+    })
+    ->join('ges_pre__venta2s as gpv2', 'gpv2.id_table_ingreso_tienda_almacen', '=', 'pivot.id')
+    ->join('prod__dispensers as pd', DB::raw("pd.id"), '=', DB::raw("
+        CASE 
+            WHEN tip.envase = 'primario' THEN pp.iddispenserprimario
+            WHEN tip.envase = 'secundario' THEN pp.iddispensersecundario
+            WHEN tip.envase = 'terciario' THEN pp.iddispenserterciario
+        END
+    "))
+    ->join('prod__forma_farmaceuticas as pff', DB::raw("pff.id"), '=', DB::raw("
+        CASE 
+            WHEN tip.envase = 'primario' THEN pp.idformafarmaceuticaprimario
+            WHEN tip.envase = 'secundario' THEN pp.idformafarmaceuticasecundario
+            WHEN tip.envase = 'terciario' THEN pp.idformafarmaceuticaterciario
+        END
+    "))
+    ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
+    ->select(
+        'pp.id as id_producto',
+        'pl.nombre as nombre_linea',
+        'pl.tiempo_demora',
+        'pp.nombre as nombre_producto',
+        DB::raw("
+            CASE
+                WHEN tip.envase = 'primario' THEN pp.tiempopedidoprimario
+                WHEN tip.envase = 'secundario' THEN pp.tiempopedidosecundario
+                WHEN tip.envase = 'terciario' THEN pp.tiempopedidoterciario
+                ELSE NULL
+            END as tiempo_producto
+        "),
+        'pd.nombre as nombre_dis',
+        DB::raw("
+            CASE
+                WHEN tip.envase = 'primario' THEN pp.cantidadprimario
+                WHEN tip.envase = 'secundario' THEN pp.cantidadsecundario
+                WHEN tip.envase = 'terciario' THEN pp.cantidadterciario
+                ELSE NULL
+            END as cantidad_dispenser_producto
+        "),
+        'pff.nombre as nombre_forma_farmaceutica',
+        DB::raw("
+            CASE
+                WHEN tip.envase = 'primario' THEN pp.preciolistaprimario
+                WHEN tip.envase = 'secundario' THEN pp.preciolistasecundario
+                WHEN tip.envase = 'terciario' THEN pp.preciolistaterciario
+                ELSE NULL
+            END as precio_lista_producto
+        "),
+        'tip.stock_ingreso',
+        'gpv2.utilidad_neto_gespreventa',
+        'gpv2.costo_compra_gespreventa',
+        'tip.envase',
+        DB::raw("'Tienda' as tipo")
+    )
+        ->where('ass.id',$id_sucursal);
+      
+        
+
+// Subconsulta gettion_almacen
+$gettionAlmacen = DB::table('prod__productos as pp')
+    ->join('alm__ingreso_producto as aip', 'aip.id_prod_producto', '=', 'pp.id')
+    ->join('alm__almacens as aa', 'aip.idalmacen', '=', 'aa.id')
+    ->join('adm__sucursals as ass', 'aa.idsucursal', '=', 'ass.id')
+
+    ->join('pivot__modulo_tienda_almacens as pivot', function ($join) {
+        $join->on('pivot.id_ingreso', '=', 'aip.id')
+             ->where('pivot.tipo', '=', 'ALM');
+    })
+    ->join('ges_pre__venta2s as gpv2', 'gpv2.id_table_ingreso_tienda_almacen', '=', 'pivot.id')
+    ->join('prod__dispensers as pd', DB::raw("pd.id"), '=', DB::raw("
+        CASE 
+            WHEN aip.envase = 'primario' THEN pp.iddispenserprimario
+            WHEN aip.envase = 'secundario' THEN pp.iddispensersecundario
+            WHEN aip.envase = 'terciario' THEN pp.iddispenserterciario
+        END
+    "))
+    ->join('prod__forma_farmaceuticas as pff', DB::raw("pff.id"), '=', DB::raw("
+        CASE 
+            WHEN aip.envase = 'primario' THEN pp.idformafarmaceuticaprimario
+            WHEN aip.envase = 'secundario' THEN pp.idformafarmaceuticasecundario
+            WHEN aip.envase = 'terciario' THEN pp.idformafarmaceuticaterciario
+        END
+    "))
+    ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
+    ->select(
+        'pp.id as id_producto',
+        'pl.nombre as nombre_linea',
+        'pl.tiempo_demora',
+        'pp.nombre as nombre_producto',
+        DB::raw("
+            CASE
+                WHEN aip.envase = 'primario' THEN pp.tiempopedidoprimario
+                WHEN aip.envase = 'secundario' THEN pp.tiempopedidosecundario
+                WHEN aip.envase = 'terciario' THEN pp.tiempopedidoterciario
+                ELSE NULL
+            END as tiempo_producto
+        "),
+        'pd.nombre as nombre_dis',
+        DB::raw("
+            CASE
+                WHEN aip.envase = 'primario' THEN pp.cantidadprimario
+                WHEN aip.envase = 'secundario' THEN pp.cantidadsecundario
+                WHEN aip.envase = 'terciario' THEN pp.cantidadterciario
+                ELSE NULL
+            END as cantidad_dispenser_producto
+        "),
+        'pff.nombre as nombre_forma_farmaceutica',
+        DB::raw("
+            CASE
+                WHEN aip.envase = 'primario' THEN pp.preciolistaprimario
+                WHEN aip.envase = 'secundario' THEN pp.preciolistasecundario
+                WHEN aip.envase = 'terciario' THEN pp.preciolistaterciario
+                ELSE NULL
+            END as precio_lista_producto
+        "),
+        'aip.stock_ingreso',
+        'gpv2.utilidad_neto_gespreventa',
+        'gpv2.costo_compra_gespreventa',
+        'aip.envase',
+        DB::raw("'Almacen' as tipo")
+    )
+    ->where('ass.id',$id_sucursal);
+
+// Unión de tienda y almacén
+$combinado = $gettionTienda->unionAll($gettionAlmacen);
+
+// Consulta principal con agrupación
+$resultado = DB::table(DB::raw("({$combinado->toSql()}) as sub"))
+    ->mergeBindings($combinado)
+    ->select(
+        'sub.id_producto',
+        'sub.nombre_linea',
+        'sub.tiempo_demora',
+        'sub.nombre_producto',
+        'sub.tiempo_producto',
+        'sub.nombre_dis',
+        'sub.cantidad_dispenser_producto',
+        'sub.nombre_forma_farmaceutica',
+        'sub.precio_lista_producto',
+        DB::raw('SUM(sub.stock_ingreso) AS stock_total'),
+        DB::raw('AVG(sub.utilidad_neto_gespreventa) AS utilidad_neta'),
+        DB::raw('AVG(sub.costo_compra_gespreventa) AS precio_unitario'),
+        'sub.envase',
+        'sub.tipo'
+    )
+    ->groupBy(
+        'sub.id_producto',
+        'sub.nombre_linea',
+        'sub.tiempo_demora',
+        'sub.nombre_producto',
+        'sub.tiempo_producto',
+        'sub.nombre_dis',
+        'sub.cantidad_dispenser_producto',
+        'sub.nombre_forma_farmaceutica',
+        'sub.precio_lista_producto',
+        'sub.envase',
+        'sub.tipo'
+    )
+    ->get();
+
+    return $resultado;     
     }
 
 
@@ -1383,4 +1719,6 @@ if ($transaccion && isset($transaccion[0])) {
         return $respuesta;   
       
     }
+
+
 }
