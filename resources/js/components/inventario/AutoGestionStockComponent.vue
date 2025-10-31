@@ -76,25 +76,55 @@
             <table class="table table-bordered table-striped table-sm table-responsive" >
                 <thead>
                     <tr>
-                        <th>Opciones</th>
-                        <th >Nro</th>
-                        <th>Distribuidor</th>
+                        <th>Opc.</th>
+                        <th>Nro</th>
                         <th>Linea</th>
                         <th>Producto</th>
-                        <th>Ciclo de stock</th>
-                        <th>Consumo promedio mensual</th>
-                        <th>Plazo de entrega</th>
-                        <th>Consumo promedio venta</th>
-                        <th>Stock maximo</th>
-                        <th>Stock medio</th>
-                        <th>Stock actual</th>
-                        <th>Stock pedido</th>
-                        <th>Indice de rotación</th>
-                        <th>Indice de cobertura</th>
+                        <th>Cic.Stock</th>
+                        <th>C.P.Mensual</th>
+                        <th>P.Entrega</th>
+                        <th>C.P.Venta</th>
+                        <th>S.Maximo</th>
+                        <th>S.Medio</th>
+                        <th>S.Actual</th>
+                        <th>S.Pedido</th>
+                        <th>I.Rotación</th>
+                        <th>I.Cobertura</th>
                         <th>Rentabilidad</th>
-                        <th>Estado</th>       
+                     
                     </tr>
                 </thead>
+                <tbody>
+                    <tr v-for="(i, index) in arrayIndex" :key="index"
+                      :style="i.color === 0 || i.color === 1 || i.color === 2 ? {
+  backgroundColor: i.color === 0 ? 'red' :
+                   i.color === 1 ? '#FFE300' :
+                   '#FF7300',
+  color: 'white',
+  fontWeight: 'bold'
+} : {}" >
+                        <td>
+                            <button type="button" class="btn btn-sm" style="background: transparent; border: none; color: white;" @click="accionModal(i)">
+                                <i class="fa fa-print" aria-hidden="true"></i>
+                            </button>
+                        </td>
+                        <td>{{ index }}</td>
+                        <td>{{ i.linea }}</td>
+                        <td>{{ i.producto }}</td>
+                        <td>{{ i.ciclo }}</td>
+                        <td>{{ i.consumo_mensual }}</td>
+                        <td>{{ i.plazo }}</td>
+                        <td>{{ i.consumo_dia }}</td>
+                        <td>{{ i.stmax }}</td>
+                        <td>{{ i.stmedio }}</td>
+                        <td>{{ i.stock_total }}</td>
+                        <td>{{ i.stpedido }}</td>
+                        <td>{{ i.indicerot }}</td>
+                        <td>{{ i.indicecober }}</td>
+                        <td>{{ i.rentabilidad }}</td>
+                                               
+                    </tr>
+                </tbody>
             </table>    
 
             <!-----fin de tabla------->
@@ -116,32 +146,229 @@
                             <span>&times;</span>
                         </button>
                     </div>
-                    <div class="modal-body">
-                        <div class="alert alert-warning" role="alert">
-                            Todos los campos con (*) son requeridos
-                        </div>
-                        <form action="" class="form-horizontal">
-                        
-                            <!-- insertar datos -->
-                            <div class="container">
+                     <div class="modal-body">
+ <div class="form-group row">
                                 
-                                <div class="form-group row">
-                                   
-                                   
-        
+                        <div class="col-md-2">
+                     <label for="">Distribuidor: <span v-show="selectDistriuidor=='0'" style="color: red;">(*)</span></label>
+                </div>
+                  <div class="col-sm-8">
+                                     <select v-model="selectDistriuidor" class="form-control">
+                                        <option value="0" disabled>Seleccionar...</option>
+                                        <option v-for="(i, index) in arrayDistriuidor" :key="index" :value="i.id" v-text="'Alias: '+i.alias+' Lineas relacionadas: '+i.nom_linea_array"></option>
+                                    </select>
+                    </div>                    
+                </div>
+                     </div>
+                   
+                    <div class="modal-body" style="max-height: 80vh; overflow-y: auto;">
+                        <div id="accordion">
+  <div class="card">
+    <div class="card-header" id="headingOne">
+      <h5 class="mb-0">
+        <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+          Collapsible Group Item #1
+        </button>
+      </h5>
+    </div>
+
+    <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
+      <div class="card-body">
+         <table class="table table-bordered table-striped table-sm table-responsive" >                    
+                                <thead>
+                                    <tr style="background-color: skyblue;">
+                                        <th class="col-md-1" style="color: white;">Opcion</th>
+                                        <th class="col-md-5" style="color: white;">Producto</th>
+                                        <th style="color: white;">Cant. dispenser</th>
+                                        <th style="color: white;">Precio lista</th>
+                                        <th style="color: white;">Importe</th>
+                                    </tr>
+                                </thead> 
+                                <tbody>
+                                    <tr v-for="(i, index) in arrayTop" :key="index">
+                                        <td class="col-md-1">                        
+                                        <button type="button" class="btn btn-danger" @click="quitarEleArray(i.id,index)">
+                                        <i class="fa fa-minus" aria-hidden="true"></i>
+                                        </button>
+                                        </td>
+                                        <td class="col-md-5">
+                                            <span>{{ "Linea: "+i.linea+" Prod: "+i.producto+" Envase: "+i.envase }}</span>                                            
+                                        </td>
+                                        <td class="col-md-2">
+                                            <input style="text-align: right;" class="form-control form-control-sm" type="number" v-model.number="arrayTop[index].dispedido" @keyup="sumar_top(index)"> 
+                                        </td>
+                                        <td class="col-md-2" style="text-align: right;">                                            
+                                            <span>{{ i.precio_lista+" " }}</span><span>{{ simbolo }}</span>                                        
+                                        </td>
+                                        <td class="col-md-2" style="text-align: right;">
+                                             <span>{{ i.subtotal+" " }}</span><span>{{simbolo}}</span>
+                                        </td>
+                                    </tr>
+                                    <tr style="background-color: skyblue;">
+                                        <td colspan="4" style="text-align: center;">                          
+                                            <strong style="text-align: center;color: white;" >SUB TOTAL</strong>                                                       
+                                        </td>
+                                        <td class="col-md-2" style="text-align: right;">
+                                            <span>{{subTotal_modal_superior+" "}}</span><span>{{simbolo}}</span>
+                                         </td>
+                                    </tr>
+                                </tbody>           
+                            </table>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header" id="headingTwo">
+      <h5 class="mb-0">
+        <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+          Collapsible Group Item #2
+        </button>
+      </h5>
+    </div>
+    <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion">
+      <div class="card-body">
+         <table class="table table-bordered table-striped table-sm table-responsive" >                    
+                    <thead>
+                        <tr style="background-color: skyblue; color: white;">
+                            <th class="col-md-7">Producto</th>                           
+                            <th class="col-md-2">Precio de lista</th>
+                            <th class="col-md-3">Cantidad</th>                            
+                        </tr>                        
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td  class="col-md-7">
+                                    <VueMultiselect
+                        v-model="select_distribuidor_x_producto"
+                        
+                        :options="arraySelect_distribuidor_x_producto"
+                        :max-height="190"                   
+                        :block-keys="['Tab', 'Enter']"                       
+                        placeholder="Seleccione una opción"
+                        label="id" 
+                        :custom-label="nameWithLang_2"                     
+                        track-by="id"
+                        class="w-200"
+                        selectLabel="Añadir a seleccion"
+                        deselectLabel="Quitar seleccion"
+                        selectedLabel="Seleccionado">
+                       <template #noResult>
+                        No se encontraron elementos. Considere cambiar la consulta de búsqueda.
+                      </template>
+                    </VueMultiselect> 
+                            </td>
+                            <td  class="col-md-2">
+                                <span v-if="select_distribuidor_x_producto" style="text-align: right;">
+                                    {{select_distribuidor_x_producto.preciolista+" "+simbolo}}
+                                </span>
+                                <span style="text-align: right;" v-else>
+                                    0.00
+                                </span>
+                            </td>
+                            <td  class="col-md-3">
+                                <div v-if="select_distribuidor_x_producto" class="d-flex align-items-center gap-2">
+                                    <input style="text-align: right;" class="form-control form-control-sm" type="number" v-model="input_bot">
+                                    <button type="button" class="btn btn-primary"  @click="añadir_elemento_array_bot()"><i class="fa fa-plus" aria-hidden="true"></i></button>   
                                 </div>
-                              
+                                <div v-else>
+                                    <span style="text-align: right;">0</span>
+                                </div>  
+                            </td>
+                        </tr>                      
+                    </tbody>    
+                </table>
+                 <table class="table table-bordered table-striped table-sm table-responsive" >                    
+                    <thead>
+                        <tr style="background-color: skyblue; color: white;">
+                            <th>Opciones</th>
+                            <th class="col-md-2">Linea</th>
+                            <th class="col-md-1">Cod.Prod</th>
+                            <th class="col-md-3">Producto</th>
+                            <th class="col-md-2">Pre.Lista</th>
+                            <th class="col-md-1">Cantidad</th>
+                            <th class="col-md-3">Sub Total</th>
+                        </tr>                        
+                    </thead>
+                    <tbody>
+                        <tr v-for="f in arrayInferior_falso" :key="f.id">
+                            <td>
+                                <button type="button" class="btn btn-danger" @click="quitarArrayFalsoBot(f.contador)">
+                                <i class="fa fa-minus" aria-hidden="true"></i>
+                                </button>
+                            </td>
+                            <td class="col-md-2">
+                                {{f.linea_nombre}}
+                            </td>
+                            <td class="col-md-1">
+                                {{f.codigoProducto}}
+                            </td>
+                            <td class="col-md-3">
+                                {{f.nom_prod}}
+                            </td>
+                            <td class="col-md-2">
+                                {{f.preciolista+" "+simbolo}}
+                            </td>    
+                            <td class="col-md-1">
+                                {{f.cantidadFalsa}}
+                            </td>    
+                            <td class="col-md-3">
+                                {{f.subTotal_falso+" "+simbolo}}
+                            </td>                       
+                        </tr>
+                        <tr style="background-color: skyblue; color: white;">
+                            <td colspan="6" style="align-items: center;">
+                                <strong style="text-align: center;">SUMATORIA</strong>
+                            </td>
+                            <th class="col-md-3">
+                                <span>{{sumatoriaBot+" "+simbolo}}</span>
+                            </th>
+                        </tr>                      
+                    </tbody>    
+                </table>      
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header" id="headingThree">
+      <h5 class="mb-0">
+        <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+          Collapsible Group Item #3
+        </button>
+      </h5>
+    </div>
+    <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordion">
+        <div class="card-body">
+            <button type="button" class="btn btn-primary" @click="listarIndiceVenta()">Consultar</button>
+              <table class="table table-bordered table-striped table-sm table-responsive" >                    
+                    <thead>
+                        <tr style="background-color: skyblue; color: white;">
+                            <th>Codigo</th>
+                            <th>Producto</th>
+                            <th>Cant. venta</th>
+                            <th>Tipo</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr >
                             
-                               
-                            </div>
-                        </form>
+                        </tr>
+                    </tbody>
+              </table>              
+        </div>
+    </div>
+  </div>
+</div>
+                       
+                           
+                        
                     </div>
                   
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" @click="cerrarModal('registrar')">
                             Cerrar
                         </button>
-                        <button type="button" v-if="tipoAccion == 1" class="btn btn-primary" :disabled="!sicompleto">
+                        <button type="button" v-if="tipoAccion == 1" class="btn btn-primary">
                             Guardar
                         </button>
                         <button type="button" v-if="tipoAccion == 2" class="btn btn-primary">
@@ -164,8 +391,10 @@
 <script>
 import Swal from "sweetalert2";
 import { error401 } from "../../errores";
+import VueMultiselect from 'vue-multiselect';
 //Vue.use(VeeValidate);
 export default {
+    components: { VueMultiselect},
     data() {
         return {
             pagination: {
@@ -179,20 +408,76 @@ export default {
             showModal: false,
             //offset:3,
 
+            arrayIndex:[],
+
             tituloModal: "",
             sucursalSeleccionada:0,
             arraySucursal:[],
             buscar:"",
             tipoAccion:1,
-            startDate: '',
-      endDate: '',
+            
 
             tipoSelect:'0',
-         
-      
+
+            //-----modal
+            arrayModalEnvio:[],
+            nomEmpresa:'',
+            numDocumen:'',
+            plazo:'',
+            fechaPago:'',
+            fechaPedido:'',
+            Entrega:'',
+            Distribuidor:'',
+            FacturarA:'',
+            formaPago:'',
+            total:0,
+
+            simbolo:'',
+            importe_total:0,
+
+            arrayDistriuidor:[],
+            selectDistriuidor:'0',
+            id_linea:0,
+            arrayTop:[],
+            bandela:0,
+            inputTop:[],
+            subTotal_modal_superior:0,
+
+            nomDist:'',
+            idsLineas:'',
+
+            select_distribuidor_x_producto:null,
+            arraySelect_distribuidor_x_producto:[],
+            input_bot:1,
+            arrayInferior_falso:[],
+            sumatoriaBot:0,
+            count:0,
+
+            arrayModalConsultarVenta:[],
+
         };
     },
 
+    watch: {
+        selectDistriuidor: function (newValue) {
+        
+            if (this.arrayDistriuidor.length>0) {               
+                let distribuidorSeleccionado = this.arrayDistriuidor.find(
+                    (element) => element.id === newValue,
+                );                
+                if (distribuidorSeleccionado) {
+                    this.idsLineas=distribuidorSeleccionado.id_linea_array;
+                    this.nomDist=distribuidorSeleccionado.alias;
+                    this.modalMedio();
+                    this.arrayInferior_falso=[];
+                    this.sumatoriaBot=0;
+                    this.count=0;
+                    this.select_distribuidor_x_producto=null;   
+                    this.input_bot=1;
+                }              
+            }
+        },   
+    },
     
 
     computed: {
@@ -236,13 +521,277 @@ export default {
 
         cambioOpcion(data){
             let me = this;
+            me.arrayIndex=[];
             if (data=="1") {
                  me.sucursalSeleccionada=0;
                  me.listarIndex();
             } else {
               me.sucursalSeleccionada=0;
+            }          
+        },
+
+        accionModal(data){
+            let me=this;
+            me.arrayDistriuidor=[];
+            me.selectDistriuidor="0";  
+            me.id_linea=data.id_linea;
+            me.arrayTop=[];
+            me.simbolo="";
+            me.importe_total=0;
+            me.subTotal_modal_superior=0;
+            me.nomDist="";
+            me.idsLineas="";
+            me.select_distribuidor_x_producto=null;
+            me.arraySelect_distribuidor_x_producto=[];
+            me.input_bot=1;
+             
+            me.arrayInferior_falso=[];
+            me.sumatoriaBot=0;
+            me.count=0;
+            me.listarDistribuidores(me.id_linea,data.linea);   
+            if (me.bandela==1) {
+                Swal.fire("Error nivel 1 encontrado: ","No existe el distribuidor relacionado con la linea. "+data.linea,"error",);  
+            } else{
+                me.modalSuperior();
+                
+               if (me.bandela==2) {
+               Swal.fire("Error nivel 2 encontrado: ","No existe datos para la tabla superior con la linea. "+data.linea,"error",);       
+               }else{                
+                me.abrirModal('registrar',data); 
+                           
+               }
             }
-          
+           // me.modalSuperior();
+           // me.listarModalAlerta_inferior(linea_es);
+           // me.abrirModal('registrar',data);        
+        },
+
+       nameWithLang_2 ({linea_nombre,nom_prod,dis_nom,cantidad,nom_for_farmaceutica}) {            
+            return `${linea_nombre}: ${nom_prod} - ${dis_nom} X ${cantidad} ${nom_for_farmaceutica}`
+          },  
+
+    sumar_top(id){
+        let me=this;
+        const element=0;
+        console.log(id);
+        if( me.inputTop[id]!="" || me.inputTop[id]!=null || me.inputTop[id]>=0){
+             parseFloat(me.arrayTop[id].subtotal=(me.arrayTop[id].dispedido)*me.arrayTop[id].precio_lista).toFixed(2);
+            let suma = 0;
+    for (let i = 0; i < me.arrayTop.length; i++) {
+      suma += Number(me.arrayTop[i].subtotal || 0);
+    }
+         me.subTotal_modal_superior=parseFloat(suma).toFixed(2);
+        }
+      },
+
+       quitarArrayFalsoBot(id){
+            let me=this;         
+            me.arrayInferior_falso = me.arrayInferior_falso.filter(item => item.contador !== id);
+             let suma = 0;
+            for (let ii = 0; ii < me.arrayInferior_falso.length; ii++) {
+                suma += Number(me.arrayInferior_falso[ii].subTotal_falso || 0);
+            }
+         me.sumatoriaBot=parseFloat(suma).toFixed(2);
+        },
+
+          añadir_elemento_array_bot() {
+    let me = this;    
+    if (me.count<0 || me.input_bot<=0 || me.input_bot==""|| me.input_bot==null ) {
+        me.cerrarModal('alerta');
+        alert("error de entrada valor negativo o nulos");
+    }
+    me.count=me.count+1;
+    let subTotal_falso=(me.select_distribuidor_x_producto).preciolista * me.input_bot;
+    me.arrayInferior_falso.push({ 
+        contador:me.count,
+        id_prod: (me.select_distribuidor_x_producto).id_prod,
+        id_linea: (me.select_distribuidor_x_producto).id_linea,
+        linea_nombre: (me.select_distribuidor_x_producto).linea_nombre,
+        codigoProducto: (me.select_distribuidor_x_producto).codigoProducto,
+        nom_prod: (me.select_distribuidor_x_producto).nom_prod,
+        distribuidor_nom: (me.select_distribuidor_x_producto).distribuidor_nom,
+        id_dispenser: (me.select_distribuidor_x_producto).id_dispenser,
+        cantidad: (me.select_distribuidor_x_producto).cantidad,
+        tiempo_pedido: (me.select_distribuidor_x_producto).tiempo_pedido,
+        dis_nom: (me.select_distribuidor_x_producto).dis_nom,
+        nom_for_farmaceutica: (me.select_distribuidor_x_producto).nom_for_farmaceutica,
+        preciolista: (me.select_distribuidor_x_producto).preciolista,
+        precioventa: (me.select_distribuidor_x_producto).precioventa,
+        
+        cantidadFalsa:me.input_bot,
+        subTotal_falso: parseFloat(subTotal_falso).toFixed(2),
+        moneda:me.simbolo
+    });
+    me.select_distribuidor_x_producto=null;
+   
+        me.input_bot=1;
+         let suma = 0;
+            for (let ii = 0; ii < me.arrayInferior_falso.length; ii++) {
+                suma += Number(me.arrayInferior_falso[ii].subTotal_falso || 0);
+            }
+ me.sumatoriaBot=parseFloat(suma).toFixed(2);
+},
+
+      quitarEleArray(id,i){
+            let me=this;         
+            me.arrayTop = me.arrayTop.filter(item => item.id !== id);
+             let suma = 0;
+            for (let ii = 0; ii < me.arrayTop.length; ii++) {
+                suma += Number(me.arrayTop[ii].subtotal || 0);
+            }
+         me.subTotal_modal_superior=parseFloat(suma).toFixed(2);
+        },
+        
+        modalSuperior() {
+        let me = this;             
+           var url = "/auto-gestion-stock/listarAlertaModalSuperior?id_sucursal="+me.sucursalSeleccionada+"&tipo="+me.tipoSelect+"&id_linea="+me.id_linea;
+            axios
+                .get(url)
+                .then(function (response) {
+                    let respuesta = response.data;  
+                    me.arrayTop =respuesta.arrayMostrar;  
+                    console.log(respuesta);                 
+                   
+                    me.importe_total=respuesta.importe_total;
+                    
+                    if (me.arrayTop.length>=1) {
+                        let count_2=0;
+                        if ((respuesta.simbolos).simbolo==null||(respuesta.simbolos).simbolo=="") {
+                         me.simbolo="Bs";
+                    }else{
+                    me.simbolo=(respuesta.simbolos).simbolo;
+                    }
+                    me.subTotal_modal_superior=respuesta.importe_total;
+                    me.arrayTop.forEach(e => {
+                        if (count_2==0) {
+                            me.subTotal_modal_superior=e.subtotal;
+                        } else {
+                            me.subTotal_modal_superior=me.subTotal_modal_superior+e.subtotal;
+                        }
+                           count_2=1;
+                    });
+                    return me.bandela=0;
+                    } else{
+                        return me.bandela=2;
+                    }                         
+                })
+                .catch(function (error) {
+                    error401(error);
+                });
+        },
+        
+        
+        listarDistribuidores(id_linea,linea) {
+        let me = this;    
+           var url = "/auto-gestion-stock/listarDistribuidor?id="+id_linea;
+            axios
+                .get(url)
+                .then(function (response) {
+                    var respuesta = response.data;  
+                    me.arrayDistriuidor=respuesta;   
+                    if (me.arrayDistriuidor.length>=1) {
+                        if (me.arrayDistriuidor.length==1) {
+                            me.selectDistriuidor=me.arrayDistriuidor[0].id;
+                           
+                            return me.bandela=0;
+                        }               
+                    } else {
+                        return me.bandela=1;                        
+                    }                                
+                })
+                .catch(function (error) {
+                    error401(error);
+                });
+        },
+
+        listarIndiceVenta() {
+        let me = this;    
+        me.arrayModalConsultarVenta=[];
+           var url = "/auto-gestion-stock/listarIndiceVenta?data="+me.idsLineas+"&id_sucursal="+me.sucursalSeleccionada+"&tipo="+me.tipoSelect;
+            axios
+                .get(url)
+                .then(function (response) {
+                    var respuesta = response.data;
+                    if (respuesta.length>0) {                        
+                        respuesta.forEach(e => {
+                            if (e.cantidad_ingreso_tienda!=null) {
+                               let cantidad_ingreso_tienda= parseInt(e.cantidad_ingreso_tienda);
+                               let stock_ingreso_tienda=parseInt(e.stock_ingreso_tienda);
+                               let cs=cantidad_ingreso_tienda-stock_ingreso_tienda;
+                               let cantidad_venta=parseInt(e.cantidad_venta);
+                               let estado="";
+                               let estadoTra="";
+                               let estadoTotal="";
+                                    if (cs>=0) {
+                                        estado="Normal";
+                                    }else{
+                                        estado="Exceso de productos";
+                                    }
+                                    let c1=0.1;
+                                    let c2=0.25;
+                                    let c3=0.5;
+                                    let c4=0.75;
+                                    let c5=1;
+                                    let U=cantidad_venta+stock_ingreso_tienda;
+                                    let T=cantidad_ingreso_tienda-U;
+                                    if (T==0) {
+                                        estadoTra="Normal";
+                                    }else{
+                                        if (T<0) {
+                                            T=T*(-1);
+                                            estadoTra="Con traspaso";
+                                        } else {
+                                            estadoTra="Ingreso con decremento";
+                                        }
+                                    }
+                                    cantidad_ingreso_tienda=cantidad_ingreso_tienda+T;
+                                   let mid=cantidad_ingreso_tienda*c3;
+                                   if(cantidad_venta>mid){
+                                    mid=cantidad_ingreso_tienda*c4;
+                                        if (cantidad_ingreso_tienda>mid) {
+                                            estadoTotal="Consumó muy alto";
+                                        }else{
+                                            estadoTotal="Consumó alto";
+                                        }
+                                   }else{
+                                    if (cantidad_venta==mid) {
+                                        
+                                    }
+                                   }
+
+
+                            }
+                            me.arrayModalConsultarVenta.push({
+    codigo: e.codigo_prod,
+    nombre: e.nom_prod+" "+e.nombreD+" X "+e.cantidadF+" "+e.nombreF+" Envase: "+e.envase,
+    cantidad: e.cantidad_venta,
+});       
+                        });    
+                    }
+                    
+                    me.arrayModalConsultarVenta=respuesta;
+                    console.log(respuesta);                                               
+                })
+                .catch(function (error) {
+                    error401(error);
+                });
+        },
+       
+        
+        modalMedio() {
+            let me = this;
+           var url = "/auto-gestion-stock/listar_Producto_x_distribuidor?data="+me.idsLineas;
+            axios
+                .get(url)
+                .then(function (response) {
+                    var respuesta = response.data;  
+                    me.arraySelect_distribuidor_x_producto=respuesta;   
+                    console.log("-----------------------------------");
+                    console.log(me.arraySelect_distribuidor_x_producto);             
+                })
+                .catch(function (error) {
+                    error401(error);
+                });
         },
 
        listarIndex() {
@@ -251,7 +800,8 @@ export default {
             axios
                 .get(url)
                 .then(function (response) {
-                    var respuesta = response.data;                    
+                    var respuesta = response.data;  
+                    me.arrayIndex=respuesta.arrayMostrar;                  
                     console.log(respuesta);                 
                 })
                 .catch(function (error) {
@@ -299,45 +849,39 @@ export default {
          switch (accion) {
                 case "registrar": {
                     me.tipoAccion = 1;
-                    me.tituloModal = "Ejemplo titulo";
+                    me.tituloModal = "Crear pedido";
                     me.showModal = true;
                     me.classModal.openModal("registrar");
                     break;
                 }
                 case "actualizar": {
                     me.tipoAccion = 2;
-                   
-          
-            
                     me.classModal.openModal("registrar");
-
                     break;
                 }
             
             }
         },
 
-        fecha_inicial(){
-            // Obtener la fecha actual
-    const today = new Date();
-    // Obtener el año, mes y día actual
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, '0'); // Meses en JavaScript son de 0 a 11
-    const day = String(today.getDate()).padStart(2, '0');
-
-    // Asignar la fecha del primer día del mes al input de fecha de inicio
-    this.startDate = `${year}-${month}-01`;
-    // Asignar la fecha actual al input de fecha final
-    this.endDate = `${year}-${month}-${day}`;
-        },
+   
         cerrarModal(accion) {
             let me = this;
             if (accion == "registrar") {
                 me.classModal.closeModal(accion);
                 me.showModal = false;
-                me.tituloModal = " ";
-             
-             
+                me.tituloModal = "";
+                me.arrayModalEnvio=[];
+                me.nomEmpresa="";
+                me.numDocumen="";
+                me.plazo="";
+                me.fechaPago="";
+                me.fechaPedido="";
+                me.Entrega="";
+                me.Distribuidor="";
+                me.FacturarA="";
+                me.formaPago="";
+                me.total=0;
+                me.simbolo="";             
             }
         },
 
@@ -353,7 +897,7 @@ export default {
     mounted() {
         this.classModal = new _pl.Modals();
         this.sucursalFiltro();
-        this.fecha_inicial();
+     
         this.classModal.addModal("registrar");
     
     
@@ -379,3 +923,4 @@ export default {
   opacity: 0;
 }
 </style>
+<style src="vue-multiselect/dist/vue-multiselect.css"></style>

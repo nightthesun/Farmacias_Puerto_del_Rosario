@@ -648,7 +648,11 @@ Route::group(['middleware' => 'auth'], function () {
     
     //---autogestion stock
     Route::get('/auto-gestion-stock/listarGestorStock', [InvAutoGestionStockController::class, 'getGestorStockModal']);    
-         
+    Route::get('/auto-gestion-stock/listarAlertaModalSuperior', [InvAutoGestionStockController::class, 'alerta_modal_parte_superior']);   
+    Route::get('/auto-gestion-stock/listarDistribuidor', [InvAutoGestionStockController::class, 'getDistribuidor']);
+    Route::get('/auto-gestion-stock/listar_Producto_x_distribuidor', [InvAutoGestionStockController::class, 'getProducto_x_distribuidor']);   
+    Route::get('/auto-gestion-stock/listarIndiceVenta', [InvAutoGestionStockController::class, 'getIndiceConsumoXventa']);  
+        
     /////////////////////////////////LOGISTICO///////////////////////////////////////
     Route::get('/vehiculo/listarSucursal', [LogVehiculoController::class, 'listarSucursal']);
     Route::get('/vehiculo/listarUsuario', [LogVehiculoController::class, 'listarUsuario']);

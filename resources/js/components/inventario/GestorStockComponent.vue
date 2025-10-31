@@ -155,7 +155,7 @@
                              </div>                            
                         </td>
                         <td>{{a.id}}</td>
-                        <td>{{a.nom_distribuidor}}</td>
+                        <td>{{a.alias}}</td>
                         <td>{{a.linea}}</td>
                         <td>{{(a.fecha_pedido).split(" ")[0]}}</td>
                         <td>{{a.total_programacion+" "+a.simbolo}}</td>
@@ -437,7 +437,7 @@
 
                         <div class="modal-body" style="max-height: 80vh; overflow-y: auto;">
                   
-                                        <div id="accordion">
+<div id="accordion">
   <div class="card">
     <div class="card-header" id="headingOne">
       <h5 class="mb-0">
@@ -789,7 +789,7 @@
                                             <td class="col-md-1">{{a.dias}}</td>                                          
                                             <td class="col-md-1">{{a.perdido}}</td>
                                         </tr>
-                                    </tbody>
+                  </tbody>
                                 </table>
                             </div>
                         </form>
@@ -823,6 +823,7 @@
 <div class="alert alert-warning" role="alert" v-show="detectorError==1">
   <h4>El distribuidor tiene dublicidad.</h4>
 </div>
+
 <div class="alert alert-danger" role="alert" v-if="detectorError==2">
   <h2>No tiene distribuidor, tiene que crear el distribuidor en modulo <strong>Directorio/Distribuidor.</strong></h2>
 </div>
@@ -833,7 +834,9 @@
                             <div class="container">
                              <div class="form-group row">
                                    <strong class="col-md-2">Usuario: {{nomUsuarioModal}}</strong>  
-                                  <strong class="col-md-2">Distribuidor: {{nomDistribuidorModal}}</strong>  
+
+                                  <strong v-if="alias=='Sin formato'" class="col-md-2">Distribuidor: {{nomDistribuidorModal}}</strong>  
+                                  <strong v-else class="col-md-2">Distribuidor: {{alias}}</strong>  
                                   <strong class="col-md-2">Facturar: {{nomAfacturarModal}}</strong>  
                                   <strong class="col-md-3">Formato de Pago: {{formatoPagoModal}}</strong>
                                    <strong class="col-md-2">Plazo: {{plazoModal}}</strong>    
@@ -1130,6 +1133,7 @@ export default {
 
             nomUsuarioModal:'',
             nomDistribuidorModal:'',
+            alias:'',
             nomAfacturarModal:'',
             fechaPedidoModal:'',
             fechaPAgoModal:'',
@@ -1270,11 +1274,19 @@ export default {
                 ]
             ];
             // Itera sobre los datos y agrega fila a la tabla 
-         
-            me.arrayInicio.forEach(item =>{
+     
+         let cadena="";
+         let a=0;
+            me.arrayInicio.forEach(item =>{     
+                a=a+1;                
+                if (item.alias=='Sin formato') {                
+                  cadena=item.nom_distribuidor;  
+                }else{
+                  cadena=item.alias;              
+                }
                tableBody.push([
   {text: item.id, fontSize:7, alignment: 'center'},
-  {text: item.nom_distribuidor, fontSize:7, alignment: 'center'},
+  {text: cadena, fontSize:7, alignment: 'center'},
   {text: item.linea, fontSize:7, alignment: 'center'},
   {text: (item.fecha_pedido).split(" ")[0], fontSize:7, alignment: 'center'},
   {text: item.total_programacion+" "+item.simbolo, fontSize:7, alignment: 'center'},
@@ -1343,7 +1355,7 @@ export default {
         },
 
         descargarExcellIndex(){
-           let me = this;
+           let me = this;       
 // 1. Define columnas con títulos bonitos
 const columnas = [
   { key: 'id', titulo: 'Nro' },
@@ -1642,7 +1654,7 @@ XLSX.writeFile(wb, 'informe_stock_cero.xlsx');
 
     descargarPDFmodalIndex(simbolo,array_topModal,array_BottomModal,nom_empresa,numero_identificacion
             ,fecha_pago,distribuidor,fecha_pedido,NomFacturar,formatoEntrega,plazo,formatoPago,observacion,user,totalSumaModaltop,totalSumaModalbottom,totaltotal,error_v){
-  
+
                 // Define el contenido del PDF
   let watermark = {};      
       if (error_v===2) { // Aquí puedes poner tu condición
@@ -1859,14 +1871,14 @@ const tableBodyTotal = [
     },
 
      descargarPDFmodalIndex_2(simbolo,array_topModal,nom_empresa,numero_identificacion
-            ,fecha_pago,distribuidor,fecha_pedido,NomFacturar,formatoEntrega,plazo,formatoPago,observacion,user,totalSumaModaltop,totalSumaModalbottom,totaltotal,error_v){
+            ,fecha_pago,distribuidor,fecha_pedido,NomFacturar,formatoEntrega,plazo,formatoPago,observacion,user,totalSumaModaltop,totalSumaModalbottom,totaltotal,error_v,alias){
   
                 // Define el contenido del PDF
   let watermark = {};      
       if (error_v===2) { // Aquí puedes poner tu condición
   watermark = { text: 'Error de ditribuidor', color: 'red', angle: -45, opacity: 0.3, bold: true, italics: false, fontSize: 65 };
-}
-                
+}   
+            
     const tableBody = [
     // Agrega los encabezados de la tabla
     [
@@ -2060,10 +2072,8 @@ listarIndex(page){
         
         modalAlerta_open(id_distri,lineas,tipo,linea_es){
             let me = this;
-            me.id_distribuidor=id_distri;
-           
-            me.tipo_modal=tipo;
-            
+            me.id_distribuidor=id_distri;           
+            me.tipo_modal=tipo;            
             if (me.showSelector==1) {           
                  me.id_lineas=linea_es;
             me.listarModalAlerta_superior(me.tipo_modal,linea_es);
@@ -2614,8 +2624,8 @@ axios.post("/gestor-stock/modificarAlias", enviar)
             
         },
        
-        nameWithLang ({nom_a_facturar,nom_linea_array}) {            
-            return `Dist: ${nom_a_facturar} Linea: ${nom_linea_array}`
+        nameWithLang ({alias,nom_a_facturar,nom_linea_array}) {            
+            return `Dist: ${alias} Datos: ${nom_a_facturar} Linea: ${nom_linea_array}`
           },
 
         nameWithLang_2 ({linea_nombre,nom_prod,dis_nom,cantidad,nom_for_farmaceutica,tipo}) {            
@@ -2636,19 +2646,7 @@ axios.post("/gestor-stock/modificarAlias", enviar)
                 });
         },
 
-        listarStockMedio() {
-            let me = this;       
-           var url = "/gestor-stock/stockMedio";
-            axios
-                .get(url)
-                .then(function (response) {
-                    var respuesta = response.data;
-                    console.log(respuesta);           
-                })
-                .catch(function (error) {
-                    error401(error);
-                });
-        },
+       
 
          listarModalQuery_1_2(id,data,tipoA) {
             let me = this;    
@@ -2700,6 +2698,7 @@ axios.post("/gestor-stock/modificarAlias", enviar)
                                          
                     me.nomDistribuidorModal=data.nom_distribuidor;
                     me.nomAfacturarModal=data.nom_a_facturar;
+                    me.nomDistribuidorModal=data.alias;
                     me.detectorError=0;
                              
                         } else {
@@ -2759,16 +2758,17 @@ axios.post("/gestor-stock/modificarAlias", enviar)
 
                         if (me.tamañoQuery_2==0) {
                                         me.descargarPDFmodalIndex_2(me.simboloModal,me.arrayQuery_1Modal,nom_empresa,numero_identificacion
-            ,me.fechaPAgoModal,me.nomDistribuidorModal,me.fechaPedidoModal,me.nomAfacturarModal,me.turnoEntregaModal,me.plazoModal,me.formatoPagoModal,me.observacionModal,me.nomUsuarioModal,me.sumaTotalModal,me.sumaTotalModalinferior,me.sumaTotalModalTotal,me.detectorError);
+            ,me.fechaPAgoModal,me.nomDistribuidorModal,me.fechaPedidoModal,me.nomAfacturarModal,me.turnoEntregaModal,me.plazoModal,me.formatoPagoModal,me.observacionModal,me.nomUsuarioModal,me.sumaTotalModal,me.sumaTotalModalinferior,me.sumaTotalModalTotal,me.detectorError,me.alias);
 
                         } else {
                                         me.descargarPDFmodalIndex(me.simboloModal,me.arrayQuery_1Modal,me.arrayQuery_2Modal,nom_empresa,numero_identificacion
-            ,me.fechaPAgoModal,me.nomDistribuidorModal,me.fechaPedidoModal,me.nomAfacturarModal,me.turnoEntregaModal,me.plazoModal,me.formatoPagoModal,me.observacionModal,me.nomUsuarioModal,me.sumaTotalModal,me.sumaTotalModalinferior,me.sumaTotalModalTotal,me.detectorError);
+            ,me.fechaPAgoModal,me.nomDistribuidorModal,me.fechaPedidoModal,me.nomAfacturarModal,me.turnoEntregaModal,me.plazoModal,me.formatoPagoModal,me.observacionModal,me.nomUsuarioModal,me.sumaTotalModal,me.sumaTotalModalinferior,me.sumaTotalModalTotal,me.detectorError,me.alias);
 
                         }
             
                         me.nomUsuarioModal="";
                 me.nomDistribuidorModal="";
+                me.alias="";
                 me.nomAfacturarModal="";
                 me.fechaPedidoModal="";
                 me.fechaPAgoModal="";
@@ -2875,6 +2875,7 @@ axios.post("/gestor-stock/modificarAlias", enviar)
                     me.showModal_4 = true; 
                     me.nomUsuarioModal=data.nom_user;
                     me.nomDistribuidorModal=data.nom_distribuidor;
+                    me.alias=data.alias;
                     me.nomAfacturarModal=data.nom_a_facturar;
                     me.fechaPedidoModal=data.fecha_pedido;
                     me.fechaPAgoModal=data.fecha_pago;
@@ -2956,6 +2957,7 @@ axios.post("/gestor-stock/modificarAlias", enviar)
                 me.showModal_4=false;
                 me.nomUsuarioModal="";
                 me.nomDistribuidorModal="";
+                me.alias="";
                 me.nomAfacturarModal="";
                 me.fechaPedidoModal="";
                 me.fechaPAgoModal="";
@@ -3013,7 +3015,7 @@ axios.post("/gestor-stock/modificarAlias", enviar)
         this.classModal.addModal("show"); 
         this.classModal.addModal("index_show");   
         this.classModal.addModal("cambioAlias");  
-        this.listarStockMedio();
+       // this.listarStockMedio();
         //-------permiso E_W_S-----
         this.listarPerimsoxyz();
         //-----------------------        

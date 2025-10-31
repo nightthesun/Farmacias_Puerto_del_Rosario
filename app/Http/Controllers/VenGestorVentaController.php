@@ -689,6 +689,7 @@ $nombre_empresa = strtoupper($nombre_e);
             $cantidad_venta=$item['cantidad_venta'];
             $codigo_tienda_almacen=$item['codigo_tienda_almacen'];
             $descuento=$item['descuento'];
+            $envase=$item['envase'];
             $data_det_venta = [
                 'id_detalle_descuento'=>$id_contador,
                 'id_venta' => $id_recibo,          
@@ -700,7 +701,8 @@ $nombre_empresa = strtoupper($nombre_e);
                 'precio_venta' => $precio_venta,
                 'cantidad_venta' => $cantidad_venta,
                 'codigo_tienda_almacen'=>$codigo_tienda_almacen,
-                 'descuento'=>$descuento,
+                'descuento'=>$descuento,
+                'envase'=>$envase
                ];  
             DB::table('ven__detalle_ventas')->insert($data_det_venta);
 
@@ -2054,6 +2056,7 @@ $data_recibo = [
             $cantidad_venta=$item['cantidad_venta'];
             $codigo_tienda_almacen=$item['codigo_tienda_almacen'];
             $descuento=$item['descuento'];
+            $envase=$item['envase'];
             $data_det_venta = [
                 'id_detalle_descuento'=>$id_contador,
                 'id_venta' => $id_recibo,          
@@ -2066,6 +2069,7 @@ $data_recibo = [
                 'cantidad_venta' => $cantidad_venta,
                 'codigo_tienda_almacen'=>$codigo_tienda_almacen,
                  'descuento'=>$descuento,
+                 'envase'=>$envase
                ];  
             DB::table('ven__detalle_ventas')->insert($data_det_venta);
             // Si todo sale bien, confirmar la transacción

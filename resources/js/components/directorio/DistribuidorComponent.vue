@@ -88,7 +88,7 @@
                 <thead>
                     <tr>
                         <th class="col-md-1">Opciones</th>                       
-                        <th class="col-md-2">Nombre a facturar</th>
+                        <th class="col-md-2">Alias</th>
                         <th class="col-md-1">Nro documento </th>
                         <th class="col-md-1">Contacto</th>
                         <th class="col-md-1">Correo</th>
@@ -119,7 +119,7 @@
                             </div>   
                             </div>
                         </td>
-                        <td class="col-md-1">{{ i.nom_a_facturar }}</td> 
+                        <td class="col-md-1">{{ i.alias }}</td> 
                         <td class="col-md-2">{{ i.num_documento }}</td> 
                         <td class="col-md-1">{{ i.contacto }}</td> 
                         <td class="col-md-1">{{ i.correo }}</td> 
@@ -209,6 +209,19 @@
                                 <span v-if="selected==null" class="error">Debe Ingresar el Nombre del producto</span>
                             </div>                          
                             </div>
+                            <div class="container" v-show="selected!=null">
+                                    <div class="form-group row">
+                           <strong  class="col-md-3 form-control-label" for="text-input">Alias:</strong>
+                                <div class="col-md-7 input-group mb-3">
+                                            <input type="text" class="form-control rounded" placeholder="Puede cambiar este dato." v-model="alias">
+                                             
+                                        </div>
+                                        <div class="alert alert-warning" role="alert">
+                            Recuerde que este datos se puede cambiar a la necesidad de la ocación siempre tomara un dato si nombre esta sin datos tomara nombre a facturar, y el nombre se esta agarrando por defecto es: <strong v-if="selected!=null">{{selected.name_all}}</strong> <strong v-else> debe seleccionar</strong>. 
+                        </div>
+                        </div> 
+                            </div>
+                                   
                             <div v-if="selected===null" class="alert alert-info" role="alert">
                                     Debe seleccionar.
                                             </div>
@@ -396,6 +409,7 @@ export default {
  //limitado                    
  startDate: '',
             endDate: '',
+            alias:'',
 
         };
     },
@@ -493,6 +507,7 @@ export default {
                 .then(function (response) {
                     var respuesta = response.data;
                     me.options = respuesta;
+                    console.log(me.options);
                                
                 })
                 .catch(function (error) {
@@ -521,6 +536,17 @@ export default {
      
         editar(){
             let me = this;
+              let datoNom=me.selected.name_all.trim();
+              
+         
+            if (me.alias.trim()==="") {
+                console.log("input sin datos");
+                if (datoNom===null||datoNom==="") {                
+                me.alias=me.selected.nom_a_facturar; 
+                }else{
+                me.alias=me.selected.name_all;
+                }
+            }
             const ids = me.value.map(item => item.id).join(',');
             const nom = me.value.map(item => item.nombre).join(',');
             axios.post("/distribuidor/editar", {
@@ -530,7 +556,8 @@ export default {
                 id_distribuidor:me.id_distribuidor,
           
                 linea_nom:nom,
-                ids_linea:ids
+                ids_linea:ids,
+                alias:me.alias,
                                                               
                     })       
                     .then(function (response) {
@@ -554,6 +581,16 @@ export default {
         crear(){
             let me = this;
               // Si ya está enviando, no permitas otra solicitud
+            let datoNom=me.selected.name_all.trim();
+            if (me.alias.trim()==="") {
+                console.log("input sin datos");
+                if (datoNom===null||datoNom==="") {                
+                me.alias=me.selected.nom_a_facturar; 
+                }else{
+                me.alias=me.selected.name_all;
+                }
+            }
+            
       if (me.isSubmitting) return;
 
 me.isSubmitting = true; // Deshabilita el botón
@@ -564,7 +601,8 @@ me.isSubmitting = true; // Deshabilita el botón
                 id_cliente: me.selected.id,
                 selectTipo:me.selectTipo,
                 linea_nom:nom,
-                ids_linea:ids
+                ids_linea:ids,
+                alias:me.alias
                                
                     })       
                     .then(function (response) {
@@ -596,7 +634,7 @@ me.isSubmitting = true; // Deshabilita el botón
     const today = new Date();    
     // Obtener la fecha actual menos 5 días
     const startDate = new Date();
-    startDate.setDate(today.getDate() - 30);
+    startDate.setDate(today.getDate() - 180);
     // Formatear el año, mes y día para la fecha de inicio
     const startYear = startDate.getFullYear();
     const startMonth = String(startDate.getMonth() + 1).padStart(2, '0'); // Meses en JavaScript son de 0 a 11
@@ -636,6 +674,7 @@ me.isSubmitting = true; // Deshabilita el botón
                     me.selected =null;
                     me.contacto="Sin contacto...";
                     me.value=[];
+                    me.alias="";
                     me.classModal.openModal("registrar");
                     break;
                 }
@@ -643,6 +682,7 @@ me.isSubmitting = true; // Deshabilita el botón
                     me.tipoAccion = 2;
                      me.showModal = true;
                     me.isSubmitting=false;
+                  
                     if (me.selectTipo===1) {
                         me.tituloModal = "Registrar proveedor tipo persona"; 
                     } else {
@@ -656,9 +696,16 @@ me.isSubmitting = true; // Deshabilita el botón
             let cliente = me.arrayCliente.find(c => c.id === data.id_cliente);
             if (cliente) {
                 me.selected = cliente;
+                me.alias=data.alias;
+                if (me.alias==null||me.alias=="") {
+                    me.alias=me.selected.nom_a_facturar+" "+me.selected.name_all;  
+                } 
             } else {
                 me.selected = null;
+                 me.alias=""; 
             }
+         
+
        
             let array = (data.id_linea_array).split(',').map(Number);
             array.forEach(function(item, index) {
@@ -671,6 +718,10 @@ me.isSubmitting = true; // Deshabilita el botón
             });      
                     me.contacto=data.contacto;
                     me.id_distribuidor=data.id;
+                   
+                   console.log("---------------------");
+                   
+                    console.log(me.alias);
                     me.classModal.openModal("registrar");
 
                     break;
@@ -690,7 +741,8 @@ me.isSubmitting = true; // Deshabilita el botón
                       me.showModal = false;
                 me.id_transaccion="";
                 me.tituloModal = "";
-                me.value=[];         
+                me.value=[];  
+                me.alias="";       
             }
         },
 

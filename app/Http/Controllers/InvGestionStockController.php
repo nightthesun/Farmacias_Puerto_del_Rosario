@@ -72,7 +72,8 @@ class InvGestionStockController extends Controller
         'u.name as nom_user',
         'igs.simbolo',
         'igs.activo',
-        'igs.id_linea'
+        'igs.id_linea',
+        'dd.alias'
     )
     ->join('dir__distribuidors as dd', 'igs.id_distribuidor', '=', 'dd.id')
     ->join('dir__clientes as dc', 'dc.id', '=', 'dd.id_cliente')
@@ -115,7 +116,8 @@ $consulta2 = DB::table('inv__gestion_stocks as igs')
         'u.name as nom_user',
         'igs.simbolo',
         'igs.activo',
-        'igs.id_linea'
+        'igs.id_linea',
+         DB::raw("'Sin formato' as alias") 
     )
     ->join('prod__lineas as pl', 'pl.id', '=', 'igs.id_linea')
     ->join('users as u', 'u.id', '=', 'igs.id_usuario')
@@ -173,7 +175,8 @@ $resultados = $consulta1
         'u.name as nom_user',
         'igs.simbolo',
         'igs.activo',
-        'igs.id_linea'
+        'igs.id_linea',
+        'dd.alias'
     )
     ->join('dir__distribuidors as dd', 'igs.id_distribuidor', '=', 'dd.id')
     ->join('dir__clientes as dc', 'dc.id', '=', 'dd.id_cliente')
@@ -215,7 +218,8 @@ $consulta2 = DB::table('inv__gestion_stocks as igs')
         'u.name as nom_user',
         'igs.simbolo',
         'igs.activo',
-        'igs.id_linea'
+        'igs.id_linea',
+        DB::raw("'Sin formato' as alias") 
     )
     ->join('prod__lineas as pl', 'pl.id', '=', 'igs.id_linea')
     ->join('users as u', 'u.id', '=', 'igs.id_usuario')
@@ -293,7 +297,7 @@ $elementos = array_filter(explode(',', $id_linea_array));
         $id_linea = $valor;
    
         //obtenemos el resultado del metodo total venta
-          $rspta = $this->alerta_query($id_linea);
+          $rspta = $this->alerta_query($id_linea,$id_sucursal);
            
           foreach ($rspta as $key => $value) {
         
@@ -532,7 +536,7 @@ $elementos = array_filter(explode(',', $id_linea_array));
      
          $query = DB::table('dir__distribuidors as dd')
         ->join('dir__clientes as dc', 'dd.id_cliente', '=', 'dc.id')
-        ->select('dd.id','dd.id_cliente','dd.id_linea_array','dd.nom_linea_array','dc.nom_a_facturar','dc.num_documento')
+        ->select('dd.id','dd.id_cliente','dd.id_linea_array','dd.nom_linea_array','dc.nom_a_facturar','dc.num_documento','dd.alias')
         ->where('dd.estado', 1)
         ->orderByDesc('dd.id')  // También puedes usar ->orderBy('dd.id', 'desc')
         
@@ -827,7 +831,7 @@ $resultado = DB::table(DB::raw("({$combinado->toSql()}) as sub"))
        
     }
 
-    private function alerta_query($id_linea){ 
+    private function alerta_query($id_linea,$id_sucursal){ 
 
     $today = Carbon::now()->toDateString();
 
@@ -841,6 +845,7 @@ $tienda = DB::table('ven__detalle_ventas as vdv')
     ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
     ->join('ven__recibos as vr', 'vr.id', '=', 'vdv.id_venta')
     ->where('pl.id', $id_linea)
+    ->where('vr.id_sucursal',$id_sucursal)
     ->whereDate('vr.created_at', '<=', $today)
     ->whereRaw("
         DATE(vr.created_at) >= DATE_SUB(
@@ -870,7 +875,8 @@ $almacen = DB::table('ven__detalle_ventas as vdv')
     ->join('prod__productos as pp', 'pp.id', '=', 'vdv.id_producto')
     ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
     ->join('ven__recibos as vr', 'vr.id', '=', 'vdv.id_venta')
-    ->where('pl.id', 1)
+    ->where('pl.id', $id_linea)
+    ->where('vr.id_sucursal',$id_sucursal)
     ->whereDate('vr.created_at', '<=', $today)
     ->whereRaw("
         DATE(vr.created_at) >= DATE_SUB(

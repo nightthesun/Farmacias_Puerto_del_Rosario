@@ -24,6 +24,7 @@ return new class extends Migration
             $table->integer('cantidad_venta');
             $table->string('codigo_tienda_almacen',25)->nullable();    
             $table->decimal('descuento', 11, 2);
+            $table->string('envase')->nullable();
         });
     }
 

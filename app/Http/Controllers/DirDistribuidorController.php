@@ -62,7 +62,8 @@ class DirDistribuidorController extends Controller
                         'dc.num_documento',
                         'dc.telefono',
                         'u.name',
-                        'dd.id_cliente'
+                        'dd.id_cliente',
+                        'dd.alias'
                     )
                     ->join('dir__clientes as dc', 'dc.id', '=', 'dd.id_cliente')
                     ->join('dir__personas as dpe', 'dpe.id', '=', 'dc.id_per_emp')
@@ -100,7 +101,8 @@ class DirDistribuidorController extends Controller
                         'dc.num_documento',
                         'dc.telefono',
                         'u.name',
-                        'dd.id_cliente'
+                        'dd.id_cliente',
+                        'dd.alias'
                     )
                     ->join('dir__clientes as dc', 'dc.id', '=', 'dd.id_cliente')
                     ->join('dir__personas as dpe', 'dpe.id', '=', 'dc.id_per_emp')
@@ -158,7 +160,8 @@ class DirDistribuidorController extends Controller
                             'dc.num_documento',
                             'dc.telefono',
                             'u.name',
-                            'dd.id_cliente'
+                            'dd.id_cliente',
+                             'dd.alias'
                         )
                         ->join('dir__clientes as dc', 'dc.id', '=', 'dd.id_cliente')
                         ->join('dir__empresas as de', 'de.id', '=', 'dc.id_per_emp')
@@ -195,7 +198,8 @@ class DirDistribuidorController extends Controller
                         'dc.num_documento',
                         'dc.telefono',
                         'u.name',
-                        'dd.id_cliente'
+                        'dd.id_cliente',
+                         'dd.alias'
                     )
                     ->join('dir__clientes as dc', 'dc.id', '=', 'dd.id_cliente')
                     ->join('dir__empresas as de', 'de.id', '=', 'dc.id_per_emp')
@@ -230,6 +234,7 @@ class DirDistribuidorController extends Controller
     public function store(Request $request)
     {
         try {
+            $alias = mb_strtoupper($request->alias, 'UTF-8');
             DB::beginTransaction();
             $crear = new Dir_Distribuidor();
             $crear->contacto=$request->contacto;
@@ -237,7 +242,8 @@ class DirDistribuidorController extends Controller
             $crear->id_linea_array=$request->ids_linea;
             $crear->nom_linea_array=$request->linea_nom;            
             $crear->tipo_persona_empresa=$request->selectTipo;     
-            $crear->id_usuario_registra=auth()->user()->id;      
+            $crear->id_usuario_registra=auth()->user()->id;   
+            $crear->alias=$alias;   
             $crear->save();
         
             DB::commit();    
@@ -253,6 +259,7 @@ class DirDistribuidorController extends Controller
     {
    
         try {
+             $alias = mb_strtoupper($request->alias, 'UTF-8');
             DB::beginTransaction();
             $e =Dir_Distribuidor::find($request->id_distribuidor);
             $e->contacto=$request->contacto;
@@ -260,7 +267,8 @@ class DirDistribuidorController extends Controller
             $e->id_linea_array=$request->ids_linea;
             $e->nom_linea_array=$request->linea_nom;     
             $e->tipo_persona_empresa=$request->selectTipo;      
-            $e->id_usuario_modifica=auth()->user()->id;      
+            $e->id_usuario_modifica=auth()->user()->id;  
+            $e->alias=$alias;   
             $e->save();
            //return DB::commit();
             DB::commit();    

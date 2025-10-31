@@ -82,7 +82,7 @@
                <th class="col-md-1">F. Ven</th>
                <th class="col-md-1">Descuento</th>
                <th class="col-md-1">Cantidad</th>
-               <th class="col-md-1">Accion</th>
+               <th class="col-md-1">Acción</th>
              </tr>
            </thead>
            <tbody>
@@ -2479,7 +2479,7 @@ me.importe_fiscal=me.monto_a_pagar;
             }
             let may_leyenda=(me.selected.leyenda).toUpperCase();
             me.codigo_tienda_almacen=me.selected.codigo_tienda_almacen;
-            me.array_vetasQuery.push({id_contador:me.controlador_venta_id,descuento: descuento,es_lista: es_lista,id_ges_pre:me.selected.id,id_ingreso:me.selected.id_ingreso,id_producto:me.selected.id_prod,id_linea:me.selected.id_linea,precio_venta:me.selected.precio_lista_gespreventa,cantidad_venta:me.numero,codigo_tienda_almacen:me.selected.codigo_tienda_almacen});
+            me.array_vetasQuery.push({id_contador:me.controlador_venta_id,descuento: descuento,es_lista: es_lista,id_ges_pre:me.selected.id,id_ingreso:me.selected.id_ingreso,id_producto:me.selected.id_prod,id_linea:me.selected.id_linea,precio_venta:me.selected.precio_lista_gespreventa,cantidad_venta:me.numero,codigo_tienda_almacen:me.selected.codigo_tienda_almacen,envase:me.selected.envase});
             me.arrayProducto_recibo_1.push({id_contador:me.controlador_venta_id,cant:me.numero,descrip:may_leyenda,p_u:me.selected.precio_lista_gespreventa,unidad_medida:me.selected.unidad_medida,descuento: descuento,cod_pro:me.selected.codigo_prod,codigoActividad:me.selected.codigoActividad,codigoProducto:me.selected.codigoProducto,id_unidad_me:me.selected.id_unidad_medida});
             if (me.validadorPersonal===7 || me.existe_final>0) {
             let sumador_21_sub = 0;
@@ -2507,7 +2507,7 @@ me.importe_fiscal=me.monto_a_pagar;
           }
         
             } catch (error) {
-                console.log(error);
+                error401(error);
             }          
         },
 
@@ -2820,9 +2820,8 @@ me.importe_fiscal=me.monto_a_pagar;
                     if (respuesta==="000") {
                       Swal.fire("Error","El usuario debe tener rubro, contacte al administrador...","warning",);
                     }else{
-                      me.arrayProducto = respuesta;
-                    }                   
-                
+                      me.arrayProducto = respuesta;                 
+                    } 
                 })
                 .catch(function (error) {
                     error401(error);
@@ -3544,7 +3543,7 @@ me.descuento_1=totalDescuento+me.descuento_final;
           })
           .catch(error => {
             me.isSubmitting = false; // Deshabilita el botón
-            console.log(error);
+      
           });
         } else {
           Swal.fire("Error","No existe el producto homologado","error"); 
@@ -3697,8 +3696,7 @@ me.descuento_1=totalDescuento+me.descuento_final;
                       
                 })
                 .catch(function (error) {
-                    error401(error);
-                    console.log(error);
+                    error401(error);        
                 });
         },
         

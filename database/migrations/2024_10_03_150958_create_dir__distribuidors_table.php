@@ -20,7 +20,8 @@ return new class extends Migration
             $table->tinyInteger('tipo_persona_empresa')->nullable();
             $table->smallInteger('id_usuario_registra')->nullable();
             $table->smallInteger('id_usuario_modifica')->nullable();
-            $table->tinyInteger('estado')->default(1); 
+            $table->tinyInteger('estado')->default(1);
+            $table->string('alias')->nullable(); 
             $table->timestamps();
         });
     }
