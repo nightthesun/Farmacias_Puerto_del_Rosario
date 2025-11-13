@@ -570,5 +570,15 @@ $resultado = $query1
 
 return response()->json($query); // buena práctica en API
     }
+
+    public function getDitribuidorNeedLinea(Request $request){
+        $idLinea=$request->id_linea;
+        $datos = DB::table('dir__distribuidors as dd')
+    ->select('dd.id', 'dd.nom_linea_array', 'dd.alias')
+    ->whereRaw('FIND_IN_SET(?, dd.id_linea_array)', [$idLinea])
+    ->where('dd.estado', 1)
+    ->get();
+    return $datos;
+    } 
     
 }

@@ -266,8 +266,7 @@ return response()->json([
                 'stock' => $value->stock_total,
                 'fecha_ingreso' => $fechaHoy, 
                 'id_sucursal' => $id_sucursal,
-                'envase' => $value->envase,
-            
+                'envase' => $value->envase,            
             ];
             
            DB::table('sis_bitacora_stock')->insert($datos_3);  
@@ -550,7 +549,6 @@ $data_1 = $moneda;
             }
 
     }
-
 
     ///funcion publica para la funcion caja cierra
 public function  generarstocks($id_sucursal){  

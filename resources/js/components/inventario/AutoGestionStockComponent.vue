@@ -338,24 +338,126 @@
     </div>
     <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordion">
         <div class="card-body">
-            <button type="button" class="btn btn-primary" @click="listarIndiceVenta()">Consultar</button>
-              <table class="table table-bordered table-striped table-sm table-responsive" >                    
+            <div class="form-group row">                               
+                        <div class="col-md-1">
+                            <label for="">Ciclo:</label>
+                        </div>
+                        <div class="col-sm-3">
+                                     <select v-model="selectCiclo" class="form-control">
+                                        <option value="0" disabled>Seleccionar...</option>
+                                        <option value="1">Un mes</option>
+                                        <option value="3">Tres meses</option>
+                                        <option value="6">Seis meses</option>
+                                        <option value="12">Doce meses</option>
+                                    </select>
+                        </div>
+                        <div class="col-md-1">
+                            <label for="">Tipo:</label>
+                        </div>
+                        <div class="col-sm-3">
+                                     <select v-model="selectTipoTiendaOAlmacen" class="form-control">
+                                        <option value="0" disabled>Seleccionar...</option>
+                                        <option value="1">Tienda</option>
+                                        <option value="2">Almacen</option>
+                                    </select>
+                        </div> 
+                        <div class="col-sm-3">
+                            <button type="button" class="btn btn-primary" @click="listarIndiceVenta()" :disabled="selectCiclo=='0' || selectTipoTiendaOAlmacen=='0'">Consultar</button>
+                        </div>  
+            </div>                
+            <br>
+            <div v-if="dataLoderd==1" >                
+                <label for="" style="font-family: 'Times New Roman', Times, serif; font-size: medium;">{{cargaDatos}}</label>
+            </div>
+            <div v-else>
+<table class="table table-bordered table-striped table-sm table-responsive" >                    
                     <thead>
                         <tr style="background-color: skyblue; color: white;">
-                            <th>Codigo</th>
-                            <th>Producto</th>
-                            <th>Cant. venta</th>
-                            <th>Tipo</th>
-                            <th>Estado</th>
+                            <th class="col-md-1">Codigo</th>
+                            <th class="col-md-4">Producto</th>
+                            <th >C.Venta</th>                            
+                            <th class="col-md-2">Estado 1</th>
+                            <th class="col-md-2">Estado 2</th>
+                            <th class="col-md-2">Estado 3</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr >
-                            
+                        <tr v-for="(i, index) in arrayModalConsultarVenta" :key="index">
+                            <td class="col-md-1">{{i.codigo}}</td>
+                            <td class="col-md-4">{{i.nombre}}</td>
+                            <td style="text-align: right;">{{i.cantidad}}</td>
+                            <td class="col-md-2">{{i.estado}}</td>
+                            <td class="col-md-2">{{i.estadoTra}}</td>
+                            <td class="col-md-2">{{i.estadoFinal}}</td>
                         </tr>
                     </tbody>
-              </table>              
+              </table>    
+            </div>
+                        
         </div>
+    </div>
+  </div>
+    <div class="card">
+    <div class="card-header" id="headingFour">
+      <h5 class="mb-0">
+        <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+          Collapsible Group Item #4
+        </button>
+      </h5>
+    </div>
+    <div id="collapseFour" class="collapse" aria-labelledby="headingFour" data-parent="#accordion">
+      <div class="card-body">
+        <div class="form-group row">                               
+            
+                       
+            <div class="col-sm-2">
+                <label for="">Tipo:</label>    
+                <select v-model="selectTipoTiendaOAlmacen2" class="form-control">
+                                        <option value="0" disabled>Seleccionar...</option>
+                                        <option value="1">Tienda</option>
+                                        <option value="2">Almacen</option>
+                </select>
+            </div> 
+           
+                
+         
+            <div class="col-sm-3">
+                <label for="">Intervalo inferior:</label>
+                <input type="text" class="form-control" v-model="intervaloIni" @input="intervaloIni = $event.target.value.replace(/\D/g, '')" placeholder="Numero"/>
+             </div>
+            <div class="col-sm-3">
+                <label for="">Intervalo superior:</label>
+                <input type="text" class="form-control" v-model="intervaloFin" @input="intervaloFin = $event.target.value.replace(/\D/g, '')" placeholder="Numero"/>
+              
+            </div>
+            <div class="col-sm-2">
+                <br> 
+                <button type="button" class="btn btn-secondary" v-if="selectTipoTiendaOAlmacen2=='0' || intervaloFin<0 || intervaloIni<0"  >Consultar</button>               
+                <button type="button" class="btn btn-primary" v-else @click="listarIndiceVentaX2()">Consultar</button>
+            </div>  
+        </div>
+        <div class="form-group row">
+                <table class="table table-bordered table-striped table-sm table-responsive" >                    
+                    <thead>
+                        <tr style="background-color: skyblue; color: white;">
+                            <th class="col-md-6">Producto</th>
+                            <th class="col-md-2">Fecha V.</th>                           
+                            <th class="col-md-2">Precio de lista</th>
+                            <th class="col-md-2">Cantidad</th>                            
+                        </tr>                        
+                    </thead>
+                </table>
+                <div class="col-md-2">
+                     <label for="">Producto:</label>
+                </div>
+                <div class="col-sm-8">
+                                     <select v-model="selectProducto_2" class="form-control">
+                                        <option value="0" disabled>Seleccionar...</option>
+                                        <option v-for="(i, index) in arrayProducto_2" :key="index" :value="i.id" v-text="i.nom_linea+' '+i.nombre+' - '+i.nom_farmace+' X '+i.nom_dispen+' Envase: '+i.envase"></option>
+                                    </select>
+                </div>                    
+        </div>                
+      </div>
     </div>
   </div>
 </div>
@@ -454,6 +556,16 @@ export default {
             count:0,
 
             arrayModalConsultarVenta:[],
+            selectCiclo:'0',
+            selectTipoTiendaOAlmacen:'0',
+            cargaDatos:'',
+            dataLoderd:0,
+
+            selectTipoTiendaOAlmacen2:'0',
+            intervaloIni:0,
+            intervaloFin:0,
+            selectProducto_2:'0',
+            arrayProducto_2:[],
 
         };
     },
@@ -519,6 +631,13 @@ export default {
 
     methods: {
 
+handleInput(e) {
+      // toma solo dígitos
+      const onlyDigits = e.target.value.replace(/\D+/g, '');
+      // evita valores vacíos => dejar cadena vacía o 0 según prefieras
+      this.intervaloIni = onlyDigits === '' ? '' : String(parseInt(onlyDigits, 10));
+    },
+
         cambioOpcion(data){
             let me = this;
             me.arrayIndex=[];
@@ -548,7 +667,16 @@ export default {
             me.arrayInferior_falso=[];
             me.sumatoriaBot=0;
             me.count=0;
-            me.listarDistribuidores(me.id_linea,data.linea);   
+            me.arrayModalConsultarVenta=[];
+            me.selectCiclo="1";
+            me.selectTipoTiendaOAlmacen="1";
+            me.listarDistribuidores(me.id_linea,data.linea);  
+            me.selectTipoTiendaOAlmacen2="1"; 
+
+            me.intervaloIni=0;
+            me.intervaloFin=0;
+            me.selectProducto_2="0";
+            me.arrayProducto_2=[];
             if (me.bandela==1) {
                 Swal.fire("Error nivel 1 encontrado: ","No existe el distribuidor relacionado con la linea. "+data.linea,"error",);  
             } else{
@@ -679,8 +807,7 @@ export default {
                     error401(error);
                 });
         },
-        
-        
+                
         listarDistribuidores(id_linea,linea) {
         let me = this;    
            var url = "/auto-gestion-stock/listarDistribuidor?id="+id_linea;
@@ -707,77 +834,134 @@ export default {
         listarIndiceVenta() {
         let me = this;    
         me.arrayModalConsultarVenta=[];
-           var url = "/auto-gestion-stock/listarIndiceVenta?data="+me.idsLineas+"&id_sucursal="+me.sucursalSeleccionada+"&tipo="+me.tipoSelect;
+            console.log("--------------**-");
+       me.cargaDatos="Consulta enviada...";                    
+                    me.dataLoderd=1;
+           var url = "/auto-gestion-stock/listarIndiceVenta?data="+me.idsLineas+"&id_sucursal="+me.sucursalSeleccionada+"&tipo="+me.tipoSelect+"&tipoAlmTienda="+me.selectTipoTiendaOAlmacen+"&intervalo="+me.selectCiclo;
             axios
                 .get(url)
                 .then(function (response) {
+                   
                     var respuesta = response.data;
-                    if (respuesta.length>0) {                        
+                    console.log(respuesta);
+                    if (respuesta.length>0) {     
+                        let c1=0.1;
+                                    let c2=0.25;
+                                    let c3=0.5;
+                                    let c4=0.59;
+                                    let c5=0.75;
+                                    let c6=0.9;                    
                         respuesta.forEach(e => {
-                            if (e.cantidad_ingreso_tienda!=null) {
-                               let cantidad_ingreso_tienda= parseInt(e.cantidad_ingreso_tienda);
-                               let stock_ingreso_tienda=parseInt(e.stock_ingreso_tienda);
+                            if (e.cantidad_ingreso!=null) {
+                               let cantidad_ingreso_tienda= parseInt(e.cantidad_ingreso);
+                               let stock_ingreso_tienda=parseInt(e.stock_ingreso);                            
                                let cs=cantidad_ingreso_tienda-stock_ingreso_tienda;
                                let cantidad_venta=parseInt(e.cantidad_venta);
                                let estado="";
                                let estadoTra="";
-                               let estadoTotal="";
+                               let estadoFinal="";
                                     if (cs>=0) {
                                         estado="Normal";
                                     }else{
                                         estado="Exceso de productos";
                                     }
-                                    let c1=0.1;
-                                    let c2=0.25;
-                                    let c3=0.5;
-                                    let c4=0.75;
-                                    let c5=1;
+                                    console.log(estado);
+                                                                       
                                     let U=cantidad_venta+stock_ingreso_tienda;
-                                    let T=cantidad_ingreso_tienda-U;
-                                    if (T==0) {
-                                        estadoTra="Normal";
+                                    let Traspaso=cantidad_ingreso_tienda-U;
+                                    if (Traspaso==0) {
+                                        estadoTra="Sin traspaso";
                                     }else{
-                                        if (T<0) {
-                                            T=T*(-1);
-                                            estadoTra="Con traspaso";
+                                        if (Traspaso<0) {
+                                            Traspaso=Traspaso*(-1);
+                                            estadoTra="Con traspaso: "+Traspaso;
                                         } else {
-                                            estadoTra="Ingreso con decremento";
+                                            estadoTra="Ingreso con decremento: "+Traspaso;
                                         }
                                     }
-                                    cantidad_ingreso_tienda=cantidad_ingreso_tienda+T;
-                                   let mid=cantidad_ingreso_tienda*c3;
-                                   if(cantidad_venta>mid){
-                                    mid=cantidad_ingreso_tienda*c4;
-                                        if (cantidad_ingreso_tienda>mid) {
-                                            estadoTotal="Consumó muy alto";
-                                        }else{
-                                            estadoTotal="Consumó alto";
-                                        }
+                                    console.log(estadoTra);
+                                    let trasCantiIngre=cantidad_ingreso_tienda+Traspaso;   
+                                                                   
+                                    c1=trasCantiIngre*0.1;
+                                   if(cantidad_venta<=c1){
+                                        estadoFinal="Consumo muy bajo";
                                    }else{
-                                    if (cantidad_venta==mid) {
-                                        
-                                    }
+                                    c2=trasCantiIngre*0.25;
+                                        if (cantidad_venta>c1 && cantidad_venta<=c2) {
+                                            estadoFinal="Consumo bajo";
+                                        }else{
+                                        c3=trasCantiIngre*0.5;    
+                                            if (cantidad_venta>c2 && cantidad_venta<=c3) {
+                                                estadoFinal="Consumo moderado";
+                                            }else{
+                                                c4=trasCantiIngre*0.59;  
+                                                if (cantidad_venta>c3 && cantidad_venta<=c4) {
+                                                    estadoFinal="Consumo normal";
+                                                }else{
+                                                    c5=trasCantiIngre*0.75; 
+                                                    if (cantidad_venta>c4 && cantidad_venta<=c5) {
+                                                        estadoFinal="Consumo alto";
+                                                    }else{
+                                                        c6=trasCantiIngre*0.90; 
+                                                        if (cantidad_venta>c5 && cantidad_venta<=c6) {
+                                                            estadoFinal="Consumo muy alto";
+                                                        }else{
+                                                            if (cantidad_venta>c6) {
+                                                                estadoFinal="Consumo óptimo";
+                                                            }else{
+                                                                estadoFinal="Error..";
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+
+                                        }
                                    }
-
-
+                                    me.arrayModalConsultarVenta.push({
+                            codigo: e.codigo_prod,
+                            nombre: e.nom_prod+" "+e.nombreD+" X "+e.cantidadF+" "+e.nombreF+" Envase: "+e.envase,
+                            cantidad: e.cantidad_venta,
+                            estado:estado,
+                            estadoTra:estadoTra,
+                            estadoFinal:estadoFinal,
+                            });  
+                            estadoFinal="";
+                            estadoTra="";
+                            estado="";
                             }
-                            me.arrayModalConsultarVenta.push({
-    codigo: e.codigo_prod,
-    nombre: e.nom_prod+" "+e.nombreD+" X "+e.cantidadF+" "+e.nombreF+" Envase: "+e.envase,
-    cantidad: e.cantidad_venta,
-});       
+                                
                         });    
                     }
                     
-                    me.arrayModalConsultarVenta=respuesta;
-                    console.log(respuesta);                                               
+                 me.dataLoderd=0;
+                    console.log(me.arrayModalConsultarVenta);                                               
+                })
+                .catch(function (error) {
+                    error401(error);
+                });
+        },  
+        
+
+
+        listarIndiceVentaX2() {
+        let me = this;       
+     
+           var url = "/auto-gestion-stock/listarIndicePrecio?data="+me.idsLineas+"&id_sucursal="+me.sucursalSeleccionada+"&tipo="+me.tipoSelect+"&tipoAlmTienda="+me.selectTipoTiendaOAlmacen+"&intervaloIni="+me.intervaloIni+"&intervaloFin="+me.intervaloFin;
+            axios.get(url)
+                .then(function (response) {
+                   
+                    var respuesta = response.data;
+                    me.arrayProducto_2=respuesta;
+                    console.log(respuesta);
+                                                                 
                 })
                 .catch(function (error) {
                     error401(error);
                 });
         },
-       
-        
+
+
         modalMedio() {
             let me = this;
            var url = "/auto-gestion-stock/listar_Producto_x_distribuidor?data="+me.idsLineas;
@@ -826,6 +1010,7 @@ export default {
                 });
         },
 
+        
         cambiarPestana(idPestana) {
             this.pestañaActiva = idPestana;
 
@@ -851,6 +1036,8 @@ export default {
                     me.tipoAccion = 1;
                     me.tituloModal = "Crear pedido";
                     me.showModal = true;
+                    me.cargaDatos="";                    
+                    me.dataLoderd=0;
                     me.classModal.openModal("registrar");
                     break;
                 }

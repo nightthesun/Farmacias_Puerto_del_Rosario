@@ -218,7 +218,7 @@ foreach ($generarstocks as $value) {
                 //---- caso dos por sucursales----
                 $idsucursal=$data_sucursal;
                 $bd_2=$this->get_bitacora_v2();
-                  $generarstocks=$this->generarstocks($idsucursal);
+                $generarstocks=$this->generarstocks($idsucursal);
 
 // Paso 1: Reindexar $bd_2 por id_producto (para búsquedas rápidas O(1))
 $mapaBitacora = [];

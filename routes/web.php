@@ -193,7 +193,10 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/listarTipoActividad', [GetController::class, 'getTipoActividad']);  
     Route::get('/listarRubro_venta', [GetController::class, 'getRubro']);  
     Route::get('/listarProducto_x_envase', [GetController::class, 'producto_x_envase']);
-    Route::get('/listarSucursalNormal', [GetController::class, 'onlySuscursal']);       
+    Route::get('/listarSucursalNormal', [GetController::class, 'onlySuscursal']);   
+    Route::get('/listarLinea', [GetController::class, 'onlySuscursal']);     
+    Route::get('/listarDistribuidorXlinea', [GetController::class, 'getDitribuidorNeedLinea']); 
+     
     
     /**********************verificador de apertura cierre retornod e datos****************************** */
     Route::get('/verificacionAperturaCierre', [GetController::class, 'listarAperturaCierre']);
@@ -652,6 +655,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/auto-gestion-stock/listarDistribuidor', [InvAutoGestionStockController::class, 'getDistribuidor']);
     Route::get('/auto-gestion-stock/listar_Producto_x_distribuidor', [InvAutoGestionStockController::class, 'getProducto_x_distribuidor']);   
     Route::get('/auto-gestion-stock/listarIndiceVenta', [InvAutoGestionStockController::class, 'getIndiceConsumoXventa']);  
+    Route::get('/auto-gestion-stock/listarIndicePrecio', [InvAutoGestionStockController::class, 'getIndiceConsumoXprecio']);      
         
     /////////////////////////////////LOGISTICO///////////////////////////////////////
     Route::get('/vehiculo/listarSucursal', [LogVehiculoController::class, 'listarSucursal']);

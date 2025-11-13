@@ -45,6 +45,9 @@
                 <li class="nav-item">
                     <a class="nav-link" id="pills-stockMedio-tab" data-toggle="pill" href="#pills-stockMedio" role="tab" aria-controls="pills-stockMedio" aria-selected="false">Stock medio</a>
                 </li> 
+                <li class="nav-item">
+                    <a class="nav-link" id="pills-configStockMedio-tab" data-toggle="pill" href="#pills-configStockMedio" role="tab" aria-controls="pills-configStockMedio" aria-selected="false" @click="botonConfiguracionAutomatica()">Configuración gestion stock</a>
+                </li> 
                        
             </ul>
         </div>
@@ -753,7 +756,7 @@
             <!-------------------------------------------------STOCK MEDIO------------------------------------------------------------------->
             <div class="tab-pane fade" id="pills-stockMedio" role="tabpanel" aria-labelledby="pills-stockMedio-tab">                    
                     <div class="card">
-                        <div class="card-header">Configuración de stock medio</div>
+                        <div class="card-header">Configuración de stock medio tipo tabla</div>
                         <div class="alert alert-warning" role="alert">
                          Esta configuración. Del uso de la tabla stock medio como preterminado ya que esta operacion afecta todo con lo dicho con gestion de stock.
                         </div>
@@ -801,7 +804,394 @@
                             </div>
                         </div>
                     </div>
-                </div>        
+                </div> 
+                
+            <!-------------------------------------------------CONFIGURACION STOCK MEDIO------------------------------------------------------------------->
+            <div class="tab-pane fade" id="pills-configStockMedio" role="tabpanel" aria-labelledby="pills-configStockMedio-tab"> 
+                <div id="accordion" v-if="puedeHacerOpciones_especiales===1" >   
+                         <button type="button" class="btn btn-primary "    style="margin-right: 10px;" @click="butonActivarDesactivar_2(1)">Activar</button>
+                         <button type="button" class="btn btn-secondary" style="color: white;" @click="butonActivarDesactivar_2(0)">Desactivar</button>  
+                   
+                    <div v-show="accionActivar_desactivar_2==1" style="margin-top: 16px;">
+                        <div class="card">
+    <div class="card-header" id="headingUno1">
+      <h5 class="mb-0">
+        <button class="btn btn-link" data-toggle="collapse" data-target="#collapseUno1" aria-expanded="false" aria-controls="collapseUno1">
+          Configuración de sucursal / Reloj
+        </button>
+      </h5>
+    </div>
+
+    <div id="collapseUno1" class="collapse" aria-labelledby="headingUno1" data-parent="#accordion">
+      <div class="card-body">
+        <div class="form-group row"> 
+          
+    <div class="col-md-2">
+                    <label for="">Tipo surusal:</label>
+                        <select v-model="selectSucursalGestionETC" class="form-control"  @change="cambioSelectETC()">
+                            <option value="0" disabled selected>Seleccionar...</option>
+                            <option value="1">Todo las sucursales</option>
+                            <option value="2">Por sucursal en especifico</option>
+                        </select>
+                       
+            </div> 
+            <div class="col-md-4">                
+                <div class="alert alert-primary" role="alert" v-if="selectSucursalGestionETC=='1'">
+                    No necesita seleccionar mas sucursales.
+                </div>
+                <div v-else-if="selectSucursalGestionETC=='2'">
+                    <label for="">Surusal:</label>
+                    <div class="d-flex align-items-center gap-2">
+  <select class="form-control" v-model="sucursalSeleccionada">
+    <option value="0" disabled selected>Seleccionar...</option>
+    <option
+      v-for="(sucursal, index) in arraySucursal"
+      :key="index"
+      :value="sucursal.id_sucursal"
+      :hidden="sucursal.id_almacen != null"
+      v-text="'['+sucursal.id_sucursal+']' + ' -> ' + sucursal.codigo + ' ' + sucursal.razon_social"
+    ></option>
+  </select>
+
+  <button type="button" class="btn btn-primary" :disabled="sucursalSeleccionada=='0'" @click="añadirETC()"><i class="fa fa-plus" aria-hidden="true"></i></button>
+   <button type="button" class="btn btn-danger" :disabled="sucursalSeleccionada=='0'" @click="eliminarETC()"><i class="fa fa-minus" aria-hidden="true"></i></button>
+</div>
+
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="alert alert-primary" role="alert" v-if="selectSucursalGestionETC=='1'">
+                    La configuración esta de tabla.
+                </div>
+                <div v-else-if="selectSucursalGestionETC=='2'">
+                <table class="table table-bordered table-striped table-sm table-responsive">
+                    <thead>
+                        <tr>
+                            <th class="col-md-4">Añadir (+)</th>
+                            <th class="col-md-4">Eliminar (-)</th>
+                            <th class="col-md-4">En Tabla</th>
+                        </tr>
+                        <tr>
+                            <td class="col-md-4">{{arrayFAlasoETC}}</td>
+                            <td class="col-md-4">{{arrayFAlasoEliETC}}</td>
+                             <td class="col-md-4">enconstrucción</td>
+                        </tr>
+                    </thead>
+                </table>         
+                </div>
+            </div>                        
+            
+
+        </div>
+         <table class="table table-bordered table-striped table-sm table-responsive" >
+                <thead>
+                    <tr>
+                        <th class="col-md-2">Hora de sincronización</th>
+                        <th class="col-md-2">Frecuencia para la sincronización</th>
+                        <th class="col-md-2">Estado</th>                                              
+                        <th class="col-md-2">Accion</th>                             
+                    </tr>
+                </thead>
+                <tbody>
+                        <tr>
+                            <td class="col-md-2"><input  type="time" class="form-control" v-model="horaS"></td>
+                            <td class="col-md-2">
+                                <select  class="form-control"  v-model="selectFrecuencia"> 
+                                            <option value="0" disabled selected>Seleccionar...</option>
+                                            <option value="1">Ejecutar todos los días</option>
+                                            <option value="2">Ejecutar el ultimo dia de la semana laboral</option>
+                                            <option value="3">Ejecutar el último día del mes</option>
+                                            <option value="4">Ejecutar cada trimestre el día 1</option>                                                                                                                          
+                                </select>
+                            </td>                      
+                           
+                            <td class="col-md-2">
+                                <span class="badge badge-pill badge-success">Activo</span>
+                                <span class="badge badge-pill badge-danger">Desactivado</span>
+                            </td>
+                            <td class="col-md-2">
+                                <div>
+                                <button type="button" class="btn btn-warning" style="color: white;"  v-if="(arrayFAlasoETC.length>0&&selectFrecuencia!='0'&&horaS!='')||selectSucursalGestionETC=='1'">Actualziar</button>
+                                <button type="button" class="btn btn-secondary" style="color: white;" v-else>Actualziar</button> 
+                                </div>                                                
+                            </td>
+                        </tr>
+                </tbody>
+                </table> 
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header" id="headingDos2">
+      <h5 class="mb-0">
+        <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseDos2" aria-expanded="false" aria-controls="collapseDos2">
+          Distribuidor / Linea
+        </button>
+      </h5>
+    </div>
+    <div id="collapseDos2" class="collapse" aria-labelledby="headingDos2" data-parent="#accordion">
+      <div class="card-body">                                   
+            <div class="form-group row">
+                <div class="col-md-3">
+                      <label for="">Linea:</label>
+                      <div class="d-flex align-items-center gap-2" >
+                        <VueMultiselect
+                        v-model="selecLinea"
+                        :options="arrayLinea"
+                        :disabled="disparador_2==1"
+                        :max-height="120"                   
+                        :block-keys="['Tab', 'Enter']"                       
+                        placeholder="Seleccione una opción"
+                        
+                        :custom-label="nameWithLang_2"                     
+                        track-by="id"
+                        class="w-250"
+                        selectLabel="Añadir a seleccion"
+                        deselectLabel="Quitar seleccion"
+                        selectedLabel="Seleccionado"
+                       >
+                       <template #noResult>
+                        No se encontraron elementos. Considere cambiar la consulta de búsqueda.
+                      </template>
+                    </VueMultiselect>                      
+                    <button type="button" class="btn btn-primary" :disabled="selecLinea==null ||disparador_2==1" @click="listarDistribuidorETC(selecLinea.id)">
+                        <i class="fa fa-share" aria-hidden="true"></i></button>
+                  
+                      </div>                 
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="form-group" v-if="arrayDistriETC.length>0">
+                        <label for=""> Lista distribuidor</label>    
+                        <div class="d-flex align-items-center gap-2">
+                        <select class="form-control"  v-model="selectDistriETC" :disabled="disparador_2==1">
+                                        <option value="0" disabled selected>Seleccionar...</option>
+                                    <option v-for="(i, index) in arrayDistriETC" :key="index"  :value="i.id">
+                                            {{"["+ i.id+"] Alias del distribuidor: "+i.alias+" Linea o lineas: "+i.nom_linea_array}}
+                                    </option>                                       
+                        </select>
+                        <button type="button" class="btn btn-primary" :disabled="selectDistriETC=='0'" v-if="disparador_2==0" @click="disparadorETC_2(1)">Seleccionar</button>
+                        <button type="button" class="btn btn-warning" :disabled="selectDistriETC=='0'" style="color: white;" v-else-if="disparador_2==1" @click="disparadorETC_2(2)">Deseleccionar</button>
+                        </div>                      
+                             
+                    </div>
+                    <div class="alert alert-warning" role="alert" v-else>
+                        Debe seleccionar una linea.
+                    </div>                 
+                </div>               
+            </div>
+            <blockquote class="blockquote mb-0" v-show="disparador_2==1">
+         <div class="row">
+                                <div class="form-group col-sm-4">
+                                    <span style="font-size: 12px;">Forma de pago:</span>
+                                      <select v-model="selectFormaPago" class="form-control">
+                                        <option value="0" disabled>Seleccionar...</option>
+                                        <option v-for="a in array_forma_pago" :key="a.id" :value="a.id" v-text="a.tipo"></option>
+                                    </select>
+                                </div>
+                                <div class="form-group col-sm-4">
+                                    <span style="font-size: 12px;">Fecha de pago con intervalo:</span>                                
+                                     <input type="number" class="form-control" placeholder="Con la fecha de creación se suma el inetrvalo"  v-model="fechaPago">
+                              
+                                </div>
+                                <div class="form-group col-sm-4" >
+                                    <span style="font-size: 12px;">Plazo de pago:</span>
+                                    <input type="text" class="form-control" placeholder=""  v-model="plazoPago">
+                                
+                                </div>
+                            </div>
+                            <div class="row">                                
+                                <div class="form-group col-sm-4">
+                                    <span style="font-size: 12px;">Entrega de pedido:</span>
+                                      <select v-model="selectEntregaPedido" class="form-control">
+                                        <option value="0" disabled>Seleccionar...</option>
+                                        <option v-for="a in array_entrega_pedido" :key="a.id" :value="a.id" v-text="a.tipo"></option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group col-sm-4">
+                                  <span style="font-size: 12px;">Observación:</span>
+                                    <input type="text" class="form-control" placeholder=""  v-model="observacion">
+                                </div>
+                                <div class="form-group col-sm-4">
+                                    <br>
+                                    <button type="button" class="btn btn-primary" style="margin-right: 10px;">Crear</button>
+                                    <button type="button" class="btn btn-secondary" style="color: white;" @click="limpiarConfigGesStock_2()">Limpiar</button>
+                                </div>                               
+                            </div>
+    </blockquote>
+                         
+     </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header" id="headingTres3">
+      <h5 class="mb-0">
+        <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseTres3" aria-expanded="false" aria-controls="collapseTres3">
+          Diferenciador por ventas 
+        </button>
+      </h5>
+    </div>
+    <div id="collapseTres3" class="collapse" aria-labelledby="headingTres3" data-parent="#accordion">
+      <div class="card-body">
+        <button type="button" class="btn btn-primary"    style="margin-right: 10px; color: white;" @click="butonActivarDesactivar_3(1)"><i class="fa fa-indent" aria-hidden="true"></i> Activar</button>
+            <button type="button" class="btn btn-secondary" style="color: white;" @click="butonActivarDesactivar_3(0)"><i class="fa fa-indent" aria-hidden="true"></i> Desactivar</button>  
+         <div class="form-group row" style="margin-top: 15px;" v-show="accionActivar_desactivar_3==1">
+                <div class="col-md-6">
+                      <label for="">Distribuidor:</label>                      
+                        <VueMultiselect
+                        v-model="selecDistribui_3"
+                        :options="arrayDistribui_3"                        
+                        :max-height="180"                   
+                        :block-keys="['Tab', 'Enter']"                       
+                        placeholder="Seleccione una opción"
+                       
+                        :custom-label="nameWithLang_3"                     
+                        track-by="id"
+                        class="w-260"
+                        selectLabel="Añadir a seleccion"
+                        deselectLabel="Quitar seleccion"
+                        selectedLabel="Seleccionado"
+                       >
+                       <template #noResult>
+                        No se encontraron elementos. Considere cambiar la consulta de búsqueda.
+                      </template>
+                    </VueMultiselect>             
+                </div>
+                <div  class="col-md-4">
+                    <label for="">Distribuidor seleccionado:</label>
+                    <div class="alert alert-primary" role="alert">
+  This is a primary alert—check it out!
+</div>
+                </div>
+        </div>  
+            <div class="row" v-show="accionActivar_desactivar_3==1"  style="margin-top: 15px;">
+  <div class="col-sm-6">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Por unidades o cantidad vendida</h5>
+             <label for="">Esta función es opcinal no es necesario que este activo.<strong> La función se regula segun el consumo y la cantidad de venta del producto lo cual es cantidad_ingreso_tienda + Traspaso, ya que el traspaso es el indicador de ingreso de cantidad, para hacer el calculo segun:</strong></label> 
+     <span class="badge badge-pill badge-danger" style="margin-right: 5px; color: white;">Consumo muy bajo entre el intervalo de  0% - 10%</span>
+        <span class="badge badge-pill badge-danger" style="margin-right: 5px; color: white;">Consumo bajo entre el intervalo de  10% - 25%</span>
+        <span class="badge badge-pill badge-warning" style="margin-right: 5px; color: white;">Consumo moderado entre el intervalo de  25% - 50%</span>
+        <span class="badge badge-pill badge-warning" style="margin-right: 5px; color: white;">Consumo normal entre el intervalo de  50% - 59%</span>
+        <span class="badge badge-pill badge-warning" style="margin-right: 5px; color: white;">Consumo alto entre el intervalo de  60% - 75%</span>
+        <span class="badge badge-pill badge-success" style="margin-right: 5px; color: white;">Consumo muy alto entre el intervalo de  75% - 90%</span>
+        <span class="badge badge-pill badge-success" style="margin-right: 5px; color: white;">Consumo óptimo entre el intervalo de  90% - 100%</span>
+        <div class="row"  style="margin-top: 15px;">
+<div class="col-md-6">
+                    <label for="">Ciclo:</label>
+                    <select v-model="selectCico_3" class="form-control">
+                        <option value="0" disabled>Seleccionar...</option>
+                        <option value="7">Una semana</option>
+                        <option value="30">Una mes</option>
+                        <option value="90">Tres meses</option>
+                        <option value="180">Seis meses</option>
+                        <option value="360">Doce meses</option>
+                    </select>
+                </div>
+        </div>     
+        
+                
+        <a href="#" class="btn btn-primary" style="margin-top: 15px;">Realziar operación</a>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Diferencia por monto monetario</h5>
+          <label for="">Esta función es opcinal no es necesario que este activo.<strong> La función se regula segun rango de valores enteros ejemplo 1 a 10 mes decir tomara el valor entre esos rangos donde el rago inferior siempre debe ser menor al superior, donde los valores ingresados paramétriza el valor del producto, añade segun el costo y añade a la lista</strong></label> 
+           <div class="row">
+                <div class="form-group col-sm-6">
+                    <span>Limite inferiror:</span>
+                    <input type="number" class="form-control" placeholder="" >
+                </div>
+                <div class="form-group col-sm-6">
+                    <span>Limite Superiror:</span>
+                    <input type="number" class="form-control" placeholder="" >
+                </div>
+            </div>       
+        <a href="#" class="btn btn-primary">Realizar operación</a>
+      </div>
+    </div>
+  </div>
+</div>
+           
+            
+    </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header" id="headingCuatro2">
+      <h5 class="mb-0">
+        <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseCuatro2" aria-expanded="false" aria-controls="collapseCuatro2">
+          Operaciones extra
+        </button>
+      </h5>
+    </div>
+    <div id="collapseCuatro2" class="collapse" aria-labelledby="headingCuatro2" data-parent="#accordion">
+      <div class="card-body">
+           <table class="table table-bordered table-striped table-sm table-responsive">
+                <thead>
+                    <tr>
+                        <th class="col-md-1">Activar</th>
+                        <th class="col-md-1">Desactivar</th>
+                        <th class="col-md-10">Modulo</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                       <tr>
+    <td><input class="form-check-input" type="radio" name="uno" id="uno_1" value="1"></td>
+    <td><input class="form-check-input" type="radio" name="uno" id="uno_0" value="0"></td>
+    <td><span>Modulo Configuración de sucursall / Reloj</span></td>
+</tr>
+
+<tr>
+    <td><input class="form-check-input" type="radio" name="uno2" id="uno2_1" value="1"></td>
+    <td><input class="form-check-input" type="radio" name="uno2" id="uno2_0" value="0"></td>
+    <td><span>Modulo por unidades o cantidad vendida</span></td>
+</tr>
+
+<tr>
+    <td><input class="form-check-input" type="radio" name="uno3" id="uno3_1" value="1"></td>
+    <td><input class="form-check-input" type="radio" name="uno3" id="uno3_0" value="0"></td>
+    <td><span>Diferencia por monto monetario</span></td>
+</tr>
+
+<tr>
+    <td><input class="form-check-input" type="radio" name="uno4" id="uno4_1" value="1"></td>
+    <td><input class="form-check-input" type="radio" name="uno4" id="uno4_0" value="0"></td>
+    <td><span>Metodo ABC</span></td>
+</tr>
+
+
+                    </tbody>
+            </table>                            
+               
+        </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header" id="headingCinco2">
+      <h5 class="mb-0">
+        <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseCinco2" aria-expanded="false" aria-controls="collapseCinco2">
+        Liminar
+        </button>
+      </h5>
+    </div>
+    <div id="collapseCinco2" class="collapse" aria-labelledby="headingCinco2" data-parent="#accordion">
+      <div class="card-body">
+
+       </div>
+    </div>
+  </div>
+                    </div>   
+                </div>    
+<div class="alert alert-warning" role="alert" v-else>
+  No tiene permiso.
+</div>             
+            </div>
             <!-------------------------------------------------------------------------------------------------------------------------------->
 
                 </div>
@@ -996,7 +1386,41 @@ puedeEditar:2,
                 selectStockMedio:'0',
                 stockMedio:0,
 
-        };
+                //LOGICA CONFIGURACION GESTION STOCK----  
+                selectSucursalGestionETC:'0',
+                arraySucursal:[],
+                sucursalSeleccionada:'0',
+                arrayFAlasoETC:[],
+                arrayFAlasoEliETC:[],
+                cambioActivarDesa:0,
+
+                selecLinea:null,
+                arrayLinea:[],
+
+                arrayDistriETC:[],
+                selectDistriETC:'0',
+                arrayDisXLineasFalso:[],
+            
+                disparador_2:0,
+
+                  selectFormaPago:'0', 
+                     array_forma_pago: [{ id: 1, tipo: "CHEQUE" },{ id: 2, tipo: "CONTADO" },{ id: 3, tipo: "CREDITO" },{ id: 4, tipo: "TRASFERENCIA BANCARIA" }],
+    fechaPago:'',
+    plazoPago:'',
+    selectEntregaPedido:'0',      
+    array_entrega_pedido: [{ id: 1, tipo: "MAÑANA" },{ id: 2, tipo: "TARDE" }],
+    observacion:'',
+
+    selectFrecuencia:'0',
+    horaS:'',
+    accionActivar_desactivar_2:0,
+            accionActivar_desactivar_3:0,            
+            selecDistribui_3:null,
+            arrayDistribui_3:[],
+            selectCico_3:"0",
+            
+
+};
     },
 
    
@@ -1076,7 +1500,193 @@ puedeEditar:2,
         });
 },
 //-------------------------------------------------------------- 
-  
+ //-------------------LOGICA CONFIGURACION GESTION STOCK------------------------------------    
+        limpiarConfigGesStock_2(){
+            let me=this;
+            me.observacion="";
+            me.selectEntregaPedido="0";
+            me.plazoPago="";
+            me.fechaPago="";
+            me.selectFormaPago="0";
+            me.disparador_2=0;
+            me.selectDistriETC="0";
+            me.selecLinea=null;
+        },
+
+        botonConfiguracionAutomatica(){            
+            let me=this;
+            me.arraySucursal=[];
+            me.arrayFAlasoETC=[];
+            me.arrayFAlasoEliETC=[],
+            me.sucursalFiltro();
+            me.listarLiena();
+            me.arrayLinea=[];
+            me.selecLinea=null;
+            me.arrayDisXLineasFalso=[];
+            me.selectDistriETC="0";
+            me.disparador_2=0;
+            me.selectFormaPago="0";           
+            me.fechaPago="";
+            me.plazoPago="";
+            me.selectEntregaPedido="0";   
+            me.selectFormaPago="0"; 
+            me.fechaPago="";
+            me.plazoPago="";
+            me.selectEntregaPedido="0";      
+            me.observacion="Sin datos.";
+
+            me.selectFrecuencia="0";
+            me.horaS="";
+            me.accionActivar_desactivar_2=0;
+            me.accionActivar_desactivar_3=0;
+            me.selecDistribui_3=null;
+            me.arrayDistribui_3=[];
+            me.selectCico_3="0";
+          
+        },
+
+       
+
+         butonActivarDesactivar_3(data){
+            let me=this;
+            if ( data==1) {
+                 me.accionActivar_desactivar_3=1;
+            } else {
+                 me.accionActivar_desactivar_3=0;
+            }
+        },
+
+        butonActivarDesactivar_2(data){
+            let me=this;
+            if ( data==1) {
+                 me.accionActivar_desactivar_2=1;
+            } else {
+                 me.accionActivar_desactivar_2=0;
+            }
+        },
+
+        añadirETC(){
+            let me=this;
+            let entero= parseInt(me.sucursalSeleccionada,10);
+            console.log(entero);
+            if (entero!=0) {
+            const index = me.arrayFAlasoETC.findIndex(f => f === entero);
+              if(index !== -1) {
+                console.log("---1");
+                me.arrayFAlasoETC.splice(index, 1); // eliminar  
+            } else {
+                console.log("---2");
+            me.arrayFAlasoETC.push(entero);
+            }                
+            }
+        },
+
+         eliminarETC(){
+            let me=this;
+            let entero= parseInt(me.sucursalSeleccionada,10);
+            console.log(entero);
+            if (entero!=0) {
+            const index = me.arrayFAlasoEliETC.findIndex(f => f === entero);
+              if(index !== -1) {
+                console.log("---1");
+                me.arrayFAlasoEliETC.splice(index, 1); // eliminar  
+            } else {
+                console.log("---2");
+            me.arrayFAlasoEliETC.push(entero);
+            }                
+            }
+        },
+
+        añadirETC_2(){
+            let me=this;
+            let entero= parseInt(me.selectDistriETC,10);           
+            if (entero!=0) {
+            const index = me.arrayDisXLineasFalso.findIndex(f => f === entero);
+            if(index !== -1) {             
+            me.arrayDisXLineasFalso.splice(index, 1); // eliminar  
+            } else {              
+            me.arrayDisXLineasFalso.push(entero);
+            }                
+            }
+        },        
+
+        disparadorETC_2(data){
+            let me=this;
+             let id_linea=0;
+            let id_distribuidor=0;
+            switch (data) {
+                case 1:
+                  me.disparador_2=1; 
+             id_linea=me.selecLinea.id;
+             id_distribuidor=me.selectDistriETC;  
+                break;
+                case 2:
+                  me.disparador_2=0; 
+             id_linea=0;
+             id_distribuidor=0;  
+                break;
+            
+                default:
+                    me.disparador_2=0;
+                id_linea=0;
+             id_distribuidor=0;
+                    break;
+            }
+            
+            
+        },
+
+        cambioSelectETC(){
+            this.sucursalSeleccionada="0";
+        },
+
+        listarDistribuidorETC(data) {
+            let me = this;
+            me.arrayDistriETC=[];
+            me.selectDistriETC="0";
+           var url = "/listarDistribuidorXlinea?id_linea="+data;
+            axios
+                .get(url)
+                .then(function (response) {
+                    var respuesta = response.data;  
+                    me.arrayDistriETC=respuesta;                 
+                    console.log(respuesta);                 
+                })
+                .catch(function (error) {
+                    error401(error);
+                });
+        },
+
+        listarLiena() {
+            let me = this;
+            var url = "/distribuidor/getLinea";
+            axios.get(url)
+                .then(function (response) {
+                    var respuesta = response.data;
+                    me.arrayLinea=respuesta;
+                    console.log(respuesta);                 
+                })
+                .catch(function (error) {
+                    error401(error);       
+                });
+        },
+
+         sucursalFiltro() {
+            let me = this;
+           var url = "/listar_tienda_alamce_generico_lista_x_rol_usuario";
+            axios
+                .get(url)
+                .then(function (response) {
+                    var respuesta = response.data;
+                    me.arraySucursal = respuesta;
+                    console.log(me.arraySucursal);                 
+                })
+                .catch(function (error) {
+                    error401(error);       
+                });
+        },
+        //------------------------------------------------------------------------
+
         añadirlimite(){
             let me = this;            
             if (me.limite_monto===null || me.limite_monto==="" || me.limite_horas===null || me.limite_horas==="") {
@@ -1237,7 +1847,11 @@ puedeEditar:2,
 
         nameWithLang ({name, nom_completo,}) {
             
-            return `${name} (${nom_completo}) `
+            return `${name} - (${nom_completo}) `
+          },
+
+          nameWithLang_2 ({codigo, nombre,}) {            
+            return `${codigo} (${nombre}) `
           },
 
         toggle () {

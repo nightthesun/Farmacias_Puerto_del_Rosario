@@ -714,13 +714,20 @@ return $resultado;
      $idLinea=$request->data;
      $id_sucursal=$request->id_sucursal;
      $tipo=$request->tipo;
+     $tipoAlmTienda=intval($request->tipoAlmTienda);
+     $day=30*(intval($request->intervalo));
      
             if ($tipo==1||$id_sucursal==0) {             
     $where = "FIND_IN_SET(vdv.id_linea, '$idLinea')";  
 }else {
     $where = "(vr.id_sucursal = '$id_sucursal'  AND FIND_IN_SET(vdv.id_linea, '$idLinea'))";       
 }
-        $subqueryPrimario = DB::table('ven__detalle_ventas as vdv')
+
+    $tablaIngreso = $tipoAlmTienda == 1
+    ? 'tda__ingreso_productos as ip'
+    : 'alm__ingreso_producto as ip';
+
+    $subqueryPrimario = DB::table('ven__detalle_ventas as vdv')
     ->select(
         'vdv.id_producto',
         DB::raw('SUM(vdv.cantidad_venta) AS cantidad_venta'),
@@ -732,21 +739,17 @@ return $resultado;
         'pff.nombre AS nombreF',
         'dd.nombre AS nombreD',
         'vdv.id_ingreso',
-        DB::raw('ROUND(AVG(IFNULL(tip.cantidad, NULL))) AS cantidad_ingreso_tienda'),
-        DB::raw('ROUND(AVG(IFNULL(tip.stock_ingreso, NULL))) AS stock_ingreso_tienda'),
-        DB::raw('ROUND(AVG(IFNULL(aip.cantidad, NULL))) AS cantidad_ingreso_almacen'),
-        DB::raw('ROUND(AVG(IFNULL(aip.stock_ingreso, NULL))) AS stock_ingreso_almacen')
+        DB::raw('ROUND(AVG(IFNULL(ip.cantidad, 0))) AS cantidad_ingreso'),
+        DB::raw('ROUND(AVG(IFNULL(ip.stock_ingreso, 0))) AS stock_ingreso')
     )
     ->join('ven__recibos as vr', 'vr.id', '=', 'vdv.id_venta')
     ->join('prod__productos as pp', 'pp.id', '=', 'vdv.id_producto')
     ->join('prod__forma_farmaceuticas as pff', 'pff.id', '=', 'pp.idformafarmaceuticaprimario')
     ->join('prod__dispensers as dd', 'dd.id', '=', 'pp.iddispenserprimario')
-    ->leftJoin('tda__ingreso_productos as tip', 'tip.id', '=', 'vdv.id_ingreso')
-    ->leftJoin('alm__ingreso_producto as aip', 'aip.id', '=', 'vdv.id_ingreso')
-     
+    ->Join(DB::raw($tablaIngreso), 'ip.id', '=', 'vdv.id_ingreso')
     ->where('vdv.envase', 'primario')
     ->whereRaw($where)
-    ->whereRaw('vr.created_at >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)')
+    ->whereRaw("vr.created_at >= DATE_SUB(CURDATE(), INTERVAL $day DAY)")
     ->groupBy(
         'vdv.id_producto',
         'vdv.envase',
@@ -771,21 +774,18 @@ $subquerySecundario = DB::table('ven__detalle_ventas as vdv')
         'pff.nombre AS nombreF',
         'dd.nombre AS nombreD',
         'vdv.id_ingreso',
-        DB::raw('ROUND(AVG(IFNULL(tip.cantidad, NULL))) AS cantidad_ingreso_tienda'),
-        DB::raw('ROUND(AVG(IFNULL(tip.stock_ingreso, NULL))) AS stock_ingreso_tienda'),
-        DB::raw('ROUND(AVG(IFNULL(aip.cantidad, NULL))) AS cantidad_ingreso_almacen'),
-        DB::raw('ROUND(AVG(IFNULL(aip.stock_ingreso, NULL))) AS stock_ingreso_almacen')
+              DB::raw('ROUND(AVG(IFNULL(ip.cantidad, 0))) AS cantidad_ingreso'),
+        DB::raw('ROUND(AVG(IFNULL(ip.stock_ingreso, 0))) AS stock_ingreso')
     )
     ->join('ven__recibos as vr', 'vr.id', '=', 'vdv.id_venta')
     ->join('prod__productos as pp', 'pp.id', '=', 'vdv.id_producto')
     ->join('prod__forma_farmaceuticas as pff', 'pff.id', '=', 'pp.idformafarmaceuticasecundario')
     ->join('prod__dispensers as dd', 'dd.id', '=', 'pp.iddispensersecundario')
-    ->leftJoin('tda__ingreso_productos as tip', 'tip.id', '=', 'vdv.id_ingreso')
-    ->leftJoin('alm__ingreso_producto as aip', 'aip.id', '=', 'vdv.id_ingreso')
+     ->Join(DB::raw($tablaIngreso), 'ip.id', '=', 'vdv.id_ingreso')
    
     ->where('vdv.envase', 'secundario')
     ->whereRaw($where)
-    ->whereRaw('vr.created_at >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)')
+    ->whereRaw("vr.created_at >= DATE_SUB(CURDATE(), INTERVAL $day DAY)")
     ->groupBy(
         'vdv.id_producto',
         'vdv.envase',
@@ -810,21 +810,18 @@ $subqueryTerciario = DB::table('ven__detalle_ventas as vdv')
         'pff.nombre AS nombreF',
         'dd.nombre AS nombreD',
         'vdv.id_ingreso',
-        DB::raw('ROUND(AVG(IFNULL(tip.cantidad, NULL))) AS cantidad_ingreso_tienda'),
-        DB::raw('ROUND(AVG(IFNULL(tip.stock_ingreso, NULL))) AS stock_ingreso_tienda'),
-        DB::raw('ROUND(AVG(IFNULL(aip.cantidad, NULL))) AS cantidad_ingreso_almacen'),
-        DB::raw('ROUND(AVG(IFNULL(aip.stock_ingreso, NULL))) AS stock_ingreso_almacen')
+         DB::raw('ROUND(AVG(IFNULL(ip.cantidad, 0))) AS cantidad_ingreso'),
+        DB::raw('ROUND(AVG(IFNULL(ip.stock_ingreso, 0))) AS stock_ingreso')
     )
     ->join('ven__recibos as vr', 'vr.id', '=', 'vdv.id_venta')
     ->join('prod__productos as pp', 'pp.id', '=', 'vdv.id_producto')
     ->join('prod__forma_farmaceuticas as pff', 'pff.id', '=', 'pp.idformafarmaceuticaterciario')
     ->join('prod__dispensers as dd', 'dd.id', '=', 'pp.iddispenserterciario')
-    ->leftJoin('tda__ingreso_productos as tip', 'tip.id', '=', 'vdv.id_ingreso')
-    ->leftJoin('alm__ingreso_producto as aip', 'aip.id', '=', 'vdv.id_ingreso')
+     ->Join(DB::raw($tablaIngreso), 'ip.id', '=', 'vdv.id_ingreso')
  
     ->where('vdv.envase', 'terciario')
     ->whereRaw($where)
-    ->whereRaw('vr.created_at >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)')
+   ->whereRaw("vr.created_at >= DATE_SUB(CURDATE(), INTERVAL $day DAY)")
     ->groupBy(
         'vdv.id_producto',
         'vdv.envase',
@@ -843,6 +840,153 @@ $resultado = $subqueryPrimario
     ->get();
 
     return $resultado; 
+    }
+
+    public function getIndiceConsumoXprecio(Request $request){
+
+     $idLinea = implode(',', array_map('intval', (array) $request->data));
+$id_sucursal = intval($request->id_sucursal);
+$tipo = intval($request->tipo);
+$tipoAlmTienda = intval($request->tipoAlmTienda);
+$intervaloIni = floatval($request->intervaloIni);
+$intervaloFin = floatval($request->intervaloFin);
+
+// 🔹 Condición base
+if ($tipo == 1 || $id_sucursal == 0) {             
+    $where = "FIND_IN_SET(pl.id, '$idLinea')";  
+} else {
+    $where = "(ass.id = '$id_sucursal' AND FIND_IN_SET(pl.id, '$idLinea'))";       
+}
+
+// 🔹 Tabla según tipo
+if ($tipoAlmTienda == 1) {
+    $tablaIngreso = "tda__ingreso_productos";
+} else {
+    $tablaIngreso = "alm__ingreso_producto";    
+}
+
+// 🔹 Condiciones HAVING
+if ($intervaloIni > 0 && $intervaloFin > 0) {
+    $having_1 = "(AVG(pp.preciolistaprimario) > $intervaloIni AND AVG(pp.preciolistaprimario) <= $intervaloFin)";
+    $having_2 = "(AVG(pp.preciolistasecundario) > $intervaloIni AND AVG(pp.preciolistasecundario) <= $intervaloFin)";
+    $having_3 = "(AVG(pp.preciolistaterciario) > $intervaloIni AND AVG(pp.preciolistaterciario) <= $intervaloFin)";
+} else {
+    $having_1 = "(AVG(pp.preciolistaprimario) >= 0)";
+    $having_2 = "(AVG(pp.preciolistasecundario) >= 0)";
+    $having_3 = "(AVG(pp.preciolistaterciario) >= 0)";
+}
+
+// 🔹 Subquery primario
+$subqueryPrimario = DB::table("$tablaIngreso as ip")
+    ->select(
+        'ip.id_prod_producto',
+        DB::raw('SUM(ip.stock_ingreso) AS stock_ingreso'),
+        'ip.envase',
+        DB::raw("DATE_FORMAT(ip.fecha_vencimiento, '%e/%m/%Y') AS fecha_vencimiento"),
+        'pp.codigo',
+        'pp.nombre',
+        DB::raw('pp.cantidadprimario AS cantidadFF'),
+        DB::raw('ROUND(AVG(IFNULL(pp.preciolistaprimario, 0))) AS precioFF'),
+        DB::raw('pp.tiempopedidoprimario AS tiempopedidoFF'),
+        DB::raw('pff.nombre AS nom_farmace'),
+        DB::raw('dd.nombre AS nom_dispen'),
+        DB::raw('pl.nombre AS nom_linea')
+    )
+    ->join('tda__tiendas as tt', 'ip.idtienda', '=', 'tt.id')
+    ->join('adm__sucursals as ass', 'ass.id', '=', 'tt.idsucursal')
+    ->join('prod__productos as pp', 'pp.id', '=', 'ip.id_prod_producto')
+    ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
+    ->join('prod__forma_farmaceuticas as pff', 'pff.id', '=', 'pp.idformafarmaceuticaprimario')
+    ->join('prod__dispensers as dd', 'dd.id', '=', 'pp.iddispenserprimario')
+    ->where('ip.envase', 'primario')
+    ->whereRaw($where)
+    ->where('pp.estado', 1)
+    ->where('pp.activo', 1)  
+    ->where('ip.activo', 1)
+    ->groupBy([
+        'ip.id_prod_producto', 'ip.envase', 'ip.fecha_vencimiento', 
+        'pp.codigo', 'pp.nombre', 'pp.cantidadprimario', 'pp.tiempopedidoprimario', 
+        'pff.nombre', 'dd.nombre', 'pl.nombre'
+    ])
+    ->havingRaw($having_1);
+
+// 🔹 Subquery secundario
+$subquerySecundario = DB::table("$tablaIngreso as ip")
+    ->select(
+        'ip.id_prod_producto',
+        DB::raw('SUM(ip.stock_ingreso) AS stock_ingreso'),
+        'ip.envase',
+        DB::raw("DATE_FORMAT(ip.fecha_vencimiento, '%e/%m/%Y') AS fecha_vencimiento"),
+        'pp.codigo',
+        'pp.nombre',
+        DB::raw('pp.cantidadsecundario AS cantidadFF'),
+        DB::raw('ROUND(AVG(IFNULL(pp.preciolistasecundario, 0))) AS precioFF'),
+        DB::raw('pp.tiempopedidosecundario AS tiempopedidoFF'),
+        DB::raw('pff.nombre AS nom_farmace'),
+        DB::raw('dd.nombre AS nom_dispen'),
+        DB::raw('pl.nombre AS nom_linea')
+    )
+    ->join('tda__tiendas as tt', 'ip.idtienda', '=', 'tt.id')
+    ->join('adm__sucursals as ass', 'ass.id', '=', 'tt.idsucursal')
+    ->join('prod__productos as pp', 'pp.id', '=', 'ip.id_prod_producto')
+    ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
+    ->join('prod__forma_farmaceuticas as pff', 'pff.id', '=', 'pp.idformafarmaceuticasecundario')
+    ->join('prod__dispensers as dd', 'dd.id', '=', 'pp.iddispensersecundario')  
+    ->where('ip.envase', 'secundario')
+    ->whereRaw($where)
+    ->where('pp.estado', 1)
+    ->where('pp.activo', 1)
+    ->where('ip.activo', 1)
+    ->groupBy([
+        'ip.id_prod_producto', 'ip.envase', 'ip.fecha_vencimiento', 
+        'pp.codigo', 'pp.nombre', 'pp.cantidadsecundario', 'pp.tiempopedidosecundario', 
+        'pff.nombre', 'dd.nombre', 'pl.nombre'
+    ])
+    ->havingRaw($having_2);
+
+// 🔹 Subquery terciario
+$subqueryTerciario = DB::table("$tablaIngreso as ip")
+    ->select(
+        'ip.id_prod_producto',
+        DB::raw('SUM(ip.stock_ingreso) AS stock_ingreso'),
+        'ip.envase',
+        DB::raw("DATE_FORMAT(ip.fecha_vencimiento, '%e/%m/%Y') AS fecha_vencimiento"),
+        'pp.codigo',
+        'pp.nombre',
+        DB::raw('pp.cantidadterciario AS cantidadFF'),
+        DB::raw('ROUND(AVG(IFNULL(pp.preciolistaterciario, 0))) AS precioFF'),
+        DB::raw('pp.tiempopedidoterciario AS tiempopedidoFF'),
+        DB::raw('pff.nombre AS nom_farmace'),
+        DB::raw('dd.nombre AS nom_dispen'),
+        DB::raw('pl.nombre AS nom_linea')
+    )
+    ->join('tda__tiendas as tt', 'ip.idtienda', '=', 'tt.id')
+    ->join('adm__sucursals as ass', 'ass.id', '=', 'tt.idsucursal')
+    ->join('prod__productos as pp', 'pp.id', '=', 'ip.id_prod_producto')
+    ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
+    ->join('prod__forma_farmaceuticas as pff', 'pff.id', '=', 'pp.idformafarmaceuticaterciario')
+    ->join('prod__dispensers as dd', 'dd.id', '=', 'pp.iddispenserterciario')    
+    ->where('ip.envase', 'terciario')
+    ->whereRaw($where)
+    ->where('pp.estado', 1)
+    ->where('pp.activo', 1)
+    ->where('ip.activo', 1)
+    ->groupBy([
+        'ip.id_prod_producto', 'ip.envase', 'ip.fecha_vencimiento', 
+        'pp.codigo', 'pp.nombre', 'pp.cantidadterciario', 'pp.tiempopedidoterciario', 
+        'pff.nombre', 'dd.nombre', 'pl.nombre'
+    ])
+    ->havingRaw($having_3);
+
+// 🔹 Unión final
+$consultaFinal = $subqueryPrimario
+    ->unionAll($subquerySecundario)
+    ->unionAll($subqueryTerciario)
+    ->get();
+
+return $consultaFinal;
+
+
     }
 
 }
