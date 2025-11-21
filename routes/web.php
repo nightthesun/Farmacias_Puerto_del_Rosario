@@ -196,8 +196,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/listarSucursalNormal', [GetController::class, 'onlySuscursal']);   
     Route::get('/listarLinea', [GetController::class, 'onlySuscursal']);     
     Route::get('/listarDistribuidorXlinea', [GetController::class, 'getDitribuidorNeedLinea']); 
-     
-    
+    Route::get('/listarConfigAdminGestionAutomatico', [GetController::class, 'getConfigAdminGestionAutomatico']); 
+        
     /**********************verificador de apertura cierre retornod e datos****************************** */
     Route::get('/verificacionAperturaCierre', [GetController::class, 'listarAperturaCierre']);
     Route::get('/verificador_moneda_sistemas', [GetController::class, 'listarMoneda_2']);
@@ -296,7 +296,14 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/credenciales_correo/transaccion_data', [AdmCredecialCorreoController::class, 'editar_transaccion_v2']); 
     Route::put('/user_rubro/añadir_quitar', [AdmCredecialCorreoController::class, 'añadir_quitar_rubro']); 
     Route::post('/credenciales_correo/stock_medio', [AdmCredecialCorreoController::class, 'editar_cambiar_stock']);   
-           
+    Route::post('/credenciales_correo/configuracionGestionStoc', [AdmCredecialCorreoController::class, 'editar_gestionStock_panel']);   
+    Route::put('/credenciales_correo/activar_panel_automatico', [AdmCredecialCorreoController::class, 'activador_gestionStock_panel']); 
+    Route::post('/credenciales_correo/crearDisGesAut', [AdmCredecialCorreoController::class, 'crearDistribuidorXautomatico']);  
+    Route::put('/credenciales_correo/editarDisGesAut', [AdmCredecialCorreoController::class, 'editarDistribuidorXautomatico']);  
+    Route::get('/credenciales_correo/listarDistribuidorAutomatico', [AdmCredecialCorreoController::class, 'getDistribuidorAutomatico']);    
+    Route::put('/credenciales_correo/editarDiferenciaVentas_3', [AdmCredecialCorreoController::class, 'updateDiferenciaVentas_3']);     
+    Route::put('/credenciales_correo/eliminarDisGesAut_3', [AdmCredecialCorreoController::class, 'deleteDisGesAut_3']);     
+               
     Route::get('/dosificacion/getDataSucursal', [AdmCredecialCorreoController::class, 'getDataSucursal']);
     Route::post('/dosificacion/store_dosificacion', [AdmCredecialCorreoController::class, 'store_dosificacion']);
     Route::get('/dosificacion/index_dosificacion', [AdmCredecialCorreoController::class, 'index_dosificacion']);    

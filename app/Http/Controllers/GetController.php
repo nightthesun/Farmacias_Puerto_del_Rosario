@@ -580,5 +580,12 @@ return response()->json($query); // buena práctica en API
     ->get();
     return $datos;
     } 
+
+    public function getConfigAdminGestionAutomatico(){
+        $registro = DB::table('log__config_gestion_stock')
+    ->where('id', 1)
+    ->get();
+        return $registro;
+    }
     
 }

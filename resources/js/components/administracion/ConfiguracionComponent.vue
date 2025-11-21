@@ -808,11 +808,9 @@
                 
             <!-------------------------------------------------CONFIGURACION STOCK MEDIO------------------------------------------------------------------->
             <div class="tab-pane fade" id="pills-configStockMedio" role="tabpanel" aria-labelledby="pills-configStockMedio-tab"> 
-                <div id="accordion" v-if="puedeHacerOpciones_especiales===1" >   
-                         <button type="button" class="btn btn-primary "    style="margin-right: 10px;" @click="butonActivarDesactivar_2(1)">Activar</button>
-                         <button type="button" class="btn btn-secondary" style="color: white;" @click="butonActivarDesactivar_2(0)">Desactivar</button>  
+                <div id="accordion" v-if="puedeHacerOpciones_especiales===1" >                  
                    
-                    <div v-show="accionActivar_desactivar_2==1" style="margin-top: 16px;">
+                    <div style="margin-top: 16px;">
                         <div class="card">
     <div class="card-header" id="headingUno1">
       <h5 class="mb-0">
@@ -874,7 +872,10 @@
                         <tr>
                             <td class="col-md-4">{{arrayFAlasoETC}}</td>
                             <td class="col-md-4">{{arrayFAlasoEliETC}}</td>
-                             <td class="col-md-4">enconstrucción</td>
+                            <td class="col-md-4">
+                                <span v-if="entabla_==null ||entabla_==''">Sin datos</span>
+                                <span v-else>{{entabla_}}</span>
+                            </td>
                         </tr>
                     </thead>
                 </table>         
@@ -894,7 +895,7 @@
                 </thead>
                 <tbody>
                         <tr>
-                            <td class="col-md-2"><input  type="time" class="form-control" v-model="horaS"></td>
+                            <td class="col-md-2"><input type="time" class="form-control" v-model="horaS"></td>
                             <td class="col-md-2">
                                 <select  class="form-control"  v-model="selectFrecuencia"> 
                                             <option value="0" disabled selected>Seleccionar...</option>
@@ -906,12 +907,12 @@
                             </td>                      
                            
                             <td class="col-md-2">
-                                <span class="badge badge-pill badge-success">Activo</span>
-                                <span class="badge badge-pill badge-danger">Desactivado</span>
+                                <span class="badge badge-pill badge-success" v-if="estadoCogGesStock==1">Activo</span>
+                                <span class="badge badge-pill badge-danger" v-else>Desactivado</span>
                             </td>
                             <td class="col-md-2">
                                 <div>
-                                <button type="button" class="btn btn-warning" style="color: white;"  v-if="(arrayFAlasoETC.length>0&&selectFrecuencia!='0'&&horaS!='')||selectSucursalGestionETC=='1'">Actualziar</button>
+                                <button type="button" class="btn btn-warning" style="color: white;"  v-if="(selectFrecuencia!='0'&&horaS!='')||selectSucursalGestionETC=='1'" @click="modificarConfiguracionGestionStock()">Actualziar</button>
                                 <button type="button" class="btn btn-secondary" style="color: white;" v-else>Actualziar</button> 
                                 </div>                                                
                             </td>
@@ -992,7 +993,7 @@
                                 <div class="form-group col-sm-4">
                                     <span style="font-size: 12px;">Fecha de pago con intervalo:</span>                                
                                      <input type="number" class="form-control" placeholder="Con la fecha de creación se suma el inetrvalo"  v-model="fechaPago">
-                              
+                               <span style="font-size: 12px;">Con la fecha de creacion se suma en dias el intervalo:</span>    
                                 </div>
                                 <div class="form-group col-sm-4" >
                                     <span style="font-size: 12px;">Plazo de pago:</span>
@@ -1015,7 +1016,8 @@
                                 </div>
                                 <div class="form-group col-sm-4">
                                     <br>
-                                    <button type="button" class="btn btn-primary" style="margin-right: 10px;">Crear</button>
+                                    <button type="button" class="btn btn-primary" v-if="id_distribuidor_ETC==0" style="margin-right: 10px;" :disabled="observacion==''||selectFormaPago=='0'||fechaPago==''||plazoPago==''||selectEntregaPedido=='0'" @click="crearDistribuidorGestionAutomatica()">Crear</button>
+                                    <button type="button" class="btn btn-warning" v-else style="margin-right: 10px;" :disabled="observacion==''||selectFormaPago=='0'||fechaPago==''||plazoPago==''||selectEntregaPedido=='0'" @click="editarDistribuidorGestionAutomatica()">Editar</button>
                                     <button type="button" class="btn btn-secondary" style="color: white;" @click="limpiarConfigGesStock_2()">Limpiar</button>
                                 </div>                               
                             </div>
@@ -1027,16 +1029,14 @@
   <div class="card">
     <div class="card-header" id="headingTres3">
       <h5 class="mb-0">
-        <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseTres3" aria-expanded="false" aria-controls="collapseTres3">
+        <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseTres3" aria-expanded="false" aria-controls="collapseTres3" @click="listarDistribuidorAutomatico_2()">
           Diferenciador por ventas 
         </button>
       </h5>
     </div>
     <div id="collapseTres3" class="collapse" aria-labelledby="headingTres3" data-parent="#accordion">
       <div class="card-body">
-        <button type="button" class="btn btn-primary"    style="margin-right: 10px; color: white;" @click="butonActivarDesactivar_3(1)"><i class="fa fa-indent" aria-hidden="true"></i> Activar</button>
-            <button type="button" class="btn btn-secondary" style="color: white;" @click="butonActivarDesactivar_3(0)"><i class="fa fa-indent" aria-hidden="true"></i> Desactivar</button>  
-         <div class="form-group row" style="margin-top: 15px;" v-show="accionActivar_desactivar_3==1">
+         <div class="form-group row" style="margin-top: 15px;">
                 <div class="col-md-6">
                       <label for="">Distribuidor:</label>                      
                         <VueMultiselect
@@ -1045,8 +1045,8 @@
                         :max-height="180"                   
                         :block-keys="['Tab', 'Enter']"                       
                         placeholder="Seleccione una opción"
-                       
-                        :custom-label="nameWithLang_3"                     
+                       :custom-label="nameWithLang_3"    
+                        :disabled="bloqueadorDistribui_3==1"                  
                         track-by="id"
                         class="w-260"
                         selectLabel="Añadir a seleccion"
@@ -1058,15 +1058,14 @@
                       </template>
                     </VueMultiselect>             
                 </div>
-                <div  class="col-md-4">
-                    <label for="">Distribuidor seleccionado:</label>
-                    <div class="alert alert-primary" role="alert">
-  This is a primary alert—check it out!
-</div>
+                <div class="col-md-2" style="margin-top: 28px;">
+                    <button type="button" v-if="bloqueadorDistribui_3==0" class="btn btn-primary" @click="mostrar_3_distri(selecDistribui_3.ciclo_2,selecDistribui_3.lim_inferior,selecDistribui_3.lim_superior,1)">Seleccionar</button>
+                    <button type="button" v-else class="btn btn-warning" @click="mostrar_3_distri(0,0,0,0)">Deseleccionar</button>                       
                 </div>
+                
         </div>  
-            <div class="row" v-show="accionActivar_desactivar_3==1"  style="margin-top: 15px;">
-  <div class="col-sm-6">
+            <div class="row"  style="margin-top: 15px;" >
+  <div class="col-sm-6" v-show="bloqueadorDistribui_3==1">
     <div class="card">
       <div class="card-body">
         <h5 class="card-title">Por unidades o cantidad vendida</h5>
@@ -1084,7 +1083,7 @@
                     <select v-model="selectCico_3" class="form-control">
                         <option value="0" disabled>Seleccionar...</option>
                         <option value="7">Una semana</option>
-                        <option value="30">Una mes</option>
+                        <option value="30">Un mes</option>
                         <option value="90">Tres meses</option>
                         <option value="180">Seis meses</option>
                         <option value="360">Doce meses</option>
@@ -1093,11 +1092,11 @@
         </div>     
         
                 
-        <a href="#" class="btn btn-primary" style="margin-top: 15px;">Realziar operación</a>
+        <a href="#" class="btn btn-primary" style="margin-top: 15px;" @click="realizarOperacion_3(1,selecDistribui_3.id)">Realziar operación</a>
       </div>
     </div>
   </div>
-  <div class="col-sm-6">
+  <div class="col-sm-6" v-show="bloqueadorDistribui_3==1">
     <div class="card">
       <div class="card-body">
         <h5 class="card-title">Diferencia por monto monetario</h5>
@@ -1105,14 +1104,14 @@
            <div class="row">
                 <div class="form-group col-sm-6">
                     <span>Limite inferiror:</span>
-                    <input type="number" class="form-control" placeholder="" >
+                    <input type="number" class="form-control" placeholder="" v-model="limiteInferior">
                 </div>
                 <div class="form-group col-sm-6">
                     <span>Limite Superiror:</span>
-                    <input type="number" class="form-control" placeholder="" >
+                    <input type="number" class="form-control" placeholder="" v-model="limiteSuperior">
                 </div>
             </div>       
-        <a href="#" class="btn btn-primary">Realizar operación</a>
+        <a href="#" class="btn btn-primary" @click="realizarOperacion_3(2,selecDistribui_3.id)">Realizar operación</a>
       </div>
     </div>
   </div>
@@ -1126,48 +1125,74 @@
     <div class="card-header" id="headingCuatro2">
       <h5 class="mb-0">
         <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseCuatro2" aria-expanded="false" aria-controls="collapseCuatro2">
-          Operaciones extra
+          Operaciones de activación
         </button>
       </h5>
     </div>
     <div id="collapseCuatro2" class="collapse" aria-labelledby="headingCuatro2" data-parent="#accordion">
       <div class="card-body">
-           <table class="table table-bordered table-striped table-sm table-responsive">
-                <thead>
-                    <tr>
-                        <th class="col-md-1">Activar</th>
-                        <th class="col-md-1">Desactivar</th>
-                        <th class="col-md-10">Modulo</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                       <tr>
-    <td><input class="form-check-input" type="radio" name="uno" id="uno_1" value="1"></td>
-    <td><input class="form-check-input" type="radio" name="uno" id="uno_0" value="0"></td>
-    <td><span>Modulo Configuración de sucursall / Reloj</span></td>
-</tr>
+         <table class="table table-bordered table-striped table-sm table-responsive">
+    <thead>
+        <tr>
+            <th class="col-md-1 text-center">Activar</th>
+            <th class="col-md-1 text-center">Desactivar</th>
+            <th class="col-md-10">Modulo</th>
+        </tr>
+    </thead>
+    <tbody>
 
-<tr>
-    <td><input class="form-check-input" type="radio" name="uno2" id="uno2_1" value="1"></td>
-    <td><input class="form-check-input" type="radio" name="uno2" id="uno2_0" value="0"></td>
-    <td><span>Modulo por unidades o cantidad vendida</span></td>
-</tr>
+        <tr>
+            <td class="text-center">
+                <input class="form-check-input" type="radio" name="uno" :value="1" v-model="valueRadio_1" @click="modificarActivadoresConfiguracionGestionStock(1)">
+            </td>
+            <td class="text-center">
+             <input class="form-check-input" type="radio" name="uno" :value="0" v-model="valueRadio_1" @click="modificarActivadoresConfiguracionGestionStock(1)">
+            </td>
+            <td>Modulo Configuración de sucursal / Reloj</td>
+        </tr>
 
-<tr>
-    <td><input class="form-check-input" type="radio" name="uno3" id="uno3_1" value="1"></td>
-    <td><input class="form-check-input" type="radio" name="uno3" id="uno3_0" value="0"></td>
-    <td><span>Diferencia por monto monetario</span></td>
-</tr>
+        <tr>
+            <td class="text-center">
+                <input class="form-check-input" type="radio" name="uno2" :value="1" v-model="valueRadio_2" @click="modificarActivadoresConfiguracionGestionStock(2)">
+            </td>
+            <td class="text-center">
+                <input class="form-check-input" type="radio" name="uno2" :value="0" v-model="valueRadio_2" @click="modificarActivadoresConfiguracionGestionStock(2)">
+            </td>
+            <td>Modulo por unidades o cantidad vendida</td>
+        </tr>
 
-<tr>
-    <td><input class="form-check-input" type="radio" name="uno4" id="uno4_1" value="1"></td>
-    <td><input class="form-check-input" type="radio" name="uno4" id="uno4_0" value="0"></td>
-    <td><span>Metodo ABC</span></td>
-</tr>
+        <tr>
+            <td class="text-center">
+                <input class="form-check-input" type="radio" name="uno3" :value="1" v-model="valueRadio_3" @click="modificarActivadoresConfiguracionGestionStock(3)">
+            </td>
+            <td class="text-center">
+                <input class="form-check-input" type="radio" name="uno3" :value="0" v-model="valueRadio_3" @click="modificarActivadoresConfiguracionGestionStock(3)">
+            </td>
+            <td>Diferencia por monto monetario</td>
+        </tr>
 
+        <tr>
+            <td class="text-center">
+                <input class="form-check-input" type="radio" name="uno4" :value="1" v-model="valueRadio_4" @click="modificarActivadoresConfiguracionGestionStock(4)">
+            </td>
+            <td class="text-center">
+                <input class="form-check-input" type="radio" name="uno4" :value="0" v-model="valueRadio_4" @click="modificarActivadoresConfiguracionGestionStock(4)">
+            </td>
+            <td>Metodo ABC</td>
+        </tr>
+        <tr>
+            <td class="text-center">
+                <input class="form-check-input" type="radio" name="uno5" :value="1" v-model="valueRadio_5" @click="modificarActivadoresConfiguracionGestionStock(5)">
+            </td>
+            <td class="text-center">
+                <input class="form-check-input" type="radio" name="uno5" :value="0" v-model="valueRadio_5" @click="modificarActivadoresConfiguracionGestionStock(5)">
+            </td>
+            <td>Por canal</td>
+        </tr>
 
-                    </tbody>
-            </table>                            
+    </tbody>
+</table>
+                         
                
         </div>
     </div>
@@ -1175,14 +1200,73 @@
   <div class="card">
     <div class="card-header" id="headingCinco2">
       <h5 class="mb-0">
-        <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseCinco2" aria-expanded="false" aria-controls="collapseCinco2">
-        Liminar
+        <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseCinco2" aria-expanded="false" aria-controls="collapseCinco2" @click="listarDistribuidorAutomatico_2()">
+        Listar / Eliminar
         </button>
       </h5>
     </div>
     <div id="collapseCinco2" class="collapse" aria-labelledby="headingCinco2" data-parent="#accordion">
       <div class="card-body">
-
+        <div class="form-group row">              
+                        
+                        <div class="col-md-3">                          
+                            <input type="text" id="texto" name="texto" class="form-control" v-model="inputPestaña_5" placeholder="Escriba segun lo que quiere buscar."/>                                                          
+                        </div>
+                        <div class="col-md-6">
+                            <div v-if="inputPestaña_5==''">
+                                <button type="submit" class="btn btn-secondary" style="margin-right: 5px;"><i class="fa fa-search"></i> Buscar x linea</button>
+                                <button type="submit" class="btn btn-secondary" style="margin-right: 5px;"><i class="fa fa-search" aria-hidden="true"></i> Buscar x distribuidor</button>
+                                <button type="submit" class="btn btn-secondary" ><i class="fa fa-search" aria-hidden="true"></i> Buscar x formato pago</button>                               
+                            </div> 
+                            <div v-else>
+                                <button type="submit" class="btn btn-primary" style="margin-right: 5px;" @click="buscarInputPestaña_5(1,inputPestaña_5)"><i class="fa fa-search"></i> Buscar x linea</button>
+                                <button type="submit" class="btn btn-primary" style="margin-right: 5px;" @click="buscarInputPestaña_5(2,inputPestaña_5)"><i class="fa fa-search" aria-hidden="true"></i> Buscar x distribuidor</button>
+                                <button type="submit" class="btn btn-primary"  @click="buscarInputPestaña_5(3,inputPestaña_5)"><i class="fa fa-search" aria-hidden="true"></i> Buscar x formato pago</button>                                
+                            </div>                                 
+                        </div> 
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-warning" style="color: white;" @click="listarDistribuidorAutomatico_2()"><i class="fa fa-list-ul" aria-hidden="true"></i> Volvera mostrar todo</button>   
+                        </div>                                             
+            </div>
+            <div style="max-height:300px; overflow-y:auto; overflow-x:hidden;">
+    <table class="table table-bordered table-striped table-sm table-responsive">
+        <thead>
+            <tr>
+                <th>Opción</th>
+                <th>Linea</th>
+                <th>Distribuidor</th>
+                <th>Lineas a sociadas</th>
+                <th>Forma de pago</th>
+                <th>Intervalo de pago</th>
+                <th>Plazo de pago</th>
+                <th>Tiempo de entrega</th>
+                <th>Observación</th>
+                <th>Op. ciclo</th>
+                <th>Op. limites</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr v-for="(i, index) in arrayDistribui_3" :key="index">
+                <td>
+                    <button type="button" class="btn btn-danger" @click="eliminarPestañaGestionAutomatica_5(i.id)">
+                        <i class="fa fa-trash-o"></i>
+                    </button>
+                </td>
+                <td>{{i.nombre_linea}}</td>
+                <td>{{i.alias}}</td>
+                <td>{{i.nom_linea_array}}</td>
+                <td>{{i.forma_pago_nombre}}</td>
+                <td>{{"Mas "+i.intervalo_pago+", a la fecha"}}</td>
+                <td>{{i.Plazo_pago}}</td>
+                <td>{{i.entrega_pedido_nombre}}</td>
+                <td>{{i.observacion}}</td>
+                <td>{{i.ciclo_2_nombre}}</td>
+                <td>{{"Lim.Inf: "+i.lim_inferior+" Lim.Sup: "+i.lim_superior}}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+        
        </div>
     </div>
   </div>
@@ -1412,13 +1496,24 @@ puedeEditar:2,
     observacion:'',
 
     selectFrecuencia:'0',
-    horaS:'',
-    accionActivar_desactivar_2:0,
-            accionActivar_desactivar_3:0,            
+    horaS:'',    
+         
             selecDistribui_3:null,
             arrayDistribui_3:[],
-            selectCico_3:"0",
-            
+            selectCico_3:'0',
+            entabla_:'',
+            estadoCogGesStock:'',
+            valueRadio_1:'',
+            valueRadio_2:'',
+            valueRadio_3:'',
+            valueRadio_4:'',
+            valueRadio_5:'',
+            id_distribuidor_ETC:0,
+            limiteInferior:0,
+            limiteSuperior:0,
+            bloqueadorDistribui_3:0,    
+            inputPestaña_5:'',  
+
 
 };
     },
@@ -1520,6 +1615,7 @@ puedeEditar:2,
             me.arrayFAlasoEliETC=[],
             me.sucursalFiltro();
             me.listarLiena();
+            me.listarConfigGestionStock();
             me.arrayLinea=[];
             me.selecLinea=null;
             me.arrayDisXLineasFalso=[];
@@ -1528,43 +1624,213 @@ puedeEditar:2,
             me.selectFormaPago="0";           
             me.fechaPago="";
             me.plazoPago="";
-            me.selectEntregaPedido="0";   
+            me.selectEntregaPedido="0";     
+          
             me.selectFormaPago="0"; 
             me.fechaPago="";
             me.plazoPago="";
             me.selectEntregaPedido="0";      
             me.observacion="Sin datos.";
 
-            me.selectFrecuencia="0";
-            me.horaS="";
-            me.accionActivar_desactivar_2=0;
-            me.accionActivar_desactivar_3=0;
+            me.selectCico_3="0";
+            me.limiteInferior=0;
+            me.limiteSuperior=0; 
+           
+            
             me.selecDistribui_3=null;
             me.arrayDistribui_3=[];
             me.selectCico_3="0";
-          
+          me.inputPestaña_5="";
         },
 
+        editarDistribuidorGestionAutomatica(){
+            let me = this;
+                axios.put("/credenciales_correo/editarDisGesAut", {
+                    id:me.id_distribuidor_ETC,
+                    formaPago:me.selectFormaPago,
+                    fechaPago:me.fechaPago,
+                    plazoPago:me.plazoPago,
+                    pedidoEntre:me.selectEntregaPedido,
+                    observacion:me.observacion             
+                }).then(function (response) {          
+                    let respuesta=response.data;  
+                    if (respuesta==0) {
+                        me.selecLinea=null;
+                            me.selectDistriETC='0';
+                            me.selectFormaPago='0';
+                            me.fechaPago='';
+                            me.plazoPago='';
+                            me.pedidoEntre='';
+                            me.observacion='';
+                            me.disparador_2=0;
+                            me.id_distribuidor_ETC=0;
+                     Swal.fire("Edición exitosamente","Haga click en Ok", "success",);   
+                    } else {
+                      Swal.fire("Error: "+respuesta,"Haga click en Ok", "error",);   
+                    }  
+                    })                
+                  .catch(function (error) { 
+                    error401(error);                        
+            });
+        },
+
+        buscarInputPestaña_5(data,buscar){
+            let me=this;
+            let arrayVerdadero=me.arrayDistribui_3;
+            let resultado=[];
+            switch (data) {
+                case 1:
+                resultado = arrayVerdadero.filter(i =>
+    i.nombre_linea.toLowerCase().includes(buscar.toLowerCase()));
+                break;
+            
+                case 2:
+                     resultado = arrayVerdadero.filter(i =>
+    i.alias.toLowerCase().includes(buscar.toLowerCase()));
+                break;
+
+                case 3:
+                    resultado = arrayVerdadero.filter(i =>
+    i.forma_pago_nombre.toLowerCase().includes(buscar.toLowerCase()));
+                break;
+
+                default:
+                resultado=[];
+                break;                
+            }
+            me.arrayDistribui_3=resultado;
+            me.inputPestaña_5="";
+        },
+
+        realizarOperacion_3(data,id){
+            let me=this;            
+            axios.put("/credenciales_correo/editarDiferenciaVentas_3", {                   
+                    data:data,
+                    id:id,
+                    ciclo:me.selectCico_3,
+                    limiteInferior:me.limiteInferior,
+                    limiteSuperior:me.limiteSuperior
+                }).then(function (response) {
+                    let respuesta=response.data;
+                    if (respuesta==0) {
+                         
+                      Swal.fire("Se registro exitosamente","Haga click en Ok", "success",);    
+                    }else{
+                     Swal.fire("Error:"+respuesta,"Haga click en Ok", "error",);    
+                    }
+                  
+                   
+                })
+                .catch(function (error) {                    
+                    error401(error);
+                });  
+        },
+
+
+eliminarPestañaGestionAutomatica_5(id){
+                let me=this;
+                const swalWithBootstrapButtons = Swal.mixin({
+                customClass: {
+                    confirmButton: 'btn btn-success',
+                    cancelButton: 'btn btn-danger'
+                },
+                buttonsStyling: false
+                })
+
+                swalWithBootstrapButtons.fire({
+                title: '¿Esta Seguro de eliminar?',
+                text: "Si elimina sera permanente",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Si, Eliminar',
+                cancelButtonText: 'No, Cancelar',
+                reverseButtons: true
+                }).then((result) => {
+                if (result.isConfirmed) {
+                     axios.put('/credenciales_correo/eliminarDisGesAut_3',{
+                        id: id
+                    }).then(function (response) {
+                    me.listarDistribuidorAutomatico_2();
+                        swalWithBootstrapButtons.fire(
+                            'Se elimino!',
+                            'El registro exitosamente.',
+                            'success'
+                        ) 
+                    }).catch(function (error) {
+                        error401(error);
+                    });
+                } else if (
+        
+                    result.dismiss === Swal.DismissReason.cancel
+                ) {
+                 
+                }
+                })
+            },
+
+         crearDistribuidorGestionAutomatica(){
+                let me = this;
+                axios.post("/credenciales_correo/crearDisGesAut", {
+                    id_linea:me.selecLinea.id,
+                    id_distribuidor:me.selectDistriETC,
+                    formaPago:me.selectFormaPago,
+                    fechaPago:me.fechaPago,
+                    plazoPago:me.plazoPago,
+                    pedidoEntre:me.selectEntregaPedido,
+                    observacion:me.observacion             
+                }).then(function (response) {          
+                    let respuesta=response.data;
+                    let valor=respuesta.valor;
+                    console.log(valor);
+                      if (valor==1) {
+                       Swal.fire({
+                        title: "El distribuidor seleccionado ya existe",
+                        text: "¿Decea editarlo para cambiar la información?",
+                        icon: "warning",
+                        showCancelButton: true,
+                        confirmButtonColor: "#3085d6",
+                        cancelButtonColor: "#626970",
+                        confirmButtonText: "Editar, SI"
+                        }).then((result) => {                          
+                            me.selectFormaPago=respuesta.forma_pago;
+                            me.fechaPago=respuesta.intervalo_pago;
+                            me.plazoPago=respuesta.Plazo_pago;
+                            me.pedidoEntre=respuesta.entrega_pedid;
+                            me.observacion=respuesta.observacion;
+                            me.id_distribuidor_ETC=respuesta.id;                                            
+                    });
+                      } else {
+                        if (valor==0) {
+                            me.selecLinea=null;
+                            me.selectDistriETC='0';
+                            me.selectFormaPago='0';
+                            me.fechaPago='';
+                            me.plazoPago='';
+                            me.pedidoEntre='';
+                            me.observacion='';
+                            me.disparador_2=0;
+                            me.id_distribuidor_ETC=0;
+                             Swal.fire("Se registro exitosamente","Haga click en Ok", "success",);                                         
+                        } else {
+                            me.selecLinea=null;
+                            me.selectDistriETC='0';
+                            me.selectFormaPago='0';
+                            me.fechaPago='';
+                            me.plazoPago='';
+                            me.pedidoEntre='';
+                            me.observacion='';
+                            me.disparador_2=0;
+                            me.id_distribuidor_ETC=0;
+                        Swal.fire("Error."+respuesta,"Haga click en Ok", "error",);                                                                            
+                        }
+                      }       
+                       
+                    })                
+                  .catch(function (error) { 
+                    error401(error);                        
+            }); 
+            },
        
-
-         butonActivarDesactivar_3(data){
-            let me=this;
-            if ( data==1) {
-                 me.accionActivar_desactivar_3=1;
-            } else {
-                 me.accionActivar_desactivar_3=0;
-            }
-        },
-
-        butonActivarDesactivar_2(data){
-            let me=this;
-            if ( data==1) {
-                 me.accionActivar_desactivar_2=1;
-            } else {
-                 me.accionActivar_desactivar_2=0;
-            }
-        },
-
         añadirETC(){
             let me=this;
             let entero= parseInt(me.sucursalSeleccionada,10);
@@ -1580,6 +1846,131 @@ puedeEditar:2,
             }                
             }
         },
+
+        modificarActivadoresConfiguracionGestionStock(data){
+            let me = this;  
+            let tipo="";
+            switch (data) {
+                case 1:                 
+                 if (me.valueRadio_1==1) {
+                    tipo=0;
+                 }else{
+                    tipo=1;
+                 }   
+                break;
+                case 2:                 
+                 if (me.valueRadio_2==1) {
+                    tipo=0;
+                 }else{
+                    tipo=1;
+                 }   
+                break;
+                case 3:                 
+                 if (me.valueRadio_3==1) {
+                    tipo=0;
+                 }else{
+                    tipo=1;
+                 }   
+                break;
+                case 4:                 
+                 if (me.valueRadio_4==1) {
+                    tipo=0;
+                 }else{
+                    tipo=1;
+                 }   
+                break;
+                case 5:                 
+                 if (me.valueRadio_5==1) {
+                    tipo=0;
+                 }else{
+                    tipo=1;
+                 }   
+                break;
+                default:
+                    break;
+            }
+             axios.put("/credenciales_correo/activar_panel_automatico", {
+                    tipo:tipo,
+                    data:data                   
+                }).then(function (response) {
+                   me.listarConfigGestionStock();
+                })
+                .catch(function (error) {                    
+                    error401(error);
+                });            
+        },
+
+          modificarConfiguracionGestionStock(){
+            let me = this;
+           
+                if (me.selectSucursalGestionETC==1) {
+                    me.entabla_="";
+                }else{
+                    if (me.arrayFAlasoETC.length>0) {
+                  
+                        let arrCadena =  me.entabla_.split(",").map(Number);
+                        // unir ambos arrays
+                        let combinado = [...arrCadena, ...me.arrayFAlasoETC];
+                        // eliminar repetidos
+                        let unicos = [...new Set(combinado)];
+                         let resultado_1 = unicos.filter(elemento => elemento !== 0);
+                        // convertir otra vez a string
+                        let resultado_2 = resultado_1.join(",");
+                        me.entabla_=resultado_2;                                      
+                    }
+                    if (me.arrayFAlasoEliETC.length > 0) {
+              
+    // convertir la cadena a array de números
+    let arrCadena = me.entabla_.split(",").map(Number);
+    let A = me.arrayFAlasoEliETC;
+    let B = arrCadena;
+    // convertir a Set para optimizar búsqueda
+    let setA = new Set(A);
+    let setB = new Set(B);
+    // elementos únicos de A
+    let soloA = A.filter(x => !setB.has(x));
+    // elementos únicos de Bs
+    let soloB = B.filter(x => !setA.has(x));
+    // unir los que no están repetidos
+    let combinado = [...soloA, ...soloB];
+    let resultado = combinado.filter(elemento => elemento !== 0);
+    // convertir a string
+    me.entabla_ = resultado.join(",");
+}                   
+                }     
+                
+                axios
+                .post("/credenciales_correo/configuracionGestionStoc", {
+                    tipoSucursal:me.selectSucursalGestionETC,
+                    entabla:me.entabla_,
+                    hora:me.horaS,
+                    frecuencia:me.selectFrecuencia,                              
+
+                    id_modulo: me.idmodulo,
+                    id_sub_modulo:me.codventana, 
+                    des:"modifica configuracionGestionStoc",  
+                  
+                })
+                .then(function (response) {
+                   let respuesta = response.data;
+                   me.arrayFAlasoEliETC=[];
+                   me.arrayFAlasoETC=[];
+                   me.sucursalSeleccionada="0";
+
+                    console.log(respuesta);
+                    Swal.fire(
+                        "Actualizado Correctamente!",
+                        "El registro a sido actualizado Correctamente",
+                        "success",
+                    );
+                })
+                .catch(function (error) {
+                error401(error);
+                });
+            
+        },
+
+
 
          eliminarETC(){
             let me=this;
@@ -1638,7 +2029,43 @@ puedeEditar:2,
 
         cambioSelectETC(){
             this.sucursalSeleccionada="0";
+            this.arrayFAlasoETC=[];
+            this.arrayFAlasoEliETC=[];
         },
+
+        mostrar_3_distri(ciclo,inf,sup,data){
+          let me=this;
+          if (data==1) {
+            me.bloqueadorDistribui_3=1;
+         
+          } else {
+            me.bloqueadorDistribui_3=0;
+          
+          }
+          me.selectCico_3=ciclo;
+            me.limiteInferior=inf;
+            me.limiteSuperior=sup; 
+             
+        },
+
+listarDistribuidorAutomatico_2() {
+            let me = this;
+           me.selecDistribui_3=null;
+            me.arrayDistribui_3=[];
+            me.inputPestaña_5="";
+           var url = "/credenciales_correo/listarDistribuidorAutomatico";
+            axios
+                .get(url)
+                .then(function (response) {
+                    var respuesta = response.data;  
+                    me.arrayDistribui_3=respuesta;   
+                    console.log(respuesta);                 
+                })
+                .catch(function (error) {
+                    error401(error);
+                });
+        },
+
 
         listarDistribuidorETC(data) {
             let me = this;
@@ -1664,6 +2091,35 @@ puedeEditar:2,
                 .then(function (response) {
                     var respuesta = response.data;
                     me.arrayLinea=respuesta;
+                    console.log(respuesta);                 
+                })
+                .catch(function (error) {
+                    error401(error);       
+                });
+        },
+
+        listarConfigGestionStock() {
+            let me = this;
+            var url = "/listarConfigAdminGestionAutomatico";
+            axios.get(url)
+                .then(function (response) {
+                    var respuesta = response.data;    
+                    if (respuesta.length>0) {
+                        me.selectSucursalGestionETC=respuesta[0].tipo_sucursal;
+                        me.entabla_=respuesta[0].id_sucursales;
+                        me.horaS=respuesta[0].hora;
+                        me.selectFrecuencia=respuesta[0].frecuencia;
+                        me.estadoCogGesStock=respuesta[0].activo_c_r_1;
+                        me.valueRadio_1=respuesta[0].activo_c_r_1;
+                        me.valueRadio_2=respuesta[0].activo_d_l_2;
+                        me.valueRadio_3=respuesta[0].activo_d_m_m_3;
+                        me.valueRadio_4=respuesta[0].activo_m_abc_4;
+                        me.valueRadio_5=respuesta[0].activo_canal_5;
+                        
+                       
+                    } else {
+                       Swal.fire("No existe la tabla!","Tabla eliminada o duplicada con indicador id distinto a uno","error",); 
+                    }            
                     console.log(respuesta);                 
                 })
                 .catch(function (error) {
@@ -1852,6 +2308,10 @@ puedeEditar:2,
 
           nameWithLang_2 ({codigo, nombre,}) {            
             return `${codigo} (${nombre}) `
+          },
+
+           nameWithLang_3 ({alias, nombre_linea,nom_linea_array}) {            
+            return `Distribuidor: ${alias} (${nombre_linea}) Otras lineas: ${nom_linea_array}`
           },
 
         toggle () {

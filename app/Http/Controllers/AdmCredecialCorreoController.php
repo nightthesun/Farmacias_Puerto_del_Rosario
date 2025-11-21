@@ -398,11 +398,11 @@ class AdmCredecialCorreoController extends Controller
         $verificacion = DB::table('adm__credecial_correos')
         ->select('id', 'factura_dosificacion')
         ->where('factura_dosificacion', 2)
-        ->get();
+        ->first();
         $valor="";    
-            if (count($verificacion)>0) {
+            if ($verificacion) {
                 $valor=1;
-                return response()->json(['valor'=>$valor,'id'=>$verificacion[0]->id]); 
+                return response()->json(['valor'=>$valor,'id'=>$verificacion->id]); 
             }
             else{
                 $valor=0;
@@ -756,6 +756,203 @@ class AdmCredecialCorreoController extends Controller
         }
     }
 
+    public function editar_gestionStock_panel(Request $request){        
+        try {
+            $fechaActual = Carbon::now(); // Obtiene la fecha y hora actual
+                   
+            $data2=[
+                'tipo_sucursal' => $request->tipoSucursal,
+                'id_sucursales' => $request->entabla,
+                'hora' => $request->hora,
+                'frecuencia' => $request->frecuencia,                
+            ];
+
+             DB::table('log__config_gestion_stock')->where('id', 1)->update($data2);         
     
+            $datos = [
+                'id_modulo' => $request->id_modulo,
+                'id_sub_modulo' => $request->id_sub_modulo,
+                'accion' => 2,
+                'descripcion' => $request->des,          
+                'user_id' =>auth()->user()->id, 
+                'created_at'=>$fechaActual,
+                'id_movimiento'=>1,   
+            ];
+        
+            DB::table('log__sistema')->insert($datos);   
+        } catch (\Throwable $th) {
+            return $th;
+        }
+    }   
+
+    public function activador_gestionStock_panel(Request $request){
+        $bu=$request->data;
+        $tipo=$request->tipo;             
+              
+        switch ($bu) {
+            case 1:
+                $datos = ['activo_c_r_1' => $tipo];
+            break;
+            case 2:
+                $datos = ['activo_d_l_2' => $tipo];
+            break;
+            case 3:
+                $datos = ['activo_d_m_m_3' => $tipo];
+            break;
+            case 4:
+                $datos = ['activo_m_abc_4' => $tipo];
+            break;
+            case 5:
+                $datos = ['activo_canal_5' => $tipo];
+            break;
+            default:
+               $datos = ['activo_c_r_1' => 0,'activo_d_l_2' => 0, 'activo_d_m_m_3' => 0, 'activo_m_abc_4' => 0,'activo_canal_5' => 0];
+                break;
+        }
+         DB::table('log__config_gestion_stock')->where('id', 1)->update($datos); 
+    }
+
+    public function crearDistribuidorXautomatico(Request $request){
+        try {
+            //1= existe
+            $id_dis=$request->id_distribuidor;
+            $id_linea=$request->id_linea;
+             DB::beginTransaction();
+               $existe = DB::table('log__distribuidor_auto')
+                ->where('id_linea', $id_linea)
+                ->where('id_distribuidor', $id_dis)
+                 ->first();
+            if ($existe) {            
+             return response()->json([
+                'valor' => 1,
+                'id' => $existe->id,
+                'forma_pago'=> $existe->forma_pago,
+                'intervalo_pago'=> $existe->intervalo_pago,
+                'Plazo_pago'=> $existe->Plazo_pago,
+                'entrega_pedido'=> $existe->entrega_pedido,
+                'observacion'=> $existe->observacion,
+            ]); 
+            } 
+             $fechaActual = Carbon::now(); // Obtiene la fecha y hora actual
+            $datos = [
+                'id_linea' => $request->id_linea,
+                'id_distribuidor' => $request->id_distribuidor,
+                'forma_pago' => $request->formaPago,
+                'intervalo_pago' => $request->fechaPago,          
+                'Plazo_pago' => $request->plazoPago,    
+                'entrega_pedido'=> $request->pedidoEntre,
+                'observacion'=> $request->observacion, 
+                'created_at' => $fechaActual, 
+                'updated_at' => $fechaActual,
+            ];
+             DB::table('log__distribuidor_auto')->insert($datos); 
+             DB::commit();
+             return response()->json(['valor' => 0]);
+         
+        } catch (\Throwable $th) {
+            return $th;
+        }
+    }
+
+   public function editarDistribuidorXautomatico(Request $request){
+    try {
+      DB::beginTransaction();
+      $fechaActual = Carbon::now(); // Obtiene la fecha y hora actual
+            $datos = [                
+                'forma_pago' => $request->formaPago,
+                'intervalo_pago' => $request->fechaPago,          
+                'Plazo_pago' => $request->plazoPago,    
+                'entrega_pedido'=> $request->pedidoEntre,
+                'observacion'=> $request->observacion,       
+                'updated_at' => $fechaActual,
+            ];
+             DB::table('log__distribuidor_auto')->where('id', $request->id)->update($datos); 
+       DB::commit();
+       return 0;
+    } catch (\Throwable $th) {
+        return $th;
+    }    
+   }
+
+   public function getDistribuidorAutomatico(){
+   
+    $resultado = DB::table('log__distribuidor_auto as lda')
+    ->join('prod__lineas as pl', 'lda.id_linea', '=', 'pl.id')
+    ->join('dir__distribuidors as dd', 'dd.id', '=', 'lda.id_distribuidor')
+    ->select(
+        'lda.id',
+        'lda.forma_pago',
+        DB::raw("CASE
+            WHEN lda.forma_pago = 1 THEN 'CHEQUE'
+            WHEN lda.forma_pago = 2 THEN 'CONTADO'
+            WHEN lda.forma_pago = 3 THEN 'CREDITO'
+            WHEN lda.forma_pago = 4 THEN 'TRASFERENCIA BANCARIA'
+            ELSE NULL
+        END AS forma_pago_nombre"),
+        'lda.intervalo_pago',
+        'lda.Plazo_pago',
+        'lda.entrega_pedido',
+        DB::raw("CASE
+            WHEN lda.entrega_pedido = 1 THEN 'MAÑANA'
+            WHEN lda.entrega_pedido = 2 THEN 'TARDE'
+            ELSE NULL
+        END AS entrega_pedido_nombre"),
+        'lda.observacion',
+        'lda.ciclo_2',
+        DB::raw("CASE
+            WHEN lda.ciclo_2 = 7 THEN 'UNA SEMANA'
+            WHEN lda.ciclo_2 = 30 THEN 'UN MES'
+            WHEN lda.ciclo_2 = 90 THEN 'TRES MESES'
+            WHEN lda.ciclo_2 = 180 THEN 'SEIS MESES'
+            WHEN lda.ciclo_2 = 360 THEN 'DOCE MESES'
+            ELSE 'SIN ACCION'
+        END AS ciclo_2_nombre"),
+        'lda.lim_inferior',
+        'lda.lim_superior',
+        'pl.nombre as nombre_linea',
+        'dd.nom_linea_array',
+        'dd.alias'
+    )
+     ->orderBy('lda.id', 'desc')
+    ->get();
+
+    return $resultado;
+   } 
+
+  public function updateDiferenciaVentas_3(Request $request){
+    try {
+    DB::beginTransaction();
+    if ($request->data==1) {
+       $datos = [                  
+                'ciclo_2' => $request->ciclo              
+            ];
+    }else{
+        if ($request->data==2) {
+       $datos = [                
+                'lim_inferior' => $request->limiteInferior, 
+                'lim_superior' => $request->limiteSuperior,                
+            ];
+    }else {
+        $datos = [  
+            'ciclo_2' => 0,              
+                'lim_inferior' =>0, 
+                'lim_superior' =>0,               
+            ];
+        }
+    }   
+    
+    DB::table('log__distribuidor_auto')->where('id', $request->id)->update($datos); 
+    DB::commit();
+       return 0;
+    } catch (\Throwable $th) {
+        return $th;
+    }
+  }
+
+  public function deleteDisGesAut_3(Request $request){
+   DB::table('log__distribuidor_auto')
+    ->where('id', $request->id)
+    ->delete();
+  }
 
 }
