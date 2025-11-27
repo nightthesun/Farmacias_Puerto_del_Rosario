@@ -588,4 +588,10 @@ return response()->json($query); // buena práctica en API
         return $registro;
     }
     
+    public function getConfigAdminTraspaso(){
+        $registro = DB::table('log__config_traspaso')
+    ->where('id', 1)
+    ->get();
+        return $registro;
+    }
 }

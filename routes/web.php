@@ -197,6 +197,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/listarLinea', [GetController::class, 'onlySuscursal']);     
     Route::get('/listarDistribuidorXlinea', [GetController::class, 'getDitribuidorNeedLinea']); 
     Route::get('/listarConfigAdminGestionAutomatico', [GetController::class, 'getConfigAdminGestionAutomatico']); 
+    Route::get('/listarConfigAdminTraspaso', [GetController::class, 'getConfigAdminTraspaso']);    
         
     /**********************verificador de apertura cierre retornod e datos****************************** */
     Route::get('/verificacionAperturaCierre', [GetController::class, 'listarAperturaCierre']);
@@ -302,7 +303,10 @@ Route::group(['middleware' => 'auth'], function () {
     Route::put('/credenciales_correo/editarDisGesAut', [AdmCredecialCorreoController::class, 'editarDistribuidorXautomatico']);  
     Route::get('/credenciales_correo/listarDistribuidorAutomatico', [AdmCredecialCorreoController::class, 'getDistribuidorAutomatico']);    
     Route::put('/credenciales_correo/editarDiferenciaVentas_3', [AdmCredecialCorreoController::class, 'updateDiferenciaVentas_3']);     
-    Route::put('/credenciales_correo/eliminarDisGesAut_3', [AdmCredecialCorreoController::class, 'deleteDisGesAut_3']);     
+    Route::put('/credenciales_correo/eliminarDisGesAut_3', [AdmCredecialCorreoController::class, 'deleteDisGesAut_3']);  
+    Route::put('/credenciales_correo/activar_acciones_traspaso_SS', [AdmCredecialCorreoController::class, 'update_acciones_traspaso_SS']);   
+    Route::put('/credenciales_correo/modificarDiasAcumulados_traspaso_SS', [AdmCredecialCorreoController::class, 'update_DiasAcumulados_traspaso_SS']); 
+    Route::put('/credenciales_correo/modificarTraspaso_traspaso_SS', [AdmCredecialCorreoController::class, 'updateTraspaso_traspaso_SS']);     
                
     Route::get('/dosificacion/getDataSucursal', [AdmCredecialCorreoController::class, 'getDataSucursal']);
     Route::post('/dosificacion/store_dosificacion', [AdmCredecialCorreoController::class, 'store_dosificacion']);

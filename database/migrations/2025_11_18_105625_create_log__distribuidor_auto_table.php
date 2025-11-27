@@ -24,6 +24,7 @@ return new class extends Migration
             $table->smallInteger('lim_inferior')->default(0);
             $table->smallInteger('lim_superior')->default(0);
             $table->timestamps();
+            $table->string('estado_reloj',250)->nullable();
         });
     }
 

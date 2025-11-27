@@ -954,5 +954,60 @@ class AdmCredecialCorreoController extends Controller
     ->where('id', $request->id)
     ->delete();
   }
+  //-------------backend traspasos pesteña 13---------
+  public function update_acciones_traspaso_SS(Request $request){
+        $bu=$request->data;
+        $tipo=$request->tipo;             
+              
+        switch ($bu) {
+            case 1:
+                if($tipo==0){
+                    $datos = ['activo_traspaso' => 0, 'activo_traslado' => 0,'activo_recepcion' => 0];
+                }else{
+                    $datos = ['activo_traspaso' => 1];
+                }                
+            break;
+            case 2:
+                if($tipo==0){
+                    $datos = ['activo_traslado' => 0,'activo_recepcion' => 0];
+                }else{
+                    $datos = ['activo_traslado' => 1];
+                }
+               
+            break;
+            case 3:
+                $datos = ['activo_recepcion' => $tipo];
+            break;            
+            default:
+               $datos = ['activo_traspaso' => 0,'activo_traslado' => 0, 'activo_recepcion' => 0];
+            break;
+        }
+         DB::table('log__config_traspaso')->where('id', 1)->update($datos); 
+    }
+
+   public function update_DiasAcumulados_traspaso_SS(Request $request){
+    try {
+        DB::beginTransaction();
+        $valor=30+$request->valor;
+        $datos = ['dias_acumulados' => $valor];
+         DB::table('log__config_traspaso')->where('id', 1)->update($datos); 
+        DB::commit();
+        return 0;
+    } catch (\Throwable $th) {
+        return $th;
+    }        
+   }
+
+    public function updateTraspaso_traspaso_SS(Request $request){
+    try {
+        DB::beginTransaction();       
+        $datos = ['glosa_traspaso' => $request->palabra,'estado_traspaso' => $request->estado];
+         DB::table('log__config_traspaso')->where('id', 1)->update($datos); 
+        DB::commit();
+        return 0;
+    } catch (\Throwable $th) {
+        return $th;
+    }        
+   }
 
 }
