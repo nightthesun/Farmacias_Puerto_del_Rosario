@@ -25,6 +25,8 @@ return new class extends Migration
             $table->smallInteger('lim_superior')->default(0);
             $table->timestamps();
             $table->string('estado_reloj',250)->nullable();
+            $table->integer('limiteCompra_1')->default(0)->nullable();
+            $table->integer('limiteCompra_2')->default(1)->nullable();
         });
     }
 

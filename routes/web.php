@@ -67,6 +67,7 @@ use App\Http\Controllers\GesPreVenta2Controller;
 use App\Http\Controllers\GestionPerimsoController;
 use App\Http\Controllers\GetController;
 use App\Http\Controllers\InvAutoGestionStockController;
+use App\Http\Controllers\InvAutoTtrController;
 use App\Http\Controllers\InvConfiguracionStockController;
 use App\Http\Controllers\InvGestionStockController;
 use App\Http\Controllers\ParDescuentoController;
@@ -197,7 +198,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/listarLinea', [GetController::class, 'onlySuscursal']);     
     Route::get('/listarDistribuidorXlinea', [GetController::class, 'getDitribuidorNeedLinea']); 
     Route::get('/listarConfigAdminGestionAutomatico', [GetController::class, 'getConfigAdminGestionAutomatico']); 
-    Route::get('/listarConfigAdminTraspaso', [GetController::class, 'getConfigAdminTraspaso']);    
+    Route::get('/listarConfigAdminTraspaso', [GetController::class, 'getConfigAdminTraspaso']);  
+    Route::get('/listarVehiculoNormal', [GetController::class, 'getVehiculoNormal']);        
         
     /**********************verificador de apertura cierre retornod e datos****************************** */
     Route::get('/verificacionAperturaCierre', [GetController::class, 'listarAperturaCierre']);
@@ -306,7 +308,10 @@ Route::group(['middleware' => 'auth'], function () {
     Route::put('/credenciales_correo/eliminarDisGesAut_3', [AdmCredecialCorreoController::class, 'deleteDisGesAut_3']);  
     Route::put('/credenciales_correo/activar_acciones_traspaso_SS', [AdmCredecialCorreoController::class, 'update_acciones_traspaso_SS']);   
     Route::put('/credenciales_correo/modificarDiasAcumulados_traspaso_SS', [AdmCredecialCorreoController::class, 'update_DiasAcumulados_traspaso_SS']); 
-    Route::put('/credenciales_correo/modificarTraspaso_traspaso_SS', [AdmCredecialCorreoController::class, 'updateTraspaso_traspaso_SS']);     
+    Route::put('/credenciales_correo/modificarTraspaso_traspaso_SS', [AdmCredecialCorreoController::class, 'updateTraspaso_traspaso_SS']);  
+    Route::put('/credenciales_correo/modificarConfiguracionTraspaso_traspado_SS', [AdmCredecialCorreoController::class, 'updateConfiguracionTraspaso_traspado_SS']);  
+    Route::put('/credenciales_correo/modificarTraspaso_recepcio_SS', [AdmCredecialCorreoController::class, 'updateTraspaso_recepcio_SS']);   
+    Route::put('/credenciales_correo/modificarEcuacionZ ', [AdmCredecialCorreoController::class, 'updateEcuacionZ']);         
                
     Route::get('/dosificacion/getDataSucursal', [AdmCredecialCorreoController::class, 'getDataSucursal']);
     Route::post('/dosificacion/store_dosificacion', [AdmCredecialCorreoController::class, 'store_dosificacion']);
@@ -637,7 +642,7 @@ Route::group(['middleware' => 'auth'], function () {
    
     Route::get('/procesar-traspaso', [InvProcesarTraspasoController::class, 'index']);
     Route::get('/procesar-traspaso/listarSucursal', [InvProcesarTraspasoController::class, 'listarSucursal']);
-    Route::get('/procesar-traspaso/listarUsuario', [InvProcesarTraspasoController::class, 'listarUsuario']);
+    Route::get('/procesar-traspaso/listarUsuario', [InvProcesarTraspasoController::class, 'listarUsuario']); 
 
     //---gestor stock
     Route::get('/gestor-stock/listarDistribuidor', [InvGestionStockController::class, 'get_distribuidor_gesSctock']);
@@ -666,7 +671,11 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/auto-gestion-stock/listarDistribuidor', [InvAutoGestionStockController::class, 'getDistribuidor']);
     Route::get('/auto-gestion-stock/listar_Producto_x_distribuidor', [InvAutoGestionStockController::class, 'getProducto_x_distribuidor']);   
     Route::get('/auto-gestion-stock/listarIndiceVenta', [InvAutoGestionStockController::class, 'getIndiceConsumoXventa']);  
-    Route::get('/auto-gestion-stock/listarIndicePrecio', [InvAutoGestionStockController::class, 'getIndiceConsumoXprecio']);      
+    Route::get('/auto-gestion-stock/listarIndicePrecio', [InvAutoGestionStockController::class, 'getIndiceConsumoXprecio']);    
+    
+    //---auto proceso TTR 
+    Route::get('/auto-proceso/listarTablaConfig', [InvAutoTtrController::class, 'getTablaConfig_tg']);  
+    Route::get('/auto-proceso/listarOperacionAuto', [InvAutoTtrController::class, 'getGoToRunOperacionAuto']);      
         
     /////////////////////////////////LOGISTICO///////////////////////////////////////
     Route::get('/vehiculo/listarSucursal', [LogVehiculoController::class, 'listarSucursal']);

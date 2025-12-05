@@ -312,6 +312,23 @@ return $result;
     return $bancos;
     }
 
+    //---------vehiculo
+    public function getVehiculoNormal(){
+        $vehiculos = DB::table('log__vehiculos as lv')
+    ->select(
+        'lv.id',
+        'lv.razon_social as sucursal',
+        'lv.tipo',
+        'lv.matricula',
+        'lv.nro_chasis',
+        'lv.idsucursal'
+    )
+    ->where('lv.estado', 1)
+    ->where('lv.activo', 1)
+    ->get();
+        return $vehiculos;
+    }
+
     ////////////////////////////USUARIOS///////////////////////////////
     public function getUser(){
         $usuario = DB::table('users as u')

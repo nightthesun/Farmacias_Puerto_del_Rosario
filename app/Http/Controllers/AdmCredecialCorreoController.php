@@ -831,6 +831,8 @@ class AdmCredecialCorreoController extends Controller
                 'Plazo_pago'=> $existe->Plazo_pago,
                 'entrega_pedido'=> $existe->entrega_pedido,
                 'observacion'=> $existe->observacion,
+                'limiteCompra_1'=>$existe->limiteCompra_1,
+                'limiteCompra_2'=>$existe->limiteCompra_2,
             ]); 
             } 
              $fechaActual = Carbon::now(); // Obtiene la fecha y hora actual
@@ -844,6 +846,8 @@ class AdmCredecialCorreoController extends Controller
                 'observacion'=> $request->observacion, 
                 'created_at' => $fechaActual, 
                 'updated_at' => $fechaActual,
+                'limiteCompra_1'=>$request->limiteCompra_1,
+                'limiteCompra_2'=>$request->limiteCompra_2,
             ];
              DB::table('log__distribuidor_auto')->insert($datos); 
              DB::commit();
@@ -865,6 +869,8 @@ class AdmCredecialCorreoController extends Controller
                 'entrega_pedido'=> $request->pedidoEntre,
                 'observacion'=> $request->observacion,       
                 'updated_at' => $fechaActual,
+                'limiteCompra_1'=>$request->limiteCompra_1,
+                'limiteCompra_2'=>$request->limiteCompra_2,
             ];
              DB::table('log__distribuidor_auto')->where('id', $request->id)->update($datos); 
        DB::commit();
@@ -1001,7 +1007,7 @@ class AdmCredecialCorreoController extends Controller
     public function updateTraspaso_traspaso_SS(Request $request){
     try {
         DB::beginTransaction();       
-        $datos = ['glosa_traspaso' => $request->palabra,'estado_traspaso' => $request->estado];
+        $datos = ['glosa_traspaso' => $request->palabra,'estado_traspaso' => $request->estado,'limiteTraspaso_1'=>$request->limiteTraspaso_1,'limiteTraspaso_2'=>$request->limiteTraspaso_2];
          DB::table('log__config_traspaso')->where('id', 1)->update($datos); 
         DB::commit();
         return 0;
@@ -1009,5 +1015,65 @@ class AdmCredecialCorreoController extends Controller
         return $th;
     }        
    }
+
+   public function updateConfiguracionTraspaso_traspado_SS(Request $request){
+    try {
+           DB::beginTransaction();  
+           $indice = $request->indice;
+            switch ($indice) {
+                case 1:
+                    $datos = ['id_users_traslado' => $request->tabla_];
+                break;
+                case 2:
+                    $datos = ['id_vehiculo_traslado' => $request->tabla_];
+                break;
+                case 3:
+                    $datos = [
+                        'ini_traslado' => $request->hora_I,
+                        'fin_traslado' => $request->hora_F,
+                        'max_items_traslado' => $request->input_cantidad_max,
+                        'limiteTraslado_1' => $request->limiteTraslado_1,
+                        'limiteTraslado_2' => $request->limiteTraslado_2,
+                        'observacion_traslado' => $request->inputObservacio,
+                    ];
+                break;
+                default:                   
+                break;
+            }        
+        DB::table('log__config_traspaso')->where('id', 1)->update($datos); 
+        DB::commit();
+        return 0;         
+       
+    } catch (\Throwable $th) {
+        return $th;
+    }        
+   }
+
+   public function updateTraspaso_recepcio_SS(Request $request){
+    try {
+        DB::beginTransaction();       
+        $datos = ['observacion_recepcion' => $request->palabra,
+                    'limiteRecepcion_1' => $request->limiteRecepcion_1,
+                        'limiteRecepcion_2' => $request->limiteRecepcion_2,
+        ];
+         DB::table('log__config_traspaso')->where('id', 1)->update($datos); 
+        DB::commit();
+        return 0;
+    } catch (\Throwable $th) {
+        return $th;
+    }        
+   }
+   
+   public function updateEcuacionZ(Request $request){
+    try {
+           DB::beginTransaction(); 
+      $datos=['valor_Z'=>$request->ecuacion_radio_1];
+     DB::table('log__config_traspaso')->where('id', 1)->update($datos); 
+      DB::commit();
+        return 0;
+    } catch (\Throwable $th) {
+            return $th;
+    } 
+    }
 
 }

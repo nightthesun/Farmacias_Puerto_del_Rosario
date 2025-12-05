@@ -49,7 +49,10 @@
                     <a class="nav-link" id="pills-configStockMedio-tab" data-toggle="pill" href="#pills-configStockMedio" role="tab" aria-controls="pills-configStockMedio" aria-selected="false" @click="botonConfiguracionAutomatica()">Configuración gestion stock automatico</a>
                 </li> 
                 <li class="nav-item">
-                    <a class="nav-link" id="pills-traspasoAutomatico-tab" data-toggle="pill" href="#pills-traspasoAutomatico" role="tab" aria-controls="pills-traspasoAutomatico" aria-selected="false" @click="listarConfigAdminTraspaso()">Configuración de traspaso automatico</a>
+                    <a class="nav-link" id="pills-traspasoAutomatico-tab" data-toggle="pill" href="#pills-traspasoAutomatico" role="tab" aria-controls="pills-traspasoAutomatico" aria-selected="false" @click="listarConfigAdminTraspaso();">Configuración de traspaso automatico</a>
+                </li> 
+                <li class="nav-item">
+                    <a class="nav-link" id="pills-ecuaciones-tab" data-toggle="pill" href="#pills-ecuaciones" role="tab" aria-controls="pills-ecuaciones" aria-selected="false" @click="listarConfigAdminTraspaso()">Configuración de ecuaciones</a>
                 </li> 
                        
             </ul>
@@ -992,38 +995,47 @@
             </div>
             <blockquote class="blockquote mb-0" v-show="disparador_2==1">
          <div class="row">
-                                <div class="form-group col-sm-4">
+                                <div class="form-group col-sm-3">
                                     <span style="font-size: 12px;">Forma de pago:</span>
                                       <select v-model="selectFormaPago" class="form-control">
                                         <option value="0" disabled>Seleccionar...</option>
                                         <option v-for="a in array_forma_pago" :key="a.id" :value="a.id" v-text="a.tipo"></option>
                                     </select>
                                 </div>
-                                <div class="form-group col-sm-4">
+                                <div class="form-group col-sm-3">
                                     <span style="font-size: 12px;">Fecha de pago con intervalo:</span>                                
                                      <input type="number" class="form-control" placeholder="Con la fecha de creación se suma el inetrvalo"  v-model="fechaPago">
                                <span style="font-size: 12px;">Con la fecha de creacion se suma en dias el intervalo:</span>    
                                 </div>
-                                <div class="form-group col-sm-4" >
+                                <div class="form-group col-sm-3">
                                     <span style="font-size: 12px;">Plazo de pago:</span>
                                     <input type="text" class="form-control" placeholder=""  v-model="plazoPago">
                                 
                                 </div>
-                            </div>
-                            <div class="row">                                
-                                <div class="form-group col-sm-4">
+                                <div class="form-group col-sm-3">
                                     <span style="font-size: 12px;">Entrega de pedido:</span>
                                       <select v-model="selectEntregaPedido" class="form-control">
                                         <option value="0" disabled>Seleccionar...</option>
                                         <option v-for="a in array_entrega_pedido" :key="a.id" :value="a.id" v-text="a.tipo"></option>
                                     </select>
                                 </div>
-                                
-                                <div class="form-group col-sm-4">
-                                  <span style="font-size: 12px;">Observación:</span>
+                            </div>
+                            <div class="row">
+
+                                <div class="form-group col-sm-3">
+                                    <span style="font-size: 12px;">Observación:</span>
                                     <input type="text" class="form-control" placeholder=""  v-model="observacion">
                                 </div>
-                                <div class="form-group col-sm-4">
+                                
+                                <div class="form-group col-sm-3">
+                                    <span style="font-size: 12px;">Limite ini (dias):</span>
+                                    <input type="number" class="form-control" placeholder=""  v-model="limiteCompra_1">
+                                </div>
+                                <div class="form-group col-sm-3">
+                                    <span style="font-size: 12px;">Limite fin (dias):</span>
+                                    <input type="number" class="form-control" placeholder=""  v-model="limiteCompra_2">
+                                </div>
+                                <div class="form-group col-sm-3">
                                     <br>
                                     <button type="button" class="btn btn-primary" v-if="id_distribuidor_ETC==0" style="margin-right: 10px;" :disabled="observacion==''||selectFormaPago=='0'||fechaPago==''||plazoPago==''||selectEntregaPedido=='0'" @click="crearDistribuidorGestionAutomatica()">Crear</button>
                                     <button type="button" class="btn btn-warning" v-else style="margin-right: 10px;" :disabled="observacion==''||selectFormaPago=='0'||fechaPago==''||plazoPago==''||selectEntregaPedido=='0'" @click="editarDistribuidorGestionAutomatica()">Editar</button>
@@ -1362,7 +1374,7 @@
    
       </div>
     </div>
-  </div> 
+                        </div> 
       <div class="card" v-show="valueRadio_1_1==1">
     <div class="card-header" id="headingUno12">
       <h5 class="mb-0">
@@ -1373,21 +1385,22 @@
     </div>
 
     <div id="collapseUno12" class="collapse" aria-labelledby="headingUno12" data-parent="#accordion">
-      <div class="card-body">       
-        
+      <div class="card-body">      
         <table class="table table-bordered table-striped table-sm table-responsive">
-    <thead>
+        <thead>
         <tr>
-            <th class="col-md-3">Glosa</th>
+            <th class="col-md-2">Glosa</th>
             <th class="col-md-3">Punto de estado</th>
-            <th class="col-md-1">Acción</th>
-            <th class="col-md-5">Mensaje</th>
+            <th class="col-md-1">L.1 (dias).</th>
+            <th class="col-md-1">L.2 (dias).</th>
+            <th class="col-md-1">Acción</th>           
+            <th class="col-md-4">Mensaje</th>
         </tr>
     </thead>
 
     <tbody>
         <tr>
-            <td class="col-md-3">
+            <td class="col-md-2">
                 <textarea class="form-control" rows="3" v-model="inputGlosa_SS"></textarea>
             </td>
 
@@ -1411,7 +1424,12 @@
                     </tbody>
                 </table>
             </td>
-
+<td class="col-md-1">
+                <input type="number" class="form-control" v-model="limiteTraspaso_1">
+            </td>
+            <td class="col-md-1">
+                <input type="number" class="form-control" v-model="limiteTraspaso_2">
+            </td>
             <td class="col-md-1">
                 <button type="button" class="btn btn-primary" v-if="inputGlosa_SS!=''" @click="editarTraspaso_traspaso_SS()">
                     Actualizar
@@ -1426,11 +1444,11 @@
                          <span>{{error_2_SS}}</span>
                         </div>
             </td>
-
-            <td class="col-md-5">
+            
+            <td class="col-md-4">
                 <span>
                     En caso de glosa toma el valor por defecto automático y añade el dato para la glosa.
-                    En estado el botón cambia el estado en el módulo a listo o pendiente.
+                    En estado el botón cambia el estado en el módulo a listo o pendiente, <strong>en limites 1 y 2 es el tiempo que demora en llegar o entregar en dias.</strong>
                 </span>
             </td>
         </tr>
@@ -1443,7 +1461,7 @@
   <div class="card" v-show="valueRadio_1_1==1 && valueRadio_2_1==1">
     <div class="card-header" id="headingUno13">
       <h5 class="mb-0">
-        <button class="btn btn-link" data-toggle="collapse" data-target="#collapseUno13" aria-expanded="false" aria-controls="collapseUno13">
+        <button class="btn btn-link" data-toggle="collapse" data-target="#collapseUno13" aria-expanded="false" aria-controls="collapseUno13" @click="moduloTraslados_SS()">
          Traslados
         </button>
       </h5>
@@ -1454,69 +1472,86 @@
         <table class="table table-bordered table-striped table-sm table-responsive" >
                 <thead>
                     <tr>                       
-                        <th class="col-md-4">Persona a enviar</th>
+                        <th class="col-md-3">Persona a enviar</th>
                         <th class="col-md-3">Vehiculo</th>
-                        <th class="col-md-1">Tiem.Ini</th>
-                        <th class="col-md-1">Tiem.Fin</th>  
-                        <th class="col-md-1">Items.Max</th>
-                        <th class="col-md-2">Observación</th> 
+                        <th class="col-md-2">En tabla Persona</th>
+                        <th class="col-md-2">En tabla Vehiculo</th>
+                        <th class="col-md-2">Estado</th>                      
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td class="col-md-4">
+                        <td class="col-md-3">
                             <div class="d-flex align-items-center gap-2">
                                 <select v-model="selectPersona_SS" class="form-control">
                                 <option value="0" disabled selected>Seleccionar...</option>
-                                <option value="1">sin BD</option>                     
+                                <option v-for="(i, index) in arrayListarUser_SS" :key="index" :value="i.id">{{"Usuario: "+i.name+" Nombre: "+i.nom_completo}}</option>                     
                                 </select> 
-                                <button type="button" class="btn btn-primary" :disabled="selectPersona_SS=='0'"><i class="fa fa-plus" aria-hidden="true"></i></button>
-                                <button type="button" class="btn btn-danger" :disabled="selectPersona_SS=='0'"><i class="fa fa-minus" aria-hidden="true"></i></button> 
+                                <button type="button" class="btn btn-primary" :disabled="selectPersona_SS=='0'" @click="modificarConfiguracionTraspaso_traspado_SS(selectPersona_SS,0,1);"><i class="fa fa-plus" aria-hidden="true"></i></button>
+                                <button type="button" class="btn btn-danger" :disabled="selectPersona_SS=='0'" @click="modificarConfiguracionTraspaso_traspado_SS(0,selectPersona_SS,1);"><i class="fa fa-minus" aria-hidden="true"></i></button> 
                             </div>                                                 
                         </td>
                         <td class="col-md-3">
-                            <div class="d-flex align-items-center gap-2">
+                            <div class="d-flex align-itemscenter- gap-2">
                                 <select v-model="selectVehiculo_SS" class="form-control">
                                 <option value="0" disabled selected>Seleccionar...</option>
-                                <option value="1">sin BD</option>                     
+                                <option v-for="(i, index) in arrayListarVehiculo_SS" :key="index" :value="i.id">{{"Matricula: "+i.matricula+" tipo: "+i.tipo+" Suc: "+i.sucursal}}</option>                     
                                 </select> 
-                                <button type="button" class="btn btn-primary" :disabled="selectVehiculo_SS=='0'"><i class="fa fa-plus" aria-hidden="true"></i></button>
-                                <button type="button" class="btn btn-danger" :disabled="selectVehiculo_SS=='0'"><i class="fa fa-minus" aria-hidden="true"></i></button>                           
+                                <button type="button" class="btn btn-primary" :disabled="selectVehiculo_SS=='0'" @click="modificarConfiguracionTraspaso_traspado_SS(selectVehiculo_SS,0,2);"><i class="fa fa-plus" aria-hidden="true"></i></button>
+                                <button type="button" class="btn btn-danger" :disabled="selectVehiculo_SS=='0'"  @click="modificarConfiguracionTraspaso_traspado_SS(0,selectVehiculo_SS,2);"><i class="fa fa-minus" aria-hidden="true"></i></button>                           
                             </div>                            
-                        </td>                        
-                        <td class="col-md-1"><input type="time" class="form-control" v-model="hora_I_SS"></td>                       
-                        <td class="col-md-1"><input type="time" class="form-control" v-model="hora_F_SS"></td>
-                        <td class="col-md-1"><input type="number" class="form-control" v-model="input_cantidad_max_SS"></td>  
+                        </td>  
+                        <td class="col-md-2">{{"["+arrayPersona_SS+"]"}}</td>
+                        <td class="col-md-2">{{"["+arrayVehiculo_SS+"]"}}</td>
                         <td class="col-md-2">
-                            <textarea class="form-control" id="exampleFormControlTextarea1" rows="3" v-model="inputObservacio_1_SS"></textarea>  
-                        </td>
+                            <div class="alert alert-warning" role="alert" v-if="error_top_SS==0">
+                                 {{estado_top_SS}}  
+                            </div>
+                            <div class="alert alert-danger" role="alert" v-else>
+                                 {{estado_top_SS}}  
+                            </div>
+                        </td>                           
                     </tr>
                 </tbody>
         </table>
         <table class="table table-bordered table-striped table-sm table-responsive" >
                 <thead>
                     <tr>
-                        <th class="col-md-1">Añadir(+) Personas</th>
-                        <th class="col-md-1">Eliminar(-) Personas</th>
-                        <th class="col-md-2">En tabla Persona</th>
-                        <th class="col-md-1">Añadir(+) Vehiculo</th>
-                        <th class="col-md-1">Eliminar(-) Vehiculo</th>
-                        <th class="col-md-2">En tabla Vehiculo</th>
-                        <th class="col-md-2">Acción</th>
-                     
+                        <th class="col-md-2">Tiem.Ini</th>
+                        <th class="col-md-2">Tiem.Fin</th>  
+                        <th class="col-md-1">Items.Max</th>
+                        <th class="col-md-1">L.1 (dias).</th>
+                        <th class="col-md-1">L.2 (dias).</th>
+                        <th class="col-md-2">Observación</th>
+                        <th class="col-md-1">Acción</th>
+                        <th class="col-md-2">Estado</th>                   
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td class="col-md-1"></td>
-                        <td class="col-md-1"></td>
-                        <td class="col-md-2"></td>
-                        <td class="col-md-1"></td>
-                        <td class="col-md-1"></td>
-                        <td class="col-md-2"></td>
+                        <td class="col-md-2"><input type="time" class="form-control" v-model="hora_I_SS"></td>                       
+                        <td class="col-md-2"><input type="time" class="form-control" v-model="hora_F_SS"></td>
+                        <td class="col-md-1"><input type="number" class="form-control" v-model="input_cantidad_max_SS"></td>
+                        <td class="col-md-1">
+                        <input type="number" class="form-control" v-model="limiteTraslado_1">
+                        </td>
+                        <td class="col-md-1">
+                        <input type="number" class="form-control" v-model="limiteTraslado_2">
+                        </td>  
                         <td class="col-md-2">
-                            <button type="button" class="btn btn-warning">Actualizar</button>
-                        </td>                       
+                            <textarea class="form-control" id="exampleFormControlTextarea1" rows="3" v-model="inputObservacio_1_SS"></textarea>  
+                        </td>
+                        <td class="col-md-1">
+                            <button type="button" class="btn btn-primary" @click="modificarConfiguracionTraspaso_traspado_SS(0,0,3)">Actualizar</button>
+                        </td> 
+                        <td class="col-md-2">
+                            <div class="alert alert-warning" role="alert" v-if="error_bottom==0">
+                                 {{estado_bot_SS}}  
+                            </div>
+                            <div class="alert alert-danger" role="alert" v-else>
+                                 {{estado_bot_SS}}  
+                            </div>
+                        </td>                                         
                     </tr>
                 </tbody>
         </table>  
@@ -1528,6 +1563,7 @@
                                <li>Items maximo es conjunto de productos que se llevara en el traslado.</li>
                                <li>En observación como dato de inicio inicia  con la palabra <strong>Automatico </strong>y anida el texto que inserta.</li>
                                <li>En si el sistema agarra la primera persona a enviar  y vehiculo, hasta que termine el proceso. o existe dos procesos a mismo tiempo tomara el siguiente vehiculo.</li>                               
+                                <li>En limites 1 y 2 es el tiempo que demora en llegar o entregar en dias.</li>
                             </ul>
         </div>                     
       </div>
@@ -1547,18 +1583,34 @@
         <table class="table table-bordered table-striped table-sm table-responsive" >
                 <thead>
                     <tr>                       
-                        <th class="col-md-5">Observación</th>
+                        <th class="col-md-4">Observación</th>
+                        <th class="col-md-1">L.1 (dias).</th>
+                        <th class="col-md-1">L.2 (dias).</th>
                         <th class="col-md-1">Acción</th>
-                        <th class="col-md-6">Mensaje</th>
+                        <th class="col-md-5">Mensaje</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td class="col-md-5"><textarea class="form-control" id="exampleFormControlTextarea1" rows="3" v-model="inputObservacio_recepcion_SS"></textarea> </td>
-                        <td class="col-md-1"><button type="button" class="btn btn-warning">Actualizar</button></td>
-                        <td class="col-md-6">
+                        <td class="col-md-4"><textarea class="form-control" id="exampleFormControlTextarea1" rows="3" v-model="inputObservacio_recepcion_SS"></textarea> </td>
+                        <td class="col-md-1">
+                        <input type="number" class="form-control" v-model="limiteRecepcion_1">
+                        </td>
+                        <td class="col-md-1">
+                        <input type="number" class="form-control" v-model="limiteRecepcion_2">
+                        </td>  
+                        <td class="col-md-1">
+                            <button type="button" class="btn btn-primary" @click="editarTraspaso_recepcion_SS()" :disabled="inputObservacio_recepcion_SS==''">Actualizar</button>
+                             <div class="alert alert-success" role="alert" v-if="bandera_error_4_SS==0">
+                        <span>{{error_4_SS}}</span>
+                        </div>
+                        <div class="alert alert-danger" role="alert" v-else>
+                         <span>{{error_4_SS}}</span>
+                        </div>
+                        </td>
+                        <td class="col-md-5">
                             <span>
-                                Esta acción solo se concluira en el estado<strong> Listo para concluir </strong>, la operacion termina en espacio del index de traspaso automatizado, se adjunta el texto automatico mas el dato adjuntado.
+                                Esta acción solo se concluira en el estado<strong> Listo para concluir </strong>, la operacion termina en espacio del index de traspaso automatizado, se adjunta el texto automatico mas el dato adjuntado, <strong>el limites 1 y 2 es el tiempo que demora en llegar o entregar en dias.</strong>.
                             </span>
                         </td>
                     </tr>
@@ -1572,8 +1624,131 @@
                     </div>   
 
 
-                </div>    
-             
+                </div>                 
+            </div>   
+     <!-------------------------------------------------CONFIGURACION ECUACIONES------------------------------------------------------------------->    
+        <div class="tab-pane fade" id="pills-ecuaciones" role="tabpanel" aria-labelledby="pills-ecuaciones-tab"> 
+                <div id="accordion">              
+                    <div style="margin-top: 16px;">
+                        <div class="card">
+    <div class="card-header" id="headingUno111">
+      <h5 class="mb-0">
+        <button class="btn btn-link" data-toggle="collapse" data-target="#collapseUno111" aria-expanded="false" aria-controls="collapseUno111">
+         Valor de la tabla Z
+        </button>
+      </h5>
+    </div>
+
+    <div id="collapseUno111" class="collapse" aria-labelledby="headingUno111" data-parent="#accordion">
+      <div class="card-body">  
+         <table class="table table-bordered table-striped table-sm table-responsive">
+            <thead>
+                <tr>
+                    <th class="col-md-1">Acción</th>
+                    <th class="col-md-2">Nivel servicio</th>
+                    <th class="col-md-2">Probabilidad</th>
+                    <th class="col-md-2">Valor Z</th>
+                    <th class="col-md-5">Mensaje</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="text-center">
+                        <input class="form-check-input" type="radio" name="uno_1_1_1_1" :value="0.01" v-model="ecuacion_radio_1" @change="editarEcuacionZ()">
+                    </td>
+                    <td><span>Ninguno</span></td>
+                    <td><span>0.00</span></td>
+                    <td><span>0.00</span></td>
+                    <td rowspan="8">
+                        <span>
+                            Interpretacion esta parte sirve para la operaciond e la varianza y la automatización de procesos, <strong>en nviel de servicios se puede ver en el ejemplo: el 80% se saca el 20% para quedarse sin stock en un tiempo, donde toma el valor para z=0.84 para el calculo.</strong>
+
+                        </span>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="text-center">
+                        <input class="form-check-input" type="radio" name="uno_1_1_1_1" :value="2.33" v-model="ecuacion_radio_1" @change="editarEcuacionZ()">
+                    </td>
+                    <td><span>99%</span></td>
+                    <td><span>0.99</span></td>
+                    <td><span>2.33</span></td>                    
+                </tr>
+                 <tr>
+                    <td class="text-center">
+                        <input class="form-check-input" type="radio" name="uno_1_1_1_1" :value="2.05" v-model="ecuacion_radio_1" @change="editarEcuacionZ()">
+                    </td>
+                    <td><span>98%</span></td>
+                    <td><span>0.98</span></td>
+                    <td><span>2.05</span></td>
+                </tr>
+                <tr>
+                    <td class="text-center">
+                        <input class="form-check-input" type="radio" name="uno_1_1_1_1" :value="1.88" v-model="ecuacion_radio_1" @change="editarEcuacionZ()">
+                    </td>
+                    <td><span>97%</span></td>
+                    <td><span>0.97</span></td>
+                    <td><span>1.88</span></td>
+                </tr>
+                <tr>
+                    <td class="text-center">
+                        <input class="form-check-input" type="radio" name="uno_1_1_1_1" :value="1.64" v-model="ecuacion_radio_1" @change="editarEcuacionZ()">
+                    </td>
+                    <td><span>95%</span></td>
+                    <td><span>0.95</span></td>
+                    <td><span>1.64</span></td>
+                </tr>
+                <tr>
+                    <td class="text-center">
+                        <input class="form-check-input" type="radio" name="uno_1_1_1_1" :value="1.28" v-model="ecuacion_radio_1" @change="editarEcuacionZ()">
+                    </td>
+                    <td><span>90%</span></td>
+                    <td><span>0.90</span></td>
+                    <td><span>1.28</span></td>
+                </tr>
+                <tr>
+                    <td class="text-center">
+                        <input class="form-check-input" type="radio" name="uno_1_1_1_1" :value="1.04" v-model="ecuacion_radio_1" @change="editarEcuacionZ()">
+                    </td>
+                    <td><span>85%</span></td>
+                    <td><span>0.85</span></td>
+                    <td><span>1.04</span></td>
+                </tr>
+                <tr>
+                    <td class="text-center">
+                        <input class="form-check-input" type="radio" name="uno_1_1_1_1" :value="0.84" v-model="ecuacion_radio_1" @change="editarEcuacionZ()">
+                    </td>
+                    <td><span>80%</span></td>
+                    <td><span>0.80</span></td>
+                    <td><span>0.84</span></td>
+                </tr>
+            </tbody>
+         
+</table>
+   
+      </div>
+    </div>
+                        </div> 
+      <div class="card">
+    <div class="card-header" id="headingUno112">
+      <h5 class="mb-0">
+        <button class="btn btn-link" data-toggle="collapse" data-target="#collapseUno112" aria-expanded="false" aria-controls="collapseUno112">
+          demo
+        </button>
+      </h5>
+    </div>
+
+    <div id="collapseUno112" class="collapse" aria-labelledby="headingUno112" data-parent="#accordion">
+      <div class="card-body">     
+       
+           
+      </div>
+    </div>
+  </div>
+  
+
+                    </div> 
+            </div>                 
             </div>   
         <!-------------------------------------------------------------------------------------------------------------------------------->         
     </div>
@@ -1684,7 +1859,7 @@ import Swal from "sweetalert2";
 import { error401 } from "../../errores";
 import VueMultiselect from 'vue-multiselect';
 import Multiselect from 'vue-multiselect'
-import { toInteger } from "lodash";
+import { toInteger, trim } from "lodash";
 //Vue.use(VeeValidate);
 
 export default {
@@ -1792,6 +1967,8 @@ puedeEditar:2,
     selectEntregaPedido:'0',      
     array_entrega_pedido: [{ id: 1, tipo: "MAÑANA" },{ id: 2, tipo: "TARDE" }],
     observacion:'',
+    limiteCompra_1:1,
+    limiteCompra_2:2,
 
     selectFrecuencia:'0',
     horaS:'',    
@@ -1823,6 +2000,8 @@ puedeEditar:2,
             bandera_error_1_SS:0,
             error_2_SS:'',
             bandera_error_2_SS:0,
+            limiteTraspaso_1:1,
+            limiteTraspaso_2:2,
 
             selectPersona_SS:0,
             selectVehiculo_SS:0,
@@ -1830,6 +2009,8 @@ puedeEditar:2,
             hora_F_SS:'',
             inputObservacio_1_SS:'Sin observación',
             input_cantidad_max_SS:10,
+            limiteTraslado_1:0,
+            limiteTraslado_2:1,
             arrayPersona_SS:[],
             arrayVehiculo_SS:[],
             arrayP_add_SS:[],
@@ -1838,6 +2019,20 @@ puedeEditar:2,
             arrayV_del_SS:[],
 
             inputObservacio_recepcion_SS:'Sin observación',
+            limiteRecepcion_1:0,
+            limiteRecepcion_2:1,
+
+            arrayListarUser_SS:[],
+            arrayListarVehiculo_SS:[],
+            estado_top_SS:'Sin acción',
+            estado_bot_SS:'Sin acción',
+            error_top_SS:0,
+            error_bottom:0,
+            bandera_error_4_SS:0,
+            error_4_SS:'',
+
+            //ecuaciones
+            ecuacion_radio_1:null,
 
 };
     },
@@ -1919,24 +2114,349 @@ puedeEditar:2,
         });
 },
 //-------------------------------------------------------------- 
+//-----------------ECUACIONES------------------------------------------
+editarEcuacionZ(){
+    let me=this;
+    console.log(me.ecuacion_radio_1);
+    axios.put("/credenciales_correo/modificarEcuacionZ", {
+                    ecuacion_radio_1:me.ecuacion_radio_1,  
+                                                                      
+                }).then(function (response) {
+                    let respuesta=response.data;   
+                    if (respuesta==0) {
+                       me.listarConfigAdminTraspaso(); 
+                    } else {
+                         Swal.fire("Error: ",respuesta, "error",); 
+                    }                           
+                                     
+                })
+                .catch(function (error) {                    
+                    error401(error);
+                }); 
+},
 //---------------------LOGICA CONFIGURACION TRASPASO----------------------------------------
+
+moduloTraslados_SS(){
+    let me=this;
+    me.listarVehiculo();
+    me.listarUser_2();
+   // me.arrayPersona_SS=[];
+   // me.arrayVehiculo_SS=[];
+    me.arrayP_add_SS=[];
+    me.arrayV_add_SS=[];
+    me.arrayP_del_SS=[];
+    me.arrayV_del_SS=[];
+    me.selectPersona_SS="0";
+    me.selectVehiculo_SS="0";
+},
+
+editarTraspaso_recepcion_SS(){
+    let me=this;
+    let palabra="";
+    let palabraEnivar="";   
+    // 1) Eliminar todas las ocurrencias
+            palabra = me.inputObservacio_recepcion_SS.replace(/\[Automatico\]/g, "");
+            // 2) Agregar SOLO una al inicio (o donde tú quieras)
+            palabraEnivar = "[Automatico]" + " " + palabra.trim();
+        me.error_4_SS="Enviando...";
+        me.bandera_error_4_SS=0;
+
+        let v1 = Number(me.limiteRecepcion_1);
+        let v2 = Number(me.limiteRecepcion_2);
+     if (
+    me.limiteRecepcion_1 === "" || me.limiteRecepcion_1 === null ||
+    me.limiteRecepcion_2 === "" || me.limiteRecepcion_2 === null ||
+    isNaN(v1) || isNaN(v2) ||
+    v1 < 0 || v2 < 0
+    ) {
+        me.error_4_SS="Error de ingreso de datos negativos o nulos...";
+        me.bandera_error_4_SS=1;
+}else{
+axios.put("/credenciales_correo/modificarTraspaso_recepcio_SS", {
+                    palabra:palabraEnivar,  
+                    limiteRecepcion_1:v1,
+                    limiteRecepcion_2:v2,                                                  
+                }).then(function (response) {
+                    let respuesta=response.data;                     
+                    if (respuesta==0) {
+                        me.listarConfigAdminTraspaso();
+                        me.error_4_SS="Dato actualizado..."; 
+                    }else{
+                         me.error_4_SS="Error";
+                         me.bandera_error_4_SS=1;
+                    }                  
+                })
+                .catch(function (error) {                    
+                    error401(error);
+                }); 
+}     
+},
+
+modificarConfiguracionTraspaso_traspado_SS(añadir,eliminar,dato){
+    let me = this; 
+    //si es cero no se añade o elimina
+    // dato es 1=persona ,2=vehiculo,3=actulizar
+    let entero=0; 
+    let arrCadena_1;
+    let error_1=0;    
+    let cadena_P;
+    let sinRepetidos="";
+    let resultado="";
+    let enviar;
+    me.error_top_SS=0;
+    me.error_bottom=0;
+    switch (dato) {
+        case 1:               
+            // convertir a array         
+            arrCadena_1 = (me.arrayPersona_SS ?? "").split(",").filter(x => x !== "").map(Number);
+            if (eliminar==0) {
+                me.estado_top_SS="Proceso de adición en tabla Persona...";    
+                entero = parseInt(añadir,10);  
+                if (!arrCadena_1.includes(entero)) {
+                arrCadena_1.push(entero);
+                }
+            } else {
+                me.estado_top_SS="En proceso de eliminación en tabla Persona...";
+                entero = parseInt(eliminar,10);  
+                if (arrCadena_1.includes(entero)) {    
+                arrCadena_1 = arrCadena_1.filter(x => x !== entero);
+                }
+            }
+            //covnertir a cadena
+            cadena_P = arrCadena_1.join(",");
+            resultado="";
+            enviar = {
+                indice:dato,
+                tabla_:cadena_P,                 
+            }
+            me.selectPersona_SS="0";
+       
+        break;
+        
+        case 2:             
+            // convertir a array         
+            arrCadena_1 = (me.arrayVehiculo_SS ?? "").split(",").filter(x => x !== "").map(Number);
+            if (eliminar==0) { 
+                me.estado_top_SS="Proceso de adición en tabla vehiculo...";        
+                entero = parseInt(añadir,10);  
+                if (!arrCadena_1.includes(entero)) {
+                arrCadena_1.push(entero);
+                }
+            } else {
+                me.estado_top_SS="En proceso de eliminación en tabla vehiculo...";
+                entero = parseInt(eliminar,10);  
+                if (arrCadena_1.includes(entero)) {    
+                arrCadena_1 = arrCadena_1.filter(x => x !== entero);
+                }
+            }
+            //covnertir a cadena
+            cadena_P = arrCadena_1.join(",");
+            resultado="";
+            enviar = {
+                indice:dato,
+                tabla_:cadena_P,                 
+            }
+            me.selectVehiculo_SS="0";
+      
+        break;
+        
+        case 3:  
+            me.estado_bot_SS="En proceso de actualización de datos";  
+            let v0 =  Number(me.input_cantidad_max_SS);
+            if(me.input_cantidad_max_SS<0 || me.input_cantidad_max_SS===""||me.input_cantidad_max_SS===null||isNaN(v0)){
+                me.error_bottom=1;
+                error_1=1;
+                me.estado_bot_SS="Error, solo se admiten numero mayores a cero"; 
+            } 
+         
+            if (me.hora_I_SS>me.hora_F_SS) {
+                me.error_bottom=1;
+                error_1=1;
+                me.estado_bot_SS="Error, La hora inial debe ser menor a la hora final"; 
+            } 
+                let v1 = Number(me.limiteTraslado_1);
+                let v2 = Number(me.limiteTraslado_2);
+            if (
+    me.limiteTraslado_1 === "" || me.limiteTraslado_1 === null ||
+    me.limiteTraslado_2 === "" || me.limiteTraslado_2 === null ||
+    isNaN(v1) || isNaN(v2) ||
+    v1 < 0 || v2 < 0
+) {
+     me.estado_bot_SS="Error solo numeros positivos se puede enviar...";
+     me.error_bottom=1;
+                error_1=1;
+     }    
+
+            // 1) Eliminar todas las ocurrencias
+            sinRepetidos = me.inputObservacio_1_SS.replace(/\[Automatico\]/g, "");
+            // 2) Agregar SOLO una al inicio (o donde tú quieras)
+            resultado = "[Automatico]" + " " + sinRepetidos.trim();
+            arrCadena_1="";
+            enviar = {
+                indice:dato,
+                hora_I:me.hora_I_SS,
+                    hora_F:me.hora_F_SS,
+                    inputObservacio:resultado,
+                    input_cantidad_max:me.input_cantidad_max_SS,
+                    limiteTraslado_1:v1,
+                    limiteTraslado_2:v2                   
+            }
+      
+        break;
+    
+        default:
+          Swal.fire("Error de funcion!","Error de envio de datos","error",);  
+            error_1=1;
+            me.estado_top_SS="Error";
+            me.estado_bot_SS="Error";
+            me.error_top_SS=0;
+            me.error_bottom=0;
+        break;
+        }
+            if (error_1==0) {
+                axios.put("/credenciales_correo/modificarConfiguracionTraspaso_traspado_SS", enviar)
+                .then(function (response) {
+                let respuesta = response.data;
+                if (respuesta == 0) {
+                    me.listarConfigAdminTraspaso();
+                    if (dato==1||dato==2) {
+                        me.estado_top_SS="OK";
+                        setTimeout(() => {
+                            me.estado_top_SS = "Sin acción";                            
+                        }, 7000); // 5 segundos
+                    }else{                        
+                        me.estado_bot_SS="OK"; 
+                        setTimeout(() => {
+                            me.estado_bot_SS = "Sin acción";                            
+                        }, 7000); // 5 segundos
+                    }
+                    
+                } else {
+                    me.estado_top_SS="Error";
+                    me.estado_bot_SS="Error";
+                    me.error_top_SS=0;
+            me.error_bottom=0;
+                    Swal.fire("" + respuesta,"Registro erróneo","error");
+                }
+                })
+                .catch(function (error) {
+                    error401(error);
+                });
+            }  
+        },
+
+    añadirTraslado_SS_3(data,selector){
+            let me=this;
+            let index;
+            let entero= parseInt(selector,10);           
+            if (entero!=0) {
+                if(data==1){
+                    index = me.arrayP_add_SS.findIndex(f => f === entero);
+                }else{
+                    index = me.arrayV_add_SS.findIndex(f => f === entero);
+                }
+            
+            if(index !== -1) {  
+                if (data==1) {
+                    me.arrayP_add_SS.splice(index, 1); // eliminar  
+                } else {
+                     me.arrayV_add_SS.splice(index, 1);
+                }           
+            
+            } else {   
+                 if (data==1) {
+                    me.arrayP_add_SS.push(entero);
+                 } else {
+                    me.arrayV_add_SS.push(entero); 
+                 } 
+                }                
+            }
+        }, 
+
+        eliminarTraslado_SS_3(data,selector){
+            let me=this;
+            let entero= parseInt(selector,10);
+            let index; 
+            if (entero!=0) {
+                if(data==1){
+                    index = me.arrayP_del_SS.findIndex(f => f === entero);
+                }else{
+                    index = me.arrayV_del_SS.findIndex(f => f === entero);
+                }
+               
+            if(index !== -1) {    
+                if (data==1) {
+                    me.arrayP_del_SS.splice(index, 1); // eliminar  
+                } else {
+                     me.arrayV_del_SS.splice(index, 1);
+                }              
+            } else { 
+                if (data==1) {
+                    me.arrayP_del_SS.push(entero);
+                 } else {
+                    me.arrayV_del_SS.push(entero); 
+                 }            
+            }                
+            }
+        },
+
+listarVehiculo(){
+    let me = this;   
+            me.arrayListarVehiculo_SS=[];
+            var url = "/listarVehiculoNormal";
+            axios.get(url)
+                .then(function (response) {
+                    var respuesta = response.data; 
+                    me.arrayListarVehiculo_SS=respuesta;
+                                                         
+                })
+                .catch(function (error) {
+                    error401(error);       
+                });
+},
+
+listarUser_2() {
+            let me = this;
+            me.arrayListarUser_SS=[];
+            var url = "/listarUser";
+            axios.get(url)
+                .then(function (response) {
+                    var respuesta = response.data; 
+                    me.arrayListarUser_SS=respuesta;
+                                                      
+                })
+                .catch(function (error) {
+                    error401(error);       
+                });
+        },
 
 editarTraspaso_traspaso_SS(){
     let me=this;
-    let palabra="[Automatico]";
-    let palabraEnivar="";
-    if (palabra===me.inputGlosa_SS) {
-        palabraEnivar=palabra;
-    } else {
-        palabraEnivar=palabra+me.inputGlosa_SS;
-    }
-    
-  
+    let palabra="";
+    let palabraEnivar="";   
+    // 1) Eliminar todas las ocurrencias
+            palabra = me.inputGlosa_SS.replace(/\[Automatico\]/g, "");
+            // 2) Agregar SOLO una al inicio (o donde tú quieras)
+            palabraEnivar = "[Automatico]" + " " + palabra.trim();
     me.error_2_SS="Enviando...";
      me.bandera_error_2_SS=0;
-     axios.put("/credenciales_correo/modificarTraspaso_traspaso_SS", {
+   let v1 = Number(me.limiteTraspaso_1);
+let v2 = Number(me.limiteTraspaso_2);
+
+if (
+    me.limiteTraspaso_1 === "" || me.limiteTraspaso_1 === null ||
+    me.limiteTraspaso_2 === "" || me.limiteTraspaso_2 === null ||
+    isNaN(v1) || isNaN(v2) ||
+    v1 < 0 || v2 < 0
+) {
+     me.error_2_SS="Error solo numeros positivos se puede enviar...";
+      me.bandera_error_2_SS=1;
+     } else {
+       axios.put("/credenciales_correo/modificarTraspaso_traspaso_SS", {
                     palabra:palabraEnivar,
-                    estado:me.estadoTraspaso_SS                                   
+                    estado:me.estadoTraspaso_SS,
+                    limiteTraspaso_1:v1,
+                    limiteTraspaso_2:v2,                                   
                 }).then(function (response) {
                     let respuesta=response.data;                     
                     if (respuesta==0) {
@@ -1949,7 +2469,8 @@ editarTraspaso_traspaso_SS(){
                 })
                 .catch(function (error) {                    
                     error401(error);
-                }); 
+                });  
+     }     
 },
 
 buttonError_1_SS(){
@@ -2038,6 +2559,8 @@ buttonError_1_SS(){
 
                         me.inputGlosa_SS=respuesta[0].glosa_traspaso;
                         me.estadoTraspaso_SS=respuesta[0].estado_traspaso;
+                        me.limiteTraspaso_1=respuesta[0].limiteTraspaso_1;
+                        me.limiteTraspaso_2=respuesta[0].limiteTraspaso_2;
 
                         me.selectPersona_SS="0";
                         me.selectVehiculo_SS="0";
@@ -2051,8 +2574,17 @@ buttonError_1_SS(){
                         me.hora_F_SS=respuesta[0].fin_traslado;
                         me.inputObservacio_1_SS=respuesta[0].observacion_traslado;
                         me.input_cantidad_max_SS=respuesta[0].max_items_traslado;
+                        me.limiteTraslado_1=respuesta[0].limiteTraslado_1;
+                        me.limiteTraslado_2=respuesta[0].limiteTraslado_2;
 
-                        me.inputObservacio_recepcion_SS=respuesta[0].observacion_recepcion;                                
+                        me.inputObservacio_recepcion_SS=respuesta[0].observacion_recepcion; 
+                        me.limiteRecepcion_1=respuesta[0].limiteRecepcion_1;   
+                        me.error_top_SS=0;
+                        me.error_bottom=0;
+                        me.bandera_error_4_SS=0;
+                        me.error_4_SS="OK";
+                        me.ecuacion_radio_1=respuesta[0].valor_Z;  
+
                        
                     } else {
                        Swal.fire("No existe la tabla!","Tabla eliminada o duplicada con indicador id distinto a uno","error",); 
@@ -2073,6 +2605,8 @@ buttonError_1_SS(){
             me.disparador_2=0;
             me.selectDistriETC="0";
             me.selecLinea=null;
+            me.limiteCompra_1=1;
+            me.limiteCompra_2=2;
         },
 
         botonConfiguracionAutomatica(){            
@@ -2098,6 +2632,8 @@ buttonError_1_SS(){
             me.plazoPago="";
             me.selectEntregaPedido="0";      
             me.observacion="Sin datos.";
+            me.limiteCompra_1=1;
+            me.limiteCompra_2=2;
 
             me.selectCico_3="0";
             me.limiteInferior=0;
@@ -2112,13 +2648,18 @@ buttonError_1_SS(){
 
         editarDistribuidorGestionAutomatica(){
             let me = this;
-                axios.put("/credenciales_correo/editarDisGesAut", {
+                if (me.limiteCompra_1<0||me.limiteCompra_2<0) {
+                     Swal.fire("Error: ","No puee ingresar numero negativos", "error",); 
+                } else {
+                     axios.put("/credenciales_correo/editarDisGesAut", {
                     id:me.id_distribuidor_ETC,
                     formaPago:me.selectFormaPago,
                     fechaPago:me.fechaPago,
                     plazoPago:me.plazoPago,
                     pedidoEntre:me.selectEntregaPedido,
-                    observacion:me.observacion             
+                    observacion:me.observacion,
+                    limiteCompra_1:me.limiteCompra_1,
+                    limiteCompra_2:me.limiteCompra_2,             
                 }).then(function (response) {          
                     let respuesta=response.data;  
                     if (respuesta==0) {
@@ -2131,6 +2672,8 @@ buttonError_1_SS(){
                             me.observacion='';
                             me.disparador_2=0;
                             me.id_distribuidor_ETC=0;
+                            me.limiteCompra_1=1;
+                            me.limiteCompra_2=2;
                      Swal.fire("Edición exitosamente","Haga click en Ok", "success",);   
                     } else {
                       Swal.fire("Error: "+respuesta,"Haga click en Ok", "error",);   
@@ -2139,6 +2682,7 @@ buttonError_1_SS(){
                   .catch(function (error) { 
                     error401(error);                        
             });
+                }               
         },
 
         buscarInputPestaña_5(data,buscar){
@@ -2184,9 +2728,7 @@ buttonError_1_SS(){
                       Swal.fire("Se registro exitosamente","Haga click en Ok", "success",);    
                     }else{
                      Swal.fire("Error:"+respuesta,"Haga click en Ok", "error",);    
-                    }
-                  
-                   
+                    } 
                 })
                 .catch(function (error) {                    
                     error401(error);
@@ -2237,14 +2779,19 @@ eliminarPestañaGestionAutomatica_5(id){
 
          crearDistribuidorGestionAutomatica(){
                 let me = this;
-                axios.post("/credenciales_correo/crearDisGesAut", {
+                if (me.limiteCompra_1<0||me.limiteCompra_2<0) {
+                  Swal.fire("Error.","Solo numeros enteros positivos", "error",);    
+                } else {
+                    axios.post("/credenciales_correo/crearDisGesAut", {
                     id_linea:me.selecLinea.id,
                     id_distribuidor:me.selectDistriETC,
                     formaPago:me.selectFormaPago,
                     fechaPago:me.fechaPago,
                     plazoPago:me.plazoPago,
                     pedidoEntre:me.selectEntregaPedido,
-                    observacion:me.observacion             
+                    observacion:me.observacion,
+                    limiteCompra_1:me.limiteCompra_1,
+                    limiteCompra_2:me.limiteCompra_2,             
                 }).then(function (response) {          
                     let respuesta=response.data;
                     let valor=respuesta.valor;
@@ -2264,7 +2811,9 @@ eliminarPestañaGestionAutomatica_5(id){
                             me.plazoPago=respuesta.Plazo_pago;
                             me.pedidoEntre=respuesta.entrega_pedid;
                             me.observacion=respuesta.observacion;
-                            me.id_distribuidor_ETC=respuesta.id;                                            
+                            me.id_distribuidor_ETC=respuesta.id;
+                            me.limiteCompra_1=respuesta.limiteCompra_1;
+                            me.limiteCompra_2=respuesta.limiteCompra_2;                                            
                     });
                       } else {
                         if (valor==0) {
@@ -2275,6 +2824,8 @@ eliminarPestañaGestionAutomatica_5(id){
                             me.plazoPago='';
                             me.pedidoEntre='';
                             me.observacion='';
+                            me.limiteCompra_1=1;
+                            me.limiteCompra_2=2;
                             me.disparador_2=0;
                             me.id_distribuidor_ETC=0;
                              Swal.fire("Se registro exitosamente","Haga click en Ok", "success",);                                         
@@ -2286,6 +2837,8 @@ eliminarPestañaGestionAutomatica_5(id){
                             me.plazoPago='';
                             me.pedidoEntre='';
                             me.observacion='';
+                            me.limiteCompra_1=1;
+                            me.limiteCompra_2=2;
                             me.disparador_2=0;
                             me.id_distribuidor_ETC=0;
                         Swal.fire("Error."+respuesta,"Haga click en Ok", "error",);                                                                            
@@ -2295,7 +2848,8 @@ eliminarPestañaGestionAutomatica_5(id){
                     })                
                   .catch(function (error) { 
                     error401(error);                        
-            }); 
+            });
+                }                 
             },
        
         añadirETC(){
@@ -2432,11 +2986,8 @@ eliminarPestañaGestionAutomatica_5(id){
                 })
                 .catch(function (error) {
                 error401(error);
-                });
-            
+                });            
         },
-
-
 
          eliminarETC(){
             let me=this;

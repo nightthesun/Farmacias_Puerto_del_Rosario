@@ -26,7 +26,14 @@ return new class extends Migration
             $table->time('fin_traslado')->default('00:00:00');
             $table->smallInteger('max_items_traslado')->default(0);
             $table->string('observacion_traslado',255)->default('[Automatico]')->nullable();
-            $table->string('observacion_recepcion',255)->default('[Automatico]')->nullable();                       
+            $table->string('observacion_recepcion',255)->default('[Automatico]')->nullable();   
+            $table->integer('limiteTraspaso_1')->default(1);
+            $table->integer('limiteTraspaso_2')->default(2);
+            $table->integer('limiteTraslado_1')->default(1);
+            $table->integer('limiteTraslado_2')->default(2);
+            $table->integer('limiteRecepcion_1')->default(1);
+            $table->integer('limiteRecepcion_2')->default(2); 
+            $table->decimal('valor_Z', 10, 2)->default(0.01);                      
         });
     }
 
