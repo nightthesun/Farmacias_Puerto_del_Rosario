@@ -43,10 +43,10 @@ class CajaMonedaController extends Controller
                 }
                 $monedas = DB::table('caja__monedas as cm') 
     ->join('adm__nacionalidads as an', 'an.id', '=', 'cm.id_nacionalidad_pais')
-    ->select('cm.id', 'cm.tipo_corte', 'cm.valor', 'cm.unidad', 'cm.activo', 'an.simbolo','cm.texto_unidad_entera','cm.unidad_entera')
+    ->select('cm.id', 'cm.tipo_corte', 'cm.valor', 'cm.unidad', 'cm.activo', 'an.simbolo','cm.texto_unidad_entera','cm.unidad_entera','cm.imagen')
     ->where('cm.id_nacionalidad_pais',  $request->id)
     ->whereRaw($sqls)
-    ->orderBy('cm.valor', 'asc')
+    ->orderBy('cm.valor', 'desc')
     ->paginate(15);
 
             }
@@ -66,9 +66,9 @@ class CajaMonedaController extends Controller
         } else {
             $monedas = DB::table('caja__monedas as cm')
     ->join('adm__nacionalidads as an', 'an.id', '=', 'cm.id_nacionalidad_pais')
-    ->select('cm.id', 'cm.tipo_corte', 'cm.valor', 'cm.unidad', 'cm.activo', 'an.simbolo','cm.texto_unidad_entera','cm.unidad_entera')
+    ->select('cm.id', 'cm.tipo_corte', 'cm.valor', 'cm.unidad', 'cm.activo', 'an.simbolo','cm.texto_unidad_entera','cm.unidad_entera','cm.imagen')
     ->where('cm.id_nacionalidad_pais',  $request->id) 
-    ->orderBy('cm.valor', 'asc')   
+    ->orderBy('cm.valor', 'desc')   
     ->paginate(15);
             return 
             [
@@ -93,11 +93,21 @@ class CajaMonedaController extends Controller
     public function store(Request $request)   
     {
         try {
-            DB::beginTransaction();
-          
-            $datoTexto = conversorNumaTexoParaTodos::conversorNumaTexoParaTodos($request->valor_entero);
+            DB::beginTransaction();      
+
+        $datoTexto = conversorNumaTexoParaTodos::conversorNumaTexoParaTodos($request->valor_entero);
             
         $caja = new Caja_Moneda();
+          if($request->hasFile('imagen')) // verifica lo que se envio en request es una imagen
+        {            
+            $filename=$request->imagen->getClientOriginalName();
+            info($filename);
+            $caja->imagen = $request->file('imagen')->store('monedas');                
+          
+        }else{
+            $caja->imagen="";
+        }
+
         $caja->tipo_corte = $request->nombre;
         $caja->valor = $request->valor;
         $caja->unidad = $request->unidad;
@@ -121,9 +131,9 @@ class CajaMonedaController extends Controller
     
         DB::table('log__sistema')->insert($datos);   
         DB::commit(); 
-        return  DB::commit();   
+        return  0;   
         } catch (\Throwable $th) {
-            return response()->json(['error' => $th]);
+            return $th;
         }
        
     }
@@ -136,6 +146,13 @@ class CajaMonedaController extends Controller
             DB::beginTransaction();          
             $datoTexto = conversorNumaTexoParaTodos::conversorNumaTexoParaTodos($request->valor_entero);
             $update=Caja_Moneda::find($request->id);
+              if($request->hasFile('imagen')) // verifica lo que se envio en request es una imagen
+        {            
+            $filename=$request->imagen->getClientOriginalName();
+            info($filename);
+            $update->imagen = $request->file('imagen')->store('monedas');                
+          
+        }
             $update->tipo_corte = $request->nombre;
             $update->valor = $request->valor;
             $update->unidad = $request->unidad;
@@ -157,10 +174,10 @@ class CajaMonedaController extends Controller
     
         DB::table('log__sistema')->insert($datos);   
         DB::commit(); 
-        return  DB::commit();   
+        return  0 ;
 
         } catch (\Throwable $th) {
-            return response()->json(['error' => $th]);
+            return $th;
         }
     }
 

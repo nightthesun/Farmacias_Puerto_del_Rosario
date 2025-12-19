@@ -311,7 +311,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::put('/credenciales_correo/modificarTraspaso_traspaso_SS', [AdmCredecialCorreoController::class, 'updateTraspaso_traspaso_SS']);  
     Route::put('/credenciales_correo/modificarConfiguracionTraspaso_traspado_SS', [AdmCredecialCorreoController::class, 'updateConfiguracionTraspaso_traspado_SS']);  
     Route::put('/credenciales_correo/modificarTraspaso_recepcio_SS', [AdmCredecialCorreoController::class, 'updateTraspaso_recepcio_SS']);   
-    Route::put('/credenciales_correo/modificarEcuacionZ ', [AdmCredecialCorreoController::class, 'updateEcuacionZ']);         
+    Route::put('/credenciales_correo/modificarEcuacionZ', [AdmCredecialCorreoController::class, 'updateEcuacionZ']);   
+    Route::post('/credenciales_correo/actualizar_efecto_sobrante', [AdmCredecialCorreoController::class, 'updateEfecto_sobrante']);  
+        
                
     Route::get('/dosificacion/getDataSucursal', [AdmCredecialCorreoController::class, 'getDataSucursal']);
     Route::post('/dosificacion/store_dosificacion', [AdmCredecialCorreoController::class, 'store_dosificacion']);

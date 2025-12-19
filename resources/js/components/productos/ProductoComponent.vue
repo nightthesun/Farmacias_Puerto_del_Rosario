@@ -1224,7 +1224,7 @@ import QrcodeVue from 'qrcode.vue';
                         text: "Datos nulos."  
                     });
                 }else{
-                    formData.append('foto', me.foto);
+                formData.append('foto', me.foto);
                 formData.append('idlineaselected', me.idlineaselected);
                 formData.append('codigolinea',me.codigolinea);
                 formData.append('nombre',me.nombre);

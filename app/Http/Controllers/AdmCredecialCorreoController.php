@@ -731,6 +731,31 @@ class AdmCredecialCorreoController extends Controller
         }
     }
 
+    public function updateEfecto_sobrante(Request $request){        
+        try {
+            $fechaActual = Carbon::now(); // Obtiene la fecha y hora actual
+            $id = $request->id;        
+                        
+            $update = adm_CredecialCorreo::find($id);            
+            $update->efecto_sobrante=$request->efecto_sobrante;    
+            $update->save();         
+    
+            $datos = [
+                'id_modulo' => $request->id_modulo,
+                'id_sub_modulo' => $request->id_sub_modulo,
+                'accion' => 2,
+                'descripcion' => $request->des,          
+                'user_id' =>auth()->user()->id, 
+                'created_at'=>$fechaActual,
+                'id_movimiento'=>$id,   
+            ];
+        
+            DB::table('log__sistema')->insert($datos);   
+        } catch (\Throwable $th) {
+            return $th;
+        }
+    }
+
     public function editar_transaccion_v2(Request $request){        
         try {
             $fechaActual = Carbon::now(); // Obtiene la fecha y hora actual

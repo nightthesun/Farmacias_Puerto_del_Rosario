@@ -184,7 +184,7 @@ return response()->json([
                         'total_moneda' => $request->totalMonedas, 
                         'tipo_moneda' => $request->moneda_s1                      
                     ];    
-
+                    
                     $id = DB::table('caja__arqueo')->insertGetId($datos);     
                 
                     foreach ($request->input as $key => $value) {                       
@@ -242,38 +242,37 @@ return response()->json([
                 $nomsucursal=session('nomsucursal');
               }            
               // $table->tinyInteger('accion')->comment('1->modulo configuracion manual,2=otros 3....., 0=cierre de caja');
-              $stockMedio = DB::table('adm_credecial_correos as a')
-    ->select('a.stock_medio')
-    ->limit(1)
-    ->first();
-         $tipoTabla=$stockMedio->stock_medio;    
-                $data_2=[
-                    'id_user' => $id_user,
-                    'id_sucursal' => $idsucursal,
-                    'tipo_tabla' => $tipoTabla,
-                    'fecha' => $fechaHoy,
-                    'hora' => $hora,
-                    'accion' =>1   
-                ];
-                 DB::table('log__tabla_accion_stock')->insert($data_2);  
-
-                    $generarstocks=$this->generarstocks($id_sucursal);
-                    foreach ($generarstocks as $key => $value) {
-                        $fechaHoy = Carbon::now()->format('Y-m-d');
-
-            $datos_3=[
-                'id_producto' => $value->id_producto,
-                'stock' => $value->stock_total,
-                'fecha_ingreso' => $fechaHoy, 
-                'id_sucursal' => $id_sucursal,
-                'envase' => $value->envase,            
-            ];
-            
-           DB::table('sis_bitacora_stock')->insert($datos_3);  
-   // $pivote = new Pivot_Modulo_tienda_almacen();
-                    }        
-                    
-                    DB::commit();
+          /** se quito esta parte ya que se actualiza por el sistema  automatico
+           * $stockMedio = DB::table('adm_credecial_correos')
+    *->value('stock_medio');          
+*
+ *        return $stockMedio;
+*
+ *        $data_2=[
+  *                  'id_user' => $id_user,
+   *                 'id_sucursal' => $idsucursal,
+    *                'tipo_tabla' => $stockMedio,
+     *               'fecha' => $fechaHoy,
+      *              'hora' => $hora,
+       *             'accion' =>1   
+       *         ];
+        *         DB::table('log__tabla_accion_stock')->insert($data_2);  
+         *           $generarstocks=$this->generarstocks($id_sucursal);
+          *          foreach ($generarstocks as $key => $value) {
+           *             $fechaHoy = Carbon::now()->format('Y-m-d');
+            *$datos_3=[
+             *   'id_producto' => $value->id_producto,
+              *  'stock' => $value->stock_total,
+               * 'fecha_ingreso' => $fechaHoy, 
+                *'id_sucursal' => $id_sucursal,
+                *envase' => $value->envase,            
+           * ];            
+         *  DB::table('sis_bitacora_stock')->insert($datos_3);   
+          *          }    
+           * 
+           * 
+          */                    
+         DB::commit();
                 } else {
                     return "La operacióm debe ser relziada por el mismo usuario";
                 }
@@ -351,7 +350,7 @@ $data_1 = $moneda;
         }else {
          
             $monedas_2 =  DB::table('caja__monedas')
-            ->select('id', 'tipo_corte', 'valor', 'unidad', 'unidad_entera', DB::raw('0.00 AS valor_default'),DB::raw('0 AS input'),'id_nacionalidad_pais')
+            ->select('id', 'tipo_corte', 'valor', 'unidad', 'unidad_entera', DB::raw('0.00 AS valor_default'),DB::raw('0 AS input'),'id_nacionalidad_pais','imagen')
             ->where('id_nacionalidad_pais', $moneda)
             ->where('activo', 1)
             ->get();
@@ -441,7 +440,7 @@ $data_1 = $moneda;
        
         $resultado = DB::table('caja__arqueo_array as caa')
     ->join('caja__monedas as cm', 'caa.id_moneda', '=', 'cm.id')
-    ->select('caa.id_moneda as id','cm.unidad_entera', 'cm.unidad', 'cm.tipo_corte', 'cm.valor', 'caa.cantidad')
+    ->select('caa.id_moneda as id','cm.unidad_entera', 'cm.unidad', 'cm.tipo_corte', 'cm.valor', 'caa.cantidad','imagen')
     ->where('caa.id_arqueo','=',$request->id_arqueo)
     ->get();  
     return $resultado;
@@ -451,7 +450,7 @@ $data_1 = $moneda;
     public function getmoneda(Request $request){
     $resultado=  DB::table('caja__entrada_salida_array as cesa')
     ->join('caja__monedas as cm', 'cm.id', '=', 'cesa.id_moneda')
-    ->select('cesa.id_arqueo', 'cesa.cantidad', 'cm.id', 'cm.tipo_corte', 'cm.valor', 'cm.unidad', 'cm.unidad_entera')
+    ->select('cesa.id_arqueo', 'cesa.cantidad', 'cm.id', 'cm.tipo_corte', 'cm.valor', 'cm.unidad', 'cm.unidad_entera','imagen')
     ->where('cesa.id_arqueo', $request->id_arqueo)
     ->get();    
     return $resultado;

@@ -73,8 +73,9 @@
                         <th class="col-md-2">Tipo de moneda</th>
                         <th class="col-md-1">Valor</th>
                         <th class="col-md-1">Valor entero</th>
-                        <th class="col-md-5">Valor literal</th>
+                        <th class="col-md-2">Valor literal</th>
                         <th class="col-md-1">Unidad</th>
+                        <th class="col-md-2">Imagen</th>
                         <th class="col-md-1">Estado</th>
                     </tr>
                 </thead>
@@ -113,8 +114,12 @@
                         <td class="col-md-2" v-text="i.tipo_corte"></td>
                         <td class="col-md-1" style="text-align: right;" v-text="i.valor"></td>
                         <td class="col-md-1" style="text-align: right;" v-text="i.unidad_entera"></td>
-                        <td class="col-md-5" v-text="i.texto_unidad_entera"></td>
+                        <td class="col-md-2" v-text="i.texto_unidad_entera"></td>
                         <td class="col-md-1" v-text="i.unidad"></td>
+                        <td class="col-md-2">
+                        <img v-if="i.imagen" :src="'monedas/'+ i.imagen.substring(7)"  width="60" height="60" style="object-fit: cover">                           
+                        <img v-else src="img/avatars/noimagen.png" width="60"  height="60"  style="object-fit: cover" >
+                        </td>
                         <td class="col-md-1">
                             <div v-if="i.activo == 1">
                                 <span class="badge badge-success">Activo</span>
@@ -190,16 +195,25 @@
                                                 <span  v-if="valor_entero==''" class="error">Debe ingresar la unidad entera</span>
                                             </div>
                                             <div class="form-group col-sm-3">
-                                                <strong>Simbolo: <span  v-if="unidad==''" class="error">(*)</span></strong>
-                                                
+                                                <strong>Simbolo: <span  v-if="unidad==''" class="error">(*)</span></strong>                              
                                                 
                                                 <select name="" id="" v-model="unidad" class="form-control">
                                                     <option value="0" disabled>Seleccionar...</option>
                                                         <option value="ctvo">ctvo</option>
                                                         <option :value="simbolo" >{{simbolo}}</option>
-                                                 </select>
-                                             
+                                                 </select>                                             
                                               <span  v-if="unidad==''" class="error">Sin accion</span>
+                                            </div>                                           
+                                        </div>
+                                        <div class="row"> 
+                                            <div class="form-group col-sm-8">
+                                                <strong>Imagen:</strong>
+                                                     <input class="form-control rounded" type="file" @change="subirfoto" :v-model="imagne_coins" accept="image/*" id="imgproducto">   
+                                            </div>
+                                            <div class="form-group col-sm-4">
+                                            <figure>
+                                                <img width="100" height="100" :src="imagen" alt="">
+                                            </figure>
                                             </div>
                                         </div> 
                                        
@@ -262,16 +276,23 @@ export default {
             valor:'',
             unidad:0,
             tipoMoneda:0,
-            id_:"",
+            id_:'',
             buscar:'',
             tipoAccion:1,
-            nombre_pais:"",
-             //---permisos_R_W_S
+            nombre_pais:'',
+        
+            imagne_coins:'',
+            imagenminiatura:'',
+           
+
+            //---permisos_R_W_S
              puedeEditar:2,
                 puedeActivar:2,
                 puedeHacerOpciones_especiales:2,
                 puedeCrear:2,
                 //-----------
+
+        
      
         };
     },
@@ -279,6 +300,9 @@ export default {
     
 
     computed: {
+          imagen(){
+                return this.imagenminiatura;
+            },
         sicompleto() {
            let me = this;
            if (   me.valor != "" &&
@@ -350,7 +374,6 @@ listarPerimsoxyz() {
         })
         .catch(function(error) {
             error401(error);
-            console.log(error);
         });
 },
 //---------------------------------------------------
@@ -367,7 +390,27 @@ listarPerimsoxyz() {
       this.valor_entero = value;
     },
 
-    actualizar() {
+            subirfoto(event){
+                let me=this;
+                me.imagne_coins=event.target.files[0];
+                if (me.imagne_coins!=undefined || me.imagne_coins!=null) {
+                   me.cargarImagen(); 
+                }                        
+                
+            },
+   
+            cargarImagen(){
+                let reader = new FileReader();
+                reader.onload=(e)=>{
+                    this.imagenminiatura=e.target.result;
+                }
+                  reader.onerror = (err) => {
+                    console.error('Error al cargar la imagen', err);
+                };
+                reader.readAsDataURL(this.imagne_coins);
+            },
+
+  actualizar() {
             let me = this;
             if (
                 me.nombre === "" ||
@@ -381,21 +424,23 @@ listarPerimsoxyz() {
                     "warning",
                 );
             } else {
-                let cadena="actualizacion de datos "+me.nombre_pais;
-            axios.post("/moneda/actualizar", {
-                    id:me.id_,
-                    nombre: me.tipoMoneda,
-                    valor: me.valor,
-                    unidad: me.unidad,
-                    valor_entero:me.valor_entero,
-                    id_nacionalidad_pais:me.selectPais,
-                    id_modulo: me.idmodulo,
-                    id_sub_modulo:me.codventana, 
-                    des:cadena
-            
-                })
-                .then(function (response) {
-                      if (response.data===null || response.data==="" || (response.data).length<=0) {
+                 let formData = new FormData();
+                 let cadena="actualizacion de datos "+me.nombre_pais; 
+                formData.append('id', me.id_);          
+                formData.append('nombre', me.tipoMoneda);
+                formData.append('valor', me.valor);
+                formData.append('unidad', me.unidad);
+                formData.append('valor_entero', me.valor_entero);
+                formData.append('id_nacionalidad_pais', me.selectPais);
+                formData.append('id_modulo', me.idmodulo);
+                formData.append('id_sub_modulo', me.codventana);
+                formData.append('des', cadena);
+                formData.append('imagen', me.imagne_coins);
+               axios.post('/moneda/actualizar', formData, {headers : {'content-type': 'multipart/form-data'}})
+                .then(function(response){
+                      let respuesta=response.data;                  
+                    if (respuesta==0) {
+                        
                             Swal.fire(
                             "Registrado exitosamente",
                             "Haga click en Ok",
@@ -403,34 +448,18 @@ listarPerimsoxyz() {
                         ); 
                         } else {
                             Swal.fire(
-                            " "+response.data,
+                            "Error: "+respuesta,
                             "Haga click en Ok",
                             "error",
                         );   
-                        }
+                        } 
                         me.cerrarModal("registrar");
-                        me.listarIndex();
+                  
                 })
-                //.catch(function (error) {
-                //    error401(error);
-                //});
-                .catch(function (error) {           
-                
-                if (error.response.status === 500) {
-                    me.errorMsg = error.response.data.error; // Asigna el mensaje de error a la variable errorMsg
-                Swal.fire(
-                    "Error",
-                    "500 (Internal Server Error)"+me.errorMsg, // Muestra el mensaje de error en el alert
-                    "error"
-                );
-                }else{
-                    Swal.fire(
-                    "Error",
-                    ""+error, // Muestra el mensaje de error en el alert
-                    "error"
-                );  
-                }               
-            });
+                .catch(function (error) {
+                    error401(error);
+                });
+               
             me.cerrarModal("registrar");
             }           
         },
@@ -442,11 +471,11 @@ listarPerimsoxyz() {
                 .then(function (response) {
                     var respuesta = response.data;
                     me.pagination = respuesta.pagination;
-                    me.arrayIndex = respuesta.monedas.data;                
+                    me.arrayIndex = respuesta.monedas.data;  
+                             
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
     },
         
@@ -461,7 +490,6 @@ listarPerimsoxyz() {
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
 
@@ -483,19 +511,23 @@ listarPerimsoxyz() {
       if (me.isSubmitting) return;
 
 me.isSubmitting = true; // Deshabilita el botón
+ let formData = new FormData();
                 let cadena="creacion de moneda "+me.nombre_pais;
-                axios.post("/moneda/store", {
-                    nombre: me.tipoMoneda,
-                    valor: me.valor,
-                    unidad: me.unidad,
-                    valor_entero:me.valor_entero,
-                    id_nacionalidad_pais:me.selectPais,
-                    id_modulo: me.idmodulo,
-                    id_sub_modulo:me.codventana, 
-                    des:cadena
-                    })
-                    .then(function (response) {
-                        if (response.data===null || response.data==="" || (response.data).length<=0) {
+                formData.append('nombre', me.tipoMoneda);
+                formData.append('valor', me.valor);
+                formData.append('unidad', me.unidad);
+                formData.append('valor_entero', me.valor_entero);
+                formData.append('id_nacionalidad_pais', me.selectPais);
+                formData.append('id_modulo', me.idmodulo);
+                formData.append('id_sub_modulo', me.codventana);
+                formData.append('des', cadena);
+                formData.append('imagen', me.imagne_coins);
+                axios.post('/moneda/store', formData, {headers : {'content-type': 'multipart/form-data'}})
+                .then(function(response){
+                    let respuesta=response.data;
+                 
+                    if (respuesta==0) {
+                        
                             Swal.fire(
                             "Registrado exitosamente",
                             "Haga click en Ok",
@@ -503,22 +535,17 @@ me.isSubmitting = true; // Deshabilita el botón
                         ); 
                         } else {
                             Swal.fire(
-                            " "+response.data,
+                            "Error: "+respuesta,
                             "Haga click en Ok",
                             "error",
                         );   
-                        }
-                        me.cerrarModal("registrar");
-                        me.listarIndex();   
-                    })                    
-                  
-                  .catch(function (error) {           
+                        }  
+                        me.cerrarModal('registrar');
+                        me.listarIndex(1);                
+                    
+                }).catch(function(error){
                     error401(error);
-          console.log(error);
-        })
-        .finally(() => {
-          me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
-        });
+                }); 
             }
         },
     
@@ -551,7 +578,9 @@ me.isSubmitting = true; // Deshabilita el botón
                     me.unidad=0;
                     me.valor="";
                     me.valor_entero="";
-                         me.showModal = true;
+                    me.showModal = true;
+                    me.imagne_coins="";
+                    me.imagenminiatura="";
                     me.classModal.openModal("registrar");
                     break;
                 }
@@ -564,8 +593,13 @@ me.isSubmitting = true; // Deshabilita el botón
                     me.tipoMoneda=data.tipo_corte === null ? 0 : data.tipo_corte;
                     me.valor=data.valor; 
                     me.valor_entero=data.unidad_entera;
-                    me.unidad=data.unidad === null ? 0 : data.unidad
-                    me.classModal.openModal("registrar");
+                    me.unidad=data.unidad === null ? 0 : data.unidad;
+                    data.imagen=data.imagen === null ? 'persona.png': data.imagen.substring(7);
+                   me.imagenminiatura = 'monedas/'+ data.imagen;
+                  
+                   //me.imagne_coins="";
+                   // me.imagenminiatura=""; 
+                   me.classModal.openModal("registrar");
                     break;
                 }
             
@@ -585,6 +619,9 @@ me.isSubmitting = true; // Deshabilita el botón
                     me.unidad=0;
                     me.nombre_pais="";
                     me.valor_entero="";
+                  //  me.imagenminiatura="";
+                  //  me.imagne_coins="";   
+                  me.listarIndex(); 
               
             }
         },

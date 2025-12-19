@@ -254,24 +254,36 @@
                         </button>
                         </div>
 
-                     <div class="modal-body" style="max-height: 90vh; overflow-y: auto;">                    
+                     <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">                    
                         <table class="table table-bordered table-striped table-sm table-responsive">
                             <thead>
                                 <tr>
+                                    <th class="col-md-1">Imagen</th>
                                     <th class="col-md-1">Monto</th>
                                     <th class="col-md-1">Simbolo</th>
                                     <th class="col-md-2">Tipo</th>
-                                    <th class="col-md-1">Valor</th>
-                                    <th class="col-md-3">Acción</th>
+                                    <th class="col-md-2">Valor</th>
+                                    <th class="col-md-5">AcciónModificar</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr v-for="a in arrayMoneda" :key="a.id">
+                                    <td class="col-md-1">
+                                        <div v-if="a.tipo_corte=='Billete'">
+                                            <img v-if="a.imagen" :src="'monedas/'+ a.imagen.substring(7)"  width="10" height="10110" style="object-fit: cover">                           
+         <img v-else src="img/avatars/noimagen.png" width="10"  height="10110"  style="object-fit: cover" >
+                                        </div>
+                                        <div v-else>
+   <img v-if="a.imagen" :src="'monedas/'+ a.imagen.substring(7)"  width="60" height="60" style="object-fit: cover">                           
+         <img v-else src="img/avatars/noimagen.png" width="60"  height="60"  style="object-fit: cover" >
+                                        </div>
+         
+ </td>
                                     <td  class="col-md-1" style="text-align: right;">{{a.unidad_entera}}</td>
                                     <td class="col-md-1">{{a.unidad}}</td>
                                     <td  class="col-md-2">{{a.tipo_corte}}</td>
                                     <td  class="col-md-1" style="text-align: right;">{{a.valor_default}}</td>
-                                    <td  class="col-md-3"> 
+                                    <td  class="col-md-5"> 
                                         <input type="text" style="text-align: right;" class="form-control" placeholder="Solo valores enteros" v-model="input[a.id]"  @input="validateIntegerInput(a.id,a)" />
                                     
                                     </td>
@@ -378,13 +390,55 @@
 
           <!-- Contenido del modal cuando ya cargó -->
           <div v-else>
-  <div class="modal-body">  
+  <div class="modal-body"> 
+    <table class="table table-bordered table-striped table-sm table-responsive">
+        <thead>
+            <tr>
+                <th class="col-md-6">Imagen</th>
+                <th class="col-md-3">Monto</th>
+                <th class="col-md-3">Tipo</th>
+            </tr>
+        </thead>
+       <tbody v-if="tamaño_v2>=0">  
+            <tr style="text-align: center; vertical-align: middle;">
+                <td class="col-md-4">
+                    <div v-if="arraySiguiente.tipo_corte=='Billete'">
+                        <img v-if="arraySiguiente.imagen" :src="'monedas/'+ arraySiguiente.imagen.substring(7)"  width="250" height="110" style="object-fit: cover">                           
+                        <img v-else src="img/avatars/noimagen.png" width="80"  height="80"  style="object-fit: cover" >
+                    </div>
+                    <div v-else>
+                        <img v-if="arraySiguiente.imagen" :src="'monedas/'+ arraySiguiente.imagen.substring(7)"  width="110" height="110" style="object-fit: cover">                           
+                        <img v-else src="img/avatars/noimagen.png" width="80"  height="80"  style="object-fit: cover" >
+                    </div>                    
+                </td>
+                <td class="col-md-4" style="font-size: 35px;">         
+                    <strong v-if="arraySiguiente.unidad!='ctvo'">
+                        {{ arraySiguiente.unidad_entera+" "+arraySiguiente.unidad }}
+                    </strong>
+                    <strong v-else>
+                        {{ "0."+arraySiguiente.unidad_entera+" "+arraySiguiente.unidad }}
+                    </strong>  
+                </td>
+                <td class="col-md-4" style="font-size: 35px;"><strong>{{ arraySiguiente.tipo_corte }}</strong></td>                
+            </tr>
+        </tbody>
+        <tbody v-else>                 
+            <tr style="text-align: center; vertical-align: middle;">
+                <td class="col-md-4">
+                    <strong>S/I</strong>
+                </td>
+                <td class="col-md-4" style="font-size: 35px;">      
+                    <strong>0</strong>
+                    </td>
+                <td class="col-md-4" style="font-size: 35px;"><strong>S/T</strong></td>
+            </tr>
+        </tbody>
+    </table>
 
                         <table class="table table-bordered table-striped table-sm table-responsive">
                             <thead>
                                 <tr>
-                                    <th class="col-md-3">Monto</th>                               
-                                    <th class="col-md-3">Tipo</th>                                  
+                                    <th class="col-md-6">Valor por default</th>                                  
                                     <th class="col-md-2">Cantidad</th>
                                     <th class="col-md-1">Menos</th>
                                     <th class="col-md-1">Mas</th>
@@ -393,16 +447,8 @@
                             </thead>
                  
 <tbody v-if="tamaño_v2>=0">                 
-    <tr style="text-align: center; vertical-align: middle;">
-        <td class="col-md-3" style="font-size: 30px;">         
-                <strong v-if="arraySiguiente.unidad!='ctvo'">
-                {{ arraySiguiente.unidad_entera+" "+arraySiguiente.unidad }}
-            </strong>
-            <strong v-else>
-                {{ "0."+arraySiguiente.unidad_entera+" "+arraySiguiente.unidad }}
-            </strong>  
-        </td>
-        <td class="col-md-3" style="font-size: 30px;"><strong>{{ arraySiguiente.tipo_corte }}</strong></td>
+    <tr style="text-align: center; vertical-align: middle;">    
+        <td class="col-md-6"><strong>{{ arraySiguiente.valor_default }}</strong></td>          
         <td class="col-md-2">
             <input type="text" class="form-control text-right" v-model="input_v2" placeholder="Solo valores enteros"  @input="validar_v2"/>
         </td>
@@ -424,10 +470,7 @@
 </tbody>
 <tbody v-else>                 
     <tr style="text-align: center; vertical-align: middle;">
-        <td class="col-md-3" style="font-size: 30px;">      
-            <strong>0</strong>
-         </td>
-        <td class="col-md-3" style="font-size: 30px;"><strong>S/T</strong></td>
+        <td class="col-md-6">Sin dato</td>  
         <td class="col-md-2">
             <input type="text" class="form-control text-right"  placeholder="Solo valores enteros" disabled/>
         </td>
@@ -545,25 +588,30 @@
                         </button>
                         </div>
 
-     <div class="modal-body" style="max-height: 90vh; overflow-y: auto;"> 
+     <div class="modal-body" style="max-height: 70vh; overflow-y: auto;"> 
                
                         <table class="table table-bordered table-striped table-sm table-responsive">
                             <thead>
                                 <tr>
+                                    <th class="col-md-1">Imagen</th>
                                     <th class="col-md-1">Monto</th>
                                     <th class="col-md-1">Simbolo</th>
                                     <th class="col-md-2">Tipo</th>
-                                    <th class="col-md-1">Valor</th>
-                                    <th class="col-md-3">Acción</th>
+                                    <th class="col-md-2">Valor</th>
+                                    <th class="col-md-5">Acción</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr v-for="a in arrayMoneda" :key="a.id">
+                                    <td class="col-md-1">
+                                        <img v-if="a.imagen" :src="'monedas/'+ a.imagen.substring(7)"  width="60" height="60" style="object-fit: cover">                           
+                                        <img v-else src="img/avatars/noimagen.png" width="60"  height="60"  style="object-fit: cover" >
+                                    </td>
                                     <td  class="col-md-1" style="text-align: right;">{{a.unidad_entera}}</td>
                                     <td class="col-md-1">{{a.unidad}}</td>
                                     <td  class="col-md-2">{{a.tipo_corte}}</td>
-                                    <td  class="col-md-1" style="text-align: right;">{{a.valor_default}}</td>
-                                    <td  class="col-md-3"> <input type="text" style="text-align: right;" class="form-control" placeholder="Solo valores enteros" v-model="input[a.id]"  @input="validateIntegerInput(a.id,a)" />
+                                    <td  class="col-md-2" style="text-align: right;">{{a.valor_default}}</td>
+                                    <td  class="col-md-5"> <input type="text" style="text-align: right;" class="form-control" placeholder="Solo valores enteros" v-model="input[a.id]"  @input="validateIntegerInput(a.id,a)" />
                                     
                                     </td>
                                 </tr>
@@ -635,7 +683,7 @@
                         
     
         <!--fin del modal-->
-        <!--Inicio del modal cerrar_apertura dos ******2 -->
+        <!--Inicio del modal cerrar_apertura dos ******2 ------------------------------------------------------>
 
         <transition name="fade">
             <div v-if="showModal_4" class="modal d-block" tabindex="-1" role="dialog">
@@ -658,13 +706,55 @@
           <!-- Contenido del modal cuando ya cargó -->
           <div v-else>
   <div class="modal-body">   
+     <table class="table table-bordered table-striped table-sm table-responsive">
+        <thead>
+            <tr>
+                <th class="col-md-6">Imagen</th>
+                <th class="col-md-3">Monto</th>
+                <th class="col-md-3">Tipo</th>
+            </tr>
+        </thead>
+       <tbody v-if="tamaño_v2>=0">  
+            <tr style="text-align: center; vertical-align: middle;">
+                <td class="col-md-4">
+                    <div v-if="arraySiguiente.tipo_corte=='Billete'">
+                        <img v-if="arraySiguiente.imagen" :src="'monedas/'+ arraySiguiente.imagen.substring(7)"  width="250" height="110" style="object-fit: cover">                           
+                        <img v-else src="img/avatars/noimagen.png" width="80"  height="80"  style="object-fit: cover" >
+                    </div>
+                    <div v-else>
+                        <img v-if="arraySiguiente.imagen" :src="'monedas/'+ arraySiguiente.imagen.substring(7)"  width="110" height="110" style="object-fit: cover">                           
+                        <img v-else src="img/avatars/noimagen.png" width="80"  height="80"  style="object-fit: cover" >
+                    </div>                    
+                </td>
+                <td class="col-md-4" style="font-size: 35px;">         
+                    <strong v-if="arraySiguiente.unidad!='ctvo'">
+                        {{ arraySiguiente.unidad_entera+" "+arraySiguiente.unidad }}
+                    </strong>
+                    <strong v-else>
+                        {{ "0."+arraySiguiente.unidad_entera+" "+arraySiguiente.unidad }}
+                    </strong>  
+                </td>
+                <td class="col-md-4" style="font-size: 35px;"><strong>{{ arraySiguiente.tipo_corte }}</strong></td>                
+            </tr>
+        </tbody>
+        <tbody v-else>                 
+            <tr style="text-align: center; vertical-align: middle;">
+                <td class="col-md-4">
+                    <strong>S/I</strong>
+                </td>
+                <td class="col-md-4" style="font-size: 35px;">      
+                    <strong>0</strong>
+                    </td>
+                <td class="col-md-4" style="font-size: 35px;"><strong>S/T</strong></td>
+            </tr>
+        </tbody>
+    </table>
                
                       
                         <table class="table table-bordered table-striped table-sm table-responsive">
                             <thead>
                                 <tr>
-                                    <th class="col-md-3">Monto</th>                               
-                                    <th class="col-md-3">Tipo</th>                                  
+                                    <th class="col-md-6">Valor por default</th>                                  
                                     <th class="col-md-2">Cantidad</th>
                                     <th class="col-md-1">Menos</th>
                                     <th class="col-md-1">Mas</th>
@@ -674,15 +764,8 @@
                  
 <tbody v-if="tamaño_v2>=0">                 
     <tr style="text-align: center; vertical-align: middle;">
-        <td class="col-md-3" style="font-size: 30px;">         
-                <strong v-if="arraySiguiente.unidad!='ctvo'">
-                {{ arraySiguiente.unidad_entera+" "+arraySiguiente.unidad }}
-            </strong>
-            <strong v-else>
-                {{ "0."+arraySiguiente.unidad_entera+" "+arraySiguiente.unidad }}
-            </strong>  
-        </td>
-        <td class="col-md-3" style="font-size: 30px;"><strong>{{ arraySiguiente.tipo_corte }}</strong></td>
+        <td class="col-md-6"><strong>{{ arraySiguiente.valor_default }}</strong></td>   
+      
         <td class="col-md-2">
             <input type="text" class="form-control text-right" v-model="input_v2" placeholder="Solo valores enteros"  @input="validar_v2"/>
         </td>

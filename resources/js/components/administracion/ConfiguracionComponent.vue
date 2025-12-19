@@ -34,7 +34,7 @@
                     <a class="nav-link" id="pills-superUser-tab" data-toggle="pill" href="#pills-superUser" role="tab" aria-controls="pills-superUser" @click="listarUser()" aria-selected="false">Super usuario</a>
                 </li>    
                 <li class="nav-item">
-                    <a class="nav-link" id="pills-modal-tab" data-toggle="pill" href="#pills-modal" role="tab" aria-controls="pills-modal" aria-selected="false">Modal de apertura</a>
+                    <a class="nav-link" id="pills-modal-tab" data-toggle="pill" href="#pills-modal" role="tab" aria-controls="pills-modal" aria-selected="false">Conf. Interfase apertura y cierre / activación sobrantes</a>
                 </li> 
                 <li class="nav-item">
                     <a class="nav-link" id="pills-imp_tras-tab" data-toggle="pill" href="#pills-imp_tras" role="tab" aria-controls="pills-imp_tras" aria-selected="false">Imprecion transacción</a>
@@ -53,8 +53,7 @@
                 </li> 
                 <li class="nav-item">
                     <a class="nav-link" id="pills-ecuaciones-tab" data-toggle="pill" href="#pills-ecuaciones" role="tab" aria-controls="pills-ecuaciones" aria-selected="false" @click="listarConfigAdminTraspaso()">Configuración de ecuaciones</a>
-                </li> 
-                       
+                </li>                     
             </ul>
         </div>
         <div class="card-body">
@@ -594,16 +593,24 @@
                     </div>
     <!---------------------------------------------------------------------------------------------------------------------------->
   <div class="tab-pane fade" id="pills-modal" role="tabpanel" aria-labelledby="pills-modal-tab">
-                   <div class="card">
-                            <div class="card-header">Datos de modal de apertura</div>
-                            <div class="alert alert-info" role="alert">
-  Solo afecta las ventanas modales donde se muestre conteo de monedas. <strong>Disponible en modulo de cajas</strong>
-</div>
-                            <div class="card-body">
-                                <div class="form-group row">
-                                    <label class="col-md-1 form-control-label" for="text-input" style="font-size: 12px;"><strong>Venta modal:</strong> 
-                                    </label>
-                                  
+    <div id="accordion">
+  <div class="card">
+    <div class="card-header" id="headingOne_x1">
+      <h5 class="mb-0">
+        <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOne_x1" aria-expanded="false" aria-controls="collapseOne_x1">
+          Configuración de interfase de venta apertura y cierre
+        </button>
+      </h5>
+    </div>
+
+    <div id="collapseOne_x1" class="collapse" aria-labelledby="headingOne_x1" data-parent="#accordion">
+        <div class="card-body">
+                 <div class="alert alert-info" role="alert">
+                    Solo afecta las ventanas modales donde se muestre conteo de monedas. <strong>Disponible en modulo de cajas</strong>
+                </div>
+                   <div class="form-group row">
+                                    <label class="col-md-2 form-control-label" for="text-input" style="font-size: 12px;"><strong>Venta modal:</strong> 
+                                    </label>                                 
           
                                     <div class="col-md-3">
                                         <select v-if="puedeHacerOpciones_especiales===1" class="form-control"  v-model="selectModalApertura" @change="cambioModalApertura(selectModalApertura)">
@@ -615,8 +622,7 @@
                                             <option value="0" disabled selected>Sin permiso...</option>
                                         
                                         </select>
-                                     </div>
-                                   
+                                     </div>                                   
                                     <div class="col-md-3">
                                         <div v-if="selectModalApertura===0" class="alert alert-danger" role="alert">
                                              {{ modalApertura  }}
@@ -624,18 +630,65 @@
                                         <div v-else class="alert alert-primary" role="alert">
                                              {{ modalApertura  }}
                                         </div>
-                                     </div>
-              
+                                     </div>              
                                 </div>
-                            </div>
-                           
-                            <div class="form-group row justify-content-center">
+                                 <div class="form-group row justify-content-center">
                                 <div class="col-md-3 d-flex justify-content-center">       
                                     <button v-if="puedeEditar==1" type="button" class="btn btn-warning" style="color: white;" @click="actualizarModalContable()" >Actualizar modal de apertura</button>
                                     <button v-else type="button" class="btn btn-light">Actualizar modal de apertura</button>   
                                 </div>
-                            </div>
-                        </div>
+                            </div>                
+        </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-header" id="headingTwo_x1">
+      <h5 class="mb-0">
+        <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseTwo_x1" aria-expanded="false" aria-controls="collapseTwo_x1">
+         Configuración de sobrantes
+        </button>
+      </h5>
+    </div>
+    <div id="collapseTwo_x1" class="collapse" aria-labelledby="headingTwo_x1" data-parent="#accordion">
+      <div class="card-body">
+            <div class="alert alert-info" role="alert">
+                Esta configuración su finalidad es cuando hay un sobrante haga un ticket y relice un ingreso automatico. <strong>Disponible en modulo de cajas cierre apertura</strong>
+            </div>
+             <div class="form-group row">
+                                    <label class="col-md-2 form-control-label" for="text-input" style="font-size: 12px;"><strong>Tipo:</strong> 
+                                    </label>                                 
+          
+                                    <div class="col-md-3">
+                                        <select v-if="puedeHacerOpciones_especiales===1" class="form-control"  v-model="selectEfcto" @change="cambioEfecto(selectEfcto)">
+                                        <option value=0 disabled selected>Seleccionar...</option>
+                                        <option value=1>Sin efecto</option>
+                                        <option value=2>Añadir efecto</option>
+                                    </select>    
+                                        <select v-else class="form-control">
+                                            <option value="0" disabled selected>Sin permiso...</option>
+                                        
+                                        </select>
+                                     </div>                                   
+                                    <div class="col-md-3">
+                                        <div v-if="selectEfcto===0" class="alert alert-danger" role="alert">
+                                             {{ modalEfecto}}
+                                        </div>
+                                        <div v-else class="alert alert-primary" role="alert">
+                                             {{ modalEfecto}}
+                                        </div>
+                                     </div>              
+                                </div>
+                                 <div class="form-group row justify-content-center">
+                                <div class="col-md-3 d-flex justify-content-center">       
+                                    <button v-if="puedeEditar==1" type="button" class="btn btn-warning" style="color: white;" @click="actualizarEfectoSobrante()" >Actualizar efecto</button>
+                                    <button v-else type="button" class="btn btn-light">Actualizar efecto</button>   
+                                </div>
+                            </div>   
+       </div>
+    </div>
+  </div>  
+</div>
+               
                     </div>
             <!-------------------------------------------------------------------------------------------------------------------->
             <div class="tab-pane fade" id="pills-imp_tras" role="tabpanel" aria-labelledby="pills-imp_tras-tab">                    
@@ -1927,7 +1980,9 @@ puedeEditar:2,
                 selectUser_super:null,
 
                 modalApertura:'No tiene ninguna configuración',
+                modalEfecto:'No tiene ninguna configuración',
                 selectModalApertura:0,
+                selectEfcto:0,
                 transaccion_banco:'2',
                 transaccion_data:'',
 
@@ -3213,6 +3268,25 @@ listarDistribuidorAutomatico_2() {
           }       
         },
 
+         cambioEfecto(data){
+            let me = this;
+          let numero = Number(data); // 123
+          switch (numero) {
+            case 0: {
+                me.modalEfecto="No tiene ninguna configuración";  
+                    break;
+                }
+            case 1: {
+                me.modalEfecto="Valor por defecto sin cambios.";  
+                    break;
+                }
+            case 2: {
+                me.modalEfecto="Realizar operación de ingreso e impresion de comprobante de sobrante.";  
+                    break;
+                }        
+          }       
+        },
+
 
         añadirOquitar_Responsable(data){
             let me = this;      
@@ -4130,6 +4204,23 @@ listarDistribuidorAutomatico_2() {
             }); 
             },
 
+             actualizarEfectoSobrante(){
+                let me = this;
+                axios.post("/credenciales_correo/actualizar_efecto_sobrante", {
+                    id: me.id_credencial,                   
+                    efecto_sobrante:me.selectEfcto,
+
+                    id_modulo: me.idmodulo,
+                id_sub_modulo:me.codventana, 
+                des:"Activacion o descativacion de efecto sobrante",                
+                }).then(function (response) {                    
+                        Swal.fire("Se registro exitosamente","Haga click en Ok", "success",);                                            
+                    })                
+                  .catch(function (error) { 
+                    error401(error);                        
+            }); 
+            },
+
             actulizar_transaccion(data){
                 let me = this;
                 axios.post("/credenciales_correo/transaccion_data", {
@@ -4174,9 +4265,11 @@ listarDistribuidorAutomatico_2() {
                     me.limite_monto=response.data[0].monto_limite;
                     me.limite_horas=response.data[0].tiempo_limite;  
                     me.selectModalApertura=response.data[0].modal_apertura;
-                    me.transaccion_data=response.data[0].imprimir_trans;
-                    me.cambioModalApertura(me.selectModalApertura);
-
+                    me.selectEfcto=response.data[0].efecto_sobrante
+                    me.transaccion_data=response.data[0].imprimir_trans;                 
+                   me.cambioModalApertura(me.selectModalApertura);
+                   me.cambioEfecto(me.selectEfcto);
+                    
                     me.stockMedio=response.data[0].stock_medio;
                 })
                 .catch(function (error) {
