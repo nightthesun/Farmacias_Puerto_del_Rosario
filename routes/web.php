@@ -787,6 +787,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/apertura_cierre/listarCaja_usuario', [CajaAperturaCierreController::class, 'getCaja_x_usuario']); 
     Route::get('/apertura_cierre/modal_apertura', [CajaAperturaCierreController::class, 'getModalApertura']);     
     Route::get('/apertura_cierre/listarImpTrans', [CajaAperturaCierreController::class, 'getImpTrans']); 
+    Route::post('/apertura_cierre/sobrante_auto', [CajaAperturaCierreController::class, 'createSobrante_auto']);      
     
     //entrada_salida
     Route::post('/entrada_salida/store', [CajaEntradaSalidaController::class, 'store']); 

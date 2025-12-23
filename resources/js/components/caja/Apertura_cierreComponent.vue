@@ -270,8 +270,8 @@
                                 <tr v-for="a in arrayMoneda" :key="a.id">
                                     <td class="col-md-1">
                                         <div v-if="a.tipo_corte=='Billete'">
-                                            <img v-if="a.imagen" :src="'monedas/'+ a.imagen.substring(7)"  width="10" height="10110" style="object-fit: cover">                           
-         <img v-else src="img/avatars/noimagen.png" width="10"  height="10110"  style="object-fit: cover" >
+                                            <img v-if="a.imagen" :src="'monedas/'+ a.imagen.substring(7)"  width="60" height="60" style="object-fit: cover">                           
+         <img v-else src="img/avatars/noimagen.png" width="60"  height="60"  style="object-fit: cover" >
                                         </div>
                                         <div v-else>
    <img v-if="a.imagen" :src="'monedas/'+ a.imagen.substring(7)"  width="60" height="60" style="object-fit: cover">                           
@@ -1011,6 +1011,7 @@ import Swal from "sweetalert2";
 import { error401 } from "../../errores";
 import pdfMake from 'pdfmake/build/pdfmake';
 import pdfFonts from 'pdfmake/build/vfs_fonts';
+import axios from "axios";
 export default {
     data() {
         return {
@@ -1096,7 +1097,7 @@ export default {
             suma_venta:'',
             sumaEntrada:'',
             sumaSalida:'',
-          
+            efecto_sobrante:0,
 
             selectCajaxUsuario:0,
 
@@ -1190,6 +1191,81 @@ export default {
     },
 
     methods: {
+////////--------------------- STAR PDF--------------------///////////////
+general_pdf_2(razon_social,direccion,lugar,cadena_A,id,soloFecha,soloHora,mensaje,observacion,valor,simbolo,user){
+    const documentDefinition = {
+        pageMargins: [6, 8, 6, 4], // Configura los márgenes en cero
+        pageSize: {
+    width: 80 * 2.83465, // Ancho en puntos (conversión a puntos desde mm)
+    height: 'auto',
+    columnGap: 2,
+  },
+  content: [
+    { text: razon_social.toUpperCase(), style: 'header'},
+    { text: direccion.toUpperCase(), style: 'header_2'},
+    { text: lugar.toUpperCase(), style: 'header_2'},
+    {
+       text: '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -',    
+       style:'linea_2' 
+    },
+    { text: 'CAJA '+cadena_A, style: 'header_2'},
+    {
+       text: '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -',    
+       style:'linea_2' 
+    },
+    {style: 'datos_f',
+		table: {
+				body: [
+					['NUMERO DE '+cadena_A+':',id],
+					['FECHA: ', soloFecha+' HORA: '+soloHora],
+                    ['RESPONSABLE: ', mensaje.toUpperCase()],
+				]
+			},
+            	layout: 'noBorders'
+		},
+        
+        {
+       text: '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -',    
+       style:'linea_2' 
+    },
+    {style: 'datos_f',
+		table: {
+				body: [
+					['DESCRIPCIÓN: ',observacion.toUpperCase()],
+					['MONTO: ', valor+' '+simbolo],  
+                    ['USUARIO: ', user.toUpperCase()]               
+				]
+			},
+            	layout: 'noBorders'
+		},
+      
+  ],
+  styles: {
+          header: {
+            fontSize: 7,
+            bold: true,
+            alignment: 'center',         
+          },
+          header_2: {
+            fontSize: 7,            
+            alignment: 'center',         
+          },
+          linea_2: {
+            fontSize: 9,
+            margin: [1, 1, 1, 1],
+            alignment: 'center',  
+            },
+        datos_f: {
+            fontSize: 7,         
+            alignment: 'left',         
+          },  
+    }    
+   }; 
+   // Genera el PDF y abre una nueva ventana con el documento
+      pdfMake.createPdf(documentDefinition).open(); 
+},
+/////////////////////////////END PDF/////////////////////////////////////
+
                
         ////////--------------------- STAR PDF--------------------///////////////
 general_pdf(razon_social,sucursal,direccion,lugar,array_pdf,id_apertura,valor_total,simbolo,name){
@@ -1652,6 +1728,30 @@ let operacion_apertura = operacion_acciones + monto_cerrar_apertura;
                 if (me.isSubmitting) return;
                 me.isSubmitting = true; // Deshabilita el botón
                 var id_apertura=me.codigo_cerrar_apertura;
+                let enviarDif=Number(c).toFixed(2);
+                console.log(estado+" - - "+me.efecto_sobrante+" -- "+Number(c).toFixed(2)+"  -- "+me.id_sucursal);
+               
+                
+                if ( estado=="Sobrante" && me.efecto_sobrante===2) {
+               // c id_apertura me.id_sucursal
+                    console.log("sorbente entrante.......");
+                    axios.post("/apertura_cierre/sobrante_auto",{
+                        diferencia:enviarDif,
+                        id_apertura:me.codigo_cerrar_apertura,
+                        id_sucursal:me.id_sucursal,
+                    }).then(function (response) {
+                        let respuesta=response.data;
+                          console.log("respuesta resuorse ");
+                          console.log(respuesta);
+                        Swal.fire(
+                            "Error al enviar sobrante: "+respuesta,
+                            "Haga click en Ok",
+                            "error",);
+                       me.verModalapertura();
+                    }).catch(function (error) {                 
+                        error401(error);  
+                    });             
+                }
                 
                 axios.post("/apertura_cierre/cierre", {
                         user:me.usuario_cerrar_apertura,
@@ -1673,6 +1773,9 @@ let operacion_apertura = operacion_acciones + monto_cerrar_apertura;
                         estado:estado,
                         moneda_s1:me.moneda_s1,
                         id_sucursal:me.id_sucursal,
+
+                        efecto_sobrante:me.efecto_sobrante,
+
                     }).then(function (response) {
                       
                         me.listarIndex();
@@ -1687,7 +1790,8 @@ let operacion_apertura = operacion_acciones + monto_cerrar_apertura;
                             ""+response.data,
                             "Haga click en Ok",
                             "error",
-                        );
+                        );                           
+
                         } else {
                             me.listar_tras_operacion(id_apertura,me.id_sucursal);
                             Swal.fire(
@@ -1701,9 +1805,12 @@ let operacion_apertura = operacion_acciones + monto_cerrar_apertura;
                         error401(error);            
             }).finally(() => {
           me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
-        });
-                     
+        });                     
         },
+
+
+        
+
 
         abrirModalCerrar(data){
             let me=this;
@@ -1892,7 +1999,7 @@ me.isSubmitting = true; // Deshabilita el botón
                     
                     var respuesta_lista = response.data.listaMoneda;
                     var respuesta_moneda = response.data.moneda;
-                   
+                  
                         if (respuesta_moneda===0) {
                             me.bloqueador=0;
                     Swal.fire("No se activo el tipo de moneda necesita activar algun tipo de moneda.","Para activar necesita ir a configuracion y ver la pestaña de tipo de moneda.","error",);                        
@@ -1943,7 +2050,7 @@ me.isSubmitting = true; // Deshabilita el botón
                 .then(function (response) {
                     var respuesta = (response.data).resultado;
                     var respuesta_2 = (response.data).usuario;
-                
+                   
                     if (respuesta.modal_apertura===0) {
                         me.verificador=0;
                         Swal.fire( "Error de venta de modal.",
@@ -1954,7 +2061,7 @@ me.isSubmitting = true; // Deshabilita el botón
                         if (respuesta.modal_apertura>0) {
                             me.verificador=respuesta.modal_apertura;  
                             me.codigoApertura=respuesta_2;
-                                               
+                            me.efecto_sobrante = respuesta.efecto_sobrante;                   
                         } else {
                             Swal.fire( "Error.",
                     "revise la base de datos.",
@@ -2369,7 +2476,9 @@ me.isSubmitting = true; // Deshabilita el botón
     },
 
     mounted() {
+       
         this.verificador_moneda_sistemas();
+     
         this.classModal = new _pl.Modals();
         this.sucursalFiltro();
         this.fecha_inicial();

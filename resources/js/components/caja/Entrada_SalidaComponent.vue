@@ -257,7 +257,7 @@
             
                     </div>
                 
-                             
+                          
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" @click="cerrarModal('registrar')">Cerrar</button>
                         <div  class="d-flex justify-content-start">

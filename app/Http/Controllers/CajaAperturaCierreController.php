@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Caja_AperturaCierre;
+use App\Models\Caja_EntradaSalida;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -175,6 +176,16 @@ return response()->json([
                 if ($request->user==auth()->user()->name) {
                     $id_sucursal=$request->id_sucursal;
                     DB::beginTransaction();
+                    $numero = $request->diferencia;
+                    $resultado=0;
+                        if ($numero < 0) {
+                            $resultado=$numero*-1 ;
+                        } else {
+                            $resultado = $request->diferencia;
+                        }
+
+                   
+                        
                     $datos = [
                         'id_usuario' => auth()->user()->id,
                         'total_arqueo' => $request->total_arqueo_caja,                       
@@ -196,13 +207,8 @@ return response()->json([
                         DB::table('caja__arqueo_array')->insert($datos_2);
                     }
                     $currentDateTime = Carbon::now();
-                    $numero = $request->diferencia;
-                    $resultado=0;
-                        if ($numero < 0) {
-                            $resultado=$numero*-1 ;
-                        } else {
-                            $resultado = $request->diferencia;
-                        }
+                    
+                        
                     $datos_2 = [
                         'id_apertura' => $request->id_apertura,
                         'id_arqueo' => $id,
@@ -240,7 +246,10 @@ return response()->json([
               }else{
                 $idsucursal=session('idsuc');
                 $nomsucursal=session('nomsucursal');
-              }            
+              }   
+
+            
+
               // $table->tinyInteger('accion')->comment('1->modulo configuracion manual,2=otros 3....., 0=cierre de caja');
           /** se quito esta parte ya que se actualiza por el sistema  automatico
            * $stockMedio = DB::table('adm_credecial_correos')
@@ -282,6 +291,116 @@ return response()->json([
         }
     }
 
+    public function createSobrante_auto(Request $request){
+        try {
+            DB::beginTransaction();       
+        $obs="Operación de sobrante";
+        $mensaje=auth()->user()->name." con sobrante";  
+        $entrada_salida_22=1;
+        $id_apertura_cierre=$request->id_apertura;
+        $id_sucursal=$request->id_sucursal;
+        $moneda = DB::table('adm__credecial_correos')->value('moneda');
+           
+        $monedas = DB::table('caja__monedas as cm')
+            ->select('cm.id','cm.tipo_corte','cm.valor','cm.unidad','cm.unidad_entera','cm.unidad','an.simbolo')
+            ->join('adm__nacionalidads as an','an.id','=','cm.id_nacionalidad_pais')                   
+            ->where('cm.id_nacionalidad_pais', $moneda)
+            ->where('cm.activo', 1)
+            ->orderBy('cm.valor', 'desc')
+            ->get();
+          
+           $total_arqueo_caja = round((float) ($request->diferencia ?? 0), 2);
+            $diferencia_A=$total_arqueo_caja;
+                  
+                        if ($total_arqueo_caja < 0) {
+                            $total_arqueo_caja=$total_arqueo_caja*-1 ;
+                        } 
+            $cantidadBilletes=0;
+            $totalBilletas=0;
+            $cantidadMonedas=0;
+            $totalMonedas=0;
+            $datos_enviar_a=[];
+            foreach ($monedas as $key => $value) {
+                $a=0;
+                $simbolo=$value->simbolo;
+                $opeValor = round((float) ($value->valor ?? 0), 2);
+                while ($diferencia_A >= $opeValor) {                  
+                    $diferencia_A=$diferencia_A-$opeValor;                 
+                    if ($value->tipo_corte=="Billete") {
+                    $cantidadBilletes++;
+                    $totalBilletas=$totalBilletas+$opeValor;
+                }else{
+                    $cantidadMonedas++;
+                    $totalMonedas=$totalMonedas+$opeValor;
+                }
+                $a++;
+                }
+                    if($a>0){
+                      $datos_enviar_a[]=[
+                        'id_moneda'=>$value->id,
+                        'cantidad'=>$a
+                      ] ;     
+                    }
+            }
+             $datos = [
+                'id_usuario' => auth()->user()->id,
+                'total_arqueo' => $total_arqueo_caja,                       
+                'cantidad_billete' => $cantidadBilletes,  
+                'total_billete' => $totalBilletas, 
+                'cantidad_moneda' => $cantidadMonedas, 
+                'total_moneda' => $totalMonedas, 
+                'tipo_moneda' => $moneda                      
+            ];                
+            $id = DB::table('caja__arqueo')->insertGetId($datos);    
+                foreach ($datos_enviar_a as $key => $value) {                       
+                 $datos_2 = [
+        'id_arqueo' => $id,
+        'id_moneda' => $value['id_moneda'],
+        'cantidad'  => $value['cantidad']
+    ]; 
+                DB::table('caja__entrada_salida_array')->insert($datos_2);
+            }
+             $entrada_salida=new Caja_EntradaSalida();             
+                $entrada_salida->id_sucursal= $id_sucursal;
+                $entrada_salida->id_arqueo= $id;
+                $entrada_salida->valor= $total_arqueo_caja;
+                $entrada_salida->observacion= $obs;           
+                $entrada_salida->mensaje= $mensaje;
+                $entrada_salida->entrada_salida= $entrada_salida_22;                
+                $entrada_salida->id_apertura_cierre= $id_apertura_cierre;
+                $entrada_salida->save();
+                $id_ss =$entrada_salida->id;
+                $fechaCreacion = $entrada_salida->created_at;
+// Separar la fecha y la hora
+$soloFecha = $fechaCreacion->format('Y-m-d'); 
+$soloHora = $fechaCreacion->format('H:i:s');  
+$sucu = DB::table('adm__sucursals as ass')
+    ->join('adm__departamentos as ad', 'ad.id', '=', 'ass.departamento')
+    ->select('ass.id', 'ass.tipo', 'ass.direccion', 'ass.ciudad', 'ad.nombre','ass.razon_social')
+    ->where('ass.id', 1)
+    ->first();
+            DB::commit();
+            return response()->json([
+                      
+                'id' => $id_ss,   
+                'id_arqueo' => $id,            
+                'soloFecha' => $soloFecha, 
+                'soloHora' => $soloHora,   
+                'mensaje' => strtoupper($mensaje),
+                'observacion' => strtoupper($obs),
+                'valor' =>$total_arqueo_caja,
+                'simbolo' => $simbolo,
+                'titulo' => $sucu,
+                'user' => auth()->user()->name,
+                'error'=>0,
+
+             ]); 
+
+            DB::commit();
+        } catch (\Throwable $th) {
+            return $th;
+        }
+    }
 
     /**
      * Store a newly created resource in storage.
@@ -308,7 +427,8 @@ return response()->json([
                             'cantidad' => $value                                              
                         ];  
                         DB::table('caja__arqueo_array')->insert($datos_2);
-                    }                       
+                    }
+
                     $apertura_cierre = new Caja_AperturaCierre(); 
                     $apertura_cierre->id_sucursal = $request->id_sucursal;
                     $apertura_cierre->id_arqueo = $id; 
@@ -470,14 +590,13 @@ $data_1 = $moneda;
 
     public function getModalApertura(Request $request){
         $resultado = DB::table('adm__credecial_correos')
-    ->select('id', 'modal_apertura')
-    ->first();
-
-    $usuario = auth()->user()->super_usuario;
+    ->select('id', 'modal_apertura','efecto_sobrante')
+    ->first();      
+       $usuario = auth()->user()->super_usuario;
 
     return response()->json([                        
         'resultado' => $resultado,
-        'usuario' => $usuario, 
+        'usuario' => $usuario
     ]);
     
     }
