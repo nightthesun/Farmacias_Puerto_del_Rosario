@@ -240,21 +240,20 @@
         </div>   
 
     
-           <!--Inicio del modal agregar/actualizar-->
-
+           <!--Inicio del modal agregar/actualizar_09-->
         <transition name="fade">
             <div v-if="showModal" class="modal d-block" tabindex="-1" role="dialog">
                   <div class="modal-dialog modal-primary modal-lg modal-dialog-scrollable" role="document">
                     
                     <div class="modal-content">
                         <div class="modal-header">
-                        <h4 class="modal-title">{{ tituloModal }}</h4>
+                        <h4 class="modal-title">{{ tituloModal+" agregar/actualizar_09" }}</h4>
                         <button type="button" class="close" @click="cerrarModal('registrar')">
                             <span>&times;</span>
                         </button>
                         </div>
 
-                     <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">                    
+                     <div class="modal-body" style="max-height: 60vh; overflow-y: auto;">                    
                         <table class="table table-bordered table-striped table-sm table-responsive">
                             <thead>
                                 <tr>
@@ -365,17 +364,16 @@
                     </div>
                 </div>
             </div>
-        </transition>                   
-
+        </transition>   
         <!--fin del modal-->
 
-         <!--Inicio del modal agregar/actualizar dos para modal diferente -->
+         <!--Inicio del modal agregar/actualizar dos para modal diferente_1 -->
          <transition name="fade">
             <div v-if="showModal_2" class="modal d-block" tabindex="-1" role="dialog">
-                <div class="modal-dialog modal-primary modal-lg" role="document">
+             <div class="modal-dialog modal-primary modal-lg modal-dialog-scrollable" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
-                        <h4 class="modal-title">{{ tituloModal }}</h4>
+                        <h4 class="modal-title">{{ tituloModal}}</h4>
                         <button type="button" class="close" @click="cerrarModal('registrar_2')">
                             <span>&times;</span>
                         </button>
@@ -390,7 +388,8 @@
 
           <!-- Contenido del modal cuando ya cargó -->
           <div v-else>
-  <div class="modal-body"> 
+ 
+<div class="modal-body" style="max-height: 60vh; overflow-y: auto;">     
     <table class="table table-bordered table-striped table-sm table-responsive">
         <thead>
             <tr>
@@ -571,24 +570,22 @@
                     </div>
                 </div>
             </div>
-        </transition>          
-
+        </transition>   
         <!--fin del modal-->
 
-        <!--Inicio del modal cerrar_apertura -->
-
+        <!--Inicio del modal cerrar_apertura ini -->
         <transition name="fade">
             <div v-if="showModal_3" class="modal d-block" tabindex="-1" role="dialog">
                <div class="modal-dialog modal-primary modal-lg modal-dialog-scrollable" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
-                        <h4 class="modal-title">{{ tituloModal }}</h4>
+                        <h4 class="modal-title">{{ tituloModal}}</h4>
                         <button type="button" class="close" @click="cerrarModal('cerrar_apertura')">
                             <span>&times;</span>
                         </button>
                         </div>
 
-     <div class="modal-body" style="max-height: 70vh; overflow-y: auto;"> 
+     <div class="modal-body" style="max-height: 60vh; overflow-y: auto;"> 
                
                         <table class="table table-bordered table-striped table-sm table-responsive">
                             <thead>
@@ -679,18 +676,16 @@
                     </div>
                 </div>
             </div>
-        </transition>                
-                        
-    
+        </transition>    
         <!--fin del modal-->
-        <!--Inicio del modal cerrar_apertura dos ******2 ------------------------------------------------------>
 
+        <!--Inicio del modal cerrar_apertura dos ******2 ------------------------------------------------------>
         <transition name="fade">
             <div v-if="showModal_4" class="modal d-block" tabindex="-1" role="dialog">
-                <div class="modal-dialog modal-primary modal-lg" role="document">
+             <div class="modal-dialog modal-primary modal-lg modal-dialog-scrollable" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
-                        <h4 class="modal-title">{{ tituloModal }}</h4>
+                        <h4 class="modal-title">{{ tituloModal}}</h4>
                         <button type="button" class="close" @click="cerrarModal('cerrar_apertura_2')">
                             <span>&times;</span>
                         </button>
@@ -705,7 +700,7 @@
 
           <!-- Contenido del modal cuando ya cargó -->
           <div v-else>
-  <div class="modal-body">   
+  <div class="modal-body" style="max-height: 60vh; overflow-y: auto;">   
      <table class="table table-bordered table-striped table-sm table-responsive">
         <thead>
             <tr>
@@ -875,16 +870,14 @@
                     </div>
                 </div>
             </div>
-        </transition>                
-
-  
+        </transition> 
         <!--fin del modal-->
 
         <!--Inicio del modal VER-->
-
-<transition name="fade">
+        <transition name="fade">
             <div v-if="showModal_5" class="modal d-block" tabindex="-1" role="dialog">
-                <div class="modal-dialog modal-primary modal-lg" role="document">
+                <div class="modal-dialog modal-primary modal-lg modal-dialog-scrollable" role="document">
+
                     <div class="modal-content">
                         <div class="modal-header">
                         <h4 class="modal-title">{{ tituloModal }}</h4>
@@ -893,7 +886,7 @@
                         </button>
                         </div>
 
-  <div class="modal-body">                      
+  <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">                      
                         <table class="table table-bordered table-striped table-sm table-responsive">
                             <thead>
                                 <tr>
@@ -997,9 +990,7 @@
                     </div>
                 </div>
             </div>
-        </transition>                
-
-        
+        </transition>  
         <!--fin del modal-->
         </div>      
      
@@ -1131,6 +1122,8 @@ export default {
             showModal_3: false,
             showModal_4: false,
             showModal_5: false,
+
+            id_modal_:'',
 
            
         };
@@ -1654,7 +1647,7 @@ swalWithBootstrapButtons.fire({
      
   },
 
-        cerrar_apertura(){
+       cerrar_apertura(){
             let me = this;
         
                 let suma_venta = parseFloat(me.suma_venta) || 0;
@@ -1727,32 +1720,7 @@ let operacion_apertura = operacion_acciones + monto_cerrar_apertura;
                 }
                 if (me.isSubmitting) return;
                 me.isSubmitting = true; // Deshabilita el botón
-                var id_apertura=me.codigo_cerrar_apertura;
-                let enviarDif=Number(c).toFixed(2);
-                console.log(estado+" - - "+me.efecto_sobrante+" -- "+Number(c).toFixed(2)+"  -- "+me.id_sucursal);
                
-                
-                if ( estado=="Sobrante" && me.efecto_sobrante===2) {
-               // c id_apertura me.id_sucursal
-                    console.log("sorbente entrante.......");
-                    axios.post("/apertura_cierre/sobrante_auto",{
-                        diferencia:enviarDif,
-                        id_apertura:me.codigo_cerrar_apertura,
-                        id_sucursal:me.id_sucursal,
-                    }).then(function (response) {
-                        let respuesta=response.data;
-                          console.log("respuesta resuorse ");
-                          console.log(respuesta);
-                        Swal.fire(
-                            "Error al enviar sobrante: "+respuesta,
-                            "Haga click en Ok",
-                            "error",);
-                       me.verModalapertura();
-                    }).catch(function (error) {                 
-                        error401(error);  
-                    });             
-                }
-                
                 axios.post("/apertura_cierre/cierre", {
                         user:me.usuario_cerrar_apertura,
                         id_apertura:me.codigo_cerrar_apertura,
@@ -1762,7 +1730,6 @@ let operacion_apertura = operacion_acciones + monto_cerrar_apertura;
                         total_caja:operacion_apertura,
                         total_arqueo_caja:me.totalMonto,                         
 
-                 
                         cantidadMonedas:me.cantidadMonedas,
                         totalMonedas:me.totalMonedas,
                         cantidadBilletes:me.cantidadBilletes,
@@ -1777,35 +1744,52 @@ let operacion_apertura = operacion_acciones + monto_cerrar_apertura;
                         efecto_sobrante:me.efecto_sobrante,
 
                     }).then(function (response) {
+                       let estado_res=estado;
+                        let respuesta=response.data;                      
                       
-                        me.listarIndex();
                         if (me.verificador===1) {
                             me.cerrarModal("cerrar_apertura");
                         } else {
                             me.cerrarModal("cerrar_apertura_2"); 
+                        }                          
+                         me.listarIndex(); 
+                        if(estado_res=="Sobrante" && me.efecto_sobrante==2){
+                                                          
+                        let razon_social=respuesta.titulo.razon_social;                        
+                        let direccion=respuesta.titulo.direccion;
+                        let lugar=respuesta.titulo.nombre+" - "+respuesta.titulo.ciudad;
+                        let id=respuesta.id;
+                        let soloFecha=respuesta.soloFecha;
+                        let soloHora=respuesta.soloHora;
+                        let mensaje=respuesta.mensaje;
+                        let observacion=respuesta.observacion;
+                        let valor=respuesta.valor;
+                        let simbolo=respuesta.simbolo;
+                        let user=respuesta.user;     
+                        let cadena_A="ENTRADA";                                               
+                        Swal.fire(
+                        "Registrado de sobrante",
+                        "Haga click en Ok",
+                        "success"
+                        );
+                        me.general_pdf_2(razon_social,direccion,lugar,cadena_A,id,soloFecha,soloHora,mensaje,observacion,valor,simbolo,user); 
+                        }else{
+                            if (respuesta==="error_2") {
+                                Swal.fire("La operacióm debe ser relziada por el mismo usuario","Haga click en Ok","error");
+                            } else {
+                                if (respuesta==="error_1") {
+                                    Swal.fire("Registrado exitosamente","Haga click en Ok","success");  
+                                } else {
+                                    Swal.fire(respuesta,"Haga click en Ok","error");
+                                }
+                            }
                         }
-                       
-                        if ((response.data).length>0) {
-                            Swal.fire(
-                            ""+response.data,
-                            "Haga click en Ok",
-                            "error",
-                        );                           
-
-                        } else {
-                            me.listar_tras_operacion(id_apertura,me.id_sucursal);
-                            Swal.fire(
-                            "Registrado exitosamente",
-                            "Haga click en Ok",
-                            "success",
-                        );  
-                        }
-                       
+                     
                     }).catch(function (error) {                 
                         error401(error);            
-            }).finally(() => {
+            });
           me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
-        });                     
+                            
         },
 
 
@@ -1946,18 +1930,18 @@ me.isSubmitting = true; // Deshabilita el botón
                         id_cajaxUsuario:me.id_cajaxUsuario
                     })
                     .then(function (response) {
-                        me.listarIndex();
+                       
                         if (me.verificador===1) {
                             me.cerrarModal("registrar");
                         } else {
                             me.cerrarModal("registrar_2"); 
-                        }
-                        
+                        }                        
                         Swal.fire(
                             "Registrado exitosamente",
                             "Haga click en Ok",
                             "success",
                         );
+                         me.listarIndex();
                     }).catch(function (error) {                 
                 if (error.response) {               
                     Swal.fire(
@@ -2050,7 +2034,7 @@ me.isSubmitting = true; // Deshabilita el botón
                 .then(function (response) {
                     var respuesta = (response.data).resultado;
                     var respuesta_2 = (response.data).usuario;
-                   
+               
                     if (respuesta.modal_apertura===0) {
                         me.verificador=0;
                         Swal.fire( "Error de venta de modal.",
@@ -2068,8 +2052,10 @@ me.isSubmitting = true; // Deshabilita el botón
                     "error",
                 );
                         }
-                    }         
+                    }  
+                  
                 })
+                
                 .catch(function (error) {
                     error401(error);
                 });
@@ -2214,7 +2200,8 @@ me.isSubmitting = true; // Deshabilita el botón
                     me.suma_venta="";
                     me.sumaEntrada="";
                     me.sumaSalida="";
-                       me.showModal_4 = true;       
+                    me.id_modal_=data.id;
+                    me.showModal_4 = true;       
                     me.get_operacion_v2(data.id);     
                     me.codigo_cerrar_apertura=data.id;               
                     me.monto_cerrar_apertura=data.total_arqueo_caja;
@@ -2443,6 +2430,7 @@ me.isSubmitting = true; // Deshabilita el botón
                         me.monto_cerrar_apertura="";
                         me.usuario_cerrar_apertura="";
                         me.Turno_cerrar_apertura=""; 
+                        me.id_modal_="";
     
             me.classModal.closeModal(accion);   
             }

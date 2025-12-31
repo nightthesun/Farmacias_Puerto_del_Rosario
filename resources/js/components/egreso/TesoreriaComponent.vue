@@ -175,7 +175,7 @@
                         </button>
                         </div>
 
- <div class="modal-body" style="max-height: 90vh; overflow-y: auto;">  
+ <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">  
                         <table class="table table-bordered table-striped table-sm table-responsive">
                             <thead>
                                 <tr>
@@ -276,7 +276,7 @@
                             <span>&times;</span>
                         </button>
                         </div>
-    <div class="modal-body" style="max-height: 90vh; overflow-y: auto;">                      
+    <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">                      
                         <table class="table table-bordered table-striped table-sm table-responsive">
                             <thead>
                                 <tr>
@@ -359,7 +359,6 @@
                 </div>
             </div>
         </transition>                
-
 
       
         <!--fin del modal-->

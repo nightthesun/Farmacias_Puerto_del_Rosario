@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Caja_AperturaCierre;
 use App\Models\Caja_EntradaSalida;
+use App\Models\Caja_Modificacion;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -140,6 +141,17 @@ class CajaAperturaCierreController extends Controller
                 ];
         }       
     }
+
+    private function suma_entrada($id_apertura){    
+              
+        // Sum of "entrada" values
+        $sumaEntrada = DB::table('caja__entrada_salidas')
+            ->where('id_apertura_cierre', $id_apertura)
+            ->where('entrada_salida', 1)
+            ->sum('valor');
+
+        return $sumaEntrada;
+    }
     
     public function suma_operacion_v2(Request $request){
         $suma_venta = DB::table('ven__recibos')
@@ -171,11 +183,14 @@ return response()->json([
     }
 
     public function cierre_store(Request $request ){
-
-        try {      
+  
+        try {    
+            DB::beginTransaction();          
                 if ($request->user==auth()->user()->name) {
+                    
                     $id_sucursal=$request->id_sucursal;
-                    DB::beginTransaction();
+                    $efecto_sobrante=$request->efecto_sobrante;
+                   
                     $numero = $request->diferencia;
                     $resultado=0;
                         if ($numero < 0) {
@@ -183,9 +198,27 @@ return response()->json([
                         } else {
                             $resultado = $request->diferencia;
                         }
-
-                   
-                        
+                         
+                        $estado=$request->estado;
+                        $total_venta=$request->total_venta_caja;
+                     
+                        if ($efecto_sobrante==2&&$estado=="Sobrante") {
+                            $sobrante_operacion=$this->createSobrante_auto_2($request->id_apertura,$id_sucursal,$resultado);
+                            
+                            if ($sobrante_operacion) {
+                                $data = $sobrante_operacion->getData(true); // convierte JSON → array
+                                $get_entrada = $this->suma_entrada($request->id_apertura);                                 
+                                $id_arqueo =$data['id_arqueo'];
+                                 
+                            }else{
+                                $id_arqueo=0;
+                                //return "no tiene codigo";
+                            }
+                          // return $sobrante_operacion;
+                        }else{
+                            $id_arqueo=0;
+                        }
+                       
                     $datos = [
                         'id_usuario' => auth()->user()->id,
                         'total_arqueo' => $request->total_arqueo_caja,                       
@@ -196,19 +229,21 @@ return response()->json([
                         'tipo_moneda' => $request->moneda_s1                      
                     ];    
                     
+
                     $id = DB::table('caja__arqueo')->insertGetId($datos);     
-                
-                    foreach ($request->input as $key => $value) {                       
-                        $datos_2 = [                            
-                            'id_arqueo' => $id,                       
-                            'id_moneda' => $key,  
-                            'cantidad' => $value                                              
-                        ];  
-                        DB::table('caja__arqueo_array')->insert($datos_2);
-                    }
-                    $currentDateTime = Carbon::now();
-                    
-                        
+                   
+
+foreach ($request->input as $key => $value) {
+    $datos_2 = [
+        'id_arqueo' => $id,
+        'id_moneda' => $key,
+        'cantidad' => $value
+    ];
+    DB::table('caja__arqueo_array')->insert($datos_2);       
+}   
+
+                    $currentDateTime = Carbon::now();   
+                       
                     $datos_2 = [
                         'id_apertura' => $request->id_apertura,
                         'id_arqueo' => $id,
@@ -222,33 +257,39 @@ return response()->json([
                         'created_at' => $currentDateTime, 
                         'updated_at' => $currentDateTime,                     
                     ];    
-
+ 
                    $id_1 = DB::table('caja__cierre')->insertGetId($datos_2);   
+                  
                     $apertura_cierre = Caja_AperturaCierre::findOrFail($request->id_apertura);
                     $apertura_cierre->id_cierre = $id_1;
                     $apertura_cierre->save(); 
-                    //// para imprimir boleta QR o tarjeta
-                  
+                   //// para imprimir boleta QR o tarjeta                
                         $fechaHora = Carbon::now(); // Se usará automáticamente el formato correcto
-                        DB::table('ven__trasferencias as t')   
-                        ->join('ven__recibos as r', 'r.id', '=', 't.id_venta')
-                        ->where('r.id_apertura', $request->id_apertura) 
-                        ->update(['t.contador' => 0,'t.updated_at' => $fechaHora]);
-
-                     // $table->tinyInteger('accion')->comment('1->modulo configuracion manual,2=otros 3....., 0=cierre de caja');
-         $id_user=auth()->user()->id;
-              $name_user=auth()->user()->name;
-              $fechaHoy = Carbon::now()->format('Y-m-d');
-              $hora=Carbon::now()->format('H:i:s');
-              if ($id_user==1||$name_user=='admin') {
-                $idsucursal=1;
-                $nomsucursal="usuario admin";
-              }else{
-                $idsucursal=session('idsuc');
-                $nomsucursal=session('nomsucursal');
-              }   
-
-            
+                       $filas = DB::table('ven__trasferencias as t')
+    ->join('ven__recibos as r', 'r.id', '=', 't.id_venta')
+    ->where('r.id_apertura', $request->id_apertura)
+    ->update([
+        't.contador'   => 0,
+        't.updated_at' => $fechaHora
+    ]);                    
+                        if ($efecto_sobrante==2&&$estado=="Sobrante") {
+                            
+                        $textArea_modal="Modificado por sobrante";
+                        $modificarTabla_var=$this->modificarTabla($id_1,$resultado,$estado,$textArea_modal,$resultado,$id_arqueo);                        
+                         
+                        }
+                      // $table->tinyInteger('accion')->comment('1->modulo configuracion manual,2=otros 3....., 0=cierre de caja');
+       //  $id_user=auth()->user()->id;
+       //       $name_user=auth()->user()->name;
+       //       $fechaHoy = Carbon::now()->format('Y-m-d');
+       //       $hora=Carbon::now()->format('H:i:s');
+       //       if ($id_user==1||$name_user=='admin') {
+       //         $idsucursal=1;
+       //         $nomsucursal="usuario admin";
+       //       }else{
+       //         $idsucursal=session('idsuc');
+       //         $nomsucursal=session('nomsucursal');
+       //       }   
 
               // $table->tinyInteger('accion')->comment('1->modulo configuracion manual,2=otros 3....., 0=cierre de caja');
           /** se quito esta parte ya que se actualiza por el sistema  automatico
@@ -280,15 +321,183 @@ return response()->json([
           *          }    
            * 
            * 
-          */                    
+          */     
+                              
          DB::commit();
+         
+          if ($efecto_sobrante==2&&$estado=="Sobrante") {          
+            
+                return $sobrante_operacion;            
+            
+          }else{
+            return "error_1";
+          }
+         
                 } else {
-                    return "La operacióm debe ser relziada por el mismo usuario";
+                    return "error_2";
                 }
           
         } catch (\Throwable $th) {
             return $th;
         }
+    }
+
+     private function createSobrante_auto_2($id_apertura,$id_sucursal,$diferencia){
+        try {
+            DB::beginTransaction();       
+        $obs="Operación de sobrante";
+        $mensaje=auth()->user()->name." con sobrante";  
+        $entrada_salida_22=1;
+        $id_apertura_cierre=$id_apertura;
+        $id_sucursal=$id_sucursal;
+        $moneda = DB::table('adm__credecial_correos')->value('moneda');
+           
+        $monedas = DB::table('caja__monedas as cm')
+            ->select('cm.id','cm.tipo_corte','cm.valor','cm.unidad','cm.unidad_entera','cm.unidad','an.simbolo')
+            ->join('adm__nacionalidads as an','an.id','=','cm.id_nacionalidad_pais')                   
+            ->where('cm.id_nacionalidad_pais', $moneda)
+            ->where('cm.activo', 1)
+            ->orderBy('cm.valor', 'desc')
+            ->get();
+          
+           $total_arqueo_caja = round((float) ($diferencia ?? 0), 2);
+            $diferencia_A=$total_arqueo_caja;
+                  
+                        if ($total_arqueo_caja < 0) {
+                            $total_arqueo_caja=$total_arqueo_caja*-1 ;
+                        } 
+            $cantidadBilletes=0;
+            $totalBilletas=0;
+            $cantidadMonedas=0;
+            $totalMonedas=0;
+            $datos_enviar_a=[];
+            foreach ($monedas as $key => $value) {
+                $a=0;
+                $simbolo=$value->simbolo;
+                $opeValor = round((float) ($value->valor ?? 0), 2);
+                while ($diferencia_A >= $opeValor) {                  
+                    $diferencia_A=$diferencia_A-$opeValor;                 
+                    if ($value->tipo_corte=="Billete") {
+                    $cantidadBilletes++;
+                    $totalBilletas=$totalBilletas+$opeValor;
+                }else{
+                    $cantidadMonedas++;
+                    $totalMonedas=$totalMonedas+$opeValor;
+                }
+                $a++;
+                }
+                    if($a>0){
+                      $datos_enviar_a[]=[
+                        'id_moneda'=>$value->id,
+                        'cantidad'=>$a
+                      ] ;     
+                    }
+            }
+             $datos = [
+                'id_usuario' => auth()->user()->id,
+                'total_arqueo' => $total_arqueo_caja,                       
+                'cantidad_billete' => $cantidadBilletes,  
+                'total_billete' => $totalBilletas, 
+                'cantidad_moneda' => $cantidadMonedas, 
+                'total_moneda' => $totalMonedas, 
+                'tipo_moneda' => $moneda                      
+            ];                
+            $id = DB::table('caja__arqueo')->insertGetId($datos);    
+                foreach ($datos_enviar_a as $key => $value) {                       
+                 $datos_2 = [
+        'id_arqueo' => $id,
+        'id_moneda' => $value['id_moneda'],
+        'cantidad'  => $value['cantidad']
+    ]; 
+                DB::table('caja__entrada_salida_array')->insert($datos_2);
+            }
+             $entrada_salida=new Caja_EntradaSalida();             
+                $entrada_salida->id_sucursal= $id_sucursal;
+                $entrada_salida->id_arqueo= $id;
+                $entrada_salida->valor= $total_arqueo_caja;
+                $entrada_salida->observacion= $obs;           
+                $entrada_salida->mensaje= $mensaje;
+                $entrada_salida->entrada_salida= $entrada_salida_22;                
+                $entrada_salida->id_apertura_cierre= $id_apertura_cierre;
+                $entrada_salida->save();
+                $id_ss =$entrada_salida->id;
+                $fechaCreacion = $entrada_salida->created_at;
+// Separar la fecha y la hora
+$soloFecha = $fechaCreacion->format('Y-m-d'); 
+$soloHora = $fechaCreacion->format('H:i:s');  
+$sucu = DB::table('adm__sucursals as ass')
+    ->join('adm__departamentos as ad', 'ad.id', '=', 'ass.departamento')
+    ->select('ass.id', 'ass.tipo', 'ass.direccion', 'ass.ciudad', 'ad.nombre','ass.razon_social')
+    ->where('ass.id', 1)
+    ->first();
+            DB::commit();
+            return response()->json([
+                      
+                'id' => $id_ss,   
+                'id_arqueo' => $id,            
+                'soloFecha' => $soloFecha, 
+                'soloHora' => $soloHora,   
+                'mensaje' => strtoupper($mensaje),
+                'observacion' => strtoupper($obs),
+                'valor' =>$total_arqueo_caja,
+                'simbolo' => $simbolo,
+                'titulo' => $sucu,
+                'user' => auth()->user()->name,
+                'error'=>0,
+
+             ]); 
+
+            DB::commit();
+        } catch (\Throwable $th) {
+            return $th;
+        }
+    }
+
+    private function modificarTabla($id_cierre_modal,$diferencia_modal,$estado_modal,$textArea_modal,$diferencia_caja,$id_arqueo)
+    {       
+        try {
+            DB::beginTransaction();   
+
+            $crear = new Caja_Modificacion();
+            $crear->id_cierre=$id_cierre_modal;
+            $crear->monto_dif=$diferencia_modal;
+            $crear->estado=$estado_modal;
+            $crear->motivo=$textArea_modal;   
+            $crear->id_usuario_registra=auth()->user()->id;
+            $crear->id_usuario_modifica=auth()->user()->id;
+            $crear->save();
+            
+           
+            $query = DB::table('caja__cierre as cc')->where('cc.id', $id_cierre_modal)->first();
+  
+                    $operacion_total_arqueo_caja=$query->total_arqueo_caja - $diferencia_modal;           
+                    $operacion_diferencia_caja=$diferencia_modal - $query->diferencia_caja;
+                    $operacion_estado_caja='Corregido';
+             
+          //  if ($operacion_diferencia_caja!=0){
+          //      return "Error de diferencia contacte al administrador de base de datos.";
+          //  }
+
+            $datos_3 = [                            
+                'total_arqueo_caja' => $operacion_total_arqueo_caja,                       
+                'diferencia_caja' => $operacion_diferencia_caja,  
+                'estado_caja' => $operacion_estado_caja,
+                'id_arqueo_mod' => $id_arqueo                                              
+            ];    
+          
+          $filas_2 = DB::table('caja__cierre as cc')
+    ->where('cc.id', $id_cierre_modal)
+    ->update($datos_3);
+
+if ($filas_2 <=0) {
+    return "error de insercion funcion modificar";
+} 
+    
+            DB::commit();
+            return 0;
+        } catch (\Throwable $th) {
+        return $th;
+        }       
     }
 
     public function createSobrante_auto(Request $request){

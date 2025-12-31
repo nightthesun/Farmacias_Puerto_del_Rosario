@@ -533,7 +533,7 @@ Si no selecciona alguna opción automaticamente marca como efectivo en caso de o
 
           <transition name="fade">
             <div v-if="showModal_2" class="modal d-block" tabindex="-1" role="dialog">
-                <div class="modal-dialog modal-primary modal-md" role="document">
+               <div class="modal-dialog modal-primary modal-lg modal-dialog-scrollable" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
                          <h5 class="modal-title" id="exampleModalLabel">Busqueda de clientes</h5>
@@ -542,7 +542,7 @@ Si no selecciona alguna opción automaticamente marca como efectivo en caso de o
                         </button>
                         </div>
 
-                          <div class="modal-body">
+                          <div class="modal-body" style="max-height: 60vh; overflow-y: auto;"> 
                                <form>
                                    <div class="mb-3">
                                        <label for="exampleInputEmail1" class="form-label">Introduzca numero de documento: </label>
@@ -607,7 +607,7 @@ Si no selecciona alguna opción automaticamente marca como efectivo en caso de o
 
           <transition name="fade">
             <div v-if="showModal_3" class="modal d-block" tabindex="-1" role="dialog">
-                <div class="modal-dialog modal-primary modal-lg" role="document">
+              <div class="modal-dialog modal-primary modal-lg modal-dialog-scrollable" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
                         <h4 class="modal-title">{{ tituloModal }}</h4>
@@ -616,7 +616,7 @@ Si no selecciona alguna opción automaticamente marca como efectivo en caso de o
                         </button>
                         </div>
 
- <div class="modal-body">
+<div class="modal-body" style="max-height: 60vh; overflow-y: auto;"> 
                          <div class="alert alert-warning" role="alert">
                              Todos los campos con (*) son requeridos
                          </div>
@@ -808,7 +808,7 @@ Si no selecciona alguna opción automaticamente marca como efectivo en caso de o
              <!--Inicio del modal de registro de-->
           <transition name="fade">
             <div v-if="showModal_4" class="modal d-block" tabindex="-1" role="dialog">
-                <div class="modal-dialog modal-primary modal-lg" role="document">
+                <div class="modal-dialog modal-primary modal-lg modal-dialog-scrollable" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
                         <h4 class="modal-title">{{ tituloModal }}</h4>
@@ -816,7 +816,7 @@ Si no selecciona alguna opción automaticamente marca como efectivo en caso de o
                             <span>&times;</span>
                         </button>
                         </div>
-   <div class="modal-body">                         
+   <div class="modal-body" style="max-height: 60vh; overflow-y: auto;">                       
                               <form action="" class="form-horizontal">
                                 <div class="modal-body"> 
                                   <div class="alert alert-secondary" v-if="arrayProducto_2.length<=0" role="alert">Sin datos</div>                     

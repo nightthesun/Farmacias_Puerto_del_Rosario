@@ -205,7 +205,7 @@
  <!--Inicio del modal manual-->
   <transition name="fade">
             <div v-if="showModal" class="modal d-block" tabindex="-1" role="dialog">
-                <div class="modal-dialog modal-primary modal-lg" role="document">
+                <div class="modal-dialog modal-primary modal-lg modal-dialog-scrollable" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
                         <h4 class="modal-title">{{ tituloModal }}</h4>
@@ -213,7 +213,7 @@
                             <span>&times;</span>
                         </button>
                         </div>
-    <div class="modal-body">                       
+   <div class="modal-body" style="max-height: 60vh; overflow-y: auto;">                      
                         <form action="" class="form-horizontal">                        
                             <!-- insertar datos -->
                             <div class="container">  
@@ -270,7 +270,7 @@
         <!--Inicio del modal AUTOMATICO-->
          <transition name="fade">
             <div v-if="showModal_2" class="modal d-block" tabindex="-1" role="dialog">
-                <div class="modal-dialog modal-primary modal-lg" role="document">
+                <div class="modal-dialog modal-primary modal-lg modal-dialog-scrollable" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
                         <h4 class="modal-title">{{ tituloModal }}</h4>
@@ -278,7 +278,7 @@
                             <span>&times;</span>
                         </button>
                         </div>
-   <div class="modal-body">                       
+   <div class="modal-body" style="max-height: 60vh; overflow-y: auto;">                     
                      
                         <form action="" class="form-horizontal">  
                             <table class="table table-bordered table-striped table-sm table-responsive" >

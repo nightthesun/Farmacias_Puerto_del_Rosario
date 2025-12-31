@@ -196,7 +196,7 @@
                         </button>
                         </div>
 
-     <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
+     <div class="modal-body" style="max-height: 60vh; overflow-y: auto;">
        <form action=""  class="form-horizontal">
                  <table class="table table-bordered table-striped table-sm table-responsive">
       <thead>

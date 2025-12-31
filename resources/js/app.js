@@ -80,7 +80,8 @@ createApp ({
     .component('configuracion-stock-component', require('./components/inventario/ConfiguracionStockComponent.vue').default)
     .component('auto-gestion-stock-component', require('./components/inventario/AutoGestionStockComponent.vue').default)  
     .component('auto-ttr-component', require('./components/inventario/AutoProcesoComponent.vue').default)      
-    
+    .component('invetario-inicial-component', require('./components/inventario/InvetarioInicialComponent.vue').default)    
+
     //Logistica
     .component('vehiculo-component', require('./components/logistica/VehiculoComponent.vue').default)
     .component('traslado-component', require('./components/logistica/TrasladosComponent.vue').default)

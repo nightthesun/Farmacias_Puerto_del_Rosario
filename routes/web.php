@@ -70,6 +70,7 @@ use App\Http\Controllers\InvAutoGestionStockController;
 use App\Http\Controllers\InvAutoTtrController;
 use App\Http\Controllers\InvConfiguracionStockController;
 use App\Http\Controllers\InvGestionStockController;
+use App\Http\Controllers\InvInventarioInicialController;
 use App\Http\Controllers\ParDescuentoController;
 use App\Http\Controllers\ProdListaController;
 use App\Http\Controllers\ProdRegistroPreXListController;
@@ -678,7 +679,10 @@ Route::group(['middleware' => 'auth'], function () {
     //---auto proceso TTR 
     Route::get('/auto-proceso/listarTablaConfig', [InvAutoTtrController::class, 'getTablaConfig_tg']);  
     Route::get('/auto-proceso/listarOperacionAuto', [InvAutoTtrController::class, 'getGoToRunOperacionAuto']);      
-        
+       
+    //--inventario_inicial}
+    Route::get('/inventario-inial/listarSelectProducto', [InvInventarioInicialController::class, 'getSelectProducto']);      
+
     /////////////////////////////////LOGISTICO///////////////////////////////////////
     Route::get('/vehiculo/listarSucursal', [LogVehiculoController::class, 'listarSucursal']);
     Route::get('/vehiculo/listarUsuario', [LogVehiculoController::class, 'listarUsuario']);

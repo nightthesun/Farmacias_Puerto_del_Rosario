@@ -147,7 +147,7 @@
         <!--Inicio del modal agregar/actualizar-->
         <transition name="fade">
             <div v-if="showModal_1" class="modal d-block" tabindex="-1" role="dialog">
-                <div class="modal-dialog modal-primary modal-lg" role="document">
+                <div class="modal-dialog modal-primary modal-lg modal-dialog-scrollable" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
                         <h4 class="modal-title">{{ tituloModal }}</h4>
@@ -155,7 +155,7 @@
                             <span>&times;</span>
                         </button>
                         </div>
-                        <div class="modal-body">
+                        <div class="modal-body" style="max-height: 60vh; overflow-y: auto;"> 
                         <form action=""  class="form-horizontal">
                               <!-- insertar datos -->
                             
@@ -270,15 +270,13 @@
                     </div>
                 </div>
             </div>
-        </transition>              
-       
+        </transition>    
         <!--Fin del modal-->
-
         
         <!--Inicio del modal roles y sucursales-->
         <transition name="fade">
             <div v-if="showModal_2" class="modal d-block" tabindex="-1" role="dialog">
-                <div class="modal-dialog modal-primary modal-lg" role="document">
+                <div class="modal-dialog modal-primary modal-lg modal-dialog-scrollable" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
                         <h4 class="modal-title">{{ tituloModal }}</h4>
@@ -286,7 +284,7 @@
                             <span>&times;</span>
                         </button>
                         </div>
-                        <div class="modal-body">
+                        <div class="modal-body" style="max-height: 60vh; overflow-y: auto;"> 
                         <table class="table table-bordered table-striped table-sm table-responsive">
                         <thead>
                             <tr>
@@ -300,12 +298,15 @@
                                     <!-- <button type="button" class="btn btn-warning btn-sm" @click="abrirModal('actualizarrolsuc',rolsuc)">
                                         <i class="icon-pencil"></i>
                                     </button> &nbsp; -->
-                                    <button v-if="rolsuc.activo" type="button" class="btn btn-danger btn-sm" @click="eliminarRolSuc(rolsuc.id)" >
-                                        <i class="icon-trash"></i>
-                                    </button>&nbsp;
-                                    <button v-else type="button" class="btn btn-info btn-sm" @click="activarRolSuc(rolsuc.id)" >
-                                        <i class="icon-check"></i>
-                                    </button>&nbsp;
+                                   <button v-if="rolsuc.activo" type="button" class="btn btn-danger btn-sm"
+        @click="eliminarRolSuc(rolsuc.id)">
+    <i class="icon-trash"></i>
+</button>
+<button v-else type="button" class="btn btn-info btn-sm"
+        @click="activarRolSuc(rolsuc.id)">
+    <i class="icon-check"></i>
+</button>
+
                                     
                                     
                                 </td>
@@ -330,12 +331,21 @@
                                     </select>
                                 </td>
                                 <td>
-                                    <button  type="button" class="btn btn-warning btn-sm" style="color: white;" v-if="rol==0 || sucursal==0"  disabled >
-                                        Debe seleccionar Rol-Sucursal
-                                    </button>&nbsp;
-                                    <button  type="button" class="btn btn-success btn-sm" v-else @click="AgregarRolSuc()" >
-                                        Agregar Rol-Sucursal
-                                    </button>&nbsp;
+                                   <button type="button"
+        class="btn btn-warning btn-sm"
+        style="color: white;"
+        v-if="rol == 0 || sucursal == 0"
+        disabled>
+    Debe seleccionar Rol-Sucursal
+</button>
+
+<button type="button"
+        class="btn btn-success btn-sm"
+        v-else
+        @click="AgregarRolSuc">
+    Agregar Rol-Sucursal
+</button>
+
                                 </td>
                             </tr>
                            
@@ -352,14 +362,13 @@
                     </div>
                 </div>
             </div> 
-        </transition>                   
-      
+        </transition>      
         <!--Fin del modal-->
 
         <!-----------------------------MODAL AÑADIR PERMISOS EDITAR /ACTIVAR------------------------------------------------>
         <transition name="fade">
             <div v-if="showModal_3" class="modal d-block" tabindex="-1" role="dialog">
-                <div class="modal-dialog modal-primary modal-lg" role="document">
+                <div class="modal-dialog modal-primary modal-lg modal-dialog-scrollable" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
                         <h4 class="modal-title">{{ tituloModal }}</h4>
@@ -367,7 +376,7 @@
                             <span>&times;</span>
                         </button>
                         </div>
-                        <div class="modal-body">
+                      <div class="modal-body" style="max-height: 60vh; overflow-y: auto;"> 
                         <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
                             <li class="nav-item" v-for="a in arrayPermisoEditar_Activar" :key="a.id_modelo">
                                 <a class="nav-link" :class="{ 'active': a.id_modelo === arrayPermisoEditar_Activar[0].id_modelo }" :id="'pills-'+a.id_modelo+'-tab'" data-toggle="pill" :href="'#pills-'+a.id_modelo" role="tab" :aria-controls="'pills-'+a.id_modelo" :aria-selected="a.id_modelo === arrayPermisoEditar_Activar[0].id_modelo">{{a.nom_modelo}}</a>
@@ -429,7 +438,7 @@
    <!--Inicio del modal asignacion de mas sucusales -->
    <transition name="fade">
             <div v-if="showModal_4" class="modal d-block" tabindex="-1" role="dialog">
-                <div class="modal-dialog modal-primary modal-lg" role="document">
+                <div class="modal-dialog modal-primary modal-lg modal-dialog-scrollable" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
                         <h4 class="modal-title">{{ tituloModal }}</h4>
@@ -440,7 +449,7 @@
                         <div class="container">
                         <div class="row">
                             <div class="col-12" >
-                                <div class="modal-body">
+                                <div class="modal-body" style="max-height: 60vh; overflow-y: auto;"> 
                                     <form action=""  class="form-horizontal">
                              <label class="col-md-6 form-control-label" for="text-input"><strong>Lista de sucursales:</strong> </label>
                              <div class="col-md-9">
@@ -493,7 +502,8 @@
 <!-----------------------------------------------MODAL VER PERMISOS PERMISOS------------------------------------------------>
         <transition name="fade">
             <div v-if="showModal_5" class="modal d-block" tabindex="-1" role="dialog">
-                <div class="modal-dialog modal-primary modal-lg" role="document">
+                <div class="modal-dialog modal-primary modal-lg modal-dialog-scrollable" role="document">
+
                     <div class="modal-content">
                         <div class="modal-header">
                         <h4 class="modal-title">{{ tituloModal }}</h4>
@@ -502,8 +512,9 @@
                         </button>
                         </div>
                          <!-- modal-body -->
+                        <div class="modal-body" style="max-height: 60vh; overflow-y: auto;"> 
             <div class="col-md-12 d-flex justify-content-center" style="padding-top: 20px;">
-                <div style="height: 250px; overflow-y: auto;">
+              
                     <table class="table table-bordered table-striped table-sm table-responsive">
                         <thead style="position: sticky; top: 0; background-color: aliceblue;">
                             <tr>
@@ -521,6 +532,7 @@
                         </tbody>
                     </table>
                 </div>
+           
             </div>
             <!---end modal --->
             <div class="modal-footer">
