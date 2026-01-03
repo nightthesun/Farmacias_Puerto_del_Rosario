@@ -119,17 +119,18 @@
                             <!-- insertar datos -->
                             <div class="container">                                
                                <div class="form-group row">                                
-                                    <div class="col-md-5">
+                                    <div class="col-md-12">
                                         <label for="">Producto:</label>
-                                        <VueMultiselect                        
+                                        <VueMultiselect  
+                        v-model="selectArrayProducto"                      
                         :options="arrayProducto"
-                        :max-height="190"                   
+                        :max-height="200"                   
                         :block-keys="['Tab', 'Enter']"                       
                         placeholder="Seleccione una opción"
                         label="id" 
                         :custom-label="nameWithLang_2"                     
                         track-by="id"
-                        class="w-200"
+                        class="w-250"
                         selectLabel="Añadir a seleccion"
                         deselectLabel="Quitar seleccion"
                         selectedLabel="Seleccionado">
@@ -137,23 +138,57 @@
                         No se encontraron elementos. Considere cambiar la consulta de búsqueda.
                       </template>
                     </VueMultiselect>
-                                    </div> 
-                                    <div class="col-md-2">
+                                    </div>                                        
+                                </div> 
+                                <div class="form-group row">                                
+                                    <div class="col-md-3">
                                         <label for="">Lote:</label>
                                         <input type="text" class="form-control" v-model="lote" placeholder="Lote"/>
                                     </div>
-                                    <div class="col-md-1">
+                                    <div class="col-md-3">
                                         <label for="">V. Mes:</label>
-
+                                    <select class="form-control" v-model="selectArrayMes">
+                                    <option value="0" disabled selected>Seleccionar...</option>
+                                    <option v-for="(i, index) in arrayMes" :key="index" :value="i.id"
+                                    v-text="i.tipo">                                        
+                                    </option>                                   
+                                </select>
                                     </div>
-                                    <div class="col-md-1">
+                                    <div class="col-md-3">
                                         <label for="">V. año:</label>
-
+                                        <select class="form-control" v-model="selectArrayAnio">
+                                    <option value="0" disabled selected>Seleccionar...</option>
+                                    <option v-for="(i, index) in arrayAnio" :key="index" :value="i"
+                                    v-text="i">                                        
+                                    </option>                                   
+                                </select>
                                     </div>
                                     <div class="col-md-3">
                                         <label for="">Cantidad:</label>
-                                    </div>      
+                                     <div class="input-group">
+  <input type="number" class="form-control" v-model="cantidad" placeholder="Lote">
+  <button type="button" class="btn btn-primary">
+    <i class="fa fa-check" aria-hidden="true"></i>
+  </button>
+</div>
+                                    </div>   
                                 </div> 
+                                 <table class="table table-bordered table-striped table-sm table-responsive" >
+                                    <thead>
+                                    <tr>                       
+                                        <th>Opción</th>
+                                        <th>Producto</th>
+                                        <th>Cantidad</th>
+                                        <th>Lote</th>
+                                        <th>Fecha vencimiento</th>
+                                    </tr>
+                                    </thead>
+                                    <body>
+                                        <tr v-for="(item, index) in arrayAñadir" :key="index">
+                                            <td></td>
+                                        </tr>
+                                    </body>
+                                </table>               
                             </div>
                         </form>
                     </div>
@@ -214,8 +249,16 @@ export default {
             startDate: '',
       endDate: '',
 
+            selectArrayAnio:'0',
             arrayProducto:[],
-            arrayMes:{},
+            selectArrayMes:'0',
+            arrayMes:[{ id: 1, tipo: "ENERO" },{ id: 2, tipo: "FEBRERO" },{ id: 3, tipo: "MARZO" },{ id: 4, tipo: "ABRIL" },{ id: 5, tipo: "MAYO" },{ id: 6, tipo: "JUNIO" },{ id: 7, tipo: "JULIO" },{ id: 8, tipo: "AGOSTO" },{ id: 9, tipo: "SEPTIEMBRE" },{ id: 10, tipo: "OCTUBRE" },{ id: 11, tipo: "NOVIEMBRE" },{ id: 12, tipo: "DICIEMBRE" }],
+            arrayAnio:[],
+            lote:'',
+            cantidad:0,
+            selectArrayProducto:null,
+            arrayAñadir:{},
+
         };
     },
 
@@ -259,6 +302,40 @@ export default {
      
 
     methods: {
+
+        añadirArrayF(){
+            let me = this;
+            me.arrayAñadir.push(
+               { id_producto: me.selectArrayProducto.id_prod, id_linea: me.selectArrayProducto.id_linea,envase:me.selectArrayProducto.tipo,anio:me.selectArrayAnio,mes:me.selectArrayMes, lote:me.lote,cantidad:me.cantidad } 
+            );
+        },
+        anio(){
+            let me=this;
+            const anioActual = new Date().getFullYear();
+            let anioAtras=anioActual-5;
+            let anioAdelante=anioActual+5;
+            let n=1;
+            let n1=1;
+            let n2=5;
+           while (n<=11) {
+                if (n<=5) {
+                   anioAtras=anioActual-n2 ; 
+                    me.arrayAnio.push(anioAtras); 
+                    n2--; 
+                }else{
+                    if (n==6) {
+                      me.arrayAnio.push(anioActual);  
+                    } else {
+                        
+                    }
+                    anioAdelante=anioActual+n1;
+                    me.arrayAnio.push(anioAdelante); 
+                    n1++;
+                }                
+                n++;             
+           }
+         
+        }, 
 
         listarSelectProducto() {
         let me = this;
@@ -323,6 +400,11 @@ export default {
                     me.tipoAccion = 1;
                     me.tituloModal = "Ejemplo titulo";
                     me.showModal = true;
+                    me.lote="";
+                    me.cantidad=0;
+                    me.selectArrayProducto=null;
+                    me.selectArrayMes="0";
+                    me.selectArrayAnio="0";                   
                     me.classModal.openModal("registrar");
                     break;
                 }
@@ -357,6 +439,11 @@ export default {
             if (accion == "registrar") {
                 me.classModal.closeModal(accion);
                 me.showModal = false;
+                me.lote="";
+                    me.cantidad=0;
+                    me.selectArrayProducto=null;
+                    me.selectArrayMes="0";
+                    me.selectArrayAnio="0";
                 me.tituloModal = " ";
              
              
@@ -376,6 +463,7 @@ export default {
 
     mounted() {
         this.classModal = new _pl.Modals();
+        this.anio();
         this.sucursalFiltro();
         this.fecha_inicial();
         this.classModal.addModal("registrar");
