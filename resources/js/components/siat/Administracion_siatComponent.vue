@@ -426,7 +426,7 @@ export default {
                 let selector = this.arrayListarEmisor_v.find(
                     (element) => element.id === newValue,                   
                 );
-          console.log(selector);
+          
                if (selector) {
                    this.codigoPuntoVenta_Modal = selector.codigoPuntoVenta; 
                    this.codigo_siat_modal = selector.codigo_siat;    
@@ -470,7 +470,7 @@ export default {
     methods: {
           //-----------------------------------permisos_R_W_S        
     listarPerimsoxyz() {
-                //console.log(this.codventana);
+           
     let me = this;   
         
     var url = '/gestion_permiso_editar_eliminar?win='+me.codventana;
@@ -478,7 +478,7 @@ export default {
     axios.get(url)
         .then(function(response) {
             var respuesta = response.data;
-            console.log(respuesta);
+            
             if(respuesta=="root"){
             me.puedeEditar=1; 
             me.puedeActivar=1;
@@ -494,7 +494,7 @@ export default {
         })
         .catch(function(error) {
             error401(error);
-            console.log(error);
+         
         });
 },
 //-------------------------------------------------------------- 
@@ -541,7 +541,7 @@ if (data===1) {
         me.selectEmisor_v='0';
 
     } else {
-        console.log("error-------");
+       
     }
 }       
     },
@@ -584,7 +584,7 @@ if (data===1) {
                       //  me.listarIndex(1);
                     }).catch(function (error) {
                         error401(error);                        
-                        console.log(error);
+                     
                     });
                     
                     
@@ -633,13 +633,11 @@ if (data===1) {
                           
                            me.parseXML(respuesta,2,id,id_cufd,id_cuis,id_emisor);
                         }
-                        console.log("----------------------------------");
-                        console.log(respuesta);
-                        console.log("----------------------------------");
+                     
                       //  me.listarIndex(1);
                     }).catch(function (error) {
                         error401(error);                        
-                        console.log(error);
+                       
                     });
                     
                     
@@ -661,7 +659,7 @@ if (data===1) {
     let me= this;
     const parser = new DOMParser();
     const xmlDoc = parser.parseFromString(xmlString, "text/xml");
-    console.log(xmlDoc);
+
    // const respuestaCuis = xmlDoc.getElementsByTagName("RespuestaCuis")[0].childNodes[0];
     const respuestaCuis_2 = xmlDoc.getElementsByTagName("faultstring")[0];
     if (respuestaCuis_2!=undefined) {
@@ -671,7 +669,7 @@ if (data===1) {
         // Recorrer todos los hijos de 'mensajesList' mensajesList
         const trasaccion= xmlDoc.querySelector('transaccion');
         if (trasaccion.textContent==='true') {
-            console.log("por verdad");
+         
                
          //   console.log(codigoCuis.textContent+" - "+fechaCuis.textContent);
          if (data==1) {
@@ -680,8 +678,7 @@ if (data===1) {
             me.insertarCuis(id, codigoCuis.textContent, fechaCuis.textContent);
          } else {
             if (data===2) {
-                console.log("resultado....");
-                console.log(xmlDoc);                
+                            
                 me.EliminarCuis(id,id_cuis,id_cufd,id_emisor);
             } else {
                 Swal.fire("Error de entrada!","revise la entrada  si es eliminacion o adicion, tipo transacción","warning",);  
@@ -703,8 +700,7 @@ if (data===1) {
         Swal.fire("Cuis!",""+cadena_nombre,"warning",);  
                 } else {
                     if (data===2) {
-                        console.log("-*---*-");
-                        console.log(xmlDoc); 
+                       
                     } else {
                         Swal.fire("Error de entrada!","revise la entrada  si es eliminacion o adicion","warning",);   
                     }
@@ -1182,8 +1178,7 @@ insertar_cufd(codigo_siat,cuis,id,id_emisor,cufd){
                         .then(function (response) {
                             me.listarIndex(); 
                             let respuesta=response.data; 
-                            console.log("///////////////");  
-                            console.log(respuesta);
+                        
                             if (respuesta===0) {
                                 Swal.fire("CUFD","Consulta exitosa","success",); 
                             } else {
@@ -1192,7 +1187,7 @@ insertar_cufd(codigo_siat,cuis,id,id_emisor,cufd){
                                          
                         })               
                         .catch(function (error) {                
-                          console.log(error);                
+                                 
                     }); 
                     
                     

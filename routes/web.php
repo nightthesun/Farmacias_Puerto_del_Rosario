@@ -7,6 +7,7 @@ use App\Http\Controllers\AdmCredecialCorreoController;
 use App\Http\Controllers\AdmDepartamentoController;
 use App\Http\Controllers\AdmModuloController;
 use App\Http\Controllers\AdmNacionalidadController;
+use App\Http\Controllers\AdmQrSimpleController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AdmRegistroController;
 use App\Http\Controllers\AdmRoleController;
@@ -339,13 +340,28 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/ciudad/selectciudad', [AdmCiudadController::class, 'selectCiudad']);
     Route::post('/ciudad/registrar', [AdmCiudadController::class, 'store']);
 
+    //nacionalidad----
     Route::get('/nacion/selectnacion', [AdmNacionalidadController::class, 'selectNacion']);
     Route::post('/nacion/registrar', [AdmNacionalidadController::class, 'store']);
+    Route::get('/nacion/listarInicio', [AdmNacionalidadController::class, 'index']);
+    Route::post('/nacion/crearNacionalidad', [AdmNacionalidadController::class, 'createNacionalidad']);
+    Route::put('/nacion/editarNacionalidad', [AdmNacionalidadController::class, 'editNacionalidad']);
+    Route::put('/nacion/ativar_desactivarNacionalidad', [AdmNacionalidadController::class, 'activar_or_desactivar']);   
 
+    //banco----------
     Route::get('/banco/selectbanco', [AdmBancoController::class, 'selectBanco']);
     Route::post('/banco/registrar', [AdmBancoController::class, 'store']);
+    Route::post('/banco/crearBanco', [AdmBancoController::class, 'create_banco']);
+    Route::get('/banco/listarIndex', [AdmBancoController::class, 'index']);
+    Route::post('/banco/editar', [AdmBancoController::class, 'edit']);
+    Route::put('/banco/ativar_desactivar', [AdmBancoController::class, 'activar_or_desactivar']);
 
-
+    //QR simple-------------------
+    Route::get('/qr_simple/listarbanco', [AdmQrSimpleController::class, 'getBancos']);  
+    Route::post('/qr_simple/crearBanco', [AdmQrSimpleController::class, 'store']); 
+    Route::get('/qr_simple/listarQR', [AdmQrSimpleController::class, 'getQR']);  
+    Route::put('/qr_simple/activar_desactivar', [AdmQrSimpleController::class, 'activar_or_desactivar']);
+    Route::put('/qr_simple/activar_desactivarPri', [AdmQrSimpleController::class, 'activar_or_desactivar_pri']);    
 
     //rrhh ////////////////////////////////////////////////////////////////////////////////////////////////
     Route::get('/empleado', [RrhEmpleadoController::class, 'index']);
@@ -681,7 +697,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/auto-proceso/listarOperacionAuto', [InvAutoTtrController::class, 'getGoToRunOperacionAuto']);      
        
     //--inventario_inicial}
-    Route::get('/inventario-inial/listarSelectProducto', [InvInventarioInicialController::class, 'getSelectProducto']);      
+    Route::get('/inventario-inial/listarSelectProducto', [InvInventarioInicialController::class, 'getSelectProducto']);  
+    Route::post('/inventario-inial/registrar', [InvInventarioInicialController::class, 'store']);    
+    Route::get('/inventario-inial/index', [InvInventarioInicialController::class, 'index']);  
 
     /////////////////////////////////LOGISTICO///////////////////////////////////////
     Route::get('/vehiculo/listarSucursal', [LogVehiculoController::class, 'listarSucursal']);

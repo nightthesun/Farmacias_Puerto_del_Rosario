@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Adm_Nacionalidad;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class AdmNacionalidadController extends Controller
@@ -15,19 +16,55 @@ class AdmNacionalidadController extends Controller
      */
     public function index()
     {
-        //
+        $query = DB::table('adm__nacionalidads as na')
+    ->leftJoin('users as u', 'na.id_usuario_modifica', '=', 'u.id')
+    ->select(
+        'na.id',
+        'na.nombre',
+        'na.activo',
+        'na.id_usuario_modifica',
+        'na.updated_at',
+        'na.pais',
+        'na.simbolo',
+        'na.codigo',
+        'u.name'
+    )->orderBy('na.id', 'asc')
+    
+    ->paginate(20);
+    return 
+            [
+                    'pagination'=>
+                        [
+                            'total'         =>    $query->total(),
+                            'current_page'  =>    $query->currentPage(),
+                            'per_page'      =>    $query->perPage(),
+                            'last_page'     =>    $query->lastPage(),
+                            'from'          =>    $query->firstItem(),
+                            'to'            =>    $query->lastItem(),
+                        ] ,
+                    'query'=>$query,
+            ]; 
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
+    public function createNacionalidad(Request $request){
+        try {
+            DB::beginTransaction();
+             
+        $nacionalidad = new Adm_Nacionalidad();
+        $nacionalidad->nombre=$request->nombre;
+        $nacionalidad->id_usuario_registra=auth()->user()->id;
+        $nacionalidad->id_usuario_modifica=auth()->user()->id;
+        $nacionalidad->pais=$request->pais;
+        $nacionalidad->simbolo=$request->simbolo;
+        $nacionalidad->codigo=$request->codigo;
+        $nacionalidad->save(); 
+            DB::commit();
+            return 0;
+        } catch (\Throwable $th) {
+            return $th;
+        }                    
     }
-
+    
     /**
      * Store a newly created resource in storage.
      *
@@ -52,50 +89,35 @@ class AdmNacionalidadController extends Controller
         $nacionalidad->save();
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Adm_Nacionalidad  $adm_Nacionalidad
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Adm_Nacionalidad $adm_Nacionalidad)
-    {
-        //
+    
+
+    public function editNacionalidad(Request $request){
+         try {
+            DB::beginTransaction();    
+           
+        $nacionalidad = Adm_Nacionalidad::findOrFail($request->id);       
+        $nacionalidad->nombre=$request->nombre;
+        $nacionalidad->id_usuario_modifica=auth()->user()->id;
+        $nacionalidad->pais=$request->pais;
+        $nacionalidad->simbolo=$request->simbolo;
+        $nacionalidad->codigo=$request->codigo;
+        $nacionalidad->save(); 
+            DB::commit();
+            return 0;
+        } catch (\Throwable $th) {
+            return $th;
+        }  
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Adm_Nacionalidad  $adm_Nacionalidad
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Adm_Nacionalidad $adm_Nacionalidad)
-    {
-        //
+    public function activar_or_desactivar(Request $request){
+                $banco = Adm_Nacionalidad::findOrFail($request->id);
+
+        $banco->activo=$request->puntero;
+       
+        $banco->save();
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Adm_Nacionalidad  $adm_Nacionalidad
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, Adm_Nacionalidad $adm_Nacionalidad)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Adm_Nacionalidad  $adm_Nacionalidad
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Adm_Nacionalidad $adm_Nacionalidad)
-    {
-        //
-    }
+  
     public function selectNacion()
     {
         $nacions=Adm_Nacionalidad::select('nombre',

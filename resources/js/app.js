@@ -23,6 +23,8 @@ createApp ({
     .component('usuario-component',require('./components/administracion/UsuariosComponent.vue').default)
     .component('configuracion-component',require('./components/administracion/ConfiguracionComponent.vue').default)
     .component('dofisicacion-component',require('./components/administracion/DosificacionComponent.vue').default)
+    .component('qr-simple-component',require('./components/administracion/QrSimpleComponent.vue').default)
+    .component('banco-nacionalidad-component',require('./components/administracion/bancoNacionalidadComponent.vue').default)    
     //rrhh
     .component('rrhempleados-component',require('./components/recursos_humanos/EmpleadosComponent.vue').default)
     .component('rrhnivel-component',require('./components/recursos_humanos/NivelComponent.vue').default)

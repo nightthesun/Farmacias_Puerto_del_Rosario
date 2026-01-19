@@ -40,13 +40,13 @@
                                 <div v-if="puedeHacerOpciones_especiales==1">
                                     <button v-if="!modulo.mostrarventana" type="button" class="btn btn-success btn-sm" @click="expandirModulo(modulo.id)">
                                     Mostrar Modulo
-                                </button> &nbsp;
+                                </button> 
                                 <button v-else type="button" class="btn btn-warning btn-sm" @click="reducirModulo(modulo.id)">
                                     Cerrar Modulo
-                                </button> &nbsp;
+                                </button> 
                                 <button v-if="modulo.mostrarventana" type="button" class="btn btn-success btn-sm" @click="abrirModal('registrarventana',[],modulo.id)">
                                     Agregar Ventana
-                                </button>&nbsp;
+                                </button>
                                 </div>
                                 <div v-else>
                                     <button v-if="!modulo.mostrarventana" type="button" class="btn btn-light btn-sm" >
@@ -59,23 +59,23 @@
                                     <label for="" v-text="ventana.nombre" class="col-md-6"></label>
                                     <button v-if="!ventana.mostraraccion" type="button" class="btn btn-success btn-sm" @click="expandirVentana(modulo.id,ventana.id)">
                                         Mostrar Ventana
-                                    </button> &nbsp;
+                                    </button> 
                                     <button v-else type="button" class="btn btn-warning btn-sm" @click="reducirVentana(modulo.id,ventana.id)">
                                         Cerrar Ventana
-                                    </button>&nbsp;
+                                    </button>
                                     <button v-if="ventana.mostraraccion" type="button" class="btn btn-success btn-sm" @click="abrirModal('registraraccion',[],ventana.id)">
                                         Agregar Accion
-                                    </button>&nbsp;
+                                    </button>
                                     
                                     <button type="button" class="btn btn-warning btn-sm" @click="abrirModal('actualizarventana',ventana)">
                                         <i class="icon-pencil"></i>
-                                    </button>&nbsp;
+                                    </button>
                                     <button v-if="ventana.activo==1" type="button" class="btn btn-danger btn-sm" @click="eliminarModulo('ventana',ventana.id)" >
                                         <i class="icon-trash"></i>
-                                    </button>&nbsp;
+                                    </button>
                                     <button v-else type="button" class="btn btn-info btn-sm" @click="activarModulo('ventana',ventana.id)" >
                                         <i class="icon-check"></i>
-                                    </button>&nbsp;
+                                    </button>
                                     
                                     <span v-if="ventana.activo" class="badge badge-success">Activo</span>
                                     <span v-else class="badge badge-warning">Desactivado</span>
@@ -85,15 +85,15 @@
                                         <label for="" class="col-md-2" style="text-align:right">-</label>
                                         <label for="" v-text="accion.nombre" class="col-md-6"></label>
                                         
-                                        &nbsp;<button type="button" class="btn btn-warning btn-sm" @click="abrirModal('actualizaraccion',accion)">
+                                    <button type="button" class="btn btn-warning btn-sm" @click="abrirModal('actualizaraccion',accion)">
                                             <i class="icon-pencil"></i>
-                                        </button>&nbsp;
+                                        </button>
                                         <button v-if="accion.activo==1" type="button" class="btn btn-danger btn-sm" @click="eliminarModulo('accion',accion.id)" >
                                             <i class="icon-trash"></i>
-                                        </button>&nbsp;
+                                        </button>
                                         <button v-else type="button" class="btn btn-info btn-sm" @click="activarModulo('accion',accion.id)" >
                                             <i class="icon-check"></i>
-                                        </button>&nbsp;
+                                        </button>
                                         <span v-if="accion.activo" class="badge badge-success">Activo</span>
                                         <span v-else class="badge badge-warning">Desactivado</span>
                                    

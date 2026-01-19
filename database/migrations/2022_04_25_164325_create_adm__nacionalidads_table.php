@@ -21,6 +21,7 @@ class CreateAdmNacionalidadsTable extends Migration
             $table->smallInteger('id_usuario_modifica')->unsigned()->nullable()->comment('null->viene del seeder');
             $table->string('pais')->nullable();
             $table->string('simbolo',50)->nullable();
+            $table->string('codigo')->nullable();
             $table->timestamps();
         });
     }

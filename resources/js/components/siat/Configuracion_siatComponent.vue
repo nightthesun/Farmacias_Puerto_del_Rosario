@@ -13,25 +13,21 @@
            
             <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
                 <li class="nav-item">
-                    <a class="nav-link active" id="pills-home-tab" data-toggle="pill" href="#pills-home" role="tab" aria-controls="pills-general" aria-selected="true">General</a>
+                    <a class="nav-link active" id="pills-home-tab" data-toggle="pill" href="#pills-home" role="tab" aria-controls="pills-general" aria-selected="true" @click="listarIndexConfiguracion();cambioPestañaIn(1,0,0);">General</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" id="pills-profile-tab" data-toggle="pill" href="#pills-profile" role="tab" aria-controls="pills-profile" aria-selected="false">End Points</a>
+                    <a class="nav-link" id="pills-profile-tab" data-toggle="pill" href="#pills-profile" role="tab" aria-controls="pills-profile" aria-selected="false" @click="cambioPestañaIn(0,1,0);">End Points</a>
                 </li>       
                 <li class="nav-item">
-                    <a class="nav-link" id="pills-concepto-tab" data-toggle="pill" href="#pills-concepto" role="tab" aria-controls="pills-concepto" aria-selected="false" @click="listar_catalogo()">Conceptos</a>
+                    <a class="nav-link" id="pills-concepto-tab" data-toggle="pill" href="#pills-concepto" role="tab" aria-controls="pills-concepto" aria-selected="false" @click="listar_catalogo();cambioPestañaIn(0,0,1);">Conceptos</a>
                 </li>    
-                <li class="nav-item">
-                    <a class="nav-link" id="pills-tipoFactura-tab" data-toggle="pill" href="#pills-tipoFactura" role="tab" aria-controls="pills-tipoFactura" aria-selected="false" @click="listar_factura_v()">Tipo Factura</a>
-                </li>  
-                <li class="nav-item">
-                    <a class="nav-link" id="pills-tipoLeyenda-tab" data-toggle="pill" href="#pills-tipoLeyenda" role="tab" aria-controls="pills-tipoLeyenda" aria-selected="false" @click="listar_leyenda()">Leyenda</a>
-                </li>              
+               
+                            
             </ul>
         </div>
         <div class="card-body">           
              <div class="tab-content" id="pills-tabContent">
-                    <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-general-tab">
+                    <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-general-tab" v-show="show_1==1&&show_2==0&&show_3==0">
                         <div class="card">
                             <div class="card-header d-flex justify-content-between align-items-center">
     <span>Configuración general de siat</span>
@@ -162,7 +158,7 @@
                         
                     </div>
                     <!--------------------------------------------------------------------------------------------------------------------------->
-                    <div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">
+                    <div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab" v-show="show_1==0&&show_2==1&&show_3==0">
 
                         <div class="card">
                             <div class="card-header">
@@ -249,7 +245,7 @@
                     </div>        
                     <!-----------------------------------------------------------------CONCEPTOS----------------------------------------------------------->
              
-                      <div class="tab-pane fade" id="pills-concepto" role="tabpanel" aria-labelledby="pills-concepto-tab">
+                      <div class="tab-pane fade" id="pills-concepto" role="tabpanel" aria-labelledby="pills-concepto-tab"  v-show="show_1==0&&show_2==0&&show_3==1">
 <div class="card">
     <div class="card-header">
       Catalogo SIAT
@@ -289,74 +285,10 @@
 </div>        
 
      <!-----------------------------------------------------------------TIPO FACTURA ----------------------------------------------------------->
-             
-     <div class="tab-pane fade" id="pills-tipoFactura" role="tabpanel" aria-labelledby="pills-tipoFactura-tab">
-<div class="card">
-    <div class="card-header">
-        codigo Documento Sector
-    </div>
     
-<div class="card-body">    
-        <div class="row">
-        <div class="form-group col-sm-2">
-            <strong >Sector:</strong>
-        </div> 
-        <div class="form-group col-sm-4">
-            <select class="form-control" v-model="selectFactura_v">
-    <option value="0" disabled selected>Seleccionar...</option>    
-    <option v-for="i in arrayFactura_v" :key="i.codigo" :value="i.codigo">{{ i.descripcion}}</option>
-</select>
-        </div>
-        <div class="form-group col-sm-2">
-                                
-        </div> 
-        
-        
-                                      
-        </div>    
-         <!---inserte tabla-->
- 
-      
-  
-    </div>
-
-</div>
-</div>   
  <!-----------------------------------------------------------------TIPO LEYENDA ----------------------------------------------------------->
              
- <div class="tab-pane fade" id="pills-tipoLeyenda" role="tabpanel" aria-labelledby="pills-tipoLeyenda-tab">
-<div class="card">
-    <div class="card-header">
-        codigo Documento Sector
-    </div>
-    
-<div class="card-body">    
-        <div class="row">
-        <div class="form-group col-sm-2">
-            <strong >Leyenda:</strong>
-        </div> 
-        <div class="form-group col-sm-4">
-            <select class="form-control" v-model="selectLeyenda">
-    <option value="0" disabled selected>Seleccionar...</option>
-    
-    <option v-for="i in arrayLeyenda" :key="i.codigo" :value="i.codigo">{{ i.descripcion }}</option>
-</select>
-        </div>
-        <div class="form-group col-sm-2">
-                        
-        </div> 
-       
-        
-                                      
-        </div>    
-         <!---inserte tabla-->
- 
-      
-  
-    </div>
-
-</div>
-</div>           
+           
 <!---------------------------------------------------------------------------------------------------------------------------->
             </div>            
         </div>
@@ -455,6 +387,11 @@ export default {
                 to: 0,
             },
           offset:3,
+
+          show_1:0,
+          show_2:0,
+          show_3:0,
+
             tipoAccion:0,
             cod_sis:'',
             selectTipoAmbiente:0,
@@ -563,7 +500,7 @@ export default {
     axios.get(url)
         .then(function(response) {
             var respuesta = response.data;
-            console.log(respuesta);
+        
             if(respuesta=="root"){
             me.puedeEditar=1; 
             me.puedeActivar=1;
@@ -579,7 +516,7 @@ export default {
         })
         .catch(function(error) {
             error401(error);
-            console.log(error);
+       
         });
 },
 //-------------------------------------------------------------- 
@@ -593,6 +530,13 @@ cambiarPestana(idPestana) {
             let me = this;
             me.pagination.current_page = page;
            me.listarIndexEndPoint(page);
+        },
+
+        cambioPestañaIn(data_1,data_2,data_3){
+            let me=this;
+            me.show_1=data_1;
+            me.show_2=data_2;
+            me.show_3=data_3; 
         },
        
     listarIndexEndPoint(page)
@@ -658,8 +602,7 @@ crearEndPoint(){
                 .then(function (response) {
                     me.listarIndexEndPoint(); 
                     let respuesta=response.data;    
-                    
-                    console.log(respuesta);
+             
                     if (respuesta.length>0) {
                         Swal.fire(
                         "Error!",
@@ -677,7 +620,7 @@ crearEndPoint(){
                                 
                 })               
                 .catch(function (error) {                
-                  console.log(error);                
+                            
             }).finally(() => {
           me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
         });       
@@ -702,7 +645,7 @@ crearEndPoint(){
                                 
                 })               
                 .catch(function (error) {                
-                  console.log(error);                
+                         
             });       
    
  },
@@ -755,7 +698,7 @@ swalWithBootstrapButtons.fire({
                     controlador=0;
                     break;
                }
-               console.log(me.archivo);
+
                if (controlador===0) {              
                  
                 // Crear un objeto FormData para enviar el archivo
@@ -786,7 +729,7 @@ swalWithBootstrapButtons.fire({
                 .then(function(response){
                     me.password="";
                     var respuesta = response.data; 
-                    console.log(respuesta);
+           
                     if (respuesta.length>0) {                        
                         Swal.fire("Error!",""+respuesta,"error",);
                     }else{                        
@@ -797,7 +740,7 @@ swalWithBootstrapButtons.fire({
                 }).catch(function(error){
                     me.password="";
                     error401(error);
-                    console.log(error);
+     
                 });
                } 
  
@@ -812,7 +755,7 @@ swalWithBootstrapButtons.fire({
 listarIndexConfiguracion()
             {
                 let me=this;                
-              
+            
                     var url='/siat/configuracion';                        
                 axios.get(url).then(function(response){
                     var respuesta = response.data; 
@@ -832,7 +775,7 @@ listarIndexConfiguracion()
                     me.certificado_x509=respuesta.certificado_x509;
                     me.name_firma=respuesta.name;
                     me.path_firma=respuesta.path;
-                    console.log(respuesta);          
+                           
                     
                 })
                 .catch(function(error){
@@ -879,7 +822,7 @@ validateFileExcel() {
             Swal.fire("Error", me.errorMessage, "error");
         } else {
             me.errorMessage = "";
-            console.log("Archivo válido:", file);
+
             // Aquí puedes continuar con el procesamiento del archivo
         }
     } else {
@@ -957,7 +900,7 @@ validateFileExcel() {
                 }
                 case "regcuenta_edit":{
                     me.tipoAccion = 2;
-                    console.log(data);
+         
                     me.isSubmitting=false;                  
                     me.descripcion_endpoint=data.Descripcion;
                     me.url_endpoint=data.Url;
@@ -1056,8 +999,7 @@ validateFileExcel() {
                 .then(function (response) {
                   //  me.listarIndexEndPoint(); 
                     let respuesta=response.data;     
-                    console.log("---------------");                   
-                    console.log(respuesta);
+            
                     if (respuesta.length>0) {
                         Swal.fire("Error!",""+respuesta,"error",);    
                     } else {
@@ -1065,7 +1007,7 @@ validateFileExcel() {
                     }                               
                 })               
                 .catch(function (error) {                
-                  console.log(error);                
+                     
             });
         } else {
             Swal.fire("Error de validacion!","La id_catalogo no es la misma del selector de actividades","error",);  

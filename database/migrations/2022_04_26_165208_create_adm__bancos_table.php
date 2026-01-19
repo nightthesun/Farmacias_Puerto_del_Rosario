@@ -19,6 +19,9 @@ class CreateAdmBancosTable extends Migration
             $table->boolean('activo')->default(1);
             $table->smallInteger('id_usuario_registra')->unsigned()->nullable()->comment('null->viene del seeder');
             $table->smallInteger('id_usuario_modifica')->unsigned()->nullable()->comment('null->viene del seeder');
+            $table->string('sigla')->nullable();
+            $table->text('data')->nullable();
+            $table->tinyInteger('prioridad')->default(0) ->nullable();            
             $table->timestamps();
         });
     }
