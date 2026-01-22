@@ -361,7 +361,16 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/qr_simple/crearBanco', [AdmQrSimpleController::class, 'store']); 
     Route::get('/qr_simple/listarQR', [AdmQrSimpleController::class, 'getQR']);  
     Route::put('/qr_simple/activar_desactivar', [AdmQrSimpleController::class, 'activar_or_desactivar']);
-    Route::put('/qr_simple/activar_desactivarPri', [AdmQrSimpleController::class, 'activar_or_desactivar_pri']);    
+    Route::put('/qr_simple/activar_desactivarPri', [AdmQrSimpleController::class, 'activar_or_desactivar_pri']);
+    Route::put('/qr_simple/editarBanco', [AdmQrSimpleController::class, 'edit']);  
+    Route::post('/qr_simple/crearEndpoint', [AdmQrSimpleController::class, 'create_enpoint']); 
+    Route::get('/qr_simple/listar_endpoint', [AdmQrSimpleController::class, 'get_endpoint_lister']);   
+    Route::post('/qr_simple/actualizarEndpoint', [AdmQrSimpleController::class, 'edit_enpoint']); 
+    Route::post('/qr_simple/desactivar_po', [AdmQrSimpleController::class, 'desactivate_p']);  
+    
+    //----------------------------------operacion QR json 
+    Route::put('/qr_simple/json_operation_1', [AdmQrSimpleController::class, 'jsonOperacion_1']);    
+        
 
     //rrhh ////////////////////////////////////////////////////////////////////////////////////////////////
     Route::get('/empleado', [RrhEmpleadoController::class, 'index']);

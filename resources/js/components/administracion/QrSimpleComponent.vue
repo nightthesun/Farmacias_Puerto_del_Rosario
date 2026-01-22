@@ -18,7 +18,7 @@
     <a class="nav-link" id="pills-lista-tab" data-toggle="pill" href="#pills-lista" role="tab" aria-controls="pills-lista" aria-selected="false" @click="cambioPestañaInf(0,1,0);listarQR();">Lista de QR</a>
   </li>
   <li class="nav-item">
-    <a class="nav-link" id="pills-contact-tab" data-toggle="pill" href="#pills-contact" role="tab" aria-controls="pills-contact" aria-selected="false" @click="cambioPestañaInf(0,0,1);">Contact</a>
+    <a class="nav-link" id="pills-endPoint-tab" data-toggle="pill" href="#pills-endPoint" role="tab" aria-controls="pills-endPoint" aria-selected="false" @click="cambioPestañaInf(0,0,1); listarQR();">End Points</a>
   </li>
 </ul>
                 </div>
@@ -88,7 +88,10 @@
                          <td class="col-md-1">
                             <div  class="d-flex justify-content-start">
                                 <div  v-if="puedeEditar==1">
-                                <button type="button" class="btn btn-warning btn-sm" style="margin-right: 5px; color: white;" data-toggle="collapse" :data-target="'#collapseExample' + index" :aria-expanded="false" aria-controls="collapseExample" @click="actualizarPorId(i,$event)"> 
+                                <button type="button" class="btn btn-warning btn-sm" style="margin-right: 5px; color: white;" data-toggle="collapse" :data-target="'#collapseExample' + index" :aria-expanded="false" aria-controls="collapseExample" @click="actualizarPorId(i,$event)" v-if="valorador_1==0"> 
+                                <i class="fa fa-angle-double-down" aria-hidden="true"></i>
+                                </button> 
+                                 <button type="button" class="btn btn-secondary btn-sm" style="margin-right: 5px; color: white;" v-else> 
                                 <i class="fa fa-angle-double-down" aria-hidden="true"></i>
                                 </button> 
                                 </div>
@@ -184,19 +187,23 @@
     <div class="row">
        <div class="form-group col-sm-4" >
             <label for="">Usuario:</label>
-            <input  type="text" class="form-control" placeholder="Ingresar usuario dada por la identidad"  v-model="usuario_">                                  
-            <span  v-if="usuario_==''" class="error">Debe ingresar el usuario</span>
+            <input  type="text" class="form-control" placeholder="Ingresar usuario dada por la identidad"  v-model="usuario_">                       
+          
         </div>  
         <div class="form-group col-sm-4" >
             <label for="">Contraseña:</label>
-            <input  type="text" class="form-control" placeholder="Ingresar contraseña dada por la identidad"  v-model="contraseña_">                                  
-            <span  v-if="contraseña_==''" class="error">Debe ingresar la contraseña</span>
+            <input  type="text" class="form-control" placeholder="Ingresar contraseña dada por la identidad"  v-model="contraseña_">                       
+          
         </div>  
-        <div class="form-group col-sm-4" style="margin-top: 15px;" >
-            <button type="button" class="btn btn-warning btn-lg btn-block" @click="crearServicioQr()" style="color: white;" :disabled="isSubmitting==true">Añadir</button>         
+        <div class="form-group col-sm-1" style="margin-top: 15px;">             
+            <button type="button" class="btn btn-warning btn-lg btn-block" style="margin-right: 5px; color: white;" data-toggle="collapse" :data-target="'#collapseExample' + index" :aria-expanded="false" aria-controls="collapseExample"  @click="subir();"> 
+            <i class="fa fa-angle-double-up" aria-hidden="true"></i>
+            </button>       
+        </div>
+        <div class="form-group col-sm-3" style="margin-top: 15px;" >
+            <button type="button" class="btn btn-warning btn-lg btn-block" @click="editarServicioQr()" style="color: white;">Actualizar</button>         
         </div>        
     </div>
-            Contenido del detalle para {{ i.nom_servicio_qr }}
           </div>
         </div>
       </td>
@@ -207,9 +214,105 @@
                 </tbody>
     </table>    
   </div>
-  <div class="tab-pane fade" id="pills-contact" role="tabpanel" aria-labelledby="pills-contact-tab" v-show="show_1==0&&show_2==0&&show_3==1">...</div>
-</div>
-            
+   <!------------------------------endpoints------------------------------------------------------->
+  <div class="tab-pane fade" id="pills-endPoint" role="tabpanel" aria-labelledby="pills-endPoint-tab" v-show="show_1==0&&show_2==0&&show_3==1">
+     <div class="card">
+        <div class="card-header">End points</div>
+            <div class="alert alert-info" role="alert">
+                Recuerde que no debe haber ningun espacion en los <strong>end points</strong>
+            </div>
+                <div class="card-body">    
+                                <div class="row">                                                                
+                                    <div class="form-group col-sm-7">
+                                        <label>Servicio:</label>
+                                     <select  class="form-control"  v-model="selectServicio" @change="cambioEstadoSelector()">
+                                            <option value="0" disabled selected>Seleccionar...</option>
+                                            <option v-for="(i, index) in arrayQR" :key="index" :value="i.id">{{i.nom_servicio_qr+" - "+i.nombre}}</option>
+                                    </select>
+                                    </div>                            
+                                <div class="form-group col-sm-3" v-show="selectServicio!='0'">
+                                    <label for="">Tipo:</label>
+                                     <select  class="form-control"  v-model="selectModalidad" @change="cambioEstadoSelector()">
+                                            <option value="0" disabled selected>Seleccionar...</option>
+                                            <option value="1">Producción</option>
+                                            <option value="2">Piloto</option>
+                                    </select>
+                                </div>
+                                  <div class="form-group col-sm-1" v-show="selectModalidad!='0'" style="margin-top: 15px;">
+                                    <button type="button" class="btn btn-primary" @click="abrirModal('registrar')">Crear</button>
+                                  </div>
+                                    <div class="form-group col-sm-1" v-show="selectModalidad!='0'" style="margin-top: 15px;">
+                                        <button type="button" class="btn btn-primary" @click="listar_endpoint_list()">Ver</button>
+                                    </div>                                
+                        </div>
+                          <table class="table table-bordered table-striped table-sm table-responsive" v-show="ver_v3==1">
+                            <thead>
+                                <tr>
+                                    <th>Opc.</th>
+                                    <th>ID</th>   
+                                    <th class="col-md-5">Descripción</th>                       
+                                    <th class="col-md-4">Url</th>
+                                    <th>Versión</th>  
+                                    <th>Estado</th>               
+                                </tr>
+                            </thead> 
+                            <tbody>
+                                <tr v-for="(i, index) in arrayEndPoint_list" :key="index">
+                                    <td>
+                                <div  class="d-flex justify-content-start">
+                                <div  v-if="puedeEditar==1">
+                                <button type="button" class="btn btn-warning btn-sm" style="margin-right: 5px; color: white;" @click="abrirModal('actualizar',i)"> 
+                               <i class="icon-pencil"></i>
+                                </button>                                  
+                                </div>
+                                <div v-else>
+                                <button type="button" class="btn btn-light btn-sm" style="margin-right: 5px;">
+                                <i class="icon-pencil"></i>
+                                </button> 
+                                </div>
+                                <div v-if="puedeActivar==1">
+                                <button type="button" class="btn btn-info btn-sm" style="margin-right: 5px; color: white;" @click="desactivar(i.id)" v-if="i.activar==1">
+                                <i class="fa fa-lightbulb-o" aria-hidden="true"></i>
+                                </button> 
+                                <button type="button" class="btn btn-danger btn-sm" style="margin-right: 5px;" @click="json_operation_1(i)" v-else>
+                                <i class="fa fa-lightbulb-o" aria-hidden="true"></i>
+                                </button> 
+                                </div>
+                                <div v-else>
+                                <button type="button" class="btn btn-light btn-sm" style="margin-right: 5px;">
+                                <i class="fa fa-lightbulb-o" aria-hidden="true"></i>
+                                </button> 
+                                </div>
+                                
+                            </div>
+                                    </td>
+                                    <td>
+                                        {{i.id}}
+                                    </td>
+                                    <td class="col-md-5">
+                                        {{i.descripcion}}
+                                    </td>
+                                    <td class="col-md-4">
+                                        {{i.url}}
+                                    </td>
+                                    <td>
+                                        {{i.version}}
+                                    </td>
+                                    <td>
+                                        <div v-if="i.activar==1">
+                                            <span class="badge badge-pill badge-success">En uso</span>
+                                        </div>
+                                        <div v-else>
+                                            <span class="badge badge-pill badge-secondary">Sin uso</span>
+                                        </div>
+                                    </td>
+                                </tr>    
+                            </tbody>
+                        </table>
+                    </div>
+            </div>    
+        </div>   
+        </div> 
         </div>
             </div>   
   
@@ -235,12 +338,41 @@
                             <!-- insertar datos -->
                             <div class="container">
                                 
-                                <div class="form-group row">
-                                   
-                                   
-        
+                                <div class="form-group row">                                                                    
+                                    <div class="col-md-5">
+                                        <label>Descripción: </label>
+                                         <textarea class="form-control" id="exampleFormControlTextarea1" v-model="descripcion_endpoint" rows="3"></textarea>  
+                                                                         
+                                        <span  v-if="descripcion_endpoint==''" class="error">Debe llenar el dato</span> 
+                                    </div>
+                                    <div class="col-md-5">
+                                    <label for="end-date">URL: </label>
+                                    <textarea class="form-control" id="exampleFormControlTextarea1" v-model="url_endpoint" rows="3"></textarea>                                    
+                                        <span  v-if="url_endpoint==''" class="error">Debe llenar el dato</span> 
+                                    </div>   
+                                    <div class="col-md-2">
+                                    <label >Versión:</label>
+                                            <input  type="text" class="form-control" v-model="version_endpoint">                                          
+                                            <span  v-if="version_endpoint==''" class="error">Debe llenar el dato</span> 
+                                    </div>  
                                 </div>
-                              
+                              <div class="form-group row">                                                                    
+                                    <div class="col-md-3">
+                                     <label for="">Servicio por defecto:</label>
+                                    </div>
+                                     <div class="col-md-5">
+                                         <select  class="form-control"  v-model="selectServicio_v3" :disabled="tipoAccion == 2 &&selectServicio_v3!=8">
+                                            <option value="0" disabled selected>Seleccionar...</option>
+                                            <option  v-for="(i, index) in arraySelectServicio" :key="index" :value="i.id">{{i.nombre}}</option>                                            
+                                    </select>                                     
+                                     <span  v-if="selectServicio_v3=='0'" class="error">Debe seleccionar</span> 
+                                     </div>
+                                     <div class="col-md-2"  v-show="tipoAccion == 2">
+                                        <button type="button" class="btn btn-danger btn-sm" style="margin-right: 5px;" @click="resetLista()">
+                                Quitar lista
+                                </button> 
+                                     </div>                                   
+                                </div>        
                             
                                
                             </div>
@@ -251,10 +383,10 @@
                         <button type="button" class="btn btn-secondary" @click="cerrarModal('registrar')">
                             Cerrar
                         </button>
-                        <button type="button" v-if="tipoAccion == 1" class="btn btn-primary" >
+                        <button type="button" v-if="tipoAccion == 1" class="btn btn-primary" @click="crearEndPoints()" :disabled="isSubmitting==true">
                             Guardar
                         </button>
-                        <button type="button" v-if="tipoAccion == 2" class="btn btn-primary">
+                        <button type="button" v-if="tipoAccion == 2" class="btn btn-primary" @click="actualizarEndPoints()">
                             Actualizar
                         </button>
                     </div>
@@ -312,6 +444,8 @@ export default {
 
              arrayBanco:[],
             arrayQR:[],
+
+            id_qr:'',
  //---permisos_R_W_S
             puedeEditar:2,
                 puedeActivar:2,
@@ -319,6 +453,29 @@ export default {
                 puedeCrear:2,
                 //----
 
+                valorador_1:0,
+                valorador_2:0,
+           //-----endpoint
+           selectModalidad:0,   
+           descripcion_endpoint:'',
+            url_endpoint:'',
+             version_endpoint:'',  
+
+            selectServicio:0, 
+            arrayEndPoint_list:[],
+            ver_v3:0,
+            id_endPoints:'',
+
+            arraySelectServicio: [{ id: 1, nombre: 'Generar Token' },
+                                  { id: 2, nombre: 'Actualizar Credencial'},
+                                  { id: 3, nombre: 'Generar QR'},
+                                  { id: 4, nombre: 'Obtener lista de QRs generados'},
+                                  { id: 5, nombre: 'Obtener estado QR'},
+                                  { id: 6, nombre: 'Cancelar QR'},
+                                  { id: 7, nombre: 'Otro operacion'},
+                                  { id: 8, nombre: 'Sin lista'}
+                                ],
+            selectServicio_v3:'0',                   
         };
     },
 
@@ -386,7 +543,288 @@ export default {
         });
 },
 
+//-----------------solicitudes json--------------------------
+json_operation_1(data) {
+            let me = this;
+            me.ver_v3=1;
+            console.log("-------------------");
+            console.log(data);
+      // tipo selectServicio piloto o produccion
+       
+           var url = "/qr_simple/json_operation_1";
+            axios  
+                .put(url,{
+                    id:data.id,
+                    opc:data.id_servicio,
+                    id_qr_simple:data.id_qr_simple,
+                    tipo:data.tipo,
+                    id_servicio:data.id_servicio
+                })
+                .then(function (response) {
+                    var respuesta = response.data;
+                    console.log("******");
+                     console.log(respuesta);  
+                     console.log(respuesta.success);
+                     me.listar_endpoint_list();
+                    if (respuesta.success==true) {                       
+                        Swal.fire("Correcto.!",respuesta.message,"success");
+                    }else{
+                        Swal.fire("Error",respuesta.message,"error"); 
+                    }    
+                                  
+                })
+                .catch(function (error) {
+                    error401(error);                
+                });
+        },
+
 //-----------------pestaña listar,editar,activar,desactivar---------------------
+
+desactivar(id){   
+    console.log(id); 
+            let me = this;                 
+                 axios.post("/qr_simple/desactivar_po", {
+                    id:id,                    
+                })
+                .then(function (response) {                  
+                    let respuesta=response.data;
+                    me.listar_endpoint_list();
+                    console.log(respuesta);
+                                                                                    
+                })                
+                .catch(function (error) {
+                    error401(error);
+                });   
+                                   
+        },
+
+desactivar_1(id) {
+            let me = this;
+           
+            const swalWithBootstrapButtons = Swal.mixin({
+                customClass: {
+                    confirmButton: "btn btn-success",
+                    cancelButton: "btn btn-danger",
+                },
+                buttonsStyling: false,
+            });
+
+            swalWithBootstrapButtons
+                .fire({
+                    title: "Esta Seguro de Desactivar?",
+                    text: "Es una eliminacion logica",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Si, Desactivar",
+                    cancelButtonText: "No, Cancelar",
+                    reverseButtons: true,
+                })
+                .then((result) => {
+                    if (result.isConfirmed) {
+                        axios
+                            .put("/qr_simple/desactivar_po", {
+                                'id': id,                                
+                            })
+                            .then(function (response) {
+                                console.log(response.data);
+                               me.listar_endpoint_list();
+                                swalWithBootstrapButtons.fire(
+                                    "Desactivado!",
+                                    "El registro a sido desactivado Correctamente",
+                                    "success",
+                                );                            
+                            })
+                            .catch(function (error) {
+                               error401(error);
+                            
+                         });
+                       
+                    } else if (
+                        /* Read more about handling dismissals below */
+                        result.dismiss === Swal.DismissReason.cancel
+                    ) {
+                        /* swalWithBootstrapButtons.fire(
+                    'Cancelado!',
+                    'El Registro no fue desactivado',
+                    'error'
+                    ) */
+                    }
+                });
+        },
+
+resetLista(){
+    this.selectServicio_v3=8;
+},
+subir(){    
+this.valorador_1=0;
+},
+
+cambioEstadoSelector(){
+    let me=this;
+    me.arrayEndPoint_list=[];
+    me.ver_v3=0;
+},
+
+
+ listar_endpoint_list() {
+            let me = this;
+            me.ver_v3=1;
+           var url = "/qr_simple/listar_endpoint?id_qr_simple="+me.selectServicio+"&tipo="+me.selectModalidad;
+            axios  
+                .get(url)
+                .then(function (response) {
+                    var respuesta = response.data;
+                    me.arrayEndPoint_list = respuesta;
+                    console.log(me.arrayEndPoint_list);                 
+                })
+                .catch(function (error) {
+                    error401(error);                
+                });
+        },
+
+
+crearEndPoints(){    
+            let me = this;       
+
+            const data_1=me.descripcion_endpoint;
+            const data_2=me.url_endpoint;
+            const data_3=me.version_endpoint;
+            const data_4=me.selectModalidad;
+            const data_5=me.selectServicio_v3;
+            
+           
+            if (data_1==null || data_1=== '' || data_2==null || data_2=== ''||
+                data_3==null || data_3=== ''||data_4=='0'||data_4==0||data_5=='0'||data_5==0) {
+            Swal.fire("Error", "Registro nullo o vacio","error");
+            } else {
+                me.isSubmitting=true;       
+                 axios.post("/qr_simple/crearEndpoint", {
+                    id_qr_simple:me.selectServicio,
+                    descripcion:data_1,
+                    url:data_2,                
+                    version:data_3,    
+                    tipo:data_4,
+                    id_servicio:data_5,
+                    
+                    id_modulo: me.idmodulo,
+                    id_sub_modulo:me.codventana, 
+                    des:"registro de enpoints: "+me.descripcion,  
+                })
+                .then(function (response) {                  
+                    let respuesta=response.data;
+                    console.log(respuesta);
+                    me.descripcion_endpoint="";
+                    me.url_endpoint="";
+                    me.version_endpoint="";
+                    me.selectServicio_v3="0";
+                    me.listar_endpoint_list();
+                    me.cerrarModal('registrar');
+                    if (respuesta===0) {
+                         Swal.fire("Registro creado!","Correctamente","success");
+                    } else {
+                        if (respuesta===1) {
+                            Swal.fire("Error!","ya esta en uso el servicio por default solo puede tener uno en activo, puedes quitar editando el reguistro","error");
+                        } else {
+                         Swal.fire("Error:",respuesta,"error");  
+                        }                         
+                    }                                                                   
+                })                
+                .catch(function (error) {
+                    error401(error);
+                    me.isSubmitting = false;
+                });   
+            }                         
+        },
+
+        actualizarEndPoints(){    
+            let me = this;       
+
+            const data_1=me.descripcion_endpoint;
+            const data_2=me.url_endpoint;
+            const data_3=me.version_endpoint;
+            const data_4=me.selectModalidad;
+            const data_5=me.selectServicio_v3;
+            
+           
+            if (data_1==null || data_1=== '' || data_2==null || data_2=== ''||
+                data_3==null || data_3=== ''||data_4=='0'||data_4==0||data_5=='0'||data_5==0) {
+            Swal.fire("Error", "Registro nullo o vacio","error");
+            } else {
+                me.isSubmitting=true;       
+                 axios.post("/qr_simple/actualizarEndpoint", {
+                    id_qr_simple:me.selectServicio,
+                    descripcion:data_1,
+                    url:data_2,                
+                    version:data_3,    
+                    tipo:data_4,
+                    id_servicio:data_5,
+                    id:me.id_endPoints,
+                    
+                    id_modulo: me.idmodulo,
+                    id_sub_modulo:me.codventana, 
+                    des:"edicion de registro: "+me.descripcion,  
+                })
+                .then(function (response) {                  
+                    let respuesta=response.data;
+                    console.log(respuesta);
+                    me.descripcion_endpoint="";
+                    me.url_endpoint="";
+                    me.version_endpoint="";
+                    me.selectServicio_v3="0";
+                    me.id_endPoints="";
+                    me.cerrarModal('registrar');
+                    me.listar_endpoint_list();
+                    if (respuesta===0) {
+                         Swal.fire("Actualizo!","Correctamente","success");
+                    } else {
+                        if (respuesta===1) {
+                            Swal.fire("Error!","ya esta en uso el servicio por default solo puede tener uno en activo, puedes quitar editando el reguistro","error");
+                        } else {
+                         Swal.fire("Error:",respuesta,"error");  
+                        }                         
+                    }                                                                   
+                })                
+                .catch(function (error) {
+                    error401(error);
+                    me.isSubmitting = false;
+                });   
+            }                         
+        },
+
+
+editarServicioQr(){    
+            let me = this;  
+            const data_1=me.nomServicio;
+            const data_2=me.url_;    
+            const data_4=me.selectBanco;
+            if (data_1==null || data_1=== '' || data_2==null || data_2=== '' ||
+                data_4=='0' || data_4==0
+            ) {
+            Swal.fire("Error", "Registro nullo o vacio","error");
+            } else {     
+                 axios.put("/qr_simple/editarBanco", {
+                    nombre:data_1,
+                    usuario:me.usuario_,                
+                    contraseña:me.contraseña_,
+                    id:me.id_qr,
+                    banco:data_4,   
+                    url:data_2                      
+                })
+                .then(function (response) {                  
+                    let respuesta=response.data;
+                    console.log(respuesta);
+                   me.listarQR(0);
+                    if (respuesta===0) {
+                         Swal.fire("Registro actualizado!","Correctamente","success");
+                    } else {
+                         Swal.fire("Error:",respuesta,"error");
+                    }                                                                   
+                })                
+                .catch(function (error) {
+                    error401(error);
+                });   
+            }                         
+        },
 
 limpiar(){
     let me=this;    
@@ -395,26 +833,32 @@ limpiar(){
     me.usuario_="";
     me.contraseña_="";         
     me.isSubmitting = false; 
-    me.selectBanco="0";     
+    me.selectBanco="0";    
+    me.id_qr=""; 
 },
 
 actualizarPorId(data,data2){
-    let me=this;    
-    
+    let me=this; 
+  
+    console.log(data2);   
   const expanded = event.currentTarget.getAttribute('aria-expanded');
-
+     
     // expanded es string: "true" o "false"
     if (expanded=='false') {
+     me.valorador_1=1;
         console.log(data);
-         me.nomServicio="";
-    me.url_="";
-    me.usuario_="";
-    me.contraseña_="";         
+        me.nomServicio=data.nom_servicio_qr;
+        me.url_=data.url_banco_servicio;
+        me.usuario_="";
+    me.contraseña_="";    
+    me.id_qr=data.id;     
     me.isSubmitting = false; 
-    me.selectBanco="0";  
+    me.selectBanco=data.tipo_qr;  
+    }else{
+        me.valorador_1=0;
+
     }
-    console.log( expanded);
-      
+    console.log( expanded);  
 },
 
 activar_desactivarPri(id,puntero){
@@ -620,6 +1064,8 @@ activar_desactivar(id,puntero){
             me.show_1=data_1;
             me.show_2=data_2;
             me.show_3=data_3;
+            me.selectModalidad="0";
+            me.selectServicio="0";
         },
 
         listarbanco() {
@@ -668,7 +1114,7 @@ activar_desactivar(id,puntero){
         //    me.listarAjusteNegativos(page);
         },
 
-        abrirModal(accion, data = []) {
+        abrirModal(accion, data = []) {  
             let me = this;
         //    let respuesta = me.arraySucursal.find(
         //        (element) => element.codigo == me.sucursalSeleccionada,
@@ -677,15 +1123,29 @@ activar_desactivar(id,puntero){
          switch (accion) {
                 case "registrar": {
                     me.tipoAccion = 1;
-                    me.tituloModal = "Ejemplo titulo";
+                    me.tituloModal = "Registrar endpoints";
                     me.showModal = true;
+                   // me.selectModalidad="0";   
+                    me.descripcion_endpoint="";
+                    me.url_endpoint="";
+                    me.version_endpoint="";
+                    me.selectServicio_v3="0";
+                 
+                  //  me.selectServicio="0"; 
+                  me.id_endPoints="";
                     me.classModal.openModal("registrar");
                     break;
                 }
                 case "actualizar": {
                     me.tipoAccion = 2;
-                   
-          
+                    me.tituloModal = "Actualizar endpoints";
+                   console.log(data);
+                   me.descripcion_endpoint=data.descripcion;
+                    me.url_endpoint=data.url;
+                    me.version_endpoint=data.version;
+                    me.selectServicio_v3=data.id_servicio;
+                      me.id_endPoints=data.id;
+          me.showModal = true;
             
                     me.classModal.openModal("registrar");
 
@@ -714,8 +1174,8 @@ activar_desactivar(id,puntero){
                 me.classModal.closeModal(accion);
                 me.showModal = false;
                 me.tituloModal = " ";
-             
-             
+             me.isSubmitting=false;   
+           
             }
         },
 
