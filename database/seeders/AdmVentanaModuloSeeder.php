@@ -27,7 +27,10 @@ class AdmVentanaModuloSeeder extends Seeder
         $log = Adm_Modulo::where('nombre', 'Logistica')->first();         
         $dir = Adm_Modulo::where('nombre', 'Directorio')->first(); 
         $ven = Adm_Modulo::where('nombre', 'Ventas')->first(); 
-        
+        $caja = Adm_Modulo::where('nombre', 'Caja')->first(); 
+        $comp = Adm_Modulo::where('nombre', 'Compras')->first(); 
+        $siat = Adm_Modulo::where('nombre', 'Siat')->first(); 
+
         //administracion 100
 
         DB::table('adm__ventana_modulos')->insert(['codventana'=>'101','idmodulo'=>$admin->id,'nombre'=>'Mod. Vent. Acc.','template'=>'modulo-component']);
@@ -36,7 +39,9 @@ class AdmVentanaModuloSeeder extends Seeder
         DB::table('adm__ventana_modulos')->insert(['codventana'=>'104','idmodulo'=>$admin->id,'nombre'=>'Sucursales','template'=>'sucursal-component']);
         DB::table('adm__ventana_modulos')->insert(['codventana'=>'105','idmodulo'=>$admin->id,'nombre'=>'Rubros','template'=>'rubros-component']);
         DB::table('adm__ventana_modulos')->insert(['codventana'=>'106','idmodulo'=>$admin->id,'nombre'=>'Configuración','template'=>'configuracion-component']);
-        DB::table('adm__ventana_modulos')->insert(['codventana'=>'107','idmodulo'=>$admin->id,'nombre'=>'Dosificación','template'=>'dofisicacion-component']);        
+        DB::table('adm__ventana_modulos')->insert(['codventana'=>'107','idmodulo'=>$admin->id,'nombre'=>'Dosificación','template'=>'dofisicacion-component']); 
+        DB::table('adm__ventana_modulos')->insert(['codventana'=>'108','idmodulo'=>$admin->id,'nombre'=>'QR Simple','template'=>'qr-simple-component']);  
+        DB::table('adm__ventana_modulos')->insert(['codventana'=>'109','idmodulo'=>$admin->id,'nombre'=>'Bancos / Nacionalidad','template'=>'banco-nacionalidad-component']);       
         //recursos humanos 200
         DB::table('adm__ventana_modulos')->insert(['codventana'=>'201','idmodulo'=>$rh->id,'nombre'=>'Nivel de Formacion','template'=>'rrhnivel-component']);
         DB::table('adm__ventana_modulos')->insert(['codventana'=>'202','idmodulo'=>$rh->id,'nombre'=>'Profesiones','template'=>'rrhprofesion-component']);
@@ -89,17 +94,42 @@ class AdmVentanaModuloSeeder extends Seeder
         DB::table('adm__ventana_modulos')->insert(['codventana'=>'902','idmodulo'=>$inv->id,'nombre'=>'Ajustes Positivos','template'=>'ajuste-positivo-component']);
         DB::table('adm__ventana_modulos')->insert(['codventana'=>'903','idmodulo'=>$inv->id,'nombre'=>'Traspasos','template'=>'traspaso-component']);
         DB::table('adm__ventana_modulos')->insert(['codventana'=>'904','idmodulo'=>$inv->id,'nombre'=>'Recepcion','template'=>'recepcion-traspasos-component']);
-       
+       DB::table('adm__ventana_modulos')->insert(['codventana'=>'905','idmodulo'=>$inv->id,'nombre'=>'Gestor de stock','template'=>'gestor-stock-component']);
+       DB::table('adm__ventana_modulos')->insert(['codventana'=>'906','idmodulo'=>$inv->id,'nombre'=>'Configuración stock','template'=>'configuracion-stock-component']);
+        DB::table('adm__ventana_modulos')->insert(['codventana'=>'907','idmodulo'=>$inv->id,'nombre'=>'Auto GestioStock','template'=>'auto-gestion-stock-component']);
+        DB::table('adm__ventana_modulos')->insert(['codventana'=>'908','idmodulo'=>$inv->id,'nombre'=>'Auto Proceso T.T.R.','template'=>'auto-ttr-component']);
+        DB::table('adm__ventana_modulos')->insert(['codventana'=>'909','idmodulo'=>$inv->id,'nombre'=>'Inventario inicial','template'=>'invetario-inicial-component']);
+
         //logistica 1000
         DB::table('adm__ventana_modulos')->insert(['codventana'=>'1001','idmodulo'=>$log->id,'nombre'=>'Vehiculos','template'=>'vehiculo-component']);
         DB::table('adm__ventana_modulos')->insert(['codventana'=>'1002','idmodulo'=>$log->id,'nombre'=>'Traslados','template'=>'traslado-component']);
         //Directorio 1100
         DB::table('adm__ventana_modulos')->insert(['codventana'=>'1101','idmodulo'=>$dir->id,'nombre'=>'Clientes','template'=>'cliente-component']);
+        DB::table('adm__ventana_modulos')->insert(['codventana'=>'1102','idmodulo'=>$dir->id,'nombre'=>'Proveedor','template'=>'proveedor-component']);
+        DB::table('adm__ventana_modulos')->insert(['codventana'=>'1103','idmodulo'=>$dir->id,'nombre'=>'Distribuidor','template'=>'distribuidor-component']);
         //Directorio 1200
         DB::table('adm__ventana_modulos')->insert(['codventana'=>'1201','idmodulo'=>$ven->id,'nombre'=>'Gestor de Ventas','template'=>'gestor-venta-component']);
         DB::table('adm__ventana_modulos')->insert(['codventana'=>'1202','idmodulo'=>$ven->id,'nombre'=>'Detalle de Ventas','template'=>'venta-detalle-component']);       
         DB::table('adm__ventana_modulos')->insert(['codventana'=>'1203','idmodulo'=>$ven->id,'nombre'=>'Venta rapida','template'=>'venta-rapida-component']);
         DB::table('adm__ventana_modulos')->insert(['codventana'=>'1204','idmodulo'=>$ven->id,'nombre'=>'Caducidad','template'=>'caducidad-component']);
-   
+        DB::table('adm__ventana_modulos')->insert(['codventana'=>'1205','idmodulo'=>$ven->id,'nombre'=>'Trans. Electrónica','template'=>'transaccion-electronica-component']);
+        DB::table('adm__ventana_modulos')->insert(['codventana'=>'1206','idmodulo'=>$ven->id,'nombre'=>'Prospecto','template'=>'prospecto-component']);
+       //caja 1300
+        DB::table('adm__ventana_modulos')->insert(['codventana'=>'1301','idmodulo'=>$caja->id,'nombre'=>'Apertura / Cierre','template'=>'apertura_cierre-component']);
+        DB::table('adm__ventana_modulos')->insert(['codventana'=>'1302','idmodulo'=>$caja->id,'nombre'=>'Moneda','template'=>'moneda-component']);
+        DB::table('adm__ventana_modulos')->insert(['codventana'=>'1303','idmodulo'=>$caja->id,'nombre'=>'Entrada / Salida','template'=>'entrada_salida-component']);
+        DB::table('adm__ventana_modulos')->insert(['codventana'=>'1304','idmodulo'=>$caja->id,'nombre'=>'Transacción','template'=>'transaccion-component']);      
+        DB::table('adm__ventana_modulos')->insert(['codventana'=>'1305','idmodulo'=>$caja->id,'nombre'=>'Corregir caja','template'=>'corregir_caja-component']);
+        DB::table('adm__ventana_modulos')->insert(['codventana'=>'1306','idmodulo'=>$caja->id,'nombre'=>'Crear caja','template'=>'crear_caja-component']);
+        //compras 1400
+         DB::table('adm__ventana_modulos')->insert(['codventana'=>'1401','idmodulo'=>$comp->id,'nombre'=>'Inversiones','template'=>'inversiones-component']);
+         DB::table('adm__ventana_modulos')->insert(['codventana'=>'1402','idmodulo'=>$comp->id,'nombre'=>'Gastos','template'=>'gastos-component']);
+         DB::table('adm__ventana_modulos')->insert(['codventana'=>'1403','idmodulo'=>$comp->id,'nombre'=>'Tesoreria','template'=>'tesoreria-component']);
+         //siat 1500
+         DB::table('adm__ventana_modulos')->insert(['codventana'=>'1501','idmodulo'=>$siat->id,'nombre'=>'Configuración siat','template'=>'siat-configuracion-component']);
+         DB::table('adm__ventana_modulos')->insert(['codventana'=>'1502','idmodulo'=>$siat->id,'nombre'=>'Añadir sucursal','template'=>'siat-sucursal-component']);
+         DB::table('adm__ventana_modulos')->insert(['codventana'=>'1503','idmodulo'=>$siat->id,'nombre'=>'Administración','template'=>'siat-administracion-component']);
+         DB::table('adm__ventana_modulos')->insert(['codventana'=>'1504','idmodulo'=>$siat->id,'nombre'=>'Emisor','template'=>'siat-emisor-component']);
+         DB::table('adm__ventana_modulos')->insert(['codventana'=>'1505','idmodulo'=>$siat->id,'nombre'=>'Homologación','template'=>'siat-homologacion-component']);
     }
 }

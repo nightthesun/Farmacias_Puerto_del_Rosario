@@ -19,6 +19,30 @@ class AdmQrSimpleController extends Controller
         //
     }
 
+     public function desactivate_p(Request $request){       
+         
+        $contador=$request->contador;
+         $id=$request->id;
+        if($contador==1){
+ $updated = DB::table('adm__qr_endpoints')
+            ->where('id', $id)
+            ->update(['activar' => 1]);  
+        }else{
+ $updated = DB::table('adm__qr_endpoints')
+            ->where('id', $id)
+            ->update(['activar' => 0]);  
+        }          
+    }
+
+    public function updateCredencial(Request $request){
+        $data=$request->data;
+        DB::table('adm__credecial_correos')
+            ->where('id', 1)
+            ->update(['qr_in_uso' => $data]);
+        return $data;    
+    }
+
+
     private function activar_p($id): bool
 {
     return DB::table('adm__qr_endpoints')
@@ -26,19 +50,7 @@ class AdmQrSimpleController extends Controller
         ->update(['activar' => 1]);
 }
 
-    public function desactivate_p($id){
-       try {
-        return 0;
-          DB::beginTransaction();
-            $updated = DB::table('adm__qr_endpoints')
-            ->where('id', $id)
-            ->update(['activar' => 0]);
-            DB::commit();
-       } catch (\Throwable $th) {
-       return $th;
-       }
-      
-    }
+   
 
     
 
@@ -54,23 +66,110 @@ class AdmQrSimpleController extends Controller
         if ($query_1['success']==true) {
            switch ($opcion_1) {
             case 1:
-                $data_1=$this->opcion_1_1($id_qr_simple,$id); 
+                $data_1=$this->opcion_1_1($id_qr_simple,$id,$tipo); 
                 $data = $data_1->getData(); // stdClass
+                $success = $data->success;  
+                          
+                  if ($success==1 ||$success=='1') { 
+                   //  $A=$this->activar_p($id); 
 
-$success = $data->success;
-          
-                
-                  if ($success==1 ||$success=='1') {
-                    
-                    $A=$this->activar_p($id);                 
-                  
+                    if ($tipo==2) {
+                        if ($data->message==""||$data->message==null) {
+                              $message="eyJhbGciOiJodHRwOi8vd3d3LnczLm9yZy8yMDAxLzA0L3htbGRzaWctbW9yZSNobWFjLXNoYTI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiQk9BIiwiUm9sZSI6InVzZXIiLCJjb21wYW55SWQiOiIxIiwiZXhwIjoxNTY3NjA4NzAwLCJpc3MiOiJibmIuY29tLmJvIiwiYXVkIjoiQk9BIn0.i9sZS2Rb-vP3WEUNP16t4artbYN_BECzzohT0saOjCk";   
+                        } else {
+                   $message = $data->message;    
+                        }                        
+  }else{
+ $message = $data->message; 
+   }
+
+   $updated = DB::table('adm__qr_simples')
+            ->where('id', $id)
+            ->update(['token_qr' => $message]); 
+
+
+                     return $data_1;
+                  }else{
+                    return $data_1;
+                  }     
+            break;
+
+            case 2:
+                $nuevo=$request->nuevo;
+  
+                $data_1=$this->opcion_1_2($id_qr_simple,$id,$tipo,$nuevo); 
+               
+                $data = $data_1->getData(); // stdClass
+                $success = $data->success;               
+                  if ($success==1 ||$success=='1') {    
+                     //(AES-256-CBC) la incriptacion es 2 caracteres aletorio + la contraseña encryptada + 3 caracteres aletorios
+                     $caracteres = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+                     $randomString_2 = substr(str_shuffle($caracteres), 0, 2);
+                     $randomString_3 = substr(str_shuffle($caracteres), 0, 3);
+                     $textoEncriptado = Crypt::encrypt($nuevo);   
+                     $cadena_pass=$randomString_2.$textoEncriptado.$randomString_3;                  
+                //   $A=$this->activar_p($id); 
+                   $updated = DB::table('adm__qr_simples')
+            ->where('id', $id)
+            ->update(['contraseña_qr' => $cadena_pass]);                     
                     return $data_1;
                   }else{
                     return $data_1;
-                  }  
-                
+                  }
+
+            break;
+
+            case 3:
+                if ($tipo==2) {
+                   $pago=1;
+                } else {
+                    $pago=$request->pago;                    
+                }
+                  $data_1=$this->opcion_1_3($id_qr_simple,$id,$tipo,$pago); 
+                  $data = $data_1->getData(); // stdClass
+                $success = $data->success;               
+                  if ($success==1 ||$success=='1') {  
+                    return $data_1;
+                  }else{
+                    return $data_1;
+                  }
+
             break;
             
+            case 4:
+                  $fecha=$request->generationDate;  
+                  $data_1=$this->opcion_1_4($id_qr_simple,$id,$tipo,$fecha); 
+                  $data = $data_1->getData(); // stdClass
+                $success = $data->success;               
+                  if ($success==1 ||$success=='1') {  
+                    return $data_1;
+                  }else{
+                    return $data_1;
+                  }
+            break;  
+            case 5:
+                  $qrId=$request->qrId;  
+                  $data_1=$this->opcion_1_5($id_qr_simple,$id,$tipo,$qrId); 
+                  $data = $data_1->getData(); // stdClass
+                $success = $data->success;               
+                  if ($success==1 ||$success=='1') {  
+                    return $data_1;
+                  }else{
+                    return $data_1;
+                  }
+            break; 
+            case 6:
+                  $qrId=$request->qrId;  
+                  $data_1=$this->opcion_1_5($id_qr_simple,$id,$tipo,$qrId); 
+                  $data = $data_1->getData(); // stdClass
+                $success = $data->success;               
+                  if ($success==1 ||$success=='1') {  
+                    return $data_1;
+                  }else{
+                    return $data_1;
+                  }
+            break;
+
             
                 default:
                 # code...
@@ -81,7 +180,290 @@ $success = $data->success;
         }  
     }
 
-    private function opcion_1_1($id,$id_lista){
+
+    private function opcion_1_5($id,$id_lista,$tipo,$idQR){
+        try {
+            $query = $this->request_user($id);   
+            $query_2=$this->request_endpoint_list_1($id,$id_lista);
+            if ($query==null || $query_2==null) {
+         return response()->json([
+                'success' => false,
+    'message' => 'sin datos'
+            ]);
+    }else{
+        $link = $query_2->url;
+
+$sigla = $query->sigla;
+$token_qr = $query->token_qr;
+$token = str_replace(["\r", "\n", " "], '', $token_qr);
+// Quitar caracteres aleatorios
+
+
+//data de query glosa
+
+    // Enviar request
+$response = Http::withHeaders([    
+    'Cache-Control' => 'no-cache',
+    'Authorization' => 'Bearer ' . $token,
+    'Content-Type'  => 'application/json',
+    'Accept'        => 'application/json',
+    'Cache-Control' => 'no-cache',
+    'User-Agent'    => 'Laravel-Client',
+
+])->post($link, [
+   
+     'qrId'             => $idQR,       
+]);
+if ($response->ok()) {
+     $data = $response->json();   
+   
+    $message = $data['message'];   
+
+
+    return response()->json([
+        'success' => $response->successful(),
+        'message' => $message,   
+        'body'    => $response->body(),
+        'json'    => $response->json()
+    ]);
+}else{
+     return response()->json([
+        'success' => $response->successful(),
+        'message' => 'Error desconocido al validar credenciales '.$sigla, 
+        'body'    => 'error',
+        'json'    => 'error'
+    ]);
+}
+}
+        
+        } catch (\Throwable $th) {
+            //throw $th;
+        }
+    }
+
+
+    private function opcion_1_4($id,$id_lista,$tipo,$fecha){
+        try {
+            $query = $this->request_user($id);   
+            $query_2=$this->request_endpoint_list_1($id,$id_lista);
+            if ($query==null || $query_2==null) {
+         return response()->json([
+                'success' => false,
+    'message' => 'sin datos'
+            ]);
+    }else{
+        $link = $query_2->url;
+
+$sigla = $query->sigla;
+$token_qr = $query->token_qr;
+$token = str_replace(["\r", "\n", " "], '', $token_qr);
+// Quitar caracteres aleatorios
+
+$newDate = date('d/m/Y', strtotime($fecha));
+//data de query glosa
+
+    // Enviar request
+$response = Http::withHeaders([    
+    'Cache-Control' => 'no-cache',
+    'Authorization' => 'Bearer ' . $token,
+    'Content-Type'  => 'application/json',
+    'Accept'        => 'application/json',
+    'Cache-Control' => 'no-cache',
+    'User-Agent'    => 'Laravel-Client',
+
+])->post($link, [
+   
+     'generationDate'             => $newDate,       
+]);
+if ($response->ok()) {
+     $data = $response->json();   
+   
+    $message = $data['message'];   
+
+
+    return response()->json([
+        'success' => $response->successful(),
+        'message' => $message,   
+        'body'    => $response->body(),
+        'json'    => $response->json()
+    ]);
+}else{
+     return response()->json([
+        'success' => $response->successful(),
+        'message' => 'Error desconocido al validar credenciales '.$sigla, 
+        'body'    => 'error',
+        'json'    => 'error'
+    ]);
+}
+}
+        
+        } catch (\Throwable $th) {
+            //throw $th;
+        }
+    }
+
+     private function opcion_1_3($id,$id_lista,$tipo,$pago){
+
+        try {
+            $query = $this->request_user($id);   
+            $query_2=$this->request_endpoint_list_1($id,$id_lista);
+            if ($query==null || $query_2==null) {
+         return response()->json([
+                'success' => false,
+    'message' => 'sin datos'
+            ]);
+    }else{
+        $link = $query_2->url;
+$user_1 = $query->usuario_qr;
+$pass_1 = $query->contraseña_qr;
+$sigla = $query->sigla;
+$token_qr = $query->token_qr;
+$token = str_replace(["\r", "\n", " "], '', $token_qr);
+// Quitar caracteres aleatorios
+$textoEncriptado = substr($pass_1, 2, -3);
+// Desencriptar
+$passwordOriginal = Crypt::decrypt($textoEncriptado);
+//data de query glosa
+$glosa_3=$this->getGlosa();
+    
+$currency=$glosa_3->currency;
+$gloss=$glosa_3->gloss;
+$amount=$pago; 
+if ($glosa_3->singleUse==1) {
+    $singleUse=true;
+} else {
+    $singleUse=false;
+}
+if ($glosa_3->tipoFecha==1) {
+   $expirationDate= Carbon::now()->format('Y-m-d');
+} else {
+  $expirationDate= $glosa_3->expirationDate;
+}
+    $additionalData =$glosa_3->additionalData;
+    $destinationAccountId=$glosa_3->destinationAccountId;
+    // Enviar request
+$response = Http::withHeaders([    
+    'Cache-Control' => 'no-cache',
+    'Authorization' => 'Bearer ' . $token,
+    'Content-Type'  => 'application/json',
+    'Accept'        => 'application/json',
+    'Cache-Control' => 'no-cache',
+    'User-Agent'    => 'Laravel-Client',
+
+])->post($link, [
+   // 'AccountId' => $user_1,
+   // 'actualAuthorizationId' => $passwordOriginal,
+   // 'newAuthorizationId' => $nuevo,
+     'currency'             => $currency,
+        'gloss'                => $gloss,
+        'amount'               => $amount,
+        'singleUse'            => $singleUse,
+        'expirationDate'       => $expirationDate,
+        'additionalData'       => $additionalData,
+        'destinationAccountId' => $destinationAccountId,
+]);
+if ($response->ok()) {
+     $data = $response->json();   
+   
+    $message = $data['message'];   
+
+
+    return response()->json([
+        'success' => $response->successful(),
+        'message' => $message,   
+        'body'    => $response->body(),
+        'json'    => $response->json()
+    ]);
+}else{
+     return response()->json([
+        'success' => $response->successful(),
+        'message' => 'Error desconocido al validar credenciales '.$sigla, 
+        'body'    => 'error',
+        'json'    => 'error'
+    ]);
+}
+}
+        
+        } catch (\Throwable $th) {
+            //throw $th;
+        }
+
+     }
+
+    private function opcion_1_2($id,$id_lista,$tipo,$nuevo){
+        try {
+          // $id_lista=1;///-------------------revisar
+   
+    $query = $this->request_user($id);
+   
+    $query_2=$this->request_endpoint_list_1($id,$id_lista);
+       
+    if ($query==null || $query_2==null) {
+         return response()->json([
+                'success' => false,
+    'message' => 'sin datos'
+            ]);
+    }else{
+$link = $query_2->url;
+$user_1 = $query->usuario_qr;
+$pass_1 = $query->contraseña_qr;
+$sigla = $query->sigla;
+$token_qr = $query->token_qr;
+$token = str_replace(["\r", "\n", " "], '', $token_qr);
+
+
+// Quitar caracteres aleatorios
+$textoEncriptado = substr($pass_1, 2, -3);
+
+// Desencriptar
+$passwordOriginal = Crypt::decrypt($textoEncriptado);
+// Enviar request
+$response = Http::withHeaders([
+    'Content-Type' => 'application/json',
+    'Authorization' => 'Bearer ' . $token,
+
+    //----------añadio--------
+    'Accept' => 'application/json',
+    'User-Agent' => 'Laravel-Client',
+    //------------------------
+    'Cache-Control' => 'no-cache',
+
+])->post($link, [
+    'AccountId' => $user_1,
+    'actualAuthorizationId' => $passwordOriginal,
+    'newAuthorizationId' => $nuevo,
+]);
+
+
+
+if ($response->ok()) {
+     $data = $response->json();   
+   
+    $message = $data['message'];   
+
+
+    return response()->json([
+        'success' => $response->successful(),
+        'message' => $message,   
+        'body'    => $response->body(),
+        'json'    => $response->json()
+    ]);
+}else{
+     return response()->json([
+        'success' => $response->successful(),
+        'message' => 'Error desconocido al validar credenciales '.$sigla, 
+        'body'    => 'error',
+        'json'    => 'error'
+    ]);
+}
+
+    }
+        } catch (\Throwable $th) {
+         return $th;
+        }
+    }
+
+    private function opcion_1_1($id,$id_lista,$tipo){
           try {            
        // $id_lista=1;///-------------------revisar
     $query = $this->request_user($id);
@@ -99,6 +481,7 @@ $link = $query_2->url;
 $user_1 = $query->usuario_qr;
 $pass_1 = $query->contraseña_qr;
 $sigla = $query->sigla;
+$token_qr = $query->token_qr;
 
 // Quitar caracteres aleatorios
 $textoEncriptado = substr($pass_1, 2, -3);
@@ -122,8 +505,10 @@ $response = Http::withHeaders([
 
 
 if ($response->ok()) {
-    $data = $response->json();
-$message = $data['message'];
+     $data = $response->json();
+     $message = $data['message'];       
+    
+
     return response()->json([
         'success' => $response->successful(),
         'message' => $message,   
@@ -232,7 +617,7 @@ $message = $data['message'];
         "),
         'aqe.id_servicio',
         'aqe.tipo',
-        'aqe.id_servicio',
+      
         'aqe.activar'
 
     )
@@ -512,6 +897,97 @@ if ($existe) {
     ->where('activo', 1)
     ->get();
     return $bancos;
+    }
+
+    public function getNacionalidad(){
+        $datos = DB::table('adm__nacionalidads as na')        
+    ->where('na.activo',1)
+    ->leftJoin('users as u', 'na.id_usuario_modifica', '=', 'u.id')
+    ->select(
+        'na.id',
+        'na.nombre',
+        'na.activo',
+        'na.id_usuario_modifica',
+        'na.updated_at',
+        'na.pais',
+        'na.simbolo',
+        'na.codigo',
+        'u.name'
+    )
+    ->get();
+    return $datos;
+    }
+
+    public function getGlosa(){
+        $datos = DB::table('adm__qr_glosa')      
+    ->select(
+        'id',
+        'currency',
+        'tipoFecha',
+        'expirationDate',
+        'gloss',
+        'singleUse',
+        'additionalData',
+        'destinationAccountId'
+    )
+    ->where('id',1)
+    ->first();
+    return $datos;
+    }
+
+    public function updateQrGlosa (Request $request){  
+        try {
+            DB::beginTransaction(); 
+            $currency=$request->currency; 
+        $tipoFecha=(int)$request->tipoFecha; 
+        $gloss=$request->gloss;
+        $expirationDate=$request->expirationDate; // puede ser nullo
+        $singleUse=$request->singleUse;
+        if ($singleUse=="true") {
+            $singleUse=1;
+        } else {
+            $singleUse=0;
+        }
+        
+        $additionalData=$request->additionalData;
+        $destinationAccountId=(int)$request->destinationAccountId;  
+        $fecha = date('Y-m-d', strtotime($expirationDate));
+        if ($tipoFecha==1) {
+            
+             $datos = [
+                'currency' => $currency,
+                'tipoFecha' => $tipoFecha,
+                'gloss' => $gloss,
+                'expirationDate' => null,          
+               'singleUse' => $singleUse, 
+               'additionalData' => $additionalData, 
+               'destinationAccountId' => $destinationAccountId, 
+                
+            ];   
+        } else {
+            $fecha = date('Y-m-d', strtotime($expirationDate));
+            $datos = [
+                'currency' => $currency,
+                'tipoFecha' => $tipoFecha,
+                'gloss' => $gloss,
+                'expirationDate' => $fecha,          
+               'singleUse' => $singleUse, 
+               'additionalData' => $additionalData, 
+               'destinationAccountId' => $destinationAccountId, 
+                
+            ]; 
+        }
+        
+        
+        
+           $affected = DB::table('adm__qr_glosa')
+    ->where('id', 1)
+    ->update($datos);   
+             DB::commit();
+        return 0;
+        } catch (\Throwable $th) {
+            return $th;
+        }              
     }
 
     //$response = Http::withHeaders([

@@ -12,20 +12,23 @@
                 <div class="card-header">
                     <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
   <li class="nav-item">
-    <a class="nav-link " id="pills-credencial-tab" data-toggle="pill" href="#pills-credencial" role="tab" aria-controls="pills-credencial" aria-selected="false" @click="cambioPestañaInf(1,0,0);limpiar(0);">Credenciales QR</a>
+    <a class="nav-link " id="pills-credencial-tab" data-toggle="pill" href="#pills-credencial" role="tab" aria-controls="pills-credencial" aria-selected="false" @click="cambioPestañaInf(1,0,0,0);limpiar(0);">Credenciales QR</a>
   </li>
   <li class="nav-item">
-    <a class="nav-link" id="pills-lista-tab" data-toggle="pill" href="#pills-lista" role="tab" aria-controls="pills-lista" aria-selected="false" @click="cambioPestañaInf(0,1,0);listarQR();">Lista de QR</a>
+    <a class="nav-link" id="pills-lista-tab" data-toggle="pill" href="#pills-lista" role="tab" aria-controls="pills-lista" aria-selected="false" @click="cambioPestañaInf(0,1,0,0);listarQR();">Lista de QR</a>
   </li>
   <li class="nav-item">
-    <a class="nav-link" id="pills-endPoint-tab" data-toggle="pill" href="#pills-endPoint" role="tab" aria-controls="pills-endPoint" aria-selected="false" @click="cambioPestañaInf(0,0,1); listarQR();">End Points</a>
+    <a class="nav-link" id="pills-endPoint-tab" data-toggle="pill" href="#pills-endPoint" role="tab" aria-controls="pills-endPoint" aria-selected="false" @click="cambioPestañaInf(0,0,1,0); listarQR();">End Points</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" id="pills-qrDatos-tab" data-toggle="pill" href="#pills-qrDatos" role="tab" aria-controls="pills-qrDatos" aria-selected="false" @click="cambioPestañaInf(0,0,0,1);listarGlosa()">QR datos a enviar</a>
   </li>
 </ul>
                 </div>
         <div class="card-body">
             <div class="tab-content" id="pills-tabContent">
   <!------------------------------credencial------------------------------------------------------->
-  <div class="tab-pane fade" id="pills-credencial" role="tabpanel" aria-labelledby="pills-credencial-tab" v-show="show_1==1&&show_2==0&&show_3==0">
+  <div class="tab-pane fade" id="pills-credencial" role="tabpanel" aria-labelledby="pills-credencial-tab" v-show="show_1==1&&show_2==0&&show_3==0&&show_4==0">
 
     <div class="row">                              
         <div class="form-group col-sm-4" >
@@ -67,7 +70,7 @@
 
   </div>
   <!------------------------------lista------------------------------------------------------->
-  <div class="tab-pane fade" id="pills-lista" role="tabpanel" aria-labelledby="pills-lista-tab" v-show="show_1==0&&show_2==1&&show_3==0">
+  <div class="tab-pane fade" id="pills-lista" role="tabpanel" aria-labelledby="pills-lista-tab" v-show="show_1==0&&show_2==1&&show_3==0&&show_4==0">
      <table class="table table-bordered table-striped table-sm table-responsive" >
                 <thead>
                     <tr>       
@@ -215,7 +218,7 @@
     </table>    
   </div>
    <!------------------------------endpoints------------------------------------------------------->
-  <div class="tab-pane fade" id="pills-endPoint" role="tabpanel" aria-labelledby="pills-endPoint-tab" v-show="show_1==0&&show_2==0&&show_3==1">
+  <div class="tab-pane fade" id="pills-endPoint" role="tabpanel" aria-labelledby="pills-endPoint-tab" v-show="show_1==0&&show_2==0&&show_3==1&&show_4==0">
      <div class="card">
         <div class="card-header">End points</div>
             <div class="alert alert-info" role="alert">
@@ -230,7 +233,7 @@
                                             <option v-for="(i, index) in arrayQR" :key="index" :value="i.id">{{i.nom_servicio_qr+" - "+i.nombre}}</option>
                                     </select>
                                     </div>                            
-                                <div class="form-group col-sm-3" v-show="selectServicio!='0'">
+                                <div class="form-group col-sm-2" v-show="selectServicio!='0'">
                                     <label for="">Tipo:</label>
                                      <select  class="form-control"  v-model="selectModalidad" @change="cambioEstadoSelector()">
                                             <option value="0" disabled selected>Seleccionar...</option>
@@ -238,12 +241,12 @@
                                             <option value="2">Piloto</option>
                                     </select>
                                 </div>
-                                  <div class="form-group col-sm-1" v-show="selectModalidad!='0'" style="margin-top: 15px;">
+                                  <div class="form-group col-sm-3" v-show="selectModalidad!='0'" style="margin-top: 15px;">
                                     <button type="button" class="btn btn-primary" @click="abrirModal('registrar')">Crear</button>
-                                  </div>
-                                    <div class="form-group col-sm-1" v-show="selectModalidad!='0'" style="margin-top: 15px;">
-                                        <button type="button" class="btn btn-primary" @click="listar_endpoint_list()">Ver</button>
-                                    </div>                                
+                                     <button type="button" class="btn btn-info" style="color: white;" @click="listar_endpoint_list()">Ver</button>
+                                     <button type="button" class="btn btn-success" v-if="qr_estado_config==0" @click="activarFuncion(1)">Activar función</button>
+                                     <button type="button" class="btn btn-danger" v-else  @click="activarFuncion(0)">Desactivar función</button>
+                                  </div>                                                              
                         </div>
                           <table class="table table-bordered table-striped table-sm table-responsive" v-show="ver_v3==1">
                             <thead>
@@ -271,16 +274,26 @@
                                 </button> 
                                 </div>
                                 <div v-if="puedeActivar==1">
-                                <button type="button" class="btn btn-info btn-sm" style="margin-right: 5px; color: white;" @click="desactivar(i.id)" v-if="i.activar==1">
+                                <button type="button" class="btn btn-info btn-sm" style="margin-right: 5px; color: white;" @click="desactivar_1(i.id,0)" v-if="i.activar==1">
                                 <i class="fa fa-lightbulb-o" aria-hidden="true"></i>
                                 </button> 
-                                <button type="button" class="btn btn-danger btn-sm" style="margin-right: 5px;" @click="json_operation_1(i)" v-else>
+                                <button type="button" class="btn btn-danger btn-sm" style="margin-right: 5px;" @click="desactivar_1(i.id,1)" v-else>
                                 <i class="fa fa-lightbulb-o" aria-hidden="true"></i>
                                 </button> 
                                 </div>
                                 <div v-else>
                                 <button type="button" class="btn btn-light btn-sm" style="margin-right: 5px;">
                                 <i class="fa fa-lightbulb-o" aria-hidden="true"></i>
+                                </button> 
+                                </div>
+                                <div v-if="puedeHacerOpciones_especiales==1">
+                                <button type="button" class="btn btn-success btn-sm" style="margin-right: 5px; color: white;" @click="json_operation_1(i)">
+                                <i class="fa fa-connectdevelop" aria-hidden="true"></i>
+                                </button>                              
+                                </div>
+                                <div v-else>
+                                <button type="button" class="btn btn-light btn-sm" style="margin-right: 5px;">
+                                <i class="fa fa-connectdevelop" aria-hidden="true"></i>
                                 </button> 
                                 </div>
                                 
@@ -311,7 +324,79 @@
                         </table>
                     </div>
             </div>    
-        </div>   
+       
+        </div>  
+    <!------------------------------datos QR------------------------------------------------------->     
+          <div class="tab-pane fade" id="pills-qrDatos" role="tabpanel" aria-labelledby="pills-qrDatos-tab" v-show="show_1==0&&show_2==0&&show_3==0&&show_4==1">
+     <div class="card">
+        <div class="card-header">Datos de glosa</div>
+            <div class="alert alert-info" role="alert">
+                Recuerde que no debe haber ningun espacion datos de ejemplo nacionalidad ejemplo BOB, glosa ejempplo Prueba QR, en datos adcionales ejemplo Datos Adicionales para identificar el QR
+            </div>
+                <div class="card-body">    
+                                <div class="row">                                                                
+                                    <div class="form-group col-sm-3">
+                                        <label>Servicio:</label>
+                                     <select  class="form-control"  v-model="selectNacionalidad">
+                                            <option value="0" disabled selected>Seleccionar...</option>
+                                            <option v-for="(i, index) in arrayNacionalidad" :key="index" :value="i.codigo">{{i.pais+" - "+i.codigo}}</option>
+                                    </select> 
+                                    </div>
+                                    <div class="form-group col-sm-3">
+                                        <label>Glosa:</label>
+                                    <input type="text" class="form-control" v-model="glosa_enviar">    
+                                    </div>   
+                                    <div class="form-group col-sm-3">
+                                        <label>Rango:</label>
+                                        <select class="form-control" v-model="selectTipo_enviar">
+                                           <option value="0" disabled selected>Seleccionar...</option>
+                                           <option value="1" >Cada dia</option>
+                                           <option value="2" >Fecha específica</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group col-sm-3" style="margin-top: 20px;">
+                                        <div v-if="selectTipo_enviar==='0'">
+                                            <span>Sin datos...</span>
+                                        </div>
+                                        <div v-else-if="selectTipo_enviar==='1'">
+                                             <span>automaticamente se formateara la fecha con la fecha de la operación</span>
+                                        </div>
+                                        <div v-else>
+                                              <input type="date" class="form-control" v-model="fechaEnviar_2"> 
+                                        </div>                                      
+                                    </div>                                  
+                        </div>
+                         <div class="row">                                                                
+                                        <div class="form-group col-sm-2">
+                                            <label>Uso QR unico:</label>
+                                        <select class="form-control" v-model="selectUnicoQR">
+                                           <option value="0" disabled selected>Seleccionar...</option>
+                                           <option value="true" >Si</option>
+                                           <option value="false" >No</option>
+                                        </select>
+                                        </div>
+                                        <div class="form-group col-sm-6">
+                                            <label>Datos adicionales:</label>
+                                            <input type="text" class="form-control" v-model="datosAdicionalesEnviar">   
+                                        </div>
+                                         <div class="form-group col-sm-2">
+                                            <label>Posición:</label>
+                                            <select class="form-control" v-model="selectPosicion">
+                                           <option value="0" disabled selected>Seleccionar...</option>
+                                           <option value="1" >Nacional</option>
+                                           <option value="2" >Extranjera</option>
+                                        </select>
+                                         </div>
+                                        <div class="form-group col-sm-2">
+                                            <button type="button" class="btn btn-warning btn-lg btn-block"  style="color: white;margin-top: 22px;" @click="enviarQrDatos()">Actualizar</button>
+                                        </div>
+                                    </div>  
+                         
+                    </div>
+            </div>    
+       
+        </div> 
+        <!--------------------------------------------------------------------------------------------------------------->  
         </div> 
         </div>
             </div>   
@@ -399,6 +484,181 @@
       
       
     </transition>
+     
+          <!--Inicio del modal contraseña-->
+           <transition name="fade">
+            <div v-if="showModal_2" class="modal d-block" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-primary modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                        <h4 class="modal-title">{{ tituloModal }}</h4>
+                        <button type="button" class="close" @click="cerrarModal('registrar_2')">
+                            <span>&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="alert alert-warning" role="alert">
+    <span>
+        Todos los campos con (*) son requeridos.<br>
+        <strong>Nueva autorización Id</strong>. Este campo debe cumplir con ciertos requisitos
+        para considerarse una clave segura:
+        <ul>
+            <li>Mínimo debe tener un largo de 15 caracteres.</li>
+            <li>Debe contener por lo menos una letra.</li>
+            <li>Debe contener por lo menos un número.</li>
+            <li>
+                Debe contener por lo menos un caracter especial
+                (+, -, /, *, $, &lt;, &gt;, !, ¡, #, |, =)
+            </li>
+        </ul>
+    </span>
+</div>
+
+                        <form action="" class="form-horizontal">
+                        
+                            <!-- insertar datos -->
+                            <div class="container">
+                                
+                                <div class="form-group row">                                                                    
+                                    <div class="col-md-2">
+                                        <label>Descripción: </label>                                     
+                                    </div>
+                                    <div class="col-md-10">
+                                       <input type="text" class="form-control" v-model="input_2" placeholder="Contraseña">                                
+                                        <span  v-if="input_2==''" class="error">Debe llenar el dato</span> 
+                                    </div>
+                                </div>
+                                <div class="alert alert-danger" role="alert" v-show="mensajeError!=''||mensajeError==null">
+                                    <label for="">
+                                        {{mensajeError}}
+                                    </label>                                  
+                                </div>
+                           
+                            </div>
+                        </form>
+                    </div>
+                  
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" @click="cerrarModal('registrar_2')">
+                            Cerrar
+                        </button>
+                        <button type="button" v-if="tipoAccion == 1" class="btn btn-primary" @click="detecto_entradas()">
+                            Guardar
+                        </button>
+                      
+                    </div>
+                    </div>    
+                </div>
+            </div>      
+                  
+                   
+             
+      
+      
+    </transition>
+
+     <!--Inicio del modal consulta de datos-->
+           <transition name="fade">
+            <div v-if="showModal_3" class="modal d-block" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-primary modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                        <h4 class="modal-title">{{ tituloModal }}</h4>
+                        <button type="button" class="close" @click="cerrarModal('registrar_3')">
+                            <span>&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="alert alert-warning" role="alert">
+    <span>
+       Este servicio obtiene información de los QRs generados por la
+empresa en una fecha determinada.
+    </span>
+</div>
+
+                        <form action="" class="form-horizontal">
+                        
+                            <!-- insertar datos -->
+                            <div class="container">
+                                
+                                <div class="form-group row">                                                                    
+                                    <div class="col-md-2">
+                                        <label>Descripción: </label>                                     
+                                    </div>
+                                    <div class="col-md-3">
+                                       <input type="date" class="form-control" v-model="generationDate">                                
+                                        <span  v-if="generationDate==''" class="error">Debe llenar el dato</span> 
+                                    </div>
+                                </div>                               
+                            </div>
+                        </form>
+                    </div>
+                  
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" @click="cerrarModal('registrar_3')">
+                            Cerrar
+                        </button>
+                        <button type="button" v-if="tipoAccion == 1" class="btn btn-primary" @click="consultaDAtos()" :disabled="generationDate==null">
+                            Consultar
+                        </button>
+                      
+                    </div>
+                    </div>    
+                </div>
+            </div>     
+    </transition>
+ <!--Inicio del modal consulta de Estado QR-->
+           <transition name="fade">
+            <div v-if="showModal_4" class="modal d-block" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-primary modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                        <h4 class="modal-title">{{ tituloModal }}</h4>
+                        <button type="button" class="close" @click="cerrarModal('registrar_4')">
+                            <span>&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="alert alert-warning" role="alert">
+    <span>
+       Este servicio obtiene el estado de un QR según su identificador.
+    </span>
+   
+</div>
+
+                        <form action="" class="form-horizontal">
+                        
+                            <!-- insertar datos -->
+                            <div class="container">
+                                
+                                <div class="form-group row">                                                                    
+                                    <div class="col-md-2">
+                                        <label>id QR: </label>                                     
+                                    </div>
+                                    <div class="col-md-3">
+                                       <input type="number" class="form-control" v-model="idQR_consultar">                                
+                                        <span  v-if="idQR_consultar==''" class="error">Debe llenar el dato</span> 
+                                    </div>
+                                </div>                               
+                            </div>
+                        </form>
+                    </div>
+                  
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" @click="cerrarModal('registrar_4')">
+                            Cerrar
+                        </button>
+                        <button type="button" v-if="tipoAccion == 1" class="btn btn-primary" @click="consultaEstadoQR()" :disabled="idQR_consultar==null">
+                            Consultar
+                        </button>
+                      
+                    </div>
+                    </div>    
+                </div>
+            </div>     
+    </transition>
+
+
         <!--fin del modal-->
     </main>
 </template>
@@ -425,6 +685,7 @@ export default {
             show_1:0,
             show_2:0,
             show_3:0,
+            show_4:0,
 
             tituloModal: "",
             sucursalSeleccionada:0,
@@ -475,7 +736,35 @@ export default {
                                   { id: 7, nombre: 'Otro operacion'},
                                   { id: 8, nombre: 'Sin lista'}
                                 ],
-            selectServicio_v3:'0',                   
+            selectServicio_v3:'0',   
+            showModal_2 :false, 
+            isSubmitting_2 :false,
+            input_2:'',
+            mensajeError:'',
+            id_entrada:'',
+            id_servicio_entrada:'',
+            id_qr_simple_entrada:'',
+            tipo_entrada:'',
+            id_servicio_entrada:'',
+
+            arrayNacionalidad:[],
+            selectNacionalidad:'0',
+
+            selectTipo_enviar:'0', 
+            glosa_enviar:'',
+            fechaEnviar_2:'',
+            selectUnicoQR:'0',
+            datosAdicionalesEnviar:'',
+            selectPosicion:'0',
+
+            generationDate:'',
+            showModal_3:false,
+
+            idQR_consultar:'',
+            showModal_4:false,
+
+            qr_estado_config:0,
+                        
         };
     },
 
@@ -543,15 +832,101 @@ export default {
         });
 },
 
+ listarCredencial() {        
+    let me = this;       
+    var url = '/listar_config_siat_sis_v3';  
+    axios.get(url)
+        .then(function(response) {
+            var respuesta = response.data;  
+            me.qr_estado_config=(respuesta.config_sistema[0]).qr_in_uso;  
+           console.log(respuesta);
+            console.log(me.qr_estado_config);         
+        })
+        .catch(function(error) {
+            error401(error);       
+        });
+},
+
+activarFuncion(data){
+     let me=this;
+            var url = "/qr_simple/credencial_3";
+            axios  
+                .put(url,{                 
+                    data:data,
+                })
+                .then(function (response) {
+                    var respuesta = response.data;                  
+                     me.listarCredencial();
+                     if (respuesta==1) {
+                         Swal.fire("Funcion realizada.!","credencial activada","success");
+                     } else {
+                        Swal.fire("Funcion realizada.!","credencial desactivada","success");
+                     }  
+                                  
+                })
+                .catch(function (error) {
+                    error401(error);                
+                });
+},
+
 //-----------------solicitudes json--------------------------
 json_operation_1(data) {
             let me = this;
             me.ver_v3=1;
-            console.log("-------------------");
-            console.log(data);
-      // tipo selectServicio piloto o produccion
-       
-           var url = "/qr_simple/json_operation_1";
+            switch (data.id_servicio) {
+              
+                case 1:
+               return  me.enviarDatosArray(data);
+                         
+                case 2:
+                me.abrirModal('registrar_2',data);
+                me.id_entrada=data.id;
+                me.id_servicio_entrada=data.id_servicio;
+                me.id_qr_simple_entrada=data.id_qr_simple;
+                me.tipo_entrada=data.tipo;
+                me.input_2=""; 
+                break;
+                case 3:
+                return  me.enviarDatosArray(data);
+                case 4:
+                me.abrirModal('registrar_3',data);
+                me.id_entrada=data.id;
+                me.id_servicio_entrada=data.id_servicio;
+                me.id_qr_simple_entrada=data.id_qr_simple;
+                me.tipo_entrada=data.tipo;
+
+                me.generationDate=""; 
+                break;
+
+                case 5:
+                me.abrirModal('registrar_4',data);
+                me.id_entrada=data.id;
+                me.id_servicio_entrada=data.id_servicio;
+                me.id_qr_simple_entrada=data.id_qr_simple;
+                me.tipo_entrada=data.tipo;
+
+                me.idQR_consultar=""; 
+                break;               
+                case 6:
+                me.abrirModal('registrar_4',data);
+                me.id_entrada=data.id;
+                me.id_servicio_entrada=data.id_servicio;
+                me.id_qr_simple_entrada=data.id_qr_simple;
+                me.tipo_entrada=data.tipo;
+
+                me.idQR_consultar=""; 
+                break;  
+
+            
+                default:
+                    break;
+            }
+            
+        },
+
+        enviarDatosArray(data){
+            let me=this;
+            var url = "/qr_simple/json_operation_1";
             axios  
                 .put(url,{
                     id:data.id,
@@ -561,10 +936,7 @@ json_operation_1(data) {
                     id_servicio:data.id_servicio
                 })
                 .then(function (response) {
-                    var respuesta = response.data;
-                    console.log("******");
-                     console.log(respuesta);  
-                     console.log(respuesta.success);
+                    var respuesta = response.data;                  
                      me.listar_endpoint_list();
                     if (respuesta.success==true) {                       
                         Swal.fire("Correcto.!",respuesta.message,"success");
@@ -578,28 +950,231 @@ json_operation_1(data) {
                 });
         },
 
-//-----------------pestaña listar,editar,activar,desactivar---------------------
+         listarGlosa() {
+            let me = this;
+            me.ver_v3=1;
+           var url = "/qr_simple/listarGlosa";
+            axios  
+                .get(url)
+                .then(function (response) {
+                    var respuesta = response.data; 
+                    if (respuesta.id==null) {
+                        me.selectNacionalidad="0";
+        me.selectTipo_enviar="0"; 
+        me.glosa_enviar="";
+        me.fechaEnviar_2="";
+        me.selectUnicoQR="0";
+        me.datosAdicionalesEnviar="";
+        me.selectPosicion="0";
+                    }else{
+                        me.selectNacionalidad=respuesta.currency;
+                        if (respuesta.tipoFecha==1) {
+                             me.selectTipo_enviar="1";
+                             me.fechaEnviar_2=""; 
+                        } else {
+                            me.selectTipo_enviar=respuesta.tipoFecha; 
+                             me.fechaEnviar_2=respuesta.expirationDate; 
+                        }
+       
+        me.glosa_enviar=respuesta.gloss;
+                        if (respuesta.singleUse==1) {
+                            me.selectUnicoQR="true";
+                        } else {
+                            me.selectUnicoQR="false";
+                        }
+        
+        me.datosAdicionalesEnviar=respuesta.additionalData;
+        me.selectPosicion=respuesta.destinationAccountId;
+                    }           
+                })
+                .catch(function (error) {
+                    error401(error);                
+                });
+        },
 
-desactivar(id){   
-    console.log(id); 
-            let me = this;                 
-                 axios.post("/qr_simple/desactivar_po", {
-                    id:id,                    
+      actulizarQrDatos(){
+        let me = this;
+
+        me.selectNacionalidad="0";
+        me.selectTipo_enviar="0"; 
+        me.glosa_enviar="";
+        me.fechaEnviar_2="";
+        me.selectUnicoQR="0";
+        me.datosAdicionalesEnviar="";
+        me.selectPosicion="0";
+      },  
+
+      enviarQrDatos(){    
+            let me = this;  
+            
+            if ( me.selectNacionalidad=="0" || me.selectTipo_enviar=="0" ||  me.glosa_enviar=="" || me.selectUnicoQR=== '0' ||
+                me.datosAdicionalesEnviar=="" || me.selectPosicion=="0"
+            ) {   
+
+            Swal.fire("Error", "Registro nullo o vacio","error");
+            } else {     
+                    if (me.selectTipo_enviar=="2"&&me.fechaEnviar_2=="") {
+                    Swal.fire("Error", "dato de fecha nullo","error");    
+                } else {
+                    axios.put("/qr_simple/editarQrGlosa", {
+                    currency :me.selectNacionalidad,
+                    tipoFecha:me.selectTipo_enviar, 
+        gloss:me.glosa_enviar,
+        expirationDate:me.fechaEnviar_2,// puede ser nullo
+        singleUse:me.selectUnicoQR,
+        additionalData:me.datosAdicionalesEnviar,
+        destinationAccountId:me.selectPosicion                     
                 })
                 .then(function (response) {                  
                     let respuesta=response.data;
-                    me.listar_endpoint_list();
-                    console.log(respuesta);
-                                                                                    
+                    me.listarGlosa();
+                    if (respuesta===0) {
+                         Swal.fire("Registro actualizado!","Correctamente","success");
+
+                    } else {
+                         Swal.fire("Error:",respuesta,"error");
+                    }                                                                   
                 })                
                 .catch(function (error) {
                     error401(error);
-                });   
-                                   
+                }); 
+                }    
+            }                         
         },
 
-desactivar_1(id) {
+//-----------------pestaña listar,editar,activar,desactivar---------------------
+
+detecto_entradas(){
+    let me=this;  
+    let valor=me.input_2;  
+    let error=0;
+    // Longitud mínima
+      if (valor.length < 15) {        
+        me.mensajeError="Debe tener al menos 15 caracteres.";
+        error=1;
+    }
+
+      // Al menos una letra
+      if (!/[a-zA-Z]/.test(valor)) {
+        me.mensajeError="Debe contener al menos una letra.";
+    error=1;  
+    }
+
+      // Al menos un número
+      if (!/[0-9]/.test(valor)) {
+        me.mensajeError="Debe contener al menos un número.";
+    error=1;  
+    }
+
+      // Al menos un carácter especial permitido
+      if (!/[+\-\/\*\$<>!¡#\|=]/.test(valor)) {
+         me.mensajeError="Debe contener al menos un carácter especial (+, -, /, *, $, <, >, !, ¡, #, |, =).";        
+      error=1;
+        }
+        if (error==0) {
+           me.mensajeError="Correcto...";  
+           var url = "/qr_simple/json_operation_1";
+            axios  
+                .put(url,{
+                    id:me.id_entrada,
+                    opc:me.id_servicio_entrada,
+                    id_qr_simple:me.id_qr_simple_entrada,
+                    tipo:me.tipo_entrada,
+                    id_servicio: me.id_servicio_entrada,
+                    nuevo:valor
+
+                })
+                .then(function (response) {
+                    var respuesta = response.data;
+                   
+                     me.listar_endpoint_list();
+                     me.cerrarModal('registrar_2');
+                    if (respuesta.success==true) {                       
+                        Swal.fire("Correcto.!",respuesta.message,"success");
+                    }else{
+                        Swal.fire("Error",respuesta.message,"error"); 
+                    }    
+                                  
+                })
+                .catch(function (error) {
+                    error401(error);                
+                }); 
+        }
+},
+
+consultaEstadoQR(){
+    let me=this;    
+        var url = "/qr_simple/json_operation_1";
+            axios.put(url,{
+                    id:me.id_entrada,
+                    opc:me.id_servicio_entrada,
+                    id_qr_simple:me.id_qr_simple_entrada,
+                    tipo:me.tipo_entrada,
+                    id_servicio: me.id_servicio_entrada,
+                    qrId:me.idQR_consultar
+
+                })
+                .then(function (response) {
+                    var respuesta = response.data;
+                   
+                     me.listar_endpoint_list();
+                     me.cerrarModal('registrar_4');
+                    if (respuesta.success==true) {                       
+                        Swal.fire("Correcto.!",respuesta.message,"success");
+                    }else{
+                        Swal.fire("Error",respuesta.message,"error"); 
+                    }    
+                                  
+                })
+                .catch(function (error) {
+                    error401(error);                
+                });         
+},
+
+consultaDAtos(){
+    let me=this;    
+        var url = "/qr_simple/json_operation_1";
+            axios.put(url,{
+                    id:me.id_entrada,
+                    opc:me.id_servicio_entrada,
+                    id_qr_simple:me.id_qr_simple_entrada,
+                    tipo:me.tipo_entrada,
+                    id_servicio: me.id_servicio_entrada,
+                    generationDate:me.generationDate
+
+                })
+                .then(function (response) {
+                    var respuesta = response.data;
+                
+                     me.listar_endpoint_list();
+                     me.cerrarModal('registrar_3');
+                    if (respuesta.success==true) {                       
+                        Swal.fire("Correcto.!",respuesta.message,"success");
+                    }else{
+                        Swal.fire("Error",respuesta.message,"error"); 
+                    }    
+                                  
+                })
+                .catch(function (error) {
+                    error401(error);                
+                });         
+},
+
+desactivar_1(id,data) {
             let me = this;
+            let a;
+            let b;
+            let c;
+            if (data==1) {
+                a="Esta Seguro de Desactivar";
+                b="Es una eliminacion logica";
+                c="desactivado";
+
+            } else {
+                a="Esta Seguro de Activar";
+                b="Es una activación logica";                
+                c="activado";
+            }
            
             const swalWithBootstrapButtons = Swal.mixin({
                 customClass: {
@@ -611,8 +1186,8 @@ desactivar_1(id) {
 
             swalWithBootstrapButtons
                 .fire({
-                    title: "Esta Seguro de Desactivar?",
-                    text: "Es una eliminacion logica",
+                    title: a,
+                    text: b,
                     icon: "warning",
                     showCancelButton: true,
                     confirmButtonText: "Si, Desactivar",
@@ -623,14 +1198,15 @@ desactivar_1(id) {
                     if (result.isConfirmed) {
                         axios
                             .put("/qr_simple/desactivar_po", {
-                                'id': id,                                
+                                'id': id,  
+                                'contador':data                              
                             })
                             .then(function (response) {
-                                console.log(response.data);
+               
                                me.listar_endpoint_list();
                                 swalWithBootstrapButtons.fire(
-                                    "Desactivado!",
-                                    "El registro a sido desactivado Correctamente",
+                                    c,
+                                    "El registro a sido "+c+" Correctamente",
                                     "success",
                                 );                            
                             })
@@ -674,8 +1250,7 @@ cambioEstadoSelector(){
                 .get(url)
                 .then(function (response) {
                     var respuesta = response.data;
-                    me.arrayEndPoint_list = respuesta;
-                    console.log(me.arrayEndPoint_list);                 
+                    me.arrayEndPoint_list = respuesta;                
                 })
                 .catch(function (error) {
                     error401(error);                
@@ -712,7 +1287,7 @@ crearEndPoints(){
                 })
                 .then(function (response) {                  
                     let respuesta=response.data;
-                    console.log(respuesta);
+             
                     me.descripcion_endpoint="";
                     me.url_endpoint="";
                     me.version_endpoint="";
@@ -766,7 +1341,7 @@ crearEndPoints(){
                 })
                 .then(function (response) {                  
                     let respuesta=response.data;
-                    console.log(respuesta);
+               
                     me.descripcion_endpoint="";
                     me.url_endpoint="";
                     me.version_endpoint="";
@@ -812,7 +1387,7 @@ editarServicioQr(){
                 })
                 .then(function (response) {                  
                     let respuesta=response.data;
-                    console.log(respuesta);
+
                    me.listarQR(0);
                     if (respuesta===0) {
                          Swal.fire("Registro actualizado!","Correctamente","success");
@@ -838,15 +1413,12 @@ limpiar(){
 },
 
 actualizarPorId(data,data2){
-    let me=this; 
-  
-    console.log(data2);   
+    let me=this;  
   const expanded = event.currentTarget.getAttribute('aria-expanded');
      
     // expanded es string: "true" o "false"
     if (expanded=='false') {
      me.valorador_1=1;
-        console.log(data);
         me.nomServicio=data.nom_servicio_qr;
         me.url_=data.url_banco_servicio;
         me.usuario_="";
@@ -857,8 +1429,7 @@ actualizarPorId(data,data2){
     }else{
         me.valorador_1=0;
 
-    }
-    console.log( expanded);  
+    }  
 },
 
 activar_desactivarPri(id,puntero){
@@ -998,9 +1569,7 @@ activar_desactivar(id,puntero){
                 .get(url)
                 .then(function (response) {
                     var respuesta = response.data;
-                    me.arrayQR = respuesta;
-                    console.log(me.arrayQR);
-                 
+                    me.arrayQR = respuesta;                 
                 })
                 .catch(function (error) {
                     error401(error);                
@@ -1028,7 +1597,6 @@ activar_desactivar(id,puntero){
                 })
                 .then(function (response) {                  
                     let respuesta=response.data;
-                    console.log(respuesta);
                     me.nomServicio="";
                     me.usuario_="";
                     me.contraseña_="";
@@ -1050,20 +1618,15 @@ activar_desactivar(id,puntero){
 
         seleccionBanco_data(id){
             let me=this;
-            const banco = me.arrayBanco.find(e => e.id === id);
-            if (banco) {
-            console.log("existe");
-            console.log("nombre:", banco.nombre);        
-            } else {
-            console.log("no existe");
-            }
+            const banco = me.arrayBanco.find(e => e.id === id);            
          },
 
-        cambioPestañaInf(data_1,data_2,data_3){
+        cambioPestañaInf(data_1,data_2,data_3,data_4){
             let me=this;
             me.show_1=data_1;
             me.show_2=data_2;
             me.show_3=data_3;
+            me.show_4=data_4;
             me.selectModalidad="0";
             me.selectServicio="0";
         },
@@ -1096,9 +1659,24 @@ activar_desactivar(id,puntero){
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
+
+
+         listarNacionalidad() {
+            let me = this;         
+           var url = "/qr_simple/listarNacionalidad";
+            axios
+                .get(url)
+                .then(function (response) {
+                    var respuesta = response.data;
+                    me.arrayNacionalidad = respuesta;                 
+                })
+                .catch(function (error) {
+                    error401(error);
+                });
+        },
+        
 
         cambiarPestana(idPestana) {
             this.pestañaActiva = idPestana;
@@ -1139,7 +1717,7 @@ activar_desactivar(id,puntero){
                 case "actualizar": {
                     me.tipoAccion = 2;
                     me.tituloModal = "Actualizar endpoints";
-                   console.log(data);
+             
                    me.descripcion_endpoint=data.descripcion;
                     me.url_endpoint=data.url;
                     me.version_endpoint=data.version;
@@ -1148,6 +1726,42 @@ activar_desactivar(id,puntero){
           me.showModal = true;
             
                     me.classModal.openModal("registrar");
+
+                    break;
+                }
+
+                case "registrar_2": {
+                    me.tipoAccion = 1;                
+                   me.showModal_2 = true;
+me.tituloModal = "Cambio de contraseña";
+me.isSubmitting_2 =false;
+me.input_2=""; 
+me.mensajeError="";            
+                    me.classModal.openModal("registrar_2");
+                    break;
+                }
+
+                case "registrar_3": {
+                    me.tipoAccion = 1;
+                    me.tituloModal = "Consulta de datos";
+               me.generationDate="";
+                 me.showModal_3 = true;
+                    me.classModal.openModal("registrar_3");
+
+                    break;
+                }
+                case "registrar_4": {
+                    me.tipoAccion = 1;
+                    if (data.id_servicio==5) {
+                       me.tituloModal = "Consulta de estado de QR"; 
+                    } else {
+                        me.tituloModal = "Eliminar QR"; 
+                    }
+                    
+                    
+               me.idQR_consultar=0;
+                 me.showModal_4 = true;
+                    me.classModal.openModal("registrar_4");
 
                     break;
                 }
@@ -1177,6 +1791,34 @@ activar_desactivar(id,puntero){
              me.isSubmitting=false;   
            
             }
+
+            if (accion=="registrar_2") {
+                me.classModal.closeModal(accion);
+                me.showModal_2 = false;
+                me.tituloModal = "Cambio de contraseña";
+                me.isSubmitting_2 =false;
+                me.input_2=""; 
+                me.mensajeError="";
+
+                me.id_entrada="";
+                me.id_servicio_entrada="";
+                me.id_qr_simple_entrada="";
+                me.tipo_entrada="";
+                me.id_servicio_entrada="";
+            }
+
+            if (accion=="registrar_3") {
+                me.tituloModal = "Consulta de datos";
+                me.generationDate="";
+                 me.showModal_3 = false;                
+            }
+
+             if (accion=="registrar_4") {
+                me.tituloModal = "Consulta de estado QR";
+                me.generationDate="";
+                 me.showModal_4 = false;                
+            }
+
         },
 
      
@@ -1194,9 +1836,12 @@ activar_desactivar(id,puntero){
         this.fecha_inicial();
         this.listarPerimsoxyz();
         this.listarbanco();
+        this.listarNacionalidad();
         this.classModal.addModal("registrar");
-    
-    
+        this.classModal.addModal("registrar_2");
+        this.classModal.addModal("registrar_3");  
+        this.classModal.addModal("registrar_4");  
+        this.listarCredencial();      
     },
 };
 </script>

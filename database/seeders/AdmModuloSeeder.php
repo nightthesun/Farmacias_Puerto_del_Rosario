@@ -27,6 +27,9 @@ class AdmModuloSeeder extends Seeder
         DB::table('adm__modulos')->insert(['nombre'=>'Logistica','nombre_icono'=>'fa fa-truck']);
         DB::table('adm__modulos')->insert(['nombre'=>'Directorio','nombre_icono'=>'fa fa-truck']);
         DB::table('adm__modulos')->insert(['nombre'=>'Ventas','nombre_icono'=>'fa fa-shopping-cart']);
+        DB::table('adm__modulos')->insert(['nombre'=>'Caja','nombre_icono'=>'fa fa-cube']);
+        DB::table('adm__modulos')->insert(['nombre'=>'Compras','nombre_icono'=>'fa fa-bar-chart']);
+        DB::table('adm__modulos')->insert(['nombre'=>'Siat','nombre_icono'=>'fa fa-codepen']);
       
     }
 }

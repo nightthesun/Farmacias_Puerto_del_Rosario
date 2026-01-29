@@ -14,7 +14,7 @@ class AdmNacionalidadSeeder extends Seeder
      */
     public function run()
     {
-        DB::table('adm__nacionalidads')->insert(['nombre'=>'boliviano','pais'=>'Bolivia','simbolo'=>'Bs']);
+        DB::table('adm__nacionalidads')->insert(['nombre'=>'boliviano','pais'=>'Bolivia','simbolo'=>'Bs','codigo'=>'BOB']);
         DB::table('adm__nacionalidads')->insert(['nombre'=>'peruano','pais'=>'Peru','simbolo'=>'S/']);
         DB::table('adm__nacionalidads')->insert(['nombre'=>'argentino','pais'=>'Argentina','simbolo'=>'$']);
         DB::table('adm__nacionalidads')->insert(['nombre'=>'chileno','pais'=>'Chile','simbolo'=>'$']);

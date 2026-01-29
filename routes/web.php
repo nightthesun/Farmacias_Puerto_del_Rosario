@@ -366,7 +366,11 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/qr_simple/crearEndpoint', [AdmQrSimpleController::class, 'create_enpoint']); 
     Route::get('/qr_simple/listar_endpoint', [AdmQrSimpleController::class, 'get_endpoint_lister']);   
     Route::post('/qr_simple/actualizarEndpoint', [AdmQrSimpleController::class, 'edit_enpoint']); 
-    Route::post('/qr_simple/desactivar_po', [AdmQrSimpleController::class, 'desactivate_p']);  
+    Route::put('/qr_simple/desactivar_po', [AdmQrSimpleController::class, 'desactivate_p']);
+    Route::get('/qr_simple/listarNacionalidad', [AdmQrSimpleController::class, 'getNacionalidad']);  
+    Route::get('/qr_simple/listarGlosa', [AdmQrSimpleController::class, 'getGlosa']); 
+    Route::put('/qr_simple/editarQrGlosa', [AdmQrSimpleController::class, 'updateQrGlosa']); 
+    Route::put('/qr_simple/credencial_3', [AdmQrSimpleController::class, 'updateCredencial']);            
     
     //----------------------------------operacion QR json 
     Route::put('/qr_simple/json_operation_1', [AdmQrSimpleController::class, 'jsonOperacion_1']);    
