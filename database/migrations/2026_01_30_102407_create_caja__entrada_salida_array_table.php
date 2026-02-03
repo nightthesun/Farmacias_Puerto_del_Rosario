@@ -10,8 +10,8 @@ return new class extends Migration
      * Run the migrations.
      */
     public function up(): void
-    {
-        Schema::create('caja__entrada_salida_array', function (Blueprint $table) {
+    {      
+         Schema::create('caja__entrada_salida_array', function (Blueprint $table) {
             $table->smallInteger('id_arqueo');
             $table->smallInteger('id_moneda');
             $table->integer('cantidad');   
@@ -24,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('caja__entrada_array');
+        Schema::dropIfExists('caja__entrada_salida_array');
     }
 };

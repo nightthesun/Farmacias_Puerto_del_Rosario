@@ -2,18 +2,16 @@
 
 namespace Database\Seeders;
 
-use App\Models\Prod_Categoria;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
+
 class DatabaseSeeder extends Seeder
 {
-    /**
-     * Seed the application's database.
-     *
-     * @return void
-     */
-    public function run()
+    public function run(): void
     {
+        $this->command->info('=== INICIANDO SEEDERS ===');
+
         $this->truncateTables([
             'adm__rubros',
             'adm__sucursals',
@@ -35,42 +33,81 @@ class DatabaseSeeder extends Seeder
             'adm__bancos',
             'prod__categorias',
             'prod__tipo_descuentos',
-            'par__desc_servicios'
+            'par__desc_servicios',
+            'adm__qr_glosa',
+            'adm__credecial_correos',
+            'auto__sincronizacion',
+            'caja__monedas',
+            'dir__tipo_doc',
+            'excel__emision',
+            'log__config_gestion_stock',
+            'log__config_traspaso',
+            'log__sincro_ges_stock',
+            'par_tipo_tabla',
+            'siat__catalogo',
+            'siat__configuracions',
+            'siat__endpoints',
+            'ven_metodo_pago',
         ]);
-        
-        $this->call(AdmRubroSeeder::class);
-        $this->call(AdmSucursalSeeder::class);
-        $this->call(RrhUnidadOrganizacionalSeeder::class);
-        $this->call(RrhCargoSeeder::class);
-        $this->call(RrhFormacionSeeder::class);
-        $this->call(RrhProfesionSeeder::class);
-        $this->call(RrhEmpleadoSeeder::class);
-        $this->call(AdmModuloSeeder::class);
-        $this->call(AdmVentanaModuloSeeder::class);
-        $this->call(AdmAccionVentanaSeeder::class);
-        $this->call(AdmRoleSeeder::class);
-        $this->call(AdmRoleAccionSeeder::class);
-        $this->call(UsersSeeder::class);
-        $this->call(AdmUserRoleSucursalSeeder::class);
-        $this->call(AdmDepartamentoSeeder::class);
-        $this->call(AdmNacionalidadSeeder::class);
-        $this->call(AdmCiudadSeeder::class);
-        $this->call(AdmBancoSeeder::class);
-        $this->call(ProdCategoriaSeeder::class);
-        $this->call(ProdFormaUnidadMedidaSeeder::class);
-        $this->call(ProdTipoDescuentSeeder::class);
-        $this->call(ParDescServiciosSeeder::class);
-        $this->call(ProdTipoEntradasSeeder::class);
 
-        
-    }
-    protected function truncateTables(array $tables)
-    {
-        DB::statement('SET FOREIGN_KEY_CHECKS =0');
-
-        foreach($tables as $table)
-        {
-            DB::table($table)->truncate(); // para vaciar la tabla
+        $seeders = [
+            AdmRubroSeeder::class,
+            AdmSucursalSeeder::class,
+            RrhUnidadOrganizacionalSeeder::class,
+            RrhCargoSeeder::class,
+            RrhFormacionSeeder::class,
+            RrhProfesionSeeder::class,
+            RrhEmpleadoSeeder::class,
+            AdmModuloSeeder::class,
+            AdmVentanaModuloSeeder::class,
+            AdmAccionVentanaSeeder::class,
+            AdmRoleSeeder::class,
+            AdmRoleAccionSeeder::class,
+            UsersSeeder::class,
+            AdmUserRoleSucursalSeeder::class,
+            AdmDepartamentoSeeder::class,
+            AdmNacionalidadSeeder::class,
+            AdmCiudadSeeder::class,
+            AdmBancoSeeder::class,
+            ProdCategoriaSeeder::class,
+            ProdFormaUnidadMedidaSeeder::class,
+            ProdTipoDescuentSeeder::class,
+            ParDescServiciosSeeder::class,
+            ProdTipoEntradasSeeder::class,
+            AdmConfigQrGlosaSeeder::class,
+            AdmCredencialCorreoSeeder::class,
+            AutoSincronizacionSeeder::class,
+            CajaMonedaSeeder::class,
+            DirTipoDocumentoSeeder::class,
+            ExcelEmisionSeeder::class,
+            LogConfigGestionStockSeeder::class,
+            LogConfigTraspasoSeeder::class,
+            LogSincroGesstockSeeder::class,
+            ParTipoTabla::class,
+            SiatCatalogoSeeder::class, 
+            SiatConfiguracion::class,
+            SiatEndpontSeeder::class, 
+            VenMetodoPagoSeeder::class,
+        ];
+ 
+        foreach ($seeders as $seeder) {
+            $this->command->info("→ Ejecutando {$seeder}");
+            $this->call($seeder);
         }
+
+        $this->command->info('=== SEEDERS COMPLETADOS ===');
+    }
+
+    protected function truncateTables(array $tables): void
+    {
+        DB::statement('SET FOREIGN_KEY_CHECKS=0');
+
+        foreach ($tables as $table) {
+            if (Schema::hasTable($table)) {
+                DB::table($table)->truncate();
+            }
+        }
+
+        DB::statement('SET FOREIGN_KEY_CHECKS=1');
     }
 }

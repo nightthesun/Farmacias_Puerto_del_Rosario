@@ -322,7 +322,6 @@ import { error401 } from '../../errores';
         methods :{
  //-----------------------------------permisos_R_W_S        
  listarPerimsoxyz() {
-                //console.log(this.codventana);
     let me = this;
    
         
@@ -347,7 +346,6 @@ import { error401 } from '../../errores';
         })
         .catch(function(error) {
             error401(error);
-            console.log(error);
         });
 },
 //--------------------------------------------------------------  
@@ -368,7 +366,6 @@ import { error401 } from '../../errores';
                 })
                 .catch(function(error){
                     error401(error);
-                    console.log(error);
                 });
             },
 
@@ -379,7 +376,7 @@ import { error401 } from '../../errores';
                 .then(function(response){
                     var respuesta=response.data;
                     me.pagination=respuesta.pagination;
-                    me.arraySucursales=respuesta.sucursales.data;
+                    me.arraySucursales=respuesta.sucursalesPaginated.data;
                     let resp=me.arraySucursales.find(element=>element.tipo=='Casa_Matriz');
                     if(resp!= undefined)
                     {
@@ -442,7 +439,6 @@ import { error401 } from '../../errores';
                     me.listarSucursales();
                 }).catch(function(error){
                     error401(error);
-                    console.log(error);
                 }).finally(() => {
           me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
         });
@@ -481,7 +477,6 @@ import { error401 } from '../../errores';
                         
                     }).catch(function (error) {
                         error401(error);
-                        console.log(error);
                     });
                 } else if (
                     /* Read more about handling dismissals below */
@@ -525,7 +520,6 @@ import { error401 } from '../../errores';
                         )
                     }).catch(function (error) {
                         error401(error);
-                        console.log(error);
                     });
                     
                     
@@ -639,7 +633,6 @@ import { error401 } from '../../errores';
                 })
                 .catch(function(error){
                     error401(error);
-                    console.log(error);
                 });
             },
         },
@@ -654,7 +647,7 @@ import { error401 } from '../../errores';
             this.selectDepartamentos();
             this.classModal = new _pl.Modals();
             this.classModal.addModal('registrar');
-            //console.log('Component mounted.')
+         
         }
     }
 </script>

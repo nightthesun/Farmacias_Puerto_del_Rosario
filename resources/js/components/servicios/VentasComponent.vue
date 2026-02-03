@@ -384,7 +384,7 @@ import { error401 } from '../../errores';
                 me.idprestaciones=[];
                 me.idprestaciones=me.arrayPrestaciones.find(element=>element.id==me.prestacionselected);
                 me.siprestacion=1;
-                //console.log(me.idprestaciones);
+   
 
             },
             selectCli(){
@@ -392,7 +392,7 @@ import { error401 } from '../../errores';
                 me.idclientes=[];
                 me.idclientes=me.arrayClientes.find(element=>element.id==me.clienteselected);
                 me.sicliente=1;
-                //console.log(me.idprestaciones);
+              
 
             },
             abrirModalClientes(){
@@ -424,12 +424,12 @@ import { error401 } from '../../errores';
                     if(me.descuentoSelected!=0)
                     {
                         let respuesta=me.arrayDescuentos.find(element=>element.id==me.descuentoSelected);
-                        //console.log(respuesta)
+                     
                         let descuento = respuesta.monto;
                         let siporcentaje=respuesta.siporcentaje;
                         let precio=Number(me.idprestaciones.precio);
 
-                        //console.log(precio,descuento);
+                    
                         if(siporcentaje)
                             me.preciofinal=Number(precio-(precio*(descuento/100)).toFixed(2));
                         else
@@ -480,29 +480,29 @@ import { error401 } from '../../errores';
                 for (const key in prestaciones) {
                     if (prestaciones.hasOwnProperty(key)) {
                         const element = prestaciones[key];
-                        //console.log(element);
+                      
                         this.idprestaciones.push(element);
                     }
                 }
                 me.preciofinal=this.idprestaciones.precio;
-                //console.log(this.idprestaciones);
+       
             },
             clientes(clientes){
                 this.idcientes=[];
                 for (const key in clientes) {
                     if (clientes.hasOwnProperty(key)) {
                         const element = clientes[key];
-                        //console.log(element);
+                     
                         this.idclientes.push(element);
                     }
                 }
-                //console.log(this.idprestaciones);
+            
             },
             cleanprestaciones(){
                 this.idprestaciones=[];
                 this.descuentoSelected=0;
-                //this.idempleadorespuesta=0;
-            //console.log('clean')
+   
+
             
             },
             cleanclientes(){
@@ -515,14 +515,14 @@ import { error401 } from '../../errores';
                 var url='/ventas/listar';
                 axios.get(url).then(function(response){
                     var respuesta=response.data;
-                    //console.log(respuesta);
+            
                     me.arrayVentas=respuesta.ventas;
                     me.sumatotal=respuesta.sumatotal;
                     me.restartotal();
                 })
                 .catch(function(error){
                     error401(error);
-                    console.log(error);
+         
                 });
 
             },
@@ -536,7 +536,7 @@ import { error401 } from '../../errores';
                 })
                 .catch(function(error){
                     error401(error);
-                    console.log(error);
+               
                 });
             },
 
@@ -548,11 +548,11 @@ import { error401 } from '../../errores';
                 axios.get(url).then(function(response){
                     var respuesta=response.data;
                     me.arrayPresAutocomplete=respuesta;
-                    console.log(me.arrayPresAutocomplete);
+              
                 })
                 .catch(function(error){
                     error401(error);
-                    console.log(error);
+             
                 });
                 }
                 
@@ -567,7 +567,7 @@ import { error401 } from '../../errores';
                 })
                 .catch(function(error){
                     error401(error);
-                    console.log(error);
+              
                 });
             },
             selectDescuentos(){
@@ -579,7 +579,7 @@ import { error401 } from '../../errores';
                 })
                 .catch(function(error){
                     error401(error);
-                    console.log(error);
+             
                 });
             },
             cambiarPagina(page){
@@ -607,7 +607,7 @@ import { error401 } from '../../errores';
                     me.listarVenta();
                 }).catch(function(error){
                     error401(error);
-                    console.log(error);
+                
                 });
 
             },
@@ -630,8 +630,7 @@ import { error401 } from '../../errores';
                     }).then(function (response) {
                         if(response.data=='correcto')
                         {
-                            console.log("///////////////");
-                            console.log(response);
+                       
 
                             Swal.fire('Registrado Correctamente');
                             me.listarVenta();
@@ -651,7 +650,7 @@ import { error401 } from '../../errores';
                         
                     }).catch(function (error) {
                         error401(error);
-                        console.log(error);
+                    
                     });
 
             },
@@ -666,7 +665,7 @@ import { error401 } from '../../errores';
                     'telefono':me.telefono,
 
                     }).then(function (response) {
-                        //console.log(response);
+               
                         if(response.data)
                         {
                             me.clearSelected1=0;
@@ -680,13 +679,13 @@ import { error401 } from '../../errores';
                         
                     }).catch(function (error) {
                         error401(error);
-                        console.log(error);
+              
                     });
 
             },
             eliminarVenta(idventa){
                 let me=this;
-                //console.log("prueba");
+          
                 const swalWithBootstrapButtons = Swal.mixin({
                 customClass: {
                     confirmButton: 'btn btn-success',
@@ -717,7 +716,7 @@ import { error401 } from '../../errores';
                         
                     }).catch(function (error) {
                         error401(error);
-                        console.log(error);
+                  
                     });
                     
                     
@@ -752,7 +751,7 @@ import { error401 } from '../../errores';
             this.classModal = new _pl.Modals();
             this.classModal.addModal('registrar');
             this.classModal.addModal('cliente');
-            //console.log('Component mounted.')
+     
         }
     }
 </script>

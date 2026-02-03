@@ -246,7 +246,7 @@ import { error401 } from '../../errores';
         })
         .catch(function(error) {
             error401(error);
-            console.log(error);
+        
         });
 },
 //--------------------------------------------------------------   

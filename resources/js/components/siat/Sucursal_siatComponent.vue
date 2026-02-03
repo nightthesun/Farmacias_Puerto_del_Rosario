@@ -412,7 +412,7 @@ puedeEditar:2,
                })
                .catch(function(error) {
                    error401(error);
-                   console.log(error);
+    
                });
        },
        //--------------------------------------------------------------  
@@ -499,7 +499,7 @@ puedeEditar:2,
                                 
                 })               
                 .catch(function (error) {                
-                  console.log(error);                
+         error401(error);             
             }).finally(() => {
           me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
         });
@@ -536,7 +536,7 @@ puedeEditar:2,
                                              
                 })               
                 .catch(function (error) {                
-                  console.log(error);                
+                 error401(error);              
             });
        },
        
@@ -551,7 +551,7 @@ puedeEditar:2,
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
+          
                 });
         },
 
@@ -566,7 +566,7 @@ puedeEditar:2,
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
+                
                 });
         },
 
@@ -581,7 +581,7 @@ puedeEditar:2,
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
+               
                 });
         },
 
@@ -597,7 +597,7 @@ puedeEditar:2,
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
+            
                 });
         },
 
@@ -639,7 +639,7 @@ puedeEditar:2,
                         me.listarIndex(1);
                     }).catch(function (error) {
                         error401(error);
-                        console.log(error);
+                  
                     });
                         
                 } else if (
@@ -687,7 +687,7 @@ puedeEditar:2,
                         me.listarIndex(1);
                     }).catch(function (error) {
                         error401(error);
-                        console.log(error);
+                   
                     });
                     
                     

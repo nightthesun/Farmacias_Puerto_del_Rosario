@@ -943,7 +943,7 @@ import QrcodeVue from 'qrcode.vue';
 
              //-----------------------------------permisos_R_W_S        
  listarPerimsoxyz() {
-                //console.log(this.codventana);
+             
     let me = this;
         
     var url = '/gestion_permiso_editar_eliminar?win='+me.codventana;
@@ -967,13 +967,13 @@ import QrcodeVue from 'qrcode.vue';
         })
         .catch(function(error) {
             error401(error);
-            console.log(error);
+         
         });
 },
 //--------------------------------------------------------------  
               teresPermitidosCantidad(ex){
                 let me=this;
-                console.log(ex.keyCode +'--->'+ex.key);
+           
                 if( ex.keyCode==32  || ex.keyCode==8  || (ex.keyCode >= 48 && ex.keyCode <= 57 ) || (ex.keyCode >= 97 && ex.keyCode <= 122 ) || (ex.keyCode >= 65 && ex.keyCode <= 90 ) )
                 {
                     if(ex.currentTarget.id == 'primario'){
@@ -1010,7 +1010,7 @@ import QrcodeVue from 'qrcode.vue';
                 })
                 .catch(function(error){
                     error401(error);
-                    console.log(error);
+              
                 });
             },
 
@@ -1025,7 +1025,7 @@ import QrcodeVue from 'qrcode.vue';
                 })
                 .catch(function(error){
                     error401(error);
-                    console.log(error);
+       
                 });
                 me.listarCategorias();
             },
@@ -1039,7 +1039,7 @@ import QrcodeVue from 'qrcode.vue';
                 })
                 .catch(function(error){
                     error401(error);
-                    console.log(error);
+             
                 });
             },
 
@@ -1052,7 +1052,6 @@ import QrcodeVue from 'qrcode.vue';
                 })
                 .catch(function(error){
                     error401(error);
-                    console.log(error);
                 });
 
             },
@@ -1066,7 +1065,6 @@ import QrcodeVue from 'qrcode.vue';
                 })
                 .catch(function(error){
                     error401(error);
-                    console.log(error);
                 });
 
             },
@@ -1082,7 +1080,6 @@ import QrcodeVue from 'qrcode.vue';
                 })
                 .catch(function(error){
                     error401(error);
-                    console.log(error);
                 });
             },
 
@@ -1117,72 +1114,7 @@ import QrcodeVue from 'qrcode.vue';
             tiempo3(){
             this.clearSelected3=1;
             },
-            /*categorias(categorias){
-                this.idcategoria=[];
-                for (const key in categorias) {
-                    if (categorias.hasOwnProperty(key)) {
-                        const element = categorias[key];
-                        //console.log(element);
-                        this.idcategoria.push(element);
-                    }
-                }
-                //console.log(this.idprestaciones);
-            },
-            cleancategorias(){
-                this.idcategoria=[];
-                this.idcategoriaelected='';
-            
-            },*/
-            /*
-            lineas(lineas){
-                this.idlineas=[];
-                for (const key in lineas) {
-                    if (lineas.hasOwnProperty(key)) {
-                        const element = lineas[key];
-                        //console.log(element);
-                        this.idlineas.push(element);
-                    }
-                }
-                //console.log(this.idprestaciones);
-            },
-            cleanlineas(){
-                this.idlineas=[];
-                this.idlineaselected='';
-            
-            },*/
-            /*dispensers(dispensers){
-                this.iddispenser=[];
-                for (const key in dispensers) {
-                    if (dispensers.hasOwnProperty(key)) {
-                        const element = dispensers[key];
-                        //console.log(element);
-                        this.iddispenser.push(element);
-                    }
-                }
-                //console.log(this.idprestaciones);
-            },
-            cleandispensers(){
-                this.iddispenser=[];
-                this.iddispenserselected='';
-            
-            },*/
-            /*
-            formafarm(formafarm){
-                this.idformafarm=[];
-                for (const key in formafarm) {
-                    if (formafarm.hasOwnProperty(key)) {
-                        const element = formafarm[key];
-                        //console.log(element);
-                        this.idformafarm.push(element);
-                    }
-                }
-                //console.log(this.idprestaciones);
-            },
-            cleanformafarm(){
-                this.idformafarm=[];
-                this.idformafarmselected='';
-            
-            },*/
+          
 
             listarProducto(page){
                 let me=this;
@@ -1196,7 +1128,7 @@ import QrcodeVue from 'qrcode.vue';
                 })
                 .catch(function(error){
                     error401(error);
-                    console.log(error);
+          
                 });
             },
 
@@ -1286,7 +1218,7 @@ import QrcodeVue from 'qrcode.vue';
                     
                 }).catch(function(error){
                     error401(error);
-                    console.log(error);
+           
                 }).finally(() => {
           me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
         });
@@ -1326,7 +1258,7 @@ import QrcodeVue from 'qrcode.vue';
                         
                     }).catch(function (error) {
                         error401(error);
-                        console.log(error);
+                   
                     });
                     
                     
@@ -1375,7 +1307,7 @@ import QrcodeVue from 'qrcode.vue';
                         
                     }).catch(function (error) {
                         error401(error);
-                        console.log(error);
+             
                     });
                     
                     
@@ -1644,7 +1576,6 @@ import QrcodeVue from 'qrcode.vue';
             //this.listarCategorias();
             this.classModal = new _pl.Modals();
             this.classModal.addModal('registrar');
-            //console.log('Component mounted.')
         }
     }
 </script>

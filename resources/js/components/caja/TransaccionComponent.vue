@@ -553,7 +553,6 @@ listarPerimsoxyz() {
         })
         .catch(function(error) {
             error401(error);
-            console.log(error);
         });
 },
 //--------------------------------------
@@ -574,7 +573,6 @@ listarPerimsoxyz() {
                 })
                 .catch(function(error){
                     error401(error);
-                    console.log(error);
                 });
         },
 
@@ -589,7 +587,6 @@ listarPerimsoxyz() {
                 })
                 .catch(function(error){
                     error401(error);
-                    console.log(error);
                 });
         },
 
@@ -650,8 +647,7 @@ me.isSubmitting = true; // Deshabilita el botón
                         );
                     })                
                   .catch(function (error) {           
-                    error401(error);
-                    console.log(error);        
+                    error401(error);       
             }).finally(() => {
           me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
         });
@@ -754,7 +750,6 @@ if (me.arrayAñadir.length>0) {
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
 
@@ -798,7 +793,11 @@ if (me.arrayAñadir.length>0) {
          
         }
     } else {
-        console.log(`No se encontró el ID ${newValue} en arrayCajaEntradasSalidas.`);
+        
+         Swal.fire( `No se encontró el ID ${newValue} en arrayCajaEntradasSalidas.`,
+                            "Haga click en Ok",
+                            "error",
+                        );  
     }
 },
 
@@ -830,7 +829,6 @@ if (me.arrayAñadir.length>0) {
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 }); 
         },
 
@@ -846,7 +844,6 @@ if (me.arrayAñadir.length>0) {
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
         cambiarPestana(idPestana) {

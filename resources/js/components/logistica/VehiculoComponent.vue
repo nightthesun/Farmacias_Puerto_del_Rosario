@@ -470,7 +470,6 @@ import { resolveTransitionHooks } from 'vue';
         })
         .catch(function(error) {
             error401(error);
-            console.log(error);
         });
 },
 //--------------------------------------------------------------  
@@ -487,7 +486,6 @@ import { resolveTransitionHooks } from 'vue';
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
             caracteresPermitidosTelefono(ex){
@@ -511,7 +509,6 @@ import { resolveTransitionHooks } from 'vue';
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
             },
             listarVehiculoXtdaAlm(id)
@@ -546,7 +543,6 @@ import { resolveTransitionHooks } from 'vue';
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });  
                    }
             
@@ -603,7 +599,6 @@ me.isSubmitting = true; // Deshabilita el botón
                     me.sucursalAlmTda();
                 }).catch(function(error){
                     error401(error);
-                    console.log(error);
                 }).finally(() => {
           me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
         });
@@ -642,7 +637,6 @@ me.isSubmitting = true; // Deshabilita el botón
                         
                     }).catch(function (error) {
                         error401(error);
-                        console.log(error);
                     });
                 } else if (
                     /* Read more about handling dismissals below */
@@ -686,7 +680,6 @@ me.isSubmitting = true; // Deshabilita el botón
                         )
                     }).catch(function (error) {
                         error401(error);
-                        console.log(error);
                     });
                     
                     

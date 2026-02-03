@@ -11,6 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
+        
         Schema::create('pivot__modulo_tienda_almacens', function (Blueprint $table) {
             $table->id();
             $table->smallInteger('id_tienda_almacen')->comment('alamcen el codigo del alamcen o tienda');

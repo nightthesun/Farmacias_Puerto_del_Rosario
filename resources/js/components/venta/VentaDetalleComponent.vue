@@ -581,7 +581,7 @@ listarPerimsoxyz() {
         })
         .catch(function(error) {
             error401(error);
-            console.log(error);
+
         });
 },
 /////////facturacion plana x dosificacion /////////////////////////////////
@@ -1468,7 +1468,7 @@ listarDetalle_producto_x(id,tipo_per_emp) {
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
+                
                 });
         },
 
@@ -1485,7 +1485,7 @@ listarDetalle_producto_x(id,tipo_per_emp) {
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
+          
                 });
         },
         cambiarPestana(idPestana) {
@@ -1593,7 +1593,7 @@ listarDetalle_producto_x(id,tipo_per_emp) {
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
+              
                 });
         },
 
@@ -1620,7 +1620,7 @@ listarDetalle_producto_x(id,tipo_per_emp) {
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
+                 
                 });
         },
 

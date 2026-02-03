@@ -241,11 +241,8 @@ export default {
                 .then(function (response) {
                     let respuesta_tras = response.data.configTraspaso;
                     let respuesta_compras = response.data.configGestion;                    
-                  //  me.activo_1_traspaso=respuesta.activo_traspaso,
-                 //   me.activo_1_reloj=respuesta.activo_c_r_1,
-                   console.log(respuesta_tras);   
-                   console.log(respuesta_compras);    
-                   console.log(respuesta_tras.activo_traspaso);
+             
+                 
                    if (respuesta_tras==null || respuesta_compras==null) {
                     me.activador_nivel_1=1;
                     Swal.fire("Error nivel 1!","No se encontro las tablas","error",);  

@@ -13,7 +13,7 @@ return new class extends Migration
     {
         
         Schema::create('log__asignacion_sucursal_vehiculos', function (Blueprint $table) {
-            $table->smallInteger('id_veiculo');
+            $table->smallInteger('id_vehiculo');
             $table->smallInteger('id_sucursal');
             $table->smallInteger('id_alm_tda');
             $table->string('cod')->nullable();

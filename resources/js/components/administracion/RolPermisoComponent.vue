@@ -276,7 +276,6 @@ import {error401} from '../../errores';
         })
         .catch(function(error) {
             error401(error);
-            console.log(error);
         });
 },
 //--------------------------------------------------------------
@@ -309,7 +308,6 @@ import {error401} from '../../errores';
                 })
                 .catch(function(error){
                     error401(error);
-                    console.log(error);
                 });
             },
 
@@ -324,7 +322,6 @@ import {error401} from '../../errores';
                 })
                 .catch(function(error){
                     error401(error);
-                    console.log(error);
                 });
             },
             cambiarPagina(page){
@@ -349,7 +346,6 @@ import {error401} from '../../errores';
                     me.listarRoles();
                 }).catch(function(error){
                     error401(error);
-                    console.log(error);
                 }).finally(() => {
           me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
         });
@@ -388,7 +384,6 @@ import {error401} from '../../errores';
                         
                     }).catch(function (error) {
                         error401(error);
-                        console.log(error);
                     });
                     
                 } else if (
@@ -405,7 +400,6 @@ import {error401} from '../../errores';
             },
             activarRole(idrole){
                 let me=this;
-                //console.log("prueba");
                 const swalWithBootstrapButtons = Swal.mixin({
                 customClass: {
                     confirmButton: 'btn btn-success',
@@ -437,7 +431,6 @@ import {error401} from '../../errores';
                         
                     }).catch(function (error) {
                         error401(error);
-                        console.log(error);
                     });
                     
                     
@@ -542,7 +535,6 @@ import {error401} from '../../errores';
             this.listarRoles(1);
             this.classModal = new _pl.Modals();
             this.classModal.addModal('registrar');
-            //console.log('Component mounted.')
         }
     }
 </script>

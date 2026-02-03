@@ -832,7 +832,6 @@ export default {
         })
         .catch(function(error) {
             error401(error);
-            console.log(error);
         });
 },
 //--------------------------------------------------------------  
@@ -880,7 +879,7 @@ export default {
     
         break;    
     default:
-        console.log('no existe datos');
+    
         break;
 }
                 if(codificador==1){
@@ -1022,7 +1021,6 @@ axios.post('/descuento2/registrarDescuento', data)
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
 
@@ -1049,7 +1047,6 @@ axios.post('/descuento2/registrarDescuento', data)
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
 
@@ -1077,7 +1074,6 @@ axios.post('/descuento2/registrarDescuento', data)
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
 
@@ -1112,7 +1108,6 @@ axios.post('/descuento2/registrarDescuento', data)
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
 
@@ -1130,7 +1125,6 @@ axios.post('/descuento2/registrarDescuento', data)
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
 
@@ -1216,7 +1210,6 @@ axios.post('/descuento2/registrarDescuento', data)
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
 
@@ -1270,7 +1263,6 @@ axios.post('/descuento2/registrarDescuento', data)
                             })
                             .catch(function (error) {
                                 error401(error);
-                                console.log(error);
                             });
                     } else if (
                         /* Read more about handling dismissals below */
@@ -1322,7 +1314,6 @@ axios.post('/descuento2/registrarDescuento', data)
                             })
                             .catch(function (error) {
                                 error401(error);
-                                console.log(error);
                             });
                     } else if (
                         /* Read more about handling dismissals below */
@@ -1339,8 +1330,7 @@ axios.post('/descuento2/registrarDescuento', data)
 
         eliminacion_descuento(){
             let me = this;
-           // console.log("--------------");
-           // console.log(this.codventana+" "+this.idmodulo);
+
             axios
                     .post("/descuento2/eliminacion_descuento", {                      
                         id_modulo: me.idmodulo,
@@ -1359,7 +1349,6 @@ axios.post('/descuento2/registrarDescuento', data)
                     
                    .catch(function (error) {
                       error401(error);
-                     console.log(error);
                    });
                 
             },
@@ -1403,7 +1392,7 @@ axios.post('/descuento2/registrarDescuento', data)
                     }
         break;  
     default:
-        console.log('noexiste datos');
+ 
         break;
 }
                 if(codificador==1){
@@ -1836,7 +1825,6 @@ axios.put('/descuento2/actualizar', data)
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });  
                    }
             

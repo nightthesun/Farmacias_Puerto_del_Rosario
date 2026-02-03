@@ -572,7 +572,7 @@ import { error401 } from '../../errores';
 
               //-----------------------------------permisos_R_W_S        
     listarPerimsoxyz() {
-                //console.log(this.codventana);
+            
     let me = this;
    
         
@@ -597,13 +597,12 @@ import { error401 } from '../../errores';
         })
         .catch(function(error) {
             error401(error);
-            console.log(error);
         });
 },
 //--------------------------------------------------------------
             caracteresPermitidosTelefono(ex){
                 let me=this;
-                console.log(ex.keyCode +'-->'+ex.key);
+              
                 if(ex.keyCode==32 || ex.keyCode==43 || ex.keyCode==8 || ex.keyCode == 45 || (ex.keyCode >= 48 && ex.keyCode <= 57) )
                 {
                     me.telefono = me.telefono+ex.key;
@@ -648,7 +647,7 @@ import { error401 } from '../../errores';
                 })
                 .catch(function(error){
                     error401(error);
-                    console.log(error);
+                   
                 });
             },
             cambiarPagina(page){
@@ -702,7 +701,7 @@ import { error401 } from '../../errores';
                     {
                         me.mensajeError="El CI del Empleado ya registrardo";
                     }
-                    console.log(error);
+           
                 }).finally(() => {
           me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
         });
@@ -710,7 +709,7 @@ import { error401 } from '../../errores';
             },
             eliminarempleado(idempleado){
                 let me=this;
-                //console.log("prueba");
+              
                 const swalWithBootstrapButtons = Swal.mixin({
                 customClass: {
                     confirmButton: 'btn btn-success',
@@ -742,7 +741,7 @@ import { error401 } from '../../errores';
                         
                     }).catch(function (error) {
                         error401(error);
-                        console.log(error);
+                  
                     });
                     
                     
@@ -760,7 +759,7 @@ import { error401 } from '../../errores';
             },
             activarempleado(idempleado){
                 let me=this;
-                //console.log("prueba");
+             
                 const swalWithBootstrapButtons = Swal.mixin({
                 customClass: {
                     confirmButton: 'btn btn-success',
@@ -792,7 +791,7 @@ import { error401 } from '../../errores';
                         
                     }).catch(function (error) {
                         error401(error);
-                        console.log(error);
+                      
                     });
                     
                     
@@ -877,7 +876,7 @@ import { error401 } from '../../errores';
                 ).then(function (response) {
                     if(response.data.length){
                     }
-                    // console.log(response)
+                  
                     else{
                             Swal.fire('Actualizado Correctamente')
 
@@ -1032,13 +1031,12 @@ import { error401 } from '../../errores';
                 }).then(function(response){
                     me.selectCiudades();
                     me.ciudadselected=response.data.idciudad;
-                    //console.log(response);
-                    //me.classModal.closeModal('regbanco');
+                   
                     me.abrirModal('registrar',arr);
                     
                 }).catch(function(error){
                     error401(error);
-                    console.log(error);
+                 
                 });
 
             },
@@ -1118,7 +1116,7 @@ import { error401 } from '../../errores';
                 })
                 .catch(function(error){
                     error401(error);
-                    console.log(error);
+               
                 });
             },
             selectFormacions(){
@@ -1130,7 +1128,7 @@ import { error401 } from '../../errores';
                 })
                 .catch(function(error){
                     error401(error);
-                    console.log(error);
+                 
                 });
             },
             selectCargos(){
@@ -1142,7 +1140,7 @@ import { error401 } from '../../errores';
                 })
                 .catch(function(error){
                     error401(error);
-                    console.log(error);
+      
                 });
             },
             selectDepartamentos(){
@@ -1154,7 +1152,7 @@ import { error401 } from '../../errores';
                 })
                 .catch(function(error){
                     error401(error);
-                    console.log(error);
+             
                 });
             },
             selectCiudades(){
@@ -1166,7 +1164,7 @@ import { error401 } from '../../errores';
                 })
                 .catch(function(error){
                     error401(error);
-                    console.log(error);
+               
                 });
             },
             selectNacionalidad(){
@@ -1174,13 +1172,13 @@ import { error401 } from '../../errores';
                 var url='/nacion/selectnacion';
                 axios.get(url).then(function(response){
                     var respuesta=response.data;
-                    //console.log(respuesta);
+                 
                     me.arrayNacion=respuesta.nacions;
                     me.nacionselected=respuesta.idboliviano;
                 })
                 .catch(function(error){
                     error401(error);
-                    console.log(error);
+                   
                 });
             },
             selectBancos(){
@@ -1192,7 +1190,7 @@ import { error401 } from '../../errores';
                 })
                 .catch(function(error){
                     error401(error);
-                    console.log(error);
+               
                 });
             },
 
@@ -1215,7 +1213,7 @@ import { error401 } from '../../errores';
             this.classModal.addModal('registrar');
             this.classModal.addModal('regbanco');
             this.classModal.addModal('regciudad');
-            //console.log('Component mounted.')
+        
         }
     }
 </script>

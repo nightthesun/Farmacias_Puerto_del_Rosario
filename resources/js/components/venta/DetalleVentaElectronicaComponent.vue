@@ -401,7 +401,7 @@ const tableBody = [
                     lugar_v2=array.direccion;
                     nombre_v2=array.nom_empleado;
                     totalMonto=array.monto_apagar;
-                    console.log(ciudad_v2);
+           
                     arrayResultado.push({
                         nro_comprobante_venta: array.nro_comprobante_venta,
                         monto_apagar: array.monto_apagar,
@@ -433,9 +433,7 @@ const tableBody = [
                     });
                     totalMonto += parseFloat(element.monto_apagar); // asegúrate que es número
                         }
-                        console.log("----------------------------*");
-                        console.log(arrayResultado);
-                        console.log("---------------------------*");
+                      
                         
                         totalMonto = totalMonto.toFixed(2);
                     }  
@@ -457,7 +455,7 @@ const tableBody = [
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
+                
                 });
     },
 
@@ -469,13 +467,13 @@ const tableBody = [
                 .get(url)
                 .then(function (response) {
                     var respuesta = response.data;
-                    console.log(respuesta);
+                
                     me.arraySucursal = respuesta;
                  
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
+             
                 });
         },
         cambiarPestana(idPestana) {
@@ -496,7 +494,7 @@ const tableBody = [
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
+                  
                 });
         },
         listarConfigsis() {
@@ -512,7 +510,7 @@ const tableBody = [
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
+          
                 });
         },
 

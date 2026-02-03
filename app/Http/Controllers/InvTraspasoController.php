@@ -282,7 +282,9 @@ class InvTraspasoController extends Controller
      */
     public function store(Request $request)
     {
-        $traspaso=new Inv_Traspaso();
+        try {
+            DB::beginTransaction(); 
+            $traspaso=new Inv_Traspaso();
         $traspaso->id_almacen_tienda=$request->id_almacen_tienda;
         $traspaso->id_prod_producto=$request->id_prod_producto;
         $traspaso->envase=$request->envase;
@@ -419,15 +421,14 @@ class InvTraspasoController extends Controller
                 $update->save();
                 $ajusteNegativo->save();
             } else {
-                dd("error");
+                return "error al ingresar";
             }
         }
-
-
-
-
-       
-
+ DB::commit();
+ return 0;
+        } catch (\Throwable $th) {
+           return  $th;
+        }
     }
 
     /**

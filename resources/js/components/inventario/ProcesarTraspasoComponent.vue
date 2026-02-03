@@ -348,7 +348,6 @@
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
         sucursalDestino() {
@@ -363,7 +362,6 @@
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
         guardarDato(valor){
@@ -383,7 +381,6 @@
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
 
@@ -396,18 +393,18 @@
             let me = this;    
                 var url ="/procesar-traspaso?buscar="+me.inputTextBuscarProductoIngreso +
                     "&identificador=" + "1";     
-            console.log(url);
+            
             axios
                 .get(url)
                 .then(function (response) {
                     var respuesta = response.data;
 
                     me.arrayTraspaso = respuesta;
-         console.log(me.arrayTraspaso);
+      
    })                       
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
+                
                 });
         },
         abrirModal(accion,data= []){

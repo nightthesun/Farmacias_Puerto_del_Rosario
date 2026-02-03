@@ -307,7 +307,6 @@ import { error401 } from '../../errores';
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
                 
                 
@@ -318,17 +317,17 @@ import { error401 } from '../../errores';
                 var url='/ventasmaestro?page='+page+'&buscar='+me.buscar+'&fechainicio='+me.fechainicio+'&fechafin='+me.fechafin;
                 axios.get(url).then(function(response){
                     var respuesta=response.data;
-                    //console.log(respuesta.areas);
+               
                     me.pagination=respuesta.pagination;
-                    //console.log(me.areas.data);
+                  
                     me.arrayVentas=respuesta.ventamaestro.data;
-                    //porcenit=Number((me.invoice_subtotal * me.porcentajeit).toFixed(2));
+                 
                     me.sumatotal=Number((respuesta.sumatotal).toFixed(2));
-                    //console.log(me.arrayVentas);
+                 
                 })
                 .catch(function(error){
                     error401(error);
-                    console.log(error);
+              
                 });
             },
             cambiarPagina(page){
@@ -339,7 +338,7 @@ import { error401 } from '../../errores';
             
             eliminarVenta(idventamaestro){
                 let me=this;
-                //console.log("prueba");
+        
                 const swalWithBootstrapButtons = Swal.mixin({
                 customClass: {
                     confirmButton: 'btn btn-success',
@@ -371,7 +370,7 @@ import { error401 } from '../../errores';
                         
                     }).catch(function (error) {
                         error401(error);
-                        console.log(error);
+          
                     });
                     
                     
@@ -389,7 +388,7 @@ import { error401 } from '../../errores';
             },
             activarVenta(idventamaestro){
                 let me=this;
-                //console.log("prueba");
+             
                 const swalWithBootstrapButtons = Swal.mixin({
                 customClass: {
                     confirmButton: 'btn btn-success',
@@ -421,7 +420,7 @@ import { error401 } from '../../errores';
                         
                     }).catch(function (error) {
                         error401(error);
-                        console.log(error);
+                    
                     });
                     
                     
@@ -460,7 +459,7 @@ import { error401 } from '../../errores';
                         })
                         .catch(function(error){
                             error401(error);
-                            console.log(error);
+                        
                         });
                         
                         
@@ -506,8 +505,8 @@ import { error401 } from '../../errores';
             
             this.classModal = new _pl.Modals();
             this.classModal.addModal('detalle');
-            //this.listarVentas(1);
-            //console.log('Component mounted.')
+       
+          
         }
     }
 </script>

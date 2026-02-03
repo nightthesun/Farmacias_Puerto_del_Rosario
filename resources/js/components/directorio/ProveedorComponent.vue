@@ -381,7 +381,6 @@ export default {
         })
         .catch(function(error) {
             error401(error);
-            console.log(error);
         });
 },
 //--------------------------------------------------------------  
@@ -401,7 +400,6 @@ changeRango(){
                 })
                 .catch(function(error){
                     error401(error);
-                    console.log(error);
                 });
         },
 
@@ -419,7 +417,6 @@ changeRango(){
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
       //  me.id_transaccion
@@ -441,9 +438,7 @@ changeRango(){
                         );
                     })                
                   .catch(function (error) { 
-                   console.log(error);                      
-                  //  this.errorMessage = error.response.data; // Aquí guardamos el error
-                  //  Swal.fire("Error comunicarse con el administrador",""+errorMessage,"error");               
+               error401(error);              
             });
 
         },
@@ -469,7 +464,7 @@ changeRango(){
                     })                
                     .catch(function (error) {
           error401(error);
-          console.log(error);
+       
         })
         .finally(() => {
           me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
@@ -594,7 +589,6 @@ changeRango(){
                         
                     }).catch(function (error) {
                         error401(error);
-                        console.log(error);
                     });
                 } else if (
                     /* Read more about handling dismissals below */
@@ -638,7 +632,6 @@ changeRango(){
                         )
                     }).catch(function (error) {
                         error401(error);
-                        console.log(error);
                     });
                     
                     

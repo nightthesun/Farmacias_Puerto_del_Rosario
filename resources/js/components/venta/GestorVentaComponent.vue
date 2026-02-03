@@ -608,7 +608,7 @@ watch: {
                     this.extencion_tipodocumento = newTipo.datos;
                     this.nombre_documento =newTipo.nombre_doc;
                 }         
-            console.log(this.extencion_tipodocumento+"  "+this.nombre_documento);
+     
         },
       
     },
@@ -680,7 +680,7 @@ watch: {
                     me.arrayEX=respuesta;
             }).catch(function(error){
                     error401(error);
-                    console.log(error);
+            
                 })
         },
         
@@ -693,7 +693,7 @@ watch: {
                 me.arrayTipoDocumento=respuesta;
             }).catch(function(error){
                     error401(error);
-                    console.log(error);
+        
                 })
         },  
 
@@ -717,7 +717,7 @@ watch: {
                     me.arrayClienteLote = respuesta;
             }).catch(function (error) {
                     error401(error);
-                    console.log(error);
+                 
                 });
         },
 
@@ -783,7 +783,7 @@ watch: {
                 .get(url)
                 .then(function (response) {
                     var respuesta = response.data;
-                    console.log(response.data);
+                   
                     me.cliente_id=response.data.id;
                     if (me.cliente_id==undefined) {
                         me.datos_cliete="No se encontro cliente..."
@@ -799,7 +799,7 @@ watch: {
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
+                
                 });
         break;
         }
@@ -823,7 +823,7 @@ watch: {
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
+                    
                 });
         },
 
@@ -839,7 +839,7 @@ watch: {
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
+           
                 });
         },
         cambiarPestana(idPestana) {
@@ -945,7 +945,7 @@ watch: {
         },
 
         registrar_cliente_modal() {
-        console.log("-------------------");
+      
         let me = this;
         if(me.correo==''){
         me.correo="farmacia_pueto_del_rosario@gmail.com"
@@ -975,9 +975,7 @@ if (!correoRegex.test(me.correo)) {
 } else {
     
     if (me.num_documento!=99001&&me.num_documento!=99002&&me.num_documento!=99003&&me.num_documento!=0&&me.num_documento!="000") {
-       console.log("tipo:"+me.selectTipo+" tipo: "+me.selectTipoDoc+" nombres: "+me.nombres
-        +" apellidos: "+me.apellidos+" numero_d "+me.num_documento+" complemento: "+me.complemento_+" name: "+
-        me.nombre_a_facturar+" telefono: "+me.telefono+" dir: "+me.direccion+" pais: "+me.pais+" ciudad: "+me.ciudad);
+       
         axios
         .post("/directorio/registrar", {
             tipo_per_emp: me.selectTipo,
@@ -994,7 +992,7 @@ if (!correoRegex.test(me.correo)) {
             ciudad: me.ciudad.toUpperCase()                
         })
         .then(function (response) {   
-            console.log("Respuesta del servidor:", response.data); // Mostrar toda la respuesta en la consola
+    
             me.id_tipo_doc=response.data.id_tipo_doc;
             me.cliente_id=response.data.id;
             me.num_documento=response.data.num_documento;

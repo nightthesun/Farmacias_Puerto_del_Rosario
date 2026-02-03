@@ -20,9 +20,9 @@ return new class extends Migration
             $table->unsignedBigInteger('id_tipoentrada')->comment('Identificador unico que hace referencia a la tabla de prod__tipo_entradas');
             $table->integer('cantidad__stock_ingreso')->comment('Cantidad de productos que esta ingresando a la tienda y ttambien el stock actual de ese producto');
             $table->string('fecha_vencimiento')->nullable()->comment('fecha de vencimiento del producto');
-            $table->string('lote')->comment('Codigo que hace referecia a un grupo de un productos');
+            $table->string('lote')->nullable()->comment('Codigo que hace referecia a un grupo de un productos');
             $table->string('registro_sanitario')->nullable()->comment('Codigo expedido por la autoridad sanitaria');
-            $table->boolean('activo')->default(1)->comment('Estado del registro, 1 -> activo, 0 ->inactivo');
+            $table->tinyInteger('activo')->default(1)->comment('Estado del registro, 1 -> activo, 0 ->inactivo');
            //traspaso---
             $table->unsignedBigInteger("id_origen")->comment("id_ingreso del almacen o tienda origen");	           
             $table->unsignedBigInteger("id_destino")->comment("id_ingreso del almacen o tienda destino");	            
@@ -30,12 +30,12 @@ return new class extends Migration
             $table->string("cod_1")->comment("codigo del tienda o almacen");
             $table->string("cod_2")->comment("codigo del tienda o almacen");
             $table->string("leyenda")->comment("conjunto de informacion del producto");
-            $table->string("glosa")->comment("descripcion de la informacion de forma como lo requiera la empresa");
-            $table->smallInteger("numero_traspaso")->comment("conjunto de numero y combinaciones de numeros");	            
+            $table->string("glosa")->nullable()->comment("descripcion de la informacion de forma como lo requiera la empresa");
+            $table->string("numero_traspaso")->comment("conjunto de numero y combinaciones de numeros");	            
                   
             $table->smallInteger('id_usuario_modifico')->nullable();	           
-            $table->smallInteger('id_usuario_registro');	           
-            $table->boolean('procesado')->default(0)->comment('Estado del registro, 1 -> procesado, 0 -> no procesado');	          
+            $table->smallInteger('id_usuario_registro')->nullable();	           
+            $table->string('procesado',50)->default(0)->comment('Estado del registro, 1 -> procesado, 0 -> no procesado');	          
             $table->timestamps();
             $table->smallInteger('user_id')->comment('Registra segun la accion');
             $table->string('name_des')->nullable();

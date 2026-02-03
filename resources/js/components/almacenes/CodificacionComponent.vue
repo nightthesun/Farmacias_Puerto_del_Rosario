@@ -278,7 +278,7 @@ import { error401 } from '../../errores';
         methods :{
               //-----------------------------------permisos_R_W_S        
     listarPerimsoxyz() {
-                //console.log(this.codventana);
+          
     let me = this;
    
         
@@ -303,7 +303,6 @@ import { error401 } from '../../errores';
         })
         .catch(function(error) {
             error401(error);
-            console.log(error);
         });
 },
 //--------------------------------------------------------------  
@@ -328,7 +327,6 @@ import { error401 } from '../../errores';
                 })
                 .catch(function(error){
                     error401(error);
-                    console.log(error);
                 });
             },
 
@@ -355,7 +353,6 @@ import { error401 } from '../../errores';
                     me.listarEstantes();
                 }).catch(function(error){
                     error401(error);
-                    console.log(error);
                 }).finally(() => {
           me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
         });
@@ -396,7 +393,6 @@ import { error401 } from '../../errores';
                         
                     }).catch(function (error) {
                         error401(error);
-                        console.log(error);
                     });
                     
                     
@@ -414,7 +410,6 @@ import { error401 } from '../../errores';
             },
             activarEstante(idestante){
                 let me=this;
-                //console.log("prueba");
                 const swalWithBootstrapButtons = Swal.mixin({
                 customClass: {
                     confirmButton: 'btn btn-success',
@@ -446,7 +441,6 @@ import { error401 } from '../../errores';
                         
                     }).catch(function (error) {
                         error401(error);
-                        console.log(error);
                     });
                     
                     
@@ -473,7 +467,7 @@ import { error401 } from '../../errores';
                 }).then(function (response) {
                     if(response.data.length){
                     }
-                    // console.log(response)
+                   
                     else{
                             Swal.fire('Actualizado Correctamente')
 
@@ -563,7 +557,6 @@ import { error401 } from '../../errores';
                 })
                 .catch(function(error){
                     error401(error);
-                    console.log(error);
                 });
             },
 
@@ -575,7 +568,7 @@ import { error401 } from '../../errores';
                     me.almacenes = response.data.almacenes.data;
                 })
                 .catch(function(error){
-                    console.log(error);
+                   error401(error);
                 })
             }
 
@@ -590,7 +583,7 @@ import { error401 } from '../../errores';
             this.classModal = new _pl.Modals();
             this.classModal.addModal('registrar');
             this.classModal.addModal('staticBackdrop');
-            //console.log('Component mounted.')
+         
         }
     }
 </script>

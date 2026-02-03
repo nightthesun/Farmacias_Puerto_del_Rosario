@@ -387,7 +387,7 @@ export default {
                     (element) => element.id === newValue,
                    
                 );
-          console.log(selector);
+         
                if (selector) {
                    this.codigoSucursal = selector.codigo_siat;  
                    this.cuis = selector.dato;                                 
@@ -434,7 +434,7 @@ export default {
     let me= this;
     const parser = new DOMParser();
     const xmlDoc = parser.parseFromString(xmlString, "text/xml");    
-    console.log(xmlDoc);
+
  
     // const respuestaCuis = xmlDoc.getElementsByTagName("RespuestaCuis")[0].childNodes[0];
     const respuestaCuis_2 = xmlDoc.getElementsByTagName("faultstring")[0];
@@ -451,10 +451,9 @@ export default {
               //  me.cerrarModal('registrar');
             } else {
                 if (data===2) {
-                    console.log("***"+codigoPuntoVenta_1.textContent);
-                console.log("+++"+me.sucursalSeleccionada);
+               
                 me.eliminar_puntoVenta();   
-              //  me.cerrarModal('cerrar_PV');  
+        
                 } else {                    
                         me.cerrarModal('registrar');  
                         me.cerrarModal('cerrar_PV'); 
@@ -469,7 +468,7 @@ export default {
                 const mensajesList = xmlDoc.querySelector('mensajesList'); 
                 Array.from(mensajesList.children).forEach(child => {
         cadena_nombre += `${child.tagName}: ${child.textContent.trim()}\n`;   
-         console.log(`${child.tagName}: ${child.textContent}`);         
+            
         });
                 if (data===1) {
                 
@@ -506,7 +505,7 @@ export default {
     let me= this;
     const parser = new DOMParser();
     const xmlDoc = parser.parseFromString(xmlString, "text/xml");    
-    console.log(xmlDoc);
+  
  
     // const respuestaCuis = xmlDoc.getElementsByTagName("RespuestaCuis")[0].childNodes[0];
     const respuestaCuis_2 = xmlDoc.getElementsByTagName("faultstring")[0];
@@ -524,8 +523,7 @@ export default {
             me.insertarCuis(id, codigoCuis.textContent, fechaCuis.textContent);
             } else {
                 if (data===2) {
-                    console.log("resultado....");
-                console.log(xmlDoc);                
+                          
                 me.EliminarCuis(id,id_cuis,id_cufd,id_emisor);  
               //  me.cerrarModal('cerrar_PV');  
                 } else {                  
@@ -539,7 +537,7 @@ export default {
                 const mensajesList = xmlDoc.querySelector('mensajesList'); 
                 Array.from(mensajesList.children).forEach(child => {
         cadena_nombre += `${child.tagName}: ${child.textContent.trim()}\n`;   
-         console.log(`${child.tagName}: ${child.textContent}`);         
+          
         });
               
                 Swal.fire("Punto de venta!",""+cadena_nombre,"warning",); 
@@ -579,7 +577,7 @@ export default {
                })
                .catch(function(error) {
                    error401(error);
-                   console.log(error);
+              
                });
        },
        //--------------------------------------------------------------  
@@ -606,12 +604,11 @@ export default {
                 if (result.isConfirmed) {
                                     
                     var url='/siat_cuis_cufd/cuis?emisor='+id_punto_venta+'&codigo_siat='+codigo_siat+'&nit='+me.nit+'&codigo_ambiente='+me.codigoAmbiente+'&codigo_sistema='+me.codigoSistema+'&modalidad='+me.codigoModalidad+'&token_delegado='+me.token_delegado+"&cuis_end="+3;                        
-                   console.log(url);
+             
                     axios.get(url)
                     .then(function (response) {
                         var respuesta = response.data;   
-                        console.log("*************solicitud**************");
-                        console.log(respuesta);                   
+                                  
                         if (respuesta.error==null || respuesta.error=="") {
                             me.parseXML_eliminar(respuesta,1,id,0,0,0);   
                          
@@ -625,7 +622,7 @@ export default {
                       //  me.listarIndex(1);
                     }).catch(function (error) {
                         error401(error);                        
-                        console.log(error);
+                   
                     });                       
                 } else if (
                     /* Read more about handling dismissals below */
@@ -662,14 +659,14 @@ insertarCuis(id,cuis,fecha){
                     }                                                    
                 })               
                 .catch(function (error) {                
-                  console.log(error);                
+                          
             });      
         },
 //---------------------
 cerrarOperaciones(codigo_siat,id,cuis,id_cufd,id_cuis,id_emisor)
             {
                 let me=this;    
-                console.log(codigo_siat+"--"+id+"---"+cuis+"---"+id_cufd+"---"+id_cuis+"---"+id_emisor);
+             
                 const swalWithBootstrapButtons = Swal.mixin({
                 customClass: {
                     confirmButton: 'btn btn-success',
@@ -700,13 +697,11 @@ cerrarOperaciones(codigo_siat,id,cuis,id_cufd,id_cuis,id_emisor)
                            me.parseXML_eliminar(respuesta,2,id,id_cuis,id_cufd,id_emisor);
                      
                         }
-                        console.log("----------------------------------");
-                        console.log(respuesta);
-                        console.log("----------------------------------");
+               
                       //  me.listarIndex(1);
                     }).catch(function (error) {
                         error401(error);                        
-                        console.log(error);
+             
                     });
                     
                     
@@ -748,7 +743,7 @@ cerrarOperaciones(codigo_siat,id,cuis,id_cufd,id_cuis,id_emisor)
                                                     
                 })               
                 .catch(function (error) {                
-                  console.log(error);                
+                   error401(error);              
             });      
         },
  //----------------------
@@ -780,7 +775,7 @@ cerrarOperaciones(codigo_siat,id,cuis,id_cufd,id_cuis,id_emisor)
                  
             me.listarIndex(); 
                     let respuesta=response.data;             
-                    console.log(respuesta);
+              
                     if (respuesta=="error") {
                         me.isSubmitting=false;                 
                         Swal.fire("Error!","contraseña incorrecta","error",);    
@@ -789,7 +784,7 @@ cerrarOperaciones(codigo_siat,id,cuis,id_cufd,id_cuis,id_emisor)
                     }                                                 
                 })               
                 .catch(function (error) {                
-                  console.log(error);                
+                error401(error);             
             });  
             },
 
@@ -803,7 +798,7 @@ cerrarOperaciones(codigo_siat,id,cuis,id_cufd,id_cuis,id_emisor)
                     var respuesta = response.data;     
                     const parser = new DOMParser();
     const xmlDoc = parser.parseFromString(respuesta, "text/xml");    
-    console.log(xmlDoc);    
+    
     // const respuestaCuis = xmlDoc.getElementsByTagName("RespuestaCuis")[0].childNodes[0];
     const respuestaCuis_2 = xmlDoc.getElementsByTagName("faultstring")[0];
     if (respuestaCuis_2!=undefined) {
@@ -820,9 +815,7 @@ cerrarOperaciones(codigo_siat,id,cuis,id_cufd,id_cuis,id_emisor)
         // Obtener TODOS los elementos <listaPuntosVentas>
         const listaPuntosVentas = RespuestaConsultaPuntoVenta.querySelectorAll("listaPuntosVentas");
 
-        console.log("Transacción:", trasaccion.textContent);
-        console.log("RespuestaConsultaPuntoVenta:", RespuestaConsultaPuntoVenta);
-        console.log("Cantidad de listaPuntosVentas:", listaPuntosVentas.length);
+
         
         let cadenaPuntosVentas = ""; // Inicializamos la cadena
 
@@ -877,7 +870,7 @@ if (data===1) {
         let cadena_nombre="";
        Array.from(mensajesList.children).forEach(child => {
         cadena_nombre += `${child.tagName}: ${child.textContent.trim()}\n`;   
-          console.log(`${child.tagName}: ${child.textContent}`);         
+            
         });
         Swal.fire("Problemas con  envio de datos!",""+cadena_nombre,"warning",); 
             } else {
@@ -927,7 +920,7 @@ if (data===1) {
                         me.listarIndex(1);
                     }).catch(function (error) {
                         error401(error);
-                        console.log(error);
+                  
                     });
                         
                 } else if (
@@ -967,7 +960,7 @@ if (data===1) {
                     }                               
                 })               
                 .catch(function (error) {                
-                  console.log(error);                
+                   error401(error);              
             });  
         },
 
@@ -993,7 +986,7 @@ if (data===1) {
 
                 })               
                 .catch(function (error) {                
-                  console.log(error);                
+                error401(error);               
             });  
         },
 
@@ -1020,7 +1013,7 @@ if (data===1) {
                     }                               
                 })               
                 .catch(function (error) {                
-                  console.log(error);                
+                   error401(error);              
             });  
         },
 
@@ -1037,7 +1030,7 @@ if (data===1) {
                     me.parseXML(respuesta,1);                
                 }).catch(function (error) {
                     error401(error);
-                    console.log(error);
+                 
                 });             
         },
         
@@ -1057,7 +1050,7 @@ if (data===1) {
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
+                
                 });
         },
 
@@ -1068,12 +1061,12 @@ if (data===1) {
             axios.get(url)
                 .then(function (response) {
                     var respuesta = response.data;
-                    console.log(respuesta);
+             
                     me.arrayCaja=respuesta;    
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
+           
                 });
         },
 
@@ -1088,7 +1081,7 @@ if (data===1) {
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
+                
                 });
         },
 
@@ -1104,7 +1097,7 @@ if (data===1) {
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
+             
                 });
         },
         
@@ -1124,10 +1117,7 @@ if (data===1) {
 
         abrirModal(accion, data = []) {
             let me = this;
-        //    let respuesta = me.arraySucursal.find(
-        //        (element) => element.codigo == me.sucursalSeleccionada,
-        //    );
-           console.log(accion+"---");
+        
          switch (accion) {
                 case "registrar": {
                     me.tipoAccion = 1;
@@ -1161,14 +1151,13 @@ if (data===1) {
                     } else {
                         me.tituloModal="Cerrar punto de venta";                
                     me.classModal.openModal("cerrar_PV");
-                    console.log("--------11");
-                    console.log(data);
+                   
                     me.isSubmitting=false;
                     if (data==999) {                       
                         me.selectPuntoVneta='0';
                         me.tipoAccion =3;
                     }else{
-                        console.log(data);
+                        
                         me.selectPuntoVneta=data.id_punto_venta;
                         me.id=data.id;
                         me.tipoAccion =2;
@@ -1226,7 +1215,7 @@ if (data===1) {
      ////////////////////////////////////-----------CUFD-------
 insertar_cufd(codigo_siat,cuis,id,id_emisor,cufd){
     let me=this;    
-    console.log(codigo_siat+"---"+cuis+"---"+id+"---"+id_emisor+"---"+cufd);
+    
                 const swalWithBootstrapButtons = Swal.mixin({
                 customClass: {
                     confirmButton: 'btn btn-success',
@@ -1263,7 +1252,7 @@ insertar_cufd(codigo_siat,cuis,id,id_emisor,cufd){
                 })
                     .then(function (response) {
                         var respuesta = response.data;  
-                        console.log(respuesta);
+                    
                         if (respuesta===0) {
                             Swal.fire("CUFD","Consulta exitosa","success",); 
                         } else {
@@ -1272,7 +1261,7 @@ insertar_cufd(codigo_siat,cuis,id,id_emisor,cufd){
                       me.listarIndex(1);
                     }).catch(function (error) {
                        error401(error);                        
-                        console.log(error);
+                     
                     });
                     
                     

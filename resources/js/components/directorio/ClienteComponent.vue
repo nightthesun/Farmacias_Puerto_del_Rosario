@@ -538,7 +538,6 @@
         })
         .catch(function(error) {
             error401(error);
-            console.log(error);
         });
 },
 //--------------------------------------------------------------  
@@ -575,7 +574,6 @@
                     me.arrayEX=respuesta;
             }).catch(function(error){
                     error401(error);
-                    console.log(error);
                 })
         },
         
@@ -588,7 +586,6 @@
                     me.arrayTipoDocumento=respuesta;
             }).catch(function(error){
                     error401(error);
-                    console.log(error);
                 })
         },  
         
@@ -632,7 +629,6 @@ swalWithBootstrapButtons.fire({
                    
             }).catch(function(error){
                     error401(error);
-                    console.log(error);
                 })
         },   
         
@@ -979,7 +975,6 @@ swalWithBootstrapButtons.fire({
                         
                     }).catch(function (error) {
                         error401(error);
-                        console.log(error);
                     });
                 } else if (
                     /* Read more about handling dismissals below */
@@ -1023,7 +1018,6 @@ swalWithBootstrapButtons.fire({
                         )
                     }).catch(function (error) {
                         error401(error);
-                        console.log(error);
                     });
                     
                     

@@ -681,7 +681,7 @@ import VueMultiselect from 'vue-multiselect';
         methods :{      
                //-----------------------------------permisos_R_W_S        
     listarPerimsoxyz() {
-                //console.log(this.codventana);
+       
     let me = this;
    
         
@@ -706,7 +706,6 @@ import VueMultiselect from 'vue-multiselect';
         })
         .catch(function(error) {
             error401(error);
-            console.log(error);
         });
 },
 //--------------------------------------------------------------   
@@ -720,7 +719,6 @@ import VueMultiselect from 'vue-multiselect';
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });   
             },
 
@@ -737,7 +735,6 @@ import VueMultiselect from 'vue-multiselect';
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });            
             },            
       
@@ -768,7 +765,6 @@ import VueMultiselect from 'vue-multiselect';
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });  
                    }
             
@@ -815,7 +811,6 @@ import VueMultiselect from 'vue-multiselect';
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
             },
 
@@ -831,7 +826,6 @@ import VueMultiselect from 'vue-multiselect';
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
 
@@ -939,7 +933,6 @@ allKeys.forEach(key => {
                     me.listarUsuarios();
                 }).catch(function(error){
                     error401(error);
-                    console.log(error);
                 });
              }
             },
@@ -953,7 +946,6 @@ allKeys.forEach(key => {
                 })
                 .catch(function(error){
                     error401(error);
-                    console.log(error);
                 });
             },
 
@@ -968,7 +960,6 @@ allKeys.forEach(key => {
                 })
                 .catch(function(error){
                     error401(error);
-                    console.log(error);
                 });
             },
 
@@ -983,7 +974,6 @@ allKeys.forEach(key => {
                 })
                 .catch(function(error){
                     error401(error);
-                    console.log(error);
                 });
             },
 
@@ -1034,7 +1024,6 @@ axios.post('/registro',{
 
 }).catch(function(error){
    error401(error);
-   console.log(error);
 }).finally(() => {
 me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
 });
@@ -1087,7 +1076,6 @@ me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
                         
                     }).catch(function (error) {
                         error401(error);
-                        console.log(error);
                     });
                     
                     
@@ -1139,7 +1127,6 @@ me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
                         
                     }).catch(function (error) {
                         error401(error);
-                        console.log(error);
                     });
                     
                     
@@ -1189,7 +1176,6 @@ me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
                         
                     }).catch(function (error) {
                         error401(error);
-                        console.log(error);
                     });
                     
                     
@@ -1239,7 +1225,6 @@ me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
                         
                     }).catch(function (error) {
                         error401(error);
-                        console.log(error);
                     });
                     
                     
@@ -1491,7 +1476,6 @@ me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
                 })
                 .catch(function(error){
                     error401(error);
-                    console.log(error);
                 });
             },  
             selectRoles(){
@@ -1503,7 +1487,6 @@ me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
                     
                 })
                 .catch(function(error){
-                    console.log(error);
                 });
             },  
             selectSucursales(){
@@ -1515,7 +1498,6 @@ me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
            
                 })
                 .catch(function(error){
-                    console.log(error);
                 });
             },  
 
@@ -1539,9 +1521,6 @@ me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
             this.classModal.addModal('GetUsersWithRolesAndSucursals');
             this.classModal.addModal('registrar_mas_sucursales');
  
-         
-            
-            //console.log('Component mounted.')
         }
     }
 </script>

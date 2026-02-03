@@ -409,7 +409,7 @@ import { error401 } from '../../errores';
         methods :{
             //-----------------------------------permisos_R_W_S        
  listarPerimsoxyz() {
-                //console.log(this.codventana);
+       
     let me = this;
         
     var url = '/gestion_permiso_editar_eliminar?win='+me.codventana;
@@ -432,7 +432,6 @@ import { error401 } from '../../errores';
         })
         .catch(function(error) {
             error401(error);
-            console.log(error);
         });
 },
 //--------------------------------------------------------------  
@@ -449,7 +448,6 @@ import { error401 } from '../../errores';
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
                 
                 //me.fechafactura=me.fechaactual;
@@ -457,21 +455,7 @@ import { error401 } from '../../errores';
             tiempo(){
                 this.clearSelected=1;
             },
-            /*cleancategorias(){
-                this.idcategoria=[];
-                this.idcategoriaelected='';
             
-            },
-            categorias(categorias){
-                this.idcategoria=[];
-                for (const key in categorias) {
-                    if (categorias.hasOwnProperty(key)) {
-                        const element = categorias[key];
-                        //console.log(element);
-                        this.idcategoria.push(element);
-                    }
-                }
-            },*/
             listarCategorias(){
                 let me = this;
                 var url= '/categoria/selectcategoria2';
@@ -481,7 +465,6 @@ import { error401 } from '../../errores';
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
 
             },
@@ -504,7 +487,6 @@ import { error401 } from '../../errores';
                 })
                 .catch(function(error){
                     error401(error);
-                    console.log(error);
                 });
             },
             listarDescuentos(page){
@@ -512,14 +494,13 @@ import { error401 } from '../../errores';
                 var url='/proddescuento?page='+page+'&buscar='+me.buscar;
                 axios.get(url)
                 .then(function(response){
-                    console.log(response);
+                  
                     var respuesta=response.data;
                     me.pagination=respuesta.pagination;
                     me.arrayDescuentos=respuesta.descuentos.data;
                 })
                 .catch(function(error){
                     error401(error);
-                    console.log(error);
                 });
             },
             cambiarPagina(page){
@@ -529,8 +510,6 @@ import { error401 } from '../../errores';
             },
             registrarDescuento(){
                 let me = this;
-                //console.log(me.subcategoriaselected);
-                //me.regla=me.subcategoriaselected+"|"+me.detalleselected+"|"+me.limite+"|"+me.idcategoriaselected+"|"+me.fechainicio+"|"+me.fechafin+"|"+me.diaselected+"|"+me.repetir+"|"+me.fechax;
                 if (me.idtipodescuentoselected == 1) {
                     switch (me.subcategoriaselected) {
                         case me.arraySubCategorias[0]:
@@ -587,13 +566,12 @@ import { error401 } from '../../errores';
                     me.listarDescuentos(1);
                 }).catch(function(error){
                     error401(error);
-                    console.log(error);
                 });
 
             },
             eliminarDescuento(iddescuento){
                 let me=this;
-                //console.log("prueba");
+            
                 const swalWithBootstrapButtons = Swal.mixin({
                 customClass: {
                     confirmButton: 'btn btn-success',
@@ -625,7 +603,6 @@ import { error401 } from '../../errores';
                         
                     }).catch(function (error) {
                         error401(error);
-                        console.log(error);
                     }).finally(() => {
           me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
         });
@@ -645,7 +622,7 @@ import { error401 } from '../../errores';
             },
             activarDescuento(iddescuento){
                 let me=this;
-                //console.log("prueba");
+            
                 const swalWithBootstrapButtons = Swal.mixin({
                 customClass: {
                     confirmButton: 'btn btn-success',
@@ -677,7 +654,6 @@ import { error401 } from '../../errores';
                         
                     }).catch(function (error) {
                         error401(error);
-                        console.log(error.data);
                     });
                     
                     
@@ -741,7 +717,7 @@ import { error401 } from '../../errores';
                     'aplica_a':me.aplicaselected
 
                 }).then(function (response) {
-                    console.log(response);
+              
                     // if(response.data.length){
                     // }
                     // // console.log(response)
@@ -752,7 +728,6 @@ import { error401 } from '../../errores';
                     // } 
                 }).catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
                 me.cerrarModal('registrar');
 
@@ -858,7 +833,7 @@ import { error401 } from '../../errores';
                         this.listarSubcategorias();
                         this.listarDetalle();
                         let auxArray=data.regla.split("|");
-                        // console.log(auxArray[0]);
+                   
                         me.subcategoriaselected=auxArray[0];
                         this.listarDetalle();
                         me.detalleselected = auxArray[1]; 
@@ -911,7 +886,6 @@ import { error401 } from '../../errores';
             this.listarDescuentos(1);
             this.classModal = new _pl.Modals();
             this.classModal.addModal('registrar');
-            //console.log('Component mounted.')
         }
     }
 </script>

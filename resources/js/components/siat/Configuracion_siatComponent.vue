@@ -492,7 +492,7 @@ export default {
     methods: {
           //-----------------------------------permisos_R_W_S        
     listarPerimsoxyz() {
-                //console.log(this.codventana);
+         
     let me = this;   
         
     var url = '/gestion_permiso_editar_eliminar?win='+me.codventana;
@@ -973,11 +973,10 @@ validateFileExcel() {
         id_erp: row.id_erp === undefined || row.id_erp === "" ? null : row.id_erp, // Incluir "id_erp" con transformación
       }));
 
-      //console.log(processedData); // Verificar los datos procesados
+     
       this.subirExcel(processedData); // Enviar los datos procesados
             
-        //  console.log(jsonData);
-        // this.subirExcel(jsonData);
+      
         };
         reader.readAsArrayBuffer(file);
       }

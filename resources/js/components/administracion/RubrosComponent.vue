@@ -310,7 +310,6 @@ import {error401} from '../../errores.js';
         })
         .catch(function(error) {
             error401(error);
-            console.log(error);
         });
 },
 //--------------------------------------------------------------  
@@ -336,7 +335,6 @@ import {error401} from '../../errores.js';
                     var respuesta=response.data;
                     me.pagination=respuesta.pagination;                  
                     me.arrayRubros=respuesta.rubros.data;
-                    console.log( me.arrayRubros);
                 })
                 .catch(function(error){
                     error401(error);                    
@@ -406,7 +404,6 @@ import {error401} from '../../errores.js';
                         me.listarRubros();
                         
                     }).catch(function (error) {
-                        console.log(error);
                     });
                     
                     
@@ -454,7 +451,6 @@ import {error401} from '../../errores.js';
                         me.listarRubros();
                         
                     }).catch(function (error) {
-                        console.log(error);
                     });
                     
                     
@@ -483,7 +479,7 @@ import {error401} from '../../errores.js';
                 }).then(function (response) {
                     if(response.data.length){
                     }
-                    // console.log(response)
+                 
                     else{
                             Swal.fire('Actualizado Correctamente')
 
@@ -560,7 +556,6 @@ import {error401} from '../../errores.js';
             this.listarTipoActividad();
             this.classModal = new _pl.Modals();
             this.classModal.addModal('registrar');
-            //console.log('Component mounted.')
         }
     }
 </script>

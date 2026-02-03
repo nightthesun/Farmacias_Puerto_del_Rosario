@@ -34,7 +34,7 @@ return new class extends Migration
     $table->string('alias', 255)->nullable();
     $table->tinyInteger('uso_alias')->default(0)->nullable()->comment('0=no tiene, 1=nombre empresa, 2=alias');
     $table->smallInteger('stock_medio')->default(0)->nullable()->comment('0= defaul, 1=stock normal, 2=stock autmatico,3>etc');  
-    $table->tinyInteger('efecto_cobrante')->default(1)->nullable()->comment('0=no tiene, 1=por defecto, 2=con sobrante');
+    $table->tinyInteger('efecto_sobrante')->default(1)->nullable()->comment('0=no tiene, 1=por defecto, 2=con sobrante');
     $table->tinyInteger('qr_in_uso')->default(0)->nullable()->comment('0=desactivado, 1=activado,');
         });
     }

@@ -839,8 +839,7 @@ export default {
         .then(function(response) {
             var respuesta = response.data;  
             me.qr_estado_config=(respuesta.config_sistema[0]).qr_in_uso;  
-           console.log(respuesta);
-            console.log(me.qr_estado_config);         
+                 
         })
         .catch(function(error) {
             error401(error);       
@@ -936,7 +935,7 @@ json_operation_1(data) {
                     id_servicio:data.id_servicio
                 })
                 .then(function (response) {
-                    var respuesta = response.data;                  
+                    var respuesta = response.data;           
                      me.listar_endpoint_list();
                     if (respuesta.success==true) {                       
                         Swal.fire("Correcto.!",respuesta.message,"success");

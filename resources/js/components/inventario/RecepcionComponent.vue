@@ -593,7 +593,6 @@ export default {
         })
         .catch(function(error) {
             error401(error);
-            console.log(error);
         });
 },
 //--------------------------------------------------------------  
@@ -679,7 +678,6 @@ nameWithLang ({numero_traspaso,name_des,cantidad}) {
                     me.arrayRetornarTraspaso = respuesta;})
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
         listarTraspaso() {
@@ -696,7 +694,6 @@ nameWithLang ({numero_traspaso,name_des,cantidad}) {
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });  
             } 
         },
@@ -713,7 +710,6 @@ nameWithLang ({numero_traspaso,name_des,cantidad}) {
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
         cambiarPestana(idPestana) {
@@ -780,7 +776,7 @@ me.isSubmitting = true; // Deshabilita el botón
                     })
                     .catch(function (error) {
                         error401(error);
-                        console.log(error);
+                    
                     }).finally(() => {
           me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
         });
@@ -1025,7 +1021,7 @@ me.isSubmitting = true; // Deshabilita el botón
                         
                     }).catch(function (error) {
                         error401(error);
-                        console.log(error);
+                  
                     });
                 } else if (
                     /* Read more about handling dismissals below */
@@ -1070,7 +1066,7 @@ me.isSubmitting = true; // Deshabilita el botón
                         )
                     }).catch(function (error) {
                         error401(error);
-                        console.log(error);
+                     
                     });
                     
                     

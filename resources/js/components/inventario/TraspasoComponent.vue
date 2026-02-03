@@ -882,9 +882,7 @@ export default {
                     "Haga click en Ok",
                     "error",
                 );
-                console.log(
-                    "No se puede ingresar datos mayor que el stock actual",
-                );
+                
             } else 
             if (valor !== this.cantidadProductoLineaIngreso) {
                 this.cantidadS = valor;
@@ -1020,7 +1018,6 @@ sucursalSeleccionadaDestino: function (newValue) {
         })
         .catch(function(error) {
             error401(error);
-            console.log(error);
         });
 },
 //--------------------------------------------------------------  
@@ -1106,7 +1103,6 @@ validarQuitar(){
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
         sucursalFiltroDestino() {
@@ -1121,7 +1117,7 @@ validarQuitar(){
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
+                  
                 });
         },
 
@@ -1137,7 +1133,6 @@ validarQuitar(){
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
 
@@ -1169,7 +1164,6 @@ validarQuitar(){
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
 
@@ -1193,7 +1187,6 @@ validarQuitar(){
    })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
 
@@ -1208,7 +1201,7 @@ validarQuitar(){
             let respuesta = me.arraySucursal.find(
                 (element) => element.codigo == me.sucursalSeleccionada,
             );
-            //console.log(data);
+       
          switch (accion) {
                 case "registrar": {
                     me.isSubmitting=false;
@@ -1452,21 +1445,30 @@ me.isSubmitting = true; // Deshabilita el botón
                         'cantidad':me.cantidadS,                
                     })
                     .then(function (response) {
-                        
+                        var respuesta=response.data;
                         me.cerrarModal("registrar");
-                        Swal.fire(
+                        me.listarAjusteNegativos();
+                        me.sucursalFiltro();
+                        me.ProductoLineaIngreso(me.sucursalSeleccionada);
+                        if (respuesta==0) {
+                            Swal.fire(
                             "Se registro exitosamente",
                             "Haga click en Ok",
                             "success",
                         );
+                        } else {
+                            Swal.fire(
+                            respuesta,
+                            "Haga click en Ok",
+                            "error",
+                        );
+                        }
+                        
 
-                        me.listarAjusteNegativos();
-                        me.sucursalFiltro();
-                        me.ProductoLineaIngreso(me.sucursalSeleccionada);
+                        
                     })
                     .catch(function (error) {
                         error401(error);
-                        console.log(error);
                     }).finally(() => {
           me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
         });
@@ -1598,7 +1600,6 @@ me.isSubmitting = true; // Deshabilita el botón
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
 
@@ -1640,7 +1641,6 @@ me.isSubmitting = true; // Deshabilita el botón
                             })
                             .catch(function (error) {
                                 error401(error);
-                                console.log(error);
                             });
                     } else if (
                         /* Read more about handling dismissals below */
@@ -1692,7 +1692,6 @@ me.isSubmitting = true; // Deshabilita el botón
                             })
                             .catch(function (error) {
                                 error401(error);
-                                console.log(error);
                             });
                     } else if (
                         /* Read more about handling dismissals below */
@@ -1743,7 +1742,6 @@ me.isSubmitting = true; // Deshabilita el botón
                             })
                             .catch(function (error) {
                                 error401(error);
-                                console.log(error);
                             });
                     } else if (
                         /* Read more about handling dismissals below */
@@ -1815,7 +1813,6 @@ me.isSubmitting = true; // Deshabilita el botón
                             })
                             .catch(function (error) {
                                 error401(error);
-                                console.log(error);
                             });
                     } else if (
                         /* Read more about handling dismissals below */

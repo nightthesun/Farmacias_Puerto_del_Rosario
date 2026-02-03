@@ -701,7 +701,7 @@ handleInput(e) {
     sumar_top(id){
         let me=this;
         const element=0;
-        console.log(id);
+   
         if( me.inputTop[id]!="" || me.inputTop[id]!=null || me.inputTop[id]>=0){
              parseFloat(me.arrayTop[id].subtotal=(me.arrayTop[id].dispedido)*me.arrayTop[id].precio_lista).toFixed(2);
             let suma = 0;
@@ -778,7 +778,7 @@ handleInput(e) {
                 .then(function (response) {
                     let respuesta = response.data;  
                     me.arrayTop =respuesta.arrayMostrar;  
-                    console.log(respuesta);                 
+                               
                    
                     me.importe_total=respuesta.importe_total;
                     
@@ -834,7 +834,7 @@ handleInput(e) {
         listarIndiceVenta() {
         let me = this;    
         me.arrayModalConsultarVenta=[];
-            console.log("--------------**-");
+ 
        me.cargaDatos="Consulta enviada...";                    
                     me.dataLoderd=1;
            var url = "/auto-gestion-stock/listarIndiceVenta?data="+me.idsLineas+"&id_sucursal="+me.sucursalSeleccionada+"&tipo="+me.tipoSelect+"&tipoAlmTienda="+me.selectTipoTiendaOAlmacen+"&intervalo="+me.selectCiclo;
@@ -843,7 +843,7 @@ handleInput(e) {
                 .then(function (response) {
                    
                     var respuesta = response.data;
-                    console.log(respuesta);
+                    
                     if (respuesta.length>0) {     
                         let c1=0.1;
                                     let c2=0.25;
@@ -865,7 +865,7 @@ handleInput(e) {
                                     }else{
                                         estado="Exceso de productos";
                                     }
-                                    console.log(estado);
+                             
                                                                        
                                     let U=cantidad_venta+stock_ingreso_tienda;
                                     let Traspaso=cantidad_ingreso_tienda-U;
@@ -879,7 +879,7 @@ handleInput(e) {
                                             estadoTra="Ingreso con decremento: "+Traspaso;
                                         }
                                     }
-                                    console.log(estadoTra);
+                               
                                     let trasCantiIngre=cantidad_ingreso_tienda+Traspaso;   
                                                                    
                                     c1=trasCantiIngre*0.1;
@@ -935,7 +935,7 @@ handleInput(e) {
                     }
                     
                  me.dataLoderd=0;
-                    console.log(me.arrayModalConsultarVenta);                                               
+                                                         
                 })
                 .catch(function (error) {
                     error401(error);
@@ -953,7 +953,7 @@ handleInput(e) {
                    
                     var respuesta = response.data;
                     me.arrayProducto_2=respuesta;
-                    console.log(respuesta);
+            
                                                                  
                 })
                 .catch(function (error) {
@@ -970,8 +970,7 @@ handleInput(e) {
                 .then(function (response) {
                     var respuesta = response.data;  
                     me.arraySelect_distribuidor_x_producto=respuesta;   
-                    console.log("-----------------------------------");
-                    console.log(me.arraySelect_distribuidor_x_producto);             
+                     
                 })
                 .catch(function (error) {
                     error401(error);
@@ -986,11 +985,11 @@ handleInput(e) {
                 .then(function (response) {
                     var respuesta = response.data;  
                     me.arrayIndex=respuesta.arrayMostrar;                  
-                    console.log(respuesta);                 
+                               
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
+                 
                 });
         },
 
@@ -1002,11 +1001,11 @@ handleInput(e) {
                 .then(function (response) {
                     var respuesta = response.data;
                     me.arraySucursal = respuesta;
-                    console.log(me.arraySucursal);                 
+                         
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
+            
                 });
         },
 

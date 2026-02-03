@@ -429,7 +429,7 @@ export default {
                 })
               
                 .catch(function (error) {  
-                console.log(error.data);             
+               error401(error);           
             });
 
              me.isSubmitting = false;
@@ -486,7 +486,6 @@ export default {
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
                 
                 
@@ -505,7 +504,6 @@ export default {
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
 
@@ -546,7 +544,6 @@ export default {
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
 

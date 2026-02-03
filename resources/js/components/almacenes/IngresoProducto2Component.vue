@@ -465,7 +465,6 @@ puedeEditar:2,
         })
         .catch(function(error) {
             error401(error);
-            console.log(error);
         });
 },
 //--------------------------------------------------------------  
@@ -491,7 +490,6 @@ tiene_movimiento(id_almacen,id_index,ingresoProducto){
         })
         .catch(function(error) {
             error401(error);
-            console.log(error);
         });
 },
 
@@ -527,7 +525,6 @@ tiene_movimiento(id_almacen,id_index,ingresoProducto){
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
      
@@ -544,7 +541,6 @@ tiene_movimiento(id_almacen,id_index,ingresoProducto){
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
        
@@ -556,13 +552,19 @@ tiene_movimiento(id_almacen,id_index,ingresoProducto){
                 .get(url)
                 .then(function (response) {
                     var respuesta = response.data;
-                    me.arrayAlmTienda = respuesta;
+                    if (respuesta.length>0) {
+                         me.arrayAlmTienda = respuesta;
+                    } else {
+                        me.arrayAlmTienda = [];
+                         Swal.fire("Error","no exite almacen ", "error"
+                ); 
+                    }
+                   
           
                  
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
         cambiarPestana(idPestana) {
@@ -768,7 +770,7 @@ tiene_movimiento(id_almacen,id_index,ingresoProducto){
                     Swal.fire('Actualizado Correctamente')
                     me.listarIndex(1); 
                 }).catch(function (error) {
-                   console.log(error);
+                      error401(error);
                 });
                 me.cerrarModal('registrar');
             },
@@ -805,7 +807,6 @@ tiene_movimiento(id_almacen,id_index,ingresoProducto){
                         me.listarIndex(1);
                     }).catch(function (error) {
                         error401(error);
-                        console.log(error);
                     });
                         
                 } else if (
@@ -852,7 +853,6 @@ tiene_movimiento(id_almacen,id_index,ingresoProducto){
                         me.listarIndex(1);
                     }).catch(function (error) {
                         error401(error);
-                        console.log(error);
                     });
                     
                     
@@ -880,7 +880,6 @@ tiene_movimiento(id_almacen,id_index,ingresoProducto){
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
                 
                 

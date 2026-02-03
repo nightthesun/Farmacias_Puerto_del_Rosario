@@ -268,7 +268,7 @@ import { error401 } from '../../errores';
 
              //-----------------------------------permisos_R_W_S        
  listarPerimsoxyz() {
-                //console.log(this.codventana);
+        
     let me = this;
         
     var url = '/gestion_permiso_editar_eliminar?win='+me.codventana;
@@ -292,7 +292,7 @@ import { error401 } from '../../errores';
         })
         .catch(function(error) {
             error401(error);
-            console.log(error);
+      
         });
 },
 //--------------------------------------------------------------  
@@ -327,7 +327,7 @@ import { error401 } from '../../errores';
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
+                
                 });
         },
         registrarLista(){
@@ -409,11 +409,11 @@ me.isSubmitting = true; // Deshabilita el botón
                             'El registro a sido desactivado Correctamente',
                             'success'
                         )
-                        me.listarSucursales();
+                  
                         
                     }).catch(function (error) {
                         error401(error);
-                        console.log(error);
+               
                     });
                 } else if (
                     /* Read more about handling dismissals below */
@@ -457,7 +457,7 @@ me.isSubmitting = true; // Deshabilita el botón
                         )
                     }).catch(function (error) {
                         error401(error);
-                        console.log(error);
+                   
                     });
                     
                     

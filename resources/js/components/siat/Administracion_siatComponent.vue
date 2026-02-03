@@ -671,7 +671,7 @@ if (data===1) {
         if (trasaccion.textContent==='true') {
          
                
-         //   console.log(codigoCuis.textContent+" - "+fechaCuis.textContent);
+        
          if (data==1) {
             const codigoCuis= xmlDoc.querySelector('codigo');       
             const fechaCuis= xmlDoc.querySelector('fechaVigencia');    
@@ -695,7 +695,7 @@ if (data===1) {
         let cadena_nombre="";
        Array.from(mensajesList.children).forEach(child => {
         cadena_nombre += `${child.tagName}: ${child.textContent.trim()}\n`;   
-         // console.log(`${child.tagName}: ${child.textContent}`);         
+               
         });
         Swal.fire("Cuis!",""+cadena_nombre,"warning",);  
                 } else {
@@ -712,7 +712,7 @@ if (data===1) {
         }
         
     }   
-  // console.log(xmlDoc);
+ 
  
   },
 
@@ -747,7 +747,7 @@ if (data===1) {
                                                     
                 })               
                 .catch(function (error) {                
-                  console.log(error);                
+                 error401(error);
             });      
         },
 
@@ -775,7 +775,7 @@ if (data===1) {
                                                     
                 })               
                 .catch(function (error) {                
-                  console.log(error);                
+                  error401(error);             
             });      
         },
 //---------------------
@@ -805,9 +805,7 @@ if (data===1) {
                 me.codigodAmb=respuesta.tipo_ambiente;           
                 me.modalidad=respuesta.tipo_modalidad;
                 me.token_delegado=respuesta.token_delegado;    
-                    console.log("-------*--------");
-                    console.log(respuesta);         
-                    console.log("-------*--------");                                     
+                                                  
                 })
                 .catch(function(error){
                     error401(error);
@@ -842,7 +840,7 @@ if (data===1) {
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
+          
                 });
         },
 
@@ -941,7 +939,7 @@ if (data===1) {
                                                     
                 })               
                 .catch(function (error) {                
-                  console.log(error);                
+         error401(error);             
             }); 
         },    
         
@@ -971,7 +969,7 @@ if (data===1) {
                 })
                 .catch(function(error){
                     error401(error);
-                    console.log("--- >"+error);
+                  
                 }); 
         },
       
@@ -1030,7 +1028,7 @@ if (data===1) {
                                                     
                 })               
                 .catch(function (error) {                
-                  console.log(error);                
+                   error401(error);               
             });      
         },
 
@@ -1066,8 +1064,7 @@ if (data===1) {
                 axios.get(url)
                 .then(function(response){
                     var respuesta = response.data;
-                    console.log("---*");
-                    console.log(respuesta);
+                
                     me.arrayInicio=respuesta;              
                 })
                 .catch(function(error){
@@ -1088,7 +1085,7 @@ if (data===1) {
                                  
                 })               
                 .catch(function (error) {                
-                  console.log(error);                
+               error401(error);              
             });  
         },
 ////////////////////////////////////-----------CUFD-------
@@ -1130,7 +1127,7 @@ insertar_cufd(codigo_siat,cuis,id,id_emisor,cufd){
                 })
                     .then(function (response) {
                         var respuesta = response.data;  
-                        console.log(respuesta);
+                  
                         if (respuesta===0) {
                             Swal.fire("CUFD","Consulta exitosa","success",); 
                         } else {
@@ -1138,8 +1135,7 @@ insertar_cufd(codigo_siat,cuis,id,id_emisor,cufd){
                         } 
                       me.listarIndex(1);
                     }).catch(function (error) {
-                       error401(error);                        
-                        console.log(error);
+                       error401(error);  
                     });
                     
                     

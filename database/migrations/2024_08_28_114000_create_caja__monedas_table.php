@@ -20,7 +20,7 @@ return new class extends Migration
             $table->tinyInteger('activo')->default(1);
             $table->string('texto_unidad_entera',100)->nullable(); 
             $table->integer('unidad_entera')->nullable();
-          
+            $table->string('imagen')->nullable();           
             $table->timestamps();
         });
     }

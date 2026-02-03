@@ -503,7 +503,6 @@ export default {
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
 
@@ -609,7 +608,6 @@ export default {
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
 
@@ -753,8 +751,7 @@ me.isSubmitting = true; // Deshabilita el botón
                     .then(function (response) {
                          me.get_tiene_tesoreria(); 
                         me.listarIndex();                       
-                        let respuesta = response.data;  
-                        console.log(respuesta);                                    
+                        let respuesta = response.data;                                   
                     me.cerrarModal('registrar');                        
                         Swal.fire(
                         "Registrado exitosamente",
@@ -832,7 +829,7 @@ me.isSubmitting = true; // Deshabilita el botón
                        
                                              
                         let respuesta = response.data;  
-                        console.log(respuesta);                                    
+                                                      
                     me.cerrarModal('registrar');                        
                         Swal.fire(
                         "Registrado exitosamente",
@@ -898,7 +895,7 @@ me.isSubmitting = true; // Deshabilita el botón
                  
                 }).catch(function (error) {
                     error401(error);
-                    console.log(error);
+                
                 });
         },
 

@@ -288,7 +288,7 @@ listarPerimsoxyz() {
         })
         .catch(function(error) {
             error401(error);
-            console.log(error);
+        
         });
 },
 //-------------------------------------------------
@@ -305,7 +305,7 @@ listarPerimsoxyz() {
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
+   
                 });
     },  
 
@@ -321,7 +321,7 @@ listarPerimsoxyz() {
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
+               
                 });
         },
         cambiarPestana(idPestana) {
@@ -418,7 +418,7 @@ listarPerimsoxyz() {
                         
                     }).catch(function (error) {
                         error401(error);
-                        console.log(error);
+                   
                     });
                 } else if (
                     /* Read more about handling dismissals below */

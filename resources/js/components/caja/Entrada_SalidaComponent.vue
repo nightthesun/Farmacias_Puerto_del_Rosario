@@ -755,8 +755,7 @@ me.isSubmitting = true; // Deshabilita el botón
                         let valor=respuesta.valor;
                         let simbolo=respuesta.simbolo;
                         let user=respuesta.user;                           
-                       //console.log("--->"+razon_social+" "+direccion+" "+lugar+" "+id+" "+soloFecha+" "+soloHora+" "+mensaje+" "+observacion+" "+valor+" "+simbolo+" "+user); 
-                       me.cerrarModal('registrar');                        
+                        me.cerrarModal('registrar');                        
                         Swal.fire(
                         "Registrado exitosamente",
                         "Haga click en Ok",
@@ -849,7 +848,6 @@ me.isSubmitting = true; // Deshabilita el botón
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
 
@@ -872,7 +870,6 @@ me.isSubmitting = true; // Deshabilita el botón
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
 
@@ -888,7 +885,6 @@ me.isSubmitting = true; // Deshabilita el botón
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
 
@@ -905,7 +901,6 @@ me.isSubmitting = true; // Deshabilita el botón
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
         cambiarPestana(idPestana) {

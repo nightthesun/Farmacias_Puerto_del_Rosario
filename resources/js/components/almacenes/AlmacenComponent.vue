@@ -351,7 +351,6 @@ import { error401 } from '../../errores';
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
 
 
@@ -359,7 +358,7 @@ import { error401 } from '../../errores';
             listarposicion(idestante){
                 let me=this;
                 let respuesta=me.arrayEstantes.find(element=>element.id==idestante);
-                //console.log(respuesta);
+              
                 var valor
                 me.codestante=respuesta.codestante;
                 me.ubicacionSelected=0;
@@ -398,7 +397,6 @@ import { error401 } from '../../errores';
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
                 
                 
@@ -416,30 +414,13 @@ import { error401 } from '../../errores';
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
                 
                 
 
 
             },
-            /*
-            productos(productos){
-                this.idproducto=[];
-                for (const key in productos) {
-                    if (productos.hasOwnProperty(key)) {
-                        const element = productos[key];
-                        //console.log(element);
-                        this.idproducto.push(element);
-                    }
-                }
-                //console.log(this.idprestaciones);
-            },
-            cleanproductos(){
-                this.idproducto=[];
-                this.idproductoselected='';
-            
-            },*/
+           
             listarProductosAlmacen(page){
                 let me=this;
                 //me.listarEstantes(me.sucursalselected);
@@ -453,7 +434,6 @@ import { error401 } from '../../errores';
                 })
                 .catch(function(error){
                     error401(error);
-                    console.log(error);
                 });
 
             },
@@ -466,7 +446,6 @@ import { error401 } from '../../errores';
                 })
                 .catch(function(error){
                     error401(error);
-                    console.log(error);
                 });
             },
             cambiarPagina(page){
@@ -493,13 +472,11 @@ import { error401 } from '../../errores';
                     me.listarProductosAlmacen(1);
                 }).catch(function(error){
                     error401(error);
-                    console.log(error);
                 });
 
             },
             eliminarAlmacen(idalmacen){
                 let me=this;
-                //console.log("prueba");
                 const swalWithBootstrapButtons = Swal.mixin({
                 customClass: {
                     confirmButton: 'btn btn-success',
@@ -531,7 +508,6 @@ import { error401 } from '../../errores';
                         
                     }).catch(function (error) {
                         error401(error);
-                        console.log(error);
                     });
                     
                     
@@ -549,7 +525,6 @@ import { error401 } from '../../errores';
             },
             activarAlmacen(idalmacen){
                 let me=this;
-                //console.log("prueba");
                 const swalWithBootstrapButtons = Swal.mixin({
                 customClass: {
                     confirmButton: 'btn btn-success',
@@ -581,7 +556,6 @@ import { error401 } from '../../errores';
                         
                     }).catch(function (error) {
                         error401(error);
-                        console.log(error);
                     });
                     
                     
@@ -597,31 +571,7 @@ import { error401 } from '../../errores';
                 }
                 })
             },
-            /* actualizarAlmacen(){
-               // const Swal = require('sweetalert2')
-                let me =this;
-                axios.put('/almacen/actualizar',{
-                    'id':me.idalmacen,
-                    'nombre':me.nombre,
-                    'precio':me.precio,
-                    'descripcion':me.descripcion,
-                    
-                }).then(function (response) {
-                    if(response.data.length){
-                    }
-                    // console.log(response)
-                    else{
-                            Swal.fire('Actualizado Correctamente')
-
-                        me.listarProductosAlmacen(1);
-                    } 
-                }).catch(function (error) {
-                   
-                });
-                me.cerrarModal('registrar');
-
-
-            }, */
+           
             abrirModal(accion,data= []){
                 let me=this;
                 me.listarEstantes(me.sucursalselected);
@@ -695,7 +645,6 @@ import { error401 } from '../../errores';
             this.classModal = new _pl.Modals();
             this.classModal.addModal('registrar');
             this.listarProductos();
-            //console.log('Component mounted.')
         }
     }
 </script>

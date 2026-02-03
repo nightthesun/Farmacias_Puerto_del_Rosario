@@ -830,9 +830,7 @@ export default {
                     "Haga click en Ok",
                     "error",
                 );
-                console.log(
-                    "No se puede ingresar datos mayor que el stock actual",
-                );
+               
             } else if (valor !== this.cantidadProductoLineaIngreso) {
                 this.cantidadS = valor;
             }
@@ -885,7 +883,7 @@ export default {
 
 //-----------------------------------permisos_R_W_S        
 listarPerimsoxyz() {
-                //console.log(this.codventana);
+         
     let me = this;
         
     var url = '/gestion_permiso_editar_eliminar?win='+me.codventana;
@@ -909,7 +907,6 @@ listarPerimsoxyz() {
         })
         .catch(function(error) {
             error401(error);
-            console.log(error);
         });
 },
 
@@ -977,7 +974,6 @@ nameWithLang ({codigo_producto,leyenda,fecha_ingreso,lote,fecha_vencimiento,stoc
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
 
@@ -993,7 +989,6 @@ nameWithLang ({codigo_producto,leyenda,fecha_ingreso,lote,fecha_vencimiento,stoc
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
 
@@ -1029,7 +1024,6 @@ nameWithLang ({codigo_producto,leyenda,fecha_ingreso,lote,fecha_vencimiento,stoc
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
 
@@ -1050,7 +1044,6 @@ nameWithLang ({codigo_producto,leyenda,fecha_ingreso,lote,fecha_vencimiento,stoc
    })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
 
@@ -1298,10 +1291,7 @@ me.isSubmitting = true; // Deshabilita el botón
                         me.sucursalFiltro();
                     })
                     
-                  //  .catch(function (error) {
-                  //      error401(error);
-                  //      console.log(error);
-                  //  });
+                 
                   .catch(function (error) {           
                 
                 if (error.response.status === 500) {
@@ -1409,7 +1399,6 @@ me.isSubmitting = true; // Deshabilita el botón
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
 
@@ -1450,10 +1439,7 @@ me.isSubmitting = true; // Deshabilita el botón
                                 );
                                 me.listarAjusteNegativos();
                             })
-                           // .catch(function (error) {
-                           //     error401(error);
-                           //     console.log(error);
-                           // });
+                          
                            .catch(function (error) {           
                 
                 if (error.response.status === 500) {
@@ -1540,10 +1526,7 @@ me.isSubmitting = true; // Deshabilita el botón
                                     "success",
                                 );
                             })
-                          //  .catch(function (error) {
-                          //      error401(error);
-                          //      console.log(error);
-                           // });
+                        
                            .catch(function (error) {           
                 
                 if (error.response.status === 500) {

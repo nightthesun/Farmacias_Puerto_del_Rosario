@@ -201,7 +201,7 @@ import { error401 } from '../../errores';
         methods :{
              //-----------------------------------permisos_R_W_S        
     listarPerimsoxyz() {
-                //console.log(this.codventana);
+            
     let me = this;
    
         
@@ -210,7 +210,7 @@ import { error401 } from '../../errores';
     axios.get(url)
         .then(function(response) {
             var respuesta = response.data;
-            console.log(respuesta);
+          
             if(respuesta=="root"){
             me.puedeEditar=1;
             me.puedeActivar=1;
@@ -226,7 +226,6 @@ import { error401 } from '../../errores';
         })
         .catch(function(error) {
             error401(error);
-            console.log(error);
         });
 },
 //-------------------------------------------------------------- 
@@ -241,7 +240,6 @@ import { error401 } from '../../errores';
                 })
                 .catch(function(error){
                     error401(error);
-                    console.log(error);
                 });
             },
             cambiarPagina(page){
@@ -266,13 +264,11 @@ import { error401 } from '../../errores';
                     }
                 }).catch(function(error){
                     error401(error);
-                    console.log(error);
                 });
 
             },
             eliminarCargo(idcargo){
                 let me=this;
-                //console.log("prueba");
                 const swalWithBootstrapButtons = Swal.mixin({
                 customClass: {
                     confirmButton: 'btn btn-success',
@@ -304,7 +300,6 @@ import { error401 } from '../../errores';
                         
                     }).catch(function (error) {
                         error401(error);
-                        console.log(error);
                     });
                     
                     
@@ -322,7 +317,6 @@ import { error401 } from '../../errores';
             },
             activarCargo(idcargo){
                 let me=this;
-                //console.log("prueba");
                 const swalWithBootstrapButtons = Swal.mixin({
                 customClass: {
                     confirmButton: 'btn btn-success',
@@ -354,7 +348,6 @@ import { error401 } from '../../errores';
                         
                     }).catch(function (error) {
                         error401(error);
-                        console.log(error);
                     });
                     
                     
@@ -381,7 +374,7 @@ import { error401 } from '../../errores';
                 }).then(function (response) {
                     if(response.data.length){
                     }
-                    // console.log(response)
+                  
                     else{
                             Swal.fire('Actualizado Correctamente')
 
@@ -444,7 +437,6 @@ import { error401 } from '../../errores';
             this.listarCargo(1);
             this.classModal = new _pl.Modals();
             this.classModal.addModal('registrar');
-            //console.log('Component mounted.')
         }
     }
 </script>

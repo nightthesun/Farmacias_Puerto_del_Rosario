@@ -471,7 +471,6 @@ export default {
         })
         .catch(function(error) {
             error401(error);
-            console.log(error);
         });
 },
 //--------------------------------------------------------------  
@@ -496,7 +495,6 @@ export default {
                 })
                 .catch(function(error){
                     error401(error);
-                    console.log(error);
                 });
         },
 
@@ -507,12 +505,10 @@ export default {
                 .then(function (response) {
                     var respuesta = response.data;
                     me.options = respuesta;
-                    console.log(me.options);
                                
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
 
@@ -530,7 +526,6 @@ export default {
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
      
@@ -540,7 +535,6 @@ export default {
               
          
             if (me.alias.trim()==="") {
-                console.log("input sin datos");
                 if (datoNom===null||datoNom==="") {                
                 me.alias=me.selected.nom_a_facturar; 
                 }else{
@@ -561,7 +555,7 @@ export default {
                                                               
                     })       
                     .then(function (response) {
-                        console.log(response.data);
+                    
                         me.cerrarModal("registrar");
                         me.listarDistribuidor();                  
                         Swal.fire(
@@ -571,10 +565,7 @@ export default {
                         );
                     })                
                   .catch(function (error) { 
-                   console.log(error);
-                    // console.log(error.response.data);          
-                  //  this.errorMessage = error.response.data; // Aquí guardamos el error
-                  //  Swal.fire("Error comunicarse con el administrador",""+errorMessage,"error");               
+                      error401(error);    
             });
         },
 
@@ -583,7 +574,7 @@ export default {
               // Si ya está enviando, no permitas otra solicitud
             let datoNom=me.selected.name_all.trim();
             if (me.alias.trim()==="") {
-                console.log("input sin datos");
+              
                 if (datoNom===null||datoNom==="") {                
                 me.alias=me.selected.nom_a_facturar; 
                 }else{
@@ -617,7 +608,6 @@ me.isSubmitting = true; // Deshabilita el botón
                     })                
                   .catch(function (error) { 
                     error401(error);
-                    console.log(error);
         }).finally(() => {
           me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
         });
@@ -718,10 +708,7 @@ me.isSubmitting = true; // Deshabilita el botón
             });      
                     me.contacto=data.contacto;
                     me.id_distribuidor=data.id;
-                   
-                   console.log("---------------------");
-                   
-                    console.log(me.alias);
+                 
                     me.classModal.openModal("registrar");
 
                     break;
@@ -779,7 +766,6 @@ me.isSubmitting = true; // Deshabilita el botón
                         
                     }).catch(function (error) {
                         error401(error);
-                        console.log(error);
                     });
                 } else if (
                     /* Read more about handling dismissals below */
@@ -824,7 +810,6 @@ me.isSubmitting = true; // Deshabilita el botón
                         )
                     }).catch(function (error) {
                         error401(error);
-                        console.log(error);
                     });
                     
                     

@@ -66,9 +66,9 @@ class AdmQrSimpleController extends Controller
         if ($query_1['success']==true) {
            switch ($opcion_1) {
             case 1:
-                $data_1=$this->opcion_1_1($id_qr_simple,$id,$tipo); 
+                $data_1=$this->opcion_1_1($id_qr_simple,$id,$tipo);                
                 $data = $data_1->getData(); // stdClass
-                $success = $data->success;  
+                $success = $data->success; 
                           
                   if ($success==1 ||$success=='1') { 
                    //  $A=$this->activar_p($id); 
@@ -202,7 +202,8 @@ $token = str_replace(["\r", "\n", " "], '', $token_qr);
 //data de query glosa
 
     // Enviar request
-$response = Http::withHeaders([    
+    try {
+       $response = Http::withHeaders([    
     'Cache-Control' => 'no-cache',
     'Authorization' => 'Bearer ' . $token,
     'Content-Type'  => 'application/json',
@@ -214,6 +215,13 @@ $response = Http::withHeaders([
    
      'qrId'             => $idQR,       
 ]);
+    } catch (\Throwable $th) {
+        return response()->json([
+                'success' => false,
+    'message' => 'error de link del banco o credenciales revise la documentacion y las credenciales, token'
+            ]);
+    }
+
 if ($response->ok()) {
      $data = $response->json();   
    
@@ -263,7 +271,8 @@ $newDate = date('d/m/Y', strtotime($fecha));
 //data de query glosa
 
     // Enviar request
-$response = Http::withHeaders([    
+    try {
+       $response = Http::withHeaders([    
     'Cache-Control' => 'no-cache',
     'Authorization' => 'Bearer ' . $token,
     'Content-Type'  => 'application/json',
@@ -275,6 +284,13 @@ $response = Http::withHeaders([
    
      'generationDate'             => $newDate,       
 ]);
+    } catch (\Throwable $th) {
+        return response()->json([
+                'success' => false,
+    'message' => 'error de link del banco o credenciales revise la documentacion y las credenciales, token'
+            ]);
+    }
+
 if ($response->ok()) {
      $data = $response->json();   
    
@@ -342,7 +358,8 @@ if ($glosa_3->tipoFecha==1) {
     $additionalData =$glosa_3->additionalData;
     $destinationAccountId=$glosa_3->destinationAccountId;
     // Enviar request
-$response = Http::withHeaders([    
+    try {
+      $response = Http::withHeaders([    
     'Cache-Control' => 'no-cache',
     'Authorization' => 'Bearer ' . $token,
     'Content-Type'  => 'application/json',
@@ -362,6 +379,13 @@ $response = Http::withHeaders([
         'additionalData'       => $additionalData,
         'destinationAccountId' => $destinationAccountId,
 ]);
+    } catch (\Throwable $th) {
+       return response()->json([
+                'success' => false,
+    'message' => 'error de link del banco o credenciales revise la documentacion y las credenciales, token'
+            ]);
+    }
+
 if ($response->ok()) {
      $data = $response->json();   
    
@@ -418,7 +442,8 @@ $textoEncriptado = substr($pass_1, 2, -3);
 // Desencriptar
 $passwordOriginal = Crypt::decrypt($textoEncriptado);
 // Enviar request
-$response = Http::withHeaders([
+try {
+   $response = Http::withHeaders([
     'Content-Type' => 'application/json',
     'Authorization' => 'Bearer ' . $token,
 
@@ -433,9 +458,12 @@ $response = Http::withHeaders([
     'actualAuthorizationId' => $passwordOriginal,
     'newAuthorizationId' => $nuevo,
 ]);
-
-
-
+} catch (\Throwable $th) {
+   return response()->json([
+                'success' => false,
+    'message' => 'error de link del banco o credenciales revise la documentacion y las credenciales, token'
+            ]);
+}
 if ($response->ok()) {
      $data = $response->json();   
    
@@ -488,8 +516,8 @@ $textoEncriptado = substr($pass_1, 2, -3);
 
 // Desencriptar
 $passwordOriginal = Crypt::decrypt($textoEncriptado);
-
-// Enviar request
+try {
+  // Enviar request
 $response = Http::withHeaders([
     'Content-Type' => 'application/json',
     //----------añadio--------
@@ -501,6 +529,13 @@ $response = Http::withHeaders([
     'accountId' => $user_1,
     'authorizationId' => $passwordOriginal,
 ]);
+} catch (\Throwable $th) {
+     return response()->json([
+                'success' => false,
+    'message' => 'error de link del banco o credenciales revise la documentacion y las credenciales'
+            ]);
+}
+
 
 
 

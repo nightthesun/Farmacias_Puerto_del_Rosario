@@ -2172,7 +2172,6 @@ puedeEditar:2,
 //-----------------ECUACIONES------------------------------------------
 editarEcuacionZ(){
     let me=this;
-    console.log(me.ecuacion_radio_1);
     axios.put("/credenciales_correo/modificarEcuacionZ", {
                     ecuacion_radio_1:me.ecuacion_radio_1,  
                                                                       

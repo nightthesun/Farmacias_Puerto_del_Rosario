@@ -332,7 +332,7 @@ export default {
                     (element) => element.codigo_activdad_siat === newValue,
                    
                 );
-          console.log(selector);
+  
                if (selector) {
                  
                    this.id_rubro = selector.id;                                 

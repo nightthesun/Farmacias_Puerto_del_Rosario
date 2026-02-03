@@ -453,7 +453,7 @@ puedeEditar:2,
         })
         .catch(function(error) {
             error401(error);
-            console.log(error);
+
         });
 },
 //--------------------------------------------------------------  
@@ -480,7 +480,7 @@ tiene_movimiento(id_almacen,id_index,ingresoProducto){
         })
         .catch(function(error) {
             error401(error);
-            console.log(error);
+
         });
 },
 
@@ -516,7 +516,7 @@ tiene_movimiento(id_almacen,id_index,ingresoProducto){
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
+                
                 });
         },
 
@@ -532,7 +532,7 @@ tiene_movimiento(id_almacen,id_index,ingresoProducto){
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
+       
                 });
         },
        
@@ -549,7 +549,7 @@ tiene_movimiento(id_almacen,id_index,ingresoProducto){
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
+             
                 });
         },
         cambiarPestana(idPestana) {
@@ -570,7 +570,7 @@ tiene_movimiento(id_almacen,id_index,ingresoProducto){
                     var respuesta = response.data;
                     me.pagination = respuesta.pagination;
                     me.arrayIndex = respuesta.tienda.data;
-                    console.log(me.arrayIndex);
+     
                     
                 })
                 .catch(function(error){
@@ -754,7 +754,7 @@ tiene_movimiento(id_almacen,id_index,ingresoProducto){
                     Swal.fire('Actualizado Correctamente')
                     me.listarIndex(1); 
                 }).catch(function (error) {
-                   console.log(error);
+                error401(error);
                 });
                 me.cerrarModal('registrar');
             },
@@ -791,7 +791,7 @@ tiene_movimiento(id_almacen,id_index,ingresoProducto){
                         me.listarIndex(1);
                     }).catch(function (error) {
                         error401(error);
-                        console.log(error);
+                      
                     });
                         
                 } else if (
@@ -838,7 +838,7 @@ tiene_movimiento(id_almacen,id_index,ingresoProducto){
                         me.listarIndex(1);
                     }).catch(function (error) {
                         error401(error);
-                        console.log(error);
+                      
                     });
                     
                     
@@ -866,7 +866,7 @@ tiene_movimiento(id_almacen,id_index,ingresoProducto){
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
+              
                 });
                 
                 

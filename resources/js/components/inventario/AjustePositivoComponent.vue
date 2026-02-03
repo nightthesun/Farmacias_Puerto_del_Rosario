@@ -995,7 +995,7 @@ export default {
 
         //-----------------------------------permisos_R_W_S        
  listarPerimsoxyz() {
-                //console.log(this.codventana);
+           
     let me = this;        
     var url = '/gestion_permiso_editar_eliminar?win='+me.codventana;  
     axios.get(url)
@@ -1017,7 +1017,6 @@ export default {
         })
         .catch(function(error) {
             error401(error);
-            console.log(error);
         });
 },
 //--------------------------------------------------------------  
@@ -1096,7 +1095,6 @@ export default {
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
 
@@ -1112,7 +1110,6 @@ export default {
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
 
@@ -1149,7 +1146,6 @@ export default {
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
 
@@ -1176,7 +1172,6 @@ export default {
    })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
         ListarretornarProductosIngresoCero() {
@@ -1200,7 +1195,6 @@ export default {
                  })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
 
@@ -1536,10 +1530,7 @@ me.isSubmitting = true; // Deshabilita el botón
                         me.listarAjusteNegativos();
                         me.sucursalFiltro();
                     })
-                   // .catch(function (error) {
-                   //     error401(error);
-                   //     console.log(error);
-                   // });
+                  
                    .catch(function (error) {                
                 if (error.response.status === 500) {
                     me.errorMsg = error.response.data.error; // Asigna el mensaje de error a la variable errorMsg
@@ -1633,7 +1624,6 @@ me.isSubmitting = true; // Deshabilita el botón
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
 
@@ -1672,10 +1662,7 @@ me.isSubmitting = true; // Deshabilita el botón
                                 );
                                 me.listarAjusteNegativos();
                             })
-                       //     .catch(function (error) {
-                       //         error401(error);
-                       //         console.log(error);
-                       //     });
+                      
                        .catch(function (error) {                
                 if (error.response.status === 500) {
                     me.errorMsg = error.response.data.error; // Asigna el mensaje de error a la variable errorMsg
@@ -1808,10 +1795,7 @@ me.isSubmitting = true; // Deshabilita el botón
                                     "success",
                                 );
                             })
-                           // .catch(function (error) {
-                           //     error401(error);
-                           //     console.log(error);
-                           // });
+                        
             .catch(function (error) {                
                 if (error.response.status === 500) {
                     me.errorMsg = error.response.data.error; // Asigna el mensaje de error a la variable errorMsg

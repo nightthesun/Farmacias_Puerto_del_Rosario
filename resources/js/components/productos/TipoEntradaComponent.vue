@@ -234,7 +234,7 @@ import { error401 } from '../../errores';
 
             //-----------------------------------permisos_R_W_S        
  listarPerimsoxyz() {
-                //console.log(this.codventana);
+        
     let me = this;
         
     var url = '/gestion_permiso_editar_eliminar?win='+me.codventana;
@@ -258,7 +258,7 @@ import { error401 } from '../../errores';
         })
         .catch(function(error) {
             error401(error);
-            console.log(error);
+         
         });
 },
 //--------------------------------------------------------------  
@@ -274,7 +274,7 @@ import { error401 } from '../../errores';
                 })
                 .catch(function(error){
                     error401(error);
-                    console.log(error);
+              
                 });
             },
 
@@ -312,7 +312,7 @@ import { error401 } from '../../errores';
                     me.listarTipoEntrada(1);
                 }).catch(function(error){
                     error401(error);
-                    console.log(error);
+                
                 }) .finally(() => {
           me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
         });
@@ -329,7 +329,7 @@ import { error401 } from '../../errores';
                     me.listarTipoEntrada(1);
                 }).catch(function (error) {
                     error401(error);
-                    console.log(error);
+                
                 });
                 me.cerrarModal('registrar');
             },
@@ -368,7 +368,7 @@ import { error401 } from '../../errores';
                         
                     }).catch(function (error) {
                         error401(error);
-                        console.log(error);
+                
                     });  
                 } else if (
                     /* Read more about handling dismissals below */
@@ -416,7 +416,7 @@ import { error401 } from '../../errores';
                         
                     }).catch(function (error) {
                         error401(error);
-                        console.log(error);
+                  
                     });
                     
                     
@@ -486,7 +486,7 @@ import { error401 } from '../../errores';
             this.listarTipoEntrada(1);
             this.classModal = new _pl.Modals();
             this.classModal.addModal('registrar');
-            //console.log('Component mounted.')
+         
         }
     }
 </script>

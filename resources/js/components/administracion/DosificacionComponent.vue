@@ -454,7 +454,6 @@ export default {
         })
         .catch(function(error) {
             error401(error);
-            console.log(error);
         });
 },
 //--------------------------------------------------------------  
@@ -628,7 +627,6 @@ validateNumber() {
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
 
@@ -645,7 +643,6 @@ validateNumber() {
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
 
@@ -673,7 +670,6 @@ validateNumber() {
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
             
@@ -712,7 +708,6 @@ validateNumber() {
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
                 });
         },
 
@@ -845,7 +840,6 @@ validateNumber() {
                         )
                     }).catch(function (error) {
                         error401(error);
-                        console.log(error);
                     });
                     
                     
@@ -899,7 +893,6 @@ validateNumber() {
                         
                     }).catch(function (error) {
                         error401(error);
-                        console.log(error);
                     });
                 } else if (
                     /* Read more about handling dismissals below */
