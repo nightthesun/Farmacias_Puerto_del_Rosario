@@ -734,7 +734,7 @@ listarPerimsoxyz() {
                 me.isSubmitting=null;
                 me.id_producto="";
                 me.cadenaTexto="";
-                me. me.id_index="";                  
+                me.id_index="";                  
                     
             }
         },

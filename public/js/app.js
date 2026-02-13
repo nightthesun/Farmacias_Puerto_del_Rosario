@@ -56873,7 +56873,7 @@ __webpack_require__.r(__webpack_exports__);
         me.isSubmitting = null;
         me.id_producto = "";
         me.cadenaTexto = "";
-        me.me.id_index = "";
+        me.id_index = "";
       }
     },
     selectAll: function selectAll(event) {
@@ -146589,7 +146589,7 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/**
   var undefined;
 
   /** Used as the semantic version number. */
-  var VERSION = '4.17.23';
+  var VERSION = '4.17.21';
 
   /** Used as the size to enable large array optimizations. */
   var LARGE_ARRAY_SIZE = 200;
@@ -150343,7 +150343,7 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/**
           if (isArray(iteratee)) {
             return function(value) {
               return baseGet(value, iteratee.length === 1 ? iteratee[0] : iteratee);
-            };
+            }
           }
           return iteratee;
         });
@@ -150947,47 +150947,8 @@ var __WEBPACK_AMD_DEFINE_RESULT__;/**
      */
     function baseUnset(object, path) {
       path = castPath(path, object);
-
-      // Prevent prototype pollution, see: https://github.com/lodash/lodash/security/advisories/GHSA-xxjr-mmjv-4gpg
-      var index = -1,
-          length = path.length;
-
-      if (!length) {
-        return true;
-      }
-
-      var isRootPrimitive = object == null || (typeof object !== 'object' && typeof object !== 'function');
-
-      while (++index < length) {
-        var key = path[index];
-
-        // skip non-string keys (e.g., Symbols, numbers)
-        if (typeof key !== 'string') {
-          continue;
-        }
-
-        // Always block "__proto__" anywhere in the path if it's not expected
-        if (key === '__proto__' && !hasOwnProperty.call(object, '__proto__')) {
-          return false;
-        }
-
-        // Block "constructor.prototype" chains
-        if (key === 'constructor' &&
-            (index + 1) < length &&
-            typeof path[index + 1] === 'string' &&
-            path[index + 1] === 'prototype') {
-
-          // Allow ONLY when the path starts at a primitive root, e.g., _.unset(0, 'constructor.prototype.a')
-          if (isRootPrimitive && index === 0) {
-            continue;
-          }
-
-          return false;
-        }
-      }
-
-      var obj = parent(object, path);
-      return obj == null || delete obj[toKey(last(path))];
+      object = parent(object, path);
+      return object == null || delete object[toKey(last(path))];
     }
 
     /**
@@ -269512,13 +269473,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _AnotherExample_vue_vue_type_template_id_0912e892__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./AnotherExample.vue?vue&type=template&id=0912e892 */ "./resources/js/components/AnotherExample.vue?vue&type=template&id=0912e892");
 /* harmony import */ var _AnotherExample_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./AnotherExample.vue?vue&type=script&lang=js */ "./resources/js/components/AnotherExample.vue?vue&type=script&lang=js");
-/* harmony import */ var C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
+/* harmony import */ var C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
 
 
 
 
 ;
-const __exports__ = /*#__PURE__*/(0,C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_2__["default"])(_AnotherExample_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_AnotherExample_vue_vue_type_template_id_0912e892__WEBPACK_IMPORTED_MODULE_0__.render],['__file',"resources/js/components/AnotherExample.vue"]])
+const __exports__ = /*#__PURE__*/(0,C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_2__["default"])(_AnotherExample_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_AnotherExample_vue_vue_type_template_id_0912e892__WEBPACK_IMPORTED_MODULE_0__.render],['__file',"resources/js/components/AnotherExample.vue"]])
 /* hot reload */
 if (false) {}
 
@@ -269540,13 +269501,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _Example_vue_vue_type_template_id_63af75cf__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Example.vue?vue&type=template&id=63af75cf */ "./resources/js/components/Example.vue?vue&type=template&id=63af75cf");
 /* harmony import */ var _Example_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Example.vue?vue&type=script&lang=js */ "./resources/js/components/Example.vue?vue&type=script&lang=js");
-/* harmony import */ var C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
+/* harmony import */ var C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
 
 
 
 
 ;
-const __exports__ = /*#__PURE__*/(0,C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_2__["default"])(_Example_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_Example_vue_vue_type_template_id_63af75cf__WEBPACK_IMPORTED_MODULE_0__.render],['__file',"resources/js/components/Example.vue"]])
+const __exports__ = /*#__PURE__*/(0,C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_2__["default"])(_Example_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_Example_vue_vue_type_template_id_63af75cf__WEBPACK_IMPORTED_MODULE_0__.render],['__file',"resources/js/components/Example.vue"]])
 /* hot reload */
 if (false) {}
 
@@ -269567,12 +269528,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
 /* harmony import */ var _Principal_vue_vue_type_template_id_809d595a__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Principal.vue?vue&type=template&id=809d595a */ "./resources/js/components/Principal.vue?vue&type=template&id=809d595a");
-/* harmony import */ var C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
+/* harmony import */ var C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
 
 const script = {}
 
 ;
-const __exports__ = /*#__PURE__*/(0,C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_1__["default"])(script, [['render',_Principal_vue_vue_type_template_id_809d595a__WEBPACK_IMPORTED_MODULE_0__.render],['__file',"resources/js/components/Principal.vue"]])
+const __exports__ = /*#__PURE__*/(0,C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_1__["default"])(script, [['render',_Principal_vue_vue_type_template_id_809d595a__WEBPACK_IMPORTED_MODULE_0__.render],['__file',"resources/js/components/Principal.vue"]])
 /* hot reload */
 if (false) {}
 
@@ -269595,7 +269556,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _ConfiguracionComponent_vue_vue_type_template_id_2bc98ffb_scoped_true__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./ConfiguracionComponent.vue?vue&type=template&id=2bc98ffb&scoped=true */ "./resources/js/components/administracion/ConfiguracionComponent.vue?vue&type=template&id=2bc98ffb&scoped=true");
 /* harmony import */ var _ConfiguracionComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./ConfiguracionComponent.vue?vue&type=script&lang=js */ "./resources/js/components/administracion/ConfiguracionComponent.vue?vue&type=script&lang=js");
 /* harmony import */ var _ConfiguracionComponent_vue_vue_type_style_index_0_id_2bc98ffb_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./ConfiguracionComponent.vue?vue&type=style&index=0&id=2bc98ffb&scoped=true&lang=css */ "./resources/js/components/administracion/ConfiguracionComponent.vue?vue&type=style&index=0&id=2bc98ffb&scoped=true&lang=css");
-/* harmony import */ var C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
+/* harmony import */ var C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
 
 
 
@@ -269603,7 +269564,7 @@ __webpack_require__.r(__webpack_exports__);
 ;
 
 
-const __exports__ = /*#__PURE__*/(0,C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_3__["default"])(_ConfiguracionComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_ConfiguracionComponent_vue_vue_type_template_id_2bc98ffb_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-2bc98ffb"],['__file',"resources/js/components/administracion/ConfiguracionComponent.vue"]])
+const __exports__ = /*#__PURE__*/(0,C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_3__["default"])(_ConfiguracionComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_ConfiguracionComponent_vue_vue_type_template_id_2bc98ffb_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-2bc98ffb"],['__file',"resources/js/components/administracion/ConfiguracionComponent.vue"]])
 /* hot reload */
 if (false) {}
 
@@ -269627,7 +269588,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _DosificacionComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./DosificacionComponent.vue?vue&type=script&lang=js */ "./resources/js/components/administracion/DosificacionComponent.vue?vue&type=script&lang=js");
 /* harmony import */ var _DosificacionComponent_vue_vue_type_style_index_0_id_6dd5b6be_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./DosificacionComponent.vue?vue&type=style&index=0&id=6dd5b6be&scoped=true&lang=css */ "./resources/js/components/administracion/DosificacionComponent.vue?vue&type=style&index=0&id=6dd5b6be&scoped=true&lang=css");
 /* harmony import */ var _DosificacionComponent_vue_vue_type_style_index_1_id_6dd5b6be_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./DosificacionComponent.vue?vue&type=style&index=1&id=6dd5b6be&scoped=true&lang=css */ "./resources/js/components/administracion/DosificacionComponent.vue?vue&type=style&index=1&id=6dd5b6be&scoped=true&lang=css");
-/* harmony import */ var C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
+/* harmony import */ var C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
 
 
 
@@ -269636,7 +269597,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const __exports__ = /*#__PURE__*/(0,C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__["default"])(_DosificacionComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_DosificacionComponent_vue_vue_type_template_id_6dd5b6be_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-6dd5b6be"],['__file',"resources/js/components/administracion/DosificacionComponent.vue"]])
+const __exports__ = /*#__PURE__*/(0,C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__["default"])(_DosificacionComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_DosificacionComponent_vue_vue_type_template_id_6dd5b6be_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-6dd5b6be"],['__file',"resources/js/components/administracion/DosificacionComponent.vue"]])
 /* hot reload */
 if (false) {}
 
@@ -269660,7 +269621,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _ModuloVentanaAccionComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./ModuloVentanaAccionComponent.vue?vue&type=script&lang=js */ "./resources/js/components/administracion/ModuloVentanaAccionComponent.vue?vue&type=script&lang=js");
 /* harmony import */ var _ModuloVentanaAccionComponent_vue_vue_type_style_index_0_id_00c5cedc_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./ModuloVentanaAccionComponent.vue?vue&type=style&index=0&id=00c5cedc&scoped=true&lang=css */ "./resources/js/components/administracion/ModuloVentanaAccionComponent.vue?vue&type=style&index=0&id=00c5cedc&scoped=true&lang=css");
 /* harmony import */ var _ModuloVentanaAccionComponent_vue_vue_type_style_index_1_id_00c5cedc_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./ModuloVentanaAccionComponent.vue?vue&type=style&index=1&id=00c5cedc&scoped=true&lang=css */ "./resources/js/components/administracion/ModuloVentanaAccionComponent.vue?vue&type=style&index=1&id=00c5cedc&scoped=true&lang=css");
-/* harmony import */ var C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
+/* harmony import */ var C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
 
 
 
@@ -269669,7 +269630,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const __exports__ = /*#__PURE__*/(0,C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__["default"])(_ModuloVentanaAccionComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_ModuloVentanaAccionComponent_vue_vue_type_template_id_00c5cedc_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-00c5cedc"],['__file',"resources/js/components/administracion/ModuloVentanaAccionComponent.vue"]])
+const __exports__ = /*#__PURE__*/(0,C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__["default"])(_ModuloVentanaAccionComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_ModuloVentanaAccionComponent_vue_vue_type_template_id_00c5cedc_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-00c5cedc"],['__file',"resources/js/components/administracion/ModuloVentanaAccionComponent.vue"]])
 /* hot reload */
 if (false) {}
 
@@ -269693,7 +269654,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _QrSimpleComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./QrSimpleComponent.vue?vue&type=script&lang=js */ "./resources/js/components/administracion/QrSimpleComponent.vue?vue&type=script&lang=js");
 /* harmony import */ var _QrSimpleComponent_vue_vue_type_style_index_0_id_1d432e35_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./QrSimpleComponent.vue?vue&type=style&index=0&id=1d432e35&scoped=true&lang=css */ "./resources/js/components/administracion/QrSimpleComponent.vue?vue&type=style&index=0&id=1d432e35&scoped=true&lang=css");
 /* harmony import */ var _QrSimpleComponent_vue_vue_type_style_index_1_id_1d432e35_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./QrSimpleComponent.vue?vue&type=style&index=1&id=1d432e35&scoped=true&lang=css */ "./resources/js/components/administracion/QrSimpleComponent.vue?vue&type=style&index=1&id=1d432e35&scoped=true&lang=css");
-/* harmony import */ var C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
+/* harmony import */ var C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
 
 
 
@@ -269702,7 +269663,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const __exports__ = /*#__PURE__*/(0,C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__["default"])(_QrSimpleComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_QrSimpleComponent_vue_vue_type_template_id_1d432e35_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-1d432e35"],['__file',"resources/js/components/administracion/QrSimpleComponent.vue"]])
+const __exports__ = /*#__PURE__*/(0,C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__["default"])(_QrSimpleComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_QrSimpleComponent_vue_vue_type_template_id_1d432e35_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-1d432e35"],['__file',"resources/js/components/administracion/QrSimpleComponent.vue"]])
 /* hot reload */
 if (false) {}
 
@@ -269726,7 +269687,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _RolPermisoComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./RolPermisoComponent.vue?vue&type=script&lang=js */ "./resources/js/components/administracion/RolPermisoComponent.vue?vue&type=script&lang=js");
 /* harmony import */ var _RolPermisoComponent_vue_vue_type_style_index_0_id_a8caf67c_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./RolPermisoComponent.vue?vue&type=style&index=0&id=a8caf67c&scoped=true&lang=css */ "./resources/js/components/administracion/RolPermisoComponent.vue?vue&type=style&index=0&id=a8caf67c&scoped=true&lang=css");
 /* harmony import */ var _RolPermisoComponent_vue_vue_type_style_index_1_id_a8caf67c_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./RolPermisoComponent.vue?vue&type=style&index=1&id=a8caf67c&scoped=true&lang=css */ "./resources/js/components/administracion/RolPermisoComponent.vue?vue&type=style&index=1&id=a8caf67c&scoped=true&lang=css");
-/* harmony import */ var C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
+/* harmony import */ var C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
 
 
 
@@ -269735,7 +269696,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const __exports__ = /*#__PURE__*/(0,C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__["default"])(_RolPermisoComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_RolPermisoComponent_vue_vue_type_template_id_a8caf67c_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-a8caf67c"],['__file',"resources/js/components/administracion/RolPermisoComponent.vue"]])
+const __exports__ = /*#__PURE__*/(0,C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__["default"])(_RolPermisoComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_RolPermisoComponent_vue_vue_type_template_id_a8caf67c_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-a8caf67c"],['__file',"resources/js/components/administracion/RolPermisoComponent.vue"]])
 /* hot reload */
 if (false) {}
 
@@ -269759,7 +269720,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _RubrosComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./RubrosComponent.vue?vue&type=script&lang=js */ "./resources/js/components/administracion/RubrosComponent.vue?vue&type=script&lang=js");
 /* harmony import */ var _RubrosComponent_vue_vue_type_style_index_0_id_136789b1_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./RubrosComponent.vue?vue&type=style&index=0&id=136789b1&scoped=true&lang=css */ "./resources/js/components/administracion/RubrosComponent.vue?vue&type=style&index=0&id=136789b1&scoped=true&lang=css");
 /* harmony import */ var _RubrosComponent_vue_vue_type_style_index_1_id_136789b1_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./RubrosComponent.vue?vue&type=style&index=1&id=136789b1&scoped=true&lang=css */ "./resources/js/components/administracion/RubrosComponent.vue?vue&type=style&index=1&id=136789b1&scoped=true&lang=css");
-/* harmony import */ var C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
+/* harmony import */ var C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
 
 
 
@@ -269768,7 +269729,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const __exports__ = /*#__PURE__*/(0,C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__["default"])(_RubrosComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_RubrosComponent_vue_vue_type_template_id_136789b1_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-136789b1"],['__file',"resources/js/components/administracion/RubrosComponent.vue"]])
+const __exports__ = /*#__PURE__*/(0,C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__["default"])(_RubrosComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_RubrosComponent_vue_vue_type_template_id_136789b1_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-136789b1"],['__file',"resources/js/components/administracion/RubrosComponent.vue"]])
 /* hot reload */
 if (false) {}
 
@@ -269791,7 +269752,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _SucursalComponent_vue_vue_type_template_id_f0fd97f0_scoped_true__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./SucursalComponent.vue?vue&type=template&id=f0fd97f0&scoped=true */ "./resources/js/components/administracion/SucursalComponent.vue?vue&type=template&id=f0fd97f0&scoped=true");
 /* harmony import */ var _SucursalComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./SucursalComponent.vue?vue&type=script&lang=js */ "./resources/js/components/administracion/SucursalComponent.vue?vue&type=script&lang=js");
 /* harmony import */ var _SucursalComponent_vue_vue_type_style_index_0_id_f0fd97f0_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./SucursalComponent.vue?vue&type=style&index=0&id=f0fd97f0&scoped=true&lang=css */ "./resources/js/components/administracion/SucursalComponent.vue?vue&type=style&index=0&id=f0fd97f0&scoped=true&lang=css");
-/* harmony import */ var C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
+/* harmony import */ var C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
 
 
 
@@ -269799,7 +269760,7 @@ __webpack_require__.r(__webpack_exports__);
 ;
 
 
-const __exports__ = /*#__PURE__*/(0,C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_3__["default"])(_SucursalComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_SucursalComponent_vue_vue_type_template_id_f0fd97f0_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-f0fd97f0"],['__file',"resources/js/components/administracion/SucursalComponent.vue"]])
+const __exports__ = /*#__PURE__*/(0,C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_3__["default"])(_SucursalComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_SucursalComponent_vue_vue_type_template_id_f0fd97f0_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-f0fd97f0"],['__file',"resources/js/components/administracion/SucursalComponent.vue"]])
 /* hot reload */
 if (false) {}
 
@@ -269825,7 +269786,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var vue_multiselect_dist_vue_multiselect_css_vue_type_style_index_1_lang_css__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! vue-multiselect/dist/vue-multiselect.css?vue&type=style&index=1&lang=css */ "./node_modules/vue-multiselect/dist/vue-multiselect.css?vue&type=style&index=1&lang=css");
 /* harmony import */ var _UsuariosComponent_vue_vue_type_style_index_2_id_33624fa3_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./UsuariosComponent.vue?vue&type=style&index=2&id=33624fa3&scoped=true&lang=css */ "./resources/js/components/administracion/UsuariosComponent.vue?vue&type=style&index=2&id=33624fa3&scoped=true&lang=css");
 /* harmony import */ var _UsuariosComponent_vue_vue_type_style_index_3_id_33624fa3_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./UsuariosComponent.vue?vue&type=style&index=3&id=33624fa3&scoped=true&lang=css */ "./resources/js/components/administracion/UsuariosComponent.vue?vue&type=style&index=3&id=33624fa3&scoped=true&lang=css");
-/* harmony import */ var C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
+/* harmony import */ var C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
 
 
 
@@ -269836,7 +269797,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const __exports__ = /*#__PURE__*/(0,C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_6__["default"])(_UsuariosComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_UsuariosComponent_vue_vue_type_template_id_33624fa3_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-33624fa3"],['__file',"resources/js/components/administracion/UsuariosComponent.vue"]])
+const __exports__ = /*#__PURE__*/(0,C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_6__["default"])(_UsuariosComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_UsuariosComponent_vue_vue_type_template_id_33624fa3_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-33624fa3"],['__file',"resources/js/components/administracion/UsuariosComponent.vue"]])
 /* hot reload */
 if (false) {}
 
@@ -269860,7 +269821,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _bancoNacionalidadComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./bancoNacionalidadComponent.vue?vue&type=script&lang=js */ "./resources/js/components/administracion/bancoNacionalidadComponent.vue?vue&type=script&lang=js");
 /* harmony import */ var _bancoNacionalidadComponent_vue_vue_type_style_index_0_id_6e0525a6_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./bancoNacionalidadComponent.vue?vue&type=style&index=0&id=6e0525a6&scoped=true&lang=css */ "./resources/js/components/administracion/bancoNacionalidadComponent.vue?vue&type=style&index=0&id=6e0525a6&scoped=true&lang=css");
 /* harmony import */ var _bancoNacionalidadComponent_vue_vue_type_style_index_1_id_6e0525a6_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./bancoNacionalidadComponent.vue?vue&type=style&index=1&id=6e0525a6&scoped=true&lang=css */ "./resources/js/components/administracion/bancoNacionalidadComponent.vue?vue&type=style&index=1&id=6e0525a6&scoped=true&lang=css");
-/* harmony import */ var C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
+/* harmony import */ var C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
 
 
 
@@ -269869,7 +269830,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const __exports__ = /*#__PURE__*/(0,C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__["default"])(_bancoNacionalidadComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_bancoNacionalidadComponent_vue_vue_type_template_id_6e0525a6_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-6e0525a6"],['__file',"resources/js/components/administracion/bancoNacionalidadComponent.vue"]])
+const __exports__ = /*#__PURE__*/(0,C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__["default"])(_bancoNacionalidadComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_bancoNacionalidadComponent_vue_vue_type_template_id_6e0525a6_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-6e0525a6"],['__file',"resources/js/components/administracion/bancoNacionalidadComponent.vue"]])
 /* hot reload */
 if (false) {}
 
@@ -269892,7 +269853,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _AlmacenComponent_vue_vue_type_template_id_1f04c06f_scoped_true__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./AlmacenComponent.vue?vue&type=template&id=1f04c06f&scoped=true */ "./resources/js/components/almacenes/AlmacenComponent.vue?vue&type=template&id=1f04c06f&scoped=true");
 /* harmony import */ var _AlmacenComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./AlmacenComponent.vue?vue&type=script&lang=js */ "./resources/js/components/almacenes/AlmacenComponent.vue?vue&type=script&lang=js");
 /* harmony import */ var _AlmacenComponent_vue_vue_type_style_index_0_id_1f04c06f_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./AlmacenComponent.vue?vue&type=style&index=0&id=1f04c06f&scoped=true&lang=css */ "./resources/js/components/almacenes/AlmacenComponent.vue?vue&type=style&index=0&id=1f04c06f&scoped=true&lang=css");
-/* harmony import */ var C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
+/* harmony import */ var C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
 
 
 
@@ -269900,7 +269861,7 @@ __webpack_require__.r(__webpack_exports__);
 ;
 
 
-const __exports__ = /*#__PURE__*/(0,C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_3__["default"])(_AlmacenComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_AlmacenComponent_vue_vue_type_template_id_1f04c06f_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-1f04c06f"],['__file',"resources/js/components/almacenes/AlmacenComponent.vue"]])
+const __exports__ = /*#__PURE__*/(0,C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_3__["default"])(_AlmacenComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_AlmacenComponent_vue_vue_type_template_id_1f04c06f_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-1f04c06f"],['__file',"resources/js/components/almacenes/AlmacenComponent.vue"]])
 /* hot reload */
 if (false) {}
 
@@ -269924,7 +269885,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _CodificacionComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./CodificacionComponent.vue?vue&type=script&lang=js */ "./resources/js/components/almacenes/CodificacionComponent.vue?vue&type=script&lang=js");
 /* harmony import */ var _CodificacionComponent_vue_vue_type_style_index_0_id_09ff49d7_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./CodificacionComponent.vue?vue&type=style&index=0&id=09ff49d7&scoped=true&lang=css */ "./resources/js/components/almacenes/CodificacionComponent.vue?vue&type=style&index=0&id=09ff49d7&scoped=true&lang=css");
 /* harmony import */ var _CodificacionComponent_vue_vue_type_style_index_1_id_09ff49d7_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./CodificacionComponent.vue?vue&type=style&index=1&id=09ff49d7&scoped=true&lang=css */ "./resources/js/components/almacenes/CodificacionComponent.vue?vue&type=style&index=1&id=09ff49d7&scoped=true&lang=css");
-/* harmony import */ var C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
+/* harmony import */ var C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
 
 
 
@@ -269933,7 +269894,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const __exports__ = /*#__PURE__*/(0,C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__["default"])(_CodificacionComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_CodificacionComponent_vue_vue_type_template_id_09ff49d7_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-09ff49d7"],['__file',"resources/js/components/almacenes/CodificacionComponent.vue"]])
+const __exports__ = /*#__PURE__*/(0,C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__["default"])(_CodificacionComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_CodificacionComponent_vue_vue_type_template_id_09ff49d7_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-09ff49d7"],['__file',"resources/js/components/almacenes/CodificacionComponent.vue"]])
 /* hot reload */
 if (false) {}
 
@@ -269958,7 +269919,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _IngresoProducto2Component_vue_vue_type_style_index_0_id_15ee6fe6_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./IngresoProducto2Component.vue?vue&type=style&index=0&id=15ee6fe6&scoped=true&lang=css */ "./resources/js/components/almacenes/IngresoProducto2Component.vue?vue&type=style&index=0&id=15ee6fe6&scoped=true&lang=css");
 /* harmony import */ var _IngresoProducto2Component_vue_vue_type_style_index_1_id_15ee6fe6_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./IngresoProducto2Component.vue?vue&type=style&index=1&id=15ee6fe6&scoped=true&lang=css */ "./resources/js/components/almacenes/IngresoProducto2Component.vue?vue&type=style&index=1&id=15ee6fe6&scoped=true&lang=css");
 /* harmony import */ var vue_multiselect_dist_vue_multiselect_css_vue_type_style_index_2_lang_css__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! vue-multiselect/dist/vue-multiselect.css?vue&type=style&index=2&lang=css */ "./node_modules/vue-multiselect/dist/vue-multiselect.css?vue&type=style&index=2&lang=css");
-/* harmony import */ var C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
+/* harmony import */ var C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
 
 
 
@@ -269968,7 +269929,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const __exports__ = /*#__PURE__*/(0,C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_5__["default"])(_IngresoProducto2Component_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_IngresoProducto2Component_vue_vue_type_template_id_15ee6fe6_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-15ee6fe6"],['__file',"resources/js/components/almacenes/IngresoProducto2Component.vue"]])
+const __exports__ = /*#__PURE__*/(0,C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_5__["default"])(_IngresoProducto2Component_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_IngresoProducto2Component_vue_vue_type_template_id_15ee6fe6_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-15ee6fe6"],['__file',"resources/js/components/almacenes/IngresoProducto2Component.vue"]])
 /* hot reload */
 if (false) {}
 
@@ -269991,7 +269952,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _IngresoProductoComponent_vue_vue_type_template_id_2c0e21ab_scoped_true__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./IngresoProductoComponent.vue?vue&type=template&id=2c0e21ab&scoped=true */ "./resources/js/components/almacenes/IngresoProductoComponent.vue?vue&type=template&id=2c0e21ab&scoped=true");
 /* harmony import */ var _IngresoProductoComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./IngresoProductoComponent.vue?vue&type=script&lang=js */ "./resources/js/components/almacenes/IngresoProductoComponent.vue?vue&type=script&lang=js");
 /* harmony import */ var _IngresoProductoComponent_vue_vue_type_style_index_0_id_2c0e21ab_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./IngresoProductoComponent.vue?vue&type=style&index=0&id=2c0e21ab&scoped=true&lang=css */ "./resources/js/components/almacenes/IngresoProductoComponent.vue?vue&type=style&index=0&id=2c0e21ab&scoped=true&lang=css");
-/* harmony import */ var C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
+/* harmony import */ var C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
 
 
 
@@ -269999,7 +269960,7 @@ __webpack_require__.r(__webpack_exports__);
 ;
 
 
-const __exports__ = /*#__PURE__*/(0,C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_3__["default"])(_IngresoProductoComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_IngresoProductoComponent_vue_vue_type_template_id_2c0e21ab_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-2c0e21ab"],['__file',"resources/js/components/almacenes/IngresoProductoComponent.vue"]])
+const __exports__ = /*#__PURE__*/(0,C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_3__["default"])(_IngresoProductoComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_IngresoProductoComponent_vue_vue_type_template_id_2c0e21ab_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-2c0e21ab"],['__file',"resources/js/components/almacenes/IngresoProductoComponent.vue"]])
 /* hot reload */
 if (false) {}
 
@@ -270023,7 +269984,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _NuevoAlmacenComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./NuevoAlmacenComponent.vue?vue&type=script&lang=js */ "./resources/js/components/almacenes/NuevoAlmacenComponent.vue?vue&type=script&lang=js");
 /* harmony import */ var _NuevoAlmacenComponent_vue_vue_type_style_index_0_id_03b21b98_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./NuevoAlmacenComponent.vue?vue&type=style&index=0&id=03b21b98&scoped=true&lang=css */ "./resources/js/components/almacenes/NuevoAlmacenComponent.vue?vue&type=style&index=0&id=03b21b98&scoped=true&lang=css");
 /* harmony import */ var _NuevoAlmacenComponent_vue_vue_type_style_index_1_id_03b21b98_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./NuevoAlmacenComponent.vue?vue&type=style&index=1&id=03b21b98&scoped=true&lang=css */ "./resources/js/components/almacenes/NuevoAlmacenComponent.vue?vue&type=style&index=1&id=03b21b98&scoped=true&lang=css");
-/* harmony import */ var C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
+/* harmony import */ var C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
 
 
 
@@ -270032,7 +269993,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const __exports__ = /*#__PURE__*/(0,C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__["default"])(_NuevoAlmacenComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_NuevoAlmacenComponent_vue_vue_type_template_id_03b21b98_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-03b21b98"],['__file',"resources/js/components/almacenes/NuevoAlmacenComponent.vue"]])
+const __exports__ = /*#__PURE__*/(0,C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__["default"])(_NuevoAlmacenComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_NuevoAlmacenComponent_vue_vue_type_template_id_03b21b98_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-03b21b98"],['__file',"resources/js/components/almacenes/NuevoAlmacenComponent.vue"]])
 /* hot reload */
 if (false) {}
 
@@ -270056,7 +270017,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Apertura_cierreComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Apertura_cierreComponent.vue?vue&type=script&lang=js */ "./resources/js/components/caja/Apertura_cierreComponent.vue?vue&type=script&lang=js");
 /* harmony import */ var _Apertura_cierreComponent_vue_vue_type_style_index_0_id_0f79c183_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Apertura_cierreComponent.vue?vue&type=style&index=0&id=0f79c183&scoped=true&lang=css */ "./resources/js/components/caja/Apertura_cierreComponent.vue?vue&type=style&index=0&id=0f79c183&scoped=true&lang=css");
 /* harmony import */ var _Apertura_cierreComponent_vue_vue_type_style_index_1_id_0f79c183_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Apertura_cierreComponent.vue?vue&type=style&index=1&id=0f79c183&scoped=true&lang=css */ "./resources/js/components/caja/Apertura_cierreComponent.vue?vue&type=style&index=1&id=0f79c183&scoped=true&lang=css");
-/* harmony import */ var C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
+/* harmony import */ var C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
 
 
 
@@ -270065,7 +270026,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const __exports__ = /*#__PURE__*/(0,C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__["default"])(_Apertura_cierreComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_Apertura_cierreComponent_vue_vue_type_template_id_0f79c183_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-0f79c183"],['__file',"resources/js/components/caja/Apertura_cierreComponent.vue"]])
+const __exports__ = /*#__PURE__*/(0,C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__["default"])(_Apertura_cierreComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_Apertura_cierreComponent_vue_vue_type_template_id_0f79c183_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-0f79c183"],['__file',"resources/js/components/caja/Apertura_cierreComponent.vue"]])
 /* hot reload */
 if (false) {}
 
@@ -270089,7 +270050,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Corregir_cajaComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Corregir_cajaComponent.vue?vue&type=script&lang=js */ "./resources/js/components/caja/Corregir_cajaComponent.vue?vue&type=script&lang=js");
 /* harmony import */ var _Corregir_cajaComponent_vue_vue_type_style_index_0_id_915b4702_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Corregir_cajaComponent.vue?vue&type=style&index=0&id=915b4702&scoped=true&lang=css */ "./resources/js/components/caja/Corregir_cajaComponent.vue?vue&type=style&index=0&id=915b4702&scoped=true&lang=css");
 /* harmony import */ var _Corregir_cajaComponent_vue_vue_type_style_index_1_id_915b4702_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Corregir_cajaComponent.vue?vue&type=style&index=1&id=915b4702&scoped=true&lang=css */ "./resources/js/components/caja/Corregir_cajaComponent.vue?vue&type=style&index=1&id=915b4702&scoped=true&lang=css");
-/* harmony import */ var C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
+/* harmony import */ var C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
 
 
 
@@ -270098,7 +270059,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const __exports__ = /*#__PURE__*/(0,C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__["default"])(_Corregir_cajaComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_Corregir_cajaComponent_vue_vue_type_template_id_915b4702_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-915b4702"],['__file',"resources/js/components/caja/Corregir_cajaComponent.vue"]])
+const __exports__ = /*#__PURE__*/(0,C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__["default"])(_Corregir_cajaComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_Corregir_cajaComponent_vue_vue_type_template_id_915b4702_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-915b4702"],['__file',"resources/js/components/caja/Corregir_cajaComponent.vue"]])
 /* hot reload */
 if (false) {}
 
@@ -270123,7 +270084,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Crear_cajaComponent_vue_vue_type_style_index_0_id_625ad43e_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Crear_cajaComponent.vue?vue&type=style&index=0&id=625ad43e&scoped=true&lang=css */ "./resources/js/components/caja/Crear_cajaComponent.vue?vue&type=style&index=0&id=625ad43e&scoped=true&lang=css");
 /* harmony import */ var _Crear_cajaComponent_vue_vue_type_style_index_1_id_625ad43e_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Crear_cajaComponent.vue?vue&type=style&index=1&id=625ad43e&scoped=true&lang=css */ "./resources/js/components/caja/Crear_cajaComponent.vue?vue&type=style&index=1&id=625ad43e&scoped=true&lang=css");
 /* harmony import */ var vue_multiselect_dist_vue_multiselect_css_vue_type_style_index_2_lang_css__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! vue-multiselect/dist/vue-multiselect.css?vue&type=style&index=2&lang=css */ "./node_modules/vue-multiselect/dist/vue-multiselect.css?vue&type=style&index=2&lang=css");
-/* harmony import */ var C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
+/* harmony import */ var C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
 
 
 
@@ -270133,7 +270094,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const __exports__ = /*#__PURE__*/(0,C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_5__["default"])(_Crear_cajaComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_Crear_cajaComponent_vue_vue_type_template_id_625ad43e_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-625ad43e"],['__file',"resources/js/components/caja/Crear_cajaComponent.vue"]])
+const __exports__ = /*#__PURE__*/(0,C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_5__["default"])(_Crear_cajaComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_Crear_cajaComponent_vue_vue_type_template_id_625ad43e_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-625ad43e"],['__file',"resources/js/components/caja/Crear_cajaComponent.vue"]])
 /* hot reload */
 if (false) {}
 
@@ -270157,7 +270118,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Entrada_SalidaComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Entrada_SalidaComponent.vue?vue&type=script&lang=js */ "./resources/js/components/caja/Entrada_SalidaComponent.vue?vue&type=script&lang=js");
 /* harmony import */ var _Entrada_SalidaComponent_vue_vue_type_style_index_0_id_31908804_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Entrada_SalidaComponent.vue?vue&type=style&index=0&id=31908804&scoped=true&lang=css */ "./resources/js/components/caja/Entrada_SalidaComponent.vue?vue&type=style&index=0&id=31908804&scoped=true&lang=css");
 /* harmony import */ var _Entrada_SalidaComponent_vue_vue_type_style_index_1_id_31908804_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Entrada_SalidaComponent.vue?vue&type=style&index=1&id=31908804&scoped=true&lang=css */ "./resources/js/components/caja/Entrada_SalidaComponent.vue?vue&type=style&index=1&id=31908804&scoped=true&lang=css");
-/* harmony import */ var C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
+/* harmony import */ var C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
 
 
 
@@ -270166,7 +270127,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const __exports__ = /*#__PURE__*/(0,C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__["default"])(_Entrada_SalidaComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_Entrada_SalidaComponent_vue_vue_type_template_id_31908804_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-31908804"],['__file',"resources/js/components/caja/Entrada_SalidaComponent.vue"]])
+const __exports__ = /*#__PURE__*/(0,C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__["default"])(_Entrada_SalidaComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_Entrada_SalidaComponent_vue_vue_type_template_id_31908804_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-31908804"],['__file',"resources/js/components/caja/Entrada_SalidaComponent.vue"]])
 /* hot reload */
 if (false) {}
 
@@ -270190,7 +270151,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _MonedaComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./MonedaComponent.vue?vue&type=script&lang=js */ "./resources/js/components/caja/MonedaComponent.vue?vue&type=script&lang=js");
 /* harmony import */ var _MonedaComponent_vue_vue_type_style_index_0_id_e529da90_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./MonedaComponent.vue?vue&type=style&index=0&id=e529da90&scoped=true&lang=css */ "./resources/js/components/caja/MonedaComponent.vue?vue&type=style&index=0&id=e529da90&scoped=true&lang=css");
 /* harmony import */ var _MonedaComponent_vue_vue_type_style_index_1_id_e529da90_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./MonedaComponent.vue?vue&type=style&index=1&id=e529da90&scoped=true&lang=css */ "./resources/js/components/caja/MonedaComponent.vue?vue&type=style&index=1&id=e529da90&scoped=true&lang=css");
-/* harmony import */ var C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
+/* harmony import */ var C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
 
 
 
@@ -270199,7 +270160,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const __exports__ = /*#__PURE__*/(0,C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__["default"])(_MonedaComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_MonedaComponent_vue_vue_type_template_id_e529da90_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-e529da90"],['__file',"resources/js/components/caja/MonedaComponent.vue"]])
+const __exports__ = /*#__PURE__*/(0,C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__["default"])(_MonedaComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_MonedaComponent_vue_vue_type_template_id_e529da90_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-e529da90"],['__file',"resources/js/components/caja/MonedaComponent.vue"]])
 /* hot reload */
 if (false) {}
 
@@ -270223,7 +270184,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _TransaccionComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./TransaccionComponent.vue?vue&type=script&lang=js */ "./resources/js/components/caja/TransaccionComponent.vue?vue&type=script&lang=js");
 /* harmony import */ var _TransaccionComponent_vue_vue_type_style_index_0_id_0d4e6d4d_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./TransaccionComponent.vue?vue&type=style&index=0&id=0d4e6d4d&scoped=true&lang=css */ "./resources/js/components/caja/TransaccionComponent.vue?vue&type=style&index=0&id=0d4e6d4d&scoped=true&lang=css");
 /* harmony import */ var _TransaccionComponent_vue_vue_type_style_index_1_id_0d4e6d4d_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./TransaccionComponent.vue?vue&type=style&index=1&id=0d4e6d4d&scoped=true&lang=css */ "./resources/js/components/caja/TransaccionComponent.vue?vue&type=style&index=1&id=0d4e6d4d&scoped=true&lang=css");
-/* harmony import */ var C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
+/* harmony import */ var C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
 
 
 
@@ -270232,7 +270193,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const __exports__ = /*#__PURE__*/(0,C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__["default"])(_TransaccionComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_TransaccionComponent_vue_vue_type_template_id_0d4e6d4d_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-0d4e6d4d"],['__file',"resources/js/components/caja/TransaccionComponent.vue"]])
+const __exports__ = /*#__PURE__*/(0,C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__["default"])(_TransaccionComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_TransaccionComponent_vue_vue_type_template_id_0d4e6d4d_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-0d4e6d4d"],['__file',"resources/js/components/caja/TransaccionComponent.vue"]])
 /* hot reload */
 if (false) {}
 
@@ -270256,7 +270217,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _ClienteComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./ClienteComponent.vue?vue&type=script&lang=js */ "./resources/js/components/directorio/ClienteComponent.vue?vue&type=script&lang=js");
 /* harmony import */ var _ClienteComponent_vue_vue_type_style_index_0_id_5bed4c05_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./ClienteComponent.vue?vue&type=style&index=0&id=5bed4c05&scoped=true&lang=css */ "./resources/js/components/directorio/ClienteComponent.vue?vue&type=style&index=0&id=5bed4c05&scoped=true&lang=css");
 /* harmony import */ var _ClienteComponent_vue_vue_type_style_index_1_id_5bed4c05_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./ClienteComponent.vue?vue&type=style&index=1&id=5bed4c05&scoped=true&lang=css */ "./resources/js/components/directorio/ClienteComponent.vue?vue&type=style&index=1&id=5bed4c05&scoped=true&lang=css");
-/* harmony import */ var C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
+/* harmony import */ var C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
 
 
 
@@ -270265,7 +270226,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const __exports__ = /*#__PURE__*/(0,C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__["default"])(_ClienteComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_ClienteComponent_vue_vue_type_template_id_5bed4c05_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-5bed4c05"],['__file',"resources/js/components/directorio/ClienteComponent.vue"]])
+const __exports__ = /*#__PURE__*/(0,C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__["default"])(_ClienteComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_ClienteComponent_vue_vue_type_template_id_5bed4c05_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-5bed4c05"],['__file',"resources/js/components/directorio/ClienteComponent.vue"]])
 /* hot reload */
 if (false) {}
 
@@ -270290,7 +270251,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _DistribuidorComponent_vue_vue_type_style_index_0_id_4d8ef906_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./DistribuidorComponent.vue?vue&type=style&index=0&id=4d8ef906&scoped=true&lang=css */ "./resources/js/components/directorio/DistribuidorComponent.vue?vue&type=style&index=0&id=4d8ef906&scoped=true&lang=css");
 /* harmony import */ var _DistribuidorComponent_vue_vue_type_style_index_1_id_4d8ef906_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./DistribuidorComponent.vue?vue&type=style&index=1&id=4d8ef906&scoped=true&lang=css */ "./resources/js/components/directorio/DistribuidorComponent.vue?vue&type=style&index=1&id=4d8ef906&scoped=true&lang=css");
 /* harmony import */ var vue_multiselect_dist_vue_multiselect_css_vue_type_style_index_2_lang_css__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! vue-multiselect/dist/vue-multiselect.css?vue&type=style&index=2&lang=css */ "./node_modules/vue-multiselect/dist/vue-multiselect.css?vue&type=style&index=2&lang=css");
-/* harmony import */ var C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
+/* harmony import */ var C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
 
 
 
@@ -270300,7 +270261,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const __exports__ = /*#__PURE__*/(0,C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_5__["default"])(_DistribuidorComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_DistribuidorComponent_vue_vue_type_template_id_4d8ef906_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-4d8ef906"],['__file',"resources/js/components/directorio/DistribuidorComponent.vue"]])
+const __exports__ = /*#__PURE__*/(0,C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_5__["default"])(_DistribuidorComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_DistribuidorComponent_vue_vue_type_template_id_4d8ef906_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-4d8ef906"],['__file',"resources/js/components/directorio/DistribuidorComponent.vue"]])
 /* hot reload */
 if (false) {}
 
@@ -270325,7 +270286,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _ProveedorComponent_vue_vue_type_style_index_0_id_da9ee1be_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./ProveedorComponent.vue?vue&type=style&index=0&id=da9ee1be&scoped=true&lang=css */ "./resources/js/components/directorio/ProveedorComponent.vue?vue&type=style&index=0&id=da9ee1be&scoped=true&lang=css");
 /* harmony import */ var _ProveedorComponent_vue_vue_type_style_index_1_id_da9ee1be_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./ProveedorComponent.vue?vue&type=style&index=1&id=da9ee1be&scoped=true&lang=css */ "./resources/js/components/directorio/ProveedorComponent.vue?vue&type=style&index=1&id=da9ee1be&scoped=true&lang=css");
 /* harmony import */ var vue_multiselect_dist_vue_multiselect_css_vue_type_style_index_2_lang_css__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! vue-multiselect/dist/vue-multiselect.css?vue&type=style&index=2&lang=css */ "./node_modules/vue-multiselect/dist/vue-multiselect.css?vue&type=style&index=2&lang=css");
-/* harmony import */ var C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
+/* harmony import */ var C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
 
 
 
@@ -270335,7 +270296,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const __exports__ = /*#__PURE__*/(0,C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_5__["default"])(_ProveedorComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_ProveedorComponent_vue_vue_type_template_id_da9ee1be_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-da9ee1be"],['__file',"resources/js/components/directorio/ProveedorComponent.vue"]])
+const __exports__ = /*#__PURE__*/(0,C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_5__["default"])(_ProveedorComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_ProveedorComponent_vue_vue_type_template_id_da9ee1be_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-da9ee1be"],['__file',"resources/js/components/directorio/ProveedorComponent.vue"]])
 /* hot reload */
 if (false) {}
 
@@ -270360,7 +270321,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _GastosComponent_vue_vue_type_style_index_0_id_4173452b_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./GastosComponent.vue?vue&type=style&index=0&id=4173452b&scoped=true&lang=css */ "./resources/js/components/egreso/GastosComponent.vue?vue&type=style&index=0&id=4173452b&scoped=true&lang=css");
 /* harmony import */ var _GastosComponent_vue_vue_type_style_index_1_id_4173452b_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./GastosComponent.vue?vue&type=style&index=1&id=4173452b&scoped=true&lang=css */ "./resources/js/components/egreso/GastosComponent.vue?vue&type=style&index=1&id=4173452b&scoped=true&lang=css");
 /* harmony import */ var vue_multiselect_dist_vue_multiselect_css_vue_type_style_index_2_lang_css__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! vue-multiselect/dist/vue-multiselect.css?vue&type=style&index=2&lang=css */ "./node_modules/vue-multiselect/dist/vue-multiselect.css?vue&type=style&index=2&lang=css");
-/* harmony import */ var C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
+/* harmony import */ var C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
 
 
 
@@ -270370,7 +270331,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const __exports__ = /*#__PURE__*/(0,C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_5__["default"])(_GastosComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_GastosComponent_vue_vue_type_template_id_4173452b_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-4173452b"],['__file',"resources/js/components/egreso/GastosComponent.vue"]])
+const __exports__ = /*#__PURE__*/(0,C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_5__["default"])(_GastosComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_GastosComponent_vue_vue_type_template_id_4173452b_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-4173452b"],['__file',"resources/js/components/egreso/GastosComponent.vue"]])
 /* hot reload */
 if (false) {}
 
@@ -270395,7 +270356,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _InversionesComponent_vue_vue_type_style_index_0_id_81b12c02_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./InversionesComponent.vue?vue&type=style&index=0&id=81b12c02&scoped=true&lang=css */ "./resources/js/components/egreso/InversionesComponent.vue?vue&type=style&index=0&id=81b12c02&scoped=true&lang=css");
 /* harmony import */ var _InversionesComponent_vue_vue_type_style_index_1_id_81b12c02_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./InversionesComponent.vue?vue&type=style&index=1&id=81b12c02&scoped=true&lang=css */ "./resources/js/components/egreso/InversionesComponent.vue?vue&type=style&index=1&id=81b12c02&scoped=true&lang=css");
 /* harmony import */ var vue_multiselect_dist_vue_multiselect_css_vue_type_style_index_2_lang_css__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! vue-multiselect/dist/vue-multiselect.css?vue&type=style&index=2&lang=css */ "./node_modules/vue-multiselect/dist/vue-multiselect.css?vue&type=style&index=2&lang=css");
-/* harmony import */ var C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
+/* harmony import */ var C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
 
 
 
@@ -270405,7 +270366,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const __exports__ = /*#__PURE__*/(0,C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_5__["default"])(_InversionesComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_InversionesComponent_vue_vue_type_template_id_81b12c02_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-81b12c02"],['__file',"resources/js/components/egreso/InversionesComponent.vue"]])
+const __exports__ = /*#__PURE__*/(0,C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_5__["default"])(_InversionesComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_InversionesComponent_vue_vue_type_template_id_81b12c02_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-81b12c02"],['__file',"resources/js/components/egreso/InversionesComponent.vue"]])
 /* hot reload */
 if (false) {}
 
@@ -270429,7 +270390,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _TesoreriaComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./TesoreriaComponent.vue?vue&type=script&lang=js */ "./resources/js/components/egreso/TesoreriaComponent.vue?vue&type=script&lang=js");
 /* harmony import */ var _TesoreriaComponent_vue_vue_type_style_index_0_id_d2f62c54_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./TesoreriaComponent.vue?vue&type=style&index=0&id=d2f62c54&scoped=true&lang=css */ "./resources/js/components/egreso/TesoreriaComponent.vue?vue&type=style&index=0&id=d2f62c54&scoped=true&lang=css");
 /* harmony import */ var _TesoreriaComponent_vue_vue_type_style_index_1_id_d2f62c54_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./TesoreriaComponent.vue?vue&type=style&index=1&id=d2f62c54&scoped=true&lang=css */ "./resources/js/components/egreso/TesoreriaComponent.vue?vue&type=style&index=1&id=d2f62c54&scoped=true&lang=css");
-/* harmony import */ var C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
+/* harmony import */ var C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
 
 
 
@@ -270438,7 +270399,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const __exports__ = /*#__PURE__*/(0,C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__["default"])(_TesoreriaComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_TesoreriaComponent_vue_vue_type_template_id_d2f62c54_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-d2f62c54"],['__file',"resources/js/components/egreso/TesoreriaComponent.vue"]])
+const __exports__ = /*#__PURE__*/(0,C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__["default"])(_TesoreriaComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_TesoreriaComponent_vue_vue_type_template_id_d2f62c54_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-d2f62c54"],['__file',"resources/js/components/egreso/TesoreriaComponent.vue"]])
 /* hot reload */
 if (false) {}
 
@@ -270462,7 +270423,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _PrecioVenta2Component_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./PrecioVenta2Component.vue?vue&type=script&lang=js */ "./resources/js/components/gestion_precios/PrecioVenta2Component.vue?vue&type=script&lang=js");
 /* harmony import */ var _PrecioVenta2Component_vue_vue_type_style_index_0_id_51dd03be_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./PrecioVenta2Component.vue?vue&type=style&index=0&id=51dd03be&scoped=true&lang=css */ "./resources/js/components/gestion_precios/PrecioVenta2Component.vue?vue&type=style&index=0&id=51dd03be&scoped=true&lang=css");
 /* harmony import */ var _PrecioVenta2Component_vue_vue_type_style_index_1_id_51dd03be_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./PrecioVenta2Component.vue?vue&type=style&index=1&id=51dd03be&scoped=true&lang=css */ "./resources/js/components/gestion_precios/PrecioVenta2Component.vue?vue&type=style&index=1&id=51dd03be&scoped=true&lang=css");
-/* harmony import */ var C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
+/* harmony import */ var C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
 
 
 
@@ -270471,7 +270432,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const __exports__ = /*#__PURE__*/(0,C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__["default"])(_PrecioVenta2Component_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_PrecioVenta2Component_vue_vue_type_template_id_51dd03be_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-51dd03be"],['__file',"resources/js/components/gestion_precios/PrecioVenta2Component.vue"]])
+const __exports__ = /*#__PURE__*/(0,C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__["default"])(_PrecioVenta2Component_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_PrecioVenta2Component_vue_vue_type_template_id_51dd03be_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-51dd03be"],['__file',"resources/js/components/gestion_precios/PrecioVenta2Component.vue"]])
 /* hot reload */
 if (false) {}
 
@@ -270494,7 +270455,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _PrecioVentaComponent_vue_vue_type_template_id_68db2bda_scoped_true__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./PrecioVentaComponent.vue?vue&type=template&id=68db2bda&scoped=true */ "./resources/js/components/gestion_precios/PrecioVentaComponent.vue?vue&type=template&id=68db2bda&scoped=true");
 /* harmony import */ var _PrecioVentaComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./PrecioVentaComponent.vue?vue&type=script&lang=js */ "./resources/js/components/gestion_precios/PrecioVentaComponent.vue?vue&type=script&lang=js");
 /* harmony import */ var _PrecioVentaComponent_vue_vue_type_style_index_0_id_68db2bda_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./PrecioVentaComponent.vue?vue&type=style&index=0&id=68db2bda&scoped=true&lang=css */ "./resources/js/components/gestion_precios/PrecioVentaComponent.vue?vue&type=style&index=0&id=68db2bda&scoped=true&lang=css");
-/* harmony import */ var C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
+/* harmony import */ var C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
 
 
 
@@ -270502,7 +270463,7 @@ __webpack_require__.r(__webpack_exports__);
 ;
 
 
-const __exports__ = /*#__PURE__*/(0,C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_3__["default"])(_PrecioVentaComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_PrecioVentaComponent_vue_vue_type_template_id_68db2bda_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-68db2bda"],['__file',"resources/js/components/gestion_precios/PrecioVentaComponent.vue"]])
+const __exports__ = /*#__PURE__*/(0,C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_3__["default"])(_PrecioVentaComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_PrecioVentaComponent_vue_vue_type_template_id_68db2bda_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-68db2bda"],['__file',"resources/js/components/gestion_precios/PrecioVentaComponent.vue"]])
 /* hot reload */
 if (false) {}
 
@@ -270527,7 +270488,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _AjusteNegativoComponent_vue_vue_type_style_index_0_id_71df67f3_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./AjusteNegativoComponent.vue?vue&type=style&index=0&id=71df67f3&scoped=true&lang=css */ "./resources/js/components/inventario/AjusteNegativoComponent.vue?vue&type=style&index=0&id=71df67f3&scoped=true&lang=css");
 /* harmony import */ var _AjusteNegativoComponent_vue_vue_type_style_index_1_id_71df67f3_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./AjusteNegativoComponent.vue?vue&type=style&index=1&id=71df67f3&scoped=true&lang=css */ "./resources/js/components/inventario/AjusteNegativoComponent.vue?vue&type=style&index=1&id=71df67f3&scoped=true&lang=css");
 /* harmony import */ var vue_multiselect_dist_vue_multiselect_css_vue_type_style_index_2_lang_css__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! vue-multiselect/dist/vue-multiselect.css?vue&type=style&index=2&lang=css */ "./node_modules/vue-multiselect/dist/vue-multiselect.css?vue&type=style&index=2&lang=css");
-/* harmony import */ var C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
+/* harmony import */ var C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
 
 
 
@@ -270537,7 +270498,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const __exports__ = /*#__PURE__*/(0,C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_5__["default"])(_AjusteNegativoComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_AjusteNegativoComponent_vue_vue_type_template_id_71df67f3_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-71df67f3"],['__file',"resources/js/components/inventario/AjusteNegativoComponent.vue"]])
+const __exports__ = /*#__PURE__*/(0,C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_5__["default"])(_AjusteNegativoComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_AjusteNegativoComponent_vue_vue_type_template_id_71df67f3_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-71df67f3"],['__file',"resources/js/components/inventario/AjusteNegativoComponent.vue"]])
 /* hot reload */
 if (false) {}
 
@@ -270562,7 +270523,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _AjustePositivoComponent_vue_vue_type_style_index_0_id_5fef58af_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./AjustePositivoComponent.vue?vue&type=style&index=0&id=5fef58af&scoped=true&lang=css */ "./resources/js/components/inventario/AjustePositivoComponent.vue?vue&type=style&index=0&id=5fef58af&scoped=true&lang=css");
 /* harmony import */ var _AjustePositivoComponent_vue_vue_type_style_index_1_id_5fef58af_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./AjustePositivoComponent.vue?vue&type=style&index=1&id=5fef58af&scoped=true&lang=css */ "./resources/js/components/inventario/AjustePositivoComponent.vue?vue&type=style&index=1&id=5fef58af&scoped=true&lang=css");
 /* harmony import */ var vue_multiselect_dist_vue_multiselect_css_vue_type_style_index_2_lang_css__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! vue-multiselect/dist/vue-multiselect.css?vue&type=style&index=2&lang=css */ "./node_modules/vue-multiselect/dist/vue-multiselect.css?vue&type=style&index=2&lang=css");
-/* harmony import */ var C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
+/* harmony import */ var C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
 
 
 
@@ -270572,7 +270533,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const __exports__ = /*#__PURE__*/(0,C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_5__["default"])(_AjustePositivoComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_AjustePositivoComponent_vue_vue_type_template_id_5fef58af_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-5fef58af"],['__file',"resources/js/components/inventario/AjustePositivoComponent.vue"]])
+const __exports__ = /*#__PURE__*/(0,C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_5__["default"])(_AjustePositivoComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_AjustePositivoComponent_vue_vue_type_template_id_5fef58af_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-5fef58af"],['__file',"resources/js/components/inventario/AjustePositivoComponent.vue"]])
 /* hot reload */
 if (false) {}
 
@@ -270597,7 +270558,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _AutoGestionStockComponent_vue_vue_type_style_index_0_id_7b54a724_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./AutoGestionStockComponent.vue?vue&type=style&index=0&id=7b54a724&scoped=true&lang=css */ "./resources/js/components/inventario/AutoGestionStockComponent.vue?vue&type=style&index=0&id=7b54a724&scoped=true&lang=css");
 /* harmony import */ var _AutoGestionStockComponent_vue_vue_type_style_index_1_id_7b54a724_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./AutoGestionStockComponent.vue?vue&type=style&index=1&id=7b54a724&scoped=true&lang=css */ "./resources/js/components/inventario/AutoGestionStockComponent.vue?vue&type=style&index=1&id=7b54a724&scoped=true&lang=css");
 /* harmony import */ var vue_multiselect_dist_vue_multiselect_css_vue_type_style_index_2_lang_css__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! vue-multiselect/dist/vue-multiselect.css?vue&type=style&index=2&lang=css */ "./node_modules/vue-multiselect/dist/vue-multiselect.css?vue&type=style&index=2&lang=css");
-/* harmony import */ var C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
+/* harmony import */ var C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
 
 
 
@@ -270607,7 +270568,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const __exports__ = /*#__PURE__*/(0,C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_5__["default"])(_AutoGestionStockComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_AutoGestionStockComponent_vue_vue_type_template_id_7b54a724_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-7b54a724"],['__file',"resources/js/components/inventario/AutoGestionStockComponent.vue"]])
+const __exports__ = /*#__PURE__*/(0,C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_5__["default"])(_AutoGestionStockComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_AutoGestionStockComponent_vue_vue_type_template_id_7b54a724_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-7b54a724"],['__file',"resources/js/components/inventario/AutoGestionStockComponent.vue"]])
 /* hot reload */
 if (false) {}
 
@@ -270631,7 +270592,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _AutoProcesoComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./AutoProcesoComponent.vue?vue&type=script&lang=js */ "./resources/js/components/inventario/AutoProcesoComponent.vue?vue&type=script&lang=js");
 /* harmony import */ var _AutoProcesoComponent_vue_vue_type_style_index_0_id_0ebc41a4_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./AutoProcesoComponent.vue?vue&type=style&index=0&id=0ebc41a4&scoped=true&lang=css */ "./resources/js/components/inventario/AutoProcesoComponent.vue?vue&type=style&index=0&id=0ebc41a4&scoped=true&lang=css");
 /* harmony import */ var _AutoProcesoComponent_vue_vue_type_style_index_1_id_0ebc41a4_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./AutoProcesoComponent.vue?vue&type=style&index=1&id=0ebc41a4&scoped=true&lang=css */ "./resources/js/components/inventario/AutoProcesoComponent.vue?vue&type=style&index=1&id=0ebc41a4&scoped=true&lang=css");
-/* harmony import */ var C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
+/* harmony import */ var C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
 
 
 
@@ -270640,7 +270601,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const __exports__ = /*#__PURE__*/(0,C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__["default"])(_AutoProcesoComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_AutoProcesoComponent_vue_vue_type_template_id_0ebc41a4_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-0ebc41a4"],['__file',"resources/js/components/inventario/AutoProcesoComponent.vue"]])
+const __exports__ = /*#__PURE__*/(0,C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__["default"])(_AutoProcesoComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_AutoProcesoComponent_vue_vue_type_template_id_0ebc41a4_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-0ebc41a4"],['__file',"resources/js/components/inventario/AutoProcesoComponent.vue"]])
 /* hot reload */
 if (false) {}
 
@@ -270664,7 +270625,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _ConfiguracionStockComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./ConfiguracionStockComponent.vue?vue&type=script&lang=js */ "./resources/js/components/inventario/ConfiguracionStockComponent.vue?vue&type=script&lang=js");
 /* harmony import */ var _ConfiguracionStockComponent_vue_vue_type_style_index_0_id_5936a55b_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./ConfiguracionStockComponent.vue?vue&type=style&index=0&id=5936a55b&scoped=true&lang=css */ "./resources/js/components/inventario/ConfiguracionStockComponent.vue?vue&type=style&index=0&id=5936a55b&scoped=true&lang=css");
 /* harmony import */ var _ConfiguracionStockComponent_vue_vue_type_style_index_1_id_5936a55b_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./ConfiguracionStockComponent.vue?vue&type=style&index=1&id=5936a55b&scoped=true&lang=css */ "./resources/js/components/inventario/ConfiguracionStockComponent.vue?vue&type=style&index=1&id=5936a55b&scoped=true&lang=css");
-/* harmony import */ var C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
+/* harmony import */ var C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
 
 
 
@@ -270673,7 +270634,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const __exports__ = /*#__PURE__*/(0,C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__["default"])(_ConfiguracionStockComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_ConfiguracionStockComponent_vue_vue_type_template_id_5936a55b_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-5936a55b"],['__file',"resources/js/components/inventario/ConfiguracionStockComponent.vue"]])
+const __exports__ = /*#__PURE__*/(0,C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__["default"])(_ConfiguracionStockComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_ConfiguracionStockComponent_vue_vue_type_template_id_5936a55b_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-5936a55b"],['__file',"resources/js/components/inventario/ConfiguracionStockComponent.vue"]])
 /* hot reload */
 if (false) {}
 
@@ -270699,7 +270660,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _GestorStockComponent_vue_vue_type_style_index_1_id_c2d81fe8_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./GestorStockComponent.vue?vue&type=style&index=1&id=c2d81fe8&scoped=true&lang=css */ "./resources/js/components/inventario/GestorStockComponent.vue?vue&type=style&index=1&id=c2d81fe8&scoped=true&lang=css");
 /* harmony import */ var _GestorStockComponent_vue_vue_type_style_index_2_id_c2d81fe8_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./GestorStockComponent.vue?vue&type=style&index=2&id=c2d81fe8&scoped=true&lang=css */ "./resources/js/components/inventario/GestorStockComponent.vue?vue&type=style&index=2&id=c2d81fe8&scoped=true&lang=css");
 /* harmony import */ var vue_multiselect_dist_vue_multiselect_css_vue_type_style_index_3_lang_css__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! vue-multiselect/dist/vue-multiselect.css?vue&type=style&index=3&lang=css */ "./node_modules/vue-multiselect/dist/vue-multiselect.css?vue&type=style&index=3&lang=css");
-/* harmony import */ var C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
+/* harmony import */ var C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
 
 
 
@@ -270710,7 +270671,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const __exports__ = /*#__PURE__*/(0,C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_6__["default"])(_GestorStockComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_GestorStockComponent_vue_vue_type_template_id_c2d81fe8_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-c2d81fe8"],['__file',"resources/js/components/inventario/GestorStockComponent.vue"]])
+const __exports__ = /*#__PURE__*/(0,C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_6__["default"])(_GestorStockComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_GestorStockComponent_vue_vue_type_template_id_c2d81fe8_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-c2d81fe8"],['__file',"resources/js/components/inventario/GestorStockComponent.vue"]])
 /* hot reload */
 if (false) {}
 
@@ -270735,7 +270696,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _InvetarioInicialComponent_vue_vue_type_style_index_0_id_6956902c_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./InvetarioInicialComponent.vue?vue&type=style&index=0&id=6956902c&scoped=true&lang=css */ "./resources/js/components/inventario/InvetarioInicialComponent.vue?vue&type=style&index=0&id=6956902c&scoped=true&lang=css");
 /* harmony import */ var _InvetarioInicialComponent_vue_vue_type_style_index_1_id_6956902c_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./InvetarioInicialComponent.vue?vue&type=style&index=1&id=6956902c&scoped=true&lang=css */ "./resources/js/components/inventario/InvetarioInicialComponent.vue?vue&type=style&index=1&id=6956902c&scoped=true&lang=css");
 /* harmony import */ var vue_multiselect_dist_vue_multiselect_css_vue_type_style_index_2_lang_css__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! vue-multiselect/dist/vue-multiselect.css?vue&type=style&index=2&lang=css */ "./node_modules/vue-multiselect/dist/vue-multiselect.css?vue&type=style&index=2&lang=css");
-/* harmony import */ var C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
+/* harmony import */ var C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
 
 
 
@@ -270745,7 +270706,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const __exports__ = /*#__PURE__*/(0,C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_5__["default"])(_InvetarioInicialComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_InvetarioInicialComponent_vue_vue_type_template_id_6956902c_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-6956902c"],['__file',"resources/js/components/inventario/InvetarioInicialComponent.vue"]])
+const __exports__ = /*#__PURE__*/(0,C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_5__["default"])(_InvetarioInicialComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_InvetarioInicialComponent_vue_vue_type_template_id_6956902c_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-6956902c"],['__file',"resources/js/components/inventario/InvetarioInicialComponent.vue"]])
 /* hot reload */
 if (false) {}
 
@@ -270768,7 +270729,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _ProcesarTraspasoComponent_vue_vue_type_template_id_f9058fd0_scoped_true__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./ProcesarTraspasoComponent.vue?vue&type=template&id=f9058fd0&scoped=true */ "./resources/js/components/inventario/ProcesarTraspasoComponent.vue?vue&type=template&id=f9058fd0&scoped=true");
 /* harmony import */ var _ProcesarTraspasoComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./ProcesarTraspasoComponent.vue?vue&type=script&lang=js */ "./resources/js/components/inventario/ProcesarTraspasoComponent.vue?vue&type=script&lang=js");
 /* harmony import */ var _ProcesarTraspasoComponent_vue_vue_type_style_index_0_id_f9058fd0_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./ProcesarTraspasoComponent.vue?vue&type=style&index=0&id=f9058fd0&scoped=true&lang=css */ "./resources/js/components/inventario/ProcesarTraspasoComponent.vue?vue&type=style&index=0&id=f9058fd0&scoped=true&lang=css");
-/* harmony import */ var C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
+/* harmony import */ var C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
 
 
 
@@ -270776,7 +270737,7 @@ __webpack_require__.r(__webpack_exports__);
 ;
 
 
-const __exports__ = /*#__PURE__*/(0,C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_3__["default"])(_ProcesarTraspasoComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_ProcesarTraspasoComponent_vue_vue_type_template_id_f9058fd0_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-f9058fd0"],['__file',"resources/js/components/inventario/ProcesarTraspasoComponent.vue"]])
+const __exports__ = /*#__PURE__*/(0,C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_3__["default"])(_ProcesarTraspasoComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_ProcesarTraspasoComponent_vue_vue_type_template_id_f9058fd0_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-f9058fd0"],['__file',"resources/js/components/inventario/ProcesarTraspasoComponent.vue"]])
 /* hot reload */
 if (false) {}
 
@@ -270801,7 +270762,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _RecepcionComponent_vue_vue_type_style_index_0_id_3f2f2020_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./RecepcionComponent.vue?vue&type=style&index=0&id=3f2f2020&scoped=true&lang=css */ "./resources/js/components/inventario/RecepcionComponent.vue?vue&type=style&index=0&id=3f2f2020&scoped=true&lang=css");
 /* harmony import */ var _RecepcionComponent_vue_vue_type_style_index_1_id_3f2f2020_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./RecepcionComponent.vue?vue&type=style&index=1&id=3f2f2020&scoped=true&lang=css */ "./resources/js/components/inventario/RecepcionComponent.vue?vue&type=style&index=1&id=3f2f2020&scoped=true&lang=css");
 /* harmony import */ var vue_multiselect_dist_vue_multiselect_css_vue_type_style_index_2_lang_css__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! vue-multiselect/dist/vue-multiselect.css?vue&type=style&index=2&lang=css */ "./node_modules/vue-multiselect/dist/vue-multiselect.css?vue&type=style&index=2&lang=css");
-/* harmony import */ var C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
+/* harmony import */ var C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
 
 
 
@@ -270811,7 +270772,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const __exports__ = /*#__PURE__*/(0,C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_5__["default"])(_RecepcionComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_RecepcionComponent_vue_vue_type_template_id_3f2f2020_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-3f2f2020"],['__file',"resources/js/components/inventario/RecepcionComponent.vue"]])
+const __exports__ = /*#__PURE__*/(0,C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_5__["default"])(_RecepcionComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_RecepcionComponent_vue_vue_type_template_id_3f2f2020_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-3f2f2020"],['__file',"resources/js/components/inventario/RecepcionComponent.vue"]])
 /* hot reload */
 if (false) {}
 
@@ -270837,7 +270798,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _TraspasoComponent_vue_vue_type_style_index_1_id_4a4b47cd_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./TraspasoComponent.vue?vue&type=style&index=1&id=4a4b47cd&scoped=true&lang=css */ "./resources/js/components/inventario/TraspasoComponent.vue?vue&type=style&index=1&id=4a4b47cd&scoped=true&lang=css");
 /* harmony import */ var _TraspasoComponent_vue_vue_type_style_index_2_id_4a4b47cd_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./TraspasoComponent.vue?vue&type=style&index=2&id=4a4b47cd&scoped=true&lang=css */ "./resources/js/components/inventario/TraspasoComponent.vue?vue&type=style&index=2&id=4a4b47cd&scoped=true&lang=css");
 /* harmony import */ var vue_multiselect_dist_vue_multiselect_css_vue_type_style_index_3_lang_css__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! vue-multiselect/dist/vue-multiselect.css?vue&type=style&index=3&lang=css */ "./node_modules/vue-multiselect/dist/vue-multiselect.css?vue&type=style&index=3&lang=css");
-/* harmony import */ var C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
+/* harmony import */ var C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
 
 
 
@@ -270848,7 +270809,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const __exports__ = /*#__PURE__*/(0,C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_6__["default"])(_TraspasoComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_TraspasoComponent_vue_vue_type_template_id_4a4b47cd_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-4a4b47cd"],['__file',"resources/js/components/inventario/TraspasoComponent.vue"]])
+const __exports__ = /*#__PURE__*/(0,C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_6__["default"])(_TraspasoComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_TraspasoComponent_vue_vue_type_template_id_4a4b47cd_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-4a4b47cd"],['__file',"resources/js/components/inventario/TraspasoComponent.vue"]])
 /* hot reload */
 if (false) {}
 
@@ -270874,7 +270835,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _TrasladosComponent_vue_vue_type_style_index_1_id_566de31a_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./TrasladosComponent.vue?vue&type=style&index=1&id=566de31a&scoped=true&lang=css */ "./resources/js/components/logistica/TrasladosComponent.vue?vue&type=style&index=1&id=566de31a&scoped=true&lang=css");
 /* harmony import */ var _TrasladosComponent_vue_vue_type_style_index_2_id_566de31a_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./TrasladosComponent.vue?vue&type=style&index=2&id=566de31a&scoped=true&lang=css */ "./resources/js/components/logistica/TrasladosComponent.vue?vue&type=style&index=2&id=566de31a&scoped=true&lang=css");
 /* harmony import */ var vue_multiselect_dist_vue_multiselect_css_vue_type_style_index_3_lang_css__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! vue-multiselect/dist/vue-multiselect.css?vue&type=style&index=3&lang=css */ "./node_modules/vue-multiselect/dist/vue-multiselect.css?vue&type=style&index=3&lang=css");
-/* harmony import */ var C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
+/* harmony import */ var C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
 
 
 
@@ -270885,7 +270846,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const __exports__ = /*#__PURE__*/(0,C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_6__["default"])(_TrasladosComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_TrasladosComponent_vue_vue_type_template_id_566de31a_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-566de31a"],['__file',"resources/js/components/logistica/TrasladosComponent.vue"]])
+const __exports__ = /*#__PURE__*/(0,C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_6__["default"])(_TrasladosComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_TrasladosComponent_vue_vue_type_template_id_566de31a_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-566de31a"],['__file',"resources/js/components/logistica/TrasladosComponent.vue"]])
 /* hot reload */
 if (false) {}
 
@@ -270909,7 +270870,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _VehiculoComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./VehiculoComponent.vue?vue&type=script&lang=js */ "./resources/js/components/logistica/VehiculoComponent.vue?vue&type=script&lang=js");
 /* harmony import */ var _VehiculoComponent_vue_vue_type_style_index_0_id_62e8ef22_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./VehiculoComponent.vue?vue&type=style&index=0&id=62e8ef22&scoped=true&lang=css */ "./resources/js/components/logistica/VehiculoComponent.vue?vue&type=style&index=0&id=62e8ef22&scoped=true&lang=css");
 /* harmony import */ var _VehiculoComponent_vue_vue_type_style_index_1_id_62e8ef22_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./VehiculoComponent.vue?vue&type=style&index=1&id=62e8ef22&scoped=true&lang=css */ "./resources/js/components/logistica/VehiculoComponent.vue?vue&type=style&index=1&id=62e8ef22&scoped=true&lang=css");
-/* harmony import */ var C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
+/* harmony import */ var C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
 
 
 
@@ -270918,7 +270879,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const __exports__ = /*#__PURE__*/(0,C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__["default"])(_VehiculoComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_VehiculoComponent_vue_vue_type_template_id_62e8ef22_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-62e8ef22"],['__file',"resources/js/components/logistica/VehiculoComponent.vue"]])
+const __exports__ = /*#__PURE__*/(0,C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__["default"])(_VehiculoComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_VehiculoComponent_vue_vue_type_template_id_62e8ef22_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-62e8ef22"],['__file',"resources/js/components/logistica/VehiculoComponent.vue"]])
 /* hot reload */
 if (false) {}
 
@@ -270941,7 +270902,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _DescProductosComponent_vue_vue_type_template_id_bfd4db56_scoped_true__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./DescProductosComponent.vue?vue&type=template&id=bfd4db56&scoped=true */ "./resources/js/components/parametros/DescProductosComponent.vue?vue&type=template&id=bfd4db56&scoped=true");
 /* harmony import */ var _DescProductosComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./DescProductosComponent.vue?vue&type=script&lang=js */ "./resources/js/components/parametros/DescProductosComponent.vue?vue&type=script&lang=js");
 /* harmony import */ var _DescProductosComponent_vue_vue_type_style_index_0_id_bfd4db56_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./DescProductosComponent.vue?vue&type=style&index=0&id=bfd4db56&scoped=true&lang=css */ "./resources/js/components/parametros/DescProductosComponent.vue?vue&type=style&index=0&id=bfd4db56&scoped=true&lang=css");
-/* harmony import */ var C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
+/* harmony import */ var C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
 
 
 
@@ -270949,7 +270910,7 @@ __webpack_require__.r(__webpack_exports__);
 ;
 
 
-const __exports__ = /*#__PURE__*/(0,C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_3__["default"])(_DescProductosComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_DescProductosComponent_vue_vue_type_template_id_bfd4db56_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-bfd4db56"],['__file',"resources/js/components/parametros/DescProductosComponent.vue"]])
+const __exports__ = /*#__PURE__*/(0,C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_3__["default"])(_DescProductosComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_DescProductosComponent_vue_vue_type_template_id_bfd4db56_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-bfd4db56"],['__file',"resources/js/components/parametros/DescProductosComponent.vue"]])
 /* hot reload */
 if (false) {}
 
@@ -270974,7 +270935,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _DescuentosxComponent_vue_vue_type_style_index_0_id_df6a2e2c_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./DescuentosxComponent.vue?vue&type=style&index=0&id=df6a2e2c&scoped=true&lang=css */ "./resources/js/components/parametros/DescuentosxComponent.vue?vue&type=style&index=0&id=df6a2e2c&scoped=true&lang=css");
 /* harmony import */ var _DescuentosxComponent_vue_vue_type_style_index_1_id_df6a2e2c_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./DescuentosxComponent.vue?vue&type=style&index=1&id=df6a2e2c&scoped=true&lang=css */ "./resources/js/components/parametros/DescuentosxComponent.vue?vue&type=style&index=1&id=df6a2e2c&scoped=true&lang=css");
 /* harmony import */ var vue_multiselect_dist_vue_multiselect_css_vue_type_style_index_2_lang_css__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! vue-multiselect/dist/vue-multiselect.css?vue&type=style&index=2&lang=css */ "./node_modules/vue-multiselect/dist/vue-multiselect.css?vue&type=style&index=2&lang=css");
-/* harmony import */ var C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
+/* harmony import */ var C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
 
 
 
@@ -270984,7 +270945,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const __exports__ = /*#__PURE__*/(0,C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_5__["default"])(_DescuentosxComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_DescuentosxComponent_vue_vue_type_template_id_df6a2e2c_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-df6a2e2c"],['__file',"resources/js/components/parametros/DescuentosxComponent.vue"]])
+const __exports__ = /*#__PURE__*/(0,C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_5__["default"])(_DescuentosxComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_DescuentosxComponent_vue_vue_type_template_id_df6a2e2c_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-df6a2e2c"],['__file',"resources/js/components/parametros/DescuentosxComponent.vue"]])
 /* hot reload */
 if (false) {}
 
@@ -271008,7 +270969,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _ServiciosDescuentoscomponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./ServiciosDescuentoscomponent.vue?vue&type=script&lang=js */ "./resources/js/components/parametros/ServiciosDescuentoscomponent.vue?vue&type=script&lang=js");
 /* harmony import */ var _ServiciosDescuentoscomponent_vue_vue_type_style_index_0_id_7bd97522_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./ServiciosDescuentoscomponent.vue?vue&type=style&index=0&id=7bd97522&scoped=true&lang=css */ "./resources/js/components/parametros/ServiciosDescuentoscomponent.vue?vue&type=style&index=0&id=7bd97522&scoped=true&lang=css");
 /* harmony import */ var _ServiciosDescuentoscomponent_vue_vue_type_style_index_1_id_7bd97522_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./ServiciosDescuentoscomponent.vue?vue&type=style&index=1&id=7bd97522&scoped=true&lang=css */ "./resources/js/components/parametros/ServiciosDescuentoscomponent.vue?vue&type=style&index=1&id=7bd97522&scoped=true&lang=css");
-/* harmony import */ var C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
+/* harmony import */ var C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
 
 
 
@@ -271017,7 +270978,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const __exports__ = /*#__PURE__*/(0,C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__["default"])(_ServiciosDescuentoscomponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_ServiciosDescuentoscomponent_vue_vue_type_template_id_7bd97522_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-7bd97522"],['__file',"resources/js/components/parametros/ServiciosDescuentoscomponent.vue"]])
+const __exports__ = /*#__PURE__*/(0,C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__["default"])(_ServiciosDescuentoscomponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_ServiciosDescuentoscomponent_vue_vue_type_template_id_7bd97522_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-7bd97522"],['__file',"resources/js/components/parametros/ServiciosDescuentoscomponent.vue"]])
 /* hot reload */
 if (false) {}
 
@@ -271039,13 +271000,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _Body_header_vue_vue_type_template_id_18405920__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Body_header.vue?vue&type=template&id=18405920 */ "./resources/js/components/plugin_vue/Body_header.vue?vue&type=template&id=18405920");
 /* harmony import */ var _Body_header_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Body_header.vue?vue&type=script&lang=js */ "./resources/js/components/plugin_vue/Body_header.vue?vue&type=script&lang=js");
-/* harmony import */ var C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
+/* harmony import */ var C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
 
 
 
 
 ;
-const __exports__ = /*#__PURE__*/(0,C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_2__["default"])(_Body_header_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_Body_header_vue_vue_type_template_id_18405920__WEBPACK_IMPORTED_MODULE_0__.render],['__file',"resources/js/components/plugin_vue/Body_header.vue"]])
+const __exports__ = /*#__PURE__*/(0,C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_2__["default"])(_Body_header_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_Body_header_vue_vue_type_template_id_18405920__WEBPACK_IMPORTED_MODULE_0__.render],['__file',"resources/js/components/plugin_vue/Body_header.vue"]])
 /* hot reload */
 if (false) {}
 
@@ -271069,7 +271030,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _CategoriaComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./CategoriaComponent.vue?vue&type=script&lang=js */ "./resources/js/components/productos/CategoriaComponent.vue?vue&type=script&lang=js");
 /* harmony import */ var _CategoriaComponent_vue_vue_type_style_index_0_id_d532ef1e_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./CategoriaComponent.vue?vue&type=style&index=0&id=d532ef1e&scoped=true&lang=css */ "./resources/js/components/productos/CategoriaComponent.vue?vue&type=style&index=0&id=d532ef1e&scoped=true&lang=css");
 /* harmony import */ var _CategoriaComponent_vue_vue_type_style_index_1_id_d532ef1e_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./CategoriaComponent.vue?vue&type=style&index=1&id=d532ef1e&scoped=true&lang=css */ "./resources/js/components/productos/CategoriaComponent.vue?vue&type=style&index=1&id=d532ef1e&scoped=true&lang=css");
-/* harmony import */ var C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
+/* harmony import */ var C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
 
 
 
@@ -271078,7 +271039,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const __exports__ = /*#__PURE__*/(0,C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__["default"])(_CategoriaComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_CategoriaComponent_vue_vue_type_template_id_d532ef1e_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-d532ef1e"],['__file',"resources/js/components/productos/CategoriaComponent.vue"]])
+const __exports__ = /*#__PURE__*/(0,C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__["default"])(_CategoriaComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_CategoriaComponent_vue_vue_type_template_id_d532ef1e_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-d532ef1e"],['__file',"resources/js/components/productos/CategoriaComponent.vue"]])
 /* hot reload */
 if (false) {}
 
@@ -271102,7 +271063,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _DispenserComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./DispenserComponent.vue?vue&type=script&lang=js */ "./resources/js/components/productos/DispenserComponent.vue?vue&type=script&lang=js");
 /* harmony import */ var _DispenserComponent_vue_vue_type_style_index_0_id_0f75422f_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./DispenserComponent.vue?vue&type=style&index=0&id=0f75422f&scoped=true&lang=css */ "./resources/js/components/productos/DispenserComponent.vue?vue&type=style&index=0&id=0f75422f&scoped=true&lang=css");
 /* harmony import */ var _DispenserComponent_vue_vue_type_style_index_1_id_0f75422f_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./DispenserComponent.vue?vue&type=style&index=1&id=0f75422f&scoped=true&lang=css */ "./resources/js/components/productos/DispenserComponent.vue?vue&type=style&index=1&id=0f75422f&scoped=true&lang=css");
-/* harmony import */ var C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
+/* harmony import */ var C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
 
 
 
@@ -271111,7 +271072,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const __exports__ = /*#__PURE__*/(0,C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__["default"])(_DispenserComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_DispenserComponent_vue_vue_type_template_id_0f75422f_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-0f75422f"],['__file',"resources/js/components/productos/DispenserComponent.vue"]])
+const __exports__ = /*#__PURE__*/(0,C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__["default"])(_DispenserComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_DispenserComponent_vue_vue_type_template_id_0f75422f_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-0f75422f"],['__file',"resources/js/components/productos/DispenserComponent.vue"]])
 /* hot reload */
 if (false) {}
 
@@ -271135,7 +271096,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _FormaFarmaceuticaComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./FormaFarmaceuticaComponent.vue?vue&type=script&lang=js */ "./resources/js/components/productos/FormaFarmaceuticaComponent.vue?vue&type=script&lang=js");
 /* harmony import */ var _FormaFarmaceuticaComponent_vue_vue_type_style_index_0_id_224c8eec_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./FormaFarmaceuticaComponent.vue?vue&type=style&index=0&id=224c8eec&scoped=true&lang=css */ "./resources/js/components/productos/FormaFarmaceuticaComponent.vue?vue&type=style&index=0&id=224c8eec&scoped=true&lang=css");
 /* harmony import */ var _FormaFarmaceuticaComponent_vue_vue_type_style_index_1_id_224c8eec_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./FormaFarmaceuticaComponent.vue?vue&type=style&index=1&id=224c8eec&scoped=true&lang=css */ "./resources/js/components/productos/FormaFarmaceuticaComponent.vue?vue&type=style&index=1&id=224c8eec&scoped=true&lang=css");
-/* harmony import */ var C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
+/* harmony import */ var C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
 
 
 
@@ -271144,7 +271105,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const __exports__ = /*#__PURE__*/(0,C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__["default"])(_FormaFarmaceuticaComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_FormaFarmaceuticaComponent_vue_vue_type_template_id_224c8eec_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-224c8eec"],['__file',"resources/js/components/productos/FormaFarmaceuticaComponent.vue"]])
+const __exports__ = /*#__PURE__*/(0,C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__["default"])(_FormaFarmaceuticaComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_FormaFarmaceuticaComponent_vue_vue_type_template_id_224c8eec_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-224c8eec"],['__file',"resources/js/components/productos/FormaFarmaceuticaComponent.vue"]])
 /* hot reload */
 if (false) {}
 
@@ -271168,7 +271129,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _LineaComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./LineaComponent.vue?vue&type=script&lang=js */ "./resources/js/components/productos/LineaComponent.vue?vue&type=script&lang=js");
 /* harmony import */ var _LineaComponent_vue_vue_type_style_index_0_id_c5520f12_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./LineaComponent.vue?vue&type=style&index=0&id=c5520f12&scoped=true&lang=css */ "./resources/js/components/productos/LineaComponent.vue?vue&type=style&index=0&id=c5520f12&scoped=true&lang=css");
 /* harmony import */ var _LineaComponent_vue_vue_type_style_index_1_id_c5520f12_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./LineaComponent.vue?vue&type=style&index=1&id=c5520f12&scoped=true&lang=css */ "./resources/js/components/productos/LineaComponent.vue?vue&type=style&index=1&id=c5520f12&scoped=true&lang=css");
-/* harmony import */ var C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
+/* harmony import */ var C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
 
 
 
@@ -271177,7 +271138,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const __exports__ = /*#__PURE__*/(0,C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__["default"])(_LineaComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_LineaComponent_vue_vue_type_template_id_c5520f12_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-c5520f12"],['__file',"resources/js/components/productos/LineaComponent.vue"]])
+const __exports__ = /*#__PURE__*/(0,C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__["default"])(_LineaComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_LineaComponent_vue_vue_type_template_id_c5520f12_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-c5520f12"],['__file',"resources/js/components/productos/LineaComponent.vue"]])
 /* hot reload */
 if (false) {}
 
@@ -271201,7 +271162,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _ListaComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./ListaComponent.vue?vue&type=script&lang=js */ "./resources/js/components/productos/ListaComponent.vue?vue&type=script&lang=js");
 /* harmony import */ var _ListaComponent_vue_vue_type_style_index_0_id_490b87a1_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./ListaComponent.vue?vue&type=style&index=0&id=490b87a1&scoped=true&lang=css */ "./resources/js/components/productos/ListaComponent.vue?vue&type=style&index=0&id=490b87a1&scoped=true&lang=css");
 /* harmony import */ var _ListaComponent_vue_vue_type_style_index_1_id_490b87a1_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./ListaComponent.vue?vue&type=style&index=1&id=490b87a1&scoped=true&lang=css */ "./resources/js/components/productos/ListaComponent.vue?vue&type=style&index=1&id=490b87a1&scoped=true&lang=css");
-/* harmony import */ var C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
+/* harmony import */ var C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
 
 
 
@@ -271210,7 +271171,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const __exports__ = /*#__PURE__*/(0,C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__["default"])(_ListaComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_ListaComponent_vue_vue_type_template_id_490b87a1_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-490b87a1"],['__file',"resources/js/components/productos/ListaComponent.vue"]])
+const __exports__ = /*#__PURE__*/(0,C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__["default"])(_ListaComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_ListaComponent_vue_vue_type_template_id_490b87a1_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-490b87a1"],['__file',"resources/js/components/productos/ListaComponent.vue"]])
 /* hot reload */
 if (false) {}
 
@@ -271235,7 +271196,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _PrecioxlistaComponent_vue_vue_type_style_index_0_id_cc6040d6_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./PrecioxlistaComponent.vue?vue&type=style&index=0&id=cc6040d6&scoped=true&lang=css */ "./resources/js/components/productos/PrecioxlistaComponent.vue?vue&type=style&index=0&id=cc6040d6&scoped=true&lang=css");
 /* harmony import */ var _PrecioxlistaComponent_vue_vue_type_style_index_1_id_cc6040d6_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./PrecioxlistaComponent.vue?vue&type=style&index=1&id=cc6040d6&scoped=true&lang=css */ "./resources/js/components/productos/PrecioxlistaComponent.vue?vue&type=style&index=1&id=cc6040d6&scoped=true&lang=css");
 /* harmony import */ var vue_multiselect_dist_vue_multiselect_css_vue_type_style_index_2_lang_css__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! vue-multiselect/dist/vue-multiselect.css?vue&type=style&index=2&lang=css */ "./node_modules/vue-multiselect/dist/vue-multiselect.css?vue&type=style&index=2&lang=css");
-/* harmony import */ var C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
+/* harmony import */ var C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
 
 
 
@@ -271245,7 +271206,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const __exports__ = /*#__PURE__*/(0,C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_5__["default"])(_PrecioxlistaComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_PrecioxlistaComponent_vue_vue_type_template_id_cc6040d6_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-cc6040d6"],['__file',"resources/js/components/productos/PrecioxlistaComponent.vue"]])
+const __exports__ = /*#__PURE__*/(0,C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_5__["default"])(_PrecioxlistaComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_PrecioxlistaComponent_vue_vue_type_template_id_cc6040d6_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-cc6040d6"],['__file',"resources/js/components/productos/PrecioxlistaComponent.vue"]])
 /* hot reload */
 if (false) {}
 
@@ -271268,7 +271229,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _ProductoComponent_vue_vue_type_template_id_bb1c7034_scoped_true__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./ProductoComponent.vue?vue&type=template&id=bb1c7034&scoped=true */ "./resources/js/components/productos/ProductoComponent.vue?vue&type=template&id=bb1c7034&scoped=true");
 /* harmony import */ var _ProductoComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./ProductoComponent.vue?vue&type=script&lang=js */ "./resources/js/components/productos/ProductoComponent.vue?vue&type=script&lang=js");
 /* harmony import */ var _ProductoComponent_vue_vue_type_style_index_0_id_bb1c7034_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./ProductoComponent.vue?vue&type=style&index=0&id=bb1c7034&scoped=true&lang=css */ "./resources/js/components/productos/ProductoComponent.vue?vue&type=style&index=0&id=bb1c7034&scoped=true&lang=css");
-/* harmony import */ var C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
+/* harmony import */ var C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
 
 
 
@@ -271276,7 +271237,7 @@ __webpack_require__.r(__webpack_exports__);
 ;
 
 
-const __exports__ = /*#__PURE__*/(0,C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_3__["default"])(_ProductoComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_ProductoComponent_vue_vue_type_template_id_bb1c7034_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-bb1c7034"],['__file',"resources/js/components/productos/ProductoComponent.vue"]])
+const __exports__ = /*#__PURE__*/(0,C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_3__["default"])(_ProductoComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_ProductoComponent_vue_vue_type_template_id_bb1c7034_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-bb1c7034"],['__file',"resources/js/components/productos/ProductoComponent.vue"]])
 /* hot reload */
 if (false) {}
 
@@ -271300,7 +271261,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _TipoEntradaComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./TipoEntradaComponent.vue?vue&type=script&lang=js */ "./resources/js/components/productos/TipoEntradaComponent.vue?vue&type=script&lang=js");
 /* harmony import */ var _TipoEntradaComponent_vue_vue_type_style_index_0_id_044d2b61_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./TipoEntradaComponent.vue?vue&type=style&index=0&id=044d2b61&scoped=true&lang=css */ "./resources/js/components/productos/TipoEntradaComponent.vue?vue&type=style&index=0&id=044d2b61&scoped=true&lang=css");
 /* harmony import */ var _TipoEntradaComponent_vue_vue_type_style_index_1_id_044d2b61_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./TipoEntradaComponent.vue?vue&type=style&index=1&id=044d2b61&scoped=true&lang=css */ "./resources/js/components/productos/TipoEntradaComponent.vue?vue&type=style&index=1&id=044d2b61&scoped=true&lang=css");
-/* harmony import */ var C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
+/* harmony import */ var C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
 
 
 
@@ -271309,7 +271270,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const __exports__ = /*#__PURE__*/(0,C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__["default"])(_TipoEntradaComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_TipoEntradaComponent_vue_vue_type_template_id_044d2b61_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-044d2b61"],['__file',"resources/js/components/productos/TipoEntradaComponent.vue"]])
+const __exports__ = /*#__PURE__*/(0,C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__["default"])(_TipoEntradaComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_TipoEntradaComponent_vue_vue_type_template_id_044d2b61_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-044d2b61"],['__file',"resources/js/components/productos/TipoEntradaComponent.vue"]])
 /* hot reload */
 if (false) {}
 
@@ -271333,7 +271294,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _CargoComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./CargoComponent.vue?vue&type=script&lang=js */ "./resources/js/components/recursos_humanos/CargoComponent.vue?vue&type=script&lang=js");
 /* harmony import */ var _CargoComponent_vue_vue_type_style_index_0_id_1c00dfd9_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./CargoComponent.vue?vue&type=style&index=0&id=1c00dfd9&scoped=true&lang=css */ "./resources/js/components/recursos_humanos/CargoComponent.vue?vue&type=style&index=0&id=1c00dfd9&scoped=true&lang=css");
 /* harmony import */ var _CargoComponent_vue_vue_type_style_index_1_id_1c00dfd9_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./CargoComponent.vue?vue&type=style&index=1&id=1c00dfd9&scoped=true&lang=css */ "./resources/js/components/recursos_humanos/CargoComponent.vue?vue&type=style&index=1&id=1c00dfd9&scoped=true&lang=css");
-/* harmony import */ var C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
+/* harmony import */ var C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
 
 
 
@@ -271342,7 +271303,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const __exports__ = /*#__PURE__*/(0,C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__["default"])(_CargoComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_CargoComponent_vue_vue_type_template_id_1c00dfd9_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-1c00dfd9"],['__file',"resources/js/components/recursos_humanos/CargoComponent.vue"]])
+const __exports__ = /*#__PURE__*/(0,C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__["default"])(_CargoComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_CargoComponent_vue_vue_type_template_id_1c00dfd9_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-1c00dfd9"],['__file',"resources/js/components/recursos_humanos/CargoComponent.vue"]])
 /* hot reload */
 if (false) {}
 
@@ -271366,7 +271327,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _EmpleadosComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./EmpleadosComponent.vue?vue&type=script&lang=js */ "./resources/js/components/recursos_humanos/EmpleadosComponent.vue?vue&type=script&lang=js");
 /* harmony import */ var _EmpleadosComponent_vue_vue_type_style_index_0_id_5908cbe6_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./EmpleadosComponent.vue?vue&type=style&index=0&id=5908cbe6&scoped=true&lang=css */ "./resources/js/components/recursos_humanos/EmpleadosComponent.vue?vue&type=style&index=0&id=5908cbe6&scoped=true&lang=css");
 /* harmony import */ var _EmpleadosComponent_vue_vue_type_style_index_1_id_5908cbe6_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./EmpleadosComponent.vue?vue&type=style&index=1&id=5908cbe6&scoped=true&lang=css */ "./resources/js/components/recursos_humanos/EmpleadosComponent.vue?vue&type=style&index=1&id=5908cbe6&scoped=true&lang=css");
-/* harmony import */ var C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
+/* harmony import */ var C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
 
 
 
@@ -271375,7 +271336,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const __exports__ = /*#__PURE__*/(0,C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__["default"])(_EmpleadosComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_EmpleadosComponent_vue_vue_type_template_id_5908cbe6_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-5908cbe6"],['__file',"resources/js/components/recursos_humanos/EmpleadosComponent.vue"]])
+const __exports__ = /*#__PURE__*/(0,C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__["default"])(_EmpleadosComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_EmpleadosComponent_vue_vue_type_template_id_5908cbe6_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-5908cbe6"],['__file',"resources/js/components/recursos_humanos/EmpleadosComponent.vue"]])
 /* hot reload */
 if (false) {}
 
@@ -271400,7 +271361,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _NivelComponent_vue_vue_type_style_index_0_id_408bcd53_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./NivelComponent.vue?vue&type=style&index=0&id=408bcd53&scoped=true&lang=css */ "./resources/js/components/recursos_humanos/NivelComponent.vue?vue&type=style&index=0&id=408bcd53&scoped=true&lang=css");
 /* harmony import */ var _NivelComponent_vue_vue_type_style_index_1_id_408bcd53_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./NivelComponent.vue?vue&type=style&index=1&id=408bcd53&scoped=true&lang=css */ "./resources/js/components/recursos_humanos/NivelComponent.vue?vue&type=style&index=1&id=408bcd53&scoped=true&lang=css");
 /* harmony import */ var _NivelComponent_vue_vue_type_style_index_2_id_408bcd53_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./NivelComponent.vue?vue&type=style&index=2&id=408bcd53&scoped=true&lang=css */ "./resources/js/components/recursos_humanos/NivelComponent.vue?vue&type=style&index=2&id=408bcd53&scoped=true&lang=css");
-/* harmony import */ var C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
+/* harmony import */ var C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
 
 
 
@@ -271410,7 +271371,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const __exports__ = /*#__PURE__*/(0,C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_5__["default"])(_NivelComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_NivelComponent_vue_vue_type_template_id_408bcd53_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-408bcd53"],['__file',"resources/js/components/recursos_humanos/NivelComponent.vue"]])
+const __exports__ = /*#__PURE__*/(0,C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_5__["default"])(_NivelComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_NivelComponent_vue_vue_type_template_id_408bcd53_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-408bcd53"],['__file',"resources/js/components/recursos_humanos/NivelComponent.vue"]])
 /* hot reload */
 if (false) {}
 
@@ -271434,7 +271395,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _ProfesionComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./ProfesionComponent.vue?vue&type=script&lang=js */ "./resources/js/components/recursos_humanos/ProfesionComponent.vue?vue&type=script&lang=js");
 /* harmony import */ var _ProfesionComponent_vue_vue_type_style_index_0_id_69e56a58_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./ProfesionComponent.vue?vue&type=style&index=0&id=69e56a58&scoped=true&lang=css */ "./resources/js/components/recursos_humanos/ProfesionComponent.vue?vue&type=style&index=0&id=69e56a58&scoped=true&lang=css");
 /* harmony import */ var _ProfesionComponent_vue_vue_type_style_index_1_id_69e56a58_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./ProfesionComponent.vue?vue&type=style&index=1&id=69e56a58&scoped=true&lang=css */ "./resources/js/components/recursos_humanos/ProfesionComponent.vue?vue&type=style&index=1&id=69e56a58&scoped=true&lang=css");
-/* harmony import */ var C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
+/* harmony import */ var C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
 
 
 
@@ -271443,7 +271404,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const __exports__ = /*#__PURE__*/(0,C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__["default"])(_ProfesionComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_ProfesionComponent_vue_vue_type_template_id_69e56a58_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-69e56a58"],['__file',"resources/js/components/recursos_humanos/ProfesionComponent.vue"]])
+const __exports__ = /*#__PURE__*/(0,C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__["default"])(_ProfesionComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_ProfesionComponent_vue_vue_type_template_id_69e56a58_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-69e56a58"],['__file',"resources/js/components/recursos_humanos/ProfesionComponent.vue"]])
 /* hot reload */
 if (false) {}
 
@@ -271467,7 +271428,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _UnidadOrgComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./UnidadOrgComponent.vue?vue&type=script&lang=js */ "./resources/js/components/recursos_humanos/UnidadOrgComponent.vue?vue&type=script&lang=js");
 /* harmony import */ var _UnidadOrgComponent_vue_vue_type_style_index_0_id_5b9bf868_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./UnidadOrgComponent.vue?vue&type=style&index=0&id=5b9bf868&scoped=true&lang=css */ "./resources/js/components/recursos_humanos/UnidadOrgComponent.vue?vue&type=style&index=0&id=5b9bf868&scoped=true&lang=css");
 /* harmony import */ var _UnidadOrgComponent_vue_vue_type_style_index_1_id_5b9bf868_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./UnidadOrgComponent.vue?vue&type=style&index=1&id=5b9bf868&scoped=true&lang=css */ "./resources/js/components/recursos_humanos/UnidadOrgComponent.vue?vue&type=style&index=1&id=5b9bf868&scoped=true&lang=css");
-/* harmony import */ var C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
+/* harmony import */ var C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
 
 
 
@@ -271476,7 +271437,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const __exports__ = /*#__PURE__*/(0,C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__["default"])(_UnidadOrgComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_UnidadOrgComponent_vue_vue_type_template_id_5b9bf868_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-5b9bf868"],['__file',"resources/js/components/recursos_humanos/UnidadOrgComponent.vue"]])
+const __exports__ = /*#__PURE__*/(0,C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__["default"])(_UnidadOrgComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_UnidadOrgComponent_vue_vue_type_template_id_5b9bf868_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-5b9bf868"],['__file',"resources/js/components/recursos_humanos/UnidadOrgComponent.vue"]])
 /* hot reload */
 if (false) {}
 
@@ -271501,7 +271462,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _AreaComponent_vue_vue_type_style_index_0_id_c2a6c9ba_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./AreaComponent.vue?vue&type=style&index=0&id=c2a6c9ba&scoped=true&lang=css */ "./resources/js/components/servicios/AreaComponent.vue?vue&type=style&index=0&id=c2a6c9ba&scoped=true&lang=css");
 /* harmony import */ var _AreaComponent_vue_vue_type_style_index_1_id_c2a6c9ba_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./AreaComponent.vue?vue&type=style&index=1&id=c2a6c9ba&scoped=true&lang=css */ "./resources/js/components/servicios/AreaComponent.vue?vue&type=style&index=1&id=c2a6c9ba&scoped=true&lang=css");
 /* harmony import */ var _AreaComponent_vue_vue_type_style_index_2_id_c2a6c9ba_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./AreaComponent.vue?vue&type=style&index=2&id=c2a6c9ba&scoped=true&lang=css */ "./resources/js/components/servicios/AreaComponent.vue?vue&type=style&index=2&id=c2a6c9ba&scoped=true&lang=css");
-/* harmony import */ var C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
+/* harmony import */ var C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
 
 
 
@@ -271511,7 +271472,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const __exports__ = /*#__PURE__*/(0,C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_5__["default"])(_AreaComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_AreaComponent_vue_vue_type_template_id_c2a6c9ba_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-c2a6c9ba"],['__file',"resources/js/components/servicios/AreaComponent.vue"]])
+const __exports__ = /*#__PURE__*/(0,C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_5__["default"])(_AreaComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_AreaComponent_vue_vue_type_template_id_c2a6c9ba_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-c2a6c9ba"],['__file',"resources/js/components/servicios/AreaComponent.vue"]])
 /* hot reload */
 if (false) {}
 
@@ -271534,7 +271495,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _HistorialVentasComponent_vue_vue_type_template_id_0c2b9ff8_scoped_true__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./HistorialVentasComponent.vue?vue&type=template&id=0c2b9ff8&scoped=true */ "./resources/js/components/servicios/HistorialVentasComponent.vue?vue&type=template&id=0c2b9ff8&scoped=true");
 /* harmony import */ var _HistorialVentasComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./HistorialVentasComponent.vue?vue&type=script&lang=js */ "./resources/js/components/servicios/HistorialVentasComponent.vue?vue&type=script&lang=js");
 /* harmony import */ var _HistorialVentasComponent_vue_vue_type_style_index_0_id_0c2b9ff8_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./HistorialVentasComponent.vue?vue&type=style&index=0&id=0c2b9ff8&scoped=true&lang=css */ "./resources/js/components/servicios/HistorialVentasComponent.vue?vue&type=style&index=0&id=0c2b9ff8&scoped=true&lang=css");
-/* harmony import */ var C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
+/* harmony import */ var C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
 
 
 
@@ -271542,7 +271503,7 @@ __webpack_require__.r(__webpack_exports__);
 ;
 
 
-const __exports__ = /*#__PURE__*/(0,C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_3__["default"])(_HistorialVentasComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_HistorialVentasComponent_vue_vue_type_template_id_0c2b9ff8_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-0c2b9ff8"],['__file',"resources/js/components/servicios/HistorialVentasComponent.vue"]])
+const __exports__ = /*#__PURE__*/(0,C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_3__["default"])(_HistorialVentasComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_HistorialVentasComponent_vue_vue_type_template_id_0c2b9ff8_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-0c2b9ff8"],['__file',"resources/js/components/servicios/HistorialVentasComponent.vue"]])
 /* hot reload */
 if (false) {}
 
@@ -271566,7 +271527,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _PrestacionComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./PrestacionComponent.vue?vue&type=script&lang=js */ "./resources/js/components/servicios/PrestacionComponent.vue?vue&type=script&lang=js");
 /* harmony import */ var _PrestacionComponent_vue_vue_type_style_index_0_id_c51b52a4_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./PrestacionComponent.vue?vue&type=style&index=0&id=c51b52a4&scoped=true&lang=css */ "./resources/js/components/servicios/PrestacionComponent.vue?vue&type=style&index=0&id=c51b52a4&scoped=true&lang=css");
 /* harmony import */ var _PrestacionComponent_vue_vue_type_style_index_1_id_c51b52a4_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./PrestacionComponent.vue?vue&type=style&index=1&id=c51b52a4&scoped=true&lang=css */ "./resources/js/components/servicios/PrestacionComponent.vue?vue&type=style&index=1&id=c51b52a4&scoped=true&lang=css");
-/* harmony import */ var C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
+/* harmony import */ var C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
 
 
 
@@ -271575,7 +271536,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const __exports__ = /*#__PURE__*/(0,C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__["default"])(_PrestacionComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_PrestacionComponent_vue_vue_type_template_id_c51b52a4_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-c51b52a4"],['__file',"resources/js/components/servicios/PrestacionComponent.vue"]])
+const __exports__ = /*#__PURE__*/(0,C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__["default"])(_PrestacionComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_PrestacionComponent_vue_vue_type_template_id_c51b52a4_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-c51b52a4"],['__file',"resources/js/components/servicios/PrestacionComponent.vue"]])
 /* hot reload */
 if (false) {}
 
@@ -271598,7 +271559,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _VentasComponent_vue_vue_type_template_id_3f8128ee_scoped_true__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./VentasComponent.vue?vue&type=template&id=3f8128ee&scoped=true */ "./resources/js/components/servicios/VentasComponent.vue?vue&type=template&id=3f8128ee&scoped=true");
 /* harmony import */ var _VentasComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./VentasComponent.vue?vue&type=script&lang=js */ "./resources/js/components/servicios/VentasComponent.vue?vue&type=script&lang=js");
 /* harmony import */ var _VentasComponent_vue_vue_type_style_index_0_id_3f8128ee_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./VentasComponent.vue?vue&type=style&index=0&id=3f8128ee&scoped=true&lang=css */ "./resources/js/components/servicios/VentasComponent.vue?vue&type=style&index=0&id=3f8128ee&scoped=true&lang=css");
-/* harmony import */ var C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
+/* harmony import */ var C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
 
 
 
@@ -271606,7 +271567,7 @@ __webpack_require__.r(__webpack_exports__);
 ;
 
 
-const __exports__ = /*#__PURE__*/(0,C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_3__["default"])(_VentasComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_VentasComponent_vue_vue_type_template_id_3f8128ee_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-3f8128ee"],['__file',"resources/js/components/servicios/VentasComponent.vue"]])
+const __exports__ = /*#__PURE__*/(0,C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_3__["default"])(_VentasComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_VentasComponent_vue_vue_type_template_id_3f8128ee_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-3f8128ee"],['__file',"resources/js/components/servicios/VentasComponent.vue"]])
 /* hot reload */
 if (false) {}
 
@@ -271630,7 +271591,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Administracion_siatComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Administracion_siatComponent.vue?vue&type=script&lang=js */ "./resources/js/components/siat/Administracion_siatComponent.vue?vue&type=script&lang=js");
 /* harmony import */ var _Administracion_siatComponent_vue_vue_type_style_index_0_id_14aa7d6f_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Administracion_siatComponent.vue?vue&type=style&index=0&id=14aa7d6f&scoped=true&lang=css */ "./resources/js/components/siat/Administracion_siatComponent.vue?vue&type=style&index=0&id=14aa7d6f&scoped=true&lang=css");
 /* harmony import */ var _Administracion_siatComponent_vue_vue_type_style_index_1_id_14aa7d6f_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Administracion_siatComponent.vue?vue&type=style&index=1&id=14aa7d6f&scoped=true&lang=css */ "./resources/js/components/siat/Administracion_siatComponent.vue?vue&type=style&index=1&id=14aa7d6f&scoped=true&lang=css");
-/* harmony import */ var C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
+/* harmony import */ var C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
 
 
 
@@ -271639,7 +271600,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const __exports__ = /*#__PURE__*/(0,C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__["default"])(_Administracion_siatComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_Administracion_siatComponent_vue_vue_type_template_id_14aa7d6f_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-14aa7d6f"],['__file',"resources/js/components/siat/Administracion_siatComponent.vue"]])
+const __exports__ = /*#__PURE__*/(0,C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__["default"])(_Administracion_siatComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_Administracion_siatComponent_vue_vue_type_template_id_14aa7d6f_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-14aa7d6f"],['__file',"resources/js/components/siat/Administracion_siatComponent.vue"]])
 /* hot reload */
 if (false) {}
 
@@ -271662,7 +271623,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Configuracion_siatComponent_vue_vue_type_template_id_0e0e8b81_scoped_true__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Configuracion_siatComponent.vue?vue&type=template&id=0e0e8b81&scoped=true */ "./resources/js/components/siat/Configuracion_siatComponent.vue?vue&type=template&id=0e0e8b81&scoped=true");
 /* harmony import */ var _Configuracion_siatComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Configuracion_siatComponent.vue?vue&type=script&lang=js */ "./resources/js/components/siat/Configuracion_siatComponent.vue?vue&type=script&lang=js");
 /* harmony import */ var _Configuracion_siatComponent_vue_vue_type_style_index_0_id_0e0e8b81_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Configuracion_siatComponent.vue?vue&type=style&index=0&id=0e0e8b81&scoped=true&lang=css */ "./resources/js/components/siat/Configuracion_siatComponent.vue?vue&type=style&index=0&id=0e0e8b81&scoped=true&lang=css");
-/* harmony import */ var C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
+/* harmony import */ var C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
 
 
 
@@ -271670,7 +271631,7 @@ __webpack_require__.r(__webpack_exports__);
 ;
 
 
-const __exports__ = /*#__PURE__*/(0,C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_3__["default"])(_Configuracion_siatComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_Configuracion_siatComponent_vue_vue_type_template_id_0e0e8b81_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-0e0e8b81"],['__file',"resources/js/components/siat/Configuracion_siatComponent.vue"]])
+const __exports__ = /*#__PURE__*/(0,C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_3__["default"])(_Configuracion_siatComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_Configuracion_siatComponent_vue_vue_type_template_id_0e0e8b81_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-0e0e8b81"],['__file',"resources/js/components/siat/Configuracion_siatComponent.vue"]])
 /* hot reload */
 if (false) {}
 
@@ -271693,7 +271654,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Emisor_siatComponent_vue_vue_type_template_id_30eba3d6_scoped_true__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Emisor_siatComponent.vue?vue&type=template&id=30eba3d6&scoped=true */ "./resources/js/components/siat/Emisor_siatComponent.vue?vue&type=template&id=30eba3d6&scoped=true");
 /* harmony import */ var _Emisor_siatComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Emisor_siatComponent.vue?vue&type=script&lang=js */ "./resources/js/components/siat/Emisor_siatComponent.vue?vue&type=script&lang=js");
 /* harmony import */ var _Emisor_siatComponent_vue_vue_type_style_index_0_id_30eba3d6_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Emisor_siatComponent.vue?vue&type=style&index=0&id=30eba3d6&scoped=true&lang=css */ "./resources/js/components/siat/Emisor_siatComponent.vue?vue&type=style&index=0&id=30eba3d6&scoped=true&lang=css");
-/* harmony import */ var C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
+/* harmony import */ var C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
 
 
 
@@ -271701,7 +271662,7 @@ __webpack_require__.r(__webpack_exports__);
 ;
 
 
-const __exports__ = /*#__PURE__*/(0,C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_3__["default"])(_Emisor_siatComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_Emisor_siatComponent_vue_vue_type_template_id_30eba3d6_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-30eba3d6"],['__file',"resources/js/components/siat/Emisor_siatComponent.vue"]])
+const __exports__ = /*#__PURE__*/(0,C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_3__["default"])(_Emisor_siatComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_Emisor_siatComponent_vue_vue_type_template_id_30eba3d6_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-30eba3d6"],['__file',"resources/js/components/siat/Emisor_siatComponent.vue"]])
 /* hot reload */
 if (false) {}
 
@@ -271725,7 +271686,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _HomoProd_SiatComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./HomoProd_SiatComponent.vue?vue&type=script&lang=js */ "./resources/js/components/siat/HomoProd_SiatComponent.vue?vue&type=script&lang=js");
 /* harmony import */ var _HomoProd_SiatComponent_vue_vue_type_style_index_0_id_025eff20_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./HomoProd_SiatComponent.vue?vue&type=style&index=0&id=025eff20&scoped=true&lang=css */ "./resources/js/components/siat/HomoProd_SiatComponent.vue?vue&type=style&index=0&id=025eff20&scoped=true&lang=css");
 /* harmony import */ var _HomoProd_SiatComponent_vue_vue_type_style_index_1_id_025eff20_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./HomoProd_SiatComponent.vue?vue&type=style&index=1&id=025eff20&scoped=true&lang=css */ "./resources/js/components/siat/HomoProd_SiatComponent.vue?vue&type=style&index=1&id=025eff20&scoped=true&lang=css");
-/* harmony import */ var C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
+/* harmony import */ var C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
 
 
 
@@ -271734,7 +271695,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const __exports__ = /*#__PURE__*/(0,C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__["default"])(_HomoProd_SiatComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_HomoProd_SiatComponent_vue_vue_type_template_id_025eff20_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-025eff20"],['__file',"resources/js/components/siat/HomoProd_SiatComponent.vue"]])
+const __exports__ = /*#__PURE__*/(0,C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__["default"])(_HomoProd_SiatComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_HomoProd_SiatComponent_vue_vue_type_template_id_025eff20_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-025eff20"],['__file',"resources/js/components/siat/HomoProd_SiatComponent.vue"]])
 /* hot reload */
 if (false) {}
 
@@ -271758,7 +271719,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Sucursal_siatComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Sucursal_siatComponent.vue?vue&type=script&lang=js */ "./resources/js/components/siat/Sucursal_siatComponent.vue?vue&type=script&lang=js");
 /* harmony import */ var _Sucursal_siatComponent_vue_vue_type_style_index_0_id_51fb9440_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Sucursal_siatComponent.vue?vue&type=style&index=0&id=51fb9440&scoped=true&lang=css */ "./resources/js/components/siat/Sucursal_siatComponent.vue?vue&type=style&index=0&id=51fb9440&scoped=true&lang=css");
 /* harmony import */ var _Sucursal_siatComponent_vue_vue_type_style_index_1_id_51fb9440_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Sucursal_siatComponent.vue?vue&type=style&index=1&id=51fb9440&scoped=true&lang=css */ "./resources/js/components/siat/Sucursal_siatComponent.vue?vue&type=style&index=1&id=51fb9440&scoped=true&lang=css");
-/* harmony import */ var C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
+/* harmony import */ var C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
 
 
 
@@ -271767,7 +271728,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const __exports__ = /*#__PURE__*/(0,C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__["default"])(_Sucursal_siatComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_Sucursal_siatComponent_vue_vue_type_template_id_51fb9440_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-51fb9440"],['__file',"resources/js/components/siat/Sucursal_siatComponent.vue"]])
+const __exports__ = /*#__PURE__*/(0,C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__["default"])(_Sucursal_siatComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_Sucursal_siatComponent_vue_vue_type_template_id_51fb9440_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-51fb9440"],['__file',"resources/js/components/siat/Sucursal_siatComponent.vue"]])
 /* hot reload */
 if (false) {}
 
@@ -271788,12 +271749,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
 /* harmony import */ var _TiendaCodificacionComponent_vue_vue_type_template_id_61f72bc2__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./TiendaCodificacionComponent.vue?vue&type=template&id=61f72bc2 */ "./resources/js/components/tienda/TiendaCodificacionComponent.vue?vue&type=template&id=61f72bc2");
-/* harmony import */ var C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
+/* harmony import */ var C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
 
 const script = {}
 
 ;
-const __exports__ = /*#__PURE__*/(0,C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_1__["default"])(script, [['render',_TiendaCodificacionComponent_vue_vue_type_template_id_61f72bc2__WEBPACK_IMPORTED_MODULE_0__.render],['__file',"resources/js/components/tienda/TiendaCodificacionComponent.vue"]])
+const __exports__ = /*#__PURE__*/(0,C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_1__["default"])(script, [['render',_TiendaCodificacionComponent_vue_vue_type_template_id_61f72bc2__WEBPACK_IMPORTED_MODULE_0__.render],['__file',"resources/js/components/tienda/TiendaCodificacionComponent.vue"]])
 /* hot reload */
 if (false) {}
 
@@ -271816,7 +271777,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _TiendaComponent_vue_vue_type_template_id_6efd13ce_scoped_true__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./TiendaComponent.vue?vue&type=template&id=6efd13ce&scoped=true */ "./resources/js/components/tienda/TiendaComponent.vue?vue&type=template&id=6efd13ce&scoped=true");
 /* harmony import */ var _TiendaComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./TiendaComponent.vue?vue&type=script&lang=js */ "./resources/js/components/tienda/TiendaComponent.vue?vue&type=script&lang=js");
 /* harmony import */ var _TiendaComponent_vue_vue_type_style_index_0_id_6efd13ce_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./TiendaComponent.vue?vue&type=style&index=0&id=6efd13ce&scoped=true&lang=css */ "./resources/js/components/tienda/TiendaComponent.vue?vue&type=style&index=0&id=6efd13ce&scoped=true&lang=css");
-/* harmony import */ var C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
+/* harmony import */ var C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
 
 
 
@@ -271824,7 +271785,7 @@ __webpack_require__.r(__webpack_exports__);
 ;
 
 
-const __exports__ = /*#__PURE__*/(0,C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_3__["default"])(_TiendaComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_TiendaComponent_vue_vue_type_template_id_6efd13ce_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-6efd13ce"],['__file',"resources/js/components/tienda/TiendaComponent.vue"]])
+const __exports__ = /*#__PURE__*/(0,C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_3__["default"])(_TiendaComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_TiendaComponent_vue_vue_type_template_id_6efd13ce_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-6efd13ce"],['__file',"resources/js/components/tienda/TiendaComponent.vue"]])
 /* hot reload */
 if (false) {}
 
@@ -271849,7 +271810,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _TiendaIngresoProducto2Component_vue_vue_type_style_index_0_id_2dd08710_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./TiendaIngresoProducto2Component.vue?vue&type=style&index=0&id=2dd08710&scoped=true&lang=css */ "./resources/js/components/tienda/TiendaIngresoProducto2Component.vue?vue&type=style&index=0&id=2dd08710&scoped=true&lang=css");
 /* harmony import */ var _TiendaIngresoProducto2Component_vue_vue_type_style_index_1_id_2dd08710_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./TiendaIngresoProducto2Component.vue?vue&type=style&index=1&id=2dd08710&scoped=true&lang=css */ "./resources/js/components/tienda/TiendaIngresoProducto2Component.vue?vue&type=style&index=1&id=2dd08710&scoped=true&lang=css");
 /* harmony import */ var vue_multiselect_dist_vue_multiselect_css_vue_type_style_index_2_lang_css__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! vue-multiselect/dist/vue-multiselect.css?vue&type=style&index=2&lang=css */ "./node_modules/vue-multiselect/dist/vue-multiselect.css?vue&type=style&index=2&lang=css");
-/* harmony import */ var C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
+/* harmony import */ var C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
 
 
 
@@ -271859,7 +271820,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const __exports__ = /*#__PURE__*/(0,C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_5__["default"])(_TiendaIngresoProducto2Component_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_TiendaIngresoProducto2Component_vue_vue_type_template_id_2dd08710_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-2dd08710"],['__file',"resources/js/components/tienda/TiendaIngresoProducto2Component.vue"]])
+const __exports__ = /*#__PURE__*/(0,C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_5__["default"])(_TiendaIngresoProducto2Component_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_TiendaIngresoProducto2Component_vue_vue_type_template_id_2dd08710_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-2dd08710"],['__file',"resources/js/components/tienda/TiendaIngresoProducto2Component.vue"]])
 /* hot reload */
 if (false) {}
 
@@ -271882,7 +271843,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _TiendaIngresoProductoComponent_vue_vue_type_template_id_236973e0_scoped_true__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./TiendaIngresoProductoComponent.vue?vue&type=template&id=236973e0&scoped=true */ "./resources/js/components/tienda/TiendaIngresoProductoComponent.vue?vue&type=template&id=236973e0&scoped=true");
 /* harmony import */ var _TiendaIngresoProductoComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./TiendaIngresoProductoComponent.vue?vue&type=script&lang=js */ "./resources/js/components/tienda/TiendaIngresoProductoComponent.vue?vue&type=script&lang=js");
 /* harmony import */ var _TiendaIngresoProductoComponent_vue_vue_type_style_index_0_id_236973e0_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./TiendaIngresoProductoComponent.vue?vue&type=style&index=0&id=236973e0&scoped=true&lang=css */ "./resources/js/components/tienda/TiendaIngresoProductoComponent.vue?vue&type=style&index=0&id=236973e0&scoped=true&lang=css");
-/* harmony import */ var C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
+/* harmony import */ var C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
 
 
 
@@ -271890,7 +271851,7 @@ __webpack_require__.r(__webpack_exports__);
 ;
 
 
-const __exports__ = /*#__PURE__*/(0,C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_3__["default"])(_TiendaIngresoProductoComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_TiendaIngresoProductoComponent_vue_vue_type_template_id_236973e0_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-236973e0"],['__file',"resources/js/components/tienda/TiendaIngresoProductoComponent.vue"]])
+const __exports__ = /*#__PURE__*/(0,C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_3__["default"])(_TiendaIngresoProductoComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_TiendaIngresoProductoComponent_vue_vue_type_template_id_236973e0_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-236973e0"],['__file',"resources/js/components/tienda/TiendaIngresoProductoComponent.vue"]])
 /* hot reload */
 if (false) {}
 
@@ -271913,7 +271874,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _CaducidadComponent_vue_vue_type_template_id_29d1dcd9_scoped_true__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./CaducidadComponent.vue?vue&type=template&id=29d1dcd9&scoped=true */ "./resources/js/components/venta/CaducidadComponent.vue?vue&type=template&id=29d1dcd9&scoped=true");
 /* harmony import */ var _CaducidadComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./CaducidadComponent.vue?vue&type=script&lang=js */ "./resources/js/components/venta/CaducidadComponent.vue?vue&type=script&lang=js");
 /* harmony import */ var _CaducidadComponent_vue_vue_type_style_index_0_id_29d1dcd9_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./CaducidadComponent.vue?vue&type=style&index=0&id=29d1dcd9&scoped=true&lang=css */ "./resources/js/components/venta/CaducidadComponent.vue?vue&type=style&index=0&id=29d1dcd9&scoped=true&lang=css");
-/* harmony import */ var C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
+/* harmony import */ var C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
 
 
 
@@ -271921,7 +271882,7 @@ __webpack_require__.r(__webpack_exports__);
 ;
 
 
-const __exports__ = /*#__PURE__*/(0,C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_3__["default"])(_CaducidadComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_CaducidadComponent_vue_vue_type_template_id_29d1dcd9_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-29d1dcd9"],['__file',"resources/js/components/venta/CaducidadComponent.vue"]])
+const __exports__ = /*#__PURE__*/(0,C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_3__["default"])(_CaducidadComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_CaducidadComponent_vue_vue_type_template_id_29d1dcd9_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-29d1dcd9"],['__file',"resources/js/components/venta/CaducidadComponent.vue"]])
 /* hot reload */
 if (false) {}
 
@@ -271945,7 +271906,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _DetalleVentaElectronicaComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./DetalleVentaElectronicaComponent.vue?vue&type=script&lang=js */ "./resources/js/components/venta/DetalleVentaElectronicaComponent.vue?vue&type=script&lang=js");
 /* harmony import */ var _DetalleVentaElectronicaComponent_vue_vue_type_style_index_0_id_a52a454a_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./DetalleVentaElectronicaComponent.vue?vue&type=style&index=0&id=a52a454a&scoped=true&lang=css */ "./resources/js/components/venta/DetalleVentaElectronicaComponent.vue?vue&type=style&index=0&id=a52a454a&scoped=true&lang=css");
 /* harmony import */ var _DetalleVentaElectronicaComponent_vue_vue_type_style_index_1_id_a52a454a_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./DetalleVentaElectronicaComponent.vue?vue&type=style&index=1&id=a52a454a&scoped=true&lang=css */ "./resources/js/components/venta/DetalleVentaElectronicaComponent.vue?vue&type=style&index=1&id=a52a454a&scoped=true&lang=css");
-/* harmony import */ var C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
+/* harmony import */ var C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
 
 
 
@@ -271954,7 +271915,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const __exports__ = /*#__PURE__*/(0,C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__["default"])(_DetalleVentaElectronicaComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_DetalleVentaElectronicaComponent_vue_vue_type_template_id_a52a454a_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-a52a454a"],['__file',"resources/js/components/venta/DetalleVentaElectronicaComponent.vue"]])
+const __exports__ = /*#__PURE__*/(0,C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__["default"])(_DetalleVentaElectronicaComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_DetalleVentaElectronicaComponent_vue_vue_type_template_id_a52a454a_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-a52a454a"],['__file',"resources/js/components/venta/DetalleVentaElectronicaComponent.vue"]])
 /* hot reload */
 if (false) {}
 
@@ -271977,7 +271938,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _GestorVentaComponent_vue_vue_type_template_id_3f2a4bbe_scoped_true__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./GestorVentaComponent.vue?vue&type=template&id=3f2a4bbe&scoped=true */ "./resources/js/components/venta/GestorVentaComponent.vue?vue&type=template&id=3f2a4bbe&scoped=true");
 /* harmony import */ var _GestorVentaComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./GestorVentaComponent.vue?vue&type=script&lang=js */ "./resources/js/components/venta/GestorVentaComponent.vue?vue&type=script&lang=js");
 /* harmony import */ var _GestorVentaComponent_vue_vue_type_style_index_0_id_3f2a4bbe_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./GestorVentaComponent.vue?vue&type=style&index=0&id=3f2a4bbe&scoped=true&lang=css */ "./resources/js/components/venta/GestorVentaComponent.vue?vue&type=style&index=0&id=3f2a4bbe&scoped=true&lang=css");
-/* harmony import */ var C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
+/* harmony import */ var C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
 
 
 
@@ -271985,7 +271946,7 @@ __webpack_require__.r(__webpack_exports__);
 ;
 
 
-const __exports__ = /*#__PURE__*/(0,C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_3__["default"])(_GestorVentaComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_GestorVentaComponent_vue_vue_type_template_id_3f2a4bbe_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-3f2a4bbe"],['__file',"resources/js/components/venta/GestorVentaComponent.vue"]])
+const __exports__ = /*#__PURE__*/(0,C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_3__["default"])(_GestorVentaComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_GestorVentaComponent_vue_vue_type_template_id_3f2a4bbe_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-3f2a4bbe"],['__file',"resources/js/components/venta/GestorVentaComponent.vue"]])
 /* hot reload */
 if (false) {}
 
@@ -272009,7 +271970,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _ProspectoComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./ProspectoComponent.vue?vue&type=script&lang=js */ "./resources/js/components/venta/ProspectoComponent.vue?vue&type=script&lang=js");
 /* harmony import */ var _ProspectoComponent_vue_vue_type_style_index_0_id_6463c968_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./ProspectoComponent.vue?vue&type=style&index=0&id=6463c968&scoped=true&lang=css */ "./resources/js/components/venta/ProspectoComponent.vue?vue&type=style&index=0&id=6463c968&scoped=true&lang=css");
 /* harmony import */ var _ProspectoComponent_vue_vue_type_style_index_1_id_6463c968_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./ProspectoComponent.vue?vue&type=style&index=1&id=6463c968&scoped=true&lang=css */ "./resources/js/components/venta/ProspectoComponent.vue?vue&type=style&index=1&id=6463c968&scoped=true&lang=css");
-/* harmony import */ var C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
+/* harmony import */ var C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
 
 
 
@@ -272018,7 +271979,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const __exports__ = /*#__PURE__*/(0,C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__["default"])(_ProspectoComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_ProspectoComponent_vue_vue_type_template_id_6463c968_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-6463c968"],['__file',"resources/js/components/venta/ProspectoComponent.vue"]])
+const __exports__ = /*#__PURE__*/(0,C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__["default"])(_ProspectoComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_ProspectoComponent_vue_vue_type_template_id_6463c968_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-6463c968"],['__file',"resources/js/components/venta/ProspectoComponent.vue"]])
 /* hot reload */
 if (false) {}
 
@@ -272042,7 +272003,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _VentaDetalleComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./VentaDetalleComponent.vue?vue&type=script&lang=js */ "./resources/js/components/venta/VentaDetalleComponent.vue?vue&type=script&lang=js");
 /* harmony import */ var _VentaDetalleComponent_vue_vue_type_style_index_0_id_10a33194_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./VentaDetalleComponent.vue?vue&type=style&index=0&id=10a33194&scoped=true&lang=css */ "./resources/js/components/venta/VentaDetalleComponent.vue?vue&type=style&index=0&id=10a33194&scoped=true&lang=css");
 /* harmony import */ var _VentaDetalleComponent_vue_vue_type_style_index_1_id_10a33194_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./VentaDetalleComponent.vue?vue&type=style&index=1&id=10a33194&scoped=true&lang=css */ "./resources/js/components/venta/VentaDetalleComponent.vue?vue&type=style&index=1&id=10a33194&scoped=true&lang=css");
-/* harmony import */ var C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
+/* harmony import */ var C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
 
 
 
@@ -272051,7 +272012,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const __exports__ = /*#__PURE__*/(0,C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__["default"])(_VentaDetalleComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_VentaDetalleComponent_vue_vue_type_template_id_10a33194_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-10a33194"],['__file',"resources/js/components/venta/VentaDetalleComponent.vue"]])
+const __exports__ = /*#__PURE__*/(0,C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_4__["default"])(_VentaDetalleComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_VentaDetalleComponent_vue_vue_type_template_id_10a33194_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-10a33194"],['__file',"resources/js/components/venta/VentaDetalleComponent.vue"]])
 /* hot reload */
 if (false) {}
 
@@ -272077,7 +272038,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var vue_multiselect_dist_vue_multiselect_css_vue_type_style_index_1_lang_css__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! vue-multiselect/dist/vue-multiselect.css?vue&type=style&index=1&lang=css */ "./node_modules/vue-multiselect/dist/vue-multiselect.css?vue&type=style&index=1&lang=css");
 /* harmony import */ var _VentaRapidaComponent_vue_vue_type_style_index_2_id_f07e2a8c_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./VentaRapidaComponent.vue?vue&type=style&index=2&id=f07e2a8c&scoped=true&lang=css */ "./resources/js/components/venta/VentaRapidaComponent.vue?vue&type=style&index=2&id=f07e2a8c&scoped=true&lang=css");
 /* harmony import */ var _VentaRapidaComponent_vue_vue_type_style_index_3_id_f07e2a8c_scoped_true_lang_css__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./VentaRapidaComponent.vue?vue&type=style&index=3&id=f07e2a8c&scoped=true&lang=css */ "./resources/js/components/venta/VentaRapidaComponent.vue?vue&type=style&index=3&id=f07e2a8c&scoped=true&lang=css");
-/* harmony import */ var C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
+/* harmony import */ var C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./node_modules/vue-loader/dist/exportHelper.js */ "./node_modules/vue-loader/dist/exportHelper.js");
 
 
 
@@ -272088,7 +272049,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const __exports__ = /*#__PURE__*/(0,C_laragon_www_miFazquerErp_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_6__["default"])(_VentaRapidaComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_VentaRapidaComponent_vue_vue_type_template_id_f07e2a8c_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-f07e2a8c"],['__file',"resources/js/components/venta/VentaRapidaComponent.vue"]])
+const __exports__ = /*#__PURE__*/(0,C_laragon_www_fazquerErpPro_node_modules_vue_loader_dist_exportHelper_js__WEBPACK_IMPORTED_MODULE_6__["default"])(_VentaRapidaComponent_vue_vue_type_script_lang_js__WEBPACK_IMPORTED_MODULE_1__["default"], [['render',_VentaRapidaComponent_vue_vue_type_template_id_f07e2a8c_scoped_true__WEBPACK_IMPORTED_MODULE_0__.render],['__scopeId',"data-v-f07e2a8c"],['__file',"resources/js/components/venta/VentaRapidaComponent.vue"]])
 /* hot reload */
 if (false) {}
 
@@ -278065,16 +278026,9 @@ function compileToFunction(template, options) {
 "use strict";
 /* provided dependency */ var process = __webpack_require__(/*! process/browser.js */ "./node_modules/process/browser.js");
 /* provided dependency */ var Buffer = __webpack_require__(/*! buffer */ "./node_modules/buffer/index.js")["Buffer"];
-/*! Axios v1.13.4 Copyright (c) 2026 Matt Zabriskie and contributors */
+/*! Axios v1.8.4 Copyright (c) 2025 Matt Zabriskie and contributors */
 
 
-/**
- * Create a bound version of a function with a specified `this` context
- *
- * @param {Function} fn - The function to bind
- * @param {*} thisArg - The value to be passed as the `this` parameter
- * @returns {Function} A new function that will call the original function with the specified `this` context
- */
 function bind(fn, thisArg) {
   return function wrap() {
     return fn.apply(thisArg, arguments);
@@ -278085,7 +278039,6 @@ function bind(fn, thisArg) {
 
 const {toString} = Object.prototype;
 const {getPrototypeOf} = Object;
-const {iterator, toStringTag} = Symbol;
 
 const kindOf = (cache => thing => {
     const str = toString.call(thing);
@@ -278126,7 +278079,7 @@ const isUndefined = typeOfTest('undefined');
  */
 function isBuffer(val) {
   return val !== null && !isUndefined(val) && val.constructor !== null && !isUndefined(val.constructor)
-    && isFunction$1(val.constructor.isBuffer) && val.constructor.isBuffer(val);
+    && isFunction(val.constructor.isBuffer) && val.constructor.isBuffer(val);
 }
 
 /**
@@ -278171,7 +278124,7 @@ const isString = typeOfTest('string');
  * @param {*} val The value to test
  * @returns {boolean} True if value is a Function, otherwise false
  */
-const isFunction$1 = typeOfTest('function');
+const isFunction = typeOfTest('function');
 
 /**
  * Determine if a value is a Number
@@ -278212,28 +278165,7 @@ const isPlainObject = (val) => {
   }
 
   const prototype = getPrototypeOf(val);
-  return (prototype === null || prototype === Object.prototype || Object.getPrototypeOf(prototype) === null) && !(toStringTag in val) && !(iterator in val);
-};
-
-/**
- * Determine if a value is an empty object (safely handles Buffers)
- *
- * @param {*} val The value to test
- *
- * @returns {boolean} True if value is an empty object, otherwise false
- */
-const isEmptyObject = (val) => {
-  // Early return for non-objects or Buffers to prevent RangeError
-  if (!isObject(val) || isBuffer(val)) {
-    return false;
-  }
-
-  try {
-    return Object.keys(val).length === 0 && Object.getPrototypeOf(val) === Object.prototype;
-  } catch (e) {
-    // Fallback for any other objects that might cause RangeError with Object.keys()
-    return false;
-  }
+  return (prototype === null || prototype === Object.prototype || Object.getPrototypeOf(prototype) === null) && !(Symbol.toStringTag in val) && !(Symbol.iterator in val);
 };
 
 /**
@@ -278279,7 +278211,7 @@ const isFileList = kindOfTest('FileList');
  *
  * @returns {boolean} True if value is a Stream, otherwise false
  */
-const isStream = (val) => isObject(val) && isFunction$1(val.pipe);
+const isStream = (val) => isObject(val) && isFunction(val.pipe);
 
 /**
  * Determine if a value is a FormData
@@ -278292,10 +278224,10 @@ const isFormData = (thing) => {
   let kind;
   return thing && (
     (typeof FormData === 'function' && thing instanceof FormData) || (
-      isFunction$1(thing.append) && (
+      isFunction(thing.append) && (
         (kind = kindOf(thing)) === 'formdata' ||
         // detect form-data instance
-        (kind === 'object' && isFunction$1(thing.toString) && thing.toString() === '[object FormData]')
+        (kind === 'object' && isFunction(thing.toString) && thing.toString() === '[object FormData]')
       )
     )
   )
@@ -278331,11 +278263,10 @@ const trim = (str) => str.trim ?
  * If 'obj' is an Object callback will be called passing
  * the value, key, and complete object for each property.
  *
- * @param {Object|Array<unknown>} obj The object to iterate
+ * @param {Object|Array} obj The object to iterate
  * @param {Function} fn The callback to invoke for each item
  *
- * @param {Object} [options]
- * @param {Boolean} [options.allOwnKeys = false]
+ * @param {Boolean} [allOwnKeys = false]
  * @returns {any}
  */
 function forEach(obj, fn, {allOwnKeys = false} = {}) {
@@ -278359,11 +278290,6 @@ function forEach(obj, fn, {allOwnKeys = false} = {}) {
       fn.call(null, obj[i], i, obj);
     }
   } else {
-    // Buffer check
-    if (isBuffer(obj)) {
-      return;
-    }
-
     // Iterate over object keys
     const keys = allOwnKeys ? Object.getOwnPropertyNames(obj) : Object.keys(obj);
     const len = keys.length;
@@ -278377,10 +278303,6 @@ function forEach(obj, fn, {allOwnKeys = false} = {}) {
 }
 
 function findKey(obj, key) {
-  if (isBuffer(obj)){
-    return null;
-  }
-
   key = key.toLowerCase();
   const keys = Object.keys(obj);
   let i = keys.length;
@@ -278412,7 +278334,7 @@ const isContextDefined = (context) => !isUndefined(context) && context !== _glob
  * Example:
  *
  * ```js
- * const result = merge({foo: 123}, {foo: 456});
+ * var result = merge({foo: 123}, {foo: 456});
  * console.log(result.foo); // outputs 456
  * ```
  *
@@ -278421,7 +278343,7 @@ const isContextDefined = (context) => !isUndefined(context) && context !== _glob
  * @returns {Object} Result of all merge properties
  */
 function merge(/* obj1, obj2, obj3, ... */) {
-  const {caseless, skipUndefined} = isContextDefined(this) && this || {};
+  const {caseless} = isContextDefined(this) && this || {};
   const result = {};
   const assignValue = (val, key) => {
     const targetKey = caseless && findKey(result, key) || key;
@@ -278431,7 +278353,7 @@ function merge(/* obj1, obj2, obj3, ... */) {
       result[targetKey] = merge({}, val);
     } else if (isArray(val)) {
       result[targetKey] = val.slice();
-    } else if (!skipUndefined || !isUndefined(val)) {
+    } else {
       result[targetKey] = val;
     }
   };
@@ -278449,26 +278371,15 @@ function merge(/* obj1, obj2, obj3, ... */) {
  * @param {Object} b The object to copy properties from
  * @param {Object} thisArg The object to bind function to
  *
- * @param {Object} [options]
- * @param {Boolean} [options.allOwnKeys]
+ * @param {Boolean} [allOwnKeys]
  * @returns {Object} The resulting value of object a
  */
 const extend = (a, b, thisArg, {allOwnKeys}= {}) => {
   forEach(b, (val, key) => {
-    if (thisArg && isFunction$1(val)) {
-      Object.defineProperty(a, key, {
-        value: bind(val, thisArg),
-        writable: true,
-        enumerable: true,
-        configurable: true
-      });
+    if (thisArg && isFunction(val)) {
+      a[key] = bind(val, thisArg);
     } else {
-      Object.defineProperty(a, key, {
-        value: val,
-        writable: true,
-        enumerable: true,
-        configurable: true
-      });
+      a[key] = val;
     }
   }, {allOwnKeys});
   return a;
@@ -278499,12 +278410,7 @@ const stripBOM = (content) => {
  */
 const inherits = (constructor, superConstructor, props, descriptors) => {
   constructor.prototype = Object.create(superConstructor.prototype, descriptors);
-  Object.defineProperty(constructor.prototype, 'constructor', {
-    value: constructor,
-    writable: true,
-    enumerable: false,
-    configurable: true
-  });
+  constructor.prototype.constructor = constructor;
   Object.defineProperty(constructor, 'super', {
     value: superConstructor.prototype
   });
@@ -278610,13 +278516,13 @@ const isTypedArray = (TypedArray => {
  * @returns {void}
  */
 const forEachEntry = (obj, fn) => {
-  const generator = obj && obj[iterator];
+  const generator = obj && obj[Symbol.iterator];
 
-  const _iterator = generator.call(obj);
+  const iterator = generator.call(obj);
 
   let result;
 
-  while ((result = _iterator.next()) && !result.done) {
+  while ((result = iterator.next()) && !result.done) {
     const pair = result.value;
     fn.call(obj, pair[0], pair[1]);
   }
@@ -278686,13 +278592,13 @@ const reduceDescriptors = (obj, reducer) => {
 const freezeMethods = (obj) => {
   reduceDescriptors(obj, (descriptor, name) => {
     // skip restricted props in strict mode
-    if (isFunction$1(obj) && ['arguments', 'caller', 'callee'].indexOf(name) !== -1) {
+    if (isFunction(obj) && ['arguments', 'caller', 'callee'].indexOf(name) !== -1) {
       return false;
     }
 
     const value = obj[name];
 
-    if (!isFunction$1(value)) return;
+    if (!isFunction(value)) return;
 
     descriptor.enumerable = false;
 
@@ -278729,8 +278635,6 @@ const toFiniteNumber = (value, defaultValue) => {
   return value != null && Number.isFinite(value = +value) ? value : defaultValue;
 };
 
-
-
 /**
  * If the thing is a FormData object, return true, otherwise return false.
  *
@@ -278739,7 +278643,7 @@ const toFiniteNumber = (value, defaultValue) => {
  * @returns {boolean}
  */
 function isSpecCompliantForm(thing) {
-  return !!(thing && isFunction$1(thing.append) && thing[toStringTag] === 'FormData' && thing[iterator]);
+  return !!(thing && isFunction(thing.append) && thing[Symbol.toStringTag] === 'FormData' && thing[Symbol.iterator]);
 }
 
 const toJSONObject = (obj) => {
@@ -278750,11 +278654,6 @@ const toJSONObject = (obj) => {
     if (isObject(source)) {
       if (stack.indexOf(source) >= 0) {
         return;
-      }
-
-      //Buffer check
-      if (isBuffer(source)) {
-        return source;
       }
 
       if(!('toJSON' in source)) {
@@ -278781,7 +278680,7 @@ const toJSONObject = (obj) => {
 const isAsyncFn = kindOfTest('AsyncFunction');
 
 const isThenable = (thing) =>
-  thing && (isObject(thing) || isFunction$1(thing)) && isFunction$1(thing.then) && isFunction$1(thing.catch);
+  thing && (isObject(thing) || isFunction(thing)) && isFunction(thing.then) && isFunction(thing.catch);
 
 // original code
 // https://github.com/DigitalBrainJS/AxiosPromise/blob/16deab13710ec09779922131f3fa5954320f83ab/lib/utils.js#L11-L34
@@ -278805,17 +278704,13 @@ const _setImmediate = ((setImmediateSupported, postMessageSupported) => {
   })(`axios@${Math.random()}`, []) : (cb) => setTimeout(cb);
 })(
   typeof setImmediate === 'function',
-  isFunction$1(_global.postMessage)
+  isFunction(_global.postMessage)
 );
 
 const asap = typeof queueMicrotask !== 'undefined' ?
   queueMicrotask.bind(_global) : ( typeof process !== 'undefined' && process.nextTick || _setImmediate);
 
 // *********************
-
-
-const isIterable = (thing) => thing != null && isFunction$1(thing[iterator]);
-
 
 var utils$1 = {
   isArray,
@@ -278828,7 +278723,6 @@ var utils$1 = {
   isBoolean,
   isObject,
   isPlainObject,
-  isEmptyObject,
   isReadableStream,
   isRequest,
   isResponse,
@@ -278838,7 +278732,7 @@ var utils$1 = {
   isFile,
   isBlob,
   isRegExp,
-  isFunction: isFunction$1,
+  isFunction,
   isStream,
   isURLSearchParams,
   isTypedArray,
@@ -278873,79 +278767,106 @@ var utils$1 = {
   isAsyncFn,
   isThenable,
   setImmediate: _setImmediate,
-  asap,
-  isIterable
+  asap
 };
 
-class AxiosError extends Error {
-    static from(error, code, config, request, response, customProps) {
-        const axiosError = new AxiosError(error.message, code || error.code, config, request, response);
-        axiosError.cause = error;
-        axiosError.name = error.name;
-        customProps && Object.assign(axiosError, customProps);
-        return axiosError;
-    }
+/**
+ * Create an Error with the specified message, config, error code, request and response.
+ *
+ * @param {string} message The error message.
+ * @param {string} [code] The error code (for example, 'ECONNABORTED').
+ * @param {Object} [config] The config.
+ * @param {Object} [request] The request.
+ * @param {Object} [response] The response.
+ *
+ * @returns {Error} The created error.
+ */
+function AxiosError(message, code, config, request, response) {
+  Error.call(this);
 
-    /**
-     * Create an Error with the specified message, config, error code, request and response.
-     *
-     * @param {string} message The error message.
-     * @param {string} [code] The error code (for example, 'ECONNABORTED').
-     * @param {Object} [config] The config.
-     * @param {Object} [request] The request.
-     * @param {Object} [response] The response.
-     *
-     * @returns {Error} The created error.
-     */
-    constructor(message, code, config, request, response) {
-        super(message);
-        this.name = 'AxiosError';
-        this.isAxiosError = true;
-        code && (this.code = code);
-        config && (this.config = config);
-        request && (this.request = request);
-        if (response) {
-            this.response = response;
-            this.status = response.status;
-        }
-    }
+  if (Error.captureStackTrace) {
+    Error.captureStackTrace(this, this.constructor);
+  } else {
+    this.stack = (new Error()).stack;
+  }
 
-    toJSON() {
-        return {
-            // Standard
-            message: this.message,
-            name: this.name,
-            // Microsoft
-            description: this.description,
-            number: this.number,
-            // Mozilla
-            fileName: this.fileName,
-            lineNumber: this.lineNumber,
-            columnNumber: this.columnNumber,
-            stack: this.stack,
-            // Axios
-            config: utils$1.toJSONObject(this.config),
-            code: this.code,
-            status: this.status,
-        };
-    }
+  this.message = message;
+  this.name = 'AxiosError';
+  code && (this.code = code);
+  config && (this.config = config);
+  request && (this.request = request);
+  if (response) {
+    this.response = response;
+    this.status = response.status ? response.status : null;
+  }
 }
 
-// This can be changed to static properties as soon as the parser options in .eslint.cjs are updated.
-AxiosError.ERR_BAD_OPTION_VALUE = 'ERR_BAD_OPTION_VALUE';
-AxiosError.ERR_BAD_OPTION = 'ERR_BAD_OPTION';
-AxiosError.ECONNABORTED = 'ECONNABORTED';
-AxiosError.ETIMEDOUT = 'ETIMEDOUT';
-AxiosError.ERR_NETWORK = 'ERR_NETWORK';
-AxiosError.ERR_FR_TOO_MANY_REDIRECTS = 'ERR_FR_TOO_MANY_REDIRECTS';
-AxiosError.ERR_DEPRECATED = 'ERR_DEPRECATED';
-AxiosError.ERR_BAD_RESPONSE = 'ERR_BAD_RESPONSE';
-AxiosError.ERR_BAD_REQUEST = 'ERR_BAD_REQUEST';
-AxiosError.ERR_CANCELED = 'ERR_CANCELED';
-AxiosError.ERR_NOT_SUPPORT = 'ERR_NOT_SUPPORT';
-AxiosError.ERR_INVALID_URL = 'ERR_INVALID_URL';
+utils$1.inherits(AxiosError, Error, {
+  toJSON: function toJSON() {
+    return {
+      // Standard
+      message: this.message,
+      name: this.name,
+      // Microsoft
+      description: this.description,
+      number: this.number,
+      // Mozilla
+      fileName: this.fileName,
+      lineNumber: this.lineNumber,
+      columnNumber: this.columnNumber,
+      stack: this.stack,
+      // Axios
+      config: utils$1.toJSONObject(this.config),
+      code: this.code,
+      status: this.status
+    };
+  }
+});
 
-var AxiosError$1 = AxiosError;
+const prototype$1 = AxiosError.prototype;
+const descriptors = {};
+
+[
+  'ERR_BAD_OPTION_VALUE',
+  'ERR_BAD_OPTION',
+  'ECONNABORTED',
+  'ETIMEDOUT',
+  'ERR_NETWORK',
+  'ERR_FR_TOO_MANY_REDIRECTS',
+  'ERR_DEPRECATED',
+  'ERR_BAD_RESPONSE',
+  'ERR_BAD_REQUEST',
+  'ERR_CANCELED',
+  'ERR_NOT_SUPPORT',
+  'ERR_INVALID_URL'
+// eslint-disable-next-line func-names
+].forEach(code => {
+  descriptors[code] = {value: code};
+});
+
+Object.defineProperties(AxiosError, descriptors);
+Object.defineProperty(prototype$1, 'isAxiosError', {value: true});
+
+// eslint-disable-next-line func-names
+AxiosError.from = (error, code, config, request, response, customProps) => {
+  const axiosError = Object.create(prototype$1);
+
+  utils$1.toFlatObject(error, axiosError, function filter(obj) {
+    return obj !== Error.prototype;
+  }, prop => {
+    return prop !== 'isAxiosError';
+  });
+
+  AxiosError.call(axiosError, error.message, code, config, request, response);
+
+  axiosError.cause = error;
+
+  axiosError.name = error.name;
+
+  customProps && Object.assign(axiosError, customProps);
+
+  return axiosError;
+};
 
 // eslint-disable-next-line strict
 var httpAdapter = null;
@@ -279065,12 +278986,8 @@ function toFormData(obj, formData, options) {
       return value.toISOString();
     }
 
-    if (utils$1.isBoolean(value)) {
-      return value.toString();
-    }
-
     if (!useBlob && utils$1.isBlob(value)) {
-      throw new AxiosError$1('Blob is not supported. Use a Buffer instead.');
+      throw new AxiosError('Blob is not supported. Use a Buffer instead.');
     }
 
     if (utils$1.isArrayBuffer(value) || utils$1.isTypedArray(value)) {
@@ -279231,7 +279148,9 @@ function encode(val) {
     replace(/%3A/gi, ':').
     replace(/%24/g, '$').
     replace(/%2C/gi, ',').
-    replace(/%20/g, '+');
+    replace(/%20/g, '+').
+    replace(/%5B/gi, '[').
+    replace(/%5D/gi, ']');
 }
 
 /**
@@ -279244,26 +279163,29 @@ function encode(val) {
  * @returns {string} The formatted url
  */
 function buildURL(url, params, options) {
+  /*eslint no-param-reassign:0*/
   if (!params) {
     return url;
   }
-
+  
   const _encode = options && options.encode || encode;
 
-  const _options = utils$1.isFunction(options) ? {
-    serialize: options
-  } : options;
+  if (utils$1.isFunction(options)) {
+    options = {
+      serialize: options
+    };
+  } 
 
-  const serializeFn = _options && _options.serialize;
+  const serializeFn = options && options.serialize;
 
   let serializedParams;
 
   if (serializeFn) {
-    serializedParams = serializeFn(params, _options);
+    serializedParams = serializeFn(params, options);
   } else {
     serializedParams = utils$1.isURLSearchParams(params) ?
       params.toString() :
-      new AxiosURLSearchParams(params, _options).toString(_encode);
+      new AxiosURLSearchParams(params, options).toString(_encode);
   }
 
   if (serializedParams) {
@@ -279288,7 +279210,6 @@ class InterceptorManager {
    *
    * @param {Function} fulfilled The function to handle `then` for a `Promise`
    * @param {Function} rejected The function to handle `reject` for a `Promise`
-   * @param {Object} options The options for the interceptor, synchronous and runWhen
    *
    * @return {Number} An ID used to remove interceptor later
    */
@@ -279307,7 +279228,7 @@ class InterceptorManager {
    *
    * @param {Number} id The ID that was returned by `use`
    *
-   * @returns {void}
+   * @returns {Boolean} `true` if the interceptor was removed, `false` otherwise
    */
   eject(id) {
     if (this.handlers[id]) {
@@ -279428,7 +279349,7 @@ var platform = {
 };
 
 function toURLEncodedForm(data, options) {
-  return toFormData(data, new platform.classes.URLSearchParams(), {
+  return toFormData(data, new platform.classes.URLSearchParams(), Object.assign({
     visitor: function(value, key, path, helpers) {
       if (platform.isNode && utils$1.isBuffer(value)) {
         this.append(key, value.toString('base64'));
@@ -279436,9 +279357,8 @@ function toURLEncodedForm(data, options) {
       }
 
       return helpers.defaultVisitor.apply(this, arguments);
-    },
-    ...options
-  });
+    }
+  }, options));
 }
 
 /**
@@ -279634,11 +279554,11 @@ const defaults = {
       const strictJSONParsing = !silentJSONParsing && JSONRequested;
 
       try {
-        return JSON.parse(data, this.parseReviver);
+        return JSON.parse(data);
       } catch (e) {
         if (strictJSONParsing) {
           if (e.name === 'SyntaxError') {
-            throw AxiosError$1.from(e, AxiosError$1.ERR_BAD_RESPONSE, this, null, this.response);
+            throw AxiosError.from(e, AxiosError.ERR_BAD_RESPONSE, this, null, this.response);
           }
           throw e;
         }
@@ -279832,18 +279752,10 @@ class AxiosHeaders {
       setHeaders(header, valueOrRewrite);
     } else if(utils$1.isString(header) && (header = header.trim()) && !isValidHeaderName(header)) {
       setHeaders(parseHeaders(header), valueOrRewrite);
-    } else if (utils$1.isObject(header) && utils$1.isIterable(header)) {
-      let obj = {}, dest, key;
-      for (const entry of header) {
-        if (!utils$1.isArray(entry)) {
-          throw TypeError('Object iterator must return a key-value pair');
-        }
-
-        obj[key = entry[0]] = (dest = obj[key]) ?
-          (utils$1.isArray(dest) ? [...dest, entry[1]] : [dest, entry[1]]) : entry[1];
+    } else if (utils$1.isHeaders(header)) {
+      for (const [key, value] of header.entries()) {
+        setHeader(value, key, rewrite);
       }
-
-      setHeaders(obj, valueOrRewrite);
     } else {
       header != null && setHeader(valueOrRewrite, header, rewrite);
     }
@@ -279985,10 +279897,6 @@ class AxiosHeaders {
     return Object.entries(this.toJSON()).map(([header, value]) => header + ': ' + value).join('\n');
   }
 
-  getSetCookie() {
-    return this.get("set-cookie") || [];
-  }
-
   get [Symbol.toStringTag]() {
     return 'AxiosHeaders';
   }
@@ -280072,24 +279980,24 @@ function isCancel(value) {
   return !!(value && value.__CANCEL__);
 }
 
-class CanceledError extends AxiosError$1 {
-  /**
-   * A `CanceledError` is an object that is thrown when an operation is canceled.
-   *
-   * @param {string=} message The message.
-   * @param {Object=} config The config.
-   * @param {Object=} request The request.
-   *
-   * @returns {CanceledError} The created error.
-   */
-  constructor(message, config, request) {
-    super(message == null ? 'canceled' : message, AxiosError$1.ERR_CANCELED, config, request);
-    this.name = 'CanceledError';
-    this.__CANCEL__ = true;
-  }
+/**
+ * A `CanceledError` is an object that is thrown when an operation is canceled.
+ *
+ * @param {string=} message The message.
+ * @param {Object=} config The config.
+ * @param {Object=} request The request.
+ *
+ * @returns {CanceledError} The created error.
+ */
+function CanceledError(message, config, request) {
+  // eslint-disable-next-line no-eq-null,eqeqeq
+  AxiosError.call(this, message == null ? 'canceled' : message, AxiosError.ERR_CANCELED, config, request);
+  this.name = 'CanceledError';
 }
 
-var CanceledError$1 = CanceledError;
+utils$1.inherits(CanceledError, AxiosError, {
+  __CANCEL__: true
+});
 
 /**
  * Resolve or reject a Promise based on response status.
@@ -280105,9 +280013,9 @@ function settle(resolve, reject, response) {
   if (!response.status || !validateStatus || validateStatus(response.status)) {
     resolve(response);
   } else {
-    reject(new AxiosError$1(
+    reject(new AxiosError(
       'Request failed with status code ' + response.status,
-      [AxiosError$1.ERR_BAD_REQUEST, AxiosError$1.ERR_BAD_RESPONSE][Math.floor(response.status / 100) - 4],
+      [AxiosError.ERR_BAD_REQUEST, AxiosError.ERR_BAD_RESPONSE][Math.floor(response.status / 100) - 4],
       response.config,
       response.request,
       response
@@ -280191,7 +280099,7 @@ function throttle(fn, freq) {
       clearTimeout(timer);
       timer = null;
     }
-    fn(...args);
+    fn.apply(null, args);
   };
 
   const throttled = (...args) => {
@@ -280273,38 +280181,27 @@ var cookies = platform.hasStandardBrowserEnv ?
 
   // Standard browser envs support document.cookie
   {
-    write(name, value, expires, path, domain, secure, sameSite) {
-      if (typeof document === 'undefined') return;
+    write(name, value, expires, path, domain, secure) {
+      const cookie = [name + '=' + encodeURIComponent(value)];
 
-      const cookie = [`${name}=${encodeURIComponent(value)}`];
+      utils$1.isNumber(expires) && cookie.push('expires=' + new Date(expires).toGMTString());
 
-      if (utils$1.isNumber(expires)) {
-        cookie.push(`expires=${new Date(expires).toUTCString()}`);
-      }
-      if (utils$1.isString(path)) {
-        cookie.push(`path=${path}`);
-      }
-      if (utils$1.isString(domain)) {
-        cookie.push(`domain=${domain}`);
-      }
-      if (secure === true) {
-        cookie.push('secure');
-      }
-      if (utils$1.isString(sameSite)) {
-        cookie.push(`SameSite=${sameSite}`);
-      }
+      utils$1.isString(path) && cookie.push('path=' + path);
+
+      utils$1.isString(domain) && cookie.push('domain=' + domain);
+
+      secure === true && cookie.push('secure');
 
       document.cookie = cookie.join('; ');
     },
 
     read(name) {
-      if (typeof document === 'undefined') return null;
-      const match = document.cookie.match(new RegExp('(?:^|; )' + name + '=([^;]*)'));
-      return match ? decodeURIComponent(match[1]) : null;
+      const match = document.cookie.match(new RegExp('(^|;\\s*)(' + name + ')=([^;]*)'));
+      return (match ? decodeURIComponent(match[3]) : null);
     },
 
     remove(name) {
-      this.write(name, '', Date.now() - 86400000, '/');
+      this.write(name, '', Date.now() - 86400000);
     }
   }
 
@@ -280383,7 +280280,7 @@ function mergeConfig(config1, config2) {
 
   function getMergedValue(target, source, prop, caseless) {
     if (utils$1.isPlainObject(target) && utils$1.isPlainObject(source)) {
-      return utils$1.merge.call({ caseless }, target, source);
+      return utils$1.merge.call({caseless}, target, source);
     } else if (utils$1.isPlainObject(source)) {
       return utils$1.merge({}, source);
     } else if (utils$1.isArray(source)) {
@@ -280392,11 +280289,12 @@ function mergeConfig(config1, config2) {
     return source;
   }
 
-  function mergeDeepProperties(a, b, prop, caseless) {
+  // eslint-disable-next-line consistent-return
+  function mergeDeepProperties(a, b, prop , caseless) {
     if (!utils$1.isUndefined(b)) {
-      return getMergedValue(a, b, prop, caseless);
+      return getMergedValue(a, b, prop , caseless);
     } else if (!utils$1.isUndefined(a)) {
-      return getMergedValue(undefined, a, prop, caseless);
+      return getMergedValue(undefined, a, prop , caseless);
     }
   }
 
@@ -280454,10 +280352,10 @@ function mergeConfig(config1, config2) {
     socketPath: defaultToConfig2,
     responseEncoding: defaultToConfig2,
     validateStatus: mergeDirectKeys,
-    headers: (a, b, prop) => mergeDeepProperties(headersToObject(a), headersToObject(b), prop, true)
+    headers: (a, b , prop) => mergeDeepProperties(headersToObject(a), headersToObject(b),prop, true)
   };
 
-  utils$1.forEach(Object.keys({ ...config1, ...config2 }), function computeConfigValue(prop) {
+  utils$1.forEach(Object.keys(Object.assign({}, config1, config2)), function computeConfigValue(prop) {
     const merge = mergeMap[prop] || mergeDeepProperties;
     const configValue = merge(config1[prop], config2[prop], prop);
     (utils$1.isUndefined(configValue) && merge !== mergeDirectKeys) || (config[prop] = configValue);
@@ -280469,7 +280367,7 @@ function mergeConfig(config1, config2) {
 var resolveConfig = (config) => {
   const newConfig = mergeConfig({}, config);
 
-  let { data, withXSRFToken, xsrfHeaderName, xsrfCookieName, headers, auth } = newConfig;
+  let {data, withXSRFToken, xsrfHeaderName, xsrfCookieName, headers, auth} = newConfig;
 
   newConfig.headers = headers = AxiosHeaders$1.from(headers);
 
@@ -280482,21 +280380,17 @@ var resolveConfig = (config) => {
     );
   }
 
+  let contentType;
+
   if (utils$1.isFormData(data)) {
     if (platform.hasStandardBrowserEnv || platform.hasStandardBrowserWebWorkerEnv) {
-      headers.setContentType(undefined); // browser handles it
-    } else if (utils$1.isFunction(data.getHeaders)) {
-      // Node.js FormData (like form-data package)
-      const formHeaders = data.getHeaders();
-      // Only set safe headers to avoid overwriting security headers
-      const allowedHeaders = ['content-type', 'content-length'];
-      Object.entries(formHeaders).forEach(([key, val]) => {
-        if (allowedHeaders.includes(key.toLowerCase())) {
-          headers.set(key, val);
-        }
-      });
+      headers.setContentType(undefined); // Let the browser set it
+    } else if ((contentType = headers.getContentType()) !== false) {
+      // fix semicolon duplication issue for ReactNative FormData implementation
+      const [type, ...tokens] = contentType ? contentType.split(';').map(token => token.trim()).filter(Boolean) : [];
+      headers.setContentType([type || 'multipart/form-data', ...tokens].join('; '));
     }
-  }  
+  }
 
   // Add xsrf header
   // This is only done if running in a standard browser environment.
@@ -280606,25 +280500,22 @@ var xhrAdapter = isXHRAdapterSupported && function (config) {
         return;
       }
 
-      reject(new AxiosError$1('Request aborted', AxiosError$1.ECONNABORTED, config, request));
+      reject(new AxiosError('Request aborted', AxiosError.ECONNABORTED, config, request));
 
       // Clean up request
       request = null;
     };
 
     // Handle low level network errors
-  request.onerror = function handleError(event) {
-       // Browsers deliver a ProgressEvent in XHR onerror
-       // (message may be empty; when present, surface it)
-       // See https://developer.mozilla.org/docs/Web/API/XMLHttpRequest/error_event
-       const msg = event && event.message ? event.message : 'Network Error';
-       const err = new AxiosError$1(msg, AxiosError$1.ERR_NETWORK, config, request);
-       // attach the underlying event for consumers who want details
-       err.event = event || null;
-       reject(err);
-       request = null;
+    request.onerror = function handleError() {
+      // Real errors are hidden from us by the browser
+      // onerror should only fire if it's a network error
+      reject(new AxiosError('Network Error', AxiosError.ERR_NETWORK, config, request));
+
+      // Clean up request
+      request = null;
     };
-    
+
     // Handle timeout
     request.ontimeout = function handleTimeout() {
       let timeoutErrorMessage = _config.timeout ? 'timeout of ' + _config.timeout + 'ms exceeded' : 'timeout exceeded';
@@ -280632,9 +280523,9 @@ var xhrAdapter = isXHRAdapterSupported && function (config) {
       if (_config.timeoutErrorMessage) {
         timeoutErrorMessage = _config.timeoutErrorMessage;
       }
-      reject(new AxiosError$1(
+      reject(new AxiosError(
         timeoutErrorMessage,
-        transitional.clarifyTimeoutError ? AxiosError$1.ETIMEDOUT : AxiosError$1.ECONNABORTED,
+        transitional.clarifyTimeoutError ? AxiosError.ETIMEDOUT : AxiosError.ECONNABORTED,
         config,
         request));
 
@@ -280684,7 +280575,7 @@ var xhrAdapter = isXHRAdapterSupported && function (config) {
         if (!request) {
           return;
         }
-        reject(!cancel || cancel.type ? new CanceledError$1(null, config, request) : cancel);
+        reject(!cancel || cancel.type ? new CanceledError(null, config, request) : cancel);
         request.abort();
         request = null;
       };
@@ -280698,7 +280589,7 @@ var xhrAdapter = isXHRAdapterSupported && function (config) {
     const protocol = parseProtocol(_config.url);
 
     if (protocol && platform.protocols.indexOf(protocol) === -1) {
-      reject(new AxiosError$1('Unsupported protocol ' + protocol + ':', AxiosError$1.ERR_BAD_REQUEST, config));
+      reject(new AxiosError('Unsupported protocol ' + protocol + ':', AxiosError.ERR_BAD_REQUEST, config));
       return;
     }
 
@@ -280721,13 +280612,13 @@ const composeSignals = (signals, timeout) => {
         aborted = true;
         unsubscribe();
         const err = reason instanceof Error ? reason : this.reason;
-        controller.abort(err instanceof AxiosError$1 ? err : new CanceledError$1(err instanceof Error ? err.message : err));
+        controller.abort(err instanceof AxiosError ? err : new CanceledError(err instanceof Error ? err.message : err));
       }
     };
 
     let timer = timeout && setTimeout(() => {
       timer = null;
-      onabort(new AxiosError$1(`timeout of ${timeout}ms exceeded`, AxiosError$1.ETIMEDOUT));
+      onabort(new AxiosError(`timeout ${timeout} of ms exceeded`, AxiosError.ETIMEDOUT));
     }, timeout);
 
     const unsubscribe = () => {
@@ -280840,18 +280731,14 @@ const trackStream = (stream, chunkSize, onProgress, onFinish) => {
   })
 };
 
-const DEFAULT_CHUNK_SIZE = 64 * 1024;
+const isFetchSupported = typeof fetch === 'function' && typeof Request === 'function' && typeof Response === 'function';
+const isReadableStreamSupported = isFetchSupported && typeof ReadableStream === 'function';
 
-const {isFunction} = utils$1;
-
-const globalFetchAPI = (({Request, Response}) => ({
-  Request, Response
-}))(utils$1.global);
-
-const {
-  ReadableStream: ReadableStream$1, TextEncoder
-} = utils$1.global;
-
+// used only inside the fetch adapter
+const encodeText = isFetchSupported && (typeof TextEncoder === 'function' ?
+    ((encoder) => (str) => encoder.encode(str))(new TextEncoder()) :
+    async (str) => new Uint8Array(await new Response(str).arrayBuffer())
+);
 
 const test = (fn, ...args) => {
   try {
@@ -280861,380 +280748,278 @@ const test = (fn, ...args) => {
   }
 };
 
-const factory = (env) => {
-  env = utils$1.merge.call({
-    skipUndefined: true
-  }, globalFetchAPI, env);
+const supportsRequestStream = isReadableStreamSupported && test(() => {
+  let duplexAccessed = false;
 
-  const {fetch: envFetch, Request, Response} = env;
-  const isFetchSupported = envFetch ? isFunction(envFetch) : typeof fetch === 'function';
-  const isRequestSupported = isFunction(Request);
-  const isResponseSupported = isFunction(Response);
+  const hasContentType = new Request(platform.origin, {
+    body: new ReadableStream(),
+    method: 'POST',
+    get duplex() {
+      duplexAccessed = true;
+      return 'half';
+    },
+  }).headers.has('Content-Type');
 
-  if (!isFetchSupported) {
-    return false;
+  return duplexAccessed && !hasContentType;
+});
+
+const DEFAULT_CHUNK_SIZE = 64 * 1024;
+
+const supportsResponseStream = isReadableStreamSupported &&
+  test(() => utils$1.isReadableStream(new Response('').body));
+
+
+const resolvers = {
+  stream: supportsResponseStream && ((res) => res.body)
+};
+
+isFetchSupported && (((res) => {
+  ['text', 'arrayBuffer', 'blob', 'formData', 'stream'].forEach(type => {
+    !resolvers[type] && (resolvers[type] = utils$1.isFunction(res[type]) ? (res) => res[type]() :
+      (_, config) => {
+        throw new AxiosError(`Response type '${type}' is not supported`, AxiosError.ERR_NOT_SUPPORT, config);
+      });
+  });
+})(new Response));
+
+const getBodyLength = async (body) => {
+  if (body == null) {
+    return 0;
   }
 
-  const isReadableStreamSupported = isFetchSupported && isFunction(ReadableStream$1);
+  if(utils$1.isBlob(body)) {
+    return body.size;
+  }
 
-  const encodeText = isFetchSupported && (typeof TextEncoder === 'function' ?
-      ((encoder) => (str) => encoder.encode(str))(new TextEncoder()) :
-      async (str) => new Uint8Array(await new Request(str).arrayBuffer())
-  );
-
-  const supportsRequestStream = isRequestSupported && isReadableStreamSupported && test(() => {
-    let duplexAccessed = false;
-
-    const hasContentType = new Request(platform.origin, {
-      body: new ReadableStream$1(),
+  if(utils$1.isSpecCompliantForm(body)) {
+    const _request = new Request(platform.origin, {
       method: 'POST',
-      get duplex() {
-        duplexAccessed = true;
-        return 'half';
-      },
-    }).headers.has('Content-Type');
+      body,
+    });
+    return (await _request.arrayBuffer()).byteLength;
+  }
 
-    return duplexAccessed && !hasContentType;
+  if(utils$1.isArrayBufferView(body) || utils$1.isArrayBuffer(body)) {
+    return body.byteLength;
+  }
+
+  if(utils$1.isURLSearchParams(body)) {
+    body = body + '';
+  }
+
+  if(utils$1.isString(body)) {
+    return (await encodeText(body)).byteLength;
+  }
+};
+
+const resolveBodyLength = async (headers, body) => {
+  const length = utils$1.toFiniteNumber(headers.getContentLength());
+
+  return length == null ? getBodyLength(body) : length;
+};
+
+var fetchAdapter = isFetchSupported && (async (config) => {
+  let {
+    url,
+    method,
+    data,
+    signal,
+    cancelToken,
+    timeout,
+    onDownloadProgress,
+    onUploadProgress,
+    responseType,
+    headers,
+    withCredentials = 'same-origin',
+    fetchOptions
+  } = resolveConfig(config);
+
+  responseType = responseType ? (responseType + '').toLowerCase() : 'text';
+
+  let composedSignal = composeSignals$1([signal, cancelToken && cancelToken.toAbortSignal()], timeout);
+
+  let request;
+
+  const unsubscribe = composedSignal && composedSignal.unsubscribe && (() => {
+      composedSignal.unsubscribe();
   });
 
-  const supportsResponseStream = isResponseSupported && isReadableStreamSupported &&
-    test(() => utils$1.isReadableStream(new Response('').body));
+  let requestContentLength;
 
-  const resolvers = {
-    stream: supportsResponseStream && ((res) => res.body)
-  };
-
-  isFetchSupported && ((() => {
-    ['text', 'arrayBuffer', 'blob', 'formData', 'stream'].forEach(type => {
-      !resolvers[type] && (resolvers[type] = (res, config) => {
-        let method = res && res[type];
-
-        if (method) {
-          return method.call(res);
-        }
-
-        throw new AxiosError$1(`Response type '${type}' is not supported`, AxiosError$1.ERR_NOT_SUPPORT, config);
-      });
-    });
-  })());
-
-  const getBodyLength = async (body) => {
-    if (body == null) {
-      return 0;
-    }
-
-    if (utils$1.isBlob(body)) {
-      return body.size;
-    }
-
-    if (utils$1.isSpecCompliantForm(body)) {
-      const _request = new Request(platform.origin, {
+  try {
+    if (
+      onUploadProgress && supportsRequestStream && method !== 'get' && method !== 'head' &&
+      (requestContentLength = await resolveBodyLength(headers, data)) !== 0
+    ) {
+      let _request = new Request(url, {
         method: 'POST',
-        body,
+        body: data,
+        duplex: "half"
       });
-      return (await _request.arrayBuffer()).byteLength;
+
+      let contentTypeHeader;
+
+      if (utils$1.isFormData(data) && (contentTypeHeader = _request.headers.get('content-type'))) {
+        headers.setContentType(contentTypeHeader);
+      }
+
+      if (_request.body) {
+        const [onProgress, flush] = progressEventDecorator(
+          requestContentLength,
+          progressEventReducer(asyncDecorator(onUploadProgress))
+        );
+
+        data = trackStream(_request.body, DEFAULT_CHUNK_SIZE, onProgress, flush);
+      }
     }
 
-    if (utils$1.isArrayBufferView(body) || utils$1.isArrayBuffer(body)) {
-      return body.byteLength;
+    if (!utils$1.isString(withCredentials)) {
+      withCredentials = withCredentials ? 'include' : 'omit';
     }
 
-    if (utils$1.isURLSearchParams(body)) {
-      body = body + '';
-    }
-
-    if (utils$1.isString(body)) {
-      return (await encodeText(body)).byteLength;
-    }
-  };
-
-  const resolveBodyLength = async (headers, body) => {
-    const length = utils$1.toFiniteNumber(headers.getContentLength());
-
-    return length == null ? getBodyLength(body) : length;
-  };
-
-  return async (config) => {
-    let {
-      url,
-      method,
-      data,
-      signal,
-      cancelToken,
-      timeout,
-      onDownloadProgress,
-      onUploadProgress,
-      responseType,
-      headers,
-      withCredentials = 'same-origin',
-      fetchOptions
-    } = resolveConfig(config);
-
-    let _fetch = envFetch || fetch;
-
-    responseType = responseType ? (responseType + '').toLowerCase() : 'text';
-
-    let composedSignal = composeSignals$1([signal, cancelToken && cancelToken.toAbortSignal()], timeout);
-
-    let request = null;
-
-    const unsubscribe = composedSignal && composedSignal.unsubscribe && (() => {
-      composedSignal.unsubscribe();
+    // Cloudflare Workers throws when credentials are defined
+    // see https://github.com/cloudflare/workerd/issues/902
+    const isCredentialsSupported = "credentials" in Request.prototype;
+    request = new Request(url, {
+      ...fetchOptions,
+      signal: composedSignal,
+      method: method.toUpperCase(),
+      headers: headers.normalize().toJSON(),
+      body: data,
+      duplex: "half",
+      credentials: isCredentialsSupported ? withCredentials : undefined
     });
 
-    let requestContentLength;
+    let response = await fetch(request);
 
-    try {
-      if (
-        onUploadProgress && supportsRequestStream && method !== 'get' && method !== 'head' &&
-        (requestContentLength = await resolveBodyLength(headers, data)) !== 0
-      ) {
-        let _request = new Request(url, {
-          method: 'POST',
-          body: data,
-          duplex: "half"
-        });
+    const isStreamResponse = supportsResponseStream && (responseType === 'stream' || responseType === 'response');
 
-        let contentTypeHeader;
+    if (supportsResponseStream && (onDownloadProgress || (isStreamResponse && unsubscribe))) {
+      const options = {};
 
-        if (utils$1.isFormData(data) && (contentTypeHeader = _request.headers.get('content-type'))) {
-          headers.setContentType(contentTypeHeader);
-        }
+      ['status', 'statusText', 'headers'].forEach(prop => {
+        options[prop] = response[prop];
+      });
 
-        if (_request.body) {
-          const [onProgress, flush] = progressEventDecorator(
-            requestContentLength,
-            progressEventReducer(asyncDecorator(onUploadProgress))
-          );
+      const responseContentLength = utils$1.toFiniteNumber(response.headers.get('content-length'));
 
-          data = trackStream(_request.body, DEFAULT_CHUNK_SIZE, onProgress, flush);
-        }
-      }
+      const [onProgress, flush] = onDownloadProgress && progressEventDecorator(
+        responseContentLength,
+        progressEventReducer(asyncDecorator(onDownloadProgress), true)
+      ) || [];
 
-      if (!utils$1.isString(withCredentials)) {
-        withCredentials = withCredentials ? 'include' : 'omit';
-      }
-
-      // Cloudflare Workers throws when credentials are defined
-      // see https://github.com/cloudflare/workerd/issues/902
-      const isCredentialsSupported = isRequestSupported && "credentials" in Request.prototype;
-
-      const resolvedOptions = {
-        ...fetchOptions,
-        signal: composedSignal,
-        method: method.toUpperCase(),
-        headers: headers.normalize().toJSON(),
-        body: data,
-        duplex: "half",
-        credentials: isCredentialsSupported ? withCredentials : undefined
-      };
-
-      request = isRequestSupported && new Request(url, resolvedOptions);
-
-      let response = await (isRequestSupported ? _fetch(request, fetchOptions) : _fetch(url, resolvedOptions));
-
-      const isStreamResponse = supportsResponseStream && (responseType === 'stream' || responseType === 'response');
-
-      if (supportsResponseStream && (onDownloadProgress || (isStreamResponse && unsubscribe))) {
-        const options = {};
-
-        ['status', 'statusText', 'headers'].forEach(prop => {
-          options[prop] = response[prop];
-        });
-
-        const responseContentLength = utils$1.toFiniteNumber(response.headers.get('content-length'));
-
-        const [onProgress, flush] = onDownloadProgress && progressEventDecorator(
-          responseContentLength,
-          progressEventReducer(asyncDecorator(onDownloadProgress), true)
-        ) || [];
-
-        response = new Response(
-          trackStream(response.body, DEFAULT_CHUNK_SIZE, onProgress, () => {
-            flush && flush();
-            unsubscribe && unsubscribe();
-          }),
-          options
-        );
-      }
-
-      responseType = responseType || 'text';
-
-      let responseData = await resolvers[utils$1.findKey(resolvers, responseType) || 'text'](response, config);
-
-      !isStreamResponse && unsubscribe && unsubscribe();
-
-      return await new Promise((resolve, reject) => {
-        settle(resolve, reject, {
-          data: responseData,
-          headers: AxiosHeaders$1.from(response.headers),
-          status: response.status,
-          statusText: response.statusText,
-          config,
-          request
-        });
-      })
-    } catch (err) {
-      unsubscribe && unsubscribe();
-
-      if (err && err.name === 'TypeError' && /Load failed|fetch/i.test(err.message)) {
-        throw Object.assign(
-          new AxiosError$1('Network Error', AxiosError$1.ERR_NETWORK, config, request),
-          {
-            cause: err.cause || err
-          }
-        )
-      }
-
-      throw AxiosError$1.from(err, err && err.code, config, request);
+      response = new Response(
+        trackStream(response.body, DEFAULT_CHUNK_SIZE, onProgress, () => {
+          flush && flush();
+          unsubscribe && unsubscribe();
+        }),
+        options
+      );
     }
-  }
-};
 
-const seedCache = new Map();
+    responseType = responseType || 'text';
 
-const getFetch = (config) => {
-  let env = (config && config.env) || {};
-  const {fetch, Request, Response} = env;
-  const seeds = [
-    Request, Response, fetch
-  ];
+    let responseData = await resolvers[utils$1.findKey(resolvers, responseType) || 'text'](response, config);
 
-  let len = seeds.length, i = len,
-    seed, target, map = seedCache;
+    !isStreamResponse && unsubscribe && unsubscribe();
 
-  while (i--) {
-    seed = seeds[i];
-    target = map.get(seed);
+    return await new Promise((resolve, reject) => {
+      settle(resolve, reject, {
+        data: responseData,
+        headers: AxiosHeaders$1.from(response.headers),
+        status: response.status,
+        statusText: response.statusText,
+        config,
+        request
+      });
+    })
+  } catch (err) {
+    unsubscribe && unsubscribe();
 
-    target === undefined && map.set(seed, target = (i ? new Map() : factory(env)));
-
-    map = target;
-  }
-
-  return target;
-};
-
-getFetch();
-
-/**
- * Known adapters mapping.
- * Provides environment-specific adapters for Axios:
- * - `http` for Node.js
- * - `xhr` for browsers
- * - `fetch` for fetch API-based requests
- * 
- * @type {Object<string, Function|Object>}
- */
-const knownAdapters = {
-  http: httpAdapter,
-  xhr: xhrAdapter,
-  fetch: {
-    get: getFetch,
-  }
-};
-
-// Assign adapter names for easier debugging and identification
-utils$1.forEach(knownAdapters, (fn, value) => {
-  if (fn) {
-    try {
-      Object.defineProperty(fn, 'name', { value });
-    } catch (e) {
-      // eslint-disable-next-line no-empty
+    if (err && err.name === 'TypeError' && /fetch/i.test(err.message)) {
+      throw Object.assign(
+        new AxiosError('Network Error', AxiosError.ERR_NETWORK, config, request),
+        {
+          cause: err.cause || err
+        }
+      )
     }
-    Object.defineProperty(fn, 'adapterName', { value });
+
+    throw AxiosError.from(err, err && err.code, config, request);
   }
 });
 
-/**
- * Render a rejection reason string for unknown or unsupported adapters
- * 
- * @param {string} reason
- * @returns {string}
- */
+const knownAdapters = {
+  http: httpAdapter,
+  xhr: xhrAdapter,
+  fetch: fetchAdapter
+};
+
+utils$1.forEach(knownAdapters, (fn, value) => {
+  if (fn) {
+    try {
+      Object.defineProperty(fn, 'name', {value});
+    } catch (e) {
+      // eslint-disable-next-line no-empty
+    }
+    Object.defineProperty(fn, 'adapterName', {value});
+  }
+});
+
 const renderReason = (reason) => `- ${reason}`;
 
-/**
- * Check if the adapter is resolved (function, null, or false)
- * 
- * @param {Function|null|false} adapter
- * @returns {boolean}
- */
 const isResolvedHandle = (adapter) => utils$1.isFunction(adapter) || adapter === null || adapter === false;
 
-/**
- * Get the first suitable adapter from the provided list.
- * Tries each adapter in order until a supported one is found.
- * Throws an AxiosError if no adapter is suitable.
- * 
- * @param {Array<string|Function>|string|Function} adapters - Adapter(s) by name or function.
- * @param {Object} config - Axios request configuration
- * @throws {AxiosError} If no suitable adapter is available
- * @returns {Function} The resolved adapter function
- */
-function getAdapter(adapters, config) {
-  adapters = utils$1.isArray(adapters) ? adapters : [adapters];
-
-  const { length } = adapters;
-  let nameOrAdapter;
-  let adapter;
-
-  const rejectedReasons = {};
-
-  for (let i = 0; i < length; i++) {
-    nameOrAdapter = adapters[i];
-    let id;
-
-    adapter = nameOrAdapter;
-
-    if (!isResolvedHandle(nameOrAdapter)) {
-      adapter = knownAdapters[(id = String(nameOrAdapter)).toLowerCase()];
-
-      if (adapter === undefined) {
-        throw new AxiosError$1(`Unknown adapter '${id}'`);
-      }
-    }
-
-    if (adapter && (utils$1.isFunction(adapter) || (adapter = adapter.get(config)))) {
-      break;
-    }
-
-    rejectedReasons[id || '#' + i] = adapter;
-  }
-
-  if (!adapter) {
-    const reasons = Object.entries(rejectedReasons)
-      .map(([id, state]) => `adapter ${id} ` +
-        (state === false ? 'is not supported by the environment' : 'is not available in the build')
-      );
-
-    let s = length ?
-      (reasons.length > 1 ? 'since :\n' + reasons.map(renderReason).join('\n') : ' ' + renderReason(reasons[0])) :
-      'as no adapter specified';
-
-    throw new AxiosError$1(
-      `There is no suitable adapter to dispatch the request ` + s,
-      'ERR_NOT_SUPPORT'
-    );
-  }
-
-  return adapter;
-}
-
-/**
- * Exports Axios adapters and utility to resolve an adapter
- */
 var adapters = {
-  /**
-   * Resolve an adapter from a list of adapter names or functions.
-   * @type {Function}
-   */
-  getAdapter,
+  getAdapter: (adapters) => {
+    adapters = utils$1.isArray(adapters) ? adapters : [adapters];
 
-  /**
-   * Exposes all known adapters
-   * @type {Object<string, Function|Object>}
-   */
+    const {length} = adapters;
+    let nameOrAdapter;
+    let adapter;
+
+    const rejectedReasons = {};
+
+    for (let i = 0; i < length; i++) {
+      nameOrAdapter = adapters[i];
+      let id;
+
+      adapter = nameOrAdapter;
+
+      if (!isResolvedHandle(nameOrAdapter)) {
+        adapter = knownAdapters[(id = String(nameOrAdapter)).toLowerCase()];
+
+        if (adapter === undefined) {
+          throw new AxiosError(`Unknown adapter '${id}'`);
+        }
+      }
+
+      if (adapter) {
+        break;
+      }
+
+      rejectedReasons[id || '#' + i] = adapter;
+    }
+
+    if (!adapter) {
+
+      const reasons = Object.entries(rejectedReasons)
+        .map(([id, state]) => `adapter ${id} ` +
+          (state === false ? 'is not supported by the environment' : 'is not available in the build')
+        );
+
+      let s = length ?
+        (reasons.length > 1 ? 'since :\n' + reasons.map(renderReason).join('\n') : ' ' + renderReason(reasons[0])) :
+        'as no adapter specified';
+
+      throw new AxiosError(
+        `There is no suitable adapter to dispatch the request ` + s,
+        'ERR_NOT_SUPPORT'
+      );
+    }
+
+    return adapter;
+  },
   adapters: knownAdapters
 };
 
@@ -281251,7 +281036,7 @@ function throwIfCancellationRequested(config) {
   }
 
   if (config.signal && config.signal.aborted) {
-    throw new CanceledError$1(null, config);
+    throw new CanceledError(null, config);
   }
 }
 
@@ -281277,7 +281062,7 @@ function dispatchRequest(config) {
     config.headers.setContentType('application/x-www-form-urlencoded', false);
   }
 
-  const adapter = adapters.getAdapter(config.adapter || defaults$1.adapter, config);
+  const adapter = adapters.getAdapter(config.adapter || defaults$1.adapter);
 
   return adapter(config).then(function onAdapterResolution(response) {
     throwIfCancellationRequested(config);
@@ -281311,7 +281096,7 @@ function dispatchRequest(config) {
   });
 }
 
-const VERSION = "1.13.4";
+const VERSION = "1.8.4";
 
 const validators$1 = {};
 
@@ -281341,9 +281126,9 @@ validators$1.transitional = function transitional(validator, version, message) {
   // eslint-disable-next-line func-names
   return (value, opt, opts) => {
     if (validator === false) {
-      throw new AxiosError$1(
+      throw new AxiosError(
         formatMessage(opt, ' has been removed' + (version ? ' in ' + version : '')),
-        AxiosError$1.ERR_DEPRECATED
+        AxiosError.ERR_DEPRECATED
       );
     }
 
@@ -281382,7 +281167,7 @@ validators$1.spelling = function spelling(correctSpelling) {
 
 function assertOptions(options, schema, allowUnknown) {
   if (typeof options !== 'object') {
-    throw new AxiosError$1('options must be an object', AxiosError$1.ERR_BAD_OPTION_VALUE);
+    throw new AxiosError('options must be an object', AxiosError.ERR_BAD_OPTION_VALUE);
   }
   const keys = Object.keys(options);
   let i = keys.length;
@@ -281393,12 +281178,12 @@ function assertOptions(options, schema, allowUnknown) {
       const value = options[opt];
       const result = value === undefined || validator(value, opt, options);
       if (result !== true) {
-        throw new AxiosError$1('option ' + opt + ' must be ' + result, AxiosError$1.ERR_BAD_OPTION_VALUE);
+        throw new AxiosError('option ' + opt + ' must be ' + result, AxiosError.ERR_BAD_OPTION_VALUE);
       }
       continue;
     }
     if (allowUnknown !== true) {
-      throw new AxiosError$1('Unknown option ' + opt, AxiosError$1.ERR_BAD_OPTION);
+      throw new AxiosError('Unknown option ' + opt, AxiosError.ERR_BAD_OPTION);
     }
   }
 }
@@ -281419,7 +281204,7 @@ const validators = validator.validators;
  */
 class Axios {
   constructor(instanceConfig) {
-    this.defaults = instanceConfig || {};
+    this.defaults = instanceConfig;
     this.interceptors = {
       request: new InterceptorManager$1(),
       response: new InterceptorManager$1()
@@ -281550,8 +281335,8 @@ class Axios {
 
     if (!synchronousRequestInterceptors) {
       const chain = [dispatchRequest.bind(this), undefined];
-      chain.unshift(...requestInterceptorChain);
-      chain.push(...responseInterceptorChain);
+      chain.unshift.apply(chain, requestInterceptorChain);
+      chain.push.apply(chain, responseInterceptorChain);
       len = chain.length;
 
       promise = Promise.resolve(config);
@@ -281566,6 +281351,8 @@ class Axios {
     len = requestInterceptorChain.length;
 
     let newConfig = config;
+
+    i = 0;
 
     while (i < len) {
       const onFulfilled = requestInterceptorChain[i++];
@@ -281691,7 +281478,7 @@ class CancelToken {
         return;
       }
 
-      token.reason = new CanceledError$1(message, config, request);
+      token.reason = new CanceledError(message, config, request);
       resolvePromise(token.reason);
     });
   }
@@ -281775,7 +281562,7 @@ var CancelToken$1 = CancelToken;
  *
  *  ```js
  *  function f(x, y, z) {}
- *  const args = [1, 2, 3];
+ *  var args = [1, 2, 3];
  *  f.apply(null, args);
  *  ```
  *
@@ -281870,12 +281657,6 @@ const HttpStatusCode = {
   LoopDetected: 508,
   NotExtended: 510,
   NetworkAuthenticationRequired: 511,
-  WebServerIsDown: 521,
-  ConnectionTimedOut: 522,
-  OriginIsUnreachable: 523,
-  TimeoutOccurred: 524,
-  SslHandshakeFailed: 525,
-  InvalidSslCertificate: 526,
 };
 
 Object.entries(HttpStatusCode).forEach(([key, value]) => {
@@ -281916,14 +281697,14 @@ const axios = createInstance(defaults$1);
 axios.Axios = Axios$1;
 
 // Expose Cancel & CancelToken
-axios.CanceledError = CanceledError$1;
+axios.CanceledError = CanceledError;
 axios.CancelToken = CancelToken$1;
 axios.isCancel = isCancel;
 axios.VERSION = VERSION;
 axios.toFormData = toFormData;
 
 // Expose AxiosError class
-axios.AxiosError = AxiosError$1;
+axios.AxiosError = AxiosError;
 
 // alias for CanceledError for backward compatibility
 axios.Cancel = axios.CanceledError;
@@ -281979,124 +281760,77 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-/**
- * Known adapters mapping.
- * Provides environment-specific adapters for Axios:
- * - `http` for Node.js
- * - `xhr` for browsers
- * - `fetch` for fetch API-based requests
- * 
- * @type {Object<string, Function|Object>}
- */
 const knownAdapters = {
   http: _http_js__WEBPACK_IMPORTED_MODULE_0__["default"],
   xhr: _xhr_js__WEBPACK_IMPORTED_MODULE_1__["default"],
-  fetch: {
-    get: _fetch_js__WEBPACK_IMPORTED_MODULE_2__.getFetch,
-  }
-};
+  fetch: _fetch_js__WEBPACK_IMPORTED_MODULE_2__["default"]
+}
 
-// Assign adapter names for easier debugging and identification
 _utils_js__WEBPACK_IMPORTED_MODULE_3__["default"].forEach(knownAdapters, (fn, value) => {
   if (fn) {
     try {
-      Object.defineProperty(fn, 'name', { value });
+      Object.defineProperty(fn, 'name', {value});
     } catch (e) {
       // eslint-disable-next-line no-empty
     }
-    Object.defineProperty(fn, 'adapterName', { value });
+    Object.defineProperty(fn, 'adapterName', {value});
   }
 });
 
-/**
- * Render a rejection reason string for unknown or unsupported adapters
- * 
- * @param {string} reason
- * @returns {string}
- */
 const renderReason = (reason) => `- ${reason}`;
 
-/**
- * Check if the adapter is resolved (function, null, or false)
- * 
- * @param {Function|null|false} adapter
- * @returns {boolean}
- */
 const isResolvedHandle = (adapter) => _utils_js__WEBPACK_IMPORTED_MODULE_3__["default"].isFunction(adapter) || adapter === null || adapter === false;
 
-/**
- * Get the first suitable adapter from the provided list.
- * Tries each adapter in order until a supported one is found.
- * Throws an AxiosError if no adapter is suitable.
- * 
- * @param {Array<string|Function>|string|Function} adapters - Adapter(s) by name or function.
- * @param {Object} config - Axios request configuration
- * @throws {AxiosError} If no suitable adapter is available
- * @returns {Function} The resolved adapter function
- */
-function getAdapter(adapters, config) {
-  adapters = _utils_js__WEBPACK_IMPORTED_MODULE_3__["default"].isArray(adapters) ? adapters : [adapters];
-
-  const { length } = adapters;
-  let nameOrAdapter;
-  let adapter;
-
-  const rejectedReasons = {};
-
-  for (let i = 0; i < length; i++) {
-    nameOrAdapter = adapters[i];
-    let id;
-
-    adapter = nameOrAdapter;
-
-    if (!isResolvedHandle(nameOrAdapter)) {
-      adapter = knownAdapters[(id = String(nameOrAdapter)).toLowerCase()];
-
-      if (adapter === undefined) {
-        throw new _core_AxiosError_js__WEBPACK_IMPORTED_MODULE_4__["default"](`Unknown adapter '${id}'`);
-      }
-    }
-
-    if (adapter && (_utils_js__WEBPACK_IMPORTED_MODULE_3__["default"].isFunction(adapter) || (adapter = adapter.get(config)))) {
-      break;
-    }
-
-    rejectedReasons[id || '#' + i] = adapter;
-  }
-
-  if (!adapter) {
-    const reasons = Object.entries(rejectedReasons)
-      .map(([id, state]) => `adapter ${id} ` +
-        (state === false ? 'is not supported by the environment' : 'is not available in the build')
-      );
-
-    let s = length ?
-      (reasons.length > 1 ? 'since :\n' + reasons.map(renderReason).join('\n') : ' ' + renderReason(reasons[0])) :
-      'as no adapter specified';
-
-    throw new _core_AxiosError_js__WEBPACK_IMPORTED_MODULE_4__["default"](
-      `There is no suitable adapter to dispatch the request ` + s,
-      'ERR_NOT_SUPPORT'
-    );
-  }
-
-  return adapter;
-}
-
-/**
- * Exports Axios adapters and utility to resolve an adapter
- */
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
-  /**
-   * Resolve an adapter from a list of adapter names or functions.
-   * @type {Function}
-   */
-  getAdapter,
+  getAdapter: (adapters) => {
+    adapters = _utils_js__WEBPACK_IMPORTED_MODULE_3__["default"].isArray(adapters) ? adapters : [adapters];
 
-  /**
-   * Exposes all known adapters
-   * @type {Object<string, Function|Object>}
-   */
+    const {length} = adapters;
+    let nameOrAdapter;
+    let adapter;
+
+    const rejectedReasons = {};
+
+    for (let i = 0; i < length; i++) {
+      nameOrAdapter = adapters[i];
+      let id;
+
+      adapter = nameOrAdapter;
+
+      if (!isResolvedHandle(nameOrAdapter)) {
+        adapter = knownAdapters[(id = String(nameOrAdapter)).toLowerCase()];
+
+        if (adapter === undefined) {
+          throw new _core_AxiosError_js__WEBPACK_IMPORTED_MODULE_4__["default"](`Unknown adapter '${id}'`);
+        }
+      }
+
+      if (adapter) {
+        break;
+      }
+
+      rejectedReasons[id || '#' + i] = adapter;
+    }
+
+    if (!adapter) {
+
+      const reasons = Object.entries(rejectedReasons)
+        .map(([id, state]) => `adapter ${id} ` +
+          (state === false ? 'is not supported by the environment' : 'is not available in the build')
+        );
+
+      let s = length ?
+        (reasons.length > 1 ? 'since :\n' + reasons.map(renderReason).join('\n') : ' ' + renderReason(reasons[0])) :
+        'as no adapter specified';
+
+      throw new _core_AxiosError_js__WEBPACK_IMPORTED_MODULE_4__["default"](
+        `There is no suitable adapter to dispatch the request ` + s,
+        'ERR_NOT_SUPPORT'
+      );
+    }
+
+    return adapter;
+  },
   adapters: knownAdapters
 });
 
@@ -282112,11 +281846,10 @@ function getAdapter(adapters, config) {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__),
-/* harmony export */   getFetch: () => (/* binding */ getFetch)
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var _platform_index_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../platform/index.js */ "./node_modules/axios/lib/platform/index.js");
-/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../utils.js */ "./node_modules/axios/lib/utils.js");
+/* harmony import */ var _platform_index_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../platform/index.js */ "./node_modules/axios/lib/platform/index.js");
+/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../utils.js */ "./node_modules/axios/lib/utils.js");
 /* harmony import */ var _core_AxiosError_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../core/AxiosError.js */ "./node_modules/axios/lib/core/AxiosError.js");
 /* harmony import */ var _helpers_composeSignals_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../helpers/composeSignals.js */ "./node_modules/axios/lib/helpers/composeSignals.js");
 /* harmony import */ var _helpers_trackStream_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../helpers/trackStream.js */ "./node_modules/axios/lib/helpers/trackStream.js");
@@ -282134,18 +281867,14 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const DEFAULT_CHUNK_SIZE = 64 * 1024;
+const isFetchSupported = typeof fetch === 'function' && typeof Request === 'function' && typeof Response === 'function';
+const isReadableStreamSupported = isFetchSupported && typeof ReadableStream === 'function';
 
-const {isFunction} = _utils_js__WEBPACK_IMPORTED_MODULE_0__["default"];
-
-const globalFetchAPI = (({Request, Response}) => ({
-  Request, Response
-}))(_utils_js__WEBPACK_IMPORTED_MODULE_0__["default"].global);
-
-const {
-  ReadableStream, TextEncoder
-} = _utils_js__WEBPACK_IMPORTED_MODULE_0__["default"].global;
-
+// used only inside the fetch adapter
+const encodeText = isFetchSupported && (typeof TextEncoder === 'function' ?
+    ((encoder) => (str) => encoder.encode(str))(new TextEncoder()) :
+    async (str) => new Uint8Array(await new Response(str).arrayBuffer())
+);
 
 const test = (fn, ...args) => {
   try {
@@ -282155,263 +281884,208 @@ const test = (fn, ...args) => {
   }
 }
 
-const factory = (env) => {
-  env = _utils_js__WEBPACK_IMPORTED_MODULE_0__["default"].merge.call({
-    skipUndefined: true
-  }, globalFetchAPI, env);
+const supportsRequestStream = isReadableStreamSupported && test(() => {
+  let duplexAccessed = false;
 
-  const {fetch: envFetch, Request, Response} = env;
-  const isFetchSupported = envFetch ? isFunction(envFetch) : typeof fetch === 'function';
-  const isRequestSupported = isFunction(Request);
-  const isResponseSupported = isFunction(Response);
+  const hasContentType = new Request(_platform_index_js__WEBPACK_IMPORTED_MODULE_0__["default"].origin, {
+    body: new ReadableStream(),
+    method: 'POST',
+    get duplex() {
+      duplexAccessed = true;
+      return 'half';
+    },
+  }).headers.has('Content-Type');
 
-  if (!isFetchSupported) {
-    return false;
-  }
+  return duplexAccessed && !hasContentType;
+});
 
-  const isReadableStreamSupported = isFetchSupported && isFunction(ReadableStream);
+const DEFAULT_CHUNK_SIZE = 64 * 1024;
 
-  const encodeText = isFetchSupported && (typeof TextEncoder === 'function' ?
-      ((encoder) => (str) => encoder.encode(str))(new TextEncoder()) :
-      async (str) => new Uint8Array(await new Request(str).arrayBuffer())
-  );
+const supportsResponseStream = isReadableStreamSupported &&
+  test(() => _utils_js__WEBPACK_IMPORTED_MODULE_1__["default"].isReadableStream(new Response('').body));
 
-  const supportsRequestStream = isRequestSupported && isReadableStreamSupported && test(() => {
-    let duplexAccessed = false;
 
-    const hasContentType = new Request(_platform_index_js__WEBPACK_IMPORTED_MODULE_1__["default"].origin, {
-      body: new ReadableStream(),
-      method: 'POST',
-      get duplex() {
-        duplexAccessed = true;
-        return 'half';
-      },
-    }).headers.has('Content-Type');
+const resolvers = {
+  stream: supportsResponseStream && ((res) => res.body)
+};
 
-    return duplexAccessed && !hasContentType;
-  });
-
-  const supportsResponseStream = isResponseSupported && isReadableStreamSupported &&
-    test(() => _utils_js__WEBPACK_IMPORTED_MODULE_0__["default"].isReadableStream(new Response('').body));
-
-  const resolvers = {
-    stream: supportsResponseStream && ((res) => res.body)
-  };
-
-  isFetchSupported && ((() => {
-    ['text', 'arrayBuffer', 'blob', 'formData', 'stream'].forEach(type => {
-      !resolvers[type] && (resolvers[type] = (res, config) => {
-        let method = res && res[type];
-
-        if (method) {
-          return method.call(res);
-        }
-
+isFetchSupported && (((res) => {
+  ['text', 'arrayBuffer', 'blob', 'formData', 'stream'].forEach(type => {
+    !resolvers[type] && (resolvers[type] = _utils_js__WEBPACK_IMPORTED_MODULE_1__["default"].isFunction(res[type]) ? (res) => res[type]() :
+      (_, config) => {
         throw new _core_AxiosError_js__WEBPACK_IMPORTED_MODULE_2__["default"](`Response type '${type}' is not supported`, _core_AxiosError_js__WEBPACK_IMPORTED_MODULE_2__["default"].ERR_NOT_SUPPORT, config);
       })
-    });
-  })());
+  });
+})(new Response));
 
-  const getBodyLength = async (body) => {
-    if (body == null) {
-      return 0;
-    }
-
-    if (_utils_js__WEBPACK_IMPORTED_MODULE_0__["default"].isBlob(body)) {
-      return body.size;
-    }
-
-    if (_utils_js__WEBPACK_IMPORTED_MODULE_0__["default"].isSpecCompliantForm(body)) {
-      const _request = new Request(_platform_index_js__WEBPACK_IMPORTED_MODULE_1__["default"].origin, {
-        method: 'POST',
-        body,
-      });
-      return (await _request.arrayBuffer()).byteLength;
-    }
-
-    if (_utils_js__WEBPACK_IMPORTED_MODULE_0__["default"].isArrayBufferView(body) || _utils_js__WEBPACK_IMPORTED_MODULE_0__["default"].isArrayBuffer(body)) {
-      return body.byteLength;
-    }
-
-    if (_utils_js__WEBPACK_IMPORTED_MODULE_0__["default"].isURLSearchParams(body)) {
-      body = body + '';
-    }
-
-    if (_utils_js__WEBPACK_IMPORTED_MODULE_0__["default"].isString(body)) {
-      return (await encodeText(body)).byteLength;
-    }
+const getBodyLength = async (body) => {
+  if (body == null) {
+    return 0;
   }
 
-  const resolveBodyLength = async (headers, body) => {
-    const length = _utils_js__WEBPACK_IMPORTED_MODULE_0__["default"].toFiniteNumber(headers.getContentLength());
-
-    return length == null ? getBodyLength(body) : length;
+  if(_utils_js__WEBPACK_IMPORTED_MODULE_1__["default"].isBlob(body)) {
+    return body.size;
   }
 
-  return async (config) => {
-    let {
-      url,
-      method,
-      data,
-      signal,
-      cancelToken,
-      timeout,
-      onDownloadProgress,
-      onUploadProgress,
-      responseType,
-      headers,
-      withCredentials = 'same-origin',
-      fetchOptions
-    } = (0,_helpers_resolveConfig_js__WEBPACK_IMPORTED_MODULE_3__["default"])(config);
-
-    let _fetch = envFetch || fetch;
-
-    responseType = responseType ? (responseType + '').toLowerCase() : 'text';
-
-    let composedSignal = (0,_helpers_composeSignals_js__WEBPACK_IMPORTED_MODULE_4__["default"])([signal, cancelToken && cancelToken.toAbortSignal()], timeout);
-
-    let request = null;
-
-    const unsubscribe = composedSignal && composedSignal.unsubscribe && (() => {
-      composedSignal.unsubscribe();
+  if(_utils_js__WEBPACK_IMPORTED_MODULE_1__["default"].isSpecCompliantForm(body)) {
+    const _request = new Request(_platform_index_js__WEBPACK_IMPORTED_MODULE_0__["default"].origin, {
+      method: 'POST',
+      body,
     });
+    return (await _request.arrayBuffer()).byteLength;
+  }
 
-    let requestContentLength;
+  if(_utils_js__WEBPACK_IMPORTED_MODULE_1__["default"].isArrayBufferView(body) || _utils_js__WEBPACK_IMPORTED_MODULE_1__["default"].isArrayBuffer(body)) {
+    return body.byteLength;
+  }
 
-    try {
-      if (
-        onUploadProgress && supportsRequestStream && method !== 'get' && method !== 'head' &&
-        (requestContentLength = await resolveBodyLength(headers, data)) !== 0
-      ) {
-        let _request = new Request(url, {
-          method: 'POST',
-          body: data,
-          duplex: "half"
-        });
+  if(_utils_js__WEBPACK_IMPORTED_MODULE_1__["default"].isURLSearchParams(body)) {
+    body = body + '';
+  }
 
-        let contentTypeHeader;
-
-        if (_utils_js__WEBPACK_IMPORTED_MODULE_0__["default"].isFormData(data) && (contentTypeHeader = _request.headers.get('content-type'))) {
-          headers.setContentType(contentTypeHeader)
-        }
-
-        if (_request.body) {
-          const [onProgress, flush] = (0,_helpers_progressEventReducer_js__WEBPACK_IMPORTED_MODULE_5__.progressEventDecorator)(
-            requestContentLength,
-            (0,_helpers_progressEventReducer_js__WEBPACK_IMPORTED_MODULE_5__.progressEventReducer)((0,_helpers_progressEventReducer_js__WEBPACK_IMPORTED_MODULE_5__.asyncDecorator)(onUploadProgress))
-          );
-
-          data = (0,_helpers_trackStream_js__WEBPACK_IMPORTED_MODULE_6__.trackStream)(_request.body, DEFAULT_CHUNK_SIZE, onProgress, flush);
-        }
-      }
-
-      if (!_utils_js__WEBPACK_IMPORTED_MODULE_0__["default"].isString(withCredentials)) {
-        withCredentials = withCredentials ? 'include' : 'omit';
-      }
-
-      // Cloudflare Workers throws when credentials are defined
-      // see https://github.com/cloudflare/workerd/issues/902
-      const isCredentialsSupported = isRequestSupported && "credentials" in Request.prototype;
-
-      const resolvedOptions = {
-        ...fetchOptions,
-        signal: composedSignal,
-        method: method.toUpperCase(),
-        headers: headers.normalize().toJSON(),
-        body: data,
-        duplex: "half",
-        credentials: isCredentialsSupported ? withCredentials : undefined
-      };
-
-      request = isRequestSupported && new Request(url, resolvedOptions);
-
-      let response = await (isRequestSupported ? _fetch(request, fetchOptions) : _fetch(url, resolvedOptions));
-
-      const isStreamResponse = supportsResponseStream && (responseType === 'stream' || responseType === 'response');
-
-      if (supportsResponseStream && (onDownloadProgress || (isStreamResponse && unsubscribe))) {
-        const options = {};
-
-        ['status', 'statusText', 'headers'].forEach(prop => {
-          options[prop] = response[prop];
-        });
-
-        const responseContentLength = _utils_js__WEBPACK_IMPORTED_MODULE_0__["default"].toFiniteNumber(response.headers.get('content-length'));
-
-        const [onProgress, flush] = onDownloadProgress && (0,_helpers_progressEventReducer_js__WEBPACK_IMPORTED_MODULE_5__.progressEventDecorator)(
-          responseContentLength,
-          (0,_helpers_progressEventReducer_js__WEBPACK_IMPORTED_MODULE_5__.progressEventReducer)((0,_helpers_progressEventReducer_js__WEBPACK_IMPORTED_MODULE_5__.asyncDecorator)(onDownloadProgress), true)
-        ) || [];
-
-        response = new Response(
-          (0,_helpers_trackStream_js__WEBPACK_IMPORTED_MODULE_6__.trackStream)(response.body, DEFAULT_CHUNK_SIZE, onProgress, () => {
-            flush && flush();
-            unsubscribe && unsubscribe();
-          }),
-          options
-        );
-      }
-
-      responseType = responseType || 'text';
-
-      let responseData = await resolvers[_utils_js__WEBPACK_IMPORTED_MODULE_0__["default"].findKey(resolvers, responseType) || 'text'](response, config);
-
-      !isStreamResponse && unsubscribe && unsubscribe();
-
-      return await new Promise((resolve, reject) => {
-        (0,_core_settle_js__WEBPACK_IMPORTED_MODULE_7__["default"])(resolve, reject, {
-          data: responseData,
-          headers: _core_AxiosHeaders_js__WEBPACK_IMPORTED_MODULE_8__["default"].from(response.headers),
-          status: response.status,
-          statusText: response.statusText,
-          config,
-          request
-        })
-      })
-    } catch (err) {
-      unsubscribe && unsubscribe();
-
-      if (err && err.name === 'TypeError' && /Load failed|fetch/i.test(err.message)) {
-        throw Object.assign(
-          new _core_AxiosError_js__WEBPACK_IMPORTED_MODULE_2__["default"]('Network Error', _core_AxiosError_js__WEBPACK_IMPORTED_MODULE_2__["default"].ERR_NETWORK, config, request),
-          {
-            cause: err.cause || err
-          }
-        )
-      }
-
-      throw _core_AxiosError_js__WEBPACK_IMPORTED_MODULE_2__["default"].from(err, err && err.code, config, request);
-    }
+  if(_utils_js__WEBPACK_IMPORTED_MODULE_1__["default"].isString(body)) {
+    return (await encodeText(body)).byteLength;
   }
 }
 
-const seedCache = new Map();
+const resolveBodyLength = async (headers, body) => {
+  const length = _utils_js__WEBPACK_IMPORTED_MODULE_1__["default"].toFiniteNumber(headers.getContentLength());
 
-const getFetch = (config) => {
-  let env = (config && config.env) || {};
-  const {fetch, Request, Response} = env;
-  const seeds = [
-    Request, Response, fetch
-  ];
+  return length == null ? getBodyLength(body) : length;
+}
 
-  let len = seeds.length, i = len,
-    seed, target, map = seedCache;
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (isFetchSupported && (async (config) => {
+  let {
+    url,
+    method,
+    data,
+    signal,
+    cancelToken,
+    timeout,
+    onDownloadProgress,
+    onUploadProgress,
+    responseType,
+    headers,
+    withCredentials = 'same-origin',
+    fetchOptions
+  } = (0,_helpers_resolveConfig_js__WEBPACK_IMPORTED_MODULE_3__["default"])(config);
 
-  while (i--) {
-    seed = seeds[i];
-    target = map.get(seed);
+  responseType = responseType ? (responseType + '').toLowerCase() : 'text';
 
-    target === undefined && map.set(seed, target = (i ? new Map() : factory(env)))
+  let composedSignal = (0,_helpers_composeSignals_js__WEBPACK_IMPORTED_MODULE_4__["default"])([signal, cancelToken && cancelToken.toAbortSignal()], timeout);
 
-    map = target;
+  let request;
+
+  const unsubscribe = composedSignal && composedSignal.unsubscribe && (() => {
+      composedSignal.unsubscribe();
+  });
+
+  let requestContentLength;
+
+  try {
+    if (
+      onUploadProgress && supportsRequestStream && method !== 'get' && method !== 'head' &&
+      (requestContentLength = await resolveBodyLength(headers, data)) !== 0
+    ) {
+      let _request = new Request(url, {
+        method: 'POST',
+        body: data,
+        duplex: "half"
+      });
+
+      let contentTypeHeader;
+
+      if (_utils_js__WEBPACK_IMPORTED_MODULE_1__["default"].isFormData(data) && (contentTypeHeader = _request.headers.get('content-type'))) {
+        headers.setContentType(contentTypeHeader)
+      }
+
+      if (_request.body) {
+        const [onProgress, flush] = (0,_helpers_progressEventReducer_js__WEBPACK_IMPORTED_MODULE_5__.progressEventDecorator)(
+          requestContentLength,
+          (0,_helpers_progressEventReducer_js__WEBPACK_IMPORTED_MODULE_5__.progressEventReducer)((0,_helpers_progressEventReducer_js__WEBPACK_IMPORTED_MODULE_5__.asyncDecorator)(onUploadProgress))
+        );
+
+        data = (0,_helpers_trackStream_js__WEBPACK_IMPORTED_MODULE_6__.trackStream)(_request.body, DEFAULT_CHUNK_SIZE, onProgress, flush);
+      }
+    }
+
+    if (!_utils_js__WEBPACK_IMPORTED_MODULE_1__["default"].isString(withCredentials)) {
+      withCredentials = withCredentials ? 'include' : 'omit';
+    }
+
+    // Cloudflare Workers throws when credentials are defined
+    // see https://github.com/cloudflare/workerd/issues/902
+    const isCredentialsSupported = "credentials" in Request.prototype;
+    request = new Request(url, {
+      ...fetchOptions,
+      signal: composedSignal,
+      method: method.toUpperCase(),
+      headers: headers.normalize().toJSON(),
+      body: data,
+      duplex: "half",
+      credentials: isCredentialsSupported ? withCredentials : undefined
+    });
+
+    let response = await fetch(request);
+
+    const isStreamResponse = supportsResponseStream && (responseType === 'stream' || responseType === 'response');
+
+    if (supportsResponseStream && (onDownloadProgress || (isStreamResponse && unsubscribe))) {
+      const options = {};
+
+      ['status', 'statusText', 'headers'].forEach(prop => {
+        options[prop] = response[prop];
+      });
+
+      const responseContentLength = _utils_js__WEBPACK_IMPORTED_MODULE_1__["default"].toFiniteNumber(response.headers.get('content-length'));
+
+      const [onProgress, flush] = onDownloadProgress && (0,_helpers_progressEventReducer_js__WEBPACK_IMPORTED_MODULE_5__.progressEventDecorator)(
+        responseContentLength,
+        (0,_helpers_progressEventReducer_js__WEBPACK_IMPORTED_MODULE_5__.progressEventReducer)((0,_helpers_progressEventReducer_js__WEBPACK_IMPORTED_MODULE_5__.asyncDecorator)(onDownloadProgress), true)
+      ) || [];
+
+      response = new Response(
+        (0,_helpers_trackStream_js__WEBPACK_IMPORTED_MODULE_6__.trackStream)(response.body, DEFAULT_CHUNK_SIZE, onProgress, () => {
+          flush && flush();
+          unsubscribe && unsubscribe();
+        }),
+        options
+      );
+    }
+
+    responseType = responseType || 'text';
+
+    let responseData = await resolvers[_utils_js__WEBPACK_IMPORTED_MODULE_1__["default"].findKey(resolvers, responseType) || 'text'](response, config);
+
+    !isStreamResponse && unsubscribe && unsubscribe();
+
+    return await new Promise((resolve, reject) => {
+      (0,_core_settle_js__WEBPACK_IMPORTED_MODULE_7__["default"])(resolve, reject, {
+        data: responseData,
+        headers: _core_AxiosHeaders_js__WEBPACK_IMPORTED_MODULE_8__["default"].from(response.headers),
+        status: response.status,
+        statusText: response.statusText,
+        config,
+        request
+      })
+    })
+  } catch (err) {
+    unsubscribe && unsubscribe();
+
+    if (err && err.name === 'TypeError' && /fetch/i.test(err.message)) {
+      throw Object.assign(
+        new _core_AxiosError_js__WEBPACK_IMPORTED_MODULE_2__["default"]('Network Error', _core_AxiosError_js__WEBPACK_IMPORTED_MODULE_2__["default"].ERR_NETWORK, config, request),
+        {
+          cause: err.cause || err
+        }
+      )
+    }
+
+    throw _core_AxiosError_js__WEBPACK_IMPORTED_MODULE_2__["default"].from(err, err && err.code, config, request);
   }
+}));
 
-  return target;
-};
 
-const adapter = getFetch();
-
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (adapter);
 
 
 /***/ }),
@@ -282427,8 +282101,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../utils.js */ "./node_modules/axios/lib/utils.js");
-/* harmony import */ var _core_settle_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../core/settle.js */ "./node_modules/axios/lib/core/settle.js");
+/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./../utils.js */ "./node_modules/axios/lib/utils.js");
+/* harmony import */ var _core_settle_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./../core/settle.js */ "./node_modules/axios/lib/core/settle.js");
 /* harmony import */ var _defaults_transitional_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../defaults/transitional.js */ "./node_modules/axios/lib/defaults/transitional.js");
 /* harmony import */ var _core_AxiosError_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../core/AxiosError.js */ "./node_modules/axios/lib/core/AxiosError.js");
 /* harmony import */ var _cancel_CanceledError_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../cancel/CanceledError.js */ "./node_modules/axios/lib/cancel/CanceledError.js");
@@ -282543,18 +282217,15 @@ const isXHRAdapterSupported = typeof XMLHttpRequest !== 'undefined';
     };
 
     // Handle low level network errors
-  request.onerror = function handleError(event) {
-       // Browsers deliver a ProgressEvent in XHR onerror
-       // (message may be empty; when present, surface it)
-       // See https://developer.mozilla.org/docs/Web/API/XMLHttpRequest/error_event
-       const msg = event && event.message ? event.message : 'Network Error';
-       const err = new _core_AxiosError_js__WEBPACK_IMPORTED_MODULE_3__["default"](msg, _core_AxiosError_js__WEBPACK_IMPORTED_MODULE_3__["default"].ERR_NETWORK, config, request);
-       // attach the underlying event for consumers who want details
-       err.event = event || null;
-       reject(err);
-       request = null;
+    request.onerror = function handleError() {
+      // Real errors are hidden from us by the browser
+      // onerror should only fire if it's a network error
+      reject(new _core_AxiosError_js__WEBPACK_IMPORTED_MODULE_3__["default"]('Network Error', _core_AxiosError_js__WEBPACK_IMPORTED_MODULE_3__["default"].ERR_NETWORK, config, request));
+
+      // Clean up request
+      request = null;
     };
-    
+
     // Handle timeout
     request.ontimeout = function handleTimeout() {
       let timeoutErrorMessage = _config.timeout ? 'timeout of ' + _config.timeout + 'ms exceeded' : 'timeout exceeded';
@@ -282925,26 +282596,30 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
 /* harmony import */ var _core_AxiosError_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../core/AxiosError.js */ "./node_modules/axios/lib/core/AxiosError.js");
+/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../utils.js */ "./node_modules/axios/lib/utils.js");
 
 
 
 
-class CanceledError extends _core_AxiosError_js__WEBPACK_IMPORTED_MODULE_0__["default"] {
-  /**
-   * A `CanceledError` is an object that is thrown when an operation is canceled.
-   *
-   * @param {string=} message The message.
-   * @param {Object=} config The config.
-   * @param {Object=} request The request.
-   *
-   * @returns {CanceledError} The created error.
-   */
-  constructor(message, config, request) {
-    super(message == null ? 'canceled' : message, _core_AxiosError_js__WEBPACK_IMPORTED_MODULE_0__["default"].ERR_CANCELED, config, request);
-    this.name = 'CanceledError';
-    this.__CANCEL__ = true;
-  }
+
+/**
+ * A `CanceledError` is an object that is thrown when an operation is canceled.
+ *
+ * @param {string=} message The message.
+ * @param {Object=} config The config.
+ * @param {Object=} request The request.
+ *
+ * @returns {CanceledError} The created error.
+ */
+function CanceledError(message, config, request) {
+  // eslint-disable-next-line no-eq-null,eqeqeq
+  _core_AxiosError_js__WEBPACK_IMPORTED_MODULE_0__["default"].call(this, message == null ? 'canceled' : message, _core_AxiosError_js__WEBPACK_IMPORTED_MODULE_0__["default"].ERR_CANCELED, config, request);
+  this.name = 'CanceledError';
 }
+
+_utils_js__WEBPACK_IMPORTED_MODULE_1__["default"].inherits(CanceledError, _core_AxiosError_js__WEBPACK_IMPORTED_MODULE_0__["default"], {
+  __CANCEL__: true
+});
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (CanceledError);
 
@@ -282982,7 +282657,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../utils.js */ "./node_modules/axios/lib/utils.js");
+/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./../utils.js */ "./node_modules/axios/lib/utils.js");
 /* harmony import */ var _helpers_buildURL_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../helpers/buildURL.js */ "./node_modules/axios/lib/helpers/buildURL.js");
 /* harmony import */ var _InterceptorManager_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./InterceptorManager.js */ "./node_modules/axios/lib/core/InterceptorManager.js");
 /* harmony import */ var _dispatchRequest_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./dispatchRequest.js */ "./node_modules/axios/lib/core/dispatchRequest.js");
@@ -283012,7 +282687,7 @@ const validators = _helpers_validator_js__WEBPACK_IMPORTED_MODULE_0__["default"]
  */
 class Axios {
   constructor(instanceConfig) {
-    this.defaults = instanceConfig || {};
+    this.defaults = instanceConfig;
     this.interceptors = {
       request: new _InterceptorManager_js__WEBPACK_IMPORTED_MODULE_1__["default"](),
       response: new _InterceptorManager_js__WEBPACK_IMPORTED_MODULE_1__["default"]()
@@ -283145,8 +282820,8 @@ class Axios {
 
     if (!synchronousRequestInterceptors) {
       const chain = [_dispatchRequest_js__WEBPACK_IMPORTED_MODULE_5__["default"].bind(this), undefined];
-      chain.unshift(...requestInterceptorChain);
-      chain.push(...responseInterceptorChain);
+      chain.unshift.apply(chain, requestInterceptorChain);
+      chain.push.apply(chain, responseInterceptorChain);
       len = chain.length;
 
       promise = Promise.resolve(config);
@@ -283161,6 +282836,8 @@ class Axios {
     len = requestInterceptorChain.length;
 
     let newConfig = config;
+
+    i = 0;
 
     while (i < len) {
       const onFulfilled = requestInterceptorChain[i++];
@@ -283250,73 +282927,103 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-class AxiosError extends Error {
-    static from(error, code, config, request, response, customProps) {
-        const axiosError = new AxiosError(error.message, code || error.code, config, request, response);
-        axiosError.cause = error;
-        axiosError.name = error.name;
-        customProps && Object.assign(axiosError, customProps);
-        return axiosError;
-    }
+/**
+ * Create an Error with the specified message, config, error code, request and response.
+ *
+ * @param {string} message The error message.
+ * @param {string} [code] The error code (for example, 'ECONNABORTED').
+ * @param {Object} [config] The config.
+ * @param {Object} [request] The request.
+ * @param {Object} [response] The response.
+ *
+ * @returns {Error} The created error.
+ */
+function AxiosError(message, code, config, request, response) {
+  Error.call(this);
 
-    /**
-     * Create an Error with the specified message, config, error code, request and response.
-     *
-     * @param {string} message The error message.
-     * @param {string} [code] The error code (for example, 'ECONNABORTED').
-     * @param {Object} [config] The config.
-     * @param {Object} [request] The request.
-     * @param {Object} [response] The response.
-     *
-     * @returns {Error} The created error.
-     */
-    constructor(message, code, config, request, response) {
-        super(message);
-        this.name = 'AxiosError';
-        this.isAxiosError = true;
-        code && (this.code = code);
-        config && (this.config = config);
-        request && (this.request = request);
-        if (response) {
-            this.response = response;
-            this.status = response.status;
-        }
-    }
+  if (Error.captureStackTrace) {
+    Error.captureStackTrace(this, this.constructor);
+  } else {
+    this.stack = (new Error()).stack;
+  }
 
-    toJSON() {
-        return {
-            // Standard
-            message: this.message,
-            name: this.name,
-            // Microsoft
-            description: this.description,
-            number: this.number,
-            // Mozilla
-            fileName: this.fileName,
-            lineNumber: this.lineNumber,
-            columnNumber: this.columnNumber,
-            stack: this.stack,
-            // Axios
-            config: _utils_js__WEBPACK_IMPORTED_MODULE_0__["default"].toJSONObject(this.config),
-            code: this.code,
-            status: this.status,
-        };
-    }
+  this.message = message;
+  this.name = 'AxiosError';
+  code && (this.code = code);
+  config && (this.config = config);
+  request && (this.request = request);
+  if (response) {
+    this.response = response;
+    this.status = response.status ? response.status : null;
+  }
 }
 
-// This can be changed to static properties as soon as the parser options in .eslint.cjs are updated.
-AxiosError.ERR_BAD_OPTION_VALUE = 'ERR_BAD_OPTION_VALUE';
-AxiosError.ERR_BAD_OPTION = 'ERR_BAD_OPTION';
-AxiosError.ECONNABORTED = 'ECONNABORTED';
-AxiosError.ETIMEDOUT = 'ETIMEDOUT';
-AxiosError.ERR_NETWORK = 'ERR_NETWORK';
-AxiosError.ERR_FR_TOO_MANY_REDIRECTS = 'ERR_FR_TOO_MANY_REDIRECTS';
-AxiosError.ERR_DEPRECATED = 'ERR_DEPRECATED';
-AxiosError.ERR_BAD_RESPONSE = 'ERR_BAD_RESPONSE';
-AxiosError.ERR_BAD_REQUEST = 'ERR_BAD_REQUEST';
-AxiosError.ERR_CANCELED = 'ERR_CANCELED';
-AxiosError.ERR_NOT_SUPPORT = 'ERR_NOT_SUPPORT';
-AxiosError.ERR_INVALID_URL = 'ERR_INVALID_URL';
+_utils_js__WEBPACK_IMPORTED_MODULE_0__["default"].inherits(AxiosError, Error, {
+  toJSON: function toJSON() {
+    return {
+      // Standard
+      message: this.message,
+      name: this.name,
+      // Microsoft
+      description: this.description,
+      number: this.number,
+      // Mozilla
+      fileName: this.fileName,
+      lineNumber: this.lineNumber,
+      columnNumber: this.columnNumber,
+      stack: this.stack,
+      // Axios
+      config: _utils_js__WEBPACK_IMPORTED_MODULE_0__["default"].toJSONObject(this.config),
+      code: this.code,
+      status: this.status
+    };
+  }
+});
+
+const prototype = AxiosError.prototype;
+const descriptors = {};
+
+[
+  'ERR_BAD_OPTION_VALUE',
+  'ERR_BAD_OPTION',
+  'ECONNABORTED',
+  'ETIMEDOUT',
+  'ERR_NETWORK',
+  'ERR_FR_TOO_MANY_REDIRECTS',
+  'ERR_DEPRECATED',
+  'ERR_BAD_RESPONSE',
+  'ERR_BAD_REQUEST',
+  'ERR_CANCELED',
+  'ERR_NOT_SUPPORT',
+  'ERR_INVALID_URL'
+// eslint-disable-next-line func-names
+].forEach(code => {
+  descriptors[code] = {value: code};
+});
+
+Object.defineProperties(AxiosError, descriptors);
+Object.defineProperty(prototype, 'isAxiosError', {value: true});
+
+// eslint-disable-next-line func-names
+AxiosError.from = (error, code, config, request, response, customProps) => {
+  const axiosError = Object.create(prototype);
+
+  _utils_js__WEBPACK_IMPORTED_MODULE_0__["default"].toFlatObject(error, axiosError, function filter(obj) {
+    return obj !== Error.prototype;
+  }, prop => {
+    return prop !== 'isAxiosError';
+  });
+
+  AxiosError.call(axiosError, error.message, code, config, request, response);
+
+  axiosError.cause = error;
+
+  axiosError.name = error.name;
+
+  customProps && Object.assign(axiosError, customProps);
+
+  return axiosError;
+};
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (AxiosError);
 
@@ -283438,18 +283145,10 @@ class AxiosHeaders {
       setHeaders(header, valueOrRewrite)
     } else if(_utils_js__WEBPACK_IMPORTED_MODULE_0__["default"].isString(header) && (header = header.trim()) && !isValidHeaderName(header)) {
       setHeaders((0,_helpers_parseHeaders_js__WEBPACK_IMPORTED_MODULE_1__["default"])(header), valueOrRewrite);
-    } else if (_utils_js__WEBPACK_IMPORTED_MODULE_0__["default"].isObject(header) && _utils_js__WEBPACK_IMPORTED_MODULE_0__["default"].isIterable(header)) {
-      let obj = {}, dest, key;
-      for (const entry of header) {
-        if (!_utils_js__WEBPACK_IMPORTED_MODULE_0__["default"].isArray(entry)) {
-          throw TypeError('Object iterator must return a key-value pair');
-        }
-
-        obj[key = entry[0]] = (dest = obj[key]) ?
-          (_utils_js__WEBPACK_IMPORTED_MODULE_0__["default"].isArray(dest) ? [...dest, entry[1]] : [dest, entry[1]]) : entry[1];
+    } else if (_utils_js__WEBPACK_IMPORTED_MODULE_0__["default"].isHeaders(header)) {
+      for (const [key, value] of header.entries()) {
+        setHeader(value, key, rewrite);
       }
-
-      setHeaders(obj, valueOrRewrite)
     } else {
       header != null && setHeader(valueOrRewrite, header, rewrite);
     }
@@ -283591,10 +283290,6 @@ class AxiosHeaders {
     return Object.entries(this.toJSON()).map(([header, value]) => header + ': ' + value).join('\n');
   }
 
-  getSetCookie() {
-    return this.get("set-cookie") || [];
-  }
-
   get [Symbol.toStringTag]() {
     return 'AxiosHeaders';
   }
@@ -283665,7 +283360,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../utils.js */ "./node_modules/axios/lib/utils.js");
+/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./../utils.js */ "./node_modules/axios/lib/utils.js");
 
 
 
@@ -283680,7 +283375,6 @@ class InterceptorManager {
    *
    * @param {Function} fulfilled The function to handle `then` for a `Promise`
    * @param {Function} rejected The function to handle `reject` for a `Promise`
-   * @param {Object} options The options for the interceptor, synchronous and runWhen
    *
    * @return {Number} An ID used to remove interceptor later
    */
@@ -283699,7 +283393,7 @@ class InterceptorManager {
    *
    * @param {Number} id The ID that was returned by `use`
    *
-   * @returns {void}
+   * @returns {Boolean} `true` if the interceptor was removed, `false` otherwise
    */
   eject(id) {
     if (this.handlers[id]) {
@@ -283846,7 +283540,7 @@ function dispatchRequest(config) {
     config.headers.setContentType('application/x-www-form-urlencoded', false);
   }
 
-  const adapter = _adapters_adapters_js__WEBPACK_IMPORTED_MODULE_3__["default"].getAdapter(config.adapter || _defaults_index_js__WEBPACK_IMPORTED_MODULE_4__["default"].adapter, config);
+  const adapter = _adapters_adapters_js__WEBPACK_IMPORTED_MODULE_3__["default"].getAdapter(config.adapter || _defaults_index_js__WEBPACK_IMPORTED_MODULE_4__["default"].adapter);
 
   return adapter(config).then(function onAdapterResolution(response) {
     throwIfCancellationRequested(config);
@@ -283919,7 +283613,7 @@ function mergeConfig(config1, config2) {
 
   function getMergedValue(target, source, prop, caseless) {
     if (_utils_js__WEBPACK_IMPORTED_MODULE_1__["default"].isPlainObject(target) && _utils_js__WEBPACK_IMPORTED_MODULE_1__["default"].isPlainObject(source)) {
-      return _utils_js__WEBPACK_IMPORTED_MODULE_1__["default"].merge.call({ caseless }, target, source);
+      return _utils_js__WEBPACK_IMPORTED_MODULE_1__["default"].merge.call({caseless}, target, source);
     } else if (_utils_js__WEBPACK_IMPORTED_MODULE_1__["default"].isPlainObject(source)) {
       return _utils_js__WEBPACK_IMPORTED_MODULE_1__["default"].merge({}, source);
     } else if (_utils_js__WEBPACK_IMPORTED_MODULE_1__["default"].isArray(source)) {
@@ -283928,11 +283622,12 @@ function mergeConfig(config1, config2) {
     return source;
   }
 
-  function mergeDeepProperties(a, b, prop, caseless) {
+  // eslint-disable-next-line consistent-return
+  function mergeDeepProperties(a, b, prop , caseless) {
     if (!_utils_js__WEBPACK_IMPORTED_MODULE_1__["default"].isUndefined(b)) {
-      return getMergedValue(a, b, prop, caseless);
+      return getMergedValue(a, b, prop , caseless);
     } else if (!_utils_js__WEBPACK_IMPORTED_MODULE_1__["default"].isUndefined(a)) {
-      return getMergedValue(undefined, a, prop, caseless);
+      return getMergedValue(undefined, a, prop , caseless);
     }
   }
 
@@ -283990,10 +283685,10 @@ function mergeConfig(config1, config2) {
     socketPath: defaultToConfig2,
     responseEncoding: defaultToConfig2,
     validateStatus: mergeDirectKeys,
-    headers: (a, b, prop) => mergeDeepProperties(headersToObject(a), headersToObject(b), prop, true)
+    headers: (a, b , prop) => mergeDeepProperties(headersToObject(a), headersToObject(b),prop, true)
   };
 
-  _utils_js__WEBPACK_IMPORTED_MODULE_1__["default"].forEach(Object.keys({ ...config1, ...config2 }), function computeConfigValue(prop) {
+  _utils_js__WEBPACK_IMPORTED_MODULE_1__["default"].forEach(Object.keys(Object.assign({}, config1, config2)), function computeConfigValue(prop) {
     const merge = mergeMap[prop] || mergeDeepProperties;
     const configValue = merge(config1[prop], config2[prop], prop);
     (_utils_js__WEBPACK_IMPORTED_MODULE_1__["default"].isUndefined(configValue) && merge !== mergeDirectKeys) || (config[prop] = configValue);
@@ -284059,7 +283754,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ transformData)
 /* harmony export */ });
-/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../utils.js */ "./node_modules/axios/lib/utils.js");
+/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./../utils.js */ "./node_modules/axios/lib/utils.js");
 /* harmony import */ var _defaults_index_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../defaults/index.js */ "./node_modules/axios/lib/defaults/index.js");
 /* harmony import */ var _core_AxiosHeaders_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../core/AxiosHeaders.js */ "./node_modules/axios/lib/core/AxiosHeaders.js");
 
@@ -284225,7 +283920,7 @@ const defaults = {
       const strictJSONParsing = !silentJSONParsing && JSONRequested;
 
       try {
-        return JSON.parse(data, this.parseReviver);
+        return JSON.parse(data);
       } catch (e) {
         if (strictJSONParsing) {
           if (e.name === 'SyntaxError') {
@@ -284310,7 +284005,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   VERSION: () => (/* binding */ VERSION)
 /* harmony export */ });
-const VERSION = "1.13.4";
+const VERSION = "1.8.4";
 
 /***/ }),
 
@@ -284463,12 +284158,6 @@ const HttpStatusCode = {
   LoopDetected: 508,
   NotExtended: 510,
   NetworkAuthenticationRequired: 511,
-  WebServerIsDown: 521,
-  ConnectionTimedOut: 522,
-  OriginIsUnreachable: 523,
-  TimeoutOccurred: 524,
-  SslHandshakeFailed: 525,
-  InvalidSslCertificate: 526,
 };
 
 Object.entries(HttpStatusCode).forEach(([key, value]) => {
@@ -284493,13 +284182,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 
 
-/**
- * Create a bound version of a function with a specified `this` context
- *
- * @param {Function} fn - The function to bind
- * @param {*} thisArg - The value to be passed as the `this` parameter
- * @returns {Function} A new function that will call the original function with the specified `this` context
- */
 function bind(fn, thisArg) {
   return function wrap() {
     return fn.apply(thisArg, arguments);
@@ -284540,7 +284222,9 @@ function encode(val) {
     replace(/%3A/gi, ':').
     replace(/%24/g, '$').
     replace(/%2C/gi, ',').
-    replace(/%20/g, '+');
+    replace(/%20/g, '+').
+    replace(/%5B/gi, '[').
+    replace(/%5D/gi, ']');
 }
 
 /**
@@ -284553,26 +284237,29 @@ function encode(val) {
  * @returns {string} The formatted url
  */
 function buildURL(url, params, options) {
+  /*eslint no-param-reassign:0*/
   if (!params) {
     return url;
   }
-
+  
   const _encode = options && options.encode || encode;
 
-  const _options = _utils_js__WEBPACK_IMPORTED_MODULE_0__["default"].isFunction(options) ? {
-    serialize: options
-  } : options;
+  if (_utils_js__WEBPACK_IMPORTED_MODULE_0__["default"].isFunction(options)) {
+    options = {
+      serialize: options
+    };
+  } 
 
-  const serializeFn = _options && _options.serialize;
+  const serializeFn = options && options.serialize;
 
   let serializedParams;
 
   if (serializeFn) {
-    serializedParams = serializeFn(params, _options);
+    serializedParams = serializeFn(params, options);
   } else {
     serializedParams = _utils_js__WEBPACK_IMPORTED_MODULE_0__["default"].isURLSearchParams(params) ?
       params.toString() :
-      new _helpers_AxiosURLSearchParams_js__WEBPACK_IMPORTED_MODULE_1__["default"](params, _options).toString(_encode);
+      new _helpers_AxiosURLSearchParams_js__WEBPACK_IMPORTED_MODULE_1__["default"](params, options).toString(_encode);
   }
 
   if (serializedParams) {
@@ -284657,7 +284344,7 @@ const composeSignals = (signals, timeout) => {
 
     let timer = timeout && setTimeout(() => {
       timer = null;
-      onabort(new _core_AxiosError_js__WEBPACK_IMPORTED_MODULE_0__["default"](`timeout of ${timeout}ms exceeded`, _core_AxiosError_js__WEBPACK_IMPORTED_MODULE_0__["default"].ETIMEDOUT))
+      onabort(new _core_AxiosError_js__WEBPACK_IMPORTED_MODULE_0__["default"](`timeout ${timeout} of ms exceeded`, _core_AxiosError_js__WEBPACK_IMPORTED_MODULE_0__["default"].ETIMEDOUT))
     }, timeout)
 
     const unsubscribe = () => {
@@ -284697,7 +284384,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../utils.js */ "./node_modules/axios/lib/utils.js");
+/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./../utils.js */ "./node_modules/axios/lib/utils.js");
 /* harmony import */ var _platform_index_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../platform/index.js */ "./node_modules/axios/lib/platform/index.js");
 
 
@@ -284706,38 +284393,27 @@ __webpack_require__.r(__webpack_exports__);
 
   // Standard browser envs support document.cookie
   {
-    write(name, value, expires, path, domain, secure, sameSite) {
-      if (typeof document === 'undefined') return;
+    write(name, value, expires, path, domain, secure) {
+      const cookie = [name + '=' + encodeURIComponent(value)];
 
-      const cookie = [`${name}=${encodeURIComponent(value)}`];
+      _utils_js__WEBPACK_IMPORTED_MODULE_1__["default"].isNumber(expires) && cookie.push('expires=' + new Date(expires).toGMTString());
 
-      if (_utils_js__WEBPACK_IMPORTED_MODULE_1__["default"].isNumber(expires)) {
-        cookie.push(`expires=${new Date(expires).toUTCString()}`);
-      }
-      if (_utils_js__WEBPACK_IMPORTED_MODULE_1__["default"].isString(path)) {
-        cookie.push(`path=${path}`);
-      }
-      if (_utils_js__WEBPACK_IMPORTED_MODULE_1__["default"].isString(domain)) {
-        cookie.push(`domain=${domain}`);
-      }
-      if (secure === true) {
-        cookie.push('secure');
-      }
-      if (_utils_js__WEBPACK_IMPORTED_MODULE_1__["default"].isString(sameSite)) {
-        cookie.push(`SameSite=${sameSite}`);
-      }
+      _utils_js__WEBPACK_IMPORTED_MODULE_1__["default"].isString(path) && cookie.push('path=' + path);
+
+      _utils_js__WEBPACK_IMPORTED_MODULE_1__["default"].isString(domain) && cookie.push('domain=' + domain);
+
+      secure === true && cookie.push('secure');
 
       document.cookie = cookie.join('; ');
     },
 
     read(name) {
-      if (typeof document === 'undefined') return null;
-      const match = document.cookie.match(new RegExp('(?:^|; )' + name + '=([^;]*)'));
-      return match ? decodeURIComponent(match[1]) : null;
+      const match = document.cookie.match(new RegExp('(^|;\\s*)(' + name + ')=([^;]*)'));
+      return (match ? decodeURIComponent(match[3]) : null);
     },
 
     remove(name) {
-      this.write(name, '', Date.now() - 86400000, '/');
+      this.write(name, '', Date.now() - 86400000);
     }
   }
 
@@ -284908,7 +284584,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ isAxiosError)
 /* harmony export */ });
-/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../utils.js */ "./node_modules/axios/lib/utils.js");
+/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./../utils.js */ "./node_modules/axios/lib/utils.js");
 
 
 
@@ -284985,7 +284661,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../utils.js */ "./node_modules/axios/lib/utils.js");
+/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./../utils.js */ "./node_modules/axios/lib/utils.js");
 
 
 
@@ -285161,7 +284837,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ((config) => {
   const newConfig = (0,_core_mergeConfig_js__WEBPACK_IMPORTED_MODULE_0__["default"])({}, config);
 
-  let { data, withXSRFToken, xsrfHeaderName, xsrfCookieName, headers, auth } = newConfig;
+  let {data, withXSRFToken, xsrfHeaderName, xsrfCookieName, headers, auth} = newConfig;
 
   newConfig.headers = headers = _core_AxiosHeaders_js__WEBPACK_IMPORTED_MODULE_1__["default"].from(headers);
 
@@ -285174,21 +284850,17 @@ __webpack_require__.r(__webpack_exports__);
     );
   }
 
+  let contentType;
+
   if (_utils_js__WEBPACK_IMPORTED_MODULE_4__["default"].isFormData(data)) {
     if (_platform_index_js__WEBPACK_IMPORTED_MODULE_5__["default"].hasStandardBrowserEnv || _platform_index_js__WEBPACK_IMPORTED_MODULE_5__["default"].hasStandardBrowserWebWorkerEnv) {
-      headers.setContentType(undefined); // browser handles it
-    } else if (_utils_js__WEBPACK_IMPORTED_MODULE_4__["default"].isFunction(data.getHeaders)) {
-      // Node.js FormData (like form-data package)
-      const formHeaders = data.getHeaders();
-      // Only set safe headers to avoid overwriting security headers
-      const allowedHeaders = ['content-type', 'content-length'];
-      Object.entries(formHeaders).forEach(([key, val]) => {
-        if (allowedHeaders.includes(key.toLowerCase())) {
-          headers.set(key, val);
-        }
-      });
+      headers.setContentType(undefined); // Let the browser set it
+    } else if ((contentType = headers.getContentType()) !== false) {
+      // fix semicolon duplication issue for ReactNative FormData implementation
+      const [type, ...tokens] = contentType ? contentType.split(';').map(token => token.trim()).filter(Boolean) : [];
+      headers.setContentType([type || 'multipart/form-data', ...tokens].join('; '));
     }
-  }  
+  }
 
   // Add xsrf header
   // This is only done if running in a standard browser environment.
@@ -285304,7 +284976,7 @@ __webpack_require__.r(__webpack_exports__);
  *
  *  ```js
  *  function f(x, y, z) {}
- *  const args = [1, 2, 3];
+ *  var args = [1, 2, 3];
  *  f.apply(null, args);
  *  ```
  *
@@ -285357,7 +285029,7 @@ function throttle(fn, freq) {
       clearTimeout(timer);
       timer = null;
     }
-    fn(...args);
+    fn.apply(null, args);
   }
 
   const throttled = (...args) => {
@@ -285523,10 +285195,6 @@ function toFormData(obj, formData, options) {
       return value.toISOString();
     }
 
-    if (_utils_js__WEBPACK_IMPORTED_MODULE_0__["default"].isBoolean(value)) {
-      return value.toString();
-    }
-
     if (!useBlob && _utils_js__WEBPACK_IMPORTED_MODULE_0__["default"].isBlob(value)) {
       throw new _core_AxiosError_js__WEBPACK_IMPORTED_MODULE_2__["default"]('Blob is not supported. Use a Buffer instead.');
     }
@@ -285649,7 +285317,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 function toURLEncodedForm(data, options) {
-  return (0,_toFormData_js__WEBPACK_IMPORTED_MODULE_0__["default"])(data, new _platform_index_js__WEBPACK_IMPORTED_MODULE_1__["default"].classes.URLSearchParams(), {
+  return (0,_toFormData_js__WEBPACK_IMPORTED_MODULE_0__["default"])(data, new _platform_index_js__WEBPACK_IMPORTED_MODULE_1__["default"].classes.URLSearchParams(), Object.assign({
     visitor: function(value, key, path, helpers) {
       if (_platform_index_js__WEBPACK_IMPORTED_MODULE_1__["default"].isNode && _utils_js__WEBPACK_IMPORTED_MODULE_2__["default"].isBuffer(value)) {
         this.append(key, value.toString('base64'));
@@ -285657,9 +285325,8 @@ function toURLEncodedForm(data, options) {
       }
 
       return helpers.defaultVisitor.apply(this, arguments);
-    },
-    ...options
-  });
+    }
+  }, options));
 }
 
 
@@ -286081,7 +285748,6 @@ __webpack_require__.r(__webpack_exports__);
 
 const {toString} = Object.prototype;
 const {getPrototypeOf} = Object;
-const {iterator, toStringTag} = Symbol;
 
 const kindOf = (cache => thing => {
     const str = toString.call(thing);
@@ -286208,28 +285874,7 @@ const isPlainObject = (val) => {
   }
 
   const prototype = getPrototypeOf(val);
-  return (prototype === null || prototype === Object.prototype || Object.getPrototypeOf(prototype) === null) && !(toStringTag in val) && !(iterator in val);
-}
-
-/**
- * Determine if a value is an empty object (safely handles Buffers)
- *
- * @param {*} val The value to test
- *
- * @returns {boolean} True if value is an empty object, otherwise false
- */
-const isEmptyObject = (val) => {
-  // Early return for non-objects or Buffers to prevent RangeError
-  if (!isObject(val) || isBuffer(val)) {
-    return false;
-  }
-
-  try {
-    return Object.keys(val).length === 0 && Object.getPrototypeOf(val) === Object.prototype;
-  } catch (e) {
-    // Fallback for any other objects that might cause RangeError with Object.keys()
-    return false;
-  }
+  return (prototype === null || prototype === Object.prototype || Object.getPrototypeOf(prototype) === null) && !(Symbol.toStringTag in val) && !(Symbol.iterator in val);
 }
 
 /**
@@ -286327,11 +285972,10 @@ const trim = (str) => str.trim ?
  * If 'obj' is an Object callback will be called passing
  * the value, key, and complete object for each property.
  *
- * @param {Object|Array<unknown>} obj The object to iterate
+ * @param {Object|Array} obj The object to iterate
  * @param {Function} fn The callback to invoke for each item
  *
- * @param {Object} [options]
- * @param {Boolean} [options.allOwnKeys = false]
+ * @param {Boolean} [allOwnKeys = false]
  * @returns {any}
  */
 function forEach(obj, fn, {allOwnKeys = false} = {}) {
@@ -286355,11 +285999,6 @@ function forEach(obj, fn, {allOwnKeys = false} = {}) {
       fn.call(null, obj[i], i, obj);
     }
   } else {
-    // Buffer check
-    if (isBuffer(obj)) {
-      return;
-    }
-
     // Iterate over object keys
     const keys = allOwnKeys ? Object.getOwnPropertyNames(obj) : Object.keys(obj);
     const len = keys.length;
@@ -286373,10 +286012,6 @@ function forEach(obj, fn, {allOwnKeys = false} = {}) {
 }
 
 function findKey(obj, key) {
-  if (isBuffer(obj)){
-    return null;
-  }
-
   key = key.toLowerCase();
   const keys = Object.keys(obj);
   let i = keys.length;
@@ -286408,7 +286043,7 @@ const isContextDefined = (context) => !isUndefined(context) && context !== _glob
  * Example:
  *
  * ```js
- * const result = merge({foo: 123}, {foo: 456});
+ * var result = merge({foo: 123}, {foo: 456});
  * console.log(result.foo); // outputs 456
  * ```
  *
@@ -286417,7 +286052,7 @@ const isContextDefined = (context) => !isUndefined(context) && context !== _glob
  * @returns {Object} Result of all merge properties
  */
 function merge(/* obj1, obj2, obj3, ... */) {
-  const {caseless, skipUndefined} = isContextDefined(this) && this || {};
+  const {caseless} = isContextDefined(this) && this || {};
   const result = {};
   const assignValue = (val, key) => {
     const targetKey = caseless && findKey(result, key) || key;
@@ -286427,7 +286062,7 @@ function merge(/* obj1, obj2, obj3, ... */) {
       result[targetKey] = merge({}, val);
     } else if (isArray(val)) {
       result[targetKey] = val.slice();
-    } else if (!skipUndefined || !isUndefined(val)) {
+    } else {
       result[targetKey] = val;
     }
   }
@@ -286445,26 +286080,15 @@ function merge(/* obj1, obj2, obj3, ... */) {
  * @param {Object} b The object to copy properties from
  * @param {Object} thisArg The object to bind function to
  *
- * @param {Object} [options]
- * @param {Boolean} [options.allOwnKeys]
+ * @param {Boolean} [allOwnKeys]
  * @returns {Object} The resulting value of object a
  */
 const extend = (a, b, thisArg, {allOwnKeys}= {}) => {
   forEach(b, (val, key) => {
     if (thisArg && isFunction(val)) {
-      Object.defineProperty(a, key, {
-        value: (0,_helpers_bind_js__WEBPACK_IMPORTED_MODULE_0__["default"])(val, thisArg),
-        writable: true,
-        enumerable: true,
-        configurable: true
-      });
+      a[key] = (0,_helpers_bind_js__WEBPACK_IMPORTED_MODULE_0__["default"])(val, thisArg);
     } else {
-      Object.defineProperty(a, key, {
-        value: val,
-        writable: true,
-        enumerable: true,
-        configurable: true
-      });
+      a[key] = val;
     }
   }, {allOwnKeys});
   return a;
@@ -286495,12 +286119,7 @@ const stripBOM = (content) => {
  */
 const inherits = (constructor, superConstructor, props, descriptors) => {
   constructor.prototype = Object.create(superConstructor.prototype, descriptors);
-  Object.defineProperty(constructor.prototype, 'constructor', {
-    value: constructor,
-    writable: true,
-    enumerable: false,
-    configurable: true
-  });
+  constructor.prototype.constructor = constructor;
   Object.defineProperty(constructor, 'super', {
     value: superConstructor.prototype
   });
@@ -286606,13 +286225,13 @@ const isTypedArray = (TypedArray => {
  * @returns {void}
  */
 const forEachEntry = (obj, fn) => {
-  const generator = obj && obj[iterator];
+  const generator = obj && obj[Symbol.iterator];
 
-  const _iterator = generator.call(obj);
+  const iterator = generator.call(obj);
 
   let result;
 
-  while ((result = _iterator.next()) && !result.done) {
+  while ((result = iterator.next()) && !result.done) {
     const pair = result.value;
     fn.call(obj, pair[0], pair[1]);
   }
@@ -286725,8 +286344,6 @@ const toFiniteNumber = (value, defaultValue) => {
   return value != null && Number.isFinite(value = +value) ? value : defaultValue;
 }
 
-
-
 /**
  * If the thing is a FormData object, return true, otherwise return false.
  *
@@ -286735,7 +286352,7 @@ const toFiniteNumber = (value, defaultValue) => {
  * @returns {boolean}
  */
 function isSpecCompliantForm(thing) {
-  return !!(thing && isFunction(thing.append) && thing[toStringTag] === 'FormData' && thing[iterator]);
+  return !!(thing && isFunction(thing.append) && thing[Symbol.toStringTag] === 'FormData' && thing[Symbol.iterator]);
 }
 
 const toJSONObject = (obj) => {
@@ -286746,11 +286363,6 @@ const toJSONObject = (obj) => {
     if (isObject(source)) {
       if (stack.indexOf(source) >= 0) {
         return;
-      }
-
-      //Buffer check
-      if (isBuffer(source)) {
-        return source;
       }
 
       if(!('toJSON' in source)) {
@@ -286809,10 +286421,6 @@ const asap = typeof queueMicrotask !== 'undefined' ?
 
 // *********************
 
-
-const isIterable = (thing) => thing != null && isFunction(thing[iterator]);
-
-
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   isArray,
   isArrayBuffer,
@@ -286824,7 +286432,6 @@ const isIterable = (thing) => thing != null && isFunction(thing[iterator]);
   isBoolean,
   isObject,
   isPlainObject,
-  isEmptyObject,
   isReadableStream,
   isRequest,
   isResponse,
@@ -286869,8 +286476,7 @@ const isIterable = (thing) => thing != null && isFunction(thing[iterator]);
   isAsyncFn,
   isThenable,
   setImmediate: _setImmediate,
-  asap,
-  isIterable
+  asap
 });
 
 
