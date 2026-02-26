@@ -624,7 +624,7 @@ listarPerimsoxyz() {
                 axios.get(url)
                 .then(function(response){
                     var respuesta = response.data;
-                    console.log(respuesta);
+              
                     me.pagination = respuesta.pagination;
                     me.arrayInicio = respuesta.resultados.data;
                  
@@ -661,10 +661,7 @@ listarPerimsoxyz() {
 
         registrar(){
             let me =this;
-            console.log(me.arrayProductoLineaIngreso.length);
-            console.log(me.productosSeleccionados.length);
-            console.log(me.peridoSelect);
-            console.log(me.productosSeleccionados);
+        
             if (me.arrayProductoLineaIngreso.length==me.productosSeleccionados.length) {
               
                    me.isSubmitting=true;
@@ -681,7 +678,7 @@ listarPerimsoxyz() {
                         me.cerrarModal("registrar");
                           me.isSubmitting=false;
                           var respuesta = response.data;   
-                          console.log(respuesta);                      
+                                        
                                 if (respuesta===0) {
                                      Swal.fire("Se guardo correctamente.","Haga click en Ok","success",);
                                 }else{
@@ -744,7 +741,7 @@ listarPerimsoxyz() {
                                 dato:dato,
                             })
                             .then(function (response) {  
-                                console.log(response.data);
+                     
                                                         
                                 swalWithBootstrapButtons.fire(
                                     estado_2+"!",
@@ -772,18 +769,18 @@ listarPerimsoxyz() {
 
         listarProducto(id_linea){
             let me = this;  
-            console.log(me.peridoSelect);      
+              
             var url = "/inventario-periodo/listarProducto?id_linea="+id_linea+"&id_tienda="+me.id_tienda+"&id_almacen="+me.id_almacen;
             axios
                 .get(url)
                 .then(function (response) {
                     var respuesta = response.data;
                     me.arrayProductoLineaIngreso=respuesta;
-                    console.log(respuesta);                 
+                                 
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
+                
                 });
         },
 
@@ -796,15 +793,14 @@ listarPerimsoxyz() {
                 .then(function (response) {
                     var respuesta = response.data;
                     me.arrayProductoDetalle=respuesta;
-                    console.log("****");
-                    console.log(me.arrayProductoDetalle);
+              
                     if (dato==1) {
                         me.descargaPDF(me.arrayProductoDetalle);
                     }                 
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
+           
                 });
         },
 
@@ -818,11 +814,11 @@ listarPerimsoxyz() {
                 .then(function (response) {
                     var respuesta = response.data;
                     me.arrayLinea = respuesta;
-                    console.log(me.arrayLinea);                 
+                              
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
+               
                 });
         },
         
@@ -835,11 +831,11 @@ listarPerimsoxyz() {
                 .then(function (response) {
                     var respuesta = response.data;
                     me.arraySucursal = respuesta;
-                    console.log(me.arraySucursal);                 
+                                
                 })
                 .catch(function (error) {
                     error401(error);
-                    console.log(error);
+              
                 });
         },
 
@@ -901,7 +897,7 @@ if (registro) {
                     break;
                 }
                 case "ver":{
-                console.log(data);
+              
                 me.showModal_2 = true;
                 me.tituloModal = "Ver detalle";
 

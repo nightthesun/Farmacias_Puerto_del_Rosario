@@ -83,6 +83,7 @@ createApp ({
     .component('auto-gestion-stock-component', require('./components/inventario/AutoGestionStockComponent.vue').default)  
     .component('auto-ttr-component', require('./components/inventario/AutoProcesoComponent.vue').default)      
     .component('invetario-inicial-component', require('./components/inventario/InvetarioInicialComponent.vue').default)    
+    .component('gestion-inventario-periodo-component', require('./components/inventario/GestionInventarioPeriodoComponent.vue').default)  
 
     //Logistica
     .component('vehiculo-component', require('./components/logistica/VehiculoComponent.vue').default)
