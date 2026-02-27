@@ -99,7 +99,7 @@ class AdmVentanaModuloSeeder extends Seeder
         DB::table('adm__ventana_modulos')->insert(['codventana'=>'907','idmodulo'=>$inv->id,'nombre'=>'Auto GestioStock','template'=>'auto-gestion-stock-component']);
         DB::table('adm__ventana_modulos')->insert(['codventana'=>'908','idmodulo'=>$inv->id,'nombre'=>'Auto Proceso T.T.R.','template'=>'auto-ttr-component']);
         DB::table('adm__ventana_modulos')->insert(['codventana'=>'909','idmodulo'=>$inv->id,'nombre'=>'Inventario inicial','template'=>'invetario-inicial-component']);
-
+DB::table('adm__ventana_modulos')->insert(['codventana'=>'910','idmodulo'=>$inv->id,'nombre'=>'Gestión I.P.','template'=>'gestion-inventario-periodo-component']);
         //logistica 1000
         DB::table('adm__ventana_modulos')->insert(['codventana'=>'1001','idmodulo'=>$log->id,'nombre'=>'Vehiculos','template'=>'vehiculo-component']);
         DB::table('adm__ventana_modulos')->insert(['codventana'=>'1002','idmodulo'=>$log->id,'nombre'=>'Traslados','template'=>'traslado-component']);
