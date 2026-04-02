@@ -346,7 +346,8 @@ class InvAjustePositivoController extends Controller
     
       $productos = DB::table('prod__productos as pp')
       ->join('alm__ingreso_producto as ai', 'pp.id', '=', 'ai.id_prod_producto')
-      ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
+     
+      
       ->leftJoin('prod__dispensers as pd_1', 'pd_1.id', '=', 'pp.iddispenserprimario')
       ->leftJoin('prod__dispensers as pd_2', 'pd_2.id', '=', 'pp.iddispensersecundario')
       ->leftJoin('prod__dispensers as pd_3', 'pd_3.id', '=', 'pp.iddispenserterciario')
@@ -356,6 +357,10 @@ class InvAjustePositivoController extends Controller
       ->join('alm__almacens as aa', 'aa.id', '=', 'ai.idalmacen')
       ->join('adm__sucursals as ass', 'ass.id', '=', 'aa.idsucursal')
       ->join('prod__lineas as l', 'l.id', '=', 'pp.idlinea')
+        ->leftJoin('inv__gestion_inventario_bloqueo_sucursal as iii', function($join) {
+    $join->on('iii.id_linea', '=', 'l.id')
+         ->on('iii.id_sucursal', '=', 'aa.idsucursal');
+})
       ->when($request->tipo == 1, function ($query) use ($cod,$where_1) {
         $query->where('aa.codigo','=', $cod)
               ->where('pp.idrubro','=',1)
@@ -384,6 +389,7 @@ class InvAjustePositivoController extends Controller
         'pp.cantidadsecundario as cantidad_dispenser_s',
         'pp.cantidadterciario as cantidad_dispenser_t',
         'l.nombre as nombre_linea',
+        'iii.activo as activo_blo',
         'pd_1.nombre as nombre_dispenser_1',
         'pd_2.nombre as nombre_dispenser_2',
         'pd_3.nombre as nombre_dispenser_3',
@@ -406,7 +412,7 @@ class InvAjustePositivoController extends Controller
 
   $tiendas = DB::table('prod__productos as pp')
   ->join('tda__ingreso_productos as ti', 'pp.id', '=', 'ti.id_prod_producto')
-  ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
+
   ->leftJoin('prod__dispensers as pd_1', 'pd_1.id', '=', 'pp.iddispenserprimario')
   ->leftJoin('prod__dispensers as pd_2', 'pd_2.id', '=', 'pp.iddispensersecundario')
   ->leftJoin('prod__dispensers as pd_3', 'pd_3.id', '=', 'pp.iddispenserterciario')
@@ -415,7 +421,13 @@ class InvAjustePositivoController extends Controller
   ->leftJoin('prod__forma_farmaceuticas as ff_3', 'ff_3.id', '=', 'pp.idformafarmaceuticaterciario')
   ->join('adm__sucursals as ass', 'ass.id', '=', 'ti.idtienda')
   ->join('prod__lineas as l', 'l.id', '=', 'pp.idlinea')
+ 
+
   ->join('tda__tiendas as tt', 'tt.id', '=', 'ti.idtienda')
+    ->leftJoin('inv__gestion_inventario_bloqueo_sucursal as iii', function($join) {
+    $join->on('iii.id_linea', '=', 'l.id')
+         ->on('iii.id_sucursal', '=', 'tt.idsucursal');
+})
   ->when($request->tipo == 1, function ($query) use ($cod,$where_2) {
     $query->where('tt.codigo', '=' ,$cod)
           ->whereRaw($where_2)
@@ -444,6 +456,7 @@ class InvAjustePositivoController extends Controller
         'pp.cantidadsecundario as cantidad_dispenser_s',
         'pp.cantidadterciario as cantidad_dispenser_t',
         'l.nombre as nombre_linea',
+        'iii.activo as activo_blo',
         'pd_1.nombre as nombre_dispenser_1',
         'pd_2.nombre as nombre_dispenser_2',
         'pd_3.nombre as nombre_dispenser_3',
@@ -453,6 +466,7 @@ class InvAjustePositivoController extends Controller
         'ass.id AS id_sucursal',
         'ass.razon_social as razon_social',
         'ti.idtienda as id_tienda',
+        
         DB::raw('null as id_almacen'),
         DB::raw("
         CASE

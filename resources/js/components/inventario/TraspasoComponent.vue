@@ -399,7 +399,10 @@
                                     </div>   
                                   
                                 <div class="form-group col-sm-4" v-if="validarBoton===1 &&tipoAccion==1">
-                                    <strong>Cantidad existente: <span>{{ cantidadProductoLineaIngreso }}</span></strong>
+                                    <strong>Cantidad existente: 
+                                        <span v-if="selected.activo_blo==null">???</span>
+                                        <span v-else>{{ cantidadProductoLineaIngreso }}</span>
+                                    </strong>
    
                                 </div>
 
@@ -1021,10 +1024,11 @@ sucursalSeleccionadaDestino: function (newValue) {
         });
 },
 //--------------------------------------------------------------  
-nameWithLang ({leyenda,lote,fecha_ingreso,fecha_vencimiento,stock_ingreso}) {
-            
-            return `${leyenda} Lote: ${lote} FI: ${fecha_ingreso}  FV: ${fecha_vencimiento} Stock: ${stock_ingreso}`
-          },
+
+
+          nameWithLang ({codigo_producto, leyenda, fecha_ingreso, lote, fecha_vencimiento, stock_ingreso, activo_blo}) {
+    return `Cod: ${codigo_producto} ${leyenda} FI: ${fecha_ingreso} Lote: ${lote} FV: ${fecha_vencimiento} Stock: ${activo_blo === 1 ? '???' : stock_ingreso}`;
+},
 
           validarNew(newValue){
             this.validarBoton=1;

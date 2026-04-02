@@ -688,6 +688,10 @@ class InvTraspasoController extends Controller
        ->join('alm__almacens as aa', 'aa.id', '=', 'ai.idalmacen')
        ->join('adm__sucursals as ass', 'ass.id', '=', 'aa.idsucursal')
        ->join('prod__lineas as l', 'l.id', '=', 'pp.idlinea')
+      ->leftJoin('inv__gestion_inventario_bloqueo_sucursal as iii', function($join) {
+    $join->on('iii.id_linea', '=', 'l.id')
+         ->on('iii.id_sucursal', '=', 'aa.idsucursal');
+})
        ->when($request->tipo == 1, function ($query) use ($cod) {
         $query->where('ai.stock_ingreso', '>', 0)
               ->where('aa.codigo', '=',$cod)
@@ -718,6 +722,7 @@ class InvTraspasoController extends Controller
          'pp.cantidadsecundario as cantidad_dispenser_s',
          'pp.cantidadterciario as cantidad_dispenser_t',
          'l.nombre as nombre_linea',
+         'iii.activo as activo_blo',
          'pd_1.nombre as nombre_dispenser_1',
          'pd_2.nombre as nombre_dispenser_2',
          'pd_3.nombre as nombre_dispenser_3',
@@ -752,7 +757,12 @@ class InvTraspasoController extends Controller
    ->leftJoin('prod__forma_farmaceuticas as ff_3', 'ff_3.id', '=', 'pp.idformafarmaceuticaterciario')
    ->join('adm__sucursals as ass', 'ass.id', '=', 'ti.idtienda')
    ->join('prod__lineas as l', 'l.id', '=', 'pp.idlinea')
+
    ->join('tda__tiendas as tt', 'tt.id', '=', 'ti.idtienda')
+     ->leftJoin('inv__gestion_inventario_bloqueo_sucursal as iii', function($join) {
+    $join->on('iii.id_linea', '=', 'l.id')
+         ->on('iii.id_sucursal', '=', 'tt.idsucursal');
+})
    ->when($request->tipo == 1, function ($query) use ($cod) {
     $query->where('ti.stock_ingreso', '>', 0)
           ->where('tt.codigo','=', $cod)
@@ -782,6 +792,7 @@ class InvTraspasoController extends Controller
          'pp.cantidadsecundario as cantidad_dispenser_s',
          'pp.cantidadterciario as cantidad_dispenser_t',
          'l.nombre as nombre_linea',
+         'iii.activo as activo_blo',
          'pd_1.nombre as nombre_dispenser_1',
          'pd_2.nombre as nombre_dispenser_2',
          'pd_3.nombre as nombre_dispenser_3',

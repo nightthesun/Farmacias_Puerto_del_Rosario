@@ -129,6 +129,9 @@
                                 <i class="icon-check"></i>
                                 </button>
                             </div>
+                             <button type="button" class="btn btn-primary btn-sm" @click="abrirModal('show',ingresoProducto);"  style="margin-right: 5px;">
+                                <i class="fa fa-file-text-o" aria-hidden="true"></i>
+                                </button> 
                             </div>
                            
                         </td>
@@ -276,13 +279,36 @@
                                     <input type="text" class="form-control" placeholder="Registro Sanitario" v-model="registrosanitario" v-on:focus="selectAll" onkeypress="return (event.charCode !=8 && event.charCode == 0 || (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 45 || event.charCode == 13 || event.charCode == 32 )">
                                     <span  v-if="registrosanitario==''" class="error">Debe Ingresar el Registro Sanitario</span>
                                 </div>
+                                <div class="form-group col-sm-4" v-if="selected != null">
+                                    <strong>Codigo de Barras:   <select v-model="selectCodigoBarrar" class="form-control">
+                                        <option value="0" disabled>Seleccionar...</option>
+                                        <option value="1" >Codigo personalizado</option>
+                                        <option value="2" >Codigo de producto</option>
+                                    </select></strong>
+                                    <input type="text" class="form-control" placeholder="Escriba el codigo digital" :disabled="selectCodigoBarrar=='0'" v-model="imprimirCodigo">                                    
+                               <span  v-if="selectCodigoBarrar=='0'" class="error">Debe ingrese el codigo para QR y codigo de barras</span>
+                                </div>
                             </div>
                             <div class="row">
-                                <div class="form-group col-sm-6 " v-if="selected != null">
-                                    <strong>Codigo QR: </strong><br><br>
+                                <div class="form-group col-sm-4 " v-if="selected != null">
+                                    <strong>Codigo QR vista: </strong><br><br>
                                     <QrcodeVue :value="codigoQr" :size="size" level="H" />
                              
                                 </div>
+                                <div class="form-group col-sm-4 " v-if="selected != null">
+                                    <strong>Codigo QR a imprimir: </strong><br><br>
+                                    <QrcodeVue :value="imprimirQr" :size="size" level="H" />
+                             
+                                </div>
+                            
+                                <div class="form-group col-sm-4" v-if="selected != null">
+
+    <strong>Codigo de Barras a imprimir:  <button type="button"  class="btn btn-primary" @click="generarCodigo()" :disabled="imprimirCodigo=='' || imprimirCodigo==null ||selectCodigoBarrar=='0'">Ver</button></strong>
+    <br><br>
+
+    <svg ref="barcode"></svg>
+
+</div>
                               
                             </div>
                         </form>
@@ -310,6 +336,104 @@
         </transition>             
        
         <!--fin del modal-->
+            <!--Inicio del modal VER-->
+
+           <transition name="fade">
+            <div v-if="showModal_2" class="modal d-block" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-primary modal-lg modal-dialog-scrollable" role="document">
+
+                    <div class="modal-content">
+                        <div class="modal-header">
+                        <h4 class="modal-title">{{ tituloModal }}</h4>
+                        <button type="button" class="close" @click="cerrarModal('show')">
+                            <span>&times;</span>
+                        </button>
+                        </div>
+                 <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">                  
+                        <form  enctype="multipart/form-data" class="form-horizontal">                        
+                            <!-- insertar datos -->
+                            
+                            <div class="alert alert-secondary" role="alert">
+ <strong>Producto: {{showLeyenda}}</strong>
+</div>
+                               <table class="table table-bordered table-striped table-sm table-responsive">
+                                <thead>
+                                    <tr>
+                                        <th>Cantidad:</th>
+                                        <th>Tipo entrada:</th>
+                                        <th>Lote</th>
+                                        <th>Fecha vencimiento:</th>
+                                        <th>Registro sanitario:</th>
+                                    </tr>    
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>{{showStockIngreso}}</td>
+                                        <td>{{showId_tipoentrada}}</td>
+                                        <td>{{showLote}}</td>
+                                        <td>{{showFecha_vencimiento}}</td>
+                                        <td>{{showRegistro_sanitario}}</td>
+                                    </tr>
+                                </tbody>
+                               </table>   
+                               
+                               <table class="table table-bordered table-striped table-sm table-responsive">
+                                <thead>
+                                    <tr>
+                                        
+                                        <th>Tipo codigo de barras</th>
+                                        <th>Codigo a imprimir</th>
+                                        <th class="col-md-2">Qr:</th>
+                                        <th class="col-md-2">Codigo de barras:</th>
+                                    </tr>    
+                                </thead>
+                                <tbody>
+                                    <tr>                                        
+                                        <td>
+                                        <div v-if="showSelectCodigoBarrar=='1'">
+                                            <span>Personalizado</span>
+                                        </div>
+                                        <div v-else-if="showSelectCodigoBarrar=='2'">
+                                            <span>De producto</span>
+                                        </div>
+                                        <div v-else>
+                                            <span>Error</span>
+                                        </div>
+                                        </td>
+                                        <td>{{showCodigo_imprecion}}</td>
+                                       <td class="col-md-2">
+    <div class="input-group">
+    <input type="number" class="form-control" v-model="inputImp1">
+    <button type="button" class="btn btn-primary"
+        @click="imprimirCodigoX(1,inputImp1)">
+        <i class="fa fa-print"></i>
+    </button>
+</div>
+</td>
+                                  <td class="col-md-2">
+   <div class="input-group">
+    <input type="number" class="form-control" v-model="inputImp2">
+    <button type="button" class="btn btn-primary"
+        @click="imprimirCodigoX(2,inputImp2)">
+        <i class="fa fa-print"></i>
+    </button>
+</div>
+</td>
+                                    </tr>
+                                </tbody>
+                               </table> 
+                        </form>
+                    </div>
+                
+                 
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary"  @click="cerrarModal('show')">Cerrar</button>                                          
+                  
+                    </div>
+                    </div>
+                </div>
+            </div>
+        </transition>  
     </main>
 </template>
 
@@ -319,6 +443,11 @@ import QrcodeVue from 'qrcode.vue';
 import { error401 } from "../../errores";
 import VueMultiselect from 'vue-multiselect';
 import { watch } from 'vue';
+import pdfMake from 'pdfmake/build/pdfmake';
+import pdfFonts from 'pdfmake/build/vfs_fonts';
+    pdfMake.vfs = pdfFonts.pdfMake.vfs;
+import JsBarcode from "jsbarcode";
+import { indexOf } from "lodash";
 //Vue.use(VeeValidate);
 export default {
     components: { VueMultiselect ,QrcodeVue},
@@ -369,6 +498,7 @@ export default {
         fechaactual:'',
        arrayIndex:[],
        showModal: false,
+       showModal_2:false,
 //---permisos_R_W_S
 puedeEditar:2,
                 puedeActivar:2,
@@ -383,6 +513,23 @@ puedeEditar:2,
             startDate: '',
             endDate: '',
             id_sucursal:0,
+
+             imprimirCodigo: '',
+            enviarCadena:'',
+            selectCodigoBarrar:'0',
+
+            showLeyenda:'',
+            showStockIngreso:'',
+            showEnvase:'',
+            showId_tipoentrada:'',
+            showLote:'',
+            showNombre_linea:'',
+            showFecha_vencimiento:'',
+            showRegistro_sanitario:'',
+            showCodigo_imprecion:'',
+            showSelectCodigoBarrar:'',
+            inputImp1:0,
+            inputImp2:0,
         };
     },
 
@@ -409,6 +556,23 @@ puedeEditar:2,
       }
     
     },
+    imprimirQr() {
+  if (this.selected.codigo_prod && this.imprimirCodigo) {
+        if (this.selectCodigoBarrar=='1') {
+           this.enviarCadena= this.selected.codigo_prod+'-'+this.imprimirCodigo; 
+        } else {
+            if (this.selectCodigoBarrar=='2') {
+                this.enviarCadena= this.imprimirCodigo; 
+             } else {
+                this.enviarCadena="Error";
+            }
+        }      
+            
+    return this.enviarCadena;
+  } else {
+    return 'codigo error';
+  }
+},
        sicompleto() {
             let me = this;
             if (me.selected != null && me.cantidad != 0 && me.selectEntrada!=0 && me.lote!="" && me.fecha_vencimiento!=""&&me.registrosanitario!="")
@@ -468,7 +632,119 @@ puedeEditar:2,
         });
 },
 //--------------------------------------------------------------  
+imprimirCodigoX(data, cantidad){
 
+    if (cantidad<=0 || cantidad =='' || cantidad==null || cantidad == undefined) {
+        alert("cantidad nulla o menor a cero");
+    } else {
+       const codigo = this.showCodigo_imprecion;
+    cantidad = parseInt(cantidad);
+
+    const columnas = 8;
+    let filas = [];
+    let fila = [];
+
+    for (let i = 0; i < cantidad; i++) {
+
+        let contenido = {};
+
+        // QR
+        if (data == 1) {
+
+            contenido = {
+                qr: codigo,
+                fit: 45, // mas pequeño para que entren 8
+                alignment: 'center',
+                margin:[1,1,1,1]
+            };
+
+        } 
+        // CODIGO DE BARRAS
+        else if (data == 2) {
+
+            let svgNode = document.createElementNS("http://www.w3.org/2000/svg","svg");
+
+            JsBarcode(svgNode, codigo, {
+                format: "CODE128",
+                width: 0.9, // mas delgado
+                height: 32, // mas bajo
+                displayValue: false,
+                fontSize: 9
+            });
+
+            contenido = {
+                svg: svgNode.outerHTML,
+                fit:[90,40], // evita que se salga
+                alignment: 'center',
+                margin:[1,1,1,1]
+            };
+        }
+
+        fila.push(contenido);
+
+        if (fila.length === columnas) {
+            filas.push(fila);
+            fila = [];
+        }
+    }
+
+    if (fila.length > 0) {
+        while (fila.length < columnas) {
+            fila.push({});
+        }
+        filas.push(fila);
+    }
+
+    // columnas dinamicas
+    const widths = Array(columnas).fill('*');
+
+    const docDefinition = {
+        pageSize: 'LETTER',
+        pageMargins: [20,20,20,20],
+        content: [
+            {
+                table:{
+                    widths: widths,
+                    body: filas
+                },
+                layout:'noBorders'
+            }
+        ]
+    };
+
+    pdfMake.createPdf(docDefinition).open(); 
+    }
+},
+
+    
+
+//-------------------------------------------------------
+
+  
+
+generarCodigo(){
+    let me=this;
+            if(!me.$refs.barcode) return;
+             if (me.selectCodigoBarrar=='1') {
+           me.enviarCadena= me.selected.codigo_prod+'-'+me.imprimirCodigo; 
+        } else {
+            if (me.selectCodigoBarrar=='2') {
+                me.enviarCadena= me.imprimirCodigo; 
+             } else {
+                me.enviarCadena="Error";
+            }
+        }  
+           
+            
+            JsBarcode(me.$refs.barcode, me.enviarCadena, {
+                format: "CODE128",
+                width: 1,
+                height: 40,
+                displayValue: true,
+                lineColor: "#000"
+            });
+
+        },
 
 tiene_movimiento(id_almacen,id_index,ingresoProducto){
     let me = this; 
@@ -623,6 +899,9 @@ tiene_movimiento(id_almacen,id_index,ingresoProducto){
                     me.id_tipoentrada_v='';    
                     me.envase_v='';                    
                     me.stock_ingreso_v='';    
+                    me.imprimirCodigo="";
+                    me.enviarCadena="";                     
+                    me.selectCodigoBarrar="0";
                     me.classModal.openModal("registrar");
                     break;
                 }
@@ -638,6 +917,22 @@ tiene_movimiento(id_almacen,id_index,ingresoProducto){
             } else {
                 me.selected = null;
             }
+            
+            if ("1"==data.tipo_codigo_imprecion) {
+                me.selectCodigoBarrar="1";
+                 me.imprimirCodigo= data.codigo_imprecion.split('-')[1];
+                    me.enviarCadena=data.codigo_imprecion;
+            } else {
+                if ("2"==data.tipo_codigo_imprecion) {
+                    me.selectCodigoBarrar="2";
+                      me.imprimirCodigo=data.codigo_imprecion;
+                    me.enviarCadena=data.codigo_imprecion;
+                } else {
+                    me.selectCodigoBarrar="0";
+                    me.imprimirCodigo="";
+                    me.enviarCadena=""; 
+                }
+            } 
             me.id_index=data.id;
                    me.selectEntrada= data.id_tipoentrada === null ? 0 : data.id_tipoentrada;
                     me.lote=data.lote;
@@ -655,6 +950,31 @@ tiene_movimiento(id_almacen,id_index,ingresoProducto){
 
                     break;
                 }
+                 case "show": {
+                me.showModal_2 = true; 
+                console.log(data);
+                me.tituloModal = "Vista de producto a ingresar";
+                me.showLeyenda=data.leyenda+" Envase: "+ data.envase+" Linea: "+data.nombre_linea;
+                me.showStockIngreso=data.stock_ingreso;
+                me.showEnvase=data.envase;
+                    console.log(me.arrayTipoEntrada);
+                    console.log(data.id_tipoentrada);
+               const tipo = me.arrayTipoEntrada.find(e => e.id === data.id_tipoentrada);
+                    if (tipo) {
+                me.showId_tipoentrada = tipo.nombre;
+                    }
+           
+                me.showLote=data.lote;
+                me.showNombre_linea=data.nombre_linea;
+                me.showFecha_vencimiento=data.fecha_vencimiento;
+                me.showRegistro_sanitario=data.registro_sanitario;
+                me.showCodigo_imprecion=data.codigo_imprecion;
+                me.showSelectCodigoBarrar=data.tipo_codigo_imprecion;
+                me.inputImp1=1;
+                me.inputImp2=1;
+                me.classModal.openModal("show");
+                break;
+                 }
             
             }
         },
@@ -698,17 +1018,37 @@ tiene_movimiento(id_almacen,id_index,ingresoProducto){
                     me.id_tipoentrada_v='';    
                     me.envase_v='';                    
                     me.stock_ingreso_v='';  
+                       me.imprimirCodigo='';
+                    me.enviarCadena='';
+                    me.selectCodigoBarrar='0';
                     setTimeout(me.tiempo, 200); 
                     //me.ProductoLineaIngresoSeleccionado = 0;
                     me.inputTextBuscarProductoIngreso = "";
                         me.arrayRetornarProductosIngreso = "";
                         me.id_sucursal=0;
               
-            } else {
-                me.classModal.closeModal(accion);
-              
-                me.classModal.openModal("registrar");
             }
+              if (accion == "show") {
+                me.classModal.closeModal(accion);
+                me.showModal_2 = false;                
+
+            me.showLeyenda="";
+            me.showStockIngreso="";
+            me.showEnvase="";
+            me.showId_tipoentrada="";
+            me.showLote="";
+            me.showNombre_linea="";
+            me.showFecha_vencimiento="";
+            me.showRegistro_sanitario="";
+            me.showCodigo_imprecion="";
+            me.selectCodigoBarrar="";
+            me.imprimirCodigo='';
+            me.enviarCadena='';
+            me.showSelectCodigoBarrar='';
+            me.inputImp1=1;
+            me.inputImp2=1;
+            }
+
         },
 
         registrarProductoEnAlmacen(){
@@ -725,7 +1065,9 @@ tiene_movimiento(id_almacen,id_index,ingresoProducto){
                     'fecha_vencimiento':me.fecha_vencimiento,
                     'lote':me.lote,
                     'registro_sanitario':me.registrosanitario,
-                    'id_sucursal':me.id_sucursal
+                    'id_sucursal':me.id_sucursal,
+                      'imprimirCodigo':me.enviarCadena,
+                    'tipo_codigo_imprecion':me.selectCodigoBarrar,
               
                 }).then(function(response){
                     Swal.fire('Registrado Correctamente');
@@ -765,7 +1107,9 @@ tiene_movimiento(id_almacen,id_index,ingresoProducto){
                     'fecha_vencimiento':me.fecha_vencimiento,
                     'lote':me.lote,
                     'registro_sanitario':me.registrosanitario,
-                    'id_sucursal':me.id_sucursal
+                    'id_sucursal':me.id_sucursal,
+                         'imprimirCodigo':me.enviarCadena,                    
+                    'tipo_codigo_imprecion':me.selectCodigoBarrar,
                 }).then(function (response) {
                     Swal.fire('Actualizado Correctamente')
                     me.listarIndex(1); 
@@ -905,6 +1249,10 @@ tiene_movimiento(id_almacen,id_index,ingresoProducto){
         this.listarIndex(1);
         this.fecha_inicial();
         this. listarProductos_almacen();
+
+         this.classModal.addModal("show");
+     
+        this.listar_entradasXe();
     
     },
 };

@@ -1099,6 +1099,10 @@ $nombre_empresa = strtoupper($nombre_e);
             ->join('prod__registro_pre_x_lists as prp', 'prp.id', '=', 'gpv.id_lista')
             ->join('prod__listas as pl', 'pl.id', '=', 'prp.id_lista')
             ->join('prod__lineas as pppl','pppl.id','=','pp.idlinea')
+               ->leftJoin('inv__gestion_inventario_bloqueo_sucursal as iii', function($join) {
+    $join->on('iii.id_linea', '=', 'pppl.id')
+         ->on('iii.id_sucursal', '=', 'tt.idsucursal');
+})
             ->leftJoin('par__producto_desc as ppd', 'ppd.id_prod', '=', 'pp.id')
             ->leftJoin('par__descuentos as pd2', 'ppd.id_descuento', '=', 'pd2.id')
             ->leftJoin('par__asignacion_descuento as pad2', function($join) {
@@ -1117,6 +1121,7 @@ $nombre_empresa = strtoupper($nombre_e);
                 'gpv.utilidad_neto_gespreventa',
                 'tt.codigo as codigo_tienda_almacen' ,
                 'tip.envase',
+                'iii.activo as activo_blo',
                 'tip.cantidad',
                 'tip.stock_ingreso',
                 'tip.fecha_vencimiento',
@@ -1188,6 +1193,10 @@ $nombre_empresa = strtoupper($nombre_e);
             ->leftJoin('prod__forma_farmaceuticas as ff_2', 'ff_2.id', '=', 'pp.idformafarmaceuticasecundario')
             ->leftJoin('prod__forma_farmaceuticas as ff_3', 'ff_3.id', '=', 'pp.idformafarmaceuticaterciario')
             ->join('prod__lineas as pppl','pppl.id','=','pp.idlinea')
+                  ->leftJoin('inv__gestion_inventario_bloqueo_sucursal as iii', function($join) {
+    $join->on('iii.id_linea', '=', 'pppl.id')
+         ->on('iii.id_sucursal', '=', 'tt.idsucursal');
+})
             ->leftJoin('par__producto_desc as ppd', 'ppd.id_prod', '=', 'pp.id')
             ->leftJoin('par__descuentos as pd2', 'ppd.id_descuento', '=', 'pd2.id')
             ->leftJoin('par__asignacion_descuento as pad2', function($join) {
@@ -1207,6 +1216,7 @@ $nombre_empresa = strtoupper($nombre_e);
                 'gpv.utilidad_neto_gespreventa',
                 'tt.codigo as codigo_tienda_almacen' ,
                 'tip.envase',
+                'iii.activo as activo_blo',
                 'tip.cantidad',
                 'tip.stock_ingreso',
                 'tip.fecha_vencimiento',

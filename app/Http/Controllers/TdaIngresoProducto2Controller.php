@@ -64,9 +64,11 @@ class TdaIngresoProducto2Controller extends Controller
                     'tip.fecha_vencimiento',
                     'tip.lote',
                     'tip.activo',
+                    'tip.codigo_imprecion',                    
                     'pp.codigo as codigo_prod',
                     'pl.nombre as nombre_linea',
                     'pl.id as id_linea',
+                    'tip.tipo_codigo_imprecion',
                     DB::raw("CASE
                         WHEN tip.envase = 'primario' THEN CONCAT(IFNULL(pp.nombre, ''), ' ', IFNULL(pd_1.nombre, ''), ' x ', IFNULL(pp.cantidadprimario, ''), ' ', IFNULL(ff_1.nombre, ''))
                         WHEN tip.envase = 'secundario' THEN CONCAT(IFNULL(pp.nombre, ''), ' ', IFNULL(pd_2.nombre, ''), ' x ', IFNULL(pp.cantidadsecundario, ''), ' ', IFNULL(ff_2.nombre, ''))
@@ -128,9 +130,11 @@ class TdaIngresoProducto2Controller extends Controller
                 'tip.fecha_vencimiento',
                 'tip.lote',
                 'tip.activo',
+                'tip.codigo_imprecion',
                 'pp.codigo as codigo_prod',
                 'pl.nombre as nombre_linea',
                 'pl.id as id_linea',
+                 'tip.tipo_codigo_imprecion',
                 DB::raw("CASE
                     WHEN tip.envase = 'primario' THEN CONCAT(IFNULL(pp.nombre, ''), ' ', IFNULL(pd_1.nombre, ''), ' x ', IFNULL(pp.cantidadprimario, ''), ' ', IFNULL(ff_1.nombre, ''))
                     WHEN tip.envase = 'secundario' THEN CONCAT(IFNULL(pp.nombre, ''), ' ', IFNULL(pd_2.nombre, ''), ' x ', IFNULL(pp.cantidadsecundario, ''), ' ', IFNULL(ff_2.nombre, ''))
@@ -299,6 +303,9 @@ $terciario = DB::table('prod__productos as pp')
             $nuevoProducto->registro_sanitario = $request->registro_sanitario;
             $nuevoProducto->activo = 1;
             $nuevoProducto->id_usuario_registra=auth()->user()->id;
+            $nuevoProducto->codigo_imprecion=$request->imprimirCodigo;
+            $nuevoProducto->tipo_codigo_imprecion=$request->tipo_codigo_imprecion;     
+            
             $nuevoProducto->save();
             // Obtener el ID asignado al nuevo producto
             $nuevoProductoID = $nuevoProducto->id;
@@ -342,6 +349,8 @@ $terciario = DB::table('prod__productos as pp')
         $actualizarProducto->lote = $request->lote;
         $actualizarProducto->registro_sanitario = $request->registro_sanitario;
         $actualizarProducto->id_usuario_registra=auth()->user()->id;
+       $actualizarProducto->codigo_imprecion=$request->imprimirCodigo;
+            $actualizarProducto->tipo_codigo_imprecion=$request->tipo_codigo_imprecion;    
         $actualizarProducto->save();
     }
     public function listaTienda(Request $request){

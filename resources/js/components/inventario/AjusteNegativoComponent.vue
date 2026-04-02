@@ -33,7 +33,7 @@
                             <div class="input-group">
                                 <select
                                     class="form-control"
-                                    @change="listarAjusteNegativos(0)"
+                                    @change="listarAjusteNegativos(0); cambioSucursal(sucursalSeleccionada)" 
                                     v-model="sucursalSeleccionada"
                                 >
                                     <option value="0" disabled selected>Seleccionar...</option>
@@ -302,8 +302,9 @@
                                                     (ProductoLineaIngreso.fecha_vencimiento ===
                                                     null ? ' sin registro' : ProductoLineaIngreso.fecha_vencimiento) +
                                                     
-                                                    '  Stock: ' +
-                                                    ProductoLineaIngreso.stock_ingreso
+                                                    '  Stock: ' + (ProductoLineaIngreso.activo_blo===null ? '*' :ProductoLineaIngreso.stock_ingreso)
+                                                  
+                                                    
                                                 "
                                             ></option>
                                         </select>
@@ -371,8 +372,9 @@
                                                     ' | FV: ' +
                                                     (ProductoLineaIngreso.fecha_vencimiento ===
                                                     null ? '| sin registro' : ProductoLineaIngreso.fecha_vencimiento) +
-                                                    ' | Stock: ' +
-                                                    ProductoLineaIngreso.stock_ingreso
+                                                   
+                                                    '  Stock: ' + (ProductoLineaIngreso.activo_blo===1 ? '???' :ProductoLineaIngreso.stock_ingreso)
+                                               
                                                 "
                                                 
                                             ></option>
@@ -454,15 +456,8 @@
                                 </div>
 
                                 <div class="form-group row">
-                                    <label
-                                        class="col-md-3 form-control-label"
-                                        for="text-input"
-                                        >Cantidad
-                                        <span
-                                            v-if="cantidadS == ''"
-                                            class="error"
-                                            >(*)</span
-                                        >
+                                    <label class="col-md-3 form-control-label" for="text-input">Cantidad 
+                                        <span v-if="cantidadS == ''" class="error" >(*)</span>
                                     </label>
                                     <div class="col-md-9">
                                         <input v-if="tipoAccion == 1"
@@ -913,10 +908,9 @@ listarPerimsoxyz() {
 //-------------------------------------------------------------
 
 
-nameWithLang ({codigo_producto,leyenda,fecha_ingreso,lote,fecha_vencimiento,stock_ingreso}) {
-            
-            return `Cod: ${codigo_producto} ${leyenda} FI: ${fecha_ingreso} Lote: ${lote} FV: ${fecha_vencimiento} Stock: ${stock_ingreso}`
-          },
+nameWithLang ({codigo_producto, leyenda, fecha_ingreso, lote, fecha_vencimiento, stock_ingreso, activo_blo}) {
+    return `Cod: ${codigo_producto} ${leyenda} FI: ${fecha_ingreso} Lote: ${lote} FV: ${fecha_vencimiento} Stock: ${activo_blo === 1 ? '???' : stock_ingreso}`;
+},
 
           validarNew(newValue){
             this.validarBoton=1;
@@ -961,6 +955,25 @@ nameWithLang ({codigo_producto,leyenda,fecha_ingreso,lote,fecha_vencimiento,stoc
 
             // Agrega aquí la lógica adicional que necesites al cambiar la pestaña
         },
+
+        
+
+        cambioSucursal(codigo){
+            let me = this;
+           const registro = me.arraySucursal.find(item => item.codigo === codigo);
+
+if (registro) {
+    me.id_sucursal=registro.id_sucursal;
+   // me.id_tienda=registro.id_tienda;
+  //  me.id_almacen=registro.id_almacen;
+} else {    
+    me.id_sucursal="";
+  //  me.id_tienda="";
+  //  me.id_almacen="";
+}
+
+        },
+
         sucursalFiltro() {
             let me = this;
             //var url = "/ajustes-negativo/listarSucursal";
@@ -970,12 +983,14 @@ nameWithLang ({codigo_producto,leyenda,fecha_ingreso,lote,fecha_vencimiento,stoc
                 .then(function (response) {
                     var respuesta = response.data;
                     me.arraySucursal = respuesta;
-                  
+           
                 })
                 .catch(function (error) {
                     error401(error);
                 });
         },
+
+
 
         ajustesNegativos() {
             let me = this;
@@ -1005,12 +1020,12 @@ nameWithLang ({codigo_producto,leyenda,fecha_ingreso,lote,fecha_vencimiento,stoc
 
             if (me.tipoAccion == 1) {
                 var url =
-                    "/ajustes-negativo/listarProductoLineaIngreso?respuesta0="+this.sucursalSeleccionada +"&tipo="+me.tipoAccion;
+                    "/ajustes-negativo/listarProductoLineaIngreso?respuesta0="+this.sucursalSeleccionada +"&tipo="+me.tipoAccion+"&id_sucursal="+me.id_sucursal;
                     
             }
             if (me.tipoAccion == 2) {
                 var url =
-                    "/ajustes-negativo/listarProductoLineaIngreso?respuesta0="+this.id_codigo +"&tipo="+me.tipoAccion;
+                    "/ajustes-negativo/listarProductoLineaIngreso?respuesta0="+this.id_codigo +"&tipo="+me.tipoAccion+"&id_sucursal="+me.id_sucursal
                     
             }
   
@@ -1020,6 +1035,7 @@ nameWithLang ({codigo_producto,leyenda,fecha_ingreso,lote,fecha_vencimiento,stoc
                     var respuesta = response.data;
 
                     me.arrayProductoLineaIngreso = respuesta;
+           
 
                 })
                 .catch(function (error) {
@@ -1078,7 +1094,7 @@ nameWithLang ({codigo_producto,leyenda,fecha_ingreso,lote,fecha_vencimiento,stoc
                     (me.producto = ""), (me.cantidadS = "");
                     me.descripcion = "";
                     me.fecha = "";
-                    me.id_sucursal = "";
+                    //me.id_sucursal = "";
                     me.id_producto = "";
                     me.id_ingreso = "";
                 

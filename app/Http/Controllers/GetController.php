@@ -581,7 +581,7 @@ $resultado = $query1
     
     public function onlySuscursal(){
        $query = DB::table('adm__sucursals as s')
-    ->select('s.id','s.razon_social','s.nit','s.direccion')
+    ->select('s.id','s.razon_social','s.nit','s.direccion','s.cod')
     ->where('s.activo', 1)
     ->get();
 
@@ -611,4 +611,13 @@ return response()->json($query); // buena práctica en API
     ->get();
         return $registro;
     }
+
+    public function getBloqueoLinea(Request $request){
+        $resultado = DB::table('inv__gestion_inventario_bloqueo_sucursal')  
+    ->where('activo', 1)
+    ->where('id_sucursal', $request->id_sucursal)
+    ->get();
+    return $resultado;
+    } 
+
 }

@@ -65,9 +65,11 @@ $almacen = DB::table('alm__ingreso_producto as aip')
         'aip.fecha_vencimiento',
         'aip.lote',
         'aip.activo',
+        'aip.codigo_imprecion',  
         'pp.codigo as codigo_prod',
         'pl.nombre as nombre_linea',
         'pl.id as id_linea',
+        'aip.tipo_codigo_imprecion',
         DB::raw("CASE
             WHEN aip.envase = 'primario' THEN CONCAT(IFNULL(pp.nombre, ''), ' ', IFNULL(pd_1.nombre, ''), ' x ', IFNULL(pp.cantidadprimario, ''), ' ', IFNULL(ff_1.nombre, ''))
             WHEN aip.envase = 'secundario' THEN CONCAT(IFNULL(pp.nombre, ''), ' ', IFNULL(pd_2.nombre, ''), ' x ', IFNULL(pp.cantidadsecundario, ''), ' ', IFNULL(ff_2.nombre, ''))
@@ -78,7 +80,9 @@ $almacen = DB::table('alm__ingreso_producto as aip')
         'u.id as user_id',
         'u_modi.name as user_name_M',
         'u_modi.id as user_id_M','aip.num_traspaso',
-        DB::raw('GREATEST(aip.created_at, aip.updated_at) as fecha'),'aip.idalmacen','aa.codigo as codigo_alm'
+        DB::raw('GREATEST(aip.created_at, aip.updated_at) as fecha'),
+        'aip.idalmacen',
+        'aa.codigo as codigo_alm'
     ])
     ->join('prod__productos as pp', 'pp.id', '=', 'aip.id_prod_producto')
     ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
@@ -127,9 +131,11 @@ $almacen = DB::table('alm__ingreso_producto as aip')
                 'aip.fecha_vencimiento',
                 'aip.lote',
                 'aip.activo',
+                'aip.codigo_imprecion',  
                 'pp.codigo as codigo_prod',
                 'pl.nombre as nombre_linea',
                 'pl.id as id_linea',
+                'aip.tipo_codigo_imprecion',
                 DB::raw("CASE
                     WHEN aip.envase = 'primario' THEN CONCAT(IFNULL(pp.nombre, ''), ' ', IFNULL(pd_1.nombre, ''), ' x ', IFNULL(pp.cantidadprimario, ''), ' ', IFNULL(ff_1.nombre, ''))
                     WHEN aip.envase = 'secundario' THEN CONCAT(IFNULL(pp.nombre, ''), ' ', IFNULL(pd_2.nombre, ''), ' x ', IFNULL(pp.cantidadsecundario, ''), ' ', IFNULL(ff_2.nombre, ''))
@@ -140,7 +146,9 @@ $almacen = DB::table('alm__ingreso_producto as aip')
                 'u.id as user_id',
                 'u_modi.name as user_name_M',
                 'u_modi.id as user_id_M','aip.num_traspaso',
-                DB::raw('GREATEST(aip.created_at, aip.updated_at) as fecha'),'aip.idalmacen','aa.codigo as codigo_alm'
+                DB::raw('GREATEST(aip.created_at, aip.updated_at) as fecha'),
+                'aip.idalmacen',
+                'aa.codigo as codigo_alm'
             ])
             ->join('prod__productos as pp', 'pp.id', '=', 'aip.id_prod_producto')
             ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
@@ -208,6 +216,8 @@ try {
     $nuevoProducto->lote = $request->lote;
     $nuevoProducto->registro_sanitario = $request->registro_sanitario;
     $nuevoProducto->id_usuario_registra = auth()->user()->id;
+    $nuevoProducto->codigo_imprecion=$request->imprimirCodigo;
+    $nuevoProducto->tipo_codigo_imprecion=$request->tipo_codigo_imprecion;           
     $nuevoProducto->save();
     // Obtener el ID asignado al nuevo producto
     $nuevoProductoID = $nuevoProducto->id;
@@ -272,6 +282,9 @@ try {
         $actualizarProducto->lote = $request->lote;
         $actualizarProducto->registro_sanitario = $request->registro_sanitario;
         $actualizarProducto->id_usuario_registra=auth()->user()->id;
+         $actualizarProducto->codigo_imprecion=$request->imprimirCodigo;
+            $actualizarProducto->tipo_codigo_imprecion=$request->tipo_codigo_imprecion;    
+       
         $actualizarProducto->save();
     }
 

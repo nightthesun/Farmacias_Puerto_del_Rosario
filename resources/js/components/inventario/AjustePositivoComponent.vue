@@ -33,7 +33,7 @@
                             <div class="input-group">
                                 <select
                                     class="form-control"
-                                    @change="listarAjusteNegativos(0)"
+                                    @change="listarAjusteNegativos(0);cambioSucursal(sucursalSeleccionada)"
                                     v-model="sucursalSeleccionada"
                                 >
                                     <option value="0" disabled selected>Seleccionar...</option>
@@ -317,8 +317,7 @@
                                                 v-text="
                                                     ProductoLineaIngreso.leyenda 
                                                     +
-                                                    ' Stock: ' +
-                                                    ProductoLineaIngreso.stock_ingreso+
+                                                     '  Stock: ' + (ProductoLineaIngreso.activo_blo===null ? '*' :ProductoLineaIngreso.stock_ingreso)+
                                                     ' Lote: ' +
                                                     ProductoLineaIngreso.lote +
                                                     ' FI: ' +
@@ -1027,10 +1026,26 @@ export default {
             // Agrega aquí la lógica adicional que necesites al cambiar la pestaña
         },
 
-        nameWithLang ({codigo_producto,leyenda,fecha_ingreso,lote,fecha_vencimiento,stock_ingreso}) {
-            
-            return `Cod: ${codigo_producto} ${leyenda} FI: ${fecha_ingreso} Lote: ${lote} FV: ${fecha_vencimiento} Stock: ${stock_ingreso}`
-          },
+    
+          nameWithLang ({codigo_producto, leyenda, fecha_ingreso, lote, fecha_vencimiento, stock_ingreso, activo_blo}) {
+    return `Cod: ${codigo_producto} ${leyenda} FI: ${fecha_ingreso} Lote: ${lote} FV: ${fecha_vencimiento} Stock: ${activo_blo === 1 ? '???' : stock_ingreso}`;
+},
+
+   cambioSucursal(codigo){
+            let me = this;
+           const registro = me.arraySucursal.find(item => item.codigo === codigo);
+
+if (registro) {
+    me.id_sucursal=registro.id_sucursal;
+   // me.id_tienda=registro.id_tienda;
+  //  me.id_almacen=registro.id_almacen;
+} else {    
+    me.id_sucursal="";
+  //  me.id_tienda="";
+  //  me.id_almacen="";
+}
+
+        },
 
           validarNew(newValue){
             this.validarBoton=1;
@@ -1249,7 +1264,7 @@ export default {
                     me.lote='';
                     me.cantidad='';
                     
-                    me.id_sucursal = "";
+                   // me.id_sucursal = "";
                     me.id_producto = "";
                     me.id_ingreso = "";
                     me.classModal.openModal("registrar");

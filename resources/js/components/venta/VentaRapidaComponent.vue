@@ -116,7 +116,7 @@
                                <template #option="{ option }">
                                  <div :class="{'red-day': option.dias <= 20}">
                                 <i :style="{ color: getColorByPriority(option.prioridad_caducidad) }" class="fa fa-bell" aria-hidden="true"></i> 
-                                {{option.leyenda}} {{option.nombre_linea}} {{ "FV: "+option.fecha_vencimiento}} {{ "Dias: "+option.dias}} {{ "Stock: "+option.stock_ingreso}}
+                                {{option.leyenda}} {{option.nombre_linea}} {{ "FV: "+option.fecha_vencimiento}} {{ "Dias: "+option.dias}} {{ "Stock: " + (option.activo_blo === 1 ? '???' : option.stock_ingreso) }}
                                  </div>
                          </template>
                              </VueMultiselect>
@@ -136,8 +136,11 @@
                  </span>
                </td>
                <td class="col-md-1" >
-                 <span  v-if="selected" v-text="selected.stock_ingreso">
-                 </span>
+                <div v-if="selected">
+                  <span v-if="selected.activo_blo===null">???</span>
+                  <span  v-else v-text="selected.stock_ingreso"></span>
+                </div>
+              
                </td>
                <td class="col-md-1" >
                  <span  v-if="selected" v-text=" selected.fecha_vencimiento">

@@ -269,16 +269,22 @@ class InvAjusteNegativoController extends Controller
 
         $productos = DB::table('prod__productos as pp')
             ->join('alm__ingreso_producto as ai', 'pp.id', '=', 'ai.id_prod_producto')
-            ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
+           
             ->leftJoin('prod__dispensers as pd_1', 'pd_1.id', '=', 'pp.iddispenserprimario')
             ->leftJoin('prod__dispensers as pd_2', 'pd_2.id', '=', 'pp.iddispensersecundario')
             ->leftJoin('prod__dispensers as pd_3', 'pd_3.id', '=', 'pp.iddispenserterciario')
             ->leftJoin('prod__forma_farmaceuticas as ff_1', 'ff_1.id', '=', 'pp.idformafarmaceuticaprimario')
             ->leftJoin('prod__forma_farmaceuticas as ff_2', 'ff_2.id', '=', 'pp.idformafarmaceuticasecundario')
             ->leftJoin('prod__forma_farmaceuticas as ff_3', 'ff_3.id', '=', 'pp.idformafarmaceuticaterciario')
+           
             ->join('alm__almacens as aa', 'aa.id', '=', 'ai.idalmacen')
             ->join('adm__sucursals as ass', 'ass.id', '=', 'aa.idsucursal')
             ->join('prod__lineas as l', 'l.id', '=', 'pp.idlinea')
+           
+                ->leftJoin('inv__gestion_inventario_bloqueo_sucursal as iii', function($join) {
+    $join->on('iii.id_linea', '=', 'l.id')
+         ->on('iii.id_sucursal', '=', 'aa.idsucursal');
+})
             ->when($request->tipo == 1, function ($query) use ($cod) {
                 $query->where('ai.stock_ingreso', '>', 0)
                       ->where('aa.codigo', '=',$cod)
@@ -309,6 +315,7 @@ class InvAjusteNegativoController extends Controller
                 'pp.cantidadsecundario as cantidad_dispenser_s',
                 'pp.cantidadterciario as cantidad_dispenser_t',
                 'l.nombre as nombre_linea',
+                'iii.activo as activo_blo',
                 'pd_1.nombre as nombre_dispenser_1',
                 'pd_2.nombre as nombre_dispenser_2',
                 'pd_3.nombre as nombre_dispenser_3',
@@ -331,16 +338,21 @@ class InvAjusteNegativoController extends Controller
 
         $tiendas = DB::table('prod__productos as pp')
             ->join('tda__ingreso_productos as ti', 'pp.id', '=', 'ti.id_prod_producto')
-            ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
+           
             ->leftJoin('prod__dispensers as pd_1', 'pd_1.id', '=', 'pp.iddispenserprimario')
             ->leftJoin('prod__dispensers as pd_2', 'pd_2.id', '=', 'pp.iddispensersecundario')
             ->leftJoin('prod__dispensers as pd_3', 'pd_3.id', '=', 'pp.iddispenserterciario')
             ->leftJoin('prod__forma_farmaceuticas as ff_1', 'ff_1.id', '=', 'pp.idformafarmaceuticaprimario')
             ->leftJoin('prod__forma_farmaceuticas as ff_2', 'ff_2.id', '=', 'pp.idformafarmaceuticasecundario')
-            ->leftJoin('prod__forma_farmaceuticas as ff_3', 'ff_3.id', '=', 'pp.idformafarmaceuticaterciario')
+            ->leftJoin('prod__forma_farmaceuticas as ff_3', 'ff_3.id', '=', 'pp.idformafarmaceuticaterciario')            
             ->join('adm__sucursals as ass', 'ass.id', '=', 'ti.idtienda')
             ->join('prod__lineas as l', 'l.id', '=', 'pp.idlinea')
             ->join('tda__tiendas as tt', 'tt.id', '=', 'ti.idtienda')
+            
+            ->leftJoin('inv__gestion_inventario_bloqueo_sucursal as iii', function($join) {
+    $join->on('iii.id_linea', '=', 'l.id')
+         ->on('iii.id_sucursal', '=', 'tt.idsucursal');
+})
             ->when($request->tipo == 1, function ($query) use ($cod) {
                 $query->where('ti.stock_ingreso', '>', 0)
                       ->where('tt.codigo','=', $cod)
@@ -370,6 +382,7 @@ class InvAjusteNegativoController extends Controller
                 'pp.cantidadsecundario as cantidad_dispenser_s',
                 'pp.cantidadterciario as cantidad_dispenser_t',
                 'l.nombre as nombre_linea',
+                'iii.activo as activo_blo',
                 'pd_1.nombre as nombre_dispenser_1',
                 'pd_2.nombre as nombre_dispenser_2',
                 'pd_3.nombre as nombre_dispenser_3',

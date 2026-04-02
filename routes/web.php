@@ -70,6 +70,7 @@ use App\Http\Controllers\GetController;
 use App\Http\Controllers\InvAutoGestionStockController;
 use App\Http\Controllers\InvAutoTtrController;
 use App\Http\Controllers\InvConfiguracionStockController;
+use App\Http\Controllers\InvGestionInventarioPeriodoUnoController;
 use App\Http\Controllers\InvGestionStockController;
 use App\Http\Controllers\InvInventarioInicialController;
 use App\Http\Controllers\ParDescuentoController;
@@ -201,7 +202,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/listarDistribuidorXlinea', [GetController::class, 'getDitribuidorNeedLinea']); 
     Route::get('/listarConfigAdminGestionAutomatico', [GetController::class, 'getConfigAdminGestionAutomatico']); 
     Route::get('/listarConfigAdminTraspaso', [GetController::class, 'getConfigAdminTraspaso']);  
-    Route::get('/listarVehiculoNormal', [GetController::class, 'getVehiculoNormal']);        
+    Route::get('/listarVehiculoNormal', [GetController::class, 'getVehiculoNormal']);     
+    Route::get('/listarBloqueoLinea', [GetController::class, 'getBloqueoLinea']);    
+       
         
     /**********************verificador de apertura cierre retornod e datos****************************** */
     Route::get('/verificacionAperturaCierre', [GetController::class, 'listarAperturaCierre']);
@@ -709,11 +712,27 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/auto-proceso/listarTablaConfig', [InvAutoTtrController::class, 'getTablaConfig_tg']);  
     Route::get('/auto-proceso/listarOperacionAuto', [InvAutoTtrController::class, 'getGoToRunOperacionAuto']);      
        
-    //--inventario_inicial}
+    //--inventario_inicial
     Route::get('/inventario-inial/listarSelectProducto', [InvInventarioInicialController::class, 'getSelectProducto']);  
     Route::post('/inventario-inial/registrar', [InvInventarioInicialController::class, 'store']);    
     Route::get('/inventario-inial/index', [InvInventarioInicialController::class, 'index']);  
 
+    //--inventario periodo
+    Route::post('/inventario-periodo/registrar', [InvGestionInventarioPeriodoUnoController::class, 'store']); 
+    Route::get('/inventario-periodo/listarInicio', [InvGestionInventarioPeriodoUnoController::class, 'index']); 
+    Route::get('/inventario-periodo/listarLinea  ', [InvGestionInventarioPeriodoUnoController::class, 'getLinea']); 
+    Route::get('/inventario-periodo/listarProducto', [InvGestionInventarioPeriodoUnoController::class, 'getProducto']); 
+    Route::post('/inventario-periodo/bloquear', [InvGestionInventarioPeriodoUnoController::class, 'bloquear_linea']); 
+    Route::post('/inventario-periodo/registro_0_0', [InvGestionInventarioPeriodoUnoController::class, 'store_2']); 
+    Route::get('/inventario-periodo/listarBloqueo_1', [InvGestionInventarioPeriodoUnoController::class, 'getBloqueo_1']); 
+    Route::get('/inventario-periodo/listarTabla_dos', [InvGestionInventarioPeriodoUnoController::class, 'getTabla_dos']); 
+    Route::get('/inventario-periodo/listarTabla_tres', [InvGestionInventarioPeriodoUnoController::class, 'getTabla_tres']); 
+    Route::post('/inventario-periodo/terminarProceso', [InvGestionInventarioPeriodoUnoController::class, 'end_proceso']);
+    Route::put('/inventario-periodo/terminarProceso_continuar', [InvGestionInventarioPeriodoUnoController::class, 'end_proceso_continue']);
+     Route::get('/inventario-periodo/listarModalData', [InvGestionInventarioPeriodoUnoController::class, 'get_modal_data']); 
+    Route::put('/inventario-periodo/cambioEstado', [InvGestionInventarioPeriodoUnoController::class, 'changeEstado']);
+    
+      
     /////////////////////////////////LOGISTICO///////////////////////////////////////
     Route::get('/vehiculo/listarSucursal', [LogVehiculoController::class, 'listarSucursal']);
     Route::get('/vehiculo/listarUsuario', [LogVehiculoController::class, 'listarUsuario']);

@@ -29,6 +29,8 @@ return new class extends Migration
             $table->smallInteger('id_usuario_registra')->unsigned()->nullable()->comment('identificador del usuario que esta registrando el registro');
             $table->string('num_traspaso')->nullable()->comment('identifica el numero de traspaso');
             $table->tinyInteger('prioridad_caducidad')->nullable()->default(0)->comment('0=sin prioridad, 1=baja,2=media,3=alta');
+            $table->string('codigo_imprecion',255)->nullable();
+            $table->string('tipo_codigo_imprecion',20)->nullable()->comment('1 personalizado 2 de producto');
             $table->foreign('idtienda')->references('id')->on('tda__tiendas')
                   ->onDelete('cascade')
                   ->onUpdate('cascade');

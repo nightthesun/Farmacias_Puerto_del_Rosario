@@ -14,7 +14,7 @@
                     <button 
                         type="button"
                         class="btn btn-secondary"
-                        @click="abrirModal('registrar');"
+                        @click="abrirModal('registrar_0');"
                         :disabled="sucursalSeleccionada == 0 || peridoSelect=='0'"
                     >
                         <i class="icon-plus"></i>&nbsp;Nuevo
@@ -77,9 +77,8 @@
             <select class="form-control" v-model="peridoSelect" @change="listarIndex(0)">
                 <option value="0" disabled selected>Seleccionar...</option>
                 <option value="D">Diario</option>
-                <option value="S">Semanal</option>
-                <option value="M">Mensual</option>
-                <option value="T">Trimestral</option>
+                <option value="G">Global</option>
+           
             </select>
         </div>
     </div>
@@ -108,10 +107,11 @@
                 <thead>
                     <tr>
                         <th class="col-md-2">Opciones</th>
-                        <th class="col-md-2">linea</th>                      
-                        <th class="col-md-2">Turno</th>
-                        <th class="col-md-3">Fecha de creacion</th>
+                        <th class="col-md-2">Nombre</th>                      
+                        <th class="col-md-2">Motivo</th>
+                        <th class="col-md-2">Fecha de creacion</th>
                         <th class="col-md-2">Usuario</th>
+                        <th class="col-md-1">Proceso</th>
                         <th class="col-md-1">Estado</th>       
                     </tr>
                 </thead>
@@ -120,14 +120,26 @@
                         <td class="col-md-2">
                             <div class="button-container">
                                 <div  class="d-flex justify-content-start">
-                                      <button  type="button" class="btn btn-primary" style="margin-right: 5px;" @click="verPDF(i); listarProductoDetalle(i.id,1);">
+                                     <div>
+                                        <button  type="button" class="btn btn-primary" style="margin-right: 5px;" @click="listarModalData(i.id,1);" v-if="i.enproceso==4">
                                 <i class="fa fa-file-pdf-o" aria-hidden="true"></i>
                             </button>
-                            <button  type="button" class="btn btn-warning" style="margin-right: 5px; color: white;" @click="abrirModal('ver',i);listarProductoDetalle(i.id,0);">
+                            <button  type="button" class="btn btn-secondary" style="margin-right: 5px;" v-else>
+                                <i class="fa fa-file-pdf-o" aria-hidden="true"></i>
+                            </button>                                        
+                                     </div>
+                                     <div>
+<button  type="button" class="btn btn-warning" style="margin-right: 5px; color: white;" @click="abrirModal('ver',i);listarModalData(i.id,0);" v-if="i.enproceso==4">
                             <i class="fa fa-eye" aria-hidden="true"></i>
                             </button>
+                            <button  type="button" class="btn btn-secondary" style="margin-right: 5px; color: white;" v-else>
+                            <i class="fa fa-eye" aria-hidden="true"></i>
+                            </button>
+                                     </div>
+                                      
+                            
                                     <div v-if="puedeActivar==1">
-                            <button v-if="i.estado == 'ACEPTADO'" type="button" class="btn btn-danger" style="margin-right: 5px;" @click="cambioEstado(i.id,2)">
+                            <button v-if="i.estado == 1" type="button" class="btn btn-danger" style="margin-right: 5px;" @click="cambioEstado(i.id,0)">
                                 <i class="icon-trash"></i>
                             </button>
                             <button v-else type="button" class="btn btn-success" style="margin-right: 5px;" @click="cambioEstado(i.id,1)">
@@ -135,7 +147,7 @@
                             </button>
                                     </div>
                                       <div v-else>
-                <button v-if="i.estado == 'ACEPTADO'" type="button" class="btn btn-light "
+                <button v-if="i.estado == 1" type="button" class="btn btn-light "
                  style="margin-right: 5px;">
                 <i class="icon-trash"></i>
             </button>
@@ -143,33 +155,78 @@
                 <i class="icon-check"></i>
             </button>
             </div>
+            <div>
+ <button  type="button" class="btn btn-success" style="margin-right: 5px; color: white;" @click="abrirModal('registrar',i);" v-if="i.enproceso==0">
+                               <i class="fa fa-star-o" aria-hidden="true"></i>
+                            </button>
+                            <button  type="button" class="btn btn-secondary" style="margin-right: 5px;" v-else>
+                             <i class="fa fa-star-o" aria-hidden="true"></i>
+                            </button>
+            </div>
+            <div>
+ <button  type="button" class="btn btn-success" style="margin-right: 5px; color: white;"  v-if="i.enproceso==1" @click="abrirModal('actualizar',i);">
+                               <i class="fa fa-star-half-o" aria-hidden="true"></i>
+                            </button>
+                            <button  type="button" class="btn btn-secondary" style="margin-right: 5px;" v-else>
+                              <i class="fa fa-star-half-o" aria-hidden="true"></i>
+                            </button>
+            </div>
+            <div>
+ <button  type="button" class="btn btn-success" style="margin-right: 5px; color: white;"  v-if="i.enproceso==2"  @click="abrirModal('registrar_00',i);listarTabla_tres(i.id_dos);">
+                            <i class="fa fa-star" aria-hidden="true"></i>
+                            </button>
+                            <button  type="button" class="btn btn-secondary" style="margin-right: 5px;" v-else>
+                           <i class="fa fa-star" aria-hidden="true"></i>
+                            </button>
+            </div>
+              <div>
+                        <button  type="button" class="btn btn-success" style="margin-right: 5px; color: white;"  v-if="i.enproceso==3" @click="reiniciarLote(i)">
+                           <i class="fa fa-window-restore" aria-hidden="true"></i>
+                            </button>
+                            <button  type="button" class="btn btn-secondary" style="margin-right: 5px;" v-else>
+                          <i class="fa fa-window-restore" aria-hidden="true"></i>
+                            </button>
+            </div>
+             
+          
+
+           
+          
+            
                                 </div>
                             </div>    
                           
                             
                         </td>
                         <td class="col-md-2">
-                            {{i.nom_linea}}
+                            {{i.nombre}}
                         </td>
-                         <td class="col-md-2">
-                            {{i.turno}}
+                        <td class="col-md-2">
+                            {{i.motivo}}
                         </td>
+                        
                          <td class="col-md-3">
                             {{i.fecha_creacion}}
                         </td>
                         <td class="col-md-2">
                             {{i.name}}
                         </td>
-                        
+                        <td class="col-md-1">
+                            <div v-if="i.enproceso === 0"><span class="badge badge-success">Sin uso</span></div>
+<div v-else-if="i.enproceso === 1"><span class="badge badge-warning">Proceso iniciado</span></div>
+<div v-else-if="i.enproceso === 2"><span class="badge badge-warning">Procesos en espera</span></div>
+<div v-else><span class="badge badge-danger">Terminado</span></div>
+                            
+                    </td>
                          <td class="col-md-1">
-                            <div v-if="i.estado == 'ACEPTADO'">
+                            <div v-if="i.estado == 1">
                                         <span class="badge badge-success"
-                                            >ACEPTADO</span
+                                            >Activo</span
                                         >
                                     </div>
                                     <div v-else>
                                         <span class="badge badge-warning"
-                                            >ELIMINADO</span
+                                            >Desactivado</span
                                         >
                                     </div>
                     </td>
@@ -200,7 +257,7 @@
            <!--Inicio del modal agregar/actualizar-->
            <transition name="fade">
             <div v-if="showModal" class="modal d-block" tabindex="-1" role="dialog">
-                <div class="modal-dialog modal-primary modal-lg modal-dialog-scrollable" role="document">
+                <div class="modal-dialog modal-primary modal-super-lg modal-dialog-scrollable" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
                         <h4 class="modal-title">{{ tituloModal }}</h4>
@@ -209,29 +266,33 @@
                         </button>
                     </div>
                       <div class="modal-body"  style="max-height: 70vh; overflow-y: auto;">  
-                        <div class="alert alert-warning" role="alert">
+                        <div class="alert alert-warning" role="alert" v-show="tipoAccion===1">
                             Todos los campos con (*) son requeridos
                         </div>
-                        <form action="" class="form-horizontal">
+                      
                         
                             <!-- insertar datos -->
-                            <div class="container">                                
-                                <div class="form-group row">
-                                    
-                                    <div class="col-md-4">
+                                                         
+                                <div class="form-group row" v-if="tipoAccion===1">
+                                    <div class="col-md-2" v-show="peridoSelect=='D'">
+                                        <label for="">Fecha:</label>
+                                          <input id="start-date" type="date" class="form-control" v-model="fecha_0_0" :disabled="activador==1">
+                                    </div>
+
+                                    <div class="col-md-2">
                                         <label for="">Turno:</label>
-                                        <select class="form-control" v-model="turnoSelect"> 
+                                        <select class="form-control" v-model="turnoSelect" :disabled="activador==1"> 
                                             <option value="0" disabled selected>Seleccionar...</option>
-                                            <option value="MAÑANA">Mañana</option>
-                                            <option value="TARDE">Tarde</option>
-                                            <option value="COMPLETO">Completo</option> 
+                                            <option value="1">Mañana</option>
+                                            <option value="2">Tarde</option>
+                                            <option value="3">Completo</option> 
                                         </select>
                                     </div> 
-                                    <div class="col-md-5">
+                                    <div class="col-md-4">
                                         <label for="">Linea:</label>
                                          <VueMultiselect
                         v-model="lineaSelect"
-                       
+                                        :disabled="activador==1"
                         :options="arrayLinea"
                         :max-height="190"                   
                         :block-keys="['Tab', 'Enter']"                       
@@ -249,49 +310,125 @@
                     </VueMultiselect> 
                                     </div> 
                                     <div class="col-md-2">
-                                        <button type="button" style="margin-top: 18px;" class="btn btn-primary" :disabled="turnoSelect=='0'||lineaSelect==null" @click="listarProducto(lineaSelect.id)">Procesar</button>
-                                    </div>      
+                                        <button type="button" style="margin-top: 27px;" class="btn btn-primary" :disabled="turnoSelect=='0'||lineaSelect==null" @click="listarProducto(lineaSelect.id);cambioActivar(1)" v-if="activador==0">
+                                            Procesar
+                                        </button>
+                                        <button type="button" style="margin-top: 27px;" class="btn btn-danger" :disabled="turnoSelect=='0'||lineaSelect==null" @click="cambioActivar(0)" v-else>
+                                            Quitar
+                                        </button>
+                                    </div>  
+                                       <div class="col-md-2">
+                                        <button type="button" style="margin-top: 27px; color: white;" class="btn btn-warning" @click="empezarFuncion(1)" v-if="activador_00==1">
+                                            Empezar
+                                        </button>
+                                         <button type="button" style="margin-top: 27px; color: white;" class="btn btn-secondary" v-else>
+                                            Empezar
+                                        </button>
+                                       </div>    
                                 </div>
                                
-                            </div>
-                            <div class="alert alert-primary" role="alert" v-if="turnoSelect=='0'||lineaSelect==null">
+                                <div class="alert alert-primary" role="alert" v-else>
+                                   
+                                <h5> <strong>Fecha: {{nombre_fecha_accion_2}} Turno: {{nombre_turno_accion_2}} Linea: {{nombre_linea_accion_2}}</strong></h5>
+                                </div>
+                               
+                                <div class="alert alert-success" role="alert" v-show="activador_00==1">
+  <h5>Se encontraron {{ cantidadTamanio }} productos, debe apretar el boton de empezar para poder empezar el conteo.</h5> 
+</div>
+
+                            <div class="alert alert-primary" role="alert" v-if="(turnoSelect=='0'||lineaSelect==null)&&tipoAccion==1">
   Debe seleccionar y completar todas las opciones 
 </div>
-            <table class="table table-bordered table-striped table-sm table-responsive" v-else>
+<div v-else>
+<div class="alert alert-warning" role="alert" v-show="activador==1&&tipoAccion==1">
+  Debe apretar en boton rojo para quitar la seleccion, se hara una nueva busqueda de productos pero se borrar lo que busco anterior mente.
+</div>
+     
+ <div class="form-group row" v-show="activador==1" >
+        <div class="col-md-3">
+            <button type="button"  class="btn btn-primary" @click="activarLecto(1)" v-if="verLector==0">Usar lector</button>      
+            <button type="button"  class="btn btn-secondary" @click="activarLecto(0)" v-else>Desactivar lector</button>                            
+        </div>
+        <div class="col-md-5" v-show="verLector==1">
+            <input type="text" class="form-control" v-model="inputBuscarCodigo" @keyup.enter="procesarCodigo" placeholder="Escannear el código">
+        </div>
+    
+ </div>                                   
+ <div v-if="verContenido==1&&verLector==1 && activarProceso==1">
+    <div class="alert alert-primary" role="alert"><h5>{{alertMensajeLector}}</h5></div>
+
+<table class="table table-bordered table-striped table-sm table-responsive" >
                 <thead>
                     <tr>
-                        <th class="col-md-5">Producto</th>
-                        <th class="col-md-1">Lote</th>
+                        <th class="col-md-3">Producto</th>
+                        <th class="col-md-2">Codigo</th>
+                        <th class="col-md-2">Lote</th>
                         <th class="col-md-2">Fecha ingreso</th>
                         <th class="col-md-2">Fecha vencimiento</th>
-                        <th class="col-md-2">Cantidad</th>       
+                        <th class="col-md-1">Cantidad</th> 
+                    
+                       
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="(i, index) in productosSeleccionados" :key="index">
+                        <td class="col-md-3">{{i.leyenda}}</td>
+                        <td class="col-md-2">{{i.codigo_imprecion}}</td>
+                        <td class="col-md-2">{{i.lote}}</td>
+                        <td class="col-md-2">{{i.fechaIngreso}}</td>
+                        <td class="col-md-2">{{i.fecha_vencimiento}}</td>
+                        <td class="col-md-1" style="text-align: center;">{{i.cantidad}}</td>                                        
+                    </tr>
+                </tbody>
+            </table>
+            <button type="button"  class="btn btn-primary btn-lg" @click="registrarConLencto()" v-show="activador==1" :disabled="isSubmitting==true||productosSeleccionados.length<=0">
+                            Cargar tabla 
+                        </button>
+ </div>
+ <div v-else-if="verContenido==1 && verLector == 0 && activarProceso==1">
+<table class="table table-bordered table-striped table-sm table-responsive" >
+                <thead>
+                    <tr>
+                        <th class="col-md-3">Producto</th>
+                        <th class="col-md-2">Codigo</th>
+                        <th class="col-md-2">Lote</th>
+                        <th class="col-md-2">Fecha ingreso</th>
+                        <th class="col-md-2">Fecha vencimiento</th>
+                        <th class="col-md-1">Cantidad</th>                        
                     </tr>
                 </thead>
                 <tbody>
                     <tr v-for="(i, index) in arrayProductoLineaIngreso" :key="index">
-                        <td>{{i.nom_producto+" - "+i.nom_dis+" X "+i.cantidad_d+" "+i.nom_forma_faraceutica+" "+i.envase}}</td>
-                        <td>{{i.lote}}</td>
-                        <td>{{i.fecha_ingreso}}</td>
-                        <td>{{i.fecha_vencimiento}}</td>
-                        <td>
-                            <input type="number" class="form-control"     @input="guardarProducto(i, $event.target.value)">
-                        </td>
+                        <td class="col-md-3">{{i.nom_producto+" - "+i.nom_dis+" X "+i.cantidad_d+" "+i.nom_forma_faraceutica+" "+i.envase}}</td>
+                        <td class="col-md-2">{{i.codigo_imprecion}}</td>
+                        <td class="col-md-2">{{i.lote}}</td>
+                        <td class="col-md-2">{{i.fecha_ingreso}}</td>
+                        <td class="col-md-2">{{i.fecha_vencimiento}}</td>
+                        <td class="col-md-1">
+                            <input type="number" class="form-control"  @input="guardarProducto(i, $event.target.value)" min="0">                         
+                        </td> 
+                                       
                     </tr>
                 </tbody>
-            </table> 
-                        </form>
+</table>  
+<button type="button"  class="btn btn-primary btn-lg" @click="registrar()" v-show="activador==1" :disabled="isSubmitting==true">
+                            Cargar tabla 
+                        </button>             
+ </div>
+<div class="alert alert-warning" role="alert" v-else>
+  Debe apretar el boton empezar para ver las tablas.
+</div>
+  
+</div>
+
+          
                     </div>
                   
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" @click="cerrarModal('registrar')">
+                        <button type="button" class="btn btn-secondary" @click="cerrarModal('registrar')" >
                             Cerrar
                         </button>
-                        <button type="button" v-if="tipoAccion == 1" class="btn btn-primary" :disabled="  turnoSelect=='0'||lineaSelect==null||isSubmitting==true" @click="registrar()">
-                            Guardar
-                        </button>
-                        <button type="button" v-if="tipoAccion == 2" class="btn btn-primary">
-                            Actualizar
-                        </button>
+                      
                     </div>
                     </div>    
                 </div>
@@ -313,47 +450,71 @@
                       <div class="modal-body"  style="max-height: 70vh; overflow-y: auto;">  
                    
                         <form action="" class="form-horizontal">
+                        <table class="table table-bordered table-striped table-sm table-responsive">
+                            <thead>
+                                <tr>
+                                    <th>Nombre de inventario</th>
+                                    <th>Nombre de motivo</th>
+                                    <th>Fecha creación</th>
+                                    <th>Tipo</th>
+                                    <th>Inventario</th>
+                                    <th>Usuario</th>
+                                    <th>Bloqueado</th>
+                                </tr>
+                                <tr>
+                                    <td>{{arrayCabeza.nombre}}</td>
+                                    <td>{{arrayCabeza.motivo}}</td>
+                                    <td>{{arrayCabeza.created_at}}</td>
+                                    <td>{{arrayCabeza.enproceso}}</td>
+                                    <td>{{arrayCabeza.tipo_inventario}}</td>
+                                    <td>{{arrayCabeza.name}}</td>
+                                    <td>
+                                        <div v-if="arrayCabeza.id_bloqueo==null">
+                                            <span>Sin bloqueo</span>
+                                        </div>
+                                        <div v-else>
+                                            <span>Bloqueado</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </thead> 
+                        </table>          
                         
-                            <!-- insertar datos -->
-                            <div class="container">                                
-                                <div class="form-group row">
-                                    <div class="col-md-3">
-                                        <strong>USUARIO: {{usuario_ver}}</strong>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <strong>Linea: {{linea_ver}}</strong>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <strong>FECHA: {{fecha_ver}}</strong>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <strong>ESTADO: {{estado_ver}}</strong>
-                                    </div>
-                                </div>
-                               
-                            </div>
             
             <table class="table table-bordered table-striped table-sm table-responsive">
                 <thead>
                     <tr>
-                        <th class="col-md-4">Producto</th>
+                        <th class="col-md-3">Producto</th>
+                        <th>Linea</th>
                         <th>Lote</th>
                         <th>Fecha vencimiento</th>
-                        <th>Cantidad sistema</th>
-                        <th>Cantidad registrada</th>
+                        <th>Turno</th>
+                        <th>Cantidad existentes</th>
+                        <th>Cantidad fisica</th>
                         <th>Diferencia</th>
-                        <th>Resultado</th>       
+                        <th>Resultado</th>
+                        <th>Observación</th>       
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="(i, index) in arrayProductoDetalle" :key="index">
-                         <td class="col-md-4">{{i.nom_producto+" - "+i.nom_dis+" X "+i.cantidad_d+" "+i.nom_forma_faraceutica+" "+i.envase}}</td>
-                         <td>{{i.lote}}</td>
+                    <tr v-for="(i, index) in arrayCuerpo" :key="index">
+                        <td class="col-md-3">{{i.leyenda+" Envase: "+i.envase}}</td>
+                        <td>{{i.nom_linea}}</td>
+                        <td>{{i.lote}}</td>
                        <td>{{i.fecha_v}}</td>
+                        <td>{{i.turno}}</td>
                        <td>{{i.cantidad_sis_detalle_inventario}}</td>
                        <td>{{i.cantidad_reg_detalle_inventario}}</td>
                        <td>{{i.diferencia_detalle_inventario}}</td>
-                       <td>{{i.estado}}</td>                       
+                       <td>{{i.estado}}</td>   
+                       <td>
+    {{ i.observacion }}
+    <i v-if="i.repetido == 'REPETIDO'"
+       class="fa fa-bug fa-2x"
+       aria-hidden="true"
+       style="color: red; margin-left:5px;">
+    </i>
+</td>                   
                     </tr>
                 </tbody>
                 
@@ -364,13 +525,119 @@
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" @click="cerrarModal('ver')">
                             Cerrar
+                        </button>                    
+                    </div>
+                    </div>    
+                </div>
+            </div>  
+    </transition>
+        <!--fin del modal-->
+
+        <!--Inicio del modal crear computo-->
+           <transition name="fade">
+            <div v-if="showModal_3" class="modal d-block" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-primary modal-lg modal-dialog-scrollable" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                        <h4 class="modal-title">{{ tituloModal }}</h4>
+                        <button type="button" class="close" @click="cerrarModal('registrar_0')">
+                            <span>&times;</span>
                         </button>
-                        <button type="button" v-if="tipoAccion == 1" class="btn btn-primary">
+                    </div>
+                      <div class="modal-body"  style="max-height: 70vh; overflow-y: auto;">  
+                   
+                        <form action="" class="form-horizontal">
+                          <div class="form-group row">                                    
+                            <div class="col-md-6">
+                            <label for="">Nombre:</label>
+                             <input type="text" class="form-control" v-model="model_0_nombre">
+                            </div>
+                            <div class="col-md-6">
+                            <label for="">Motivo:</label>
+                             <input type="text" class="form-control" v-model="model_0_motivo">
+                            </div>
+                         </div>       
+                        </form>
+                    </div>
+                  
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" @click="cerrarModal('registrar_0')">
+                            Cerrar
+                        </button>
+                        <button type="button" v-if="tipoAccion == 1" class="btn btn-primary" @click="registro_0_0()">
                             Guardar
                         </button>
                         <button type="button" v-if="tipoAccion == 2" class="btn btn-primary">
                             Actualizar
                         </button>
+                    </div>
+                    </div>    
+                </div>
+            </div>  
+    </transition>
+        <!--fin del modal-->
+        <!--Inicio del modal crear computo-->
+           <transition name="fade">
+            <div v-if="showModal_4" class="modal d-block" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-primary modal-super-lg modal-dialog-scrollable" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                        <h4 class="modal-title">{{ tituloModal }}</h4>
+                        <button type="button" class="close" @click="cerrarModal('registrar_00')">
+                            <span>&times;</span>
+                        </button>
+                    </div>
+                      <div class="modal-body"  style="max-height: 70vh; overflow-y: auto;">  
+                   
+                        <form action="" class="form-horizontal">
+                            <div v-if="arrayTabla3.length>0">
+                                 <table class="table table-bordered table-striped table-sm table-responsive" >
+                                <thead>
+                                    <tr>
+                                        <th>Producto</th>
+                                        <th>Linea</th>
+                                        <th>Lote</th>
+                                        <th>Fecha vencimiento</th>
+                                        <th>Cantidad existentes</th>
+                                        <th>Cantidad fisica</th>
+                                        <th>Diferencia</th>
+                                        <th>Resultado</th>
+                                        <th>Observación</th>						
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="(i, index) in arrayTabla3" :key="index">
+                                        <td>{{ i.leyenda }}</td>
+                                        <td>{{ i.nom_linea }}</td>
+                                        <td>{{ i.lote }}</td>
+                                        <td>{{ i.fecha_v }}</td>
+                                        <td>{{ i.cantidad_sis_detalle_inventario }}</td>
+                                        <td>{{ i.cantidad_reg_detalle_inventario }}</td>
+                                        <td>{{ i.diferencia_detalle_inventario }}</td>
+                                        <td>{{ i.estado }}</td>
+                                        <td>
+                                        <input type="text"  class="form-control"  v-model="arrayTabla3[index].observacion">
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table> 
+                            </div>
+                           
+                            <div class="alert alert-success" role="alert"  v-else>
+  No tiene ninguna observación.
+</div>
+                              
+                        </form>
+                    </div>
+                  
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" @click="cerrarModal('registrar_00')">
+                            Cerrar
+                        </button>
+                        <button type="button" v-if="tipoAccion == 1" class="btn btn-primary" @click="guardarObservacion()">
+                            Terminar conteo
+                        </button>
+                  
                     </div>
                     </div>    
                 </div>
@@ -386,6 +653,7 @@ import { error401 } from "../../errores";
 import VueMultiselect from 'vue-multiselect';
 import pdfMake from 'pdfmake/build/pdfmake';
 import pdfFonts from 'pdfmake/build/vfs_fonts';
+import { forEach } from "lodash";
 // Asigna los fonts a pdfmake
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 //Vue.use(VeeValidate);
@@ -406,6 +674,8 @@ export default {
             },
             showModal: false,
             showModal_2: false,
+            showModal_3: false,
+             showModal_4: false,
             offset:3,
             isSubmitting:false,
 
@@ -445,6 +715,38 @@ arrayProductoLineaIngreso:[],
                 puedeHacerOpciones_especiales:2,
                 puedeCrear:2,
                 //-----------
+
+                model_0_motivo:'',
+                model_0_nombre:'',
+
+                fecha_0_0:'',
+                activador:0,
+
+                verLector:0,
+                inputBuscarCodigo:'',
+                cadenaInput:'',     
+                
+                cantidadTamanio:0,
+                verContenido:0,
+                id_index:0,
+
+                nombre_fecha_accion_2:'',
+                nombre_turno_accion_2:'',
+                nombre_linea_accion_2:'',
+                id_dos:'',
+
+                activador_00:0,
+
+                arrayTabla3:[],
+                activarProceso:0,
+
+                id_bloqueo_1:'',
+
+                id_tabla_dos_momentanio:'',
+
+                arrayCabeza:[],
+                arrayCuerpo:[],
+
           
         };
     },
@@ -521,47 +823,72 @@ listarPerimsoxyz() {
 
 //-------------------------------------------------------------
 
-        descargaPDF(array_reporte) {
+    descargaPDF(array_c, array_b) {
 
     let me = this;
 
+    const tableHeader = [];
     const tableBody = [];
+    let valor_1;
 
-    // 🔹 Fila informativa superior (usa colSpan)
-    tableBody.push([
-        { text: 'USUARIO: ' + me.usuario_ver, colSpan: 7, alignment: 'left', fillColor: '#eeeeee', fontSize: 8 }, {}, {}, {}, {}, {}, {}
+    if (array_c.id_bloqueo == null) {
+        valor_1 = 'Sin bloqueo';
+    } else {
+        valor_1 = 'Bloqueado';
+    }
+
+    // Encabezado información
+    tableHeader.push([
+        { text: 'Nombre de inventario', style: 'tableHeader' },
+        { text: 'Nombre de motivo', style: 'tableHeader' },
+        { text: 'Fecha creación', style: 'tableHeader' },
+        { text: 'Tipo', style: 'tableHeader' },
+        { text: 'Inventario', style: 'tableHeader' },
+        { text: 'Usuario', style: 'tableHeader' },
+        { text: 'Bloqueado', style: 'tableHeader' },
     ]);
 
-    tableBody.push([
-        { text: 'LINEA: ' + me.linea_ver + '   |   FECHA: ' + me.fecha_ver + '   |   ESTADO: ' + me.estado_ver, colSpan: 7, alignment: 'left', fillColor: '#eeeeee', fontSize: 8 }, {}, {}, {}, {}, {}, {}
+    // Datos información
+    tableHeader.push([
+        { text: array_c.nombre, fontSize: 8 },
+        { text: array_c.motivo, fontSize: 8 },
+        { text: array_c.created_at, fontSize: 8 },
+        { text: array_c.enproceso, fontSize: 8 },
+        { text: array_c.tipo_inventario, fontSize: 8 },
+        { text: array_c.name, fontSize: 8 },
+        { text: valor_1, fontSize: 8 },
     ]);
 
-    // 🔹 Encabezados reales de tabla
+    // Encabezados tabla detalle
     tableBody.push([
-        { text: 'PRODUCTO', style: 'tableHeader' },
-        { text: 'LOTE', style: 'tableHeader' },
-        { text: 'F. VENC.', style: 'tableHeader' },
-        { text: 'SISTEMA', style: 'tableHeader' },
-        { text: 'REGISTRO', style: 'tableHeader' },
-        { text: 'DIF.', style: 'tableHeader' },
-        { text: 'ESTADO', style: 'tableHeader' },
+        { text: 'Producto', style: 'tableHeader' },
+        { text: 'Linea', style: 'tableHeader' },
+        { text: 'Lote', style: 'tableHeader' },
+        { text: 'Fecha vencimiento', style: 'tableHeader' },
+        { text: 'Turno', style: 'tableHeader' },
+        { text: 'Cant. sistema', style: 'tableHeader' },
+        { text: 'Cant. física', style: 'tableHeader' },
+        { text: 'Diferencia', style: 'tableHeader' },
+        { text: 'Observación', style: 'tableHeader' },
+        { text: 'Resultado', style: 'tableHeader' },
     ]);
 
-    // 🔹 Datos
-    array_reporte.forEach(i => {
+    // Datos detalle
+    array_b.forEach(i => {
+
+        let colorFila = (i.repetido == 'REPETIDO') ? 'red' : 'black';
 
         tableBody.push([
-            {
-                text: i.nom_producto + " - " + i.nom_dis + " X " + i.cantidad_d + " " + i.nom_forma_faraceutica + " " + i.envase,
-                fontSize: 7,
-                alignment: 'left'
-            },
-            { text: i.lote || '', fontSize: 7 },
-            { text: i.fecha_v || '', fontSize: 7, alignment: 'center' },
-            { text: i.cantidad_sis_detalle_inventario?.toString() || '0', fontSize: 7, alignment: 'right' },
-            { text: i.cantidad_reg_detalle_inventario?.toString() || '0', fontSize: 7, alignment: 'right' },
-            { text: i.diferencia_detalle_inventario?.toString() || '0', fontSize: 7, alignment: 'right' },
-            { text: i.estado || '', fontSize: 7, alignment: 'center' }
+            { text: i.leyenda + " " + i.envase, fontSize: 7, color: colorFila },
+            { text: i.nom_linea, fontSize: 7, color: colorFila },
+            { text: i.lote, fontSize: 7, color: colorFila },
+            { text: i.fecha_v, fontSize: 7, color: colorFila },
+            { text: i.turno, fontSize: 7, color: colorFila },
+            { text: i.cantidad_sis_detalle_inventario, fontSize: 7, color: colorFila },
+            { text: i.cantidad_reg_detalle_inventario, fontSize: 7, color: colorFila },
+            { text: i.diferencia_detalle_inventario, fontSize: 7, color: colorFila },
+            { text: i.observacion, fontSize: 7, color: colorFila },
+            { text: i.repetido, fontSize: 7, color: colorFila },
         ]);
 
     });
@@ -577,8 +904,16 @@ listarPerimsoxyz() {
             {
                 margin: [0, 10, 0, 0],
                 table: {
-                    headerRows: 3,
-                    widths: ['*', 50, 55, 45, 45, 45, 50],
+                    headerRows: 1,
+                    widths: [80, 80, 60, 50, 60, 60, 50],
+                    body: tableHeader
+                }
+            },
+            {
+                margin: [0, 10, 0, 0],
+                table: {
+                    headerRows: 1,
+                    widths: ['*', 40, 40, 45, 40, 40, 40, 40, 70, 40],
                     body: tableBody
                 }
             }
@@ -607,6 +942,135 @@ listarPerimsoxyz() {
 
     pdfMake.createPdf(docDefinition).open();
 },
+//------------------------lector codigo----------------------------------
+reiniciarLote(data){
+    let me = this;
+
+    Swal.fire({
+        title: "¿Desea terminar el proceso de conteo?",
+        showDenyButton: true,
+        showCancelButton: true,
+        confirmButtonText: "Quiero añadir más procesos",
+        denyButtonText: "Terminar proceso y consolidar"
+    }).then((result) => {
+
+        let tipo = -1;
+
+        if (result.isConfirmed) {
+            tipo = 0;
+        } else if (result.isDenied) {
+            tipo = 4;
+        } else {
+            return; // cancelado → no hace nada
+        }
+
+      
+        axios.put("/inventario-periodo/terminarProceso_continuar", { 
+            id_index: data.id,
+            tipo: tipo
+        })
+        .then(function (response) {               
+            let respuesta = response.data;   
+
+            if (respuesta === 0) {
+                Swal.fire("Se guardó correctamente.", "Haga click en OK", "success");
+            } else {
+                Swal.fire(respuesta, "Haga click en OK", "error");
+            }
+
+            me.listarIndex();
+        })
+        .catch(function (error) {                
+            error401(error);             
+        });
+
+    });
+},
+
+    guardarObservacion(){
+       let me=this;
+        axios.post("/inventario-periodo/terminarProceso", { 
+                        'array': me.arrayTabla3,
+                        'id_dos':me.id_dos,
+                        'id_index':me.id_index,
+                        'id_bloqueo':me.id_bloqueo_1,
+                                                             
+                    })
+                    .then(function (response) {
+                        me.cerrarModal("registrar_00");
+                        
+                          var respuesta = response.data;   
+                                        
+                                if (respuesta===0) {
+                                     Swal.fire("Se guardo correctamente.","Haga click en Ok","success",);
+                                }else{
+                                    Swal.fire(respuesta,"Haga click en Ok","error",);
+                                }                          
+                         me.listarIndex();
+                    })
+                   .catch(function (error) {                
+                      error401(error);             
+            });
+    },
+
+procesarCodigo(){
+
+    let me = this;
+ 
+    const index1 = me.arrayProductoLineaIngreso.findIndex(
+
+        p => p.codigo_imprecion === me.inputBuscarCodigo
+    );
+   
+     if(index1 === -1){
+   me.alertMensajeLector="No existe el código, ya que solo la busqueda es por liena";
+   
+}else{        
+const producto = me.arrayProductoLineaIngreso[index1];
+ 
+  me.alertMensajeLector="Producto encontrado";
+   const index2 = me.productosSeleccionados.findIndex(
+            p => p.codigo_imprecion === me.inputBuscarCodigo
+        );
+
+        if(index2 === -1){
+
+            me.productosSeleccionados.push({
+                id_ingreso: producto.id,
+                id_prod_producto: producto.id_prod_producto,
+                stock_ingreso: producto.stock_ingreso,                
+                envase: producto.envase,
+                cantidad: 1,  
+
+                lote: producto.lote,
+
+                fecha_vencimiento: producto.fecha_vencimiento, 
+
+                codigo_imprecion: producto.codigo_imprecion,
+
+                leyenda:`${producto.nom_producto} - ${producto.nom_dis} X ${producto.cantidad_d} ${producto.nom_forma_faraceutica} ${producto.envase}`,
+                
+                fechaIngreso:producto.fecha_ingreso,
+            });
+           
+        }else{            
+         me.productosSeleccionados[index2].cantidad += 1;
+         me.alertMensajeLector="Producto encontrado";
+        }
+
+     }   
+      me.inputBuscarCodigo = '';    
+},
+//-----------------------------------------------------------------------
+
+activarLecto(data){
+    let me=this;
+    me.verLector=data;
+    if (data==0) {      
+        me.productosSeleccionados=[];
+    } 
+},
+
 
         verPDF(data){
             let me=this;
@@ -617,31 +1081,110 @@ listarPerimsoxyz() {
         },
       
 
-       listarIndex(page){
+       listarIndex(page){ 
             let me=this;            
                 var url='/inventario-periodo/listarInicio?page='+page+'&id_sucursal='+me.id_sucursal+'&buscar='+me.buscar+'&estadoSelect='+me.estadoSelect+'&tipo_inventario='+me.peridoSelect+'&id_tienda='+me.id_tienda+'&id_almacen='+me.id_almacen+'&ini='+me.startDate+'&fini='+me.endDate;
              
                 axios.get(url)
                 .then(function(response){
-                    var respuesta = response.data;
-              
+                    var respuesta = response.data;                   
                     me.pagination = respuesta.pagination;
-                    me.arrayInicio = respuesta.resultados.data;
-                 
+                  me.arrayInicio = respuesta.resultados.data;
+                           
                 })
                 .catch(function(error){
                     error401(error);
                 });
         },
 
+        listarModalData(id,data){ 
+            let me=this;            
+                var url='/inventario-periodo/listarModalData?id='+id;             
+                axios.get(url)
+                .then(function(response){
+                    let respuesta = response.data;
+                    let respuesta_cabeza = respuesta.query_1;
+                    let respuesta_cuerpo = respuesta.query_2;    
+                    
+                me.arrayCabeza=respuesta.query_1;
+                me.arrayCuerpo=respuesta.query_2;   
+                 if (data==1) {
+                        me.descargaPDF(me.arrayCabeza,me.arrayCuerpo);
+                    } 
+                   
+                })
+                .catch(function(error){
+                    error401(error);
+                });
+        },
+
+        listarTabla_tres(data){ 
+            let me=this; 
+                
+                var url='/inventario-periodo/listarTabla_tres?id='+data;
+                me.arrayTabla3=[];
+                axios.get(url)
+                .then(function(response){
+                    var respuesta = response.data;                   
+                    me.arrayTabla3=respuesta;
+                              
+                })
+                .catch(function(error){
+                    error401(error);
+                });
+        },
+
+        cargarTabla_0(array,cantidad,index){
+         let aa=0;
+         let me=this;
+          const index_2 = me.productosSeleccionados.findIndex(
+            p => p.id_ingreso === array.id
+        );
+     
+
+            if  (cantidad === null || cantidad === undefined || cantidad === '') {
+                aa=0;
+            }else{
+                aa=cantidad;
+            }          
+
+            
+        if (index !== -1) {
+            // Si ya existe, solo actualiza cantidad
+            this.productosSeleccionados[index].cantidad = aa;
+
+        } else {
+            // Si no existe, lo agrega completo
+            this.productosSeleccionados.push({
+                id_ingreso: array.id,
+                id_prod_producto: array.id_prod_producto,
+                stock_ingreso: array.stock_ingreso,                
+                envase: array.envase,
+                cantidad: aa,  
+                lote: array.lote,
+                fecha_vencimiento: array.fecha_vencimiento, 
+            });
+
+ 
+
+        }
+
+        },
+
         guardarProducto(producto, cantidad) {
         const index = this.productosSeleccionados.findIndex(
-            p => p.id === producto.id
+            p => p.id_ingreso === producto.id
         );
+        let aa=0;
+         if  (cantidad === null || cantidad === undefined || cantidad === '') {
+                aa=0;
+            }else{
+                aa=Number(cantidad);
+            }
 
         if (index !== -1) {
             // Si ya existe, solo actualiza cantidad
-            this.productosSeleccionados[index].cantidad = Number(cantidad);
+            this.productosSeleccionados[index].cantidad = aa;
 
         } else {
             // Si no existe, lo agrega completo
@@ -650,29 +1193,133 @@ listarPerimsoxyz() {
                 id_prod_producto: producto.id_prod_producto,
                 stock_ingreso: producto.stock_ingreso,                
                 envase: producto.envase,
-                cantidad: Number(cantidad),  
+                cantidad: aa,  
                 lote: producto.lote,
                 fecha_vencimiento: producto.fecha_vencimiento,            
             });
 
+       
+        }
+    },
+
+    empezarFuncion(activador){
+    let me = this;
+    me.activarProceso=1;
+ 
+    let url = "/inventario-periodo/listarBloqueo_1?id_sucursal=" + me.id_sucursal + "&id_linea=" + me.lineaSelect.id+"&id_bloqueo="+me.id_bloqueo_1;
+
+    axios.get(url)
+    .then(function (response) {
+
+        if (response.data == 1) {
+            Swal.fire("Ya un proceso con la linea y sucursal.", "Haga click en Ok", "error");
+            return;
         }
 
-    },
+        me.activador = activador;
+        let inicio = (activador == 1) ? 1 : 0;
+
+        // OBJETO BASE
+        let datos_enviar = {
+            tipo_inventario: me.peridoSelect,
+            id_index: me.id_index,
+            id_sucursal: me.id_sucursal,
+            id_lineas: me.lineaSelect.id,
+            id_tienda: me.id_tienda,
+            id_almacen: me.id_almacen,
+            fecha_0_0: me.fecha_0_0,
+            turno: me.turnoSelect,
+            id_bloqueo:me.id_bloqueo_1 
+        };
+
+        // SOLO SI ES DIARIO
+        if (me.peridoSelect == "D") {
+            datos_enviar.inicio = inicio;
+        }
+
+        axios.post("/inventario-periodo/bloquear", datos_enviar)
+        .then(function (response) {
+
+            let respuesta = response.data;
+            let respuesta_1=respuesta.estado;
+            let respuesta_2=respuesta.enviar;
+            let respuesta_3=respuesta.error;
+          
+if (respuesta_1==0) {
+    me.id_dos=respuesta_2;
+    me.id_tabla_dos_momentanio=respuesta_2;
+    me.verContenido = 1;
+            me.listarIndex();
+    return;
+}
+if (respuesta_1==1) {
+     Swal.fire("Ya tiene un proceso activo.", "Haga click en Ok", "error");
+    me.id_dos=null;
+    return;
+}
+if (respuesta_1==2) {
+      Swal.fire(respuesta_3, "Haga click en Ok", "error");
+    me.id_dos=null;
+    return;
+}
+
+
+      //      if (respuesta === 1) {
+      //          Swal.fire("Ya tiene un proceso activo.", "Haga click en Ok", "error");
+      //          return;
+      //      }
+
+      //      if (respuesta != 0) {
+      //          Swal.fire(respuesta, "Haga click en Ok", "error");
+      //      }
+
+            
+         
+        /**
+        axios.get("/inventario-periodo/listarTabla_dos?id=" + me.id_index)
+            .then(function (response) {
+                let respuesta = response.data;
+
+                if (respuesta && respuesta.id) {
+                    me.id_dos = respuesta.id;
+                } else {
+                    me.id_dos = 0; 
+                }
+
+                console.log("--> id_dos:", me.id_dos);
+            })
+            .catch(function (error) {
+                error401(error);
+            });
+        */      
+
+        })
+        .catch(function (error) {
+            error401(error);
+        });
+
+    })
+    .catch(function (error) {
+        error401(error);
+    });
+},
+
 
         registrar(){
             let me =this;
-        
+          
+          
             if (me.arrayProductoLineaIngreso.length==me.productosSeleccionados.length) {
-              
+          
+                        
+                        
                    me.isSubmitting=true;
                 axios.post("/inventario-periodo/registrar", { 
                         'array': me.productosSeleccionados,
-                        'id_sucursal':me.id_sucursal,
-                        'id_tienda':me.id_tienda,
-                        'id_almacen':me.id_almacen,
-                        'id_lineas': me.lineaSelect.id, 
-                        'tipo_inventario':me.peridoSelect,
-                        'turno':me.turnoSelect                                          
+                        'id_dos':me.id_dos,
+                        'id_index':me.id_index,
+                        'id_tabla_dos_momentanio':me.id_tabla_dos_momentanio,
+                                                             
                     })
                     .then(function (response) {
                         me.cerrarModal("registrar");
@@ -690,14 +1337,91 @@ listarPerimsoxyz() {
                       error401(error);             
             });
             }else{
+                  me.cerrarModal("registrar");
                  me.isSubmitting=false;
                 me.productosSeleccionados=[];
+                me.arrayProductoLineaIngreso=[];  
                 Swal.fire(
                     "No puede ingresar valor nulos  o vacios",
                     "Haga click en Ok",
                     "warning",
                 );
             }           
+        },
+
+        registrarConLencto(){
+            let me=this;            
+ me.isSubmitting=true;
+ Swal.fire({
+  title: "Desea terminar.!",
+  text: "Esta seguro de terminar el proceso de conteo.",
+  icon: "warning",
+  showCancelButton: true,
+  confirmButtonColor: "#3085d6",
+  cancelButtonColor: "#d33",
+  confirmButtonText: "Si, Ya termine!"
+}).then((result) => {
+    if (result.isConfirmed){
+        axios.post("/inventario-periodo/registrar", { 
+                        'array': me.productosSeleccionados,
+                        'id_dos':me.id_dos,
+                        'id_index':me.id_index,
+                        'id_tabla_dos_momentanio':me.id_tabla_dos_momentanio,
+                                                             
+                    })
+                    .then(function (response) {
+                        me.cerrarModal("registrar");
+                          me.isSubmitting=false;
+                          var respuesta = response.data;   
+                                        
+                                if (respuesta===0) {
+                                     Swal.fire("Se guardo correctamente.","Haga click en Ok","success",);
+                                }else{
+                                    Swal.fire(respuesta,"Haga click en Ok","error",);
+                                }                          
+                         me.listarIndex();
+                    })
+                   .catch(function (error) {                
+                      error401(error);             
+            });
+    }  else{
+        me.isSubmitting=false;
+    }
+});
+ 
+        },
+
+        registro_0_0(){
+            let me =this;
+            if (me.model_0_motivo==''||me.model_0_nombre==''||me.model_0_motivo==null||me.model_0_nombre==null) {
+               Swal.fire("No puede ingresar valor nulos  o vacios","Haga click en Ok", "warning",); 
+            } else {
+                me.isSubmitting=true;
+                axios.post("/inventario-periodo/registro_0_0", { 
+                    'motivo_0':me.model_0_motivo,
+                    'nombre_0':me.model_0_nombre,
+                        'id_sucursal':me.id_sucursal,
+                        'id_tienda':me.id_tienda,
+                        'id_almacen':me.id_almacen,                       
+                        'tipo_inventario':me.peridoSelect,                                                            
+                    })
+                    .then(function (response) {
+                        me.cerrarModal("registrar_0");
+                          me.isSubmitting=false;
+                          var respuesta = response.data;   
+                                        
+                                if (respuesta===0) {
+                                     Swal.fire("Se guardo correctamente.","Haga click en Ok","success",);
+                                }else{
+                                    Swal.fire(respuesta,"Haga click en Ok","error",);
+                                }                          
+                  
+                      me.listarIndex();
+                    })
+               .catch(function (error) {                
+                      error401(error);             
+            });
+            }
         },
 
         cambioEstado(id,dato) {
@@ -768,25 +1492,63 @@ listarPerimsoxyz() {
         },
 
         listarProducto(id_linea){
-            let me = this;  
-              
-            var url = "/inventario-periodo/listarProducto?id_linea="+id_linea+"&id_tienda="+me.id_tienda+"&id_almacen="+me.id_almacen;
+            let me = this;
+            let fechaDiario;  
+            let bandera=0;
+            if (me.peridoSelect=="D") {
+                if ((me.fecha_0_0==""||me.fecha_0_0==null)&&me.tipoAccion==1) {
+                        Swal.fire("fecha sin seleccionar","Haga click en Ok","error",);
+                        bandera=1;
+                } else {
+                  fechaDiario=me.fecha_0_0;
+                  bandera=0;  
+                }
+                
+            } else {
+                fechaDiario="0";
+                bandera=0;  
+            }
+            if (bandera==0) {
+                 me.arrayProductoLineaIngreso.length=0;  
+            me.productosSeleccionados.length=0;  
+            
+            var url = "/inventario-periodo/listarProducto?id_linea="+id_linea+"&id_tienda="+me.id_tienda+"&id_almacen="+me.id_almacen+"&peridoSelect="+me.peridoSelect+"&fecha_0_0="+fechaDiario+"&turno="+me.turnoSelect+"&id_sucursal="+me.id_sucursal;
             axios
                 .get(url)
                 .then(function (response) {
                     var respuesta = response.data;
                     me.arrayProductoLineaIngreso=respuesta;
+                    me.cantidadTamanio=me.arrayProductoLineaIngreso.length;
                                  
                 })
                 .catch(function (error) {
                     error401(error);
                 
                 });
+              
+            }              
+        },
+
+        cambioActivar(data){
+            let me=this;
+            
+            me.activador_00=data;
+            me.cantidadTamanio=0;
+            if(data==0){
+               
+                    me.lineaSelect=null;   
+                     
+             me.lineaSelect=null;
+             me.productosSeleccionados=[];
+            me.arrayProductoLineaIngreso=[];
+            }
+
         },
 
          listarProductoDetalle(id,dato){
             let me = this;    
-            me.arrayProductoDetalle=[];           
+            me.arrayProductoDetalle=[];   
+             
             var url = "/inventario-periodo/listarProductoDetalle?id="+id;
             axios
                 .get(url)
@@ -883,15 +1645,56 @@ if (registro) {
                     me.turnoSelect="0";
                     me.lineaSelect=null;   
                     me.productosSeleccionados= [];
-                    me.isSubmitting=false;
+                    me.fecha_0_0="";
+                    me.activador=0;
+                    me.verLector=0;
+                    me.inputBuscarCodigo="";
+                    me.cadenaInput=""; 
+                    me.cantidadTamanio=0;
+                    me.verContenido=0;
+               
+                    me.id_index=data.id;
+                      me.nombre_fecha_accion_2="";
+                me.nombre_turno_accion_2="";
+                me.nombre_linea_accion_2="";
+                me.activador_00=0;
+                me.alertMensajeLector="";
+               me.activarProceso=0;
+               me.id_bloqueo_1=data.id_bloqueo;
+               me.id_tabla_dos_momentanio=data.id_tabla_dos_momentanio;
+                   
+                   // me.isSubmitting=false;
                     me.classModal.openModal("registrar");
                     break;
                 }
                 case "actualizar": {
                     me.tipoAccion = 2;
-                   
-          
-            
+                   me.tituloModal = "Editar inventario";
+                    me.showModal = true;
+                    me.dateInput="";
+                    me.turnoSelect="";
+                    me.lineaSelect=null;   
+                    me.productosSeleccionados= [];
+                    me.fecha_0_0=data.fecha_ini;
+                   me.activador=1;
+                    me.verLector=0;
+                  me.id_dos=data.id_dos;
+                    me.inputBuscarCodigo="";
+                    me.cadenaInput=""; 
+                    me.cantidadTamanio=0;
+                    me.verContenido=1;
+               
+                    me.id_index=data.id;
+                       me.nombre_fecha_accion_2=data.fecha_ini;
+                me.nombre_turno_accion_2=data.tuno_nombre;
+                me.nombre_linea_accion_2=data.nombre_linea;
+                   // me.isSubmitting=false;
+                    me.listarProducto(data.id_linea);
+                   me.cambioActivar(1);
+                    me.alertMensajeLector="";
+                    me.id_bloqueo_1=data.id_bloqueo;
+                    me.activarProceso=1;
+                    me.id_tabla_dos_momentanio=data.id_tabla_dos_momentanio;
                     me.classModal.openModal("registrar");
 
                     break;
@@ -907,6 +1710,30 @@ if (registro) {
                 me.estado_ver=data.estado;
 
                 me.classModal.openModal("ver");
+                break;
+                }
+
+                case "registrar_0":{
+                        me.showModal_3 = true;
+                        me.tipoAccion = 1;
+                        me.model_0_motivo="";
+                        me.model_0_nombre="";
+                      me.isSubmitting=false;
+                me.tituloModal = "Registro de computo";
+                me.classModal.openModal("registrar_0");
+                break;
+                }
+                case "registrar_00":{
+             
+                        me.showModal_4 = true;
+                        me.tipoAccion = 1;
+                      me.isSubmitting=false;
+                      me.id_dos=data.id_dos;
+                    me.id_index=data.id;
+                    me.id_bloqueo_1=data.id_bloqueo;
+                me.tituloModal = "Registro de actividad de computo";
+                me.classModal.openModal("registrar_00");
+                break;
                 }
             
             }
@@ -934,8 +1761,29 @@ if (registro) {
               me.dateInput="";
                     me.turnoSelect="0";
                     me.lineaSelect=null;   
-            me.productosSeleccionados= [];
+          me.fecha_0_0="";
              me.isSubmitting=false;
+             me.lineaSelect=null;
+             me.productosSeleccionados=[];
+            me.arrayProductoLineaIngreso=[];
+                me.activador=0;
+                me.verLector=0;
+                    me.inputBuscarCodigo="";
+                    me.cadenaInput="";
+                    me.cantidadTamanio=0;
+                    me.verContenido=0;
+                    me.id_index=0;
+
+                    me.nombre_fecha_accion_2="";
+                me.nombre_turno_accion_2="";
+                me.nombre_linea_accion_2="";
+                me.id_dos="";
+                me.activador_00=0;
+                me.alertMensajeLector="";
+                me.activarProceso=0;
+                me.id_bloqueo_1="";
+                me.id_tabla_dos_momentanio="";
+
             }
             if (accion == "ver") {
                 me.classModal.closeModal(accion);
@@ -945,8 +1793,25 @@ if (registro) {
                 me.linea_ver="";
                 me.fecha_ver="";
                 me.estado_ver="";
-                me.arrayProductoDetalle=[];
             }
+            if (accion == "registrar_0") {
+                me.classModal.closeModal(accion);
+                me.showModal_3 = false;
+                    me.model_0_motivo="";
+                        me.model_0_nombre="";
+                        me.isSubmitting=false;
+                me.tituloModal = "Registrar registro para su computo";
+            }
+            if (accion == "registrar_00") {
+                me.classModal.closeModal(accion);
+                me.showModal_4 = false;
+                  
+                me.isSubmitting=false;
+                me.tituloModal = "";
+                me.registrar_00="";
+            }
+
+            
         },
 
      
@@ -962,10 +1827,12 @@ if (registro) {
         this.classModal = new _pl.Modals();
         this.sucursalFiltro();
         this.fecha_inicial();
-        this.listarLinea();
+       this.listarLinea();
         this.listarPerimsoxyz();
         this.classModal.addModal("registrar");
         this.classModal.addModal("ver");
+        this.classModal.addModal("registrar_0");
+        this.classModal.addModal("registrar_00");
     
     },
 };
