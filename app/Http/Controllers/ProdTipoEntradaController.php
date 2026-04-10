@@ -31,6 +31,8 @@ class ProdTipoEntradaController extends Controller
     public function store(Request $request){
         $newTipoEntrada = new Prod_TipoEntrada();
         $newTipoEntrada->nombre = $request->nombre;
+        $newTipoEntrada->negativo = $request->nega;
+        $newTipoEntrada->positivo = $request->posi;
         $newTipoEntrada->id_usuario_registra = auth()->user()->id;
         $newTipoEntrada->save();
     }
@@ -39,6 +41,8 @@ class ProdTipoEntradaController extends Controller
     {
         $tipoEntrada = Prod_TipoEntrada::findOrFail($request->id);
         $tipoEntrada->nombre = $request->nombre;
+        $tipoEntrada->negativo = $request->nega;
+        $tipoEntrada->positivo = $request->posi;
         $tipoEntrada->id_usuario_modifica = auth()->user()->id;
         $tipoEntrada->save();
     }

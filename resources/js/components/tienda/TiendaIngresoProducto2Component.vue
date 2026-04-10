@@ -84,24 +84,25 @@
             <table class="table table-bordered table-striped table-sm table-responsive">
                 <thead>
                     <tr>
-                        <th>Opciones</th>
+                        <th class="col-md-1">Opciones</th>
                         <th>Codigo</th>
                         <th>Linea</th>
                         <th class="col-md-3">Producto</th>
-                        <th class="col-md-1">Envase</th>
-                        <th class="col-md-1">Cantidad</th>
-                        <th class="col-md-1">Lote</th>
-                        <th class="col-md-1">Vencimiento</th>
-                        <th class="col-md-1">R.S. SENASAG</th>
-                        <th class="col-md-2">Fecha y Hora</th>
-                        <th class="col-md-1">Usuario</th>
-                        <th class="col-md-1">Traspaso</th>
-                        <th>Estado</th>
+                        <th>Envase</th>
+                        <th>Cantidad ingresada</th>
+                        <th>Stock</th>
+                        <th >Lote</th>
+                        <th>Vencimiento</th>
+                        <th >R.S. SENASAG</th>
+                        <th>Fecha y Hora</th>
+                        <th>Usuario</th>
+                        <th>Traspaso</th>
+                        <th class="col-md-1">Estado</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr v-for="ingresoProducto in arrayIndex" :key="ingresoProducto.id">
-                        <td>
+                        <td class="col-md-1">
                             <div  class="d-flex justify-content-start">
                                 <div  v-if="puedeEditar==1">
                                 <button type="button" class="btn btn-warning btn-sm" @click="tiene_movimiento(ingresoProducto.idtienda,ingresoProducto.id,ingresoProducto)"  style="margin-right: 5px;">
@@ -137,14 +138,21 @@
                         </td>
                         <td v-text="ingresoProducto.codigo_prod"></td>
                         <td v-text="ingresoProducto.nombre_linea"></td>                       
-                        <td class="col-md-2" v-text="ingresoProducto.leyenda "></td>
-                         <td class="col-md-1"  v-text="ingresoProducto.envase"></td>
-                        <td class="col-md-1" v-text="ingresoProducto.cantidad" style="text-align:right"></td>
-                        <td v-text="ingresoProducto.lote" class="col-md-1"></td>
-                        <td  v-text="ingresoProducto.fecha_vencimiento" class="col-md-1"></td>
-                        <td  v-text="ingresoProducto.registro_sanitario" class="col-md-1"></td>
-                        <td class="col-md-1"  v-text="ingresoProducto.fecha"></td>
-                        <td class="col-md-1">
+                        <td class="col-md-3" v-text="ingresoProducto.leyenda "></td>
+                         <td  v-text="ingresoProducto.envase"></td>
+                        <td   style="text-align:right">
+                            <span v-if="ingresoProducto.activo_blo==1">???</span>
+                            <span v-else>{{ingresoProducto.cantidad}}</span>
+                        </td>
+                        <td style="text-align:right">
+                             <span v-if="ingresoProducto.activo_blo==1">???</span>
+                            <span v-else> {{ingresoProducto.stock_ingreso}}</span>
+                        </td>
+                        <td v-text="ingresoProducto.lote" ></td>
+                        <td  v-text="ingresoProducto.fecha_vencimiento" ></td>
+                        <td  v-text="ingresoProducto.registro_sanitario" ></td>
+                        <td  v-text="ingresoProducto.fecha"></td>
+                        <td>
                             <div v-if="ingresoProducto.user_id_M==null">
                                 {{ ingresoProducto.user_name }}
                             </div>
@@ -152,7 +160,7 @@
                                 {{ ingresoProducto.user_name_M }}
                             </div>
                         </td>
-                        <td class="col-md-1">
+                        <td>
                             <div v-if="ingresoProducto.num_traspaso==null">
                                 Sin datos
                             </div>
@@ -160,7 +168,7 @@
                                 {{ ingresoProducto.num_traspaso }}
                             </div>
                         </td>
-                        <td>
+                        <td class="col-md-1">
                             <div v-if="ingresoProducto.activo==1">
                                 <span class="badge badge-success">Activo</span>
                             </div>
@@ -256,7 +264,7 @@
                                     <strong>Tipo Entrada:</strong>
                                     <select v-model="selectEntrada" class="form-control">
                                         <option value="0" disabled>Seleccionar...</option>
-                                        <option v-for="tipo in arrayTipoEntrada" :key="tipo.id" :value="tipo.id" v-text="tipo.nombre"></option>
+                                        <option v-for="tipo in arrayTipoEntrada" :key="tipo.id" :value="tipo.id" v-text="tipo.nombre" v-show="tipo.positivo==1"></option>
                                     </select>
                                     <span  v-if="selectEntrada==0" class="error">Debe seleccionar un tipo de entrada</span>
                                 </div>
@@ -360,6 +368,7 @@
                                 <thead>
                                     <tr>
                                         <th>Cantidad:</th>
+                                        <th>Stock:</th>
                                         <th>Tipo entrada:</th>
                                         <th>Lote</th>
                                         <th>Fecha vencimiento:</th>
@@ -368,7 +377,13 @@
                                 </thead>
                                 <tbody>
                                     <tr>
-                                        <td>{{showStockIngreso}}</td>
+                                         <td>  <span v-if="showActivo_blo==1">???</span>
+                            <span v-else>{{showStockCantidad}}</span>
+                                </td>
+                                        <td><span v-if="showActivo_blo==1">???</span>
+                            <span v-else>{{showStockIngreso}}</span>
+                                    </td>
+                                 
                                         <td>{{showId_tipoentrada}}</td>
                                         <td>{{showLote}}</td>
                                         <td>{{showFecha_vencimiento}}</td>
@@ -520,6 +535,7 @@ puedeEditar:2,
 
             showLeyenda:'',
             showStockIngreso:'',
+            showStockCantidad:'',
             showEnvase:'',
             showId_tipoentrada:'',
             showLote:'',
@@ -530,6 +546,7 @@ puedeEditar:2,
             showSelectCodigoBarrar:'',
             inputImp1:0,
             inputImp2:0,
+            showActivo_blo:'',
         };
     },
 
@@ -895,6 +912,7 @@ tiene_movimiento(id_almacen,id_index,ingresoProducto){
                     me.imprimirCodigo="";
                     me.enviarCadena="";                     
                     me.selectCodigoBarrar="0";
+                    me.showActivo_blo="";
                     me.classModal.openModal("registrar");
                     break;
                 }
@@ -941,7 +959,7 @@ tiene_movimiento(id_almacen,id_index,ingresoProducto){
                     me.envase_v=data.envase;                    
                     me.stock_ingreso_v=data.stock_ingreso;    
                     me.codigo_alm=data.codigo_alm;
-                   
+                   me.showActivo_blo=data.activo_blo;
                    
                     me.classModal.openModal("registrar");
 
@@ -949,13 +967,13 @@ tiene_movimiento(id_almacen,id_index,ingresoProducto){
                 }
                  case "show": {
                 me.showModal_2 = true; 
-                console.log(data);
+              
                 me.tituloModal = "Vista de producto a ingresar";
                 me.showLeyenda=data.leyenda+" Envase: "+ data.envase+" Linea: "+data.nombre_linea;
+                me.showStockCantidad=data.cantidad;
                 me.showStockIngreso=data.stock_ingreso;
                 me.showEnvase=data.envase;
-                    console.log(me.arrayTipoEntrada);
-                    console.log(data.id_tipoentrada);
+                me.showActivo_blo=data.activo_blo;
                const tipo = me.arrayTipoEntrada.find(e => e.id === data.id_tipoentrada);
                     if (tipo) {
                 me.showId_tipoentrada = tipo.nombre;
@@ -996,6 +1014,7 @@ tiene_movimiento(id_almacen,id_index,ingresoProducto){
                     me.stock_ingreso_v='';  
                     me.imprimirCodigo='';
                     me.enviarCadena='';
+                    me.showActivo_blo='';
                     me.selectCodigoBarrar='0';
                     setTimeout(me.tiempo, 200); 
                     //me.ProductoLineaIngresoSeleccionado = 0;
@@ -1009,6 +1028,8 @@ tiene_movimiento(id_almacen,id_index,ingresoProducto){
 
             me.showLeyenda="";
             me.showStockIngreso="";
+            me.showStockCantidad="";
+           
             me.showEnvase="";
             me.showId_tipoentrada="";
             me.showLote="";

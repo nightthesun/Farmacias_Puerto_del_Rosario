@@ -317,7 +317,7 @@
                                                 v-text="
                                                     ProductoLineaIngreso.leyenda 
                                                     +
-                                                     '  Stock: ' + (ProductoLineaIngreso.activo_blo===null ? '*' :ProductoLineaIngreso.stock_ingreso)+
+                                                     '  Stock: ' + (ProductoLineaIngreso.activo_blo===null ? '???' :ProductoLineaIngreso.stock_ingreso)+
                                                     ' Lote: ' +
                                                     ProductoLineaIngreso.lote +
                                                     ' FI: ' +
@@ -421,7 +421,7 @@
                                                 v-for="Tipos in arrayTipos"
                                                 :key="arrayTipos.id"
                                                 :value="Tipos.id"
-                                                v-show="Tipos.id !== 13"
+                                                v-show="Tipos.positivo == 1"
                                                 v-text="Tipos.nombre"
                                             ></option>
                                         </select>
@@ -821,6 +821,7 @@ export default {
             cantidadS: "",
             listarTipo: 0,
             cantidadProductoLineaIngreso: "",
+            cantidadProductoLineaCantidad:'',
           //  descripcion: "",
             codigo: "",
             linea: "",
@@ -902,6 +903,7 @@ export default {
                     this.stock_ingreso=productoSeleccionado.stock_ingreso;
                     this.cantidadProductoLineaIngreso =
                         productoSeleccionado.stock_ingreso;
+                    this.cantidadProductoLineaCantidad=productoSeleccionado.cantidad_ingreso;    
                     this.codigo = productoSeleccionado.codigo_producto;
                     this.fecha_ingreso=productoSeleccionado.fecha_ingreso;
         this.fecha_vencimiento=productoSeleccionado.fecha_ingreso;
@@ -1062,6 +1064,7 @@ if (registro) {
                     this.stock_ingreso=productoSeleccionado.stock_ingreso;
                     this.cantidadProductoLineaIngreso =
                         productoSeleccionado.stock_ingreso;
+                    this.cantidadProductoLineaCantidad=productoSeleccionado.cantidad_ingreso;  
                     this.codigo = productoSeleccionado.codigo_producto;
                     this.fecha_ingreso=productoSeleccionado.fecha_ingreso;
         this.fecha_vencimiento=productoSeleccionado.fecha_ingreso;
@@ -1113,9 +1116,9 @@ if (registro) {
                 });
         },
 
-        ajustesNegativos() {
+        listarTipo_2() {
             let me = this;
-            var url = "/ajustes-positivo/listarTipo";
+            var url = "/listar_entradasXe";
             axios
                 .get(url)
                 .then(function (response) {
@@ -1251,6 +1254,7 @@ if (registro) {
                     me.op=1;
                     me.id_codigo = me.sucursalSeleccionada;
                     me.cantidadProductoLineaIngreso = "";
+                    me.cantidadProductoLineaCantidad="";  
                     me.TiposSeleccionado = 0;
                     me.cambiodeEstado = "";
 
@@ -1439,6 +1443,7 @@ if (registro) {
                 me.ProductoLineaIngresoSeleccionado = 0;
                 me.TiposSeleccionado = 0;
                 me.cantidadProductoLineaIngreso = "";
+                me.cantidadProductoLineaCantidad="";  
                 me.tipoAccion = 1;
                 me.stock_ingreso ="";
                 me.codigo = "";
@@ -1495,7 +1500,15 @@ if (registro) {
             let me = this;
           
             let suma = me.cantidadProductoLineaIngreso + me.cantidadS;
-
+            if (suma>me.cantidadProductoLineaCantidad) {
+                 Swal.fire(
+                    "El valor no puede ser mayor a la cantidad ingresada total",
+                    "Haga click en Ok",
+                    "warning",
+                );
+                return;
+            }
+          
             if (
                 me.codigo === "" ||
                 me.linea === "" ||
@@ -1853,7 +1866,7 @@ me.isSubmitting = true; // Deshabilita el botón
         this.classModal = new _pl.Modals();
         this.classModal.addModal("registrar");
         this.listarAjusteNegativos(1);
-        this.ajustesNegativos();
+        this.listarTipo_2();
         this.cambiodeEstado();
         this.sucursalFiltro();
         this.fecha_inicial();

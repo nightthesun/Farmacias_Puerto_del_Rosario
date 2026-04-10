@@ -137,7 +137,7 @@
                </td>
                <td class="col-md-1" >
                 <div v-if="selected">
-                  <span v-if="selected.activo_blo===null">???</span>
+                  <span v-if="selected.activo_blo===1">???</span>
                   <span  v-else v-text="selected.stock_ingreso"></span>
                 </div>
               

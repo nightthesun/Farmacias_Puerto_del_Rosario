@@ -184,7 +184,7 @@
                                     <strong>Tipo Entrada:</strong>
                                     <select v-model="selectEntrada" class="form-control">
                                         <option value="0" disabled>Seleccionar...</option>
-                                        <option v-for="tipo in arrayTipoEntrada" :key="tipo.id" :value="tipo.id" v-text="tipo.nombre"></option>
+                                        <option v-for="tipo in arrayTipoEntrada" :key="tipo.id" :value="tipo.id" v-text="tipo.nombre" v-show="tipo.positivo == 1"></option>
                                     </select>
                                    
                                 </div>

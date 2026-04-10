@@ -17,7 +17,7 @@ return new class extends Migration
             $table->smallInteger('id_linea');
             $table->smallInteger('id_sucursal');
             $table->smallInteger('id_usuario');
-            $table->tinyInteger('activo')->nullable();
+            $table->tinyInteger('activo')->default(1);
             $table->date('fecha_ini')->nullable();
             $table->date('fecha_fin')->nullable();
             $table->string('observacion',255)->nullable();

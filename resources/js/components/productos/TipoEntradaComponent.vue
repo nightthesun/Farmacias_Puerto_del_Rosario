@@ -28,7 +28,9 @@
                         <thead>
                             <tr>
                                 <th class="col-md-1">Opciones</th>
-                                <th class="col-md-10">Nombre</th>
+                                <th class="col-md-6">Nombre</th>
+                                <th class="col-md-2">A.Positivo</th>
+                                <th class="col-md-2">A.Nejativo</th>
                                 <th class="col-md-1">Estado</th>
                             </tr>
                         </thead>
@@ -37,7 +39,7 @@
                                 <td class="col-md-1">
                                     <div  class="d-flex justify-content-start">
                                         <div  v-if="puedeEditar==1">
-                                            <button type="button" class="btn btn-warning btn-sm" @click="abrirModal('actualizar',tipoentrada)" style="margin-right: 5px;">
+                                            <button type="button" class="btn btn-warning btn-sm" @click="abrirModal('actualizar',tipoentrada)" style="margin-right: 5px;" :disabled="tipoentrada.id===12||tipoentrada.id===13||tipoentrada.id===16">
                                             <i class="icon-pencil"></i>
                                             </button> 
                                          </div>
@@ -47,7 +49,7 @@
                                             </button> 
                                          </div>
                                          <div v-if="puedeActivar==1">
-                                            <button v-if="tipoentrada.activo==1" type="button" class="btn btn-danger btn-sm" @click="eliminarTipoEntrada(tipoentrada.id)" style="margin-right: 5px;">
+                                            <button v-if="tipoentrada.activo==1" type="button" class="btn btn-danger btn-sm" @click="eliminarTipoEntrada(tipoentrada.id)" style="margin-right: 5px;" :disabled="tipoentrada.id===12||tipoentrada.id===13||tipoentrada.id===16">
                                         <i class="icon-trash"></i>
                                     </button>
                                     <button v-else type="button" class="btn btn-info btn-sm" @click="activarTipoEntrada(tipoentrada.id)" style="margin-right: 5px;">
@@ -66,7 +68,17 @@
                                     
                                    
                                 </td>
-                                <td v-text="tipoentrada.nombre" class="col-md-10"></td>
+                                <td v-text="tipoentrada.nombre" class="col-md-6"></td>
+                                  <td class="col-md-2">
+                                    <span v-if="tipoentrada.positivo==1">SI</span>
+                                    <span v-else-if="tipoentrada.positivo==0">NO</span>
+                                    <span v-else>Error</span>
+                                  </td>
+                                    <td  class="col-md-2">
+                                         <span v-if="tipoentrada.negativo==1">SI</span>
+                                    <span v-else-if="tipoentrada.negativo==0">NO</span>
+                                    <span v-else>Error</span>
+                                    </td>
                                 <td class="col-md-1">
                                     <div v-if="tipoentrada.activo==1">
                                         <span class="badge badge-success">Activo</span>
@@ -113,12 +125,37 @@
                         </div>
                         <div class="modal-body">
                         <div class="form-group row">
-                            <label class="col-md-3 form-control-label" for="text-input">Nombre: <span  v-if="!sinombre" class="error">(*)</span></label>
-                            <div class="col-md-9">
-                               <input type="text" id="nombre" name="nombre" class="form-control" placeholder="Nombre del Tipo de Entrada" v-model="nombre" v-on:focus="selectAll" @keyup.enter="tipoAccion==1?registrarTipoEntrada():actualizarTipoEntrada()">
+                            <label class="col-md-2 form-control-label" for="text-input">Nombre: <span  v-if="!sinombre" class="error">(*)</span></label>
+                            <div class="col-md-10">
+                                <div v-if="idtipoentrada===12||idtipoentrada===13||idtipoentrada===16">
+                                    <h6><span>{{nombre}}</span></h6>
+                                </div>
+                                <div v-else>
+                                    <input type="text" id="nombre" name="nombre" class="form-control" placeholder="Nombre del Tipo de Entrada" v-model="nombre" v-on:focus="selectAll" @keyup.enter="tipoAccion==1?registrarTipoEntrada():actualizarTipoEntrada()">
                                <span  v-if="!sinombre" class="error">Debe Ingresar el Nombre del Tipo de Entrada</span>
+                                </div>                               
                             </div>
-                        </div>                            
+                           
+                             
+                        </div>  
+                        <div class="form-group row">
+                              <label class="col-md-2 form-control-label" for="text-input">A.Positivo: <span  v-if="!sinombre" class="error">(*)</span></label>
+                              <div class="col-md-4">
+                                <select v-model="posi" class="form-control">
+                                    <option value="2"  disabled selected>Seleccionar...</option>
+                                    <option value="0">No</option>
+                                    <option value="1">Si</option>
+                                </select>
+                              </div> 
+                              <label class="col-md-2 form-control-label" for="text-input">A.Negativo: <span  v-if="!sinombre" class="error">(*)</span></label>
+                              <div class="col-md-4">
+                                <select v-model="nega" class="form-control">
+                                    <option value="2"  disabled selected>Seleccionar...</option>
+                                    <option value="0">No</option>
+                                    <option value="1">Si</option>
+                                </select>
+                              </div> 
+                        </div>                          
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary"  @click="cerrarModal('registrar')">Cerrar</button>
@@ -177,14 +214,16 @@ import { error401 } from '../../errores';
                 puedeHacerOpciones_especiales:2,
                 puedeCrear:2,
                 //-----------   
-                showModal: false,         
+                showModal: false,  
+                nega:'2', 
+                posi:'2',     
             }
         },
 
         computed:{
             sinombre(){
                 let me=this;
-                if(me.nombre!='')
+                if(me.nombre!='' || me.nega!='2' ||me.posi!='2')
                     return true;
                 else
                     return false;
@@ -193,12 +232,12 @@ import { error401 } from '../../errores';
             sicompleto(){
                 let me=this;
                 if (me.tipoAccion == 2) {
-                    if (me.nombre !='')
+                    if (me.nombre !='' && me.nega!='2'&&me.posi!='2')
                         return true;
                     else
                         return false;   
                 } else {
-                    if (me.nombre!='')
+                    if (me.nombre!='' && me.nega!='2' &&me.posi!='2')
                         return true;
                     else
                         return false;   
@@ -305,7 +344,8 @@ import { error401 } from '../../errores';
                 // Si ya está enviando, no permitas otra solicitud
       if (me.isSubmitting) return;
       me.isSubmitting = true; // Deshabilita el botón
-                axios.post('/tipoentrada/registrar',{'nombre':me.nombre})
+              
+                axios.post('/tipoentrada/registrar',{'nombre':me.nombre,'nega':me.nega,'posi':me.posi})
                 .then(function(response){
                     Swal.fire('Tipo de Entrada almacenado Exitosamente!')
                     me.cerrarModal('registrar');
@@ -324,6 +364,8 @@ import { error401 } from '../../errores';
                 axios.put('/tipoentrada/actualizar',{
                     'id':me.idtipoentrada,
                     'nombre':me.nombre,
+                    'nega':me.nega,
+                    'posi':me.posi
                 }).then(function (response) {
                     Swal.fire('Tipo de Entrada Actualizado Exitosamente!');
                     me.listarTipoEntrada(1);
@@ -444,6 +486,8 @@ import { error401 } from '../../errores';
                         me.tituloModal='Actualizar Nombre de Tipo de Entrada';
                         me.nombre='';
                         me.showModal = true;
+                        me.nega='2'; 
+                        me.posi='2';   
                         me.classModal.openModal('registrar');
                         break;
                     }
@@ -456,6 +500,8 @@ import { error401 } from '../../errores';
                         me.idtipoentrada=data.id;
                         me.nombre=data.nombre;
                         me.showModal = true;
+                        me.nega=data.negativo; 
+                        me.posi=data.positivo; 
                         me.classModal.openModal('registrar');
                         break;
                     }
@@ -467,6 +513,8 @@ import { error401 } from '../../errores';
                 me.isSubmitting=false;
                 me.showModal = false;
                 me.nombre='';
+                me.nega='2'; 
+                        me.posi='2'; 
                 me.classModal.closeModal(accion);
             
             },

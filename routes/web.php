@@ -73,6 +73,7 @@ use App\Http\Controllers\InvConfiguracionStockController;
 use App\Http\Controllers\InvGestionInventarioPeriodoUnoController;
 use App\Http\Controllers\InvGestionStockController;
 use App\Http\Controllers\InvInventarioInicialController;
+use App\Http\Controllers\InvMetodoABCController;
 use App\Http\Controllers\ParDescuentoController;
 use App\Http\Controllers\ProdListaController;
 use App\Http\Controllers\ProdRegistroPreXListController;
@@ -731,6 +732,11 @@ Route::group(['middleware' => 'auth'], function () {
     Route::put('/inventario-periodo/terminarProceso_continuar', [InvGestionInventarioPeriodoUnoController::class, 'end_proceso_continue']);
      Route::get('/inventario-periodo/listarModalData', [InvGestionInventarioPeriodoUnoController::class, 'get_modal_data']); 
     Route::put('/inventario-periodo/cambioEstado', [InvGestionInventarioPeriodoUnoController::class, 'changeEstado']);
+    Route::post('/inventario-periodo/registro_ajuste_n_p', [InvGestionInventarioPeriodoUnoController::class, 'register_ajuste_n_p']);
+    
+
+    //--metodo abc
+    Route::get('/inventario-metodo-abc/listarInicio', [InvMetodoABCController::class, 'index']); 
     
       
     /////////////////////////////////LOGISTICO///////////////////////////////////////

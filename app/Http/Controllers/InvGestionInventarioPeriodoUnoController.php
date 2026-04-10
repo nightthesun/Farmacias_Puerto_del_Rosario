@@ -294,22 +294,25 @@ $datos = [
             'id_linea' => $request->id_lineas, 
                 'id_sucursal' => $request->id_sucursal, 
                 'id_usuario' => auth()->user()->id, 
-                'activo' => $request->inicio, 
+                'activo' => 1, 
                 'fecha_ini' => $fechaHoy, 
                 'fecha_fin' => $fechaHoy,             
                 'observacion' =>'sin datos',                      
             ];
      $id_bloqueo =DB::table('inv__gestion_inventario_bloqueo_sucursal')->insertGetId($datos);
      $enviar_fecha="";
+     $turno_1=0;
      if ($request->tipo_inventario=="D") {
       $enviar_fecha=$request->fecha_0_0;
+      $turno_1=(int)$request->turno;
      }else{
     $enviar_fecha=$fechaHoy;  
+    $turno_1=0;
      }
 $datos = [                         
                 'id_gestion_inv_periodo_uno' => (int)$request->id_index,
             'id_linea' => (int)$request->id_lineas, 
-                'turno' => (int)$request->turno, 
+                'turno' => $turno_1, 
                 'fecha_ini' => $enviar_fecha,                                      
             ];
                $id_data = DB::table('inv__gestion_inventario_periodo_linea_dos')->insertGetId($datos);
@@ -344,13 +347,15 @@ $update->save();
         $id_linea=(int)$request->id_linea;
         $id_tienda=(int)$request->id_tienda;
         $id_almacen=(int)$request->id_almacen;
+
         $peridoSelect=$request->peridoSelect;
         $fecha=$request->fecha_0_0;
-        $turno=(int)$request->turno;
+        
         $id_sucursal=(int)$request->id_sucursal;
 
         if ($id_tienda!=null&&$id_almacen==null) {
-            if ($peridoSelect=="D") {       
+            if ($peridoSelect=="D") {   
+
              $sqls = "(tip.stock_ingreso > 0 AND DATE(tip.created_at) <= '$fecha')"; 
              
         } else {
@@ -470,7 +475,7 @@ $resultado = $primario
     ->unionAll($terciario)
     ->get();
      if ($peridoSelect=="D") {  
-
+$turno=(int)$request->turno;
        foreach ($resultado as $key => $value) {
     $cantidad = DB::table('ven__detalle_ventas as vd')
         ->join('ven__recibos as v', 'v.id', '=', 'vd.id_venta')
@@ -756,6 +761,9 @@ $resultado = $primario
     ->select(
         'i.nombre',
         'i.motivo',
+        'i.id_sucursal',
+        'i.id_tienda',
+        'i.id_almacen',
         DB::raw("
             CASE
                 WHEN i.enproceso = 0 THEN 'Sin acción'
@@ -805,6 +813,7 @@ $resultado = $primario
         'i.lote',
         'i.fecha_v',
         'i.observacion',
+        'i.id_producto',
 
         DB::raw("
             CASE 
@@ -847,4 +856,9 @@ return response()->json([
             ]);
 
     }
+
+   public function register_ajuste_n_p(Request $request){
+    return $request->all();
+
+   }
 }

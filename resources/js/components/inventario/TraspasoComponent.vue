@@ -400,7 +400,7 @@
                                   
                                 <div class="form-group col-sm-4" v-if="validarBoton===1 &&tipoAccion==1">
                                     <strong>Cantidad existente: 
-                                        <span v-if="selected.activo_blo==null">???</span>
+                                        <span v-if="selected.activo_blo==1">???</span>
                                         <span v-else>{{ cantidadProductoLineaIngreso }}</span>
                                     </strong>
    
@@ -750,6 +750,7 @@ export default {
             cantidadS: "",
             listarTipo: 0,
             cantidadProductoLineaIngreso: "",
+            cantidadProductoLineaCantidad:'',
             numero_traspaso:"",
             codigo: "",
             linea: "",
@@ -827,7 +828,7 @@ export default {
                 if (productoSeleccionado) {
                     this.cantidadProductoLineaIngreso =
                         productoSeleccionado.stock_ingreso;
-                   
+                    this.cantidadProductoLineaCantidad= productoSeleccionado.cantidad_ingreso;   
                     this.codigo = productoSeleccionado.codigo_producto;
                     this.fecha_ingreso=productoSeleccionado.fecha_ingreso;
         this.fecha_vencimiento=productoSeleccionado.fecha_vencimiento;
@@ -1044,7 +1045,7 @@ sucursalSeleccionadaDestino: function (newValue) {
                 if (productoSeleccionado) {
                     this.cantidadProductoLineaIngreso =
                         productoSeleccionado.stock_ingreso;
-                   
+                    this.cantidadProductoLineaCantidad= productoSeleccionado.cantidad_ingreso; 
                     this.codigo = productoSeleccionado.codigo_producto;
                     this.fecha_ingreso=productoSeleccionado.fecha_ingreso;
         this.fecha_vencimiento=productoSeleccionado.fecha_vencimiento;
@@ -1213,7 +1214,8 @@ validarQuitar(){
                     me.tituloModal = "Registro de traspaso origen "+respuesta.razon_social;
                     me.ProductoLineaIngresoSeleccionado = 0;
                     me.id_codigo = me.sucursalSeleccionada;
-                    me.cantidadProductoLineaIngreso = '';                 
+                    me.cantidadProductoLineaIngreso = '';     
+                     me.cantidadProductoLineaCantidad= '';             
                     me.codigo = '';
                     me.linea = '';
                     me.producto = '';
@@ -1260,7 +1262,7 @@ validarQuitar(){
                     me.codigo = data.codigo;                   
                     me.showModal = true;
                     me.cantidadProductoLineaIngreso = "";
-                    
+                     me.cantidadProductoLineaCantidad= ""; 
                     me.linea = data.linea;
                     me.producto = data.nombreProd;
                     me.cantidadS = data.cantidad;
@@ -1307,8 +1309,9 @@ validarQuitar(){
                         data.id_ingreso === null ? 0 : data.id_ingreso;
 
                     me.cantidadProductoLineaIngreso = "";
+                     me.cantidadProductoLineaCantidad= ""; 
                     me.TiposSeleccionado = 0;
-
+                    
                     me.codigo = "";
                     me.linea = "";
                     me.producto = "";
@@ -1355,7 +1358,8 @@ validarQuitar(){
                     me.tituloModal = " ";
                     me.ProductoLineaIngresoSeleccionado = 0;
                     me.id_codigo ="";
-                    me.cantidadProductoLineaIngreso = '';                 
+                    me.cantidadProductoLineaIngreso = '';   
+                    me.cantidadProductoLineaCantidad= '';               
                     me.codigo = '';
                     me.linea = '';
                     me.producto = '';
@@ -1417,6 +1421,15 @@ validarQuitar(){
                 );
                 } else {
                     let suma = me.cantidadProductoLineaIngreso - me.cantidadS;
+
+                    if (suma>cantidadProductoLineaCantidad) {
+                         Swal.fire(
+                    "No puede hacer traspasos la cantidad es mayor ala cantida total",
+                    "Haga click en Ok",
+                    "warning",
+                );
+                return;
+                    }
            // Si ya está enviando, no permitas otra solicitud
       if (me.isSubmitting) return;
 

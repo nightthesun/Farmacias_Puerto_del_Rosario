@@ -24,6 +24,7 @@ return new class extends Migration
             $table->smallInteger('id_usuario_registra')->nullable();
             $table->smallInteger('id_tabla_dos_momentanio')->nullable();
             $table->smallInteger('id_bloqueo')->nullable();
+             $table->tinyInteger('enviado')->nullable()->default(0);
             $table->timestamps();
         });
     }

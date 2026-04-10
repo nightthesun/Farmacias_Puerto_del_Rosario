@@ -82,7 +82,8 @@ $almacen = DB::table('alm__ingreso_producto as aip')
         'u_modi.id as user_id_M','aip.num_traspaso',
         DB::raw('GREATEST(aip.created_at, aip.updated_at) as fecha'),
         'aip.idalmacen',
-        'aa.codigo as codigo_alm'
+        'aa.codigo as codigo_alm',
+        'iii.activo as activo_blo'
     ])
     ->join('prod__productos as pp', 'pp.id', '=', 'aip.id_prod_producto')
     ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
@@ -97,13 +98,16 @@ $almacen = DB::table('alm__ingreso_producto as aip')
     ->join('users as u', 'u.id', '=', 'aip.id_usuario_registra')
     ->leftJoin('users as u_modi', 'u_modi.id', '=', 'aip.id_usuario_modifica')
     ->join('alm__almacens as aa', 'aa.id', '=', 'aip.idalmacen')
-    
+    ->leftJoin('inv__gestion_inventario_bloqueo_sucursal as iii', function($join) {
+    $join->on('iii.id_linea', '=', 'pl.id')
+         ->on('iii.id_sucursal', '=', 'aa.idsucursal');
+})
     //->where('aip.idalmacen', $request->id_almacen)
     //->where('pp.activo', 1)
     ->whereRaw($where)
     ->whereRaw($sqls)
-    ->orderBy('id', 'desc')
-    ->paginate(15);
+    ->orderBy('aip.id', 'desc')
+    ->paginate(20);
             }   
             return 
             [
@@ -148,7 +152,8 @@ $almacen = DB::table('alm__ingreso_producto as aip')
                 'u_modi.id as user_id_M','aip.num_traspaso',
                 DB::raw('GREATEST(aip.created_at, aip.updated_at) as fecha'),
                 'aip.idalmacen',
-                'aa.codigo as codigo_alm'
+                'aa.codigo as codigo_alm',
+                'iii.activo as activo_blo',
             ])
             ->join('prod__productos as pp', 'pp.id', '=', 'aip.id_prod_producto')
             ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
@@ -165,10 +170,14 @@ $almacen = DB::table('alm__ingreso_producto as aip')
             ->join('alm__almacens as aa', 'aa.id', '=', 'aip.idalmacen')
             //->where('aip.idalmacen', $request->id_almacen)
             //->where('pp.activo', 1)
+            ->leftJoin('inv__gestion_inventario_bloqueo_sucursal as iii', function($join) {
+    $join->on('iii.id_linea', '=', 'pl.id')
+         ->on('iii.id_sucursal', '=', 'aa.idsucursal');
+})
             ->whereRaw($where)
             ->whereBetween(DB::raw('DATE(aip.created_at)'), [$ini, $fini]) 
-            ->orderBy('id', 'desc')
-            ->paginate(15); 
+            ->orderBy('aip.id', 'desc')
+            ->paginate(20); 
          
             return 
             [

@@ -171,7 +171,7 @@ return $result;
     //***********************para mostrara las entradas********************** */
     public function listar_entradasXe(Request $request){
         $resultado = DB::table('prod__tipo_entradas')
-        ->select('id', 'nombre')
+        ->select('id', 'nombre','positivo','negativo')
         ->where('activo', 1)
         ->get();
 

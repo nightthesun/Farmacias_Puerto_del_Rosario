@@ -302,7 +302,7 @@
                                                     (ProductoLineaIngreso.fecha_vencimiento ===
                                                     null ? ' sin registro' : ProductoLineaIngreso.fecha_vencimiento) +
                                                     
-                                                    '  Stock: ' + (ProductoLineaIngreso.activo_blo===null ? '*' :ProductoLineaIngreso.stock_ingreso)
+                                                    '  Stock: ' + (ProductoLineaIngreso.activo_blo===1 ? '???' :ProductoLineaIngreso.stock_ingreso)
                                                   
                                                     
                                                 "
@@ -487,32 +487,11 @@
                                 </div>
 
                                 <div class="form-group row">
-                                    <label
-                                        class="col-md-3 form-control-label"
-                                        for="text-input"
-                                    >
-                                        Tipo
-                                        <span class="error">(*)</span>
-                                    </label>
+                                    <label class="col-md-3 form-control-label"  for="text-input">Tipo<span class="error">(*)</span></label>
                                     <div class="col-md-9">
-                                        <select 
-                                            name=""
-                                            id=""
-                                            v-model="TiposSeleccionado"
-                                            class="form-control"
-                                            >
-                                            <option value="0" disabled>
-                                                Seleccionar...
-                                            </option>
-                                            <option
-                                                v-for="Tipo in arrayTipos"
-                                              
-                                                :key="arrayTipos.id" 
-
-                                                :value="Tipo.id"
-                                                v-show="Tipo.id !== 13"
-                                                v-text="Tipo.nombre"
-                                            ></option>
+                                        <select v-model="TiposSeleccionado" class="form-control">
+                                            <option value="0" disabled>Seleccionar...</option>
+                                            <option v-for="Tipo in arrayTipos" :key="arrayTipos.id" :value="Tipo.id" v-show="Tipo.negativo == 1" v-text="Tipo.nombre"></option>
                                         </select>
                                         <span
                                             v-if="TiposSeleccionado == 0"
@@ -731,6 +710,7 @@ export default {
             cantidadS: "",
             listarTipo: 0,
             cantidadProductoLineaIngreso: "",
+            cantidadProductoLineaCantidad: "",
             descripcion: "",
             codigo: "",
             linea: "",
@@ -788,6 +768,7 @@ export default {
                 if (productoSeleccionado) {
                     this.cantidadProductoLineaIngreso =
                         productoSeleccionado.stock_ingreso;
+                    this.cantidadProductoLineaCantidad=productoSeleccionado.cantidad_ingreso;  
                     this.codigo = productoSeleccionado.codigo_producto;
                     this.linea = productoSeleccionado.nombre_linea;
                     this.producto = productoSeleccionado.nombre;
@@ -925,6 +906,7 @@ nameWithLang ({codigo_producto, leyenda, fecha_ingreso, lote, fecha_vencimiento,
 
                 if (productoSeleccionado) {
                     this.cantidadProductoLineaIngreso = productoSeleccionado.stock_ingreso;
+                     this.cantidadProductoLineaCantidad=productoSeleccionado.cantidad_ingreso;  
                     this.codigo = productoSeleccionado.codigo_producto;
                     this.linea = productoSeleccionado.nombre_linea;
                     this.producto = productoSeleccionado.nombre;
@@ -992,9 +974,9 @@ if (registro) {
 
 
 
-        ajustesNegativos() {
+        listarTipo_2() {
             let me = this;
-            var url = "/ajustes-negativo/listarTipo";
+            var url = "/listar_entradasXe";
             axios
                 .get(url)
                 .then(function (response) {
@@ -1086,6 +1068,7 @@ if (registro) {
 
                     me.id_codigo = me.sucursalSeleccionada;
                     me.cantidadProductoLineaIngreso = "";
+                    me.cantidadProductoLineaCantidad="";  
                     me.TiposSeleccionado = 0;
                     me.cambiodeEstado = "";
 
@@ -1114,6 +1097,7 @@ if (registro) {
                     me.tituloModal = "Actualizacion para Ajuste de negativos  ";
                     me.codigo = data.codigo;
                     me.cantidadProductoLineaIngreso = data.cantidad;
+                      
                     me.linea = data.linea;
                     me.producto = data.nombreProd;
                     me.cantidadS = data.cantidad;
@@ -1236,6 +1220,7 @@ if (registro) {
                 me.ProductoLineaIngresoSeleccionado = 0;
                 me.TiposSeleccionado = 0;
                 me.cantidadProductoLineaIngreso = "";
+                 me.cantidadProductoLineaCantidad="";  
                 me.tipoAccion = 1;
 
                 me.codigo = "";
@@ -1258,6 +1243,15 @@ if (registro) {
             let me = this;
          
             let suma = me.cantidadProductoLineaIngreso - me.cantidadS;
+            
+            if (me.cantidadS>me.cantidadProductoLineaCantidad) {
+                Swal.fire(
+                    "El valor no puede ser mayor a la cantidad ingresada total",
+                    "Haga click en Ok",
+                    "warning",
+                );
+                return;
+            }
 
             if (
                 me.codigo === "" ||
@@ -1274,6 +1268,8 @@ if (registro) {
                     "warning",
                 );
             } else {
+
+
                 // Si ya está enviando, no permitas otra solicitud
       if (me.isSubmitting) return;
 
@@ -1589,7 +1585,7 @@ me.isSubmitting = true; // Deshabilita el botón
         this.classModal = new _pl.Modals();
         this.classModal.addModal("registrar");
         this.listarAjusteNegativos(1);
-        this.ajustesNegativos();
+        this.listarTipo_2();
         this.cambiodeEstado();
         this.sucursalFiltro();
         this.fecha_inicial(); 

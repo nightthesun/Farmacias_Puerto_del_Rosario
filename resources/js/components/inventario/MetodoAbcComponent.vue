@@ -15,7 +15,7 @@
                 <div class="col-md-2" style="text-align: center">
                      <label for="">Sucursal:</label>
                 </div>
-                        <div class="col-md-6">
+                        <div class="col-md-5">
                             <div class="input-group">
                                 <select class="form-control" v-model="sucursalSeleccionada">
                                     <option value="0" disabled selected>Seleccionar...</option>
@@ -25,16 +25,18 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="col-md-2">
-                           <button type="button" v-if="sucursalSeleccionada != '0' " class="btn btn-primary" >
+                        <div class="col-md-5">
+                           <button type="button"  v-if="sucursalSeleccionada != '0' " class="btn btn-primary" @click="listarInicio()">
                             General ABC
                         </button>
-                        </div>
-                        <div class="col-md-2">
-                           <button type="button" v-if="sucursalSeleccionada != '0' " class="btn btn-primary" >
+                        <button type="button"  style="margin-right: 10px; margin-left: 10px;" v-if="sucursalSeleccionada != '0' " class="btn btn-primary" >
+                            Ver tabla
+                        </button>
+                         <button type="button" v-if="sucursalSeleccionada != '0' " class="btn btn-primary" >
                             Ver pareto
                         </button>
                         </div>
+                       
                         
                        
 
@@ -60,20 +62,34 @@
             <table class="table table-bordered table-striped table-sm table-responsive" >
                 <thead>
                     <tr>
-                        <th>Opciones</th>
-                        <th class="col-md-1">Cliente</th>
-                        <th class="col-md-5">Nro docuemnto</th>
-                        <th>Tipo de comprobante</th>
-                        <th>Numero de comprobante</th>
-                        <th class="col-md-1">Total</th>
-                        <th class="col-md-1">Destino</th>
-                        <th>Vehiculo</th>
-                        <th class="col-md-3">Observación</th>
-                        <th class="col-md-2">Per. Enviada</th>
-                        <th>Usuario</th>
-                        <th>Estado</th>       
+                        <th>Codigo</th>
+                        <th>Producto</th>
+                        <th>Linea</th>
+                        <th>Envase</th>
+                        <th>Demanda</th>
+                        <th>Precio unitario</th>
+                        <th>Inversion</th>
+                        <th>I. Acumulada</th>
+                        <th>% I. Acumulada</th>
+                        <th>Zona</th>
+                        <th>%</th>      
                     </tr>
                 </thead>
+                <tbody>
+                    <tr v-for="(i, index) in arrayInicio" :key="index">
+                        <td>{{i.codigo}}</td>
+                        <td>{{i.leyenda}}</td>
+                        <td>{{i.nombre_linea}}</td>
+                        <td>{{i.envase}}</td>
+                        <td>{{i.total_cantidad}}</td>
+                        <td>{{i.precio_venta}}</td>
+                        <td>{{i.inversion}}</td>                         
+                        <td>{{i.acumulada1}}</td>
+                        <td>{{i.acumulada2}}</td>
+                        <td>{{i.zona}}</td>
+                        <td>0</td>
+                    </tr>
+                </tbody>
             </table>    
 
             <!-----fin de tabla------->
@@ -165,6 +181,8 @@ export default {
             tipoAccion:1,
             startDate: '',
       endDate: '',
+
+      arrayInicio:[],
         };
     },
 
@@ -208,6 +226,87 @@ export default {
     },
 
     methods: {
+
+
+        listarInicio() {
+            let me = this;   
+            me.arrayInicio=[];       
+           var url = "/inventario-metodo-abc/listarInicio?id_sucursal="+me.sucursalSeleccionada+"&startDate="+me.startDate+"&endDate="+me.endDate;
+            axios
+                .get(url)
+                .then(function (response) {
+                    let respuesta = response.data;  
+                    let cantidad = 0;
+                    let precio = 0;
+                    let inversion= 0;
+                    let total_1=0; 
+                    let total_2=0;
+                    respuesta.forEach(e => {
+                         cantidad = parseFloat(e.total_cantidad);
+                         precio = parseFloat(e.precio_venta);
+                         inversion= cantidad * precio;
+                         total_1=total_1+e.cantidad;
+                         total_2=total_2+inversion;
+                        me.arrayInicio.push({
+                            id_ingreso:e.id_ingreso,
+                            codigo:e.codigo,
+                            leyenda:e.leyenda,
+                            envase:e.envase,
+                            nombre_linea:e.nombre_linea,
+                            precio_venta: e.precio_venta,
+                            total_cantidad:e.total_cantidad,                            
+                            inversion:inversion,
+                            acumulada1:0,
+                            acumulada2:0,
+                            zona:"",
+                            porcentaje:0,
+
+                        });
+                    });   
+                    // ORDENAR DE MAYOR A MENOR
+                    me.arrayInicio=me.arrayInicio.sort((a, b) => b.inversion - a.inversion);  
+                    
+                    // ACUMULADA
+                    let contador=0;
+                    let acu_1=0;
+                    let acu_12=0;
+                    let a=0;
+                    let b=0;
+                    let c=0;
+                    me.arrayInicio.forEach(e => {
+                        if (contador==0) {
+                            acu_1=e.inversion;  
+                            acu_12=e.inversion;                         
+                        }else{
+                            acu_12=e.inversion+acu_1;
+                        }
+                        contador++;
+                        e.acumulada1=acu_12;
+                        e.acumulada2=(acu_12/total_2).toFixed(2);
+                        if (e.acumulada2<=0.80) {
+                            e.zona="A";
+                            a=e.acumulada2;
+                        }else{
+                            if (e.acumulada2<=0.95) {
+                               e.zona="B"; 
+                                b=e.acumulada2-a;
+                            }else{
+                                e.zona="C";
+                                c=e.acumulada2-b;
+                            }
+                        }
+                    });
+                    let suma_abc=a+b+c;
+
+                    console.log(respuesta);  
+                    console.log(me.arrayInicio);               
+                })
+                .catch(function (error) {
+                    error401(error);
+                    console.log(error);
+                });
+        },
+
         sucursalFiltro() {
             let me = this;
         
@@ -225,6 +324,8 @@ export default {
                     console.log(error);
                 });
         },
+
+
         cambiarPestana(idPestana) {
             this.pestañaActiva = idPestana;
 
@@ -275,9 +376,9 @@ export default {
     const day = String(today.getDate()).padStart(2, '0');
 
     // Asignar la fecha del primer día del mes al input de fecha de inicio
-    this.startDate = `${year}-${month}-01`;
+    this.startDate = `${year}-01-01`;
     // Asignar la fecha actual al input de fecha final
-    this.endDate = `${year}-${month}-${day}`;
+    this.endDate = `${year}-${month}-${day}`; 
         },
         cerrarModal(accion) {
             let me = this;

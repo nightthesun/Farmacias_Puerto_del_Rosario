@@ -121,7 +121,7 @@
                             <div class="button-container">
                                 <div  class="d-flex justify-content-start">
                                      <div>
-                                        <button  type="button" class="btn btn-primary" style="margin-right: 5px;" @click="listarModalData(i.id,1);" v-if="i.enproceso==4">
+                                        <button  type="button" class="btn btn-primary" style="margin-right: 5px;" @click="listarModalData(i.id,1,0);" v-if="i.enproceso==4">
                                 <i class="fa fa-file-pdf-o" aria-hidden="true"></i>
                             </button>
                             <button  type="button" class="btn btn-secondary" style="margin-right: 5px;" v-else>
@@ -129,7 +129,7 @@
                             </button>                                        
                                      </div>
                                      <div>
-<button  type="button" class="btn btn-warning" style="margin-right: 5px; color: white;" @click="abrirModal('ver',i);listarModalData(i.id,0);" v-if="i.enproceso==4">
+<button  type="button" class="btn btn-warning" style="margin-right: 5px; color: white;" @click="abrirModal('ver',i);listarModalData(i.id,0,0);" v-if="i.enproceso==4">
                             <i class="fa fa-eye" aria-hidden="true"></i>
                             </button>
                             <button  type="button" class="btn btn-secondary" style="margin-right: 5px; color: white;" v-else>
@@ -185,6 +185,14 @@
                             </button>
                             <button  type="button" class="btn btn-secondary" style="margin-right: 5px;" v-else>
                           <i class="fa fa-window-restore" aria-hidden="true"></i>
+                            </button>
+            </div>
+            <div>
+                        <button  type="button" class="btn btn-success" style="margin-right: 5px; color: white;"  v-if="i.enproceso==4"  @click="abrirModal('panelControl',i);listarModalData(i.id,0,1);">
+                           <i class="fa fa-exclamation" aria-hidden="true"></i>
+                            </button>
+                            <button  type="button" class="btn btn-secondary" style="margin-right: 5px;" v-else>
+                          <i class="fa fa-exclamation" aria-hidden="true"></i>
                             </button>
             </div>
              
@@ -279,7 +287,7 @@
                                           <input id="start-date" type="date" class="form-control" v-model="fecha_0_0" :disabled="activador==1">
                                     </div>
 
-                                    <div class="col-md-2">
+                                    <div class="col-md-2"  v-show="peridoSelect=='D'">
                                         <label for="">Turno:</label>
                                         <select class="form-control" v-model="turnoSelect" :disabled="activador==1"> 
                                             <option value="0" disabled selected>Seleccionar...</option>
@@ -310,12 +318,23 @@
                     </VueMultiselect> 
                                     </div> 
                                     <div class="col-md-2">
-                                        <button type="button" style="margin-top: 27px;" class="btn btn-primary" :disabled="turnoSelect=='0'||lineaSelect==null" @click="listarProducto(lineaSelect.id);cambioActivar(1)" v-if="activador==0">
+                                        <div v-if="peridoSelect=='D'">
+                                        <button type="button" style="margin-top: 27px;" class="btn btn-primary" :disabled="turnoSelect=='0'||lineaSelect==null || fecha_0_0==''" @click="listarProducto(lineaSelect.id);cambioActivar(1)" v-if="activador==0">
                                             Procesar
                                         </button>
                                         <button type="button" style="margin-top: 27px;" class="btn btn-danger" :disabled="turnoSelect=='0'||lineaSelect==null" @click="cambioActivar(0)" v-else>
                                             Quitar
                                         </button>
+                                        </div>
+                                        <div v-else>
+                                              <button type="button" style="margin-top: 27px;" class="btn btn-primary" :disabled="lineaSelect==null" @click="listarProducto(lineaSelect.id);cambioActivar(1)" v-if="activador==0">
+                                            Procesar
+                                        </button>
+                                        <button type="button" style="margin-top: 27px;" class="btn btn-danger" :disabled="turnoSelect=='0'||lineaSelect==null" @click="cambioActivar(0)" v-else>
+                                            Quitar
+                                        </button>
+                                        </div>
+                                       
                                     </div>  
                                        <div class="col-md-2">
                                         <button type="button" style="margin-top: 27px; color: white;" class="btn btn-warning" @click="empezarFuncion(1)" v-if="activador_00==1">
@@ -336,7 +355,7 @@
   <h5>Se encontraron {{ cantidadTamanio }} productos, debe apretar el boton de empezar para poder empezar el conteo.</h5> 
 </div>
 
-                            <div class="alert alert-primary" role="alert" v-if="(turnoSelect=='0'||lineaSelect==null)&&tipoAccion==1">
+<div class="alert alert-primary" role="alert" v-if="peridoSelect=='D'&&((turnoSelect=='0'||lineaSelect==null)&&tipoAccion==1)">
   Debe seleccionar y completar todas las opciones 
 </div>
 <div v-else>
@@ -644,6 +663,125 @@
             </div>  
     </transition>
         <!--fin del modal-->
+
+         <!--Inicio del modal crear panel de control-->
+           <transition name="fade">
+            <div v-if="showModal_5" class="modal d-block" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-primary modal-super-lg modal-dialog-scrollable" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                        <h4 class="modal-title">{{ tituloModal }}</h4>
+                        <button type="button" class="close" @click="cerrarModal('panelControl')">
+                            <span>&times;</span>
+                        </button>
+                    </div>
+                      <div class="modal-body"  style="max-height: 70vh; overflow-y: auto;">  
+                            <form action="" class="form-horizontal">
+                                <div class="alert alert-danger" role="alert" v-if="panelControl_key===1">
+                                <h5>Error el conteo contiene errores de duplicidad</h5>
+                                </div>
+                                <div v-else>
+                                      <table class="table table-bordered table-striped table-sm table-responsive">
+                            <thead>
+                                <tr>
+                                    <th>Nombre de inventario</th>
+                                    <th>Nombre de motivo</th>
+                                    <th>Fecha creación</th>
+                                    <th>Tipo</th>
+                                    <th>Inventario</th>
+                                    <th>Usuario</th>
+                                    <th>Bloqueado</th>
+                                </tr>
+                                <tr>
+                                    <td>{{arrayCabeza.nombre}}</td>
+                                    <td>{{arrayCabeza.motivo}}</td>
+                                    <td>{{arrayCabeza.created_at}}</td>
+                                    <td>{{arrayCabeza.enproceso}}</td>
+                                    <td>{{arrayCabeza.tipo_inventario}}</td>
+                                    <td>{{arrayCabeza.name}}</td>
+                                    <td>
+                                        <div v-if="arrayCabeza.id_bloqueo==null">
+                                            <span>Sin bloqueo</span>
+                                        </div>
+                                        <div v-else>
+                                            <span>Bloqueado</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </thead> 
+                        </table>          
+                        
+            
+            <table class="table table-bordered table-striped table-sm table-responsive">
+                <thead>
+                    <tr>
+                        <th class="col-md-2">Producto</th>
+                        <th>Linea</th>
+                        <th>Lote</th>                  
+                     
+                        <th>Cantidad existentes</th>
+                        <th>Cantidad fisica</th>
+                        <th>Diferencia</th>
+                        
+                        <th>Observación</th> 
+                        <th>Estado</th>  
+                        <th>Resultado</th> 
+
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="(i, index) in arrayCuerpo" :key="index">
+                        <td class="col-md-2">{{i.leyenda+" Envase: "+i.envase}}</td>
+                        <td>{{i.nom_linea}}</td>
+                        <td>{{i.lote}}</td>
+                  
+                       
+                       <td>{{i.cantidad_sis_detalle_inventario}}</td>
+                       <td>{{i.cantidad_reg_detalle_inventario}}</td>
+                       <td>{{i.diferencia_detalle_inventario}}</td>
+                            <td>
+    {{ i.observacion }}
+   
+</td>   
+<td>{{i.estado}}</td>
+
+                       <td>
+                      
+                            <select class="form-control" v-model="i.turnoSelect" @change="cambiarSelect(index, i.turnoSelect)"> 
+                                
+                                            <option v-for="(t, index2) in arrayTipoEntrada" :key="index2" :value="t.id"  v-show="i.estado === 'SOBRANTE' ? t.positivo === 1 : t.negativo === 1"
+                                     
+                                            >{{t.nombre}}</option>
+                                           
+                            </select>
+                     
+                       
+                        
+                    </td>   
+                                  
+                    </tr>
+                </tbody>
+                
+            </table> 
+                                </div>
+                      
+                        </form>
+                    </div>
+                  
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" @click="cerrarModal('panelControl')">
+                            Cerrar
+                        </button>
+                        <button type="button" v-if="tipoAccion == 1" class="btn btn-primary" :disabled="panelControl_key===1" @click="registro_ajuste_n_p()">
+                            Terminar ajuste
+                        </button>
+                  
+                    </div>
+                    </div>    
+                </div>
+            </div>  
+    </transition>
+        <!--fin del modal-->
     </main>
 </template>
 
@@ -676,6 +814,7 @@ export default {
             showModal_2: false,
             showModal_3: false,
              showModal_4: false,
+             showModal_5:false,
             offset:3,
             isSubmitting:false,
 
@@ -746,6 +885,10 @@ arrayProductoLineaIngreso:[],
 
                 arrayCabeza:[],
                 arrayCuerpo:[],
+
+                panelControl_key:0,
+                arrayTipoEntrada:[],
+                ajuste__:0,
 
           
         };
@@ -987,6 +1130,22 @@ reiniciarLote(data){
     });
 },
 
+listar_entradasXe() {
+            let me = this;
+            var url = "/listar_entradasXe";
+            axios
+                .get(url)
+                .then(function (response) {
+                    var respuesta = response.data;
+                    me.arrayTipoEntrada = respuesta;
+                 
+                })
+                .catch(function (error) {
+                    error401(error);
+                
+                });
+        },
+
     guardarObservacion(){
        let me=this;
         axios.post("/inventario-periodo/terminarProceso", { 
@@ -1097,8 +1256,10 @@ activarLecto(data){
                 });
         },
 
-        listarModalData(id,data){ 
-            let me=this;            
+        listarModalData(id,data,bandera){ 
+            let me=this; 
+            me.arrayCuerpo=[];    
+            me.arrayCabeza=[];       
                 var url='/inventario-periodo/listarModalData?id='+id;             
                 axios.get(url)
                 .then(function(response){
@@ -1106,8 +1267,23 @@ activarLecto(data){
                     let respuesta_cabeza = respuesta.query_1;
                     let respuesta_cuerpo = respuesta.query_2;    
                     
-                me.arrayCabeza=respuesta.query_1;
-                me.arrayCuerpo=respuesta.query_2;   
+                me.arrayCabeza=respuesta_cabeza;
+                me.arrayCuerpo=respuesta_cuerpo; 
+                  if (bandera===1) {
+                    me.arrayCuerpo.forEach(e => {
+                        if (e.estado==='SOBRANTE') {
+                            e.estado_x = 12;
+                        }else{
+                           e.estado_x = 16; 
+                        }
+                          
+                    if ( e.repetido== 'REPETIDO') {
+                        me.panelControl_key=1;
+                    }                   
+                }); 
+                  }  
+                
+
                  if (data==1) {
                         me.descargaPDF(me.arrayCabeza,me.arrayCuerpo);
                     } 
@@ -1116,6 +1292,39 @@ activarLecto(data){
                 .catch(function(error){
                     error401(error);
                 });
+        },
+
+        cambiarSelect(index, valor){
+            let me=this;
+            console.log("index:", index);
+    console.log("valor seleccionado:", valor);
+            
+    // modificar directamente el array
+    me.arrayCuerpo[index].estado_x = valor;
+    console.log(me.arrayCuerpo);
+        },
+
+        registro_ajuste_n_p(){
+            let me =this;
+           
+           
+                axios.post("/inventario-periodo/registro_ajuste_n_p", { 
+                    'array_cuerpo':me.arrayCuerpo,
+                    'array_cabeza':me.arrayCabeza,                        
+                    })
+                    .then(function (response) {
+                        me.cerrarModal("panelControl");
+                    
+                          var respuesta = response.data;   
+                           console.log(respuesta);             
+                                                      
+                  
+                      me.listarIndex();
+                    })
+               .catch(function (error) {                
+                      error401(error);             
+            });
+            
         },
 
         listarTabla_tres(data){ 
@@ -1244,7 +1453,7 @@ activarLecto(data){
             let respuesta_1=respuesta.estado;
             let respuesta_2=respuesta.enviar;
             let respuesta_3=respuesta.error;
-          
+          console.log(respuesta);
 if (respuesta_1==0) {
     me.id_dos=respuesta_2;
     me.id_tabla_dos_momentanio=respuesta_2;
@@ -1261,37 +1470,7 @@ if (respuesta_1==2) {
       Swal.fire(respuesta_3, "Haga click en Ok", "error");
     me.id_dos=null;
     return;
-}
-
-
-      //      if (respuesta === 1) {
-      //          Swal.fire("Ya tiene un proceso activo.", "Haga click en Ok", "error");
-      //          return;
-      //      }
-
-      //      if (respuesta != 0) {
-      //          Swal.fire(respuesta, "Haga click en Ok", "error");
-      //      }
-
-            
-         
-        /**
-        axios.get("/inventario-periodo/listarTabla_dos?id=" + me.id_index)
-            .then(function (response) {
-                let respuesta = response.data;
-
-                if (respuesta && respuesta.id) {
-                    me.id_dos = respuesta.id;
-                } else {
-                    me.id_dos = 0; 
-                }
-
-                console.log("--> id_dos:", me.id_dos);
-            })
-            .catch(function (error) {
-                error401(error);
-            });
-        */      
+}     
 
         })
         .catch(function (error) {
@@ -1534,10 +1713,7 @@ if (respuesta_1==2) {
             
             me.activador_00=data;
             me.cantidadTamanio=0;
-            if(data==0){
-               
-                    me.lineaSelect=null;   
-                     
+            if(data==0){      
              me.lineaSelect=null;
              me.productosSeleccionados=[];
             me.arrayProductoLineaIngreso=[];
@@ -1708,7 +1884,7 @@ if (registro) {
                 me.linea_ver=data.nom_linea;
                 me.fecha_ver=data.fecha_creacion;
                 me.estado_ver=data.estado;
-
+me.panelControl_key=0;
                 me.classModal.openModal("ver");
                 break;
                 }
@@ -1720,6 +1896,7 @@ if (registro) {
                         me.model_0_nombre="";
                       me.isSubmitting=false;
                 me.tituloModal = "Registro de computo";
+                me.panelControl_key=0;
                 me.classModal.openModal("registrar_0");
                 break;
                 }
@@ -1731,8 +1908,19 @@ if (registro) {
                       me.id_dos=data.id_dos;
                     me.id_index=data.id;
                     me.id_bloqueo_1=data.id_bloqueo;
+                    me.panelControl_key=0;
                 me.tituloModal = "Registro de actividad de computo";
                 me.classModal.openModal("registrar_00");
+                break;
+                }
+                  case "panelControl":{
+             
+                        me.showModal_5 = true;
+                        me.tipoAccion = 1;
+                      me.isSubmitting=false;
+                   me.panelControl_key=0;
+                me.tituloModal = "Registro de auto ajustado";
+                me.classModal.openModal("panelControl");
                 break;
                 }
             
@@ -1793,6 +1981,7 @@ if (registro) {
                 me.linea_ver="";
                 me.fecha_ver="";
                 me.estado_ver="";
+                me.panelControl_key=0;
             }
             if (accion == "registrar_0") {
                 me.classModal.closeModal(accion);
@@ -1800,6 +1989,7 @@ if (registro) {
                     me.model_0_motivo="";
                         me.model_0_nombre="";
                         me.isSubmitting=false;
+                        me.panelControl_key=0;
                 me.tituloModal = "Registrar registro para su computo";
             }
             if (accion == "registrar_00") {
@@ -1809,6 +1999,15 @@ if (registro) {
                 me.isSubmitting=false;
                 me.tituloModal = "";
                 me.registrar_00="";
+                me.panelControl_key=0;
+            }
+
+            if (accion == "panelControl") {
+                me.classModal.closeModal(accion);
+                me.showModal_5 = false;                  
+                me.isSubmitting=false;
+                me.tituloModal = "";
+                me.panelControl_key=0;
             }
 
             
@@ -1829,10 +2028,12 @@ if (registro) {
         this.fecha_inicial();
        this.listarLinea();
         this.listarPerimsoxyz();
+        this.listar_entradasXe();
         this.classModal.addModal("registrar");
         this.classModal.addModal("ver");
         this.classModal.addModal("registrar_0");
         this.classModal.addModal("registrar_00");
+         this.classModal.addModal("panelControl");
     
     },
 };

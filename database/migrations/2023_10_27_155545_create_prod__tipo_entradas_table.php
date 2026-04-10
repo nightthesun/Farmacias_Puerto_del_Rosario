@@ -18,6 +18,8 @@ return new class extends Migration
             $table->smallInteger('id_usuario_registra')->unsigned()->nullable()->comment('identificador del usuario que esta registrando el producto');
             $table->smallInteger('id_usuario_modifica')->unsigned()->nullable()->comment('identificador del usuario que esta modificando el producto');
             $table->timestamps();
+            $table->tinyInteger('positivo')->nullable();
+            $table->tinyInteger('negativo')->nullable();
         });
     }
 

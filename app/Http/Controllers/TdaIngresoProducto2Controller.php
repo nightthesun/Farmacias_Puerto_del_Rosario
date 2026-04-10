@@ -68,6 +68,7 @@ class TdaIngresoProducto2Controller extends Controller
                     'pp.codigo as codigo_prod',
                     'pl.nombre as nombre_linea',
                     'pl.id as id_linea',
+                    'iii.activo as activo_blo',
                     'tip.tipo_codigo_imprecion',
                     DB::raw("CASE
                         WHEN tip.envase = 'primario' THEN CONCAT(IFNULL(pp.nombre, ''), ' ', IFNULL(pd_1.nombre, ''), ' x ', IFNULL(pp.cantidadprimario, ''), ' ', IFNULL(ff_1.nombre, ''))
@@ -95,14 +96,19 @@ class TdaIngresoProducto2Controller extends Controller
                 ->leftJoin('prod__forma_farmaceuticas as ff_2', 'ff_2.id', '=', 'pp.idformafarmaceuticasecundario')
                 ->leftJoin('prod__forma_farmaceuticas as ff_3', 'ff_3.id', '=', 'pp.idformafarmaceuticaterciario')
                 ->join('users as u', 'u.id', '=', 'tip.id_usuario_registra')
+              
                 ->leftJoin('users as u_modi', 'u_modi.id', '=', 'tip.id_usuario_modifica')
                 ->join('tda__tiendas as tt', 'tt.id', '=', 'tip.idtienda')
+                  ->leftJoin('inv__gestion_inventario_bloqueo_sucursal as iii', function($join) {
+    $join->on('iii.id_linea', '=', 'pl.id')
+         ->on('iii.id_sucursal', '=', 'tt.idsucursal');
+})
                 //->where('tip.idtienda', $request->id_tienda)
                 //->where('pp.activo', 1)
                 ->whereRaw($where)
                 ->whereRaw($sqls)
-                ->orderBy('id', 'desc')
-                ->paginate(15);              
+                ->orderBy('tip.id', 'desc')
+                ->paginate(20);              
             }    
             return 
             [
@@ -134,6 +140,7 @@ class TdaIngresoProducto2Controller extends Controller
                 'pp.codigo as codigo_prod',
                 'pl.nombre as nombre_linea',
                 'pl.id as id_linea',
+                'iii.activo as activo_blo',
                  'tip.tipo_codigo_imprecion',
                 DB::raw("CASE
                     WHEN tip.envase = 'primario' THEN CONCAT(IFNULL(pp.nombre, ''), ' ', IFNULL(pd_1.nombre, ''), ' x ', IFNULL(pp.cantidadprimario, ''), ' ', IFNULL(ff_1.nombre, ''))
@@ -163,12 +170,16 @@ class TdaIngresoProducto2Controller extends Controller
             ->join('users as u', 'u.id', '=', 'tip.id_usuario_registra')
             ->leftJoin('users as u_modi', 'u_modi.id', '=', 'tip.id_usuario_modifica')
             ->join('tda__tiendas as tt', 'tt.id', '=', 'tip.idtienda')
+               ->leftJoin('inv__gestion_inventario_bloqueo_sucursal as iii', function($join) {
+    $join->on('iii.id_linea', '=', 'pl.id')
+         ->on('iii.id_sucursal', '=', 'tt.idsucursal');
+})
             //->where('tip.idtienda', $request->id_tienda)
             //->where('pp.activo', 1)
             ->whereRaw($where)
             ->whereBetween(DB::raw('DATE(tip.created_at)'), [$ini, $fini]) 
-            ->orderBy('id', 'desc')
-            ->paginate(15);  
+            ->orderBy('tip.id', 'desc')
+            ->paginate(20);  
            
             return 
             [

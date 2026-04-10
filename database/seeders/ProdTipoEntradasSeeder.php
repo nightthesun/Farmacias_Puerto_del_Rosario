@@ -13,20 +13,22 @@ class ProdTipoEntradasSeeder extends Seeder
      */
     public function run(): void
     {
-        DB::table('prod__tipo_entradas')->insert(['nombre'=>'Bonificación','id_usuario_registra'=>1,]);  
-        DB::table('prod__tipo_entradas')->insert(['nombre'=>'Compensación','id_usuario_registra'=>1,]);  
-        DB::table('prod__tipo_entradas')->insert(['nombre'=>'Compra','id_usuario_registra'=>1,]);  
-        DB::table('prod__tipo_entradas')->insert(['nombre'=>'Devolución','id_usuario_registra'=>1,]);  
-        DB::table('prod__tipo_entradas')->insert(['nombre'=>'Donación','id_usuario_registra'=>1,]);  
-        DB::table('prod__tipo_entradas')->insert(['nombre'=>'Error de registro','id_usuario_registra'=>1,]);  
-        DB::table('prod__tipo_entradas')->insert(['nombre'=>'Permuta','id_usuario_registra'=>1,]);  
-        DB::table('prod__tipo_entradas')->insert(['nombre'=>'Préstamo ','id_usuario_registra'=>1,]);  
-        DB::table('prod__tipo_entradas')->insert(['nombre'=>'Recuperación','id_usuario_registra'=>1,]);  
-        DB::table('prod__tipo_entradas')->insert(['nombre'=>'Reintegro','id_usuario_registra'=>1,]);  
-        DB::table('prod__tipo_entradas')->insert(['nombre'=>'Reposición','id_usuario_registra'=>1,]);  
-        DB::table('prod__tipo_entradas')->insert(['nombre'=>'Sobrante','id_usuario_registra'=>1,]);  
-        DB::table('prod__tipo_entradas')->insert(['nombre'=>'Traspaso','id_usuario_registra'=>1,]); 
-        DB::table('prod__tipo_entradas')->insert(['nombre'=>'Caducado','id_usuario_registra'=>1,]); 
+        DB::table('prod__tipo_entradas')->insert(['nombre'=>'Bonificación','id_usuario_registra'=>1,'positivo'=>1,'negativo'=>0]);  
+        DB::table('prod__tipo_entradas')->insert(['nombre'=>'Compensación','id_usuario_registra'=>1,'positivo'=>1,'negativo'=>0]);  
+        DB::table('prod__tipo_entradas')->insert(['nombre'=>'Compra','id_usuario_registra'=>1,'positivo'=>1,'negativo'=>0]);  
+        DB::table('prod__tipo_entradas')->insert(['nombre'=>'Devolución','id_usuario_registra'=>1,'positivo'=>1,'negativo'=>1]);  
+        DB::table('prod__tipo_entradas')->insert(['nombre'=>'Donación','id_usuario_registra'=>1,'positivo'=>1,'negativo'=>1]);  
+        DB::table('prod__tipo_entradas')->insert(['nombre'=>'Error de registro','id_usuario_registra'=>1,'positivo'=>1,'negativo'=>1]);  
+        DB::table('prod__tipo_entradas')->insert(['nombre'=>'Permuta','id_usuario_registra'=>1,'positivo'=>1,'negativo'=>1]);  
+        DB::table('prod__tipo_entradas')->insert(['nombre'=>'Préstamo ','id_usuario_registra'=>1,'positivo'=>1,'negativo'=>1]);  
+        DB::table('prod__tipo_entradas')->insert(['nombre'=>'Recuperación','id_usuario_registra'=>1,'positivo'=>1,'negativo'=>0]);  
+        DB::table('prod__tipo_entradas')->insert(['nombre'=>'Reintegro','id_usuario_registra'=>1,'positivo'=>1,'negativo'=>0]);  
+        DB::table('prod__tipo_entradas')->insert(['nombre'=>'Reposición','id_usuario_registra'=>1,'positivo'=>1,'negativo'=>0]);  
+        DB::table('prod__tipo_entradas')->insert(['nombre'=>'Sobrante','id_usuario_registra'=>1,'positivo'=>1,'negativo'=>0]);  
+        DB::table('prod__tipo_entradas')->insert(['nombre'=>'Traspaso','id_usuario_registra'=>1,'positivo'=>1,'negativo'=>1]); 
+        DB::table('prod__tipo_entradas')->insert(['nombre'=>'Caducado','id_usuario_registra'=>1,'positivo'=>1,'negativo'=>1]);
+        DB::table('prod__tipo_entradas')->insert(['nombre'=>'Dañado','id_usuario_registra'=>1,'positivo'=>0,'negativo'=>1]);
+        DB::table('prod__tipo_entradas')->insert(['nombre'=>'Faltante','id_usuario_registra'=>1,'positivo'=>0,'negativo'=>1]); 
          
     }
 }
