@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Inv_AjusteNegativo;
+use App\Models\Inv_AjustePositivo;
 use App\Models\inv_GestionInventarioPeriodo_uno;
+use App\Models\Tda_IngresoProducto;
 use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -62,6 +65,7 @@ if (!empty($request->buscar)) {
         'i.enproceso',
         'i.id_tabla_dos_momentanio',
         'i.id_bloqueo',
+        'i.enviado',
         DB::raw("
             CASE 
                 WHEN i.tipo_inventario = 'D' THEN 'Diario'
@@ -116,6 +120,7 @@ if (!empty($request->buscar)) {
         'i.enproceso',
         'i.id_tabla_dos_momentanio',
         'i.id_bloqueo',
+        'i.enviado',
         DB::raw("
             CASE 
                 WHEN i.tipo_inventario = 'D' THEN 'Diario'
@@ -759,6 +764,7 @@ $resultado = $primario
         $consulta_1 = DB::table('inv__gestion_inventario_periodo_unos as i')
     ->join('users as u', 'u.id', '=', 'i.id_usuario_registra')
     ->select(
+        'i.id as id_index',
         'i.nombre',
         'i.motivo',
         'i.id_sucursal',
@@ -814,7 +820,9 @@ $resultado = $primario
         'i.fecha_v',
         'i.observacion',
         'i.id_producto',
-
+        'p.codigo as codigo_prod',
+        'p.nombre as nombre_prod',
+      
         DB::raw("
             CASE 
                 WHEN COUNT(*) OVER(
@@ -858,7 +866,147 @@ return response()->json([
     }
 
    public function register_ajuste_n_p(Request $request){
-    return $request->all();
+    
+   try {
+       DB::beginTransaction();
+        $cod = $request->sucursalSeleccionada;
+       
+      
+         $id_sucursal = $request->array_cabeza['id_sucursal'];
+    
+       $fecha_ingreso = $request->array_cabeza['created_at'];
+       $id_tienda = $request->array_cabeza['id_tienda'];
+       $id_almacen = $request->array_cabeza['id_almacen'];
+        $id_index = $request->array_cabeza['id_index'];
+      $tipo_p_n=0;
+
+       
+         foreach ($request->array_cuerpo as $key => $value) {
+         // ejemplo de acceso
+        $estado = $value['estado'] ?? null;
+      $id_ingreso = $value['id_ingreso'] ?? null;
+      $estado_x = $value['estado_x'] ?? null;
+    $id_producto = $value['id_producto'] ?? null;
+     $codigo_prod=$value['codigo_prod'] ?? null; 
+       $nom_linea=$value['nom_linea'] ?? null; 
+       $nombre_prod=$value['nombre_prod'] ?? null;
+       $diferencia_detalle_inventario=$value['diferencia_detalle_inventario'] ?? null;
+      $leyenda=$value['leyenda'] ?? null;
+      $envase = $value['envase'] ?? null;
+      $lote = $value['lote'] ?? null;
+       $fecha_v = $value['fecha_v'] ?? null;
+      
+      
+     
+         if ($diferencia_detalle_inventario<0) {
+                $diferencia_detalle_inventario=$diferencia_detalle_inventario*-1;
+            }else{
+              $diferencia_detalle_inventario=$diferencia_detalle_inventario;  
+            }
+      if ($estado=='SOBRANTE') {
+        // ajuste positivo
+        $ajuste=new Inv_AjustePositivo();       
+                $ajuste->id_usuario = auth()->user()->id;
+                $ajuste->id_tipo = $estado_x;
+                $ajuste->id_producto_linea = $id_producto;
+                $ajuste->id_sucursal = $id_sucursal; 
+                $ajuste->usuario = auth()->user()->name;   
+                $ajuste->codigo = $codigo_prod;
+                $ajuste->linea = $nom_linea;
+                $ajuste->producto = $nombre_prod;   
+                $ajuste->cantidad = $diferencia_detalle_inventario;
+                $ajuste->stock = $diferencia_detalle_inventario;
+                $ajuste->lote = $lote;
+                $ajuste->fecha_ingreso=$fecha_ingreso;
+                $ajuste->fecha_vencimiento=$fecha_v;
+                $ajuste->descripcion="ajuste por inventario fisico";
+                $ajuste->id_usuario_registra = auth()->user()->id;
+                $ajuste->activo = 1; 
+                $ajuste->cod = $cod;
+                $ajuste->id_ingreso=$id_ingreso;
+                $ajuste->leyenda = $leyenda;
+                $ajuste->save();  
+                $tipo_p_n=1;               
+      }else{
+        if ($estado=='FALTANTE') {
+            // ajuste negativo           
+            $ajuste = new Inv_AjusteNegativo();
+            $ajuste->id_usuario = auth()->user()->id;
+            $ajuste->id_tipo = $estado_x;
+            $ajuste->id_producto_linea = $id_producto;
+            $ajuste->id_sucursal = $id_sucursal;
+            $ajuste->usuario = auth()->user()->name;           
+            $ajuste->codigo = $codigo_prod;
+            $ajuste->linea = $nom_linea;
+            $ajuste->producto = $nombre_prod;                              
+            $ajuste->cantidad = $diferencia_detalle_inventario;
+            $ajuste->descripcion = 'ajuste por inventario fisico';
+            $ajuste->fecha = $fecha_ingreso;
+            $ajuste->activo = 1;           
+            $ajuste->cod = $cod;
+            $ajuste->leyenda = $leyenda;
+            $ajuste->id_ingreso = $id_ingreso;
+            $ajuste->save();   
+            $tipo_p_n=-1;          
+        }else{
+            return 1;
+        }
+      }
+
+      if ($id_tienda!=0&&$id_almacen==0) {
+            $tinedaIngreso = DB::table('tda__ingreso_productos as ti')
+            ->join('tda__tiendas as tt', 'ti.idtienda', '=', 'tt.idsucursal')
+            ->where('ti.id', '=', $id_ingreso)
+            ->where('tt.codigo', '=', $cod)
+            ->where('ti.envase','=',$envase)
+            ->select('ti.id as id', 'tt.codigo as codigo','ti.stock_ingreso')
+            ->first();
+           
+            $operacion=($tinedaIngreso->stock_ingreso)-$diferencia_detalle_inventario;               
+            Tda_IngresoProducto::where('id', $id_ingreso)->where('envase', $envase)->update(['stock_ingreso' => $operacion]);
+
+            }else{
+                if ($id_tienda==0 && $id_almacen!=0) {
+                     $almacenIngreso = DB::table('alm__ingreso_producto as ai')
+            ->join('alm__almacens as aa', 'ai.idalmacen', '=', 'aa.id')
+            ->where('ai.id', '=', $id_ingreso)
+            ->where('aa.codigo', '=', $cod)
+            ->where('ai.envase','=',$envase)
+            ->select('ai.id as id', 'aa.codigo as codigo','ai.stock_ingreso')
+            ->first();
+            $operacion=($almacenIngreso->stock_ingreso)-$diferencia_detalle_inventario;               
+            Tda_IngresoProducto::where('id', $id_ingreso)->where('envase', $envase)->update(['stock_ingreso' => $operacion]);            
+          
+                }else{
+                    return 2;
+                }
+            }     
+    }
+    $update = inv_GestionInventarioPeriodo_uno::find($id_index);
+            $update->enviado =1;
+            $update->save();
+       DB::commit();
+             return 0;
+   } catch (\Throwable $th) {
+    return $th;
+   }
+   
+ 
+   
+       
+      
+        $almacenIngreso = DB::table('alm__ingreso_producto as ai')
+            ->join('alm__almacens as aa', 'ai.idalmacen', '=', 'aa.id')
+            ->where('ai.id', '=', $id_ingreso)
+            ->where('aa.codigo', '=', $cod)
+            ->select('ai.id as id', 'aa.codigo as codigo')
+            ->first();
+        $tinedaIngreso = DB::table('tda__ingreso_productos as ti')
+            ->join('tda__tiendas as tt', 'ti.idtienda', '=', 'tt.idsucursal')
+            ->where('ti.id', '=', $id_ingreso)
+            ->where('tt.codigo', '=', $cod)
+            ->select('ti.id as id', 'tt.codigo as codigo')
+            ->first();
 
    }
 }

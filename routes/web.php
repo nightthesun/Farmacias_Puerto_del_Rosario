@@ -910,6 +910,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/siat/listar_catalogo', [SiatConfiguracionController::class, 'catalagos']); 
     Route::get('/siat/listar_emision', [SiatConfiguracionController::class, 'excel_emision']); 
     Route::post('/siat/subir_excel', [SiatConfiguracionController::class, 'upload_exe']); 
+    Route::post('/siat/verificador_llave', [SiatConfiguracionController::class, 'verificationKey']); 
+    
     
         //endpoint--
         Route::post('/siat/crear_endpoint', [SiatEndpointController::class, 'crearEndPoint']);  

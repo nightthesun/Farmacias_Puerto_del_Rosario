@@ -26,7 +26,7 @@ return new class extends Migration
             $table->string('name')->nullable(); // Nombre del archivo original
             $table->string('path')->nullable(); // Ruta del archivo almacenado
             $table->string('extension', 10)->nullable(); // Extensión del archivo
-            $table->string('password')->nullable();
+            $table->text('password')->nullable();
             $table->text('llave_privada')->nullable();
             $table->text('certificado_x509')->nullable();
             $table->timestamps();

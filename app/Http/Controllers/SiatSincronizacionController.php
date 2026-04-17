@@ -187,7 +187,7 @@ class SiatSincronizacionController extends Controller
             $apikeyValue = 'TokenApi ' .$token_delegado; // Concatenar correctamente el valor del API key
        
             $numero=0;
-            while ($numero <= 18) {
+            while ($numero <= 18) { // while ($numero <= 18) {
                    // Llamar al método privado dentro de la misma clase
     $xmlData = $this->endpoint($codigoAmbiente, $codigoPuntoVenta, $codigoSistema, $codigoSucursal, $cuis, $nit, $numero);
     $tiempoEspera = DB::table('siat__configuracions')
@@ -253,7 +253,7 @@ class SiatSincronizacionController extends Controller
         ->where('se.tipo', intval($request->codigoAmbiente))
         ->where('se.id',1)
         ->get(); 
-    
+
         $cadena_url=$endPoints[0]->Url; 
         $wsdl = $cadena_url;
             // Asignación de la URL y API key
@@ -266,11 +266,12 @@ class SiatSincronizacionController extends Controller
             $codigoSucursal = $request->codigoSucursal;
             $cuis = $request->cuis;
             $nit = $request->nit; 
-            $numero=0;
-            while ($numero <= 18) {
+            $numero=0;//$numero=0;
+            while ($numero <= 6) { // while ($numero <= 18) {
                    // Llamar al método privado dentro de la misma clase
+             
     $xmlData = $this->endpoint($codigoAmbiente, $codigoPuntoVenta, $codigoSistema, $codigoSucursal, $cuis, $nit, $numero);
-       
+   
     $ch = curl_init();
     // Configuración de la solicitud cURL
     curl_setopt($ch, CURLOPT_URL, $wsdl); // Reemplaza con el endpoint correcto
@@ -285,7 +286,7 @@ class SiatSincronizacionController extends Controller
 
     // Ejecutar la solicitud y obtener la respuesta
     $response = curl_exec($ch);
-
+   // dd($response);
     // Verificar si hubo un error en cURL
     if (curl_errno($ch)) {
         throw new \Exception(curl_error($ch));
@@ -294,13 +295,16 @@ class SiatSincronizacionController extends Controller
     // Cerrar la sesión de cURL
     curl_close($ch);
    
-    $respuesta_final= $this->operacionSincro($numero,$response);      
+    $respuesta_final= $this->operacionSincro($numero,$response);   
     
 
     if ($respuesta_final!=0) {
         return $respuesta_final;
     } 
+  
                 $numero++;
+                
+            
             }
             return 0;           
              
@@ -775,38 +779,61 @@ class SiatSincronizacionController extends Controller
   
   // Convertir la respuesta en un objeto SimpleXMLElement
   $xml = simplexml_load_string($response);
-
+               
   // Usar XPath para encontrar el nodo <transaccion>
   $transaccion = $xml->xpath('//transaccion');
 
 if ($transaccion && isset($transaccion[0])) {
+    
         if ($transaccion[0]== 'true') {
             // Extraer y decodificar las descripciones de actividades
             $codigos = $xml->xpath("//listaActividades/codigoCaeb"); 
+           $descripciones = $xml->xpath("//listaActividades/descripcion");
             $tamaño=count($codigos);
-                        
-                $data_query = $this->query_($n);            
-                foreach ($data_query as $data) {            
-                    foreach ($codigos as $codigo) {
-                        $dato= html_entity_decode($codigo, ENT_QUOTES, 'UTF-8');
+
+                      
+                $data_query = $this->query_($n);   
+               
+             
+                $controlador_12=0;
+               
+
+                foreach ($codigos as $key_0 => $codigo) {
+                     $dato= html_entity_decode($codigo, ENT_QUOTES, 'UTF-8');
+                    foreach ($data_query as $key_1 => $data) {
                         if ($data->codigo==$dato) {
-                            $tamaño=$tamaño-1;
-                        }                  
+                            $controlador_12++;
+                        }
                     }
-                }
-                $respuesta=$tamaño;
+                }    
+
+                if ($controlador_12==$tamaño) {
+                    $respuesta=0;
+                }else{
+                    $cadenaA="Debe editar el documento excel debe entrar SIAT administración en la pestaña sincronizacion SIAT y descargar editar CODIGO TIPO ACTIVIDADES:";
+                    for ($i=0; $i <$tamaño ; $i++) { 
+                      $dato_12= html_entity_decode($codigos[$i], ENT_QUOTES, 'UTF-8');
+                      
+                      $dato_13= html_entity_decode($descripciones[$i], ENT_QUOTES, 'UTF-8');
+                      $cadenaA=$cadenaA." codigo: ".$dato_12." descripcion: ".mb_strtoupper($dato_13, 'UTF-8');
+                    }
+                    
+               $respuesta=$cadenaA;
+                } 
         } else {
             $respuesta=$response;
         }    
    
 } else {   
+   
     $respuesta="error en sicronización de actividad";
 }   
                 break;
             
             case 2:
                    // Convertir la respuesta en un objeto SimpleXMLElement
-                   $xml = simplexml_load_string($response);             
+                   $xml = simplexml_load_string($response);     
+                       
                    // Usar XPath para encontrar el nodo <transaccion>
                 $transaccion = $xml->xpath('//transaccion');     
                 if ($transaccion && isset($transaccion[0])) {
@@ -826,7 +853,9 @@ $minutos_1 = intval($fecha1->format('i')); // Extrae solo los minutos
 $minutos_2 = intval($fechaHoy->format('i')); // Extrae solo los minutos
 $respuesta_minutos = abs($minutos_1 - $minutos_2); // Convierte a positivo             
 
-                        $time="";        
+                        $time="";   
+                        
+                        
                             $data_query = $this->query_($n);     
                             if ($fecha1Truncada==$fecha2Truncada) {
                                 $time=0;
@@ -852,28 +881,41 @@ $respuesta_minutos = abs($minutos_1 - $minutos_2); // Convierte a positivo
                 $xml = simplexml_load_string($response);
                 // Usar XPath para encontrar el nodo <transaccion>
                 $transaccion = $xml->xpath('//transaccion');
-             
+            
 if ($transaccion && isset($transaccion[0])) {
         if ($transaccion[0]== 'true') {
             // Extraer y decodificar las descripciones de actividades
             $codigos = $xml->xpath("//listaActividadesDocumentoSector/codigoDocumentoSector"); 
+            $tipoDocumentoSector = $xml->xpath("//listaActividadesDocumentoSector/tipoDocumentoSector"); 
+        
             $tamaño=count($codigos);
-            $data_query = $this->query_($n);  
-            foreach ($codigos as  $codigo) {
-               foreach ($data_query as  $query) {
-                $dato= html_entity_decode($codigo, ENT_QUOTES, 'UTF-8');
-                    if ($dato==$query->codigo) {
-                       $tamaño--;
+            $data_query = $this->query_($n); 
+
+             $controlador_12=0;              
+
+                foreach ($codigos as $key_0 => $codigo) {
+                     $dato= html_entity_decode($codigo, ENT_QUOTES, 'UTF-8');
+                    foreach ($data_query as $key_1 => $data) {
+                        if ($data->codigo==$dato) {
+                            $controlador_12++;
+                        }
                     }
-               }
-            }
-                if ($tamaño===0) {
-                    $respuesta=$tamaño;
+                }  
+                if ($controlador_12==$tamaño) {
+                    $respuesta=0;
                 }else{
-                    $respuesta="error de tamaño del siat de sector";  
-                }             
+                    $cadenaA="Debe editar el documento excel debe entrar SIAT administración en la pestaña sincronizacion SIAT y descargar editar CODIGO TIPO SECTOR:";
+                    for ($i=0; $i <$tamaño ; $i++) { 
+                      $dato_12= html_entity_decode($codigos[$i], ENT_QUOTES, 'UTF-8');
+                      
+                      $dato_13= html_entity_decode($tipoDocumentoSector[$i], ENT_QUOTES, 'UTF-8');
+                      $cadenaA=$cadenaA." codigo: ".$dato_12." descripcion: ".mb_strtoupper($dato_13, 'UTF-8');
+                    }
+                    
+               $respuesta=$cadenaA;
+                }          
         } else {
-            $respuesta="error del siat de sector";
+            $respuesta=$response;
         }    
    
 } else {   
@@ -886,7 +928,7 @@ if ($transaccion && isset($transaccion[0])) {
                 $xml = simplexml_load_string($response);              
                 // Usar XPath para encontrar el nodo <transaccion>
                 $transaccion = $xml->xpath('//transaccion');  
-                       
+                   
                     if ($transaccion && isset($transaccion[0])) {
                         if ($transaccion[0]== 'true') {
                             // Extraer y decodificar las descripciones de actividades
@@ -895,14 +937,34 @@ if ($transaccion && isset($transaccion[0])) {
                             $tamaño_1=count($codigos); 
                             $tamaño_2=count($descrip);                     
                             $data_query = $this->query_($n);  
-                   
-                            if(count($data_query)===$tamaño_1 && count($data_query)===$tamaño_2){
-                                $respuesta=0;
-                            }else{
-                                $respuesta="error del siat de leyenda de factura"; 
-                            }        
+
+
+                            $controlador_12=0;              
+
+                foreach ($codigos as $key_0 => $codigo) {
+                     $dato= html_entity_decode($codigo, ENT_QUOTES, 'UTF-8');
+                    foreach ($data_query as $key_1 => $data) {
+                        if ($data->id_erp==$dato) {
+                            $controlador_12++;
+                        }
+                    }
+                }   
+                if ($controlador_12>=1) {
+                    $respuesta=0;
+                }else{
+                    $cadenaA="Debe editar el documento excel debe entrar SIAT administración en la pestaña sincronizacion SIAT y descargar editar CODIGO TIPO LEYENDA:";
+                    for ($i=0; $i <$tamaño_1 ; $i++) { 
+                      $dato_12= html_entity_decode($codigos[$i], ENT_QUOTES, 'UTF-8');
+                      
+                      $dato_13= html_entity_decode($descrip[$i], ENT_QUOTES, 'UTF-8');
+                      $cadenaA=$cadenaA." id_erp: ".$dato_12." descripcion: ".$dato_13;
+                    }
+                    
+               $respuesta=$cadenaA;
+                }                    
+                                   
         } else {
-            $respuesta="error del siat de leyenda de factura";
+            $respuesta=$response;
         }    
    
 } else {   
@@ -914,33 +976,46 @@ if ($transaccion && isset($transaccion[0])) {
                 $xml = simplexml_load_string($response);              
                 // Usar XPath para encontrar el nodo <transaccion>
                 $transaccion = $xml->xpath('//transaccion');  
-                       
+                   
                     if ($transaccion && isset($transaccion[0])) {
                         if ($transaccion[0]== 'true') {
                             // Extraer y decodificar las descripciones de actividades
-                            $codigos = $xml->xpath("//listaLeyendas/codigoClasificador");                                                 
+                            $codigos = $xml->xpath("//listaCodigos/codigoClasificador");  
+                            $descripciones = $xml->xpath("//listaCodigos/descripcion");   
+                                                                         
                             $tamaño=count($codigos);                                          
-                            $data_query = $this->query_($n);                     
-                            foreach ($codigos as  $codigo) {
-                                foreach ($data_query as  $query) {
-                                 $dato= html_entity_decode($codigo, ENT_QUOTES, 'UTF-8');
-                                     if ($dato==$query->codigo) {
-                                        $tamaño--;
-                                     }
-                                }
-                             }
-                            if($tamaño!=0){
-                                $respuesta="error del siat de tamaño lista mensaje servicio"; 
-                             
-                            }else{
-                                $respuesta=0;
-                            }        
+                            $data_query = $this->query_($n); 
+                            
+                             $controlador_12=0;
+               
+
+                foreach ($codigos as $key_0 => $codigo) {
+                     $dato= html_entity_decode($codigo, ENT_QUOTES, 'UTF-8');
+                    foreach ($data_query as $key_1 => $data) {
+                        if ($data->codigo==$dato) {
+                            $controlador_12++;
+                        }
+                    }
+                } 
+                 if ($controlador_12==$tamaño) {
+                    $respuesta=0;
+                }else{
+                    $cadenaA="Debe editar el documento excel debe entrar SIAT administración en la pestaña sincronizacion SIAT y descargar editar MENSAJE SERVICIO:";
+                    for ($i=0; $i <$tamaño ; $i++) { 
+                      $dato_12= html_entity_decode($codigos[$i], ENT_QUOTES, 'UTF-8');
+                      
+                      $dato_13= html_entity_decode($descripciones[$i], ENT_QUOTES, 'UTF-8');
+                      $cadenaA=$cadenaA." codigo: ".$dato_12." descripcion: ".mb_strtoupper($dato_13, 'UTF-8');
+                    }
+                    
+               $respuesta=$cadenaA;
+                }       
         } else {
-            $respuesta="error del siat de tamaño lista mensaje servicio";
+            $respuesta=$response;
         }    
    
 } else {   
-    $respuesta="error en sicronización de leyenda de factura";
+    $respuesta="error en sicronización de mensaje servicio";
 }  
             break;
             case 6:
@@ -948,23 +1023,43 @@ if ($transaccion && isset($transaccion[0])) {
                 $xml = simplexml_load_string($response);              
                 // Usar XPath para encontrar el nodo <transaccion>
                 $transaccion = $xml->xpath('//transaccion');  
-                       
+                    
                     if ($transaccion && isset($transaccion[0])) {
                         if ($transaccion[0]== 'true') {
                             // Extraer y decodificar las descripciones de actividades
                             $codigos = $xml->xpath("//listaCodigos/codigoActividad");        
                             $codigos_2 = $xml->xpath("//listaCodigos/codigoProducto");    
                             $codigos_3 = $xml->xpath("//listaCodigos/descripcionProducto");                                            
-                            $tamaño=count($codigos);                                                                   
+                            $tamaño=count($codigos_2);                                                                   
                             $data_query = $this->query_($n); 
-                           
-                            if (count($data_query)==$tamaño) {
-                                $respuesta=0;
-                            }else{
-                                $respuesta="error del siat de tamaño sincronizarListaProductosServicios";  
-                            }        
+
+                        $controlador_12=0;               
+
+                foreach ($codigos_2 as $key_0 => $codigo) {
+                     $dato= html_entity_decode($codigo, ENT_QUOTES, 'UTF-8');
+                    foreach ($data_query as $key_1 => $data) {
+                        if ($data->codigo==$dato) {
+                            $controlador_12++;
+                        }
+                    }
+                } 
+
+                if ($controlador_12==$tamaño) {
+                    $respuesta=0;
+                }else{
+                    $cadenaA="Debe editar el documento excel debe entrar SIAT administración en la pestaña sincronizacion SIAT y descargar editar CODIGO TIPO ACTIVIDADES DOCUMENTO SECTOR:";
+                    for ($i=0; $i <$tamaño ; $i++) { 
+                      $dato_12= html_entity_decode($codigos_2[$i], ENT_QUOTES, 'UTF-8');                      
+                      $dato_13= html_entity_decode($codigos[$i], ENT_QUOTES, 'UTF-8');
+                      $dato_14= html_entity_decode($codigos_3[$i], ENT_QUOTES, 'UTF-8');
+                      $cadenaA=$cadenaA." codigo: ".$dato_12." descripcion: ".mb_strtoupper($dato_14, 'UTF-8')." id_erp: ".$dato_13;
+                    }
+                    
+               $respuesta=$cadenaA;
+                } 
+     
         } else {
-            $respuesta="error del siat de sincronizarListaProductosServicios";
+            $respuesta=$response;
         }    
    
 } else {   

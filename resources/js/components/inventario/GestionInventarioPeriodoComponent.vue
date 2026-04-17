@@ -187,8 +187,8 @@
                           <i class="fa fa-window-restore" aria-hidden="true"></i>
                             </button>
             </div>
-            <div>
-                        <button  type="button" class="btn btn-success" style="margin-right: 5px; color: white;"  v-if="i.enproceso==4"  @click="abrirModal('panelControl',i);listarModalData(i.id,0,1);">
+            <div v-show="puedeHacerOpciones_especiales==1">
+                        <button  type="button" class="btn btn-success" style="margin-right: 5px; color: white;"  v-if="i.enproceso==4&&i.enviado===0"  @click="abrirModal('panelControl',i);listarModalData(i.id,0,1);">
                            <i class="fa fa-exclamation" aria-hidden="true"></i>
                             </button>
                             <button  type="button" class="btn btn-secondary" style="margin-right: 5px;" v-else>
@@ -1305,17 +1305,30 @@ activarLecto(data){
         },
 
         registro_ajuste_n_p(){
-            let me =this;
-           
+            let me =this;           
            
                 axios.post("/inventario-periodo/registro_ajuste_n_p", { 
                     'array_cuerpo':me.arrayCuerpo,
-                    'array_cabeza':me.arrayCabeza,                        
+                    'array_cabeza':me.arrayCabeza, 
+                    'sucursalSeleccionada':me.sucursalSeleccionada                       
                     })
                     .then(function (response) {
                         me.cerrarModal("panelControl");
                     
-                          var respuesta = response.data;   
+                          var respuesta = response.data;  
+                          if (respuesta===0) {
+                                     Swal.fire("Se guardo correctamente.","Haga click en Ok","success",);
+                                }else{
+                                    if (respuesta===1) {
+                                       Swal.fire("error de estados etapa uno","Haga click en Ok","error",); 
+                                    } else {
+                                        if (respuesta===2) {
+                                            Swal.fire("error de id de tienda o almacen etapa dos","Haga click en Ok","error",); 
+                                        } else {
+                                           Swal.fire(respuesta,"Haga click en Ok","error",); 
+                                        }
+                                    }                                    
+                                } 
                            console.log(respuesta);             
                                                       
                   

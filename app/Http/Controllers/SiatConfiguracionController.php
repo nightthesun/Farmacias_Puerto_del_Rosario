@@ -21,13 +21,44 @@ class SiatConfiguracionController extends Controller
         ->first();
         return $resultado;
     }
+
+    public function verificationKey(Request $request){
+        try {
+            if($request->hasFile('firma'))
+        {
+            $archivo = $request->file('firma');          
+            $contenido = file_get_contents($archivo->getRealPath());
+            $certificados = [];
+
+            if (!openssl_pkcs12_read($contenido, $certificados, $request->password)) {
+                return 0;
+            }
+            else{
+                return 1;
+            }
+        }else{
+            return 2;
+        }  
+        } catch (\Throwable $th) {
+            return $th;
+        }
+              
+    }
+
     public function update_general(Request $request)
     {
+
+    
         try {
             DB::beginTransaction();
             
-            
-            //$textoDesencriptado = Crypt::decrypt($textoEncriptado); desencriptar clave
+            //$textoEncriptado="eyJpdiI6IndQNGQyZCsyald6TmlRV1VtRXZGS1E9PSIsInZhbHVlIjoiVUNrNklEWnJ0OWpEZzFpdnk1Zms1dzQ0NFhiRnQyWEhtaXJhL21IUEp2dz0iLCJtYWMiOiJkMGIzMjk4NzUxMTI1MjlhYTY3MzNjMmE2NDU0ODNlMDU2M2QwM2M0YTk4NDZlMTliNDIzMDg2MzA0NjUzYWZiIiwidGFnIjoiIn0=";
+           // $textoDesencriptado = Crypt::decrypt($textoEncriptado); //desencriptar clave
+          //  return $textoDesencriptado;
+      
+    
+      
+
             $actualizar = Siat_Configuracion::findOrFail(1);
             $actualizar->cod_sis=$request->cod_sis; 
             $actualizar->tipo_ambiente=$request->selectTipoAmbiente; 
@@ -39,18 +70,20 @@ class SiatConfiguracionController extends Controller
             $actualizar->tiempo_espera=$request->maxTiempoRespuesta; 
             $actualizar->tipo_modalidad=$request->codigoModalidad; 
             
-            if ($request->ActivarCambioFirma==1) {
+            if ($request->activarCambioFirma==1) {
                 
                 $actualizar->tipo_certificado=$request->selectCertificado;           
                 $data= (int)$request->selectCertificado;   
-                    
-                switch ($data) {
-                    case 1:
-                        if ($request->password==""||$request->password==null) {
+
+                if ($data==1) {
+                   if ($request->password==""||$request->password==null) {
                             return "la contraseña no puede estar vacia";           
                            } else {
                             if($request->hasFile('firma'))
                             {
+                              
+                                //  VALIDAR P12 ANTES DE GUARDAR
+          
                                   // Ruta de la carpeta donde se guardarán los archivos
                                  $carpeta = 'firma';
                                 // Eliminar el archivo anterior si existe
@@ -69,39 +102,49 @@ class SiatConfiguracionController extends Controller
                             $textoEncriptado = Crypt::encrypt($request->password);   
                             $cadena_pass=$randomString_2.$textoEncriptado.$randomString_3;           
                             $actualizar->password=$cadena_pass;                      
-                            }
+                            } else{
+                            return "No tiene archivo";  
+                        }
     
                             $actualizar->llave_privada=$request->key_privade; 
                             $actualizar->certificado_x509=$request->certificado_x509; 
                            }
-                       
-                        break;
-                
-                    case 2:
-                      
-                        $actualizar->llave_privada=""; 
-                        $actualizar->certificado_x509=""; 
-                        break;
-                
-                    case 3:
-                        if ($request->password==""||$request->password==null) {
+                }
+
+                if ($data==2) {
+                      if ($request->key_privade==""||$request->certificado_x509==""||$request->key_privade==null||$request->certificado_x509==null) {
+                            return "Contenido vacio o nulo"; 
+                      }else{
+                 $actualizar->llave_privada=$request->key_privade;
+                        $actualizar->certificado_x509=$request->certificado_x509; 
+                      }  
+                }
+
+                if ($data==3) {
+                  if ($request->password==""||$request->password==null) {
                             return "la contraseña no puede estar vacia";           
                            } else {
                             if($request->hasFile('firma'))
                         {
-                          
+                       
+                    
                               // Ruta de la carpeta donde se guardarán los archivos
                              $carpeta = 'firma';
+                               
                             // Eliminar el archivo anterior si existe
                             $archivos = Storage::files($carpeta);
+                        
                             if (count($archivos) > 0) {
                              Storage::delete($archivos[0]); // Elimina el primer archivo encontrado
                                 }
+                                   
                         $filename=$request->firma->getClientOriginalName();
-                    
-                        info($filename);
-                        $a=$request->file('firma')->store('firma');
                       
+                        info($filename);
+                     
+                        $a=$request->file('firma')->store('firma');
+                     
+                   
                         $actualizar->path=$a;                                        
                         $actualizar->name=$filename; 
                      //(AES-256-CBC) la incriptacion es 2 caracteres aletorio + la contraseña encryptada + 3 caracteres aletorios
@@ -112,18 +155,12 @@ class SiatConfiguracionController extends Controller
                      $cadena_pass=$randomString_2.$textoEncriptado.$randomString_3;           
                      $actualizar->password=$cadena_pass;                    
 
+                        }else{
+                            return "No tiene archivo";  
                         }
                         } 
-                        break;
-                
-                    default:
-                    $actualizar->name=""; 
-                    $actualizar->path=""; 
-                    $actualizar->password=""; 
-                    $actualizar->llave_privada=""; 
-                    $actualizar->certificado_x509=""; 
-                        break;
-                }   
+                }
+               
             }
             
             $actualizar->save();
@@ -139,6 +176,7 @@ class SiatConfiguracionController extends Controller
             ];        
             DB::table('log__sistema')->insert($datos);
             DB::commit();
+        
         } catch (\Throwable $th) {
            return $th;
         }
