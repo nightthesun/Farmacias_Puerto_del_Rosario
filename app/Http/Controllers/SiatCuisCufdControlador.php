@@ -67,7 +67,8 @@ class SiatCuisCufdControlador extends Controller
 
     public function solicitarCudf(Request $request){
         try {
-   
+  
+    
             $endPoints = DB::table('siat__endpoints as se')    
         ->select('se.id', 'se.Descripcion', 'se.Url', 'se.Version')
         ->where('se.tipo', intval($request->codigo_ambiente))
@@ -99,6 +100,7 @@ class SiatCuisCufdControlador extends Controller
             </soapenv:Body>
         </soapenv:Envelope>
         EOD;
+   
         $tiempoEspera = DB::table('siat__configuracions')
         ->where('id', 1)
         ->value('tiempo_espera'); // Obtiene directamente el valor de la columna
@@ -124,7 +126,9 @@ class SiatCuisCufdControlador extends Controller
 
             // Ejecutar la solicitud y obtener la respuesta
             $response = curl_exec($ch);
-            
+
+          
+
             // Verificar si hubo un error en cURL
             if (curl_errno($ch)) {
                 $cadena_22=curl_error($ch);
@@ -185,16 +189,20 @@ if (empty($response)) {
         // Convertir la respuesta en un objeto SimpleXMLElement
         $xml = simplexml_load_string($response);   
         $respuesta=$response;
-    
+
+
         // Usar XPath para encontrar el nodo <transaccion>    
         $transaccion = $xml->xpath('//transaccion');
+        
         if ($transaccion && isset($transaccion[0])) {
+
             if ($transaccion[0]== 'true') {                     
                     $respuesta=0;
                     $codigo_2 = $xml->xpath('//codigo');
                     $fechaVigencia= $xml->xpath('//fechaVigencia');
                     $direccion= $xml->xpath('//direccion');
                     $codigoControl= $xml->xpath('//codigoControl');
+                    
                     
                     $fechaActual = Carbon::now(); // Obtiene la fecha y hora actual
                
@@ -222,7 +230,7 @@ if (empty($response)) {
                             'fecha_vigencia' => $fechaVigencia[0],
                             'created_at' => $fechaActual,
                             'id_emisor' => $request->id_emisor,
-                            'codigoControl' => $codigoControl[0],
+                            'codigoControl' => $codigoControl[0], 
                             'direccion' => $direccion[0]    
                         ];
                         $id_cufd = DB::table('siat__cufd')->insertGetId($datos_2);
@@ -231,6 +239,8 @@ if (empty($response)) {
                     $actualizar->save();              
                    
                     return $respuesta;
+
+
             } else {
                 $codigo_2 = $xml->xpath('//codigo');
                 $descripcion = DB::table('excel__emision')
@@ -247,6 +257,7 @@ if (empty($response)) {
         return $respuesta;
     } 
             
+
         } catch (\Exception $e) {
             // Manejo de excepciones
             return response()->json([

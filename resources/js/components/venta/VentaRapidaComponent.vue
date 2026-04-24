@@ -89,7 +89,7 @@
              <tr>
                
                  <td class="col-md-6">
-               
+              
                      <div class="input-group">
                          <div class="w-100">
                              <VueMultiselect
@@ -116,7 +116,7 @@
                                <template #option="{ option }">
                                  <div :class="{'red-day': option.dias <= 20}">
                                 <i :style="{ color: getColorByPriority(option.prioridad_caducidad) }" class="fa fa-bell" aria-hidden="true"></i> 
-                                {{option.leyenda}} {{option.nombre_linea}} {{ "FV: "+option.fecha_vencimiento}} {{ "Dias: "+option.dias}} {{ "Stock: " + (option.activo_blo === 1 ? '???' : option.stock_ingreso) }}
+                                {{option.leyenda}} {{option.nombre_linea}} {{ "FV: "+option.fecha_vencimiento}} {{ "Dias: "+option.dias}} {{ "Stock: " + (option.activo_blo === 1 ? '???' : option.stock_ingreso) }}  
                                  </div>
                          </template>
                              </VueMultiselect>
@@ -130,7 +130,7 @@
                          </span>
                      </div>
                  </td>
-                 
+               
                <td class="col-md-1" >
                  <span  v-if="selected" v-text=" selected.precio_lista_gespreventa">
                  </span>
@@ -2483,7 +2483,7 @@ me.importe_fiscal=me.monto_a_pagar;
             let may_leyenda=(me.selected.leyenda).toUpperCase();
             me.codigo_tienda_almacen=me.selected.codigo_tienda_almacen;
             me.array_vetasQuery.push({id_contador:me.controlador_venta_id,descuento: descuento,es_lista: es_lista,id_ges_pre:me.selected.id,id_ingreso:me.selected.id_ingreso,id_producto:me.selected.id_prod,id_linea:me.selected.id_linea,precio_venta:me.selected.precio_lista_gespreventa,cantidad_venta:me.numero,codigo_tienda_almacen:me.selected.codigo_tienda_almacen,envase:me.selected.envase});
-            me.arrayProducto_recibo_1.push({id_contador:me.controlador_venta_id,cant:me.numero,descrip:may_leyenda,p_u:me.selected.precio_lista_gespreventa,unidad_medida:me.selected.unidad_medida,descuento: descuento,cod_pro:me.selected.codigo_prod,codigoActividad:me.selected.codigoActividad,codigoProducto:me.selected.codigoProducto,id_unidad_me:me.selected.id_unidad_medida});
+            me.arrayProducto_recibo_1.push({id_contador:me.controlador_venta_id,cant:me.numero,descrip:may_leyenda,p_u:me.selected.precio_lista_gespreventa,unidad_medida:me.selected.unidad_medida,descuento: descuento,cod_pro:me.selected.codigo_prod,codigoActividad:me.selected.codigoActividad,codigoProducto:me.selected.codigoProducto,id_unidad_me:me.selected.id_unidad_medida,rubro_siat:me.selected.rubro_siat});
             if (me.validadorPersonal===7 || me.existe_final>0) {
             let sumador_21_sub = 0;
             let sumador_21_des = 0;
@@ -2824,6 +2824,7 @@ me.importe_fiscal=me.monto_a_pagar;
                       Swal.fire("Error","El usuario debe tener rubro, contacte al administrador...","warning",);
                     }else{
                       me.arrayProducto = respuesta;                 
+                      console.log(me.arrayProducto);
                     } 
                 })
                 .catch(function (error) {
@@ -3455,18 +3456,24 @@ if (!correoRegex.test(me.correo)) {
         let tamaño_array=me.arrayProducto_recibo_1.length;
         let ini=0;
         let contador=0;
-        while (ini < tamaño_array) {
-  let newTipo = me.arrayUnidadMedida_2.find(
-    (element) => element.id_erp === me.arrayProducto_recibo_1[ini].id_unidad_me
-  );
-
-  if (newTipo) {
-    me.arrayProducto_recibo_1[ini].id_unidad_me = newTipo.codigo;
-    contador++;
-  }
-  ini++;
-}
-        if (contador===tamaño_array) {
+        let bb=0;
+       
+          for (let index = 0; index < me.arrayProducto_recibo_1.length; index++) {
+            const e = me.arrayProducto_recibo_1[index].codigoActividad;
+            const i = me.arrayProducto_recibo_1[index].codigoProducto;
+           
+            if (e==null || e=='') {
+              bb++;
+            }
+          }
+          console.log(bb)
+          if (bb>0) {
+            Swal.fire("Error","No existe el producto homologado","error"); 
+            return;
+          }
+          
+      
+      
           me.isSubmitting = true; // Deshabilita el botón   
         if (me.validadorPersonal===3) {           
             me.array_ven__detalle_descuentos.push({id_contador:0,id_tabla:0,id_descuento:0,cantidad_descuento:0.00,tipo:1});            
@@ -3536,21 +3543,18 @@ me.descuento_1=totalDescuento+me.descuento_final;
       };
 
   
-
       // Realizar la solicitud POST con Axios
       axios.post("/gestor_ventas/ventaFacturaSiat", data)
           .then(response => {
             var respuesta = response.data;  
-     
+            console.log(respuesta);
             me.isSubmitting = false;
           })
           .catch(error => {
             me.isSubmitting = false; // Deshabilita el botón
       
           });
-        } else {
-          Swal.fire("Error","No existe el producto homologado","error"); 
-        }        
+             
     },
 
     verificarUnidadMedida(){

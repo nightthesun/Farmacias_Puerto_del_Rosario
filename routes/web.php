@@ -535,6 +535,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::put('/formafarm/activar', [ProdFormaFarmaceuticaController::class, 'activar']);
     Route::get('/formafarm/selectformafarm', [ProdFormaFarmaceuticaController::class, 'selectFormaFarm']);
     Route::get('/formafarm/selectformafarm2', [ProdFormaFarmaceuticaController::class, 'selectFormaFarm2']);
+    Route::get('/formafarm/sincro', [ProdFormaFarmaceuticaController::class, 'getSincro']);
 
     Route::get('/categoria', [ProdCategoriaController::class, 'index']);
     Route::post('/categoria/registrar', [ProdCategoriaController::class, 'store']);
@@ -971,5 +972,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/siat_homologacion/listarInicio', [SiatHomologacionController::class, 'index']);    
     Route::post('/siat_homologacion/desactivar', [SiatHomologacionController::class, 'desactivar']); 
     Route::get('/siat_homologacion/listarRubro', [SiatHomologacionController::class, 'getRubro']);
+    Route::put('/siat_homologacion/limpiarXD', [SiatHomologacionController::class, 'clearXD']); 
+    
     
 });

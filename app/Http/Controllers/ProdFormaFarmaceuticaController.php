@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Prod_FormaFarmaceutica;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class ProdFormaFarmaceuticaController extends Controller
@@ -202,4 +203,62 @@ class ProdFormaFarmaceuticaController extends Controller
         return $formafarm;
 
     }
+
+ public function getSincro(Request $request)
+{
+   
+    $index_2 = DB::table('excel__emision')
+        ->select('descripcion','codigo')
+        ->where('id_catalogo', 12)
+        ->distinct()
+        ->orderBy('descripcion', 'asc')
+        ->get();
+    $index_1 = DB::table('prod__forma_farmaceuticas')
+        ->select('id','nombre')        
+        ->distinct()
+        ->orderBy('nombre', 'asc')
+        ->get();
+
+    if ($index_2->isEmpty()|| $index_1->isEmpty()) {
+        return 1;
+    }
+
+$existe=0;
+try {  
+    DB::beginTransaction();
+foreach ($index_2 as $key2 => $value_2) {
+    foreach ($index_1 as $key1 => $value_1) {
+    
+    if (
+            mb_strtoupper($value_2->descripcion, 'UTF-8') === 
+            mb_strtoupper($value_1->nombre, 'UTF-8')
+        ) {
+            DB::table('prod__forma_farmaceuticas')
+                ->where('id', $value_1->id)
+                ->update([
+                    'nombre' => $value_2->descripcion,
+                    'codigo' => $value_2->codigo
+                ]);
+              $existe=1;  
+            break;
+        }
+    }
+    if ($existe==0) {
+          $datos = [                                               
+                'nombre' => $value_2->descripcion,
+                'codigo' => $value_2->codigo                                                       
+            ];
+        
+    DB::table('prod__forma_farmaceuticas')->insert($datos);
+    }
+    $existe=0;
+}
+    DB::commit();
+    return 0;
+} catch (\Throwable $th) {
+       DB::rollBack();
+    return $th;
+}
+}
+    
 }

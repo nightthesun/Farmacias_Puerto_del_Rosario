@@ -184,4 +184,12 @@ return $productos;
             ->get();
          return $rubros;   
        }
+
+      public function clearXD(){
+          $data_load = [
+                'codigoActividad' => null,
+                'codigoProducto' => null            
+            ];
+            DB::table('prod__productos')->update($data_load);   
+      }
 }

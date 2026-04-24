@@ -21,6 +21,9 @@
                 <li class="nav-item">
                     <a class="nav-link" id="pills-concepto-tab" data-toggle="pill" href="#pills-concepto" role="tab" aria-controls="pills-concepto" aria-selected="false" @click="listar_catalogo();cambioPestañaIn(0,0,1);">Conceptos</a>
                 </li>    
+                <li class="nav-item">
+                    <a class="nav-link" id="pills-varios-tab" data-toggle="pill" href="#pills-varios" role="tab" aria-controls="pills-varios" aria-selected="false" @click="cambioPestañaIn(1,1,1);">Datos varios</a>
+                </li>    
                
                             
             </ul>
@@ -330,8 +333,20 @@
     </div>
 
 </div>
-</div>        
+</div>    
 
+<!---------------------------------------------------------------------------VARIOS---------------------------------------------------->
+
+ <div class="tab-pane fade" id="pills-varios" role="tabpanel" aria-labelledby="pills-varios-tab"  v-show="show_1==1&&show_2==1&&show_3==1">
+<div class="card">
+    <div class="card-header">
+      Complementos de configuración
+    </div>
+    
+
+
+</div>
+</div>    
      <!-----------------------------------------------------------------TIPO FACTURA ----------------------------------------------------------->
     
  <!-----------------------------------------------------------------TIPO LEYENDA ----------------------------------------------------------->

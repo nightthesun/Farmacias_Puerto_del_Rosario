@@ -19,6 +19,7 @@ class CreateProdFormaFarmaceuticasTable extends Migration
             $table->boolean('activo')->default(1);
             $table->smallInteger('id_usuario_registra')->unsigned()->nullable()->comment('null->viene del seeder');
             $table->smallInteger('id_usuario_modifica')->unsigned()->nullable()->comment('null->viene del seeder');
+             $table->smallInteger('codigo')->unsigned()->nullable();
             $table->timestamps();
         });
     }

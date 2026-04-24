@@ -9,15 +9,23 @@
         <!-- inicio de index -->
         <div class="container-fluid">
             <div class="card">
+                
                 <div class="card-header">
                     <i class="fa fa-align-justify"></i> Homologación               
                     <button v-if="puedeCrear===1" :disabled="selectRubro==='0'" type="button" class="btn btn-secondary" @click="abrirModal('registrar');listarProducto_homo(id_rubro);listarlistaActividad(selectRubro);">
                         <i class="icon-plus"></i>&nbsp;Nuevo
                     </button>  
+                    <button  type="button" class="btn btn-danger" @click="limpiarXD()">
+                        <i class="fa fa-compress" aria-hidden="true"></i>&nbsp;Limpiar
+                    </button>  
                       
                 </div>
+                <div class="alert alert-warning" role="alert">
+ Debe configurar el rubro en <strong>administración/rubros</strong> edite y acepte para poder ver esta parte  
+</div>
         <div class="card-body">
             <div class="form-group row">
+                
                 <div class="col-md-2" style="text-align: center">
                      <label for="">Rubro:</label>
                 </div>
@@ -25,7 +33,7 @@
                             <div class="input-group">
                                 <select class="form-control" v-model="selectRubro" @change="listarIndex();">
                                     <option value="0" disabled selected>Seleccionar...</option>
-                                    <option  v-for="r in arrayRubro" :key="r.id" :value="r.codigo_activdad_siat">{{r.nombre}}</option>  
+                                    <option  v-for="r in arrayRubro" :key="r.id" :value="r.codigo_activdad_siat">{{r.nombre+" Codigo siat: "+r.codigo_activdad_siat}}</option>  
                                 </select>
                             </div>
                         </div>    
@@ -438,6 +446,34 @@ listarPerimsoxyz() {
             me.buscar="";
             me.listarIndex();
         },
+
+        limpiarXD(){
+             let me=this;
+            Swal.fire({
+  title: "¿Quiere eliminar los codigos asociados?",
+  text: "Usar esta opcion solo cuando no se vea el contenido, ya que al cambiar de rubro y actividad puede afecta la lista de homologacion!",
+  icon: "warning",
+  showCancelButton: true,
+  confirmButtonColor: "#3085d6",
+  cancelButtonColor: "#d33",
+  confirmButtonText: "Si, remover el contenido!"
+}).then((result) => {
+  if (result.isConfirmed){
+     axios.put("/siat_homologacion/limpiarXD", {
+                      opcion:1,                     
+
+                }).then(function (response) {
+                    var respuesta = response.data;
+                 me.listarIndex();                     
+                    Swal.fire("Accion!", "Realizada correctamente",  "success",);   
+                })
+                .catch(function (error) {                    
+                    error401(error);
+                }); 
+  } 
+});
+        },
+
 
         listarIndex(page){
         let me=this;       

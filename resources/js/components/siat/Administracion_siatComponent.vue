@@ -957,7 +957,7 @@ if (data===1) {
                     } else {
                     
                         if (respuesta!=null || respuesta!="") {
-                            Swal.fire("Error",""+respuesta,"error",);
+                            Swal.fire("Error",respuesta,"error",);
                         } else {
                             Swal.fire(""+respuesta.error,""+respuesta.message,"error",);                    
                         }
@@ -1127,7 +1127,7 @@ insertar_cufd(codigo_siat,cuis,id,id_emisor,cufd){
                 })
                     .then(function (response) {
                         var respuesta = response.data;  
-                  
+                  console.log(respuesta);
                         if (respuesta===0) {
                             Swal.fire("CUFD","Consulta exitosa","success",); 
                         } else {

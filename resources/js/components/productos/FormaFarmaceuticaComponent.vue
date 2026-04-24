@@ -15,6 +15,9 @@
                         <i class="icon-plus"></i>&nbsp;Nuevo
                     </button>
                 </div>
+                <div class="alert alert-primary" role="alert">
+  El boton de sincronizacion revisa y actualiza la lista de unidad de medida con la lista de del <strong>SIAT.</strong>
+</div>
                 <div class="card-body">
                     <div class="form-group row">
                         <div class="col-md-6">
@@ -23,12 +26,19 @@
                                 <button type="submit" class="btn btn-primary" @click="listarFormaFarm(1)"><i class="fa fa-search" ></i> Buscar</button>
                             </div>
                         </div>
+                         <div class="col-md-4">
+                            <div class="input-group">
+                                
+                                <button type="submit" class="btn btn-warning" style="color:white"  @click="sincronizar()"><i class="fa fa-comments-o" aria-hidden="true"></i> Sincronizacion</button>
+                            </div>
+                        </div>
                     </div>
                     <table class="table table-bordered table-striped table-sm table-responsive">
                         <thead>
                             <tr>
                                 <th  class="col-md-1">Opciones</th>
-                                <th  class="col-md-10">Nombre</th>
+                                <th  class="col-md-8">Nombre</th>
+                                <th  class="col-md-2">Siat</th>
                                 <th  class="col-md-1">Estado</th>
                             </tr>
                         </thead>
@@ -67,7 +77,15 @@
                                     </div>                                
                                    
                                 </td>
-                                <td v-text="formafarm.nombre"  class="col-md-10"></td>
+                                <td v-text="formafarm.nombre"  class="col-md-8"></td>
+                                <td  class="col-md-2">
+                                    <div v-if="formafarm.codigo==null">
+                                        <span>NO</span>
+                                    </div>
+                                    <div v-else>
+                                        <span>SI</span>
+                                    </div>
+                                </td>
                                 <td  class="col-md-1">
                                     <div v-if="formafarm.activo==1">
                                         <span class="badge badge-success">Activo</span>
@@ -257,6 +275,47 @@ import { error401 } from '../../errores';
               
                 });
             },
+
+            sincronizar(){
+
+                Swal.fire({
+  title: "Desea eliminar la tabla?",
+  text: "Eliminara y se remplazara con el contenido de la tabla del SIAT",
+  icon: "warning",
+  showCancelButton: true,
+  confirmButtonColor: "#3085d6",
+  cancelButtonColor: "#d33",
+  confirmButtonText: "Si, eliminar y cambiar!"
+}).then((result) => {
+  if (result.isConfirmed) {
+    let me=this;
+                var url='/formafarm/sincro';
+                axios.get(url).then(function(response){
+                    var respuesta=response.data;
+                         me.listarFormaFarm(1);
+                    if (respuesta==0) {
+                        Swal.fire({title: "Creacion!",text: "Realizada.", icon: "success"  });
+                    } else {
+                        if (respuesta==1) {
+                             Swal.fire({title: "Error de tablas!",text: "No exite la tabla o la tabla siat no existe revise el error", icon: "error"  });
+                        } else {
+                            Swal.fire({title: "Error ",text: respuesta, icon: "error"  }); 
+                        }
+                       
+                    }
+                   console.log(respuesta);                    
+                })
+                .catch(function(error){
+                    error401(error);
+              
+                });
+  }
+  
+});
+
+                
+            },
+
             cambiarPagina(page){
                 let me =this;
                 me.pagination.current_page = page;

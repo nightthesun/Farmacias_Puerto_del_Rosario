@@ -113,288 +113,14 @@ class VenGestorVentaController extends Controller
          
     }
 
-    public function ventaFacturaSiat(Request $request){
-        try {
-          
-            DB::beginTransaction();
-            return $request->all();
-            $fechaHora = Carbon::now(); // Se usará automáticamente el formato correcto
-            $arrayEstado_dosificacion_facctura=$request->arrayEstado_dosificacion_facctura;
-            $arrayQuery_siat_=$request->arrayQuery_siat_;
-            $arrayProRecibo=$request->arrayProRecibo;
-            
-            //-----verifica el tipo de emision 
-            $comunicacion = $this->verComunicacion($arrayEstado_dosificacion_facctura['tipo_ambiente'],$arrayEstado_dosificacion_facctura['token_delegado']);
-                  
-            switch ($comunicacion) {
-                case 0:
-                    return "Error con la consulta... contacte al administrador";
-                break;
-                
-                case 1:
-                    $queryEmision = DB::table('excel__emision')
-                    ->where('id_catalogo', 1)
-                    ->where('codigo', 1)
-                    ->first();
-                    if (!$queryEmision) {
-                        return "Error de emisión";
-                    }                   
-                break;
-                case 10:
-                    //--------------------modulo de facturas si respuestas  o contigencia
-                    $queryEmision = DB::table('excel__emision')
-                    ->where('id_catalogo', 1)
-                    ->where('codigo', 2)
-                    ->first();
-                    if (!$queryEmision) {
-                        return "Error de emisión";
-                    }  
-                break;    
-                default:
-                  return "Error con la consulta... contacte al administrador";
-                break;
-            }
-        
-            
-        $querytipoSector = DB::table('excel__emision')
-            ->where('id_catalogo', 3)
-            ->where('codigo', 1)
-            ->first();
-            if(!$querytipoSector){
-                return "Tipo de catalogo no existe";
-            }
-
-            $queryNumeroFactura = DB::table('ven__factura_siat')
-            ->orderBy('id', 'desc')->limit(1)->value('numero_factura');
-            if($queryNumeroFactura){
-            $numero__=$queryNumeroFactura;
-            }else{ $numero__=1; }
-            //----------------CUF      
-            $codigoSistema=$arrayEstado_dosificacion_facctura['cod_sis']; 
-            // Obtener la fecha actual con milisegundos
-            $fechaFormateada = $fechaHora->format('YmdHisv'); // yyyyMMddHHmmssSSS 
-            $nitEmisor = $arrayEstado_dosificacion_facctura['nit']; //<----------------------------------------1 cabecera
-            $sucursal = $arrayQuery_siat_['id_sucursal_siat'];//<----------------------------------------8 cabecera
-            $modalidad = $arrayEstado_dosificacion_facctura['tipo_modalidad'];
-            $tipoEmision = $queryEmision->codigo;
-            $token_delegado= $arrayEstado_dosificacion_facctura['token_delegado'];
-            $tipoFactura = $request->id_tipo_doc;//<----------------------------------------13 cabecera
-            $tipoDocumentoSector = $querytipoSector->codigo;
-            $numeroFactura = $numero__;//<----------------------------------------5 cabecera
-            $puntoVenta = $arrayQuery_siat_['punto_venta'];//<----------------------------------------10 cabecera
-            $codigoControl = $arrayQuery_siat_['codigo_control_cufd']; // Este valor lo obtienes del WebService de la SIN              
-        
-            $cuf = CufHelper::generarCUF($nitEmisor, $fechaFormateada, $sucursal, $modalidad, $tipoEmision, $tipoFactura, $tipoDocumentoSector, $numeroFactura, $puntoVenta, $codigoControl);//<----------------------------------------6 cabecera
-            //----------------------
-            
-            $razonSocialEmisor=$request->arrayEstado_dosificacion_facctura['emisor_razon_soc'];////<----------------------------------------2 cabecera         
-            $id_sucursal_sistemas__=$arrayQuery_siat_['id_sucursal_sistemas'];
-            $departamento = DB::table('adm__sucursals as s')
-            ->join('adm__departamentos as d', 'd.id', '=', 's.departamento')
-            ->select('s.razon_social', 's.telefonos', 's.direccion', 'd.nombre')
-            ->where('s.id', $id_sucursal_sistemas__)
-            ->first();
-         
-            if(!$departamento){
-                return "Error de departamento";
-            }
-            $municipio=$departamento->nombre;//<----------------------------------------3 cabecera
-            $telefono=$arrayEstado_dosificacion_facctura['nro_celular'];//<----------------------------------------4 cabecera
-            $cufd=$arrayQuery_siat_['cufd'];//<----------------------------------------7 cabecera
-            $cuis=$arrayQuery_siat_['cuis'];
-          
-            $direccion=$arrayQuery_siat_['direccion_cufd'];//<----------------------------------------9 cabecera
-            $fechaEmision=$fechaHora->format('Y-m-d\TH:i:s.v');//<----------------------------------------11 cabecera
-            $nombreRazonSocial=$request->nom_a_facturar;//<----------------------------------------12 cabecera
-            $complemento_siat=$request->complemento_siat;//---- revisar si es null //<----------------------------------------15 cabecera
-            $codigoCliente=$request->cliente_id;//---- revisar si es null //<----------------------------------------16 cabecera
-            $numeroDocumento=$request->num_documento;//<----------------------------------------14 cabecera         
-            $codigoMetodoPago=$request->tipoPago;//<----------------------------------------17 cabecera
-            if($codigoMetodoPago=="2"){
-                if($request->numeroTarjeta==null || $request->numeroTarjeta==''){
-                    //<----------------------------------------18 casos nulo cabecera
-                    $numeroTarjeta_sis='<numeroTarjeta xsi:nil="true"/>';
-                } else{ 
-                    $numeroTarjeta_op = $this->ofuscarTarjeta($request->numeroTarjeta); //<----------------------------------------18 filtrar informacion cabecera
-                    if($numeroTarjeta_op==null){
-                    $numeroTarjeta_sis='<numeroTarjeta xsi:nil="true"/>'; 
-                    }else{
-                    $numeroTarjeta_sis="<numeroTarjeta>{$numeroTarjeta_op}</numeroTarjeta>";  
-                    }
-                }
-            }else{
-                $numeroTarjeta_sis='<numeroTarjeta xsi:nil="true"/>';
-            }
-                   
-          
-            $montoTotal=number_format($request->total_venta, 2, '.', '');  //<----------------------------------------19 cabecera 
-            $montoTotalSujetoIva=number_format($request->total_venta, 2, '.', '');  //<----------------------------------------20 cabecera 
-            $moneda_siat_x = DB::table('excel__emision')
-                ->where('id_catalogo', 9)->where('id_erp', 1)->first();              
-            if(!$moneda_siat_x){
-                return "no exite configuracion de moneda contacte al administrador";
-            }    
-            $codigoMoneda=$moneda_siat_x->codigo;//<----------------------------------------21 cabecera 
-            $tipoCambio=$moneda_siat_x->codigo;//<----------------------------------------22 cabecera 
-            $montoTotalMoneda=$montoTotal;
-            $montoTotalSujetoIva_real=$request->importe_fiscal;
-            $montoTotal_real=$request->monto_a_pagar;
-            $montoTotalMoneda_real=$request->monto_a_pagar;
-            $descuentoAdicional=number_format($request->descuento_a_total, 2, '.', '');
-            if ($request->descuento_a_total==null||$request->descuento_a_total==""||$request->descuento_a_total==" "||$request->descuento_a_total==0) {
-                $descuentoAdicional=0;
-            } else {
-                $descuentoAdicional=number_format($request->descuento_a_total, 2, '.', '');
-            }
-            
-            if($request->gift_value==null||$request->gift_value==""||$request->gift_value==" "||$request->gift_value==0){
-                $montoGiftCard=0;
-            }else{
-                $montoGiftCard=number_format($request->gift_value, 2, '.', '');  
-            }
-            $codigoExcepcion=0;//<---------------solo cuando Solo cuando se desee autorizar al SIN el registro de una factura emitida a un NIT inválido se debe enviar el valor de uno (1) en el mismo .
-            $valor_ca=$arrayProRecibo[0]['codigoActividad'];
-            $leyenda = DB::table('excel__emision')
-    ->where('id_erp', $valor_ca)
-    ->where('id_catalogo', 11)
-    ->limit(1)
-    ->value('descripcion');
-      
-  
-          
-            $id_user2 = session('id_user2'); 
-            $user_nom=auth()->user()->id;
-            $nombreCompletoObj = DB::table('rrh__empleados as re')
-            ->join('users as u', 're.id', '=', 'u.idempleado')
-            ->where('u.id', $user_nom)
-            ->value(DB::raw('UPPER(re.nombre)'));
-         
-            //==================================================
-            //------------------etapa 4-------------------------
-            //==================================================
-            $tipo_ambiente=$arrayEstado_dosificacion_facctura['tipo_ambiente'];
-            $endPoints = DB::table('siat__endpoints as se')    
-            ->select('se.id', 'se.Descripcion', 'se.Url', 'se.Version')
-            ->where('se.tipo', intval($tipo_ambiente))
-            ->where('se.id',4)
-            ->get(); 
-         
-            $codigoDocumentoSectorQuery = DB::table('excel__emision')
-    ->where('id_catalogo', 3)
-    ->where('codigo', 1)// como es factura compra venta se usa esa 
-    ->first();
-
-    $tipoFacturaDocumento = DB::table('excel__emision')
-    ->where('id_catalogo', 2)
-    ->where('codigo', 1)// como es factura compra venta se usa esa 
-    ->first();
-    $docFactura=$tipoFacturaDocumento->codigo;
-    $docFacturaDescrip=$tipoFacturaDocumento->descripcion;
-   
-            $codigoDocumentoSector=$codigoDocumentoSectorQuery->codigo;// configurar depedeniendo de laf actura comoe s compra y venta es 1            
-          //  return $request->all();
-            $cadena_url=$endPoints[0]->Url; 
-         
- 
-
-            $wsdl = $cadena_url;
-                // Asignación de la URL y API key
-                $wsdl = $cadena_url; 
-                $apikeyValue = 'TokenApi ' .$token_delegado; // Concatenar correctamente el valor del API key
-// Crear el cuerpo del mensaje SOAP, sustituyendo los valores con los parámetros correspondientes      
-//    <codigoPuntoVenta>0</codigoPuntoVenta>  <codigoPuntoVenta xsi:nil="true"/>   <complemento xsi:nil="true"/> <numeroTarjeta xsi:nil="true"/>  <montoGiftCard xsi:nil="true"/>
-if ($complemento_siat == null) {
-    $complemento_siat_sis = '<complemento xsi:nil="true"/>';
-} else {
-    $complemento_siat_sis = "<complemento>{$complemento_siat}</complemento>";
-}
-
-
-
-
-    
-
-$detalles = ''; // Aquí se guardarán todos los detalles
-
-foreach ($arrayProRecibo as $item) {
-    // Convertir cantidad a entero
-    $cantidad_array = intval($item['cant']);
-    
-    // Convertir precios a float
-    $precioUnitario = (float)$item['p_u'];
-    $montoDescuento = (float)$item['descuento'];
- 
-    // Calcular subtotal y luego formatear
-    $subTotalCalculado = ($cantidad_array * $precioUnitario) - $montoDescuento;
-    $subTotal = number_format($subTotalCalculado, 2, '.', '');
-
-    $detalles .= '
-<detalle>
-    <actividadEconomica>' . $item['codigoActividad'] . '</actividadEconomica>
-    <codigoProductoSin>' . $item['codigoProducto'] . '</codigoProductoSin>
-    <codigoProducto>' . $item['cod_pro'] . '</codigoProducto>
-    <descripcion>' . $item['descrip'] . '</descripcion>
-    <cantidad>' . $item['cant'] . '</cantidad>
-    <unidadMedida>' . $item['id_unidad_me'] . '</unidadMedida>
-    <precioUnitario>' . $precioUnitario . '</precioUnitario>
-    <montoDescuento>' . $montoDescuento . '</montoDescuento>
-    <subTotal>' . $subTotal . '</subTotal>
-    <numeroSerie xsi:nil="true"/>
-    <numeroImei xsi:nil="true"/>        
-</detalle>';
-}
-
-
-
-$factura = <<<EOD
-<facturaElectronicaCompraVenta xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="facturaElectronicaCompraVenta.xsd">
-    <cabecera>
-        <nitEmisor>{$nitEmisor}</nitEmisor>
-        <razonSocialEmisor>{$razonSocialEmisor}</razonSocialEmisor>
-        <municipio>{$municipio}</municipio>
-        <telefono>{$telefono}</telefono>
-        <numeroFactura>{$numeroFactura}</numeroFactura>
-        <cuf>{$cuf}</cuf>
-        <cufd>{$cufd}</cufd>
-        <codigoSucursal>{$sucursal}</codigoSucursal>
-        <direccion>{$direccion}</direccion>
-        <codigoPuntoVenta>{$puntoVenta}</codigoPuntoVenta>       
-        <fechaEmision>{$fechaEmision}</fechaEmision>
-        <nombreRazonSocial>{$nombreRazonSocial}</nombreRazonSocial>
-        <codigoTipoDocumentoIdentidad>{$tipoFactura}</codigoTipoDocumentoIdentidad>
-        <numeroDocumento>{$numeroDocumento}</numeroDocumento>
-        {$complemento_siat_sis}
-        <codigoCliente>{$codigoCliente}</codigoCliente>
-        <codigoMetodoPago>{$codigoMetodoPago}</codigoMetodoPago>
-        {$numeroTarjeta_sis}
-        <montoTotal>{$montoTotal_real}</montoTotal>
-        <montoTotalSujetoIva>{$montoTotalSujetoIva_real}</montoTotalSujetoIva>
-        <codigoMoneda>{$codigoMoneda}</codigoMoneda>
-        <tipoCambio>{$tipoCambio}</tipoCambio>
-        <montoTotalMoneda>{$montoTotalMoneda_real}</montoTotalMoneda>
-        <montoGiftCard>{$montoGiftCard}</montoGiftCard>      
-        <descuentoAdicional>{$descuentoAdicional}</descuentoAdicional>
-        <codigoExcepcion>{$codigoExcepcion}</codigoExcepcion>
-        <cafc xsi:nil="true"/>
-        <leyenda>{$leyenda}</leyenda>
-        <usuario>{$nombreCompletoObj}</usuario>
-        <codigoDocumentoSector>{$codigoDocumentoSector}</codigoDocumentoSector>
-    </cabecera>
-    {$detalles}
-  </facturaElectronicaCompraVenta>
-EOD;
-//$xmlString = view('factura_template', $factura)->render(); 
- // 2. Firma digital con .p12
-
-
- // 1. Obtener archivo .p12 desde storage/app/firma
+    private function fac__firma_doc($claveEncriptada,$factura){
+                // 1. Obtener archivo .p12 desde storage/app/firma
  $archivoP12 = collect(Storage::files('firma'))->first();
  if (!$archivoP12) {
      throw new \Exception('No se encontró ningún archivo .p12 en storage/app/firma');
  }
  
- // 2. Obtener clave y desencriptarla
- $claveEncriptada = $arrayEstado_dosificacion_facctura['password'];
+
  $claveReducida = preg_replace('/^.{2}(.*).{3}$/', '$1', $claveEncriptada);
  $claveP12 = Crypt::decrypt($claveReducida);
  
@@ -457,15 +183,383 @@ EOD;
  
  // 14. Calcular el HASH SHA256
  $hashArchivo = hash('sha256', $gzipped);
+return [
+    'hash' => $hashArchivo,
+    'archivo' => $archivo
+];
+
+    }
+
+    private function fac__electronica_compra_venta($nitEmisor,$razonSocialEmisor,$municipio,$telefono,$numeroFactura,$cuf,$cufd,$codigoSucursal,$direccion,$codigoPuntoVenta,$fechaEmision,$nombreRazonSocial,$codigoTipoDocumentoIdentidad,$numeroDocumento,$complemento,$codigoCliente,$codigoMetodoPago,$numeroTarjeta,$montoTotal,$montoTotalSujetoIva,$codigoMoneda,$tipoCambio,$montoTotalMoneda,$leyenda,$usuario,$codigoDocumentoSector,$arrayProRecibo,$montoGiftCard,$descuentoAdicional,$codigoExcepcion){
+       // FACTURA COMPRA Y VENTA 
+                $detalles = ''; // Aquí se guardarán todos los detalles
+
+foreach ($arrayProRecibo as $item) {
+    // Convertir cantidad a entero
+    $cantidad_array = intval($item['cant']);
+    
+    // Convertir precios a float
+    $precioUnitario = (float)$item['p_u'];
+    $montoDescuento = (float)$item['descuento'];
  
- // 15. Enviar al SIAT
+    // Calcular subtotal y luego formatear
+    $subTotalCalculado = ($cantidad_array * $precioUnitario) - $montoDescuento;
+    $subTotal = number_format($subTotalCalculado, 2, '.', '');
+
+    $detalles .= '
+<detalle>
+    <actividadEconomica>' . $item['codigoActividad'] . '</actividadEconomica>
+    <codigoProductoSin>' . $item['codigoProducto'] . '</codigoProductoSin>
+    <codigoProducto>' . $item['cod_pro'] . '</codigoProducto>
+    <descripcion>' . $item['descrip'] . '</descripcion>
+    <cantidad>' . $item['cant'] . '</cantidad>
+    <unidadMedida>' . $item['id_unidad_me'] . '</unidadMedida>
+    <precioUnitario>' . $precioUnitario . '</precioUnitario>
+    <montoDescuento>' . $montoDescuento . '</montoDescuento>
+    <subTotal>' . $subTotal . '</subTotal>
+    <numeroSerie xsi:nil="true"/>
+    <numeroImei xsi:nil="true"/>        
+</detalle>';
+}
+    $factura = <<<EOD
+<facturaElectronicaCompraVenta xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="facturaElectronicaCompraVenta.xsd">
+    <cabecera>
+        <nitEmisor>{$nitEmisor}</nitEmisor>
+        <razonSocialEmisor>{$razonSocialEmisor}</razonSocialEmisor>
+        <municipio>{$municipio}</municipio>
+        <telefono>{$telefono}</telefono>
+        <numeroFactura>{$numeroFactura}</numeroFactura>
+        <cuf>{$cuf}</cuf>
+        <cufd>{$cufd}</cufd>
+        <codigoSucursal>{$codigoSucursal}</codigoSucursal>
+        <direccion>{$direccion}</direccion>
+        <codigoPuntoVenta>{$codigoPuntoVenta}</codigoPuntoVenta>       
+        <fechaEmision>{$fechaEmision}</fechaEmision>
+        <nombreRazonSocial>{$nombreRazonSocial}</nombreRazonSocial>
+        <codigoTipoDocumentoIdentidad>{$codigoTipoDocumentoIdentidad}</codigoTipoDocumentoIdentidad>
+        <numeroDocumento>{$numeroDocumento}</numeroDocumento>
+        {$complemento}
+        <codigoCliente>{$codigoCliente}</codigoCliente>
+        <codigoMetodoPago>{$codigoMetodoPago}</codigoMetodoPago>
+        {$numeroTarjeta}
+        <montoTotal>{$montoTotal}</montoTotal>
+        <montoTotalSujetoIva>{$montoTotalSujetoIva}</montoTotalSujetoIva>
+        <codigoMoneda>{$codigoMoneda}</codigoMoneda>
+        <tipoCambio>{$tipoCambio}</tipoCambio>
+        <montoTotalMoneda>{$montoTotalMoneda}</montoTotalMoneda>
+       
+        <leyenda>{$leyenda}</leyenda>
+        <usuario>{$usuario}</usuario>
+        <codigoDocumentoSector>{$codigoDocumentoSector}</codigoDocumentoSector>
+    </cabecera>
+    {$detalles}
+  </facturaElectronicaCompraVenta>
+EOD;
+
+                return $factura;
+    }
+
+    private function fac__computarizada_compra_venta($nitEmisor,$razonSocialEmisor,$municipio,$telefono,$numeroFactura,$cuf,$cufd,$codigoSucursal,$direccion,$codigoPuntoVenta,$fechaEmision,$nombreRazonSocial,$codigoTipoDocumentoIdentidad,$numeroDocumento,$complemento,$codigoCliente,$codigoMetodoPago,$numeroTarjeta,$montoTotal,$montoTotalSujetoIva,$codigoMoneda,$tipoCambio,$montoTotalMoneda,$leyenda,$usuario,$codigoDocumentoSector,$arrayProRecibo,$montoGiftCard,$descuentoAdicional,$codigoExcepcion){
+       $detalles = ''; // Aquí se guardarán todos los detalles
+
+foreach ($arrayProRecibo as $item) {
+    // Convertir cantidad a entero
+    $cantidad_array = intval($item['cant']);
+    
+    // Convertir precios a float
+    $precioUnitario = (float)$item['p_u'];
+    $montoDescuento = (float)$item['descuento'];
+ 
+    // Calcular subtotal y luego formatear
+    $subTotalCalculado = ($cantidad_array * $precioUnitario) - $montoDescuento;
+    $subTotal = number_format($subTotalCalculado, 2, '.', '');
+
+    $detalles .= '
+<detalle>
+    <actividadEconomica>' . $item['codigoActividad'] . '</actividadEconomica>
+    <codigoProductoSin>' . $item['codigoProducto'] . '</codigoProductoSin>
+    <codigoProducto>' . $item['cod_pro'] . '</codigoProducto>
+    <descripcion>' . $item['descrip'] . '</descripcion>
+    <cantidad>' . $item['cant'] . '</cantidad>
+    <unidadMedida>' . $item['id_unidad_me'] . '</unidadMedida>
+    <precioUnitario>' . $precioUnitario . '</precioUnitario>
+    <montoDescuento>' . $montoDescuento . '</montoDescuento>
+    <subTotal>' . $subTotal . '</subTotal>
+    <numeroSerie xsi:nil="true"/>
+    <numeroImei xsi:nil="true"/>        
+</detalle>';
+}
+$factura = <<<EOD
+<facturaComputarizadaCompraVenta xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="facturaComputarizadaCompraVenta.xsd">
+    <cabecera>
+        <nitEmisor>{$nitEmisor}</nitEmisor>
+        <razonSocialEmisor>{$razonSocialEmisor}</razonSocialEmisor>
+        <municipio>{$municipio}</municipio>
+        <telefono>{$telefono}</telefono>
+        <numeroFactura>{$numeroFactura}</numeroFactura>
+        <cuf>{$cuf}</cuf>
+        <cufd>{$cufd}</cufd>
+        <codigoSucursal>{$codigoSucursal}</codigoSucursal>
+        <direccion>{$direccion}</direccion>
+        <codigoPuntoVenta>{$codigoPuntoVenta}</codigoPuntoVenta>       
+        <fechaEmision>{$fechaEmision}</fechaEmision>
+        <nombreRazonSocial>{$nombreRazonSocial}</nombreRazonSocial>
+        <codigoTipoDocumentoIdentidad>{$codigoTipoDocumentoIdentidad}</codigoTipoDocumentoIdentidad>
+        <numeroDocumento>{$numeroDocumento}</numeroDocumento>
+        {$complemento}
+        <codigoCliente>{$codigoCliente}</codigoCliente>
+        <codigoMetodoPago>{$codigoMetodoPago}</codigoMetodoPago>
+        {$numeroTarjeta}
+        <montoTotal>{$montoTotal}</montoTotal>
+        <montoTotalSujetoIva>{$montoTotalSujetoIva}</montoTotalSujetoIva>
+        <codigoMoneda>{$codigoMoneda}</codigoMoneda>
+        <tipoCambio>{$tipoCambio}</tipoCambio>
+        <montoTotalMoneda>{$montoTotalMoneda}</montoTotalMoneda>        
+        <leyenda>{$leyenda}</leyenda>
+        <usuario>{$usuario}</usuario>
+        <codigoDocumentoSector>{$codigoDocumentoSector}</codigoDocumentoSector>
+    </cabecera>
+    {$detalles}
+ </facturaComputarizadaCompraVenta>
+EOD;
+
+                return $factura;
+    }
+
+   
+
+    public function ventaFacturaSiat(Request $request){
+        try {
+       
+            DB::beginTransaction();
+       
+            $fechaHora = Carbon::now(); // Se usará automáticamente el formato correcto
+            $arrayEstado_dosificacion_facctura=$request->arrayEstado_dosificacion_facctura;
+            $arrayQuery_siat_=$request->arrayQuery_siat_;
+            $arrayProRecibo=$request->arrayProRecibo;
+          
+            $tipo_modalidad=$arrayEstado_dosificacion_facctura['tipo_modalidad'];
+             //-----verifica el tipo de emision 
+            $comunicacion = $this->verComunicacion($arrayEstado_dosificacion_facctura['tipo_ambiente'],$arrayEstado_dosificacion_facctura['token_delegado']);
+           switch ($comunicacion) {
+                case 0:
+                    return "Error con la consulta... contacte al administrador";
+                break;
+                
+                case 1:
+                    $queryEmision = DB::table('excel__emision')
+                    ->where('id_catalogo', 1)
+                    ->where('codigo', 1)
+                    ->first();
+                    if (!$queryEmision) {
+                        return "Error de emisión";
+                    }                   
+                break;
+                case 10:
+                    //--------------------modulo de facturas si respuestas  o contigencia
+                    $queryEmision = DB::table('excel__emision')
+                    ->where('id_catalogo', 1)
+                    ->where('codigo', 2)
+                    ->first();
+                    if (!$queryEmision) {
+                        return "Error de emisión";
+                    }  
+                break;    
+                default:
+                  return "Error con la consulta... contacte al administrador";
+                break;
+            }
+           
+            
+
+             $querytipoSector = DB::table('excel__emision')
+            ->where('id_catalogo', 3)
+            ->where('codigo', 1)
+            ->first();
+            if(!$querytipoSector){
+                return "Tipo de catalogo no existe";
+            }
+
+            $queryNumeroFactura = DB::table('ven__factura_siat')
+            ->orderBy('id', 'desc')->limit(1)->value('numFactura');
+            if($queryNumeroFactura){
+            $numero__=$queryNumeroFactura;
+            }else{ 
+                $numero__=1;
+             }
+            $id_sucursal_sistemas__=$arrayQuery_siat_['id_sucursal_sistemas'];
+
+            $departamento = DB::table('adm__sucursals as s')
+            ->join('adm__departamentos as d', 'd.id', '=', 's.departamento')
+            ->select('s.razon_social', 's.telefonos', 's.direccion', 'd.nombre')
+            ->where('s.id', $id_sucursal_sistemas__)
+            ->first();
+         
+            if(!$departamento){
+                return "Error de departamento";
+            }
+            
+             
+            $moneda_siat_x = DB::table('excel__emision')
+                ->where('id_catalogo', 9)->where('id_erp', 1)->first();              
+            if(!$moneda_siat_x){
+                return "no exite configuracion de moneda contacte al administrador";
+            }    
+            
+
+
+            $nitEmisor = $arrayEstado_dosificacion_facctura['nit'];
+            $razonSocialEmisor=$request->arrayEstado_dosificacion_facctura['emisor_razon_soc'];////<----------------------------------------2 cabecera         
+            $municipio=$departamento->nombre;//<----------------------------------------3 cabecera
+            $telefono=$arrayEstado_dosificacion_facctura['nro_celular'];//<----------------------------------------4 cabecera
+            $numeroFactura = $numero__;//<----------------------------------------5 cabecera
+           $fechaFormateada = $fechaHora->format('YmdHisv'); // yyyyMMddHHmmssSSS 
+           $sucursal = $arrayQuery_siat_['id_sucursal_siat'];//<----------------------------------------8 cabecera
+           $modalidad = $arrayEstado_dosificacion_facctura['tipo_modalidad'];
+           $tipoEmision = $queryEmision->codigo;
+           $tipoFactura = $request->id_tipo_doc;//<----------------------------------------13 cabecera
+            $tipoDocumentoSector = $querytipoSector->codigo;
+             $puntoVenta = $arrayQuery_siat_['punto_venta'];//<----------------------------------------10 cabecera
+             $codigoControl = $arrayQuery_siat_['codigo_control_cufd']; // Este valor lo obtienes del WebService de la SIN   
+             $cuf = CufHelper::generarCUF($nitEmisor, $fechaFormateada, $sucursal, $modalidad, $tipoEmision, $tipoFactura, $tipoDocumentoSector, $numeroFactura, $puntoVenta, $codigoControl);//<----------------------------------------6 cabecera
+            $cufd=$arrayQuery_siat_['cufd'];//<----------------------------------------7 cabecera
+            $codigoSucursal=$sucursal;
+             $direccion=$arrayQuery_siat_['direccion_cufd'];//<----------------------------------------9 cabecera    
+            $codigoPuntoVenta=$puntoVenta;
+            $fechaEmision=$fechaHora->format('Y-m-d\TH:i:s.v');//<----------------------------------------11 cabecera
+            $nombreRazonSocial=$request->nom_a_facturar;//<----------------------------------------12 cabecera
+            $codigoTipoDocumentoIdentidad=$tipoFactura;
+            $numeroDocumento=$request->num_documento;//<----------------------------------------14 cabecera   
+             $complemento_siat=$request->complemento_siat;//---- revisar si es null //<----------------------------------------15 cabecera
+            // Crear el cuerpo del mensaje SOAP, sustituyendo los valores con los parámetros correspondientes      
+//    <codigoPuntoVenta>0</codigoPuntoVenta>  <codigoPuntoVenta xsi:nil="true"/>   <complemento xsi:nil="true"/> <numeroTarjeta xsi:nil="true"/>  <montoGiftCard xsi:nil="true"/>
+if ($complemento_siat == null) {
+    $complemento_siat_sis = '<complemento xsi:nil="true"/>';
+} else {
+    $complemento_siat_sis = "<complemento>{$complemento_siat}</complemento>";
+} 
+        $complemento=$complemento_siat_sis;
+   $codigoCliente=$request->cliente_id;//---- revisar si es null //<----------------------------------------16 cabecera
+          $codigoMetodoPago=$request->tipoPago;//<----------------------------------------17 cabecera  
+          
+            if($codigoMetodoPago=="2"){
+                if($request->numeroTarjeta==null || $request->numeroTarjeta==''){
+                    //<----------------------------------------18 casos nulo cabecera
+                    $numeroTarjeta_sis='<numeroTarjeta xsi:nil="true"/>';
+                } else{ 
+                    $numeroTarjeta_op = $this->ofuscarTarjeta($request->numeroTarjeta); //<----------------------------------------18 filtrar informacion cabecera
+                    if($numeroTarjeta_op==null){
+                    $numeroTarjeta_sis='<numeroTarjeta xsi:nil="true"/>'; 
+                    }else{
+                    $numeroTarjeta_sis="<numeroTarjeta>{$numeroTarjeta_op}</numeroTarjeta>";  
+                    }
+                }
+            }else{
+                $numeroTarjeta_sis='<numeroTarjeta xsi:nil="true"/>';
+            }        
+$numeroTarjeta=$numeroTarjeta_sis;
+  $montoTotal=number_format($request->total_venta, 2, '.', '');  //<----------------------------------------19 cabecera 
+    $montoTotalSujetoIva=number_format($request->total_venta, 2, '.', '');  //<----------------------------------------20 cabecera 
+                   $codigoMoneda=$moneda_siat_x->codigo;//<----------------------------------------21 cabecera 
+       $tipoCambio=$moneda_siat_x->codigo;//<----------------------------------------22 cabecera 
+           $montoTotalMoneda=$montoTotal;
+ $valor_ca=$arrayProRecibo[0]['codigoActividad'];
+            $leyenda = DB::table('excel__emision')
+    ->where('id_erp', $valor_ca)
+    ->where('id_catalogo', 11)
+    ->limit(1)
+    ->value('descripcion');
+ $id_user2 = session('id_user2'); 
+            $user_nom=auth()->user()->id;
+            $nombreCompletoObj = DB::table('rrh__empleados as re')
+            ->join('users as u', 're.id', '=', 'u.idempleado')
+            ->where('u.id', $user_nom)
+            ->value(DB::raw('UPPER(re.nombre)'));
+$usuario=$nombreCompletoObj;
+ $codigoDocumentoSectorQuery = DB::table('excel__emision')
+    ->where('id_catalogo', 3)
+    ->where('codigo', 1)// como es factura compra venta se usa esa 
+    ->first();
+      $codigoDocumentoSector=$codigoDocumentoSectorQuery->codigo;// configurar depedeniendo de laf actura comoe s compra y venta es 1            
+       
+if($request->gift_value==null||$request->gift_value==""||$request->gift_value==" "||$request->gift_value==0){
+                $montoGiftCard=0;
+            }else{
+                $montoGiftCard=number_format($request->gift_value, 2, '.', '');  
+            }
+
+            $descuentoAdicional=number_format($request->descuento_a_total, 2, '.', '');
+            if ($request->descuento_a_total==null||$request->descuento_a_total==""||$request->descuento_a_total==" "||$request->descuento_a_total==0) {
+                $descuentoAdicional=0;
+            } else {
+                $descuentoAdicional=number_format($request->descuento_a_total, 2, '.', '');
+            }
+ $codigoExcepcion=0;//<---------------solo cuando Solo cuando se desee autorizar al SIN el registro de una factura emitida a un NIT inválido se debe enviar el valor de uno (1) en el mismo .
+        
+  $tipo_ambiente=$arrayEstado_dosificacion_facctura['tipo_ambiente'];
+            $endPoints = DB::table('siat__endpoints as se')    
+            ->select('se.id', 'se.Descripcion', 'se.Url', 'se.Version')
+            ->where('se.tipo', intval($tipo_ambiente))
+            ->where('se.id',4)
+            ->get(); 
+$token_delegado= $arrayEstado_dosificacion_facctura['token_delegado'];
+$codigoSistema=$arrayEstado_dosificacion_facctura['55cod_sis']; 
+         $cuis=$arrayQuery_siat_['cuis'];
+$tipoFacturaDocumento = DB::table('excel__emision')
+    ->where('id_catalogo', 2)
+    ->where('codigo', 1)// como es factura compra venta se usa esa 
+    ->first();
+    $docFactura=$tipoFacturaDocumento->codigo;
+
+
+        if ($tipo_modalidad==1) {
+                  $factura___e=$this->fac__electronica_compra_venta($nitEmisor,$razonSocialEmisor,$municipio,$telefono,$numeroFactura,$cuf,$cufd,$codigoSucursal,$direccion,$codigoPuntoVenta,$fechaEmision,$nombreRazonSocial,$codigoTipoDocumentoIdentidad,$numeroDocumento,$complemento,$codigoCliente,$codigoMetodoPago,$numeroTarjeta,$montoTotal,$montoTotalSujetoIva,$codigoMoneda,$tipoCambio,$montoTotalMoneda,$leyenda,$usuario,$codigoDocumentoSector,$arrayProRecibo,$montoGiftCard,$descuentoAdicional,$codigoExcepcion);
+          
+                $claveEncriptada = $arrayEstado_dosificacion_facctura['password']; //----------------------
+                $firma_f= $this->fac__firma_doc($claveEncriptada,$factura___e);                
+
+$hashArchivo = $firma_f['hash'];
+$archivo = $firma_f['archivo'];
+   // 15. Enviar al SIAT
  $soap_llamada = $this->enviarFactura_siat(
      $tipo_ambiente, $token_delegado, $codigoDocumentoSector, $tipoEmision,
      $modalidad, $puntoVenta, $codigoSistema, $sucursal,
      $cufd, $cuis, $nitEmisor, $docFactura, $archivo, $fechaEmision, $hashArchivo
  );
+             
+            }else{
+
+                if ($tipo_modalidad==2) {
+                    $factura___c=$this->fac__computarizada_compra_venta($nitEmisor,$razonSocialEmisor,$municipio,$telefono,$numeroFactura,$cuf,$cufd,$codigoSucursal,$direccion,$codigoPuntoVenta,$fechaEmision,$nombreRazonSocial,$codigoTipoDocumentoIdentidad,$numeroDocumento,$complemento,$codigoCliente,$codigoMetodoPago,$numeroTarjeta,$montoTotal,$montoTotalSujetoIva,$codigoMoneda,$tipoCambio,$montoTotalMoneda,$leyenda,$usuario,$codigoDocumentoSector,$arrayProRecibo,$montoGiftCard,$descuentoAdicional,$codigoExcepcion);
+               // 13. GZIP + Base64
+ $gzipped = gzencode($factura___c);
+ $archivo = base64_encode($gzipped);
  
- return $soap_llamada;
+ // 14. Calcular el HASH SHA256
+ $hashArchivo = hash('sha256', $gzipped);
+                    // 15. Enviar al SIAT
+ $soap_llamada = $this->enviarFactura_siat(
+     $tipo_ambiente, $token_delegado, $codigoDocumentoSector, $tipoEmision,
+     $modalidad, $puntoVenta, $codigoSistema, $sucursal,
+     $cufd, $cuis, $nitEmisor, $docFactura, $archivo, $fechaEmision, $hashArchivo
+ );
+                }else{
+                return "Error de tipo de modalidad";
+                }
+            }
+  
+    
+      
+            $montoTotalSujetoIva_real=$request->importe_fiscal;
+            $montoTotal_real=$request->monto_a_pagar;
+            $montoTotalMoneda_real=$request->monto_a_pagar;   
+            $docFacturaDescrip=$tipoFacturaDocumento->descripcion;
+   
+            $cadena_url=$endPoints[0]->Url;            
+             // Asignación de la URL y API key
+            $wsdl = $cadena_url; 
+            $apikeyValue = 'TokenApi ' .$token_delegado; // Concatenar correctamente el valor del API key
+
 
  $xml = simplexml_load_string($soap_llamada);
     // Usar XPath para encontrar el nodo <transaccion>    
@@ -475,9 +569,42 @@ EOD;
          
             $codigoRecepcion = $xml->xpath('//codigoRecepcion');
             $codigoDescripcion= $xml->xpath('//codigoDescripcion');
+            
+            $total_venta=$request->total_venta;
+            $efectivo_venta=$request->efectivo_venta;
+            $cambio_venta=$request->cambio_venta;
+            $descuento_venta=$request->descuento_venta;
+            $total_sin_des= $total_venta+$descuento_venta;
+            $dato_tipo=intval($request->TipoComprobate);
+            $codigo_tienda_almacen_0=$request->codigo_tienda_almacen_0;
+            $id_lista_v2=$request->id_lista_v2;
+           
+            $cliente_id = DB::table('dir__clientes')
+    ->where('id', $codigoCliente)    
+    ->first();
+    $refff=$cliente_id->telefono;
+    if ($refff==null) {
+        $numero_referencia="000";
+    }else{
+        $numero_referencia=$refff;
+    }
 
-        $insertarVenta_v= $this->insertarVenta($codigoCliente,$total_venta,$efectivo_venta,$cambio_venta,$descuento_venta,$total_sin_des,$dato_tipo,$codigo_tienda_almacen_0
-    ,$id_lista_v2,$numero_referencia,$num_documento,$nom_a_facturar,$estado_dosificacion_facctura,$id_apertura_cierre,$tipo_venta,
+    if ($modalidad==1) {
+         $estado_dosificacion_facctura=1;
+    }else{
+       if ($modalidad==2) {
+        $estado_dosificacion_facctura=3;
+       }else{
+        $estado_dosificacion_facctura=4;
+       } 
+    }
+     $id_apertura_cierre=$request->id_apertura_cierre;
+     $tipo_venta= (integer)$request->tipo_pago_Qr_con_tar;
+     $monto_vale =$request->gift_value;
+    $monto_apagar=$request->monto_a_pagar;
+
+           $insertarVenta_v= $this->insertarVenta($codigoCliente,$total_venta,$efectivo_venta,$cambio_venta,$descuento_venta,$total_sin_des,$dato_tipo,$codigo_tienda_almacen_0
+    ,$id_lista_v2,$numero_referencia,$numeroDocumento,$nombreRazonSocial,$estado_dosificacion_facctura,$id_apertura_cierre,$tipo_venta,
     $monto_vale,$monto_apagar,$moneda,$arrayDescuentoOperacion,$arrayDesatlleVenta,$numeroTarjeta,$cadenaOtros,$tipoBanco,$id_cufd,$id_cuis
     ,$cuf,$id_credenciales,$sucursal_siat,$punto_venta,$direccion,$municipio, $numFactura, $fechaEmision, $xml, $id_leyenda, $codRecepcion);
                 
@@ -881,6 +1008,7 @@ $nombre_empresa = strtoupper($nombre_e);
             ->join('tda__ingreso_productos as tip', 'pivot.id_ingreso', '=', 'tip.id')
             ->join('tda__tiendas as tt', 'tt.id', '=', 'tip.idtienda')
             ->join('prod__productos as pp', 'pp.id', '=', 'tip.id_prod_producto')
+             ->join('adm__rubros as ru', 'ru.id', '=', 'pp.idrubro')
             ->join('adm__sucursals as ass', 'ass.id', '=', 'tt.idsucursal')
             ->leftJoin('prod__dispensers as pd_1', 'pd_1.id', '=', 'pp.iddispenserprimario')
             ->leftJoin('prod__dispensers as pd_2', 'pd_2.id', '=', 'pp.iddispensersecundario')
@@ -916,6 +1044,7 @@ $nombre_empresa = strtoupper($nombre_e);
                 'pp.codigo as codigo_prod',
                 'pp.nombre as prod_name',
                 'tip.id as id_ingreso',
+                'ru.codigo_activdad_siat as rubro_siat',
                 DB::raw("
                 CASE 
                     WHEN tip.envase = 'primario' THEN UPPER(CONCAT(COALESCE(pp.nombre, ''), ' ', COALESCE(pd_1.nombre, ''), ' X ', COALESCE(pp.cantidadprimario, ''), ' ', COALESCE(ff_1.nombre, '')))
@@ -971,6 +1100,7 @@ $nombre_empresa = strtoupper($nombre_e);
             ->join('tda__ingreso_productos as tip', 'pivot.id_ingreso', '=', 'tip.id')
             ->join('tda__tiendas as tt', 'tt.id', '=', 'tip.idtienda')
             ->join('prod__productos as pp', 'pp.id', '=', 'tip.id_prod_producto')
+             ->join('adm__rubros as ru', 'ru.id', '=', 'pp.idrubro')
             ->join('adm__sucursals as ass', 'ass.id', '=', 'tt.idsucursal')
             ->leftJoin('prod__dispensers as pd_1', 'pd_1.id', '=', 'pp.iddispenserprimario')
             ->leftJoin('prod__dispensers as pd_2', 'pd_2.id', '=', 'pp.iddispensersecundario')
@@ -1005,6 +1135,7 @@ $nombre_empresa = strtoupper($nombre_e);
                 'pp.codigo as codigo_prod',
                 'pp.nombre as prod_name',
                 'tip.id as id_ingreso',
+                'ru.codigo_activdad_siat as rubro_siat',
                 DB::raw("
                 CASE 
                     WHEN tip.envase = 'primario' THEN UPPER(CONCAT(COALESCE(pp.nombre, ''), ' ', COALESCE(pd_1.nombre, ''), ' X ', COALESCE(pp.cantidadprimario, ''), ' ', COALESCE(ff_1.nombre, '')))
@@ -1083,13 +1214,14 @@ $nombre_empresa = strtoupper($nombre_e);
         if ($sucursales) {
             // si tiene  es con lista 
             $id_suc=$sucursales->id_sucursal;
-            $id_lista=$sucursales->id_lista; 
+            $id_lista=$sucursales->id_lista;  
             $resultados = DB::table('ges_pre__venta_listas as gpv')
             ->join('pivot__modulo_tienda_almacens as pivot', 'pivot.id', '=', 'gpv.id_table_ingreso_tienda_almacen')
             ->join('tda__ingreso_productos as tip', 'pivot.id_ingreso', '=', 'tip.id')
             ->join('tda__tiendas as tt', 'tt.id', '=', 'tip.idtienda')
             ->join('prod__productos as pp', 'pp.id', '=', 'tip.id_prod_producto')
-            ->join('adm__sucursals as ass', 'ass.id', '=', 'tt.idsucursal')
+             ->join('prod__productos as pp', 'pp.id', '=', 'tip.id_prod_producto')
+            ->join('adm__rubros as ru', 'ru.id', '=', 'pp.idrubro')
             ->leftJoin('prod__dispensers as pd_1', 'pd_1.id', '=', 'pp.iddispenserprimario')
             ->leftJoin('prod__dispensers as pd_2', 'pd_2.id', '=', 'pp.iddispensersecundario')
             ->leftJoin('prod__dispensers as pd_3', 'pd_3.id', '=', 'pp.iddispenserterciario')
@@ -1129,6 +1261,7 @@ $nombre_empresa = strtoupper($nombre_e);
                 'pp.codigo as codigo_prod',
              'pp.nombre as prod_name',
                 'tip.id as id_ingreso',
+                'ru.codigo_activdad_siat as rubro_siat',
                 DB::raw("
                 CASE 
                     WHEN tip.envase = 'primario' THEN UPPER(CONCAT(COALESCE(pp.nombre, ''), ' ', COALESCE(pd_1.nombre, ''), ' X ', COALESCE(pp.cantidadprimario, ''), ' ', COALESCE(ff_1.nombre, '')))
@@ -1185,6 +1318,7 @@ $nombre_empresa = strtoupper($nombre_e);
             ->join('tda__ingreso_productos as tip', 'pivot.id_ingreso', '=', 'tip.id')
             ->join('tda__tiendas as tt', 'tt.id', '=', 'tip.idtienda')
             ->join('prod__productos as pp', 'pp.id', '=', 'tip.id_prod_producto')
+             ->join('adm__rubros as ru', 'ru.id', '=', 'pp.idrubro')
             ->join('adm__sucursals as ass', 'ass.id', '=', 'tt.idsucursal')
             ->leftJoin('prod__dispensers as pd_1', 'pd_1.id', '=', 'pp.iddispenserprimario')
             ->leftJoin('prod__dispensers as pd_2', 'pd_2.id', '=', 'pp.iddispensersecundario')
@@ -1224,6 +1358,7 @@ $nombre_empresa = strtoupper($nombre_e);
                 'pp.codigo as codigo_prod',
               'pp.nombre as prod_name',
                 'tip.id as id_ingreso',
+                'ru.codigo_activdad_siat as rubro_siat',
                 DB::raw("
                 CASE 
                     WHEN tip.envase = 'primario' THEN UPPER(CONCAT(COALESCE(pp.nombre, ''), ' ', COALESCE(pd_1.nombre, ''), ' X ', COALESCE(pp.cantidadprimario, ''), ' ', COALESCE(ff_1.nombre, '')))
