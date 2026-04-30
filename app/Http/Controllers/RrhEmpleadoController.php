@@ -226,6 +226,7 @@ class RrhEmpleadoController extends Controller
      */
     public function store(Request $request)
     {
+        $codempleado="";
         $validate=$request->validate([
             'ci'=>'required | unique:rrh__empleados'
         ]);
@@ -311,16 +312,11 @@ class RrhEmpleadoController extends Controller
         //
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Rrh_Empleado  $rrh_Empleado
-     * @return \Illuminate\Http\Response
-     */
+  
     public function update(Request $request)
     {
         //dd($request);
+        $codempleado="";
         $empleado = Rrh_Empleado::findOrFail($request->id);
 
         

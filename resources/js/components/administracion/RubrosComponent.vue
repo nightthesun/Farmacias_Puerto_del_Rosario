@@ -32,6 +32,7 @@
                                 <th>Descripcion</th>
                                 <th>Productos Perecederos</th>
                                 <th>Tiene actividad economica</th>
+                                <th>A.E. Activo</th>
                                 <th>Estado</th>
                             </tr>
                         </thead>
@@ -65,6 +66,12 @@
                                             <i class="icon-check"></i>
                                             </button>
                                         </div>
+                                        <div>
+                                            
+                                            <button type="button" class="btn btn-success btn-sm" @click="activarUso(rubro.id,1)" style="margin-right: 5px;">
+                                           <i class="fa fa-star" aria-hidden="true"></i>
+                                            </button>
+                                        </div>
                                     </div>
                                     
                                     
@@ -82,6 +89,14 @@
                                             Si tiene actividad
                                             <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background-color: green; margin-left: 5px;"></span>
                                         </span>
+                                    </td>
+                                    <td>
+                                        <div v-if="rubro.uso_unico==1">
+                                            <span class="badge badge-primary">En uso</span>
+                                        </div>
+                                        <div v-else>
+                                            <span class="badge badge-secondary">Sin uso</span>
+                                        </div>
                                     </td>
                                 <td>
                                     <div v-if="rubro.activo==1">
@@ -419,6 +434,58 @@ import {error401} from '../../errores.js';
                 }
                 })
             },
+            
+
+            activarUso(idrubro,data){
+                let me=this;
+                const swalWithBootstrapButtons = Swal.mixin({
+                customClass: {
+                    confirmButton: 'btn btn-success',
+                    cancelButton: 'btn btn-danger'
+                },
+                buttonsStyling: false
+                })
+
+                swalWithBootstrapButtons.fire({
+                title: 'Esta Seguro de Activar?',
+                text: "Es una Activacion logica, solo uno puede estar activa",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Si, Activar',
+                cancelButtonText: 'No, Cancelar',
+                reverseButtons: true
+                }).then((result) => {
+                if (result.isConfirmed) {
+                     axios.put('/rubro/activarUso',{
+                        'id': idrubro,
+                        'uso': data,
+                    }).then(function (response) {
+                        
+                        swalWithBootstrapButtons.fire(
+                            'Activado!',
+                            'El registro a sido Activado Correctamente',
+                            'success'
+                        )
+                        me.listarRubros();
+                        
+                    }).catch(function (error) {
+                    });
+                    
+                    
+                } else if (
+                    /* Read more about handling dismissals below */
+                    result.dismiss === Swal.DismissReason.cancel
+                ) {
+                    /* swalWithBootstrapButtons.fire(
+                    'Cancelado!',
+                    'El Registro no fue Activado',
+                    'error'
+                    ) */
+                }
+                })
+            },
+
+
             activarRubro(idrubro){
                 let me=this;
                 const swalWithBootstrapButtons = Swal.mixin({

@@ -204,7 +204,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/listarConfigAdminGestionAutomatico', [GetController::class, 'getConfigAdminGestionAutomatico']); 
     Route::get('/listarConfigAdminTraspaso', [GetController::class, 'getConfigAdminTraspaso']);  
     Route::get('/listarVehiculoNormal', [GetController::class, 'getVehiculoNormal']);     
-    Route::get('/listarBloqueoLinea', [GetController::class, 'getBloqueoLinea']);    
+    Route::get('/listarBloqueoLinea', [GetController::class, 'getBloqueoLinea']);  
+    Route::get('/litarRubroSiat_xd', [GetController::class, 'getRubroSiat_xd']);    
        
         
     /**********************verificador de apertura cierre retornod e datos****************************** */
@@ -225,6 +226,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::put('/rubro/desactivar', [AdmRubroController::class, 'desactivar']);
     Route::put('/rubro/activar', [AdmRubroController::class, 'activar']);
     Route::get('/rubro/selectrubro', [AdmRubroController::class, 'selectRubro']);
+    Route::put('/rubro/activarUso', [AdmRubroController::class, 'use_active']);
 
     Route::get('/sucursal', [AdmSucursalController::class, 'index']);
     Route::post('/sucursal/registrar', [AdmSucursalController::class, 'store']);
@@ -912,8 +914,11 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/siat/listar_emision', [SiatConfiguracionController::class, 'excel_emision']); 
     Route::post('/siat/subir_excel', [SiatConfiguracionController::class, 'upload_exe']); 
     Route::post('/siat/verificador_llave', [SiatConfiguracionController::class, 'verificationKey']); 
-    
-    
+    Route::get('/siat/listarListaSiat', [SiatConfiguracionController::class, 'get_list_siat']); 
+    Route::post('/siat/cargarListaSiat', [SiatConfiguracionController::class, 'upload_list_siat']); 
+    Route::post('/siat/cargar_todo', [SiatConfiguracionController::class, 'upload_all']); 
+     Route::get('/siat/listarTablaList_siat', [SiatConfiguracionController::class, 'getTablaList_siat']); 
+     
         //endpoint--
         Route::post('/siat/crear_endpoint', [SiatEndpointController::class, 'crearEndPoint']);  
         Route::get('/siat/index_endpoint', [SiatEndpointController::class, 'index']); 

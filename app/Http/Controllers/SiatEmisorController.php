@@ -396,13 +396,43 @@ if (is_null($tiempoEspera)) {
     
                 // Ejecutar la solicitud y obtener la respuesta
                 $response = curl_exec($ch);
-          
+       
                   // Verificar si hubo un error en cURL
             if (curl_errno($ch)) {
                 $cadena_22=curl_error($ch);
                 return "Error: ".$cadena_22;
                // throw new \Exception(curl_error($ch));
             }
+// Cerrar la sesión de cURL
+    curl_close($ch);
+    
+ // Convertir la respuesta en un objeto SimpleXMLElement
+                   $xml = simplexml_load_string($response);  
+                    // Usar XPath para encontrar el nodo <transaccion>
+  $transaccion = $xml->xpath('//transaccion');
+  if ($transaccion && isset($transaccion[0])) {  
+     if ($transaccion[0]== 'true') {  
+            return response()->json([
+                'error' => 'Transacción exitosa',
+                'message' => $response,
+                'nivel'=>0,
+            ]);
+     }else{
+       return response()->json([
+                'error' => 'Error en la solicitud transaccion',
+                'message' => $response,
+                'nivel'=>1,
+            ]);
+     }
+  }else{
+        return response()->json([
+                'error' => 'Error en la solicitud SOAP',
+                'message' => $response,
+                'nivel'=>1,
+            ]);
+  }
+   dd($transaccion);
+
             $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             if ($http_code != 200) {
                 switch ($http_code) {

@@ -795,91 +795,18 @@ cerrarOperaciones(codigo_siat,id,cuis,id_cufd,id_cuis,id_emisor)
                  var url='/siat_emisor/consultar_PuntoV_siat?codigoAmbiente='+me.codigoAmbiente+"&codigoSistema="+me.codigoSistema+"&codigoSucursal="+me.codigoSucursal+"&cuis="+me.cuis+"&nit="+me.nit+"&token_delegado="+me.token_delegado;                     
                 axios.get(url)
                 .then(function(response){
-                    var respuesta = response.data;     
-                    const parser = new DOMParser();
-    const xmlDoc = parser.parseFromString(respuesta, "text/xml");    
-    
-    // const respuestaCuis = xmlDoc.getElementsByTagName("RespuestaCuis")[0].childNodes[0];
-    const respuestaCuis_2 = xmlDoc.getElementsByTagName("faultstring")[0];
-    if (respuestaCuis_2!=undefined) {
-        Swal.fire("Error",""+respuestaCuis_2.textContent,"error",);
-    }else{      
-        // Recorrer todos los hijos de 'mensajesList' mensajesList
-        const trasaccion= xmlDoc.querySelector('transaccion');
-        if (trasaccion.textContent === "true") {
-       
-    const trasaccion = xmlDoc.querySelector("transaccion");
-    const RespuestaConsultaPuntoVenta = xmlDoc.querySelector("RespuestaConsultaPuntoVenta");
-
-    if (RespuestaConsultaPuntoVenta) {
-        // Obtener TODOS los elementos <listaPuntosVentas>
-        const listaPuntosVentas = RespuestaConsultaPuntoVenta.querySelectorAll("listaPuntosVentas");
-
-
-        
-        let cadenaPuntosVentas = ""; // Inicializamos la cadena
-
-        me.arrayPuntosVentas=[];
-
-listaPuntosVentas.forEach((puntoVenta, index) => {
-    const codigo = puntoVenta.querySelector("codigoPuntoVenta")?.textContent || "N/A";
-    const nombre = puntoVenta.querySelector("nombrePuntoVenta")?.textContent || "N/A";
-    const tipo = puntoVenta.querySelector("tipoPuntoVenta")?.textContent || "N/A";
-
-    cadenaPuntosVentas += `Consulta ${index + 1}:\n`;
-    cadenaPuntosVentas += `  Código: ${codigo}\n`;
-    cadenaPuntosVentas += `  Nombre: ${nombre}\n`;
-    cadenaPuntosVentas += `  Tipo: ${tipo}\n`;
-    cadenaPuntosVentas += "-------------------\n";
-    
-          // Guardamos el objeto en el array
-          me.arrayPuntosVentas.push({
-                consulta: index + 1,
-                codigo: codigo,
-                nombre: nombre,
-                tipo: tipo
-            });
-
-});
-if (data===1) {
-    Swal.fire({
-            title: "",
-            html: `<pre>${cadenaPuntosVentas}</pre>`, // Usamos <pre> para respetar saltos de línea
-            icon: "success"
-        }); 
-} else {
-    if (data===2) {
-           me.tipoAccion=2;
-        me.abrirModal('cerrar_PV',999);
-    } else {
-        me.isSubmitting=false;
-        Swal.fire("Error!","error de entrada interno","error",);   
-    }
-}
-    } else {    
-        me.isSubmitting=false;  
-        Swal.fire("Error!","No se encontró RespuestaConsultaPuntoVenta","warning",);   
-    }
-}
- else {
-            if (trasaccion.textContent==='false') {
-                me.isSubmitting=false;
-          //  const codigoCuis= xmlDoc.querySelector('codigo');       
-          //  const fechaCuis= xmlDoc.querySelector('fechaVigencia');   
-        const mensajesList = xmlDoc.querySelector('mensajesList'); 
-        let cadena_nombre="";
-       Array.from(mensajesList.children).forEach(child => {
-        cadena_nombre += `${child.tagName}: ${child.textContent.trim()}\n`;   
-            
-        });
-        Swal.fire("Problemas con  envio de datos!",""+cadena_nombre,"warning",); 
-            } else {
-                me.cerrarModal('registrar');
-                Swal.fire("Error!","transacción nula","error",);  
-            }            
-        }        
-    }          
-                                 
+                    let respuesta = response.data;  
+                    let error_siat_1=respuesta.error;
+                    let error_siat_2=respuesta.message;
+                    let error_siat_3=respuesta.nivel;
+console.log(respuesta);
+                    if (error_siat_3===0) {
+                               Swal.fire(error_siat_1,error_siat_2,"warning",); 
+                    } else {
+                        if (error_siat_3===1) {
+                                   Swal.fire(error_siat_1,error_siat_2,"error",); 
+                        }
+                    }             
                 })
                 .catch(function(error){
                     error401(error);

@@ -233,5 +233,17 @@ class AdmRubroController extends Controller
 
     }
 
+    public function use_active(Request $request){
+        
+    Adm_Rubro::query()->update([
+    'uso_unico' => 0
+]);
+
+        $rubro = Adm_Rubro::findOrFail($request->id);
+        $rubro->uso_unico=$request->uso;       
+        $rubro->save();
+
+    }
+
 
 }

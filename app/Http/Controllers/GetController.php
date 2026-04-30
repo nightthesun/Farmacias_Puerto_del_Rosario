@@ -620,4 +620,19 @@ return response()->json($query); // buena práctica en API
     return $resultado;
     } 
 
+    public function getRubroSiat_xd(){
+       $resultado = DB::table('adm__rubros AS a')
+    ->select('a.id','a.nombre','a.codigo_activdad_siat')  
+    ->where('a.activo', 1)
+    ->where('a.uso_unico', 1)
+    ->first();
+
+if ($resultado) {
+    // Hay datos
+    return $resultado;
+} else {
+    return 0;    
+}
+    }
+
 }

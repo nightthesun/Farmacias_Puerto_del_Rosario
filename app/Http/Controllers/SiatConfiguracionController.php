@@ -287,4 +287,131 @@ class SiatConfiguracionController extends Controller
         ]);
     }
 
+    public function get_list_siat(Request $request){
+    $id_catalogo=$request->id_catalogo;    
+    if ($id_catalogo==11) {
+          $datos = DB::table('excel__emision')
+         ->select('descripcion', 'codigo','id_catalogo','id_erp')
+        ->where('id_catalogo', $id_catalogo)
+        ->where('id_erp', $request->id_rubro)
+        ->get();
+        }else{
+$datos = DB::table('excel__emision')
+         ->select('descripcion', 'codigo','id_catalogo','id_erp')
+        ->where('id_catalogo', $id_catalogo)
+        ->get();
+        }
+         
+        return $datos; 
+    }
+
+    public function upload_list_siat(Request $request){
+        try {
+               DB::beginTransaction();
+        
+               $id_catalogo=(int)$request->id_catalogo;
+               $codigo=(int)$request->codigo;
+               $descripcion=$request->descripcion;
+               
+               $existe = DB::table('siat__catalogo_lista_siat')
+    ->where('id_catalogo', $id_catalogo)
+    ->exists();
+
+$data = [
+    'id_catalogo' => $id_catalogo,
+    'codigo' => $codigo,
+    'descripcion'=>$descripcion
+];
+
+if ($existe) {
+    DB::table('siat__catalogo_lista_siat')
+        ->where('id_catalogo', $id_catalogo)
+        ->update($data);
+} else {
+    DB::table('siat__catalogo_lista_siat')
+        ->insert($data);
+}
+                 DB::commit();
+                 return 0;
+        } catch (\Throwable $th) {
+            return $th;
+        }
+   
+    
+    }
+
+
+    public function upload_all(){
+        try {
+            DB::table('siat__catalogo_lista_siat')->truncate();
+             DB::beginTransaction();
+    $n=1;
+    while($n<=5){
+            switch ($n) {
+                case 1:
+                    $datos = DB::table('excel__emision')
+         ->select('descripcion', 'codigo','id_catalogo','id_erp')
+        ->where('id_catalogo', 1)
+        ->where('codigo', 1)
+        ->first();
+                break;
+                case 2:
+                    $datos = DB::table('excel__emision')
+         ->select('descripcion', 'codigo','id_catalogo','id_erp')
+        ->where('id_catalogo', 3)
+        ->where('codigo', 1)
+        ->first();
+                break;
+                case 3:
+                    $datos = DB::table('excel__emision')
+         ->select('descripcion', 'codigo','id_catalogo','id_erp')
+        ->where('id_catalogo', 9)
+        ->where('codigo', 1)
+        ->first();
+                break;
+                case 4:
+                    $datos = DB::table('excel__emision')
+         ->select('descripcion', 'codigo','id_catalogo','id_erp')
+        ->where('id_catalogo', 11)
+        ->where('codigo',2)
+        ->first();
+                break;
+                  case 5:
+                    $datos = DB::table('excel__emision')
+         ->select('descripcion', 'codigo','id_catalogo','id_erp')
+        ->where('id_catalogo', 2)
+        ->where('codigo',1)
+        ->first();
+                break;
+                
+                default:
+                  $datos=null;
+                    break;
+            }
+            $data = [
+    'id_catalogo' => $datos->id_catalogo,
+    'codigo' => $datos->codigo,
+    'descripcion'=>$datos->descripcion
+];
+     DB::table('siat__catalogo_lista_siat')
+        ->insert($data);
+
+    $n++;
+    }
+
+                
+
+             DB::commit();
+                 return 0;
+        } catch (\Throwable $th) {
+            return $th;
+        }
+    }
+
+    public function getTablaList_siat(){
+        $datos = DB::table('siat__catalogo_lista_siat')
+         ->select('id', 'id_catalogo','codigo','descripcion')->get();
+        return $datos;             
+    }
+
 }

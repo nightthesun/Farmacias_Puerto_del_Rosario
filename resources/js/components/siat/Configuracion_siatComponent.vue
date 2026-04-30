@@ -22,7 +22,7 @@
                     <a class="nav-link" id="pills-concepto-tab" data-toggle="pill" href="#pills-concepto" role="tab" aria-controls="pills-concepto" aria-selected="false" @click="listar_catalogo();cambioPestañaIn(0,0,1);">Conceptos</a>
                 </li>    
                 <li class="nav-item">
-                    <a class="nav-link" id="pills-varios-tab" data-toggle="pill" href="#pills-varios" role="tab" aria-controls="pills-varios" aria-selected="false" @click="cambioPestañaIn(1,1,1);">Datos varios</a>
+                    <a class="nav-link" id="pills-varios-tab" data-toggle="pill" href="#pills-varios" role="tab" aria-controls="pills-varios" aria-selected="false" @click="cambioPestañaIn(1,1,1);listarTablaList_siat();">Datos varios</a>
                 </li>    
                
                             
@@ -340,9 +340,139 @@
  <div class="tab-pane fade" id="pills-varios" role="tabpanel" aria-labelledby="pills-varios-tab"  v-show="show_1==1&&show_2==1&&show_3==1">
 <div class="card">
     <div class="card-header">
-      Complementos de configuración
+      Complementos de configuración          
     </div>
-    
+    <div class="card-body">
+       <div class="row">
+            <div class="form-group col-sm-2">
+            </div>
+            <div class="form-group col-sm-4">
+                  <button type="button" style="color: white;" class="btn btn-info btn-sm btn-block" @click="configDefault_xd()"><i class="fa fa-cogs" aria-hidden="true"></i> Configuracion por default</button>                
+       
+            </div>
+            <div class="form-group col-sm-6">
+            </div>
+        </div>    
+        <div class="row">
+        <div class="form-group col-sm-2">
+            <strong >Tipo de emision:</strong>
+        </div> 
+        <div class="form-group col-sm-4">
+            <select class="form-control" v-model="selectEmision_datos" v-show="arrayEmision_datos.length>0">
+                <option value="0" disabled selected>Seleccionar...</option>    
+                <option v-for="(i, index) in arrayEmision_datos" :key="index" :value="i.codigo">{{ i.descripcion }}</option>
+            </select>
+        </div>
+        <div class="form-group col-sm-2">
+                  <button type="button" style="color: white;" class="btn btn-info btn-sm btn-block" @click="listarListaSiat(1)"><i class="fa fa-assistive-listening-systems" aria-hidden="true"></i> Listar</button>                
+        </div> 
+        <div class="form-group col-sm-2">
+                  <button  v-if="selectEmision_datos=='0'" style="color: white;" type="button" class="btn btn-secondary btn-sm btn-block"><i class="fa fa-envelope" aria-hidden="true"></i> Activar</button>                
+                  <button  v-else type="button" style="color: white;" class="btn btn-primary btn-sm btn-block"  @click="cargarListaSiat(1,selectEmision_datos)"><i class="fa fa-envelope" aria-hidden="true"></i> Activar</button>                
+        
+        </div>                               
+        </div>  
+        
+        <div class="row">
+        <div class="form-group col-sm-2">
+            <strong >Tipo de sector:</strong>
+        </div> 
+        <div class="form-group col-sm-4">
+            <select class="form-control" v-model="selectSector_datos" v-show="arraySector_datos.length>0">
+                <option value="0" disabled selected>Seleccionar...</option>    
+                <option v-for="(i, index) in arraySector_datos" :key="index" :value="i.codigo">{{ i.descripcion }}</option>
+            </select>
+        </div>
+        <div class="form-group col-sm-2">
+                  <button type="button" style="color: white;" class="btn btn-info btn-sm btn-block" @click="listarListaSiat(3)"><i class="fa fa-list-alt" aria-hidden="true"></i> Listar</button>                
+        </div> 
+        <div class="form-group col-sm-2">
+                  <button  v-if="selectSector_datos=='0'" style="color: white;" type="button" class="btn btn-secondary btn-sm btn-block"><i class="fa fa-envelope" aria-hidden="true"></i> Activar</button>                
+                  <button  v-else type="button" style="color: white;" class="btn btn-primary btn-sm btn-block"  @click="cargarListaSiat(3,selectSector_datos)"><i class="fa fa-envelope" aria-hidden="true"></i> Activar</button>                
+        
+        </div>                               
+        </div> 
+
+
+        <div class="row">
+        <div class="form-group col-sm-2">
+            <strong >Tipo de moneda:</strong>
+        </div> 
+        <div class="form-group col-sm-4">
+            <select class="form-control" v-model="selectMoneda_datos" v-show="arrayMoneda_datos.length>0">
+                <option value="0" disabled selected>Seleccionar...</option>    
+                <option v-for="(i, index) in arrayMoneda_datos" :key="index" :value="i.codigo">{{ i.descripcion }}</option>
+            </select>
+        </div>
+        <div class="form-group col-sm-2">
+                  <button type="button" style="color: white;" class="btn btn-info btn-sm btn-block" @click="listarListaSiat(9)"><i class="fa fa-money" aria-hidden="true"></i> Listar</button>                
+        </div> 
+        <div class="form-group col-sm-2">
+                  <button  v-if="selectMoneda_datos=='0'" style="color: white;" type="button" class="btn btn-secondary btn-sm btn-block"><i class="fa fa-envelope" aria-hidden="true"></i> Activar</button>                
+                  <button  v-else type="button" style="color: white;" class="btn btn-primary btn-sm btn-block"  @click="cargarListaSiat(9,selectMoneda_datos)"><i class="fa fa-envelope" aria-hidden="true"></i> Activar</button>                
+        
+        </div>                               
+        </div> 
+        <div class="row">
+        <div class="form-group col-sm-2">
+            <strong >Tipo de leyenda:</strong>
+        </div> 
+        <div class="form-group col-sm-4">
+            <select class="form-control" v-model="selectLeyenda_datos" v-show="arrayLeyenda_datos.length>0">
+                <option value="0" disabled selected>Seleccionar...</option>    
+                <option v-for="(i, index) in arrayLeyenda_datos" :key="index" :value="i.codigo" v-show="i.id_erp!=null">{{ i.descripcion }}</option>
+            </select>
+        </div>
+        <div class="form-group col-sm-2">
+                  <button type="button" style="color: white;" class="btn btn-info btn-sm btn-block" @click="listarListaSiat(11)"><i class="fa fa-align-center" aria-hidden="true"></i> Listar</button>                
+        </div> 
+        <div class="form-group col-sm-2">
+                  <button  v-if="selectLeyenda_datos=='0'" style="color: white;" type="button" class="btn btn-secondary btn-sm btn-block"><i class="fa fa-envelope" aria-hidden="true"></i> Activar</button>                
+                  <button  v-else type="button" style="color: white;" class="btn btn-primary btn-sm btn-block"  @click="cargarListaSiat(11,selectLeyenda_datos)"><i class="fa fa-envelope" aria-hidden="true"></i> Activar</button>                
+        
+        </div>                               
+        </div>
+        
+          <div class="row">
+        <div class="form-group col-sm-2">
+            <strong >Tipo de factura:</strong>
+        </div> 
+        <div class="form-group col-sm-4">
+            <select class="form-control" v-model="selectFactura_datos" v-show="arrayFactura_datos.length>0">
+                <option value="0" disabled selected>Seleccionar...</option>    
+                <option v-for="(i, index) in arrayFactura_datos" :key="index" :value="i.codigo" >{{ i.descripcion }}</option>
+            </select>
+        </div>
+        <div class="form-group col-sm-2">
+                  <button type="button" style="color: white;" class="btn btn-info btn-sm btn-block" @click="listarListaSiat(2)"><i class="fa fa-file-text-o" aria-hidden="true"></i> Listar</button>                
+        </div> 
+        <div class="form-group col-sm-2">
+                  <button  v-if="selectFactura_datos=='0'" style="color: white;" type="button" class="btn btn-secondary btn-sm btn-block"><i class="fa fa-envelope" aria-hidden="true"></i> Activar</button>                
+                  <button  v-else type="button" style="color: white;" class="btn btn-primary btn-sm btn-block"  @click="cargarListaSiat(2,selectFactura_datos)"><i class="fa fa-envelope" aria-hidden="true"></i> Activar</button>                
+        
+        </div>                               
+        </div> 
+        <table class="table table-bordered table-striped table-sm table-responsive" >
+                <thead>
+                    <tr>
+                        <th>id catalogo</th>
+                        <th>codigo</th>   
+                        <th>Descripción</th>
+                    </tr>
+                </thead> 
+                <tbody>
+                    <tr v-for="(i, index) in arrayListaTabla_xd" :key="index">
+                        <td>{{i.id_catalogo}}</td>
+                        <td>{{i.codigo}}</td>
+                        <td>{{i.descripcion}}</td>
+                    </tr>
+                </tbody>
+           </table>         
+         <!---inserte tabla-->
+ 
+      
+  
+    </div>
 
 
 </div>
@@ -507,6 +637,25 @@ export default {
             arrayFactura_v:[],
             selectFactura_v:"0",
             activador_pen12:0,
+            //--datos varios
+            selectEmision_datos:'0',
+            arrayEmision_datos:[],
+
+            selectSector_datos:'0',
+            arraySector_datos:[],
+
+            selectMoneda_datos:'0',
+            arrayMoneda_datos:[],
+
+             selectLeyenda_datos:'0',
+            arrayLeyenda_datos:[],
+
+             selectFactura_datos:'0',
+            arrayFactura_datos:[],
+
+            rubro_xd:0,
+            cambioEstado:'',
+            arrayListaTabla_xd:[],
 
         };
     },
@@ -584,6 +733,209 @@ export default {
         });
 },
 //-------------------------------------------------------------- 
+
+
+ listarTablaList_siat() {         
+    let me = this;  
+    me.arrayListaTabla_xd=[];         
+    var url = '/siat/listarTablaList_siat';  
+    axios.get(url)
+        .then(function(response) {
+            var respuesta = response.data;
+            me.arrayListaTabla_xd = respuesta;        
+        })
+        .catch(function(error) {
+            error401(error);
+       
+        });
+},
+
+configDefault_xd(){
+  let me=this;
+                const swalWithBootstrapButtons = Swal.mixin({
+  customClass: {
+    confirmButton: "btn btn-success",
+    cancelButton: "btn btn-danger"
+  },
+  buttonsStyling: false
+});
+swalWithBootstrapButtons.fire({
+  title: "Desea asignar valores por defecto?",
+  text: "Este cambio cambiara toda la informacion dada!",
+  icon: "warning",
+  showCancelButton: true,
+  confirmButtonText: "Si",
+  cancelButtonText: "No",
+  reverseButtons: true
+}).then((result) => {
+  if (result.isConfirmed) {
+   axios.post("/siat/cargar_todo", {
+                           
+                })
+                .then(function (response) {
+                
+                    let respuesta=response.data;
+                    me.listarTablaList_siat();
+                    if (respuesta==0) {
+                        Swal.fire( "Carga!","Existosa","success");
+                    } else {
+                         Swal.fire("Error!",respuesta,"error",);  
+                    }                   
+                                
+                })               
+                .catch(function (error) {                
+                         
+            }); 
+  } 
+});
+},
+
+listarListaSiat(codigo) {
+         
+    let me = this;       
+    let url ='/siat/listarListaSiat?id_catalogo='+codigo+'&id_rubro='+me.rubro_xd;
+  
+    axios.get(url)
+        .then(function(response) {
+            var respuesta = response.data;
+            switch (codigo) {
+                case 1:
+                    me.selectEmision_datos="0";
+                    me.arrayEmision_datos=respuesta;
+                break;
+                case 3:
+                    me.selectSector_datos="0";
+                    me.arraySector_datos=respuesta;
+                break;
+                case 9:
+                    me.selectMoneda_datos="0";
+                    me.arrayMoneda_datos=respuesta;
+                break;
+                case 11:
+                    me.selectLeyenda_datos="0";
+                    me.arrayLeyenda_datos=respuesta;
+                break;
+                case 2:
+                    me.selectFactura_datos="0";
+                    me.arrayFactura_datos=respuesta;
+                break;
+            
+                default:
+                    break;
+
+                     
+            }
+        
+            console.log(respuesta);          
+        })
+        .catch(function(error) {
+            error401(error);       
+        });
+},
+
+
+cargarListaSiat(id_catalogo,codigo){
+        let me = this;  
+         me.cambioEstado="";
+       console.log(id_catalogo+"-"+codigo);
+        
+    let resultado;
+
+            if (codigo=='0'||codigo==null || codigo=='') {
+                 Swal.fire("Error!","no exite seleccion","error",);  
+            } else {
+
+                  switch (id_catalogo) {
+                case 1:
+                     resultado = me.arrayEmision_datos.find(item => item.codigo === codigo);
+            if (resultado) {
+            me.cambioEstado=resultado.descripcion;
+            } else {
+             me.cambioEstado="no existe descripcion";
+            }
+                break;
+                case 3:
+                      resultado = me.arraySector_datos.find(item => item.codigo === codigo);
+            if (resultado) {
+            me.cambioEstado=resultado.descripcion;
+            } else {
+             me.cambioEstado="no existe descripcion";
+            }                  
+                break;
+                case 9:
+                       resultado = me.arrayMoneda_datos.find(item => item.codigo === codigo);
+            if (resultado) {
+            me.cambioEstado=resultado.descripcion;
+            } else {
+             me.cambioEstado="no existe descripcion";
+            }                   
+                break;
+                case 11:
+                      resultado = me.arrayLeyenda_datos.find(item => item.codigo === codigo);
+            if (resultado) {
+            me.cambioEstado=resultado.descripcion;
+            } else {
+             me.cambioEstado="no existe descripcion";
+            }  
+                break;
+                case 2:
+                      resultado = me.arrayFactura_datos.find(item => item.codigo === codigo);
+            if (resultado) {
+            me.cambioEstado=resultado.descripcion;
+            } else {
+             me.cambioEstado="no existe descripcion";
+            }  
+                   
+                break;
+            
+                default:
+                    me.cambioEstado="Error";
+                    break;
+
+                     
+            }
+               
+            axios.post("/siat/cargarListaSiat", {
+                id_catalogo:id_catalogo,
+                codigo:codigo,
+                descripcion:me.cambioEstado,               
+                            
+                })
+                .then(function (response) {
+                
+                    let respuesta=response.data;  
+                  me.listarTablaList_siat();
+                    console.log(respuesta);                 
+                    if (respuesta==0) {
+                        Swal.fire("Registro creado!","Correctamente","success",);  
+                        switch (id_catalogo) {
+                            case 1:
+                                me.selectEmision_datos=codigo;
+                            break;
+                            case 3:
+                                me.selectSector_datos=codigo;
+                            break;
+                            case 9:
+                                me.selectMoneda_datos=codigo;
+                            break;
+                            case 11:
+                                me.selectLeyenda_datos=codigo;
+                            break;
+                        
+                            default:
+                                break;
+                        }  
+                    } else {                         
+                         Swal.fire("Error!",respuesta,"error",);   
+                    }              
+                })               
+                .catch(function (error) {             
+            });                      
+            } 
+ },
+
+
+
 
 cambiarPestana(idPestana) {
             this.pestañaActiva = idPestana;
@@ -1175,6 +1527,26 @@ validateFileExcel() {
 
                 
         },
+ verRubroSiat_xd(){
+            let me=this;
+            let url = "/litarRubroSiat_xd";
+            axios.get(url)
+                .then(function (response) {
+                    let respuesta = response.data; 
+                    if (respuesta===0) {
+                         Swal.fire("Error No existe un rubro asociado con el sistema para la configuracion SIAT!","Debe ir a administracion y rubro y configurar","error",);  
+                     me.rubro_xd=respuesta;
+                    } else {  
+                      me.rubro_xd=respuesta.codigo_activdad_siat;
+                    } 
+                    
+               
+                })
+                .catch(function (error) {
+                    error401(error);
+                });
+        },
+       
         //--------------------
         
       
@@ -1207,6 +1579,7 @@ validateFileExcel() {
         this.listarPerimsoxyz();
             //-----------------------
         this.listarIndexConfiguracion();
+        this.verRubroSiat_xd();
         this.classModal.addModal("regcuenta");
     
     },

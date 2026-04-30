@@ -22,6 +22,7 @@ class CreateAdmRubrosTable extends Migration
             $table->smallInteger('id_usuario_registra')->unsigned()->nullable()->comment('null->viene del seeder');
             $table->smallInteger('id_usuario_modifica')->unsigned()->nullable()->comment('null->viene del seeder');
             $table->bigInteger('codigo_activdad_siat')->default(0)->nullable();
+            $table->tinyInteger('uso_unico')->default(0)->nullable();            
             $table->timestamps();
         });
     }

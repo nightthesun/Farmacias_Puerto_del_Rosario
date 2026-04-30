@@ -28,6 +28,9 @@ return new class extends Migration
             $table->integer('id_leyenda')->nullable();
             $table->tinyInteger('estado')->default(1)->nullable();
             $table->text('codRecepcion')->nullable();              
+             $table->string('codDescripcion',160)->nullable();              
+              $table->smallInteger('codEstado')->nullable();  
+                    
         });
         
     }

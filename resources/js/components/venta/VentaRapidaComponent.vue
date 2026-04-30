@@ -1055,6 +1055,8 @@ export default {
 
     arrayBanco:[],
     selectBanco_v:'0',
+
+    rubro_xd:0,
             
         };
     },
@@ -2483,7 +2485,7 @@ me.importe_fiscal=me.monto_a_pagar;
             let may_leyenda=(me.selected.leyenda).toUpperCase();
             me.codigo_tienda_almacen=me.selected.codigo_tienda_almacen;
             me.array_vetasQuery.push({id_contador:me.controlador_venta_id,descuento: descuento,es_lista: es_lista,id_ges_pre:me.selected.id,id_ingreso:me.selected.id_ingreso,id_producto:me.selected.id_prod,id_linea:me.selected.id_linea,precio_venta:me.selected.precio_lista_gespreventa,cantidad_venta:me.numero,codigo_tienda_almacen:me.selected.codigo_tienda_almacen,envase:me.selected.envase});
-            me.arrayProducto_recibo_1.push({id_contador:me.controlador_venta_id,cant:me.numero,descrip:may_leyenda,p_u:me.selected.precio_lista_gespreventa,unidad_medida:me.selected.unidad_medida,descuento: descuento,cod_pro:me.selected.codigo_prod,codigoActividad:me.selected.codigoActividad,codigoProducto:me.selected.codigoProducto,id_unidad_me:me.selected.id_unidad_medida,rubro_siat:me.selected.rubro_siat});
+            me.arrayProducto_recibo_1.push({id_contador:me.controlador_venta_id,cant:me.numero,descrip:may_leyenda,p_u:me.selected.precio_lista_gespreventa,unidad_medida:me.selected.unidad_medida,descuento: descuento,cod_pro:me.selected.codigo_prod,codigoActividad:me.selected.codigoActividad,codigoProducto:me.selected.codigoProducto,id_unidad_me:me.selected.id_unidad_medida,rubro_siat:me.selected.rubro_siat,rubro_siat_2:me.rubro_xd});
             if (me.validadorPersonal===7 || me.existe_final>0) {
             let sumador_21_sub = 0;
             let sumador_21_des = 0;
@@ -3311,6 +3313,25 @@ total_sin_des,descuento_venta,total_venta,efectivo_venta,cambio_venta,fechaMas7D
            
     },
     
+
+     verRubroSiat_xd(){
+            let me=this;
+            let url = "/litarRubroSiat_xd";
+            axios.get(url)
+                .then(function (response) {
+                    let respuesta = response.data; 
+                    if (respuesta===0) {
+                     me.rubro_xd=respuesta;
+                    } else {  
+                      me.rubro_xd=respuesta.codigo_activdad_siat;
+                    } 
+                    
+               
+                })
+                .catch(function (error) {
+                    error401(error);
+                });
+        },
    
 
         verificadorAperturaCierre(){
@@ -3724,6 +3745,7 @@ me.descuento_1=totalDescuento+me.descuento_final;
         this.classModal.addModal("lote_cliete"); 
         this.classModal.addModal("registrar_cliente");
         this.classModal.addModal("vista_bloque");
+        this.verRubroSiat_xd();
         this.listarPago_();   
         this.actividadEconomica();
     },

@@ -31,7 +31,7 @@ class VenGestorVentaController extends Controller
         
     }
 
-    private function verComunicacion($ambiente,$token_delegado){
+    private function verComunicacion(int $ambiente, string $token_delegado){
       
         switch ($ambiente) {
             case 1:
@@ -41,7 +41,7 @@ class VenGestorVentaController extends Controller
 
             case 2:
                 $endPoints = DB::table('siat__endpoints as se')    
-                    ->select('se.id', 'se.Descripcion', 'se.Url', 'se.Version')
+                    ->select(['se.id', 'se.Descripcion', 'se.Url', 'se.Version'])
                     ->where('se.tipo', intval($ambiente))
                     ->where('se.id',4)
                     ->first();
@@ -206,8 +206,7 @@ foreach ($arrayProRecibo as $item) {
     $subTotalCalculado = ($cantidad_array * $precioUnitario) - $montoDescuento;
     $subTotal = number_format($subTotalCalculado, 2, '.', '');
 
-    $detalles .= '
-<detalle>
+    $detalles .= '<detalle>
     <actividadEconomica>' . $item['codigoActividad'] . '</actividadEconomica>
     <codigoProductoSin>' . $item['codigoProducto'] . '</codigoProductoSin>
     <codigoProducto>' . $item['cod_pro'] . '</codigoProducto>
@@ -247,7 +246,10 @@ foreach ($arrayProRecibo as $item) {
         <codigoMoneda>{$codigoMoneda}</codigoMoneda>
         <tipoCambio>{$tipoCambio}</tipoCambio>
         <montoTotalMoneda>{$montoTotalMoneda}</montoTotalMoneda>
-       
+        <montoGiftCard>{$montoGiftCard}</montoGiftCard>      
+        <descuentoAdicional>{$descuentoAdicional}</descuentoAdicional>
+        <codigoExcepcion>{$codigoExcepcion}</codigoExcepcion>
+        <cafc xsi:nil="true"/>       
         <leyenda>{$leyenda}</leyenda>
         <usuario>{$usuario}</usuario>
         <codigoDocumentoSector>{$codigoDocumentoSector}</codigoDocumentoSector>
@@ -274,8 +276,7 @@ foreach ($arrayProRecibo as $item) {
     $subTotalCalculado = ($cantidad_array * $precioUnitario) - $montoDescuento;
     $subTotal = number_format($subTotalCalculado, 2, '.', '');
 
-    $detalles .= '
-<detalle>
+    $detalles .= '<detalle>
     <actividadEconomica>' . $item['codigoActividad'] . '</actividadEconomica>
     <codigoProductoSin>' . $item['codigoProducto'] . '</codigoProductoSin>
     <codigoProducto>' . $item['cod_pro'] . '</codigoProducto>
@@ -314,7 +315,11 @@ $factura = <<<EOD
         <montoTotalSujetoIva>{$montoTotalSujetoIva}</montoTotalSujetoIva>
         <codigoMoneda>{$codigoMoneda}</codigoMoneda>
         <tipoCambio>{$tipoCambio}</tipoCambio>
-        <montoTotalMoneda>{$montoTotalMoneda}</montoTotalMoneda>        
+        <montoTotalMoneda>{$montoTotalMoneda}</montoTotalMoneda>
+        <montoGiftCard>{$montoGiftCard}</montoGiftCard>      
+        <descuentoAdicional>{$descuentoAdicional}</descuentoAdicional>
+        <codigoExcepcion>{$codigoExcepcion}</codigoExcepcion>
+        <cafc xsi:nil="true"/>        
         <leyenda>{$leyenda}</leyenda>
         <usuario>{$usuario}</usuario>
         <codigoDocumentoSector>{$codigoDocumentoSector}</codigoDocumentoSector>
@@ -330,66 +335,35 @@ EOD;
 
     public function ventaFacturaSiat(Request $request){
         try {
-       
+       return $request->all();
             DB::beginTransaction();
-       
+               
             $fechaHora = Carbon::now(); // Se usará automáticamente el formato correcto
             $arrayEstado_dosificacion_facctura=$request->arrayEstado_dosificacion_facctura;
             $arrayQuery_siat_=$request->arrayQuery_siat_;
             $arrayProRecibo=$request->arrayProRecibo;
           
             $tipo_modalidad=$arrayEstado_dosificacion_facctura['tipo_modalidad'];
+             $valor_ca=$arrayProRecibo[0]['rubro_siat_2'];
+           if ($valor_ca==0||$valor_ca==null||$valor_ca=='') {
+            return "Error de rubro, no debe exitir una lista seleccionada o rubro creado, solucion verifique el modulo de rubro si esta seleccionado";
+           }    
+        
+ $listaQuery_siat_catalogo = DB::table('siat__catalogo_lista_siat')->select('*')
+                    ->get();
+                
+            if (count($listaQuery_siat_catalogo)<5) {
+                return "existe datos siat en el catalogo de lista siat, por favor configure el catalogo con los datos correspondientes, debe tener todos los campos requeridos";
+            }        
+
              //-----verifica el tipo de emision 
             $comunicacion = $this->verComunicacion($arrayEstado_dosificacion_facctura['tipo_ambiente'],$arrayEstado_dosificacion_facctura['token_delegado']);
-           switch ($comunicacion) {
-                case 0:
-                    return "Error con la consulta... contacte al administrador";
-                break;
                 
-                case 1:
-                    $queryEmision = DB::table('excel__emision')
-                    ->where('id_catalogo', 1)
-                    ->where('codigo', 1)
-                    ->first();
-                    if (!$queryEmision) {
-                        return "Error de emisión";
-                    }                   
-                break;
-                case 10:
-                    //--------------------modulo de facturas si respuestas  o contigencia
-                    $queryEmision = DB::table('excel__emision')
-                    ->where('id_catalogo', 1)
-                    ->where('codigo', 2)
-                    ->first();
-                    if (!$queryEmision) {
-                        return "Error de emisión";
-                    }  
-                break;    
-                default:
-                  return "Error con la consulta... contacte al administrador";
-                break;
-            }
-           
-            
-
-             $querytipoSector = DB::table('excel__emision')
-            ->where('id_catalogo', 3)
-            ->where('codigo', 1)
-            ->first();
-            if(!$querytipoSector){
-                return "Tipo de catalogo no existe";
-            }
-
-            $queryNumeroFactura = DB::table('ven__factura_siat')
-            ->orderBy('id', 'desc')->limit(1)->value('numFactura');
-            if($queryNumeroFactura){
-            $numero__=$queryNumeroFactura;
-            }else{ 
-                $numero__=1;
-             }
-            $id_sucursal_sistemas__=$arrayQuery_siat_['id_sucursal_sistemas'];
-
-            $departamento = DB::table('adm__sucursals as s')
+           if ($comunicacion==0) {
+            return "Error de comunicación con el SIAT, por favor revise la configuración del ambiente y el token delegado, si el error persiste contacte al administrador";
+           }
+  $id_sucursal_sistemas__=$arrayQuery_siat_['id_sucursal_sistemas'];
+              $departamento = DB::table('adm__sucursals as s')
             ->join('adm__departamentos as d', 'd.id', '=', 's.departamento')
             ->select('s.razon_social', 's.telefonos', 's.direccion', 'd.nombre')
             ->where('s.id', $id_sucursal_sistemas__)
@@ -398,15 +372,110 @@ EOD;
             if(!$departamento){
                 return "Error de departamento";
             }
-            
-             
-            $moneda_siat_x = DB::table('excel__emision')
-                ->where('id_catalogo', 9)->where('id_erp', 1)->first();              
-            if(!$moneda_siat_x){
-                return "no exite configuracion de moneda contacte al administrador";
-            }    
-            
+           /** 
+ * switch ($comunicacion) {
+ *               case 0:
+  *                  return "Error con la consulta... contacte al administrador";
+   *             break;
+    *            
+     *           case 1:
+      *              $queryEmision = DB::table('excel__emision')
+       *             ->where('id_catalogo', 1)
+        *            ->where('codigo', 1)
+         *           ->first();
+          *          if (!$queryEmision) {
+           *             return "Error de emisión";
+            *        }                   
+             *   break;
+              *  case 10:
+   *                 //--------------------modulo de facturas si respuestas  o contigencia
+   *                 $queryEmision = DB::table('excel__emision')
+    *                ->where('id_catalogo', 1)
+     *               ->where('codigo', 2)
+      *              ->first();
+       *             if (!$queryEmision) {
+        *                return "Error de emisión";
+         *           }  
+          *      break;    
+           *     default:
+          *        return "Error con la consulta... contacte al administrador";
+            *    break;
+           * }
+           *  $leyenda = DB::table('excel__emision')
+    *->where('id_erp', $valor_ca)
+    *->where('id_catalogo', 11)
+    *->limit(1)
+    *->value('descripcion');
 
+   *   $querytipoSector = DB::table('excel__emision')
+   *         ->where('id_catalogo', 3)
+     *       ->where('codigo', 1)
+    *        ->first();
+     *       if(!$querytipoSector){
+      *          return "Tipo de catalogo no existe";
+      *      } 
+  *  $moneda_siat_x = DB::table('excel__emision')
+   *             ->where('id_catalogo', 9)->where('id_erp', 1)->first();              
+    *        if(!$moneda_siat_x){
+     *           return "no exite configuracion de moneda contacte al administrador";
+      *      }  
+*     $codigoDocumentoSectorQuery = DB::table('excel__emision')
+ *   ->where('id_catalogo', 3)
+  *  ->where('codigo', 1)// como es factura compra venta se usa esa 
+   * ->first();
+   * $tipoFacturaDocumento = DB::table('excel__emision')
+*    ->where('id_catalogo', 2)
+ *   ->where('codigo', 1)// como es factura compra venta se usa esa 
+  *  ->first();
+*/
+           
+            $tipoEmision_desc_1="";
+            $tipoEmision_cod_1=0;
+
+            $tipoEmision_desc_2="";
+            $tipoEmision_cod_2=0;
+
+            $tipoEmision_desc_3="";
+            $tipoEmision_cod_3=0;
+
+            $tipoEmision_desc_4="";
+            $tipoEmision_cod_4=0;
+
+            $tipoEmision_desc_5="";
+            $tipoEmision_cod_5=0;
+            
+             foreach ($listaQuery_siat_catalogo as $key => $value) {
+                if ($value->id_catalogo==1) {
+                    $tipoEmision_desc_1=$value->descripcion;
+                    $tipoEmision_cod_1=$value->codigo;
+                }
+                if ($value->id_catalogo==2) {
+                    $tipoEmision_desc_2=$value->descripcion;
+                    $tipoEmision_cod_2=$value->codigo;
+                }
+                if ($value->id_catalogo==3) {
+                    $tipoEmision_desc_3=$value->descripcion;
+                    $tipoEmision_cod_3=$value->codigo;
+                }
+                if ($value->id_catalogo==9) {
+                    $tipoEmision_desc_4=$value->descripcion;
+                    $tipoEmision_cod_4=$value->codigo;
+                }
+                if ($value->id_catalogo==11) {
+                    $tipoEmision_desc_5=$value->descripcion;
+                    $tipoEmision_cod_5=$value->codigo;
+                }
+             }
+$leyenda = $tipoEmision_desc_5;
+           
+           
+            $queryNumeroFactura = DB::table('ven__factura_siat')
+            ->orderBy('id', 'desc')->limit(1)->value('numFactura');
+            if($queryNumeroFactura){
+            $numero__=$queryNumeroFactura;
+            }else{ 
+                $numero__=1;
+             }
 
             $nitEmisor = $arrayEstado_dosificacion_facctura['nit'];
             $razonSocialEmisor=$request->arrayEstado_dosificacion_facctura['emisor_razon_soc'];////<----------------------------------------2 cabecera         
@@ -416,9 +485,9 @@ EOD;
            $fechaFormateada = $fechaHora->format('YmdHisv'); // yyyyMMddHHmmssSSS 
            $sucursal = $arrayQuery_siat_['id_sucursal_siat'];//<----------------------------------------8 cabecera
            $modalidad = $arrayEstado_dosificacion_facctura['tipo_modalidad'];
-           $tipoEmision = $queryEmision->codigo;
+           $tipoEmision = $tipoEmision_cod_1;
            $tipoFactura = $request->id_tipo_doc;//<----------------------------------------13 cabecera
-            $tipoDocumentoSector = $querytipoSector->codigo;
+            $tipoDocumentoSector = $tipoEmision_cod_3;
              $puntoVenta = $arrayQuery_siat_['punto_venta'];//<----------------------------------------10 cabecera
              $codigoControl = $arrayQuery_siat_['codigo_control_cufd']; // Este valor lo obtienes del WebService de la SIN   
              $cuf = CufHelper::generarCUF($nitEmisor, $fechaFormateada, $sucursal, $modalidad, $tipoEmision, $tipoFactura, $tipoDocumentoSector, $numeroFactura, $puntoVenta, $codigoControl);//<----------------------------------------6 cabecera
@@ -460,15 +529,10 @@ if ($complemento_siat == null) {
 $numeroTarjeta=$numeroTarjeta_sis;
   $montoTotal=number_format($request->total_venta, 2, '.', '');  //<----------------------------------------19 cabecera 
     $montoTotalSujetoIva=number_format($request->total_venta, 2, '.', '');  //<----------------------------------------20 cabecera 
-                   $codigoMoneda=$moneda_siat_x->codigo;//<----------------------------------------21 cabecera 
-       $tipoCambio=$moneda_siat_x->codigo;//<----------------------------------------22 cabecera 
+                   $codigoMoneda=$tipoEmision_cod_4;//<----------------------------------------21 cabecera 
+       $tipoCambio=$tipoEmision_cod_4;//<----------------------------------------22 cabecera 
            $montoTotalMoneda=$montoTotal;
- $valor_ca=$arrayProRecibo[0]['codigoActividad'];
-            $leyenda = DB::table('excel__emision')
-    ->where('id_erp', $valor_ca)
-    ->where('id_catalogo', 11)
-    ->limit(1)
-    ->value('descripcion');
+ 
  $id_user2 = session('id_user2'); 
             $user_nom=auth()->user()->id;
             $nombreCompletoObj = DB::table('rrh__empleados as re')
@@ -476,11 +540,8 @@ $numeroTarjeta=$numeroTarjeta_sis;
             ->where('u.id', $user_nom)
             ->value(DB::raw('UPPER(re.nombre)'));
 $usuario=$nombreCompletoObj;
- $codigoDocumentoSectorQuery = DB::table('excel__emision')
-    ->where('id_catalogo', 3)
-    ->where('codigo', 1)// como es factura compra venta se usa esa 
-    ->first();
-      $codigoDocumentoSector=$codigoDocumentoSectorQuery->codigo;// configurar depedeniendo de laf actura comoe s compra y venta es 1            
+
+      $codigoDocumentoSector=$tipoEmision_cod_3;// configurar depedeniendo de laf actura comoe s compra y venta es 1            
        
 if($request->gift_value==null||$request->gift_value==""||$request->gift_value==" "||$request->gift_value==0){
                 $montoGiftCard=0;
@@ -503,14 +564,12 @@ if($request->gift_value==null||$request->gift_value==""||$request->gift_value=="
             ->where('se.id',4)
             ->get(); 
 $token_delegado= $arrayEstado_dosificacion_facctura['token_delegado'];
-$codigoSistema=$arrayEstado_dosificacion_facctura['55cod_sis']; 
+$codigoSistema=$arrayEstado_dosificacion_facctura['cod_sis']; 
          $cuis=$arrayQuery_siat_['cuis'];
-$tipoFacturaDocumento = DB::table('excel__emision')
-    ->where('id_catalogo', 2)
-    ->where('codigo', 1)// como es factura compra venta se usa esa 
-    ->first();
-    $docFactura=$tipoFacturaDocumento->codigo;
 
+    $docFactura=$tipoEmision_cod_2;
+
+    
 
         if ($tipo_modalidad==1) {
                   $factura___e=$this->fac__electronica_compra_venta($nitEmisor,$razonSocialEmisor,$municipio,$telefono,$numeroFactura,$cuf,$cufd,$codigoSucursal,$direccion,$codigoPuntoVenta,$fechaEmision,$nombreRazonSocial,$codigoTipoDocumentoIdentidad,$numeroDocumento,$complemento,$codigoCliente,$codigoMetodoPago,$numeroTarjeta,$montoTotal,$montoTotalSujetoIva,$codigoMoneda,$tipoCambio,$montoTotalMoneda,$leyenda,$usuario,$codigoDocumentoSector,$arrayProRecibo,$montoGiftCard,$descuentoAdicional,$codigoExcepcion);
@@ -531,7 +590,9 @@ $archivo = $firma_f['archivo'];
 
                 if ($tipo_modalidad==2) {
                     $factura___c=$this->fac__computarizada_compra_venta($nitEmisor,$razonSocialEmisor,$municipio,$telefono,$numeroFactura,$cuf,$cufd,$codigoSucursal,$direccion,$codigoPuntoVenta,$fechaEmision,$nombreRazonSocial,$codigoTipoDocumentoIdentidad,$numeroDocumento,$complemento,$codigoCliente,$codigoMetodoPago,$numeroTarjeta,$montoTotal,$montoTotalSujetoIva,$codigoMoneda,$tipoCambio,$montoTotalMoneda,$leyenda,$usuario,$codigoDocumentoSector,$arrayProRecibo,$montoGiftCard,$descuentoAdicional,$codigoExcepcion);
-               // 13. GZIP + Base64
+             
+          
+                    // 13. GZIP + Base64
  $gzipped = gzencode($factura___c);
  $archivo = base64_encode($gzipped);
  
@@ -548,17 +609,18 @@ $archivo = $firma_f['archivo'];
                 }
             }
   
-    
+   return $soap_llamada; 
       
-            $montoTotalSujetoIva_real=$request->importe_fiscal;
-            $montoTotal_real=$request->monto_a_pagar;
-            $montoTotalMoneda_real=$request->monto_a_pagar;   
-            $docFacturaDescrip=$tipoFacturaDocumento->descripcion;
+        //    $montoTotalSujetoIva_real=$request->importe_fiscal;
+        //    $montoTotal_real=$request->monto_a_pagar;
+        //    $montoTotalMoneda_real=$request->monto_a_pagar;   
+        //    $docFacturaDescrip=$tipoFacturaDocumento->descripcion;
    
-            $cadena_url=$endPoints[0]->Url;            
+
+          //  $cadena_url=$endPoints[0]->Url;            
              // Asignación de la URL y API key
-            $wsdl = $cadena_url; 
-            $apikeyValue = 'TokenApi ' .$token_delegado; // Concatenar correctamente el valor del API key
+          //  $wsdl = $cadena_url; 
+          //  $apikeyValue = 'TokenApi ' .$token_delegado; // Concatenar correctamente el valor del API key
 
 
  $xml = simplexml_load_string($soap_llamada);
@@ -566,9 +628,10 @@ $archivo = $firma_f['archivo'];
     $transaccion = $xml->xpath('//transaccion');
     if ($transaccion && isset($transaccion[0])) {
         if ($transaccion[0]== 'true') {  
-         
-            $codigoRecepcion = $xml->xpath('//codigoRecepcion');
             $codigoDescripcion= $xml->xpath('//codigoDescripcion');
+            $codigoEstado = $xml->xpath('//codigoEstado');
+            $codigoRecepcion = $xml->xpath('//codigoRecepcion');
+                if($codigoDescripcion[0]=='VALIDADA'){
             
             $total_venta=$request->total_venta;
             $efectivo_venta=$request->efectivo_venta;
@@ -602,11 +665,23 @@ $archivo = $firma_f['archivo'];
      $tipo_venta= (integer)$request->tipo_pago_Qr_con_tar;
      $monto_vale =$request->gift_value;
     $monto_apagar=$request->monto_a_pagar;
+    $cadenaOtros=$request->cadenaOtros;// null
+    $tipoBanco=$request->tipoBanco;// cadena 
+    $id_cufd=$arrayQuery_siat_['id_cufd'];
+    $id_cuis=$arrayQuery_siat_['id_cuis'];
+    $id_credenciales=$arrayQuery_siat_['id'];
+    $sucursal_siat=$arrayQuery_siat_['id_sucursal_siat'];
+    $punto_venta=$arrayQuery_siat_['punto_venta'];
 
-           $insertarVenta_v= $this->insertarVenta($codigoCliente,$total_venta,$efectivo_venta,$cambio_venta,$descuento_venta,$total_sin_des,$dato_tipo,$codigo_tienda_almacen_0
-    ,$id_lista_v2,$numero_referencia,$numeroDocumento,$nombreRazonSocial,$estado_dosificacion_facctura,$id_apertura_cierre,$tipo_venta,
-    $monto_vale,$monto_apagar,$moneda,$arrayDescuentoOperacion,$arrayDesatlleVenta,$numeroTarjeta,$cadenaOtros,$tipoBanco,$id_cufd,$id_cuis
-    ,$cuf,$id_credenciales,$sucursal_siat,$punto_venta,$direccion,$municipio, $numFactura, $fechaEmision, $xml, $id_leyenda, $codRecepcion);
+           $insertarVenta_v= $this->insertarVenta($codigoCliente,$total_venta,$efectivo_venta,$cambio_venta,$descuento_venta,$total_sin_des,$dato_tipo,
+           $codigo_tienda_almacen_0,$id_lista_v2,$numero_referencia,$numeroDocumento,$nombreRazonSocial,$estado_dosificacion_facctura,$id_apertura_cierre,$tipo_venta,
+    $monto_vale,$monto_apagar,$codigoMoneda,$arrayDescuentoOperacion,$arrayDesatlleVenta,$numeroTarjeta,$cadenaOtros,$tipoBanco,$id_cufd,$id_cuis
+    ,$cuf,$id_credenciales,$sucursal_siat,$punto_venta,$direccion,$municipio, $numeroFactura, $fechaEmision, $soap_llamada, $tipoEmision_cod_5, $codigoRecepcion,$codigoEstado,$codigoDescripcion);
+
+                }else{
+                return $soap_llamada;
+                }            
+           
                 
         }else{
             return $soap_llamada;
@@ -2103,7 +2178,7 @@ if ($hoy->greaterThan($fechaA)) {
     private function  insertarVenta($cliente_id,$total_venta,$efectivo_venta,$cambio_venta,$descuento_venta,$total_sin_des,$dato_tipo,$codigo_tienda_almacen_0
     ,$id_lista_v2,$numero_referencia,$num_documento,$nom_a_facturar,$estado_dosificacion_facctura,$id_apertura_cierre,$tipo_venta,
     $monto_vale,$monto_apagar,$moneda,$arrayDescuentoOperacion,$arrayDesatlleVenta,$numeroTarjeta,$cadenaOtros,$tipoBanco,$id_cufd,$id_cuis
-    ,$cuf,$id_credenciales,$sucursal_siat,$punto_venta,$direccion,$municipio, $numFactura, $fechaEmision, $xml, $id_leyenda, $codRecepcion){
+    ,$cuf,$id_credenciales,$sucursal_siat,$punto_venta,$direccion,$municipio, $numFactura, $fechaEmision, $xml, $id_leyenda, $codigoRecepcion,$codigoEstado,$codigoDescripcion){
         DB::beginTransaction();
         $user_1 = auth()->user()->id;
         $nomsucursal="";
