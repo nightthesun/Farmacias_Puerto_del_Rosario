@@ -834,7 +834,7 @@ if ($transaccion && isset($transaccion[0])) {
    
 } else {   
    
-    $respuesta="error en sicronización de actividad";
+    $respuesta=$response;
 }   
                 break;
             

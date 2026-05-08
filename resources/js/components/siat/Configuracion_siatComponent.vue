@@ -59,26 +59,39 @@
                                 </div> 
                                 <div class="form-group  col-sm-3">
                                     <strong>Formato de fecha: <span  v-if="forFecha===''" class="error">(*)</span></strong>
-                                    <input type="text"  class="form-control" v-model="forFecha"  placeholder="Debe ingresar el formato de fecha">
+                                    <div class="d-flex align-items-center">
+                                        <input type="text"  class="form-control" v-model="forFecha"  placeholder="Debe ingresar el formato de fecha">
+                                        <button type="button" class="btn btn-info ml-2 ml-sm-0" style="color: white;" @click="autoComplentadoSiat(1)"><i class="fa fa-keyboard-o" aria-hidden="true"></i></button> 
+                                    </div>
+                                  
                                     <span  v-if="forFecha==''" class="error">Debe Ingresar formato</span>
                                 </div>
                                
                                 <div class="form-group col-sm-3">
                                     <strong>Maximo de facturas por paquete:<span  v-if="paquetes===''" class="error">(*)</span></strong>
-                                    <input type="number"  @input="validateInput($event, 'integer')"  class="form-control" v-model="paquetes"  placeholder="Debe ingresar numero entero de paquetes">
+                                    <div class="d-flex align-items-center">
+                                        <input type="number"  @input="validateInput($event, 'integer')"  class="form-control" v-model="paquetes"  placeholder="Debe ingresar numero entero de paquetes">
+                                        <button type="button" class="btn btn-info ml-2 ml-sm-0" style="color: white;" @click="autoComplentadoSiat(2)"><i class="fa fa-keyboard-o" aria-hidden="true"></i></button>   
+                                
+                                    </div>
                                     <span  v-if="paquetes==''" class="error">Debe Ingresar formato</span>
                                 </div>                           
                             </div>
                             <div class="row">
                                 <div class="form-group col-sm-6">
                                     <strong>Token delegado:<span  v-if="token_delegado===''" class="error">(*)</span></strong>
+                                    
                                     <textarea class="form-control" v-model="token_delegado" id="exampleFormControlTextarea1" rows="2" placeholder="ingrese el token delegado"></textarea>
                                      <span  v-if="token_delegado==''" class="error">Debe Ingresar formato</span>
                                  </div>
                                  <div class="form-group col-sm-6">
                                     <strong>Url QR:<span  v-if="qr_===''" class="error">(*)</span></strong>
-                                    <textarea class="form-control"  v-model="qr_" id="exampleFormControlTextarea2" rows="2" placeholder="ingrese los datos"></textarea>
-                                     <span  v-if="qr_==''" class="error">Debe Ingresar formato</span>
+                                      <div class="d-flex align-items-center">
+                                <textarea class="form-control"  v-model="qr_" id="exampleFormControlTextarea2" rows="2" placeholder="ingrese los datos"></textarea>
+                                       <button type="button" class="btn btn-info ml-2 ml-sm-0" style="color: white;" @click="autoComplentadoSiat(3)"><i class="fa fa-keyboard-o" aria-hidden="true"></i></button> 
+                                  
+                                      </div>
+                                    <span  v-if="qr_==''" class="error">Debe Ingresar formato</span>
                                  </div>
                             </div>  
                             <div class="row">
@@ -88,7 +101,11 @@
                                 </div>     
                                 <div class="form-group col-sm-4">
                                     <strong>Maximo de tiempo para respuesta SIAT [seg]:</strong>
-                                    <input type="text" @input="validateInput($event, 'integer')" class="form-control" v-model=" maxTiempoRespuesta"  placeholder="Tiempo de espera">                                 
+                                           <div class="d-flex align-items-center">
+                                                <input type="text" @input="validateInput($event, 'integer')" class="form-control" v-model=" maxTiempoRespuesta"  placeholder="Tiempo de espera">                                 
+                           <button type="button" class="btn btn-info ml-2 ml-sm-0" style="color: white;" @click="autoComplentadoSiat(4)"><i class="fa fa-keyboard-o" aria-hidden="true"></i></button> 
+                                  
+                                           </div>
                                 </div> 
                                 <div class="form-group col-sm-4"> 
                                     <strong>Tipo de modalidad: <span  v-if="codigoModalidad===0" class="error">(*)</span></strong>
@@ -733,6 +750,36 @@ export default {
         });
 },
 //-------------------------------------------------------------- 
+
+autoComplentadoSiat(data){
+    let me = this;
+    switch (data) {
+        case 1:
+           me.forFecha="yyyy-MM-ddTHH:mm:ss.ffff"; 
+        break;
+        case 2:
+           me.paquetes =50; 
+        break;
+        case 3:
+            if (me.selectTipoAmbiente===1) {
+                me.qr_ ="https://siat.impuestos.gob.bo/consulta/QR?nit={nit_emisor}&cuf={cuf}&numero={nro_factura}&t={formato 1=rollo/ 2= A4 carta default= 2}"; 
+            } else {
+                if (me.selectTipoAmbiente===2) {
+                    me.qr_ ="https://pilotosiat.impuestos.gob.bo/consulta/QR?nit={nit_emisor}&cuf={cuf}&numero={nro_factura}&t={formato 1=rollo/ 2= A4 carta default= 2}"; 
+                } else {
+                    Swal.fire("Error!","debe seleccionar un tipo de ambiente","error",); 
+                }
+            }           
+        break;
+        case 4:
+           me.maxTiempoRespuesta ="10"; 
+        break;
+    
+        default:
+             Swal.fire("Error!","de entrada","error",); 
+        break;
+    }
+},
 
 
  listarTablaList_siat() {         

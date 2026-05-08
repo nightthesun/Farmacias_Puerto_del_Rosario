@@ -950,14 +950,16 @@ if (data===1) {
                 axios.get(url)
                 .then(function(response){
 
-                    var respuesta = response.data;  
+                    var respuesta = response.data; 
+                    console.log(respuesta); 
                     if (respuesta===0) {
                         Swal.fire("Sincronización","Correctamente","success",); 
                         me.crearindex("manual",1,"Punto de venta: "+me.codigoPuntoVenta_Modal);
                     } else {
                     
                         if (respuesta!=null || respuesta!="") {
-                            Swal.fire("Error",respuesta,"error",);
+                            const texto_e = JSON.stringify(respuesta);
+                            Swal.fire("Error",texto_e,"error",);
                         } else {
                             Swal.fire(""+respuesta.error,""+respuesta.message,"error",);                    
                         }

@@ -882,6 +882,9 @@ import { error401 } from "../../errores";
 import VueMultiselect from 'vue-multiselect';
 import pdfMake from 'pdfmake/build/pdfmake';
 import pdfFonts from 'pdfmake/build/vfs_fonts';
+import { constant } from "lodash";
+import { generarPDF_factura_rollo } from "../../services/pdf/factura_siat_rollo"; 
+
 // Asigna los fonts a pdfmake
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
@@ -1186,6 +1189,7 @@ watch: {
         }, 1090);
       });
     },
+    
    /////////////////////////////////GENERAR PDF FACTURA DOSIFICACION/////////////////////////////////////////////////////////////////////////////
    generarPDF_factura_dosificacion( direccionMayusculas,nomsucursal,nuevoComprobante,fecha,hora,num_documento,nom_a_facturar,array_recibo,total_sin_des,descuento_venta,total_venta,efectivo_venta,cambio_venta,fechaMas7Dias,numero_referencia,nombreCompleto_1,nombre_empresa,actividad_economica,num_auto,cod_autorizacion,fecha_e_2,ciudad_su_1,departamento_su_1,numero_factura,cliente_id,descuento_final_2,total_literal,nit_2) {
  // Define el contenido del PDF
@@ -3239,7 +3243,7 @@ let numero_factura = respuesta.numero_factura;
 let cliente_id = respuesta.cliente_id;
 let total_literal=respuesta.total_literal;
 let nit_2=respuesta.nit_2;
-let tipo_venta_1="S/N";
+let tipo_venta_1="S/N"; 
 switch (respuesta.tipo_venta) {
   case 1:
     tipo_venta_1="EFECTIVO";
@@ -3558,7 +3562,9 @@ me.descuento_1=totalDescuento+me.descuento_final;
           id_apertura_cierre:me.id_apertura_cierre,
 
            arrayQuery_siat_:me.arrayQuery_siat_,
-           arrayEstado_dosificacion_facctura:me.arrayEstado_dosificacion_facctura,          
+           arrayEstado_dosificacion_facctura:me.arrayEstado_dosificacion_facctura, 
+           
+              id_sucursal:me.id_sucursal_siat,
         //  arrayEstado_dosificacion_facctura:me.arrayEstado_dosificacion_facctura,    
 
       };
@@ -3567,8 +3573,82 @@ me.descuento_1=totalDescuento+me.descuento_final;
       // Realizar la solicitud POST con Axios
       axios.post("/gestor_ventas/ventaFacturaSiat", data)
           .then(response => {
-            var respuesta = response.data;  
+            let respuesta = response.data;  
             console.log(respuesta);
+            let error_msn=respuesta.error_msn;
+            let estado_2=respuesta.estado;
+            const texto_e = JSON.stringify(respuesta);
+            Swal.fire("Error",texto_e,"error",);
+            switch (estado_2) {
+              case 0:
+                 Swal.fire({
+                        title: error_msn,
+                        text: "Haga click en Ok ",
+                        icon: "success",
+                        })
+                        ///modelo de factura ------------
+                      const direccionMayusculas = respuesta.direccionMayusculas;
+                        const nomsucursal = respuesta.nomsucursal;
+                        const nuevoComprobante = respuesta.nuevoComprobante;
+                        const fecha = respuesta.fecha;
+                        const hora = respuesta.hora;                     
+                        const num_documento = respuesta.num_documento;
+                        const nom_a_facturar = respuesta.nom_a_facturar;
+                        const array_recibo = respuesta.array_recibo;
+                        const total_sin_des = respuesta.total_sin_des;
+                        const descuento_venta = respuesta.descuento_venta;
+                        const total_venta = respuesta.total_venta;
+                        const efectivo_venta = respuesta.efectivo_venta;
+                        const cambio_venta = respuesta.cambio_venta;  
+                        const fechaMas7Dias = respuesta.fechaMas7Dias; 
+                        const numero_referencia = respuesta.numero_referencia; 
+                        const nombreCompleto_1 = respuesta.nombreCompleto_1; 
+                        const nombre_empresa = respuesta.nombre_empresa; 
+                        const actividad_economica = respuesta.actividad_economica;  
+                        const num_auto = respuesta.num_auto;  
+                        const cod_autorizacion = respuesta.cod_autorizacion;  
+                        const fecha_e_2 = respuesta.fecha_e_2;      
+                        const ciudad_su_1 = respuesta.ciudad_su_1;  
+                        const departamento_su_1 = respuesta.departamento_su_1;  
+                        const numero_factura = respuesta.numero_factura;  
+                        const cliente_id = respuesta.cliente_id;  
+                        const descuento_final_2 = respuesta.descuento_final_2;  
+                        const total_literal = respuesta.total_literal;  
+                        const nit_2 = respuesta.nit_2;  
+                        const tipo_venta_1 = respuesta.tipo_venta;  
+                        const monto_vale_1 = respuesta.monto_vale;  
+                        const monto_apagar_1 = respuesta.monto_apagar;  
+                        const credito_fiscal = respuesta.credito_fiscal;  
+                        const leyenda = respuesta.leyenda;  
+                        const puntoVenta = respuesta.puntoVenta;
+                        const url_qr = respuesta.url_qr;
+                        const ambiente = respuesta.ambiente;
+                        const factura_ = respuesta.factura_;
+                        
+                        generarPDF_factura_rollo(direccionMayusculas,nomsucursal,nuevoComprobante,fecha,hora,num_documento,nom_a_facturar,array_recibo,
+                      total_sin_des,descuento_venta,total_venta,efectivo_venta,cambio_venta,fechaMas7Dias,numero_referencia,nombreCompleto_1,
+                      nombre_empresa,actividad_economica,num_auto,cod_autorizacion,fecha_e_2,ciudad_su_1,departamento_su_1,numero_factura,cliente_id,
+                      descuento_final_2,total_literal,nit_2,tipo_venta_1,monto_vale_1,monto_apagar_1,credito_fiscal,leyenda,puntoVenta,url_qr,ambiente,factura_);  
+                     
+
+                console.log(respuesta);
+                
+              break;
+              case 1:
+                Swal.fire("Error",error_msn,"error"); 
+              break;
+              case 2:
+                const texto_e = JSON.stringify(error_msn);
+                  Swal.fire("Error",texto_e,"error",);
+              break;
+            
+              default:
+                console.log(respuesta);
+                break;
+            }         
+            
+
+       
             me.isSubmitting = false;
           })
           .catch(error => {
