@@ -18,6 +18,9 @@
                 <li class="nav-item">
                     <a class="nav-link" id="pills-profile-tab" @click="resert_0(2);listar_inicio_v2();" data-toggle="pill" href="#pills-profile" role="tab" aria-controls="pills-profile" aria-selected="false">Sincronización SIAT</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="pills-factura-tab" @click="listarTablaSiatConfiguracion()"  data-toggle="pill" href="#pills-factura" role="tab" aria-controls="pills-factura" aria-selected="false">Tipo factura a mostrar</a>
+                </li>
                                      
             </ul>
         </div>
@@ -192,6 +195,50 @@
                                         </tr>
                                     </tbody>
                                 </table>
+
+                        </div>
+                    </div>        
+                  
+<!---------------------------------------------------------------------------------------------------------------------------->
+<!--------------------------------------------------------------------------------------------------------------------------------------------->
+                    <div class="tab-pane fade" id="pills-factura" role="tabpanel" aria-labelledby="pills-factura-tab">
+
+                        <div class="card">
+                            <div class="card-header">
+                                <span>Configuración de tamaño de factura</span>
+                            </div>
+                           <div class="row" style="margin-top: 10px; margin-left: 10px;">
+                                <div class="form-group col-sm-2">
+                                    <span>Tipo factura: </span> 
+                                </div> 
+                                <div class="form-group col-sm-3">
+                                     <select  class="form-control"  v-model="selectFacturaMostrar">
+                                            <option value="0" disabled selected>Seleccionar...</option>
+                                            <option value="1">Tipo rollo</option>
+                                            <option value="2">Tipo A4</option>
+                                            <option value="3">Tipo rollo personalizado</option>
+                                    </select>
+                                 </div>
+                                 <div class="alert alert-primary  col-sm-3" role="alert">
+                                    <span v-show="selectFacturaMostrar==='0'">
+                                        Debe seleccionar un tipo de factura para mostrar en la vista previa de impresión
+                                    </span>
+                                <span v-show="selectFacturaMostrar==='1'">
+                                        Imprecion normal tipo rollo que muestra toda la información sobre la venta
+                                    </span>
+                                    <span v-show="selectFacturaMostrar==='2'">
+                                        Imprecion normal tipo A4 tamaño carta tiene otro formato que muestra toda la información sobre la venta
+                                    </span>
+                                    <span v-show="selectFacturaMostrar==='3'">
+                                        Imprecion compacta solo muestra lo necesario para la impresión en rollo con un formato personalizado, se recomienda para impresoras térmicas de rollo pequeño 
+                                    </span>
+                                </div>
+                                <div class="form-group col-sm-2">
+                                       <button  type="button" class="btn btn-secondary btn-sm btn-block" v-if="selectFacturaMostrar==='0'">Seleccionar</button>
+                                 <button  type="button" @click="modificarTablaSiatConfiguracion()" class="btn btn-primary btn-sm btn-block" v-else>Seleccionar</button>
+                                </div> 
+                                
+                            </div>        
 
                         </div>
                     </div>        
@@ -416,6 +463,10 @@ export default {
 
                 hora_cufd:'',
                 activacionCufd:'2',
+
+                selectFacturaMostrar:'0',
+
+                tipoFactura_2:'0',
 
         };
     },
@@ -1056,6 +1107,65 @@ if (data===1) {
                     error401(error);
                 });
         },
+
+        listarTablaSiatConfiguracion(){
+            let me=this;  
+                 var url='/listarTablaSiatConfiguracion';                        
+                axios.get(url)
+                .then(function(response){
+                    var respuesta = response.data;
+                    me.selectFacturaMostrar=(respuesta[0].tipo_factura).toString();
+                        
+                })
+                .catch(function(error){
+                    error401(error);
+                });
+        },
+
+        modificarTablaSiatConfiguracion(){
+            let me = this;  
+            Swal.fire({
+  title: "Desea cambiar el tipo de factura?",
+  text: "Solo afecta el cambio de visualización en la tabla de inicio, no afecta en nada el proceso de facturación",
+  icon: "warning",
+  showCancelButton: true,
+  confirmButtonColor: "#3085d6",
+  cancelButtonColor: "#d33",
+  confirmButtonText: "Si, modificar!"
+}).then((result) => {
+  if (result.isConfirmed) {
+    axios.put("/siat/modificarTablaSiatConfiguracion", {             
+                    tipoFactura:parseInt(me.selectFacturaMostrar),                    
+                })
+                .then(function (response) {
+                    me.listarTablaSiatConfiguracion();
+                    let respuesta=response.data;   
+                    if (respuesta==0) {
+                       Swal.fire({
+    title: "Actualizado!",
+    text: "El tipo de factura fue modificado.",
+    icon: "success"
+  }); 
+                    } else {
+                           Swal.fire({
+    title: "Error!",
+    text: respuesta,
+    icon: "error"
+  }); 
+                    }   
+                                 
+                })               
+                .catch(function (error) {                
+               error401(error);              
+            });  
+  }
+  
+});       
+                
+        },
+
+
+        
       
 
         listar_inicio_v2()

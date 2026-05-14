@@ -45,6 +45,19 @@ class SiatConfiguracionController extends Controller
               
     }
 
+    public function updateTablaSiatConfiguracion(Request $request){
+        try {
+            DB::beginTransaction();
+            $actualizar = Siat_Configuracion::findOrFail(1);
+            $actualizar->tipo_factura=$request->tipoFactura; 
+            $actualizar->save();
+            DB::commit();
+            return 0;
+        } catch (\Throwable $th) {
+            return $th;
+        }
+    }
+
     public function update_general(Request $request)
     {
 

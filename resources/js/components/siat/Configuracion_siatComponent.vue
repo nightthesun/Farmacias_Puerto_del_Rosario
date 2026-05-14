@@ -24,7 +24,9 @@
                 <li class="nav-item">
                     <a class="nav-link" id="pills-varios-tab" data-toggle="pill" href="#pills-varios" role="tab" aria-controls="pills-varios" aria-selected="false" @click="cambioPestañaIn(1,1,1);listarTablaList_siat();">Datos varios</a>
                 </li>    
-               
+                <li class="nav-item">
+                    <a class="nav-link" id="pills-gesPrueba-tab" data-toggle="pill" href="#pills-gesPrueba" role="tab" aria-controls="pills-gesPrueba" aria-selected="false" @click="cambioPestañaIn(0,1,1);">Gestor de prueba</a>
+                </li>   
                             
             </ul>
         </div>
@@ -494,8 +496,43 @@
 
 </div>
 </div>    
-     <!-----------------------------------------------------------------TIPO FACTURA ----------------------------------------------------------->
+     <!-----------------------------------------------------------------GESTOR DE PRUEBA ----------------------------------------------------------->
     
+ <div class="tab-pane fade" id="pills-gesPrueba" role="tabpanel" aria-labelledby="pills-gesPrueba-tab"  v-show="show_1==0&&show_2==1&&show_3==1">
+<div class="card">
+    <div class="card-header">
+      Gestor de prueba programado        
+    </div>
+    <div class="card-body">
+      <button   type="button" class="btn btn-primary btn-sm" @click="abrirModal('gestorPruebaModal');"> Crear XML</button>                
+      
+       <div class="row">
+            <div class="form-group col-sm-2">
+            </div>
+           
+        </div>  
+        
+   
+        <table class="table table-bordered table-striped table-sm table-responsive" >
+                <thead>
+                    <tr>
+                        <th>Numero</th> 
+                        <th>Nombre</th> 
+                    </tr>
+                </thead> 
+                <tbody>
+                   
+                </tbody>
+           </table>         
+         <!---inserte tabla-->
+ 
+      
+  
+    </div>
+
+
+</div>
+</div>    
  <!-----------------------------------------------------------------TIPO LEYENDA ----------------------------------------------------------->
              
            
@@ -566,6 +603,36 @@
                 </div>
             </div>
         </div>
+        <!-------------------------modal gestor de pruebas----------------------->
+         <transition name="fade">
+            <div v-if="showModal" class="modal d-block" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-primary modal-lg modal-dialog-scrollable" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                        <h4 class="modal-title">{{ tituloModal }}</h4>
+                        <button type="button" class="close" @click="cerrarModal('gestorPruebaModal')">
+                            <span>&times;</span>
+                        </button>
+                        </div>
+  <div class="modal-body" style="max-height: 60vh; overflow-y: auto;">                        
+
+                        <form action="" class="form-horizontal">
+                        
+                            <!-- insertar datos -->
+                            <div class="container">                                
+                    
+                            
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary rounded"  @click="cerrarModal('gestorPruebaModal')">Cerrar</button>                          
+                    </div>
+
+                    </div>
+                </div>
+            </div>
+           </transition>   
         <!--fin del modal-->
     </main>
 </template>
@@ -673,6 +740,9 @@ export default {
             rubro_xd:0,
             cambioEstado:'',
             arrayListaTabla_xd:[],
+            nombreXml:'',
+            textXML:'',
+            showModal: false,
 
         };
     },
@@ -1418,7 +1488,17 @@ validateFileExcel() {
                     me.tituloModal="Edicion de end points"
                     me.classModal.openModal("regcuenta");
                     break;
-                }                           
+                }   
+                case "gestorPruebaModal":{
+                    me.showModal=true;
+                    me.tipoAccion = 1;
+                    me.isSubmitting=false;
+                   me.nombreXml="";
+                me.textXML=""; 
+                 me.tituloModal="Creacion de XML"
+                me.classModal.openModal("gestorPruebaModal");
+                break;
+                }                        
             }
         },
 
@@ -1610,6 +1690,16 @@ validateFileExcel() {
                     me.id_endpoint="";
                 me.classModal.closeModal(accion);         
             }
+
+            if (accion =="gestorPruebaModal") {
+                me.tipoAccion=1;
+                me.isSubmitting=false;
+                me.tituloModal="";
+                me.nombreXml="";
+                me.textXML="";
+                me.showModal=false;
+               
+            } 
         },
 
 
@@ -1628,6 +1718,7 @@ validateFileExcel() {
         this.listarIndexConfiguracion();
         this.verRubroSiat_xd();
         this.classModal.addModal("regcuenta");
+         this.classModal.addModal("gestorPruebaModal");
     
     },
 };

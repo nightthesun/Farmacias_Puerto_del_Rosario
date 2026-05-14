@@ -335,7 +335,7 @@ EOD;
 
     public function ventaFacturaSiat(Request $request){
         try {
-               
+           
             DB::beginTransaction();
             $user_1 = auth()->user()->id;   
             if($user_1==1){
@@ -350,8 +350,8 @@ EOD;
             $arrayProRecibo=$request->arrayProRecibo;
             $arrayDescuentoOperacion=$request->arrayDescuentoOperacion;
             $arrayDesatlleVenta=$request->arrayDesatlleVenta;
-            
-          
+            $moneda= $arrayEstado_dosificacion_facctura['moneda'];
+            $tipoFactura_22= $arrayEstado_dosificacion_facctura['tipo_factura'];
             $tipo_modalidad=$arrayEstado_dosificacion_facctura['tipo_modalidad'];
              $valor_ca=$arrayProRecibo[0]['rubro_siat_2'];
            if ($valor_ca==0||$valor_ca==null||$valor_ca=='') {
@@ -654,8 +654,16 @@ $archivo = $firma_f['archivo'];
           //  $wsdl = $cadena_url; 
           //  $apikeyValue = 'TokenApi ' .$token_delegado; // Concatenar correctamente el valor del API key
 
+libxml_use_internal_errors(true);
 
  $xml = simplexml_load_string($soap_llamada);
+
+if ($xml === false) {
+    return response()->json([ 
+                    'error_msn' => $soap_llamada,
+                    'estado' => 2
+                 ]);
+}
     // Usar XPath para encontrar el nodo <transaccion>    
     $transaccion = $xml->xpath('//transaccion');
     if ($transaccion && isset($transaccion[0])) {
@@ -778,10 +786,7 @@ $url = str_replace(
  
 
            'nuevoComprobante' => 0,
-            
-            
-           
-                    
+                  
            'total_sin_des' => $total_sin_des,
             'efectivo_venta' => $efectivo_venta,            
             'total_venta' =>$total_venta,            
@@ -802,9 +807,11 @@ $url = str_replace(
         'tipo_venta'=>$tipo_venta,        
         'monto_vale'=>$monto_vale,
         'monto_apagar'=>$monto_apagar,
-
+         'montoGiftCard'=>$montoGiftCard,       
         'leyenda'=>$leyenda,
         'url_qr'=>$url,
+        'moneda'=>$moneda,
+        'tipoFactura_22'=>$tipoFactura_22,
 
                  ]); 
        
@@ -2126,7 +2133,8 @@ if ($hoy->greaterThan($fechaA)) {
             'tipo_modalidad' => $query_2->tipo_modalidad,
             'token_delegado' => $query_2->token_delegado,  
             'moneda' => $query_1->simbolo,   
-            'url_qr' => $query_2->url_QR,  
+            'url_qr' => $query_2->url_QR,
+            'tipo_factura'=>$query_2->tipo_factura,  
             ];
     
         return response()->json(['estado' => 1, 'consulta' => $datos,'query'=>$query_emisor]); 
@@ -2300,6 +2308,7 @@ if ($hoy->greaterThan($fechaA)) {
                         curl_setopt($ch, CURLOPT_URL, $wsdl); // Reemplaza con el endpoint correcto
                         curl_setopt($ch, CURLOPT_POST, 1);
                         curl_setopt($ch, CURLOPT_POSTFIELDS, $xmlData);
+                    
                         curl_setopt($ch, CURLOPT_HTTPHEADER, [
                             'Content-Type: text/xml; charset=utf-8',
                             'SOAPAction: ""', // Si el SOAPAction es requerido, inclúyelo aquí
@@ -2317,7 +2326,7 @@ if ($hoy->greaterThan($fechaA)) {
                         // Cerrar la sesión de cURL
                         curl_close($ch);
                     // Convertir la respuesta en un objeto SimpleXMLElement
-                    $xml = simplexml_load_string($response);                    
+                //    $xml = simplexml_load_string($response);                    
                     $respuesta=$response;
 
                     return $respuesta;

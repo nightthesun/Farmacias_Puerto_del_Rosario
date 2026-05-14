@@ -635,4 +635,14 @@ if ($resultado) {
 }
     }
 
+
+
+        public function getTablaSiatConfiguracion(){
+            $configuracion = DB::table('siat__configuracions')
+    ->where('id', 1)
+    ->get();
+        return $configuracion;
+        }
+
+
 }
