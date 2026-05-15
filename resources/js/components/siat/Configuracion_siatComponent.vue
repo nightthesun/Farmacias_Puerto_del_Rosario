@@ -22,10 +22,10 @@
                     <a class="nav-link" id="pills-concepto-tab" data-toggle="pill" href="#pills-concepto" role="tab" aria-controls="pills-concepto" aria-selected="false" @click="listar_catalogo();cambioPestañaIn(0,0,1);">Conceptos</a>
                 </li>    
                 <li class="nav-item">
-                    <a class="nav-link" id="pills-varios-tab" data-toggle="pill" href="#pills-varios" role="tab" aria-controls="pills-varios" aria-selected="false" @click="cambioPestañaIn(1,1,1);listarTablaList_siat();">Datos varios</a>
+                    <a class="nav-link" id="pills-varios-tab" data-toggle="pill" href="#pills-varios" role="tab" aria-controls="pills-varios" aria-selected="false" @click="cambioPestañaIn(1,1,1);listarTablaList_siat();resetData(1);">Datos varios</a>
                 </li>    
                 <li class="nav-item">
-                    <a class="nav-link" id="pills-gesPrueba-tab" data-toggle="pill" href="#pills-gesPrueba" role="tab" aria-controls="pills-gesPrueba" aria-selected="false" @click="cambioPestañaIn(0,1,1);">Gestor de prueba</a>
+                    <a class="nav-link" id="pills-gesPrueba-tab" data-toggle="pill" href="#pills-gesPrueba" role="tab" aria-controls="pills-gesPrueba" aria-selected="false" @click="cambioPestañaIn(0,1,1);listarListaSiat(3);listarIndexXML()">Gestor de prueba</a>
                 </li>   
                             
             </ul>
@@ -506,24 +506,53 @@
     <div class="card-body">
       <button   type="button" class="btn btn-primary btn-sm" @click="abrirModal('gestorPruebaModal');"> Crear XML</button>                
       
-       <div class="row">
-            <div class="form-group col-sm-2">
-            </div>
-           
-        </div>  
-        
-   
-        <table class="table table-bordered table-striped table-sm table-responsive" >
+      <div class="modal-body" style="max-height: 60vh; overflow-y: auto;">
+ <table class="table table-bordered table-striped table-sm table-responsive" >
                 <thead>
                     <tr>
-                        <th>Numero</th> 
-                        <th>Nombre</th> 
+                        <th class="col-md-1">Opciones</th> 
+                        <th class="col-md-1">Numero</th> 
+                        <th class="col-md-3">Nombre</th> 
+                        <th class="col-md-3">Descripción</th> 
+                        <th class="col-md-3">Modalidad</th> 
+                        
                     </tr>
                 </thead> 
                 <tbody>
+                    <tr  v-for="(i, index) in arrayIndex_xml" :key="index">
+                        <td class="col-md-1">
+                            <div  class="d-flex justify-content-start">
+                            <button type="button" class="btn btn-warning btn-sm" style="margin-right: 5px;" @click="abrirModal('gestorPruebaModal_actulizar',i)">
+                                <i class="icon-pencil"></i>
+                            </button> 
+                             <button  type="button" class="btn btn-danger btn-sm" style="margin-right: 5px;" @click="eliminarXML_2(i.id)">
+                                <i class="icon-trash"></i>
+                            </button>
+                            <button  type="button" class="btn btn-primary  btn-sm" style="margin-right: 5px;">
+                               <i class="fa fa-paper-plane" aria-hidden="true"></i>
+                            </button>
+                            <button  type="button" class="btn btn-info  btn-sm" style="margin-right: 5px; color: white;">
+                               <i class="fa fa-paper-plane-o" aria-hidden="true"></i>
+                            </button>
+                            </div>
+                            
+                        </td>
+                        <td class="col-md-1">{{i.id}}</td>
+                        <td class="col-md-3">{{i.nombre}}</td>
+                        <td class="col-md-3">{{i.sector}}</td>
+                        <td class="col-md-3">
+                            <span v-if="i.modalidad==1">Electronica</span>
+                            <span v-else-if="i.modalidad==2">Computarizada</span>
+                             <span v-else>Error</span>                             
+                        </td>
+                    </tr>
                    
                 </tbody>
-           </table>         
+           </table> 
+      </div>
+        
+   
+               
          <!---inserte tabla-->
  
       
@@ -620,13 +649,39 @@
                         
                             <!-- insertar datos -->
                             <div class="container">                                
-                    
-                            
+                                <div class="form-group row" >                                   
+                                    <div class="col-md-4">
+                                        <label for="">Nombre: </label>
+                                        <input  type="text" class="form-control" v-model="nomGesPrueba">
+                                    </div>
+                                    <div class="col-md-4">  
+                                         <label for="">Sector: </label>
+                                         <select class="form-control" v-model="selectSector_datos" >
+                <option value="0" disabled selected>Seleccionar...</option>    
+                <option v-for="(i, index) in arraySector_datos" :key="index" :value="i.descripcion">{{ i.descripcion }}</option>
+            </select>
+                                     </div>   
+                                     <div class="col-md-4">  
+                                         <label for="">Modalidad: </label>
+                                         <select class="form-control" v-model="selectModalidadGesPrueba" >
+                <option value="0" disabled selected>Seleccionar...</option>    
+               <option value="1">Electronica</option> 
+               <option value="2">Computarizada</option>    
+            </select>
+                                     </div>  
+                                </div>  
+                                       <label for="">XML: </label>
+                                            <textarea class="form-control" id="exampleFormControlTextarea1" v-model="xmlGesPrueba" rows="16"></textarea>
+                                  
                             </div>
                         </form>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary rounded"  @click="cerrarModal('gestorPruebaModal')">Cerrar</button>                          
+                        <button type="button" class="btn btn-secondary"  @click="cerrarModal('gestorPruebaModal')">Cerrar</button>   
+                        <button type="button" v-if="isSubmitting==false" v-show="tipoAccion==1" class="btn btn-primary" @click="enviarXML_2()">Guardar</button>
+                        <button type="button" v-else class="btn btn-secondary" v-show="tipoAccion==1">Guardar</button>
+                        <button type="button" v-if="isSubmitting==false" v-show="tipoAccion==2" class="btn btn-warning"  @click="actualizarXML_2()">Actualizar</button>
+                        <button type="button" v-else class="btn btn-secondary" v-show="tipoAccion==2">Actualizar</button >                       
                     </div>
 
                     </div>
@@ -744,6 +799,12 @@ export default {
             textXML:'',
             showModal: false,
 
+            nomGesPrueba:'',
+            xmlGesPrueba:'', 
+            arrayIndex_xml:[],
+            idGesPrueba:'',
+            selectModalidadGesPrueba:'0',
+
         };
     },
 
@@ -821,6 +882,31 @@ export default {
 },
 //-------------------------------------------------------------- 
 
+resetData(dato){
+    let me=this;
+    switch (dato) {
+        case 1:
+                    me.selectEmision_datos="0";
+                    me.arrayEmision_datos=[];
+           
+                    me.selectSector_datos="0";
+                    me.arraySector_datos=[];
+        
+                    me.selectMoneda_datos="0";
+                    me.arrayMoneda_datos=[];
+           
+                    me.selectLeyenda_datos="0";
+                    me.arrayLeyenda_datos=[];
+             
+                    me.selectFactura_datos="0";
+                    me.arrayFactura_datos=[];    
+        break;
+    
+        default:
+            break;
+    }
+},
+
 autoComplentadoSiat(data){
     let me = this;
     switch (data) {
@@ -851,6 +937,23 @@ autoComplentadoSiat(data){
     }
 },
 
+ listarIndexXML()
+            {
+                let me=this;  
+                 var url='/siat/inicio_xml_2';     
+                        
+                axios.get(url)
+                .then(function(response){
+                    var respuesta = response.data;
+                    me.arrayIndex_xml = respuesta;  
+                    console.log(me.arrayIndex_xml);                 
+                })
+                .catch(function(error){
+                    error401(error);
+                }); 
+             
+               
+            },
 
  listarTablaList_siat() {         
     let me = this;  
@@ -1158,6 +1261,113 @@ crearEndPoint(){
           me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
         });       
     } 
+ },
+
+
+eliminarXML_2(id){
+        let me = this;  
+    Swal.fire({
+  title: "Desea eliminar?",
+  text: "La eliminación no se puede revertir!",
+  icon: "warning",
+  showCancelButton: true,
+  confirmButtonColor: "#3085d6",
+  cancelButtonColor: "#d33",
+  confirmButtonText: "Si, eliminar!"
+}).then((result) => {
+  if (result.isConfirmed){
+    axios.post("/siat/eliminarXML_2", {
+                    id:id,             
+                })
+                .then(function (response) {
+                   // me.listarIndexEndPoint(); 
+                   me.isSubmitting=false;
+                   let respuesta=response.data;                                 
+                    if (respuesta==0) {
+                        me.listarIndexXML();
+                        Swal.fire("Registro eliminado!","Correctamente","success",);                         
+                    } else {
+                         Swal.fire("Error!",""+respuesta,"error",);   
+                    }  
+                                
+                })               
+                .catch(function (error) {        
+                         
+            }); 
+  }
+});
+                   
+ },
+ 
+actualizarXML_2(){
+        let me = this;  
+        if (me.nomGesPrueba==null ||me.nomGesPrueba=="" ||
+            me.xmlGesPrueba==null || me.xmlGesPrueba=="" ||
+            me.selectSector_datos==null || me.selectSector_datos=="0" ||
+            me.selectModalidadGesPrueba==null || me.selectModalidadGesPrueba=="0"
+        ) {
+                Swal.fire("Error!","Debe llenar todos los campos","error",);  
+                return ;   
+        } 
+         me.isSubmitting=true;  
+                axios.put("/siat/actualizarXML_2", {
+                    id:me.idGesPrueba,
+                nomGesPrueba:me.nomGesPrueba, 
+                xmlGesPrueba:me.xmlGesPrueba,
+                sector:me.selectSector_datos,
+                modalidad:parseInt(me.selectModalidadGesPrueba)                  
+                })
+                .then(function (response) {
+                   // me.listarIndexEndPoint(); 
+                   me.isSubmitting=false;
+                   let respuesta=response.data;  
+                     me.cerrarModal('gestorPruebaModal');                 
+                    if (respuesta==0) {
+                        me.listarIndexXML();
+                        Swal.fire("Registro editado!","Correctamente","success",);                         
+                    } else {
+                         Swal.fire("Error!",""+respuesta,"error",);   
+                    }  
+                                
+                })               
+                .catch(function (error) {                
+                         
+            });    
+ },
+
+  enviarXML_2(){
+        let me = this;  
+        if (me.nomGesPrueba==null ||me.nomGesPrueba=="" ||
+            me.xmlGesPrueba==null || me.xmlGesPrueba=="" ||
+            me.selectSector_datos==null || me.selectSector_datos=="0"||
+            me.selectModalidadGesPrueba==null || me.selectModalidadGesPrueba=="0") {
+                Swal.fire("Error!","Debe llenar todos los campos","error",);  
+                return ;   
+        } 
+         me.isSubmitting=true;  
+                axios.post("/siat/enviarXML_2", {
+              
+                nomGesPrueba:me.nomGesPrueba, 
+                xmlGesPrueba:me.xmlGesPrueba,
+                sector:me.selectSector_datos,
+                modalidad:parseInt(me.selectModalidadGesPrueba)              
+                })
+                .then(function (response) {
+                   // me.listarIndexEndPoint(); 
+                   me.isSubmitting=false;
+                   let respuesta=response.data;  
+                     me.cerrarModal('gestorPruebaModal');                 
+                    if (respuesta==0) {
+                        me.listarIndexXML();
+                        Swal.fire("Registro creado!","Correctamente","success",);                         
+                    } else {
+                         Swal.fire("Error!",""+respuesta,"error",);   
+                    }  
+                                
+                })               
+                .catch(function (error) {                
+                         
+            });    
  },
 
  editarEndPoint(){
@@ -1493,11 +1703,26 @@ validateFileExcel() {
                     me.showModal=true;
                     me.tipoAccion = 1;
                     me.isSubmitting=false;
-                   me.nombreXml="";
-                me.textXML=""; 
+                   me.nomGesPrueba="";
+                    me.xmlGesPrueba="";
+                me.selectModalidadGesPrueba="0";   
                  me.tituloModal="Creacion de XML"
                 me.classModal.openModal("gestorPruebaModal");
-                break;
+                break;                
+                }  
+                case "gestorPruebaModal_actulizar":{
+                    me.showModal=true;
+                    me.tipoAccion = 2;
+                 
+               me.nomGesPrueba=data.nombre; 
+               me.xmlGesPrueba=data.xml;
+                me.idGesPrueba=data.id;
+                me.selectSector_datos=data.sector;
+                me.selectModalidadGesPrueba=String(data.modalidad);
+                
+                 me.tituloModal="Edicion de XML"
+                me.classModal.openModal("gestorPruebaModal");
+                break;                
                 }                        
             }
         },
@@ -1695,8 +1920,11 @@ validateFileExcel() {
                 me.tipoAccion=1;
                 me.isSubmitting=false;
                 me.tituloModal="";
-                me.nombreXml="";
-                me.textXML="";
+                me.selectSector_datos="0";
+               me.nomGesPrueba=""; 
+               me.xmlGesPrueba="";
+                me.idGesPrueba="";
+                 me.selectModalidadGesPrueba="0";
                 me.showModal=false;
                
             } 

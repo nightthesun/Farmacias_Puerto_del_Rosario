@@ -6,7 +6,7 @@ import pdfFonts from 'pdfmake/build/vfs_fonts';
 //pdfMake.vfs = pdfFonts.pdfMake.vfs;
 pdfMake.vfs = pdfFonts.vfs;
 
-export function generarPDF_factura_rollo(direccionMayusculas,nomsucursal,nuevoComprobante,fecha,hora,num_documento,nom_a_facturar,array_recibo,
+export function generarPDF_factura_rollo_2(direccionMayusculas,nomsucursal,nuevoComprobante,fecha,hora,num_documento,nom_a_facturar,array_recibo,
                       total_sin_des,descuento_venta,total_venta,efectivo_venta,cambio_venta,fechaMas7Dias,numero_referencia,nombreCompleto_1,
                       nombre_empresa,actividad_economica,num_auto,cod_autorizacion,fecha_e_2,ciudad_su_1,departamento_su_1,numero_factura,cliente_id,
                       descuento_final_2,total_literal,nit_2,tipo_venta_1,monto_vale_1,monto_apagar_1,credito_fiscal,leyenda,puntoVenta,url_qr,ambiente,factura_,montoGiftCard,moneda) {
@@ -38,11 +38,7 @@ export function generarPDF_factura_rollo(direccionMayusculas,nomsucursal,nuevoCo
     tableBody_2.push([
     { text: item.descrip , fontSize: 7, alignment: 'left' }, // Salto de línea
       {},   
-    ]);
-    tableBody_2.push([
-    { text: 'Unidad de medida: '+item.unidad_medida, fontSize: 7, margin: [5, 0, 0, 0],alignment: 'left' }, // Salto de línea
-      {},   
-    ]);
+    ]);   
     tableBody_2.push([
     { text: item.cant+'.00 x '+item.p_u+' - '+(descuento_dosificacion_2), fontSize: 7, alignment: 'left' }, // Salto de línea
     { text: ((item.cant * item.p_u)-descuento_dosificacion_2).toFixed(2), fontSize: 7, alignment: 'right' },   
@@ -51,42 +47,14 @@ export function generarPDF_factura_rollo(direccionMayusculas,nomsucursal,nuevoCo
   
   const table_totales = [
     // Agrega los encabezados de la tabla
+    
     [
-      { text: 'SubTotal '+moneda+': ' ,  fontSize: 7, alignment: 'right' }, 
-      { text: (sumador_subtotal).toFixed(2), fontSize: 7, alignment: 'right' }     
-    ],
-    [
-      { text: 'Descuento '+moneda+': ',  fontSize: 7, alignment: 'right' }, 
-      { text: (descuento_final_2).toFixed(2), fontSize: 7, alignment: 'right' }     
-    ],
-    [
-      { text: 'Total '+moneda+': ',  fontSize: 7, alignment: 'right' }, 
+      { text: 'Importe total '+moneda+': ',  fontSize: 7, alignment: 'right' }, 
       { text: (total_venta).toFixed(2), fontSize: 7, alignment: 'right' }     
-    ],
-    [
-      { text: 'Monto gift card '+moneda+': ',  fontSize: 7, alignment: 'right' }, 
-      { text: montoGiftCard, fontSize: 7, alignment: 'right' }     
-    ],
-    [
-      { text: 'Monto a pagar '+moneda+': ',  fontSize: 7, alignment: 'right',bold: true }, 
-      { text: (total_venta).toFixed(2), fontSize: 7, alignment: 'right' }     
-    ],
-    [
-      { text: 'Importe base crédito fiscal '+moneda+': ',  fontSize: 7, alignment: 'right',bold: true }, 
-      { text: (total_venta).toFixed(2), fontSize: 7, alignment: 'right' }     
-    ]
+    ],   
   ];
 
-  const table_pago_efe_cambio=[
-  [
-      { text: 'Pago en efectivo '+moneda+': ',  fontSize: 7, alignment: 'right' }, 
-      { text: (efectivo_venta).toFixed(2), fontSize: 7, alignment: 'right' }     
-    ],
-    [
-      { text: 'Cambio '+moneda+': ',  fontSize: 7, alignment: 'right' }, 
-      { text: cambio_venta, fontSize: 7, alignment: 'right' }     
-    ],
-  ];
+ 
    
       const documentDefinition = {
         pageMargins: [10, 12, 10, 8], // Configura los márgenes en cero
@@ -97,18 +65,9 @@ export function generarPDF_factura_rollo(direccionMayusculas,nomsucursal,nuevoCo
   },
  
       content: [
-      {
-        text: factura_, bold: true,
       
-        style: 'header'
-      },
       {
-        text: credito_fiscal, bold: true,
-      
-        style: 'header'
-      },
-      {
-        text: nombre_empresa,
+        text: nombre_empresa, bold: true,
       
         style: 'header'
       },
@@ -118,56 +77,11 @@ export function generarPDF_factura_rollo(direccionMayusculas,nomsucursal,nuevoCo
         style: 'header'
       },
       {
-        text: 'No. Punto venta '+puntoVenta,
+        text: nit_2,
    
         style: 'header'
-      },
-      {
-        text: direccionMayusculas,
-    
-        style: 'header'
-      },
-      {
-        text: 'Telefono: '+numero_referencia,
-    
-        style: 'header'
-      },      
-      {
-        text: ciudad_su_1,
-    
-        style: 'header'
-      },
-      
-      {
-        text: '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -',    
-        style:'linea_2' 
-      },
-      {
-        text: 'NIT', bold: true,
-    
-        style: 'header'
-      },
-      {
-        text: nit_2,
-    
-        style: 'header'
-      },
-      {
-        text: 'FACTURA Nº',bold: true,    
-        style: 'header'
-      },
-      {
-        text: numero_factura,    
-        style: 'header'
-      },
-      {
-        text: 'CÓD. AUTORIZACIÓN', bold: true,    
-        style: 'header'
-      },
-      {
-        text: num_auto,    
-        style: 'header'
-      },
+      }, 
+     
            
       {
         text: '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -',    
@@ -182,7 +96,7 @@ export function generarPDF_factura_rollo(direccionMayusculas,nomsucursal,nuevoCo
         style: 'normal', margin: [63, 0, 0, 0]             
       },
       {
-        text: 'COD.CLIENTE:    '+cliente_id,
+        text: 'FACTURA Nº:    '+numero_factura,
         style: 'normal', margin: [56, 0, 0, 0]        
       },
      
@@ -219,44 +133,17 @@ export function generarPDF_factura_rollo(direccionMayusculas,nomsucursal,nuevoCo
                 widths: ['75%','25%'],
                 body: table_totales
             }, layout: 'noBorders'
-        },
-    
-    
+        },         
+      {
+        text: '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -',    
+        style:'linea_2' 
+      },      
       
+      { qr:  url_qr,alignment: 'center',  fit: '85',margin: [0, 4, 0, 4] },
       {
-        text: 'Son: '+total_literal,      
-        alignment: 'left',fontSize: 7
-      },
-      {
-        text: '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -',    
-        style:'linea_2' 
-      },     
-      {
-        margin: [1, 1, 1, 1],         
-            table:{
-                headesRows:1,
-                widths: ['75%','25%'],
-                body: table_pago_efe_cambio
-            }, layout: 'noBorders'
-      },     
-      {
-        text: '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -',    
-        style:'linea_2' 
-      },
-      {
-        text: 'ESTA FACTURA CONTRIBUYE AL DESARROLLO DEL PAÍS, EL USO ILÍCITO SERÁ SANCIONADO PENALMENTE DE ACUERDO A LEY', bold: true,    
+        text: 'Visualice su factura desde el QR',    
         style: 'header', margin: [7, 5, 7, 1]
       },
-      {
-        text: leyenda,   
-        style: 'header' ,margin: [7, 1, 7, 3]
-      },
-      {
-        text: 'Este documento es la Representación Gráfica de un Documento Fiscal Digital emitido en una modalidad de facturación en línea',   
-        style: 'header' ,margin: [7, 1, 7, 3]
-      },
-      { qr:  url_qr,alignment: 'center',  fit: '85',margin: [0, 4, 0, 4] },
-      
         ],
          watermark: watermark, // Agrega la marca de agua condicionalmente
         styles: {
