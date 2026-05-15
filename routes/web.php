@@ -89,6 +89,7 @@ use App\Http\Controllers\VenCaducidadController;
 use App\Http\Controllers\VenGestorVentaController;
 use App\Http\Controllers\VenGestorVentaVistaController;
 use App\Http\Controllers\SiatHomologacionController;
+use App\Http\Controllers\SiatJsonXmlController;
 use App\Http\Controllers\VenProspectoController;
 use App\Http\Controllers\VenTrasferenciaController;
 use App\Models\Alm_IngresoProducto;
@@ -206,7 +207,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/listarVehiculoNormal', [GetController::class, 'getVehiculoNormal']);     
     Route::get('/listarBloqueoLinea', [GetController::class, 'getBloqueoLinea']);  
     Route::get('/litarRubroSiat_xd', [GetController::class, 'getRubroSiat_xd']);    
-       
+    Route::get('/listarTablaSiatConfiguracion', [GetController::class, 'getTablaSiatConfiguracion']);  
+     
         
     /**********************verificador de apertura cierre retornod e datos****************************** */
     Route::get('/verificacionAperturaCierre', [GetController::class, 'listarAperturaCierre']);
@@ -827,8 +829,12 @@ Route::group(['middleware' => 'auth'], function () {
     Route::put('/prospeto/modificar', [VenProspectoController::class, 'update']); 
     Route::put('/prospeto/activar', [VenProspectoController::class, 'activar']); 
     Route::put('/prospeto/desactivar', [VenProspectoController::class, 'desactivar']); 
-    
-    
+
+    //pruebas    
+    Route::post('/siat/enviarXML_2', [SiatJsonXmlController::class, 'store']);
+    Route::get('/siat/inicio_xml_2', [SiatJsonXmlController::class, 'index']);   
+    Route::put('/siat/actualizarXML_2', [SiatJsonXmlController::class, 'update']);
+    Route::post('/siat/eliminarXML_2', [SiatJsonXmlController::class, 'destroy']);
     //////////////////////////////////////////////////CAJA/////////////////////////////////////////////////////////////////////
     
     //moneda--
@@ -918,6 +924,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/siat/cargarListaSiat', [SiatConfiguracionController::class, 'upload_list_siat']); 
     Route::post('/siat/cargar_todo', [SiatConfiguracionController::class, 'upload_all']); 
      Route::get('/siat/listarTablaList_siat', [SiatConfiguracionController::class, 'getTablaList_siat']); 
+    Route::put('/siat/modificarTablaSiatConfiguracion', [SiatConfiguracionController::class, 'updateTablaSiatConfiguracion']); 
      
         //endpoint--
         Route::post('/siat/crear_endpoint', [SiatEndpointController::class, 'crearEndPoint']);  
