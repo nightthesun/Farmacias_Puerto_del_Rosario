@@ -513,7 +513,7 @@
                         <th class="col-md-1">Opciones</th> 
                         <th class="col-md-1">Numero</th> 
                         <th class="col-md-3">Nombre</th> 
-                        <th class="col-md-3">Descripción</th> 
+                        <th class="col-md-2">Sector</th> 
                         <th class="col-md-3">Modalidad</th> 
                         
                     </tr>
@@ -528,18 +528,16 @@
                              <button  type="button" class="btn btn-danger btn-sm" style="margin-right: 5px;" @click="eliminarXML_2(i.id)">
                                 <i class="icon-trash"></i>
                             </button>
-                            <button  type="button" class="btn btn-primary  btn-sm" style="margin-right: 5px;">
+                            <button  type="button" class="btn btn-primary  btn-sm" style="margin-right: 5px;" @click="hacer_prueba_siat(i)">
                                <i class="fa fa-paper-plane" aria-hidden="true"></i>
                             </button>
-                            <button  type="button" class="btn btn-info  btn-sm" style="margin-right: 5px; color: white;">
-                               <i class="fa fa-paper-plane-o" aria-hidden="true"></i>
-                            </button>
+                           
                             </div>
                             
                         </td>
                         <td class="col-md-1">{{i.id}}</td>
                         <td class="col-md-3">{{i.nombre}}</td>
-                        <td class="col-md-3">{{i.sector}}</td>
+                        <td class="col-md-2">{{i.sector}}</td>
                         <td class="col-md-3">
                             <span v-if="i.modalidad==1">Electronica</span>
                             <span v-else-if="i.modalidad==2">Computarizada</span>
@@ -658,7 +656,7 @@
                                          <label for="">Sector: </label>
                                          <select class="form-control" v-model="selectSector_datos" >
                 <option value="0" disabled selected>Seleccionar...</option>    
-                <option v-for="(i, index) in arraySector_datos" :key="index" :value="i.descripcion">{{ i.descripcion }}</option>
+                <option v-for="(i, index) in arraySector_datos" :key="index" :value="i.codigo">{{ i.descripcion }}</option>
             </select>
                                      </div>   
                                      <div class="col-md-4">  
@@ -670,6 +668,25 @@
             </select>
                                      </div>  
                                 </div>  
+                                 <div class="form-group row" >                                   
+                                    <div class="col-md-4">
+                                    <label for="">Codigo de emision</label>
+                                         <select class="form-control" v-model="selectEmisionGesPrueba" >
+                <option value="0" disabled selected>Seleccionar...</option>    
+               <option value="1">En linea</option> 
+               <option value="2">Offline</option>
+               <option value="3">Masiva</option>    
+            </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label for="">Punto de venta</label>
+                                        <select class="form-control" v-model="selectPuntoVenPrueba" >
+                <option value="3" disabled selected>Seleccionar...</option>    
+               <option value="0">Casa matriz</option> 
+               <option value="1">Punto de venta</option>    
+            </select>
+                                    </div>
+                                </div>        
                                        <label for="">XML: </label>
                                             <textarea class="form-control" id="exampleFormControlTextarea1" v-model="xmlGesPrueba" rows="16"></textarea>
                                   
@@ -804,7 +821,8 @@ export default {
             arrayIndex_xml:[],
             idGesPrueba:'',
             selectModalidadGesPrueba:'0',
-
+            selectPuntoVenPrueba:'3',
+            selectEmisionGesPrueba:'0',
         };
     },
 
@@ -940,8 +958,7 @@ autoComplentadoSiat(data){
  listarIndexXML()
             {
                 let me=this;  
-                 var url='/siat/inicio_xml_2';     
-                        
+                 var url='/siat/inicio_xml_2';                      
                 axios.get(url)
                 .then(function(response){
                     var respuesta = response.data;
@@ -950,10 +967,27 @@ autoComplentadoSiat(data){
                 })
                 .catch(function(error){
                     error401(error);
-                }); 
-             
-               
+                });               
             },
+
+            
+ hacer_prueba_siat(data)
+{
+    let me = this;
+    let id=data.id;
+    axios.get('/siat/hacer_prueba_siat', {
+        params: {
+            id: data.id
+        }
+    })
+    .then(function(response){
+        var respuesta = response.data;
+        Swal.fire("Respuesta!",respuesta,"warning",);
+    })
+    .catch(function(error){
+        error401(error);
+    });
+},
 
  listarTablaList_siat() {         
     let me = this;  
@@ -965,8 +999,7 @@ autoComplentadoSiat(data){
             me.arrayListaTabla_xd = respuesta;        
         })
         .catch(function(error) {
-            error401(error);
-       
+            error401(error);       
         });
 },
 
@@ -1305,6 +1338,7 @@ actualizarXML_2(){
             me.xmlGesPrueba==null || me.xmlGesPrueba=="" ||
             me.selectSector_datos==null || me.selectSector_datos=="0" ||
             me.selectModalidadGesPrueba==null || me.selectModalidadGesPrueba=="0"
+            ||me.selectPuntoVenPrueba=="3"||me.selectEmisionGesPrueba=="0"
         ) {
                 Swal.fire("Error!","Debe llenar todos los campos","error",);  
                 return ;   
@@ -1315,7 +1349,9 @@ actualizarXML_2(){
                 nomGesPrueba:me.nomGesPrueba, 
                 xmlGesPrueba:me.xmlGesPrueba,
                 sector:me.selectSector_datos,
-                modalidad:parseInt(me.selectModalidadGesPrueba)                  
+                modalidad:parseInt(me.selectModalidadGesPrueba),
+                  selectPuntoVenPrueba:parseInt(me.selectPuntoVenPrueba),
+                selectEmisionGesPrueba:parseInt(me.selectEmisionGesPrueba),                  
                 })
                 .then(function (response) {
                    // me.listarIndexEndPoint(); 
@@ -1340,7 +1376,9 @@ actualizarXML_2(){
         if (me.nomGesPrueba==null ||me.nomGesPrueba=="" ||
             me.xmlGesPrueba==null || me.xmlGesPrueba=="" ||
             me.selectSector_datos==null || me.selectSector_datos=="0"||
-            me.selectModalidadGesPrueba==null || me.selectModalidadGesPrueba=="0") {
+            me.selectModalidadGesPrueba==null || me.selectModalidadGesPrueba=="0"
+            ||me.selectPuntoVenPrueba=="3"||me.selectEmisionGesPrueba=="0"        
+        ) {
                 Swal.fire("Error!","Debe llenar todos los campos","error",);  
                 return ;   
         } 
@@ -1350,7 +1388,9 @@ actualizarXML_2(){
                 nomGesPrueba:me.nomGesPrueba, 
                 xmlGesPrueba:me.xmlGesPrueba,
                 sector:me.selectSector_datos,
-                modalidad:parseInt(me.selectModalidadGesPrueba)              
+                modalidad:parseInt(me.selectModalidadGesPrueba),
+                  selectPuntoVenPrueba:parseInt(me.selectPuntoVenPrueba),
+                selectEmisionGesPrueba:parseInt(me.selectEmisionGesPrueba),            
                 })
                 .then(function (response) {
                    // me.listarIndexEndPoint(); 
@@ -1706,20 +1746,23 @@ validateFileExcel() {
                    me.nomGesPrueba="";
                     me.xmlGesPrueba="";
                 me.selectModalidadGesPrueba="0";   
-                 me.tituloModal="Creacion de XML"
+                 me.tituloModal="Creacion de XML";
+                 me.selectPuntoVenPrueba="3";
+                me.selectEmisionGesPrueba="0";
                 me.classModal.openModal("gestorPruebaModal");
                 break;                
                 }  
                 case "gestorPruebaModal_actulizar":{
                     me.showModal=true;
                     me.tipoAccion = 2;
-                 
+                 console.log(data);
                me.nomGesPrueba=data.nombre; 
                me.xmlGesPrueba=data.xml;
                 me.idGesPrueba=data.id;
                 me.selectSector_datos=data.sector;
                 me.selectModalidadGesPrueba=String(data.modalidad);
-                
+                me.selectPuntoVenPrueba = data.punto_venta == null ? "3": String(data.punto_venta);
+                me.selectEmisionGesPrueba=data.codigoEmision==null? "0": String(data.codigoEmision);
                  me.tituloModal="Edicion de XML"
                 me.classModal.openModal("gestorPruebaModal");
                 break;                
@@ -1926,7 +1969,9 @@ validateFileExcel() {
                 me.idGesPrueba="";
                  me.selectModalidadGesPrueba="0";
                 me.showModal=false;
-               
+                 me.selectPuntoVenPrueba="3";
+                me.selectEmisionGesPrueba="0";
+               me.classModal.closeModal(accion);   
             } 
         },
 

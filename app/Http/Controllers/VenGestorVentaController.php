@@ -15,6 +15,8 @@ use Illuminate\Support\Facades\DB;
 use App\Helpers\converso_numero_a_texto;
 use App\Helpers\CufHelper;
 use Exception;
+use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use RobRichards\XMLSecLibs\XMLSecurityDSig;
 use RobRichards\XMLSecLibs\XMLSecurityKey;
@@ -331,20 +333,74 @@ EOD;
                 return $factura;
     }
 
-   
+private function hayCobertura() {
+    try {
+        $inicio = microtime(true);
+        Http::timeout(30)->get('https://google.com');
+        $tiempo = round((microtime(true) - $inicio) * 1000);
+        if($tiempo >= 3000){
+            return false;
+        }else{
+            return true;
+        }
+        
+    } catch (ConnectionException $e) {
+        return false; //  Sin cobertura o timeout
+    }
+}
+
+private function puntoSinI() {
+    try {
+        $inicio = microtime(true);
+        Http::timeout(90)->get('https://google.com');
+        $tiempo = round((microtime(true) - $inicio) * 1000);
+        if($tiempo >= 9000){
+            return false;
+        }else{
+            return true;
+        }
+        
+    } catch (ConnectionException $e) {
+        return false; //  Sin cobertura o timeout
+    }
+}
+
+
+ private function detectarContingencia($am)
+{
+                
+
+    // 1. Verificar internet corte e internet
+   $response = Http::timeout(2)->get('https://www.google.com');
+    if (!$response->successful()) {
+        return 1;
+        }
+    //2. INACCESIBILIDAD AL SERVICIO WEB DE LA ADMINISTRACION TRIBUTARIA
+    if ($am==1) {
+        $response = Http::timeout(10)->get('https://siat.impuestos.gob.bo');
+        if (!$response->successful()) {
+        return 1;
+        }
+    }else{
+        if ($am==2) {
+         $response = Http::timeout(10)->get('https://pilotosiat.impuestos.gob.bo');
+        if (!$response->successful()) {
+        return 1;
+        }   
+        }
+        else{
+            return 1;
+        }
+    }       
+
+    return 0;     
+}
 
     public function ventaFacturaSiat(Request $request){
         try {
-           
             DB::beginTransaction();
-            $user_1 = auth()->user()->id;   
-            if($user_1==1){
-                 return response()->json([ 
-                    'error_msn' => 'El usuario root no puede hacer ventas',
-                    'estado' => 1
-                 ]);              
-            }
-            $fechaHora = Carbon::now(); // Se usará automáticamente el formato correcto
+  
+              $fechaHora = Carbon::now(); // Se usará automáticamente el formato correcto
             $arrayEstado_dosificacion_facctura=$request->arrayEstado_dosificacion_facctura;
             $arrayQuery_siat_=$request->arrayQuery_siat_;
             $arrayProRecibo=$request->arrayProRecibo;
@@ -354,6 +410,20 @@ EOD;
             $tipoFactura_22= $arrayEstado_dosificacion_facctura['tipo_factura'];
             $tipo_modalidad=$arrayEstado_dosificacion_facctura['tipo_modalidad'];
              $valor_ca=$arrayProRecibo[0]['rubro_siat_2'];
+
+            $tipo_ambiente=$arrayEstado_dosificacion_facctura['tipo_ambiente'];
+                
+            $contigencia=$this->detectarContingencia($tipo_ambiente);
+
+            $user_1 = auth()->user()->id;   
+            if($user_1==1){
+                 return response()->json([ 
+                    'error_msn' => 'El usuario root no puede hacer ventas',
+                    'estado' => 1
+                 ]);              
+            }
+          
+            
            if ($valor_ca==0||$valor_ca==null||$valor_ca=='') {
             return response()->json([ 
                     'error_msn' => 'Error de rubro, no debe exitir una lista seleccionada o rubro creado, solucion verifique el modulo de rubro si esta seleccionado',
@@ -583,7 +653,7 @@ if($request->gift_value==null||$request->gift_value==""||$request->gift_value=="
             }
  $codigoExcepcion=0;//<---------------solo cuando Solo cuando se desee autorizar al SIN el registro de una factura emitida a un NIT inválido se debe enviar el valor de uno (1) en el mismo .
         
-  $tipo_ambiente=$arrayEstado_dosificacion_facctura['tipo_ambiente'];
+  
             $endPoints = DB::table('siat__endpoints as se')    
             ->select('se.id', 'se.Descripcion', 'se.Url', 'se.Version')
             ->where('se.tipo', intval($tipo_ambiente))
@@ -605,12 +675,17 @@ $codigoSistema=$arrayEstado_dosificacion_facctura['cod_sis'];
 
 $hashArchivo = $firma_f['hash'];
 $archivo = $firma_f['archivo'];
-   // 15. Enviar al SIAT
+
+if($contigencia == 0) {
+                // 15. Enviar al SIAT
  $soap_llamada = $this->enviarFactura_siat(
      $tipo_ambiente, $token_delegado, $codigoDocumentoSector, $tipoEmision,
      $modalidad, $puntoVenta, $codigoSistema, $sucursal,
      $cufd, $cuis, $nitEmisor, $docFactura, $archivo, $fechaEmision, $hashArchivo
  );
+}
+
+   
              
             }else{
 
@@ -624,12 +699,15 @@ $archivo = $firma_f['archivo'];
  
  // 14. Calcular el HASH SHA256
  $hashArchivo = hash('sha256', $gzipped);
-                    // 15. Enviar al SIAT
- $soap_llamada = $this->enviarFactura_siat(
+ if($contigencia == 0) {
+                $soap_llamada = $this->enviarFactura_siat(
      $tipo_ambiente, $token_delegado, $codigoDocumentoSector, $tipoEmision,
      $modalidad, $puntoVenta, $codigoSistema, $sucursal,
      $cufd, $cuis, $nitEmisor, $docFactura, $archivo, $fechaEmision, $hashArchivo
  );
+ }
+                    // 15. Enviar al SIAT
+ 
                 }else{
                      return response()->json([ 
                     'error_msn' => 'Error de tipo de modalidad',
@@ -653,27 +731,7 @@ $archivo = $firma_f['archivo'];
              // Asignación de la URL y API key
           //  $wsdl = $cadena_url; 
           //  $apikeyValue = 'TokenApi ' .$token_delegado; // Concatenar correctamente el valor del API key
-
-libxml_use_internal_errors(true);
-
- $xml = simplexml_load_string($soap_llamada);
-
-if ($xml === false) {
-    return response()->json([ 
-                    'error_msn' => $soap_llamada,
-                    'estado' => 2
-                 ]);
-}
-    // Usar XPath para encontrar el nodo <transaccion>    
-    $transaccion = $xml->xpath('//transaccion');
-    if ($transaccion && isset($transaccion[0])) {
-        if ($transaccion[0]== 'true') {  
-            $codigoDescripcion= $xml->xpath('//codigoDescripcion');
-            $codigoEstado = $xml->xpath('//codigoEstado');
-            $codigoRecepcion = $xml->xpath('//codigoRecepcion');
-                if($codigoDescripcion[0]=='VALIDADA'){
-            
-            $total_venta=$request->total_venta;
+ $total_venta=$request->total_venta;
             $efectivo_venta=$request->efectivo_venta;
             $cambio_venta=$request->cambio_venta;
             $descuento_venta=$request->descuento_venta;
@@ -681,8 +739,7 @@ if ($xml === false) {
             $dato_tipo=intval($request->TipoComprobate);
             $codigo_tienda_almacen_0=$request->codigo_tienda_almacen_0;
             $id_lista_v2=$request->id_lista_v2;
-           
-            $cliente_id = DB::table('dir__clientes')
+ $cliente_id = DB::table('dir__clientes')
     ->where('id', $codigoCliente)    
     ->first();
     $refff=$cliente_id->telefono;
@@ -701,7 +758,7 @@ if ($xml === false) {
         $estado_dosificacion_facctura=4;
        } 
     }
-     $id_apertura_cierre=$request->id_apertura_cierre;
+    $id_apertura_cierre=$request->id_apertura_cierre;
      $tipo_venta= (integer)$request->tipo_pago_Qr_con_tar;
      $monto_vale =$request->gift_value;
     $monto_apagar=$request->monto_a_pagar;
@@ -712,6 +769,31 @@ if ($xml === false) {
     $id_credenciales=$arrayQuery_siat_['id'];
     $sucursal_siat=$arrayQuery_siat_['id_sucursal_siat'];
     $punto_venta=$arrayQuery_siat_['punto_venta'];
+    $codigoDescripcion= "Sin datos";
+            $codigoEstado = "PENDIENTE";
+            $codigoRecepcion = "901";
+
+
+          if($contigencia==0){
+                libxml_use_internal_errors(true);
+ $xml = simplexml_load_string($soap_llamada);
+
+if ($xml === false) {
+    return response()->json([ 
+                    'error_msn' => $soap_llamada,
+                    'estado' => 2
+                 ]);
+}
+          // Usar XPath para encontrar el nodo <transaccion>    
+    $transaccion = $xml->xpath('//transaccion');
+    if ($transaccion && isset($transaccion[0])) {
+        if ($transaccion[0]== 'true') {  
+            $codigoDescripcion= $xml->xpath('//codigoDescripcion');
+            $codigoEstado = $xml->xpath('//codigoEstado');
+            $codigoRecepcion = $xml->xpath('//codigoRecepcion');
+                if($codigoDescripcion[0]=='VALIDADA'){
+            
+     
     $codigoRecepcion   = (string) ($codigoRecepcion[0] ?? '');
 $codigoEstado      = (string) ($codigoEstado[0] ?? '');
 $codigoDescripcion = (string) ($codigoDescripcion[0] ?? '');
@@ -845,7 +927,37 @@ $url = str_replace(
                     'error_msn' => $soap_llamada,
                     'estado' => 2
                  ]);
-    }      
+    }     
+
+}else{
+//----------contingencia -----------------------------------
+//--------------------------------------------------------------
+//-------------------------------------------------------------------
+   $insertarVenta_v= $this->insertarVenta($codigoCliente,$total_venta,$efectivo_venta,$cambio_venta,$descuento_venta,$total_sin_des,$dato_tipo,
+           $codigo_tienda_almacen_0,$id_lista_v2,$numero_referencia,$numeroDocumento,$nombreRazonSocial,$estado_dosificacion_facctura,$id_apertura_cierre,$tipo_venta,
+    $monto_vale,$monto_apagar,$codigoMoneda,$arrayDescuentoOperacion,$arrayDesatlleVenta,$numeroTarjeta,$cadenaOtros,$tipoBanco,$id_cufd,$id_cuis
+    ,$cuf,$id_credenciales,$sucursal_siat,$punto_venta,$direccion,$municipio, $numeroFactura, $fechaEmision, $soap_llamada, $tipoEmision_cod_5,$codigoRecepcion, $codigoEstado, $codigoDescripcion);    
+    $data_22 = $insertarVenta_v->getData(true);
+
+    if($data_22['data_1']==0){
+         DB::commit();
+          return response()->json([ 
+                    'error_msn' => 'venta registrada por CONTINGENCIA, no se pudo comunicar con el SIAT, revise su conexión a internet o el estado del SIAT, si el error persiste contacte al administrador',
+                    'estado' => 10
+                 ]);
+          
+        }else{
+               DB::commit();
+          return response()->json([ 
+                    'error_msn' => 'Error de inserción de venta, contacte al administrador',
+                    'estado' => 1
+                 ]); 
+
+        }    
+    
+    
+    
+    }
            
         } catch (\Throwable $th) {
             return $th;

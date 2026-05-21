@@ -835,6 +835,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/siat/inicio_xml_2', [SiatJsonXmlController::class, 'index']);   
     Route::put('/siat/actualizarXML_2', [SiatJsonXmlController::class, 'update']);
     Route::post('/siat/eliminarXML_2', [SiatJsonXmlController::class, 'destroy']);
+    Route::get('/siat/hacer_prueba_siat', [SiatJsonXmlController::class, 'makePruebaSiat']);   
     //////////////////////////////////////////////////CAJA/////////////////////////////////////////////////////////////////////
     
     //moneda--

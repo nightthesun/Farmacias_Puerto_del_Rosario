@@ -18,6 +18,8 @@ return new class extends Migration
             $table->longText('xml');
             $table->longText('json');
             $table->tinyInteger('modalidad');
+            $table->tinyInteger('codigoEmision')->nullable()->comment('1=ene linea 2= en offline 3= masiva');            
+            $table->tinyInteger('punto_venta')->nullable()->comment('0=casa matriz 1= punto de venta');            
             $table->timestamps();
         });
     }
