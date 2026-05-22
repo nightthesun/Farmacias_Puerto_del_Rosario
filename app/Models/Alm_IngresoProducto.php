@@ -7,6 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class Alm_IngresoProducto extends Model
 {
-    use HasFactory;
+    use HasFactory; 
     protected $table='alm__ingreso_producto';
 }

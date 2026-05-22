@@ -132,5 +132,6 @@ class AdmVentanaModuloSeeder extends Seeder
          DB::table('adm__ventana_modulos')->insert(['codventana'=>'1503','idmodulo'=>$siat->id,'nombre'=>'Administración','template'=>'siat-administracion-component']);
          DB::table('adm__ventana_modulos')->insert(['codventana'=>'1504','idmodulo'=>$siat->id,'nombre'=>'Emisor','template'=>'siat-emisor-component']);
          DB::table('adm__ventana_modulos')->insert(['codventana'=>'1505','idmodulo'=>$siat->id,'nombre'=>'Homologación','template'=>'siat-homologacion-component']);
+         DB::table('adm__ventana_modulos')->insert(['codventana'=>'1506','idmodulo'=>$siat->id,'nombre'=>'Eventos','template'=>'siat-evento-component']);
     }
 }

@@ -117,6 +117,8 @@ createApp ({
     .component('siat-administracion-component', require('./components/siat/Administracion_siatComponent.vue').default)
     .component('siat-emisor-component', require('./components/siat/Emisor_siatComponent.vue').default)
     .component('siat-homologacion-component', require('./components/siat/HomoProd_SiatComponent.vue').default)
+    .component('siat-evento-component', require('./components/siat/Evento_SiatComponent.vue').default)
 
+    
     .mount('#app');
  

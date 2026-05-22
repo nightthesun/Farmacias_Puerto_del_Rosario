@@ -3575,7 +3575,10 @@ me.descuento_1=totalDescuento+me.descuento_final;
       // Realizar la solicitud POST con Axios
       axios.post("/gestor_ventas/ventaFacturaSiat", data)
           .then(response => {
-            let respuesta = response.data;  
+            let respuesta = response.data;
+            me.resetVenta();
+              me.listarSucursalGet();
+              me.cerrarModal("registrar");
             console.log(respuesta);
             let error_msn=respuesta.error_msn;
             let estado_2=respuesta.estado;
@@ -3671,7 +3674,10 @@ me.descuento_1=totalDescuento+me.descuento_final;
                 const texto_e = JSON.stringify(error_msn);
                   Swal.fire("Error",texto_e,"error",);
               break;
-            
+                 case 10:
+                Swal.fire("Venta: ",error_msn,"success"); 
+              break;        
+
               default:
                 console.log(respuesta);
                 break;

@@ -333,73 +333,50 @@ EOD;
                 return $factura;
     }
 
-private function hayCobertura() {
-    try {
-        $inicio = microtime(true);
-        Http::timeout(30)->get('https://google.com');
-        $tiempo = round((microtime(true) - $inicio) * 1000);
-        if($tiempo >= 3000){
-            return false;
-        }else{
-            return true;
-        }
-        
-    } catch (ConnectionException $e) {
-        return false; //  Sin cobertura o timeout
-    }
-}
-
-private function puntoSinI() {
-    try {
-        $inicio = microtime(true);
-        Http::timeout(90)->get('https://google.com');
-        $tiempo = round((microtime(true) - $inicio) * 1000);
-        if($tiempo >= 9000){
-            return false;
-        }else{
-            return true;
-        }
-        
-    } catch (ConnectionException $e) {
-        return false; //  Sin cobertura o timeout
-    }
-}
-
 
  private function detectarContingencia($am)
 {
-                
+    // VERIFICAR INTERNET
+    $output = [];
+    $result = 0;
 
-    // 1. Verificar internet corte e internet
-   $response = Http::timeout(2)->get('https://www.google.com');
-    if (!$response->successful()) {
-        return 1;
-        }
-    //2. INACCESIBILIDAD AL SERVICIO WEB DE LA ADMINISTRACION TRIBUTARIA
-    if ($am==1) {
-        $response = Http::timeout(10)->get('https://siat.impuestos.gob.bo');
-        if (!$response->successful()) {
-        return 1;
-        }
-    }else{
-        if ($am==2) {
-         $response = Http::timeout(10)->get('https://pilotosiat.impuestos.gob.bo');
-        if (!$response->successful()) {
-        return 1;
-        }   
-        }
-        else{
-            return 1;
-        }
-    }       
+    exec("ping -n 1 google.com", $output, $result);
 
-    return 0;     
+    // SIN INTERNET
+    if ($result != 0) {
+        return 1;
+    }
+
+    // VERIFICAR SIAT
+    $host = '';
+
+    if ($am == 1) {
+        $host = 'siatservicios.impuestos.gob.bo';
+    }
+
+    if ($am == 2) {
+        $host = 'pilotosiatservicios.impuestos.gob.bo';
+    }
+
+    $output = [];
+    $result = 0;
+
+    exec("ping -n 1 " . $host, $output, $result);
+
+    // SIAT NO RESPONDE
+    if ($result != 0) {
+        return 1;
+    }
+
+    return 0;
 }
 
     public function ventaFacturaSiat(Request $request){
         try {
             DB::beginTransaction();
-  
+
+ 
+
               $fechaHora = Carbon::now(); // Se usará automáticamente el formato correcto
             $arrayEstado_dosificacion_facctura=$request->arrayEstado_dosificacion_facctura;
             $arrayQuery_siat_=$request->arrayQuery_siat_;
@@ -441,11 +418,12 @@ private function puntoSinI() {
                     'estado' => 1
                  ]);
               
-            }        
-
-             //-----verifica el tipo de emision 
-            $comunicacion = $this->verComunicacion($arrayEstado_dosificacion_facctura['tipo_ambiente'],$arrayEstado_dosificacion_facctura['token_delegado']);
+            }
                 
+$comunicacion =1;
+             //-----verifica el tipo de emision 
+           //return $comunicacion = $this->verComunicacion($arrayEstado_dosificacion_facctura['tipo_ambiente'],$arrayEstado_dosificacion_facctura['token_delegado']);
+           //    return $contigencia;  
            if ($comunicacion==0) {
             return response()->json([ 
                     'error_msn' => 'Error de comunicación con el SIAT, por favor revise la configuración del ambiente y el token delegado, si el error persiste contacte al administrador',
@@ -665,7 +643,7 @@ $codigoSistema=$arrayEstado_dosificacion_facctura['cod_sis'];
 
     $docFactura=$tipoEmision_cod_2;
 
-    
+     
 
         if ($tipo_modalidad==1) {
                   $factura___e=$this->fac__electronica_compra_venta($nitEmisor,$razonSocialEmisor,$municipio,$telefono,$numeroFactura,$cuf,$cufd,$codigoSucursal,$direccion,$codigoPuntoVenta,$fechaEmision,$nombreRazonSocial,$codigoTipoDocumentoIdentidad,$numeroDocumento,$complemento,$codigoCliente,$codigoMetodoPago,$numeroTarjeta,$montoTotal,$montoTotalSujetoIva,$codigoMoneda,$tipoCambio,$montoTotalMoneda,$leyenda,$usuario,$codigoDocumentoSector,$arrayProRecibo,$montoGiftCard,$descuentoAdicional,$codigoExcepcion);
@@ -718,7 +696,7 @@ if($contigencia == 0) {
                 }
 
             }
-  
+          
    //return $soap_llamada; 
       
         //    $montoTotalSujetoIva_real=$request->importe_fiscal;
@@ -769,9 +747,9 @@ if($contigencia == 0) {
     $id_credenciales=$arrayQuery_siat_['id'];
     $sucursal_siat=$arrayQuery_siat_['id_sucursal_siat'];
     $punto_venta=$arrayQuery_siat_['punto_venta'];
-    $codigoDescripcion= "Sin datos";
-            $codigoEstado = "PENDIENTE";
-            $codigoRecepcion = "901";
+    $codigoDescripcion= "PENDIENTE";
+            $codigoEstado = "901";
+            $codigoRecepcion = "Sin datos";
 
 
           if($contigencia==0){
@@ -805,7 +783,7 @@ $soap_llamada = (string) $soap_llamada;
            $insertarVenta_v= $this->insertarVenta($codigoCliente,$total_venta,$efectivo_venta,$cambio_venta,$descuento_venta,$total_sin_des,$dato_tipo,
            $codigo_tienda_almacen_0,$id_lista_v2,$numero_referencia,$numeroDocumento,$nombreRazonSocial,$estado_dosificacion_facctura,$id_apertura_cierre,$tipo_venta,
     $monto_vale,$monto_apagar,$codigoMoneda,$arrayDescuentoOperacion,$arrayDesatlleVenta,$numeroTarjeta,$cadenaOtros,$tipoBanco,$id_cufd,$id_cuis
-    ,$cuf,$id_credenciales,$sucursal_siat,$punto_venta,$direccion,$municipio, $numeroFactura, $fechaEmision, $soap_llamada, $tipoEmision_cod_5,$codigoRecepcion, $codigoEstado, $codigoDescripcion);     
+    ,$cuf,$id_credenciales,$sucursal_siat,$punto_venta,$direccion,$municipio, $numeroFactura, $fechaEmision, $soap_llamada, $tipoEmision_cod_5,$codigoRecepcion, $codigoEstado, $codigoDescripcion,$contigencia);     
      
      $data_22 = $insertarVenta_v->getData(true); 
     if($data_22['data_1']==0){
@@ -933,10 +911,11 @@ $url = str_replace(
 //----------contingencia -----------------------------------
 //--------------------------------------------------------------
 //-------------------------------------------------------------------
+$soap_llamada="sin datos";
    $insertarVenta_v= $this->insertarVenta($codigoCliente,$total_venta,$efectivo_venta,$cambio_venta,$descuento_venta,$total_sin_des,$dato_tipo,
            $codigo_tienda_almacen_0,$id_lista_v2,$numero_referencia,$numeroDocumento,$nombreRazonSocial,$estado_dosificacion_facctura,$id_apertura_cierre,$tipo_venta,
     $monto_vale,$monto_apagar,$codigoMoneda,$arrayDescuentoOperacion,$arrayDesatlleVenta,$numeroTarjeta,$cadenaOtros,$tipoBanco,$id_cufd,$id_cuis
-    ,$cuf,$id_credenciales,$sucursal_siat,$punto_venta,$direccion,$municipio, $numeroFactura, $fechaEmision, $soap_llamada, $tipoEmision_cod_5,$codigoRecepcion, $codigoEstado, $codigoDescripcion);    
+    ,$cuf,$id_credenciales,$sucursal_siat,$punto_venta,$direccion,$municipio, $numeroFactura, $fechaEmision, $soap_llamada, $tipoEmision_cod_5,$codigoRecepcion, $codigoEstado, $codigoDescripcion,$contigencia);    
     $data_22 = $insertarVenta_v->getData(true);
 
     if($data_22['data_1']==0){
@@ -2450,7 +2429,7 @@ if ($hoy->greaterThan($fechaA)) {
     private function  insertarVenta($cliente_id,$total_venta,$efectivo_venta,$cambio_venta,$descuento_venta,$total_sin_des,$dato_tipo,$codigo_tienda_almacen_0
     ,$id_lista_v2,$numero_referencia,$num_documento,$nom_a_facturar,$estado_dosificacion_facctura,$id_apertura_cierre,$tipo_venta,
     $monto_vale,$monto_apagar,$moneda,$arrayDescuentoOperacion,$arrayDesatlleVenta,$numeroTarjeta,$cadenaOtros,$tipoBanco,$id_cufd,$id_cuis
-    ,$cuf,$id_credenciales,$sucursal_siat,$punto_venta,$direccion,$municipio, $numFactura, $fechaEmision, $xml, $id_leyenda, $codigoRecepcion,$codigoEstado,$codigoDescripcion){
+    ,$cuf,$id_credenciales,$sucursal_siat,$punto_venta,$direccion,$municipio, $numFactura, $fechaEmision, $xml, $id_leyenda, $codigoRecepcion,$codigoEstado,$codigoDescripcion,$contigencia){
     try {
      DB::beginTransaction();
         $user_1 = auth()->user()->id;
@@ -2614,9 +2593,13 @@ $data_recibo = [
 
 
 ///////////////////////////insercion a latabla factura siat//////////////////////////////
+if ($contigencia==0) {
    if ($xml instanceof \SimpleXMLElement) {
         $xml = $xml->asXML();
     }
+} 
+
+   
 
 $data_siat = [
     'id_venta'=>$id_recibo,
