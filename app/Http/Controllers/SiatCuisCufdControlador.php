@@ -790,4 +790,7 @@ if (empty($response)) {
         return $th;
     }
 }
+public function perdirCuis_all(Request $request){
+     return "ESTA ACCION SOLO PUEDE SER REALIZADA MANUALMENTE Y UNO POR UNO";
+}
 }

@@ -23,7 +23,8 @@ return new class extends Migration
             $table->smallInteger('id_usuario_registra')->nullable();    
             $table->smallInteger('id_usuario_modifica')->nullable();    
             $table->bigInteger('id_cuis')->nullable();                  
-            $table->bigInteger('id_cufd')->nullable();        
+            $table->bigInteger('id_cufd')->nullable();   
+            $table->tinyInteger('punto_venta_eliminado')->default(1);     
             $table->timestamps();                       
         });
     }

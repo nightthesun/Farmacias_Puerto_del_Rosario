@@ -81,6 +81,7 @@ use App\Http\Controllers\SiatConfiguracionController;
 use App\Http\Controllers\SiatCuisCufdControlador;
 use App\Http\Controllers\SiatEmisorController;
 use App\Http\Controllers\SiatEndpointController;
+use App\Http\Controllers\SiatEventoController;
 use App\Http\Controllers\SiatParamatrosSincronizacionController;
 use App\Http\Controllers\SiatSincronizacionController;
 use App\Http\Controllers\SiatSucursalController;
@@ -949,7 +950,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/siat_cuis_cufd/cerrarOperaciones', [SiatCuisCufdControlador::class, 'get_cancelar_operacion']);  
     Route::post('/siat_cuis_cufd/eliminar_operaciones_V', [SiatCuisCufdControlador::class, 'eliminar_operaciones']); 
     Route::post('/siat_cuis_cufd/insertar_cufd', [SiatCuisCufdControlador::class, 'solicitarCudf']); 
-    Route::post('/siat_cuis_cufd/perdirCufd_all', [SiatCuisCufdControlador::class, 'perdirCufd_all']);       
+    Route::post('/siat_cuis_cufd/perdirCufd_all', [SiatCuisCufdControlador::class, 'perdirCufd_all']);  
+    Route::post('/siat_cuis_cufd/perdirCuis_all', [SiatCuisCufdControlador::class, 'perdirCuis_all']);       
     
     //emisor-----------------------
     Route::get('/siat_emisor/listar_siat_sucursal', [SiatEmisorController::class, 'siat_sucursal']); 
@@ -963,8 +965,11 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/siat_emisor/cerrar_puntoVenta', [SiatEmisorController::class, 'cerrarPV']); 
     Route::post('/siat_emisor/eliminar_puntoVenta', [SiatEmisorController::class, 'eliminarPV']);
     Route::post('/siat_emisor/insertar_cuis', [SiatEmisorController::class, 'crear_cuis']);  
-    Route::post('/siat_emisor/eliminar_operaciones_V', [SiatEmisorController::class, 'eliminar_operaciones']);   
-
+    Route::post('/siat_emisor/eliminar_operaciones_V', [SiatEmisorController::class, 'eliminar_operaciones']); 
+    Route::put('/siat_emisor/desactivarActivarTabla  ', [SiatEmisorController::class, 'desactivateActivarTabla']);  
+    Route::put('/siat_emisor/eliminarCaja_v2', [SiatEmisorController::class, 'deleteCaja_v2']);  
+   
+    
     //sincronizacion siat----------------
     Route::put('/siat_sincronizacion/manual_automatico', [SiatSincronizacionController::class, 'activarModo']);
     Route::get('/siat_sincronizacion/listar_emisor', [SiatSincronizacionController::class, 'emisor']);  
@@ -986,6 +991,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/siat_homologacion/desactivar', [SiatHomologacionController::class, 'desactivar']); 
     Route::get('/siat_homologacion/listarRubro', [SiatHomologacionController::class, 'getRubro']);
     Route::put('/siat_homologacion/limpiarXD', [SiatHomologacionController::class, 'clearXD']); 
-    
-    
+    //eventos siat
+    Route::get('/siat_eventos/listarEmisorAndSector', [SiatEventoController::class, 'getEmisorAndSector']);
+    Route::get('/siat_eventos/listarInicio', [SiatEventoController::class, 'index']);
+     Route::get('/siat_eventos/listarQueryModal_1', [SiatEventoController::class, 'getQueryModal_1']); 
 });

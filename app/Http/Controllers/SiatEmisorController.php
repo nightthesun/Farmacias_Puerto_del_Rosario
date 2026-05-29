@@ -45,7 +45,8 @@ class SiatEmisorController extends Controller
             'cuf.dato as cufd',
             'cuf.fecha_vigencia as fecha_cufd',
             'cuf.estado as cufd_estado',
-            'se.id_caja'
+            'se.id_caja',
+            'se.punto_venta_eliminado'
         )
         ->where('se.id_siat_sucursal', $request->id)       
         ->paginate(15);
@@ -706,7 +707,7 @@ XML;
               // Si el registro existe, actualizar el dato (cuis)
         DB::table('siat__cuis')->where('id', $id_cuis)->update(['estado' =>0,'id_emisor'=>$id]);
         DB::table('siat__cufd')->where('id', $id_cufd)->update(['estado' =>0,'id_emisor'=>$id]);     
-        DB::table('siat__emisors')->where('id', $id)->update(['id_cuis' =>null,'id_cufd'=>null]);    
+        DB::table('siat__emisors')->where('id', $id)->update(['id_cuis' =>null,'id_cufd'=>null,'punto_venta_eliminado'=>0,'id_caja'=>null,'estado'=>0]);    
             $datos = [
                 'id_modulo' => $request->id_modulo,
                 'id_sub_modulo' => $request->id_sub_modulo,
@@ -723,4 +724,37 @@ XML;
            return $th;
         }
        }  
+
+      public function desactivateActivarTabla(Request $request){
+
+        try {
+         DB::beginTransaction(); 
+         $id=$request->id;
+         $dato=$request->data;
+         $descripcion=$request->descripcion;               
+    
+            DB::table('siat__emisors')->where('id', $id)->update(['estado'=>$dato]);             
+          DB::table('siat__cuis')->where('id', $request->id_cuis)->update(['estado' =>$dato]);
+        DB::commit();
+        return 0;
+        } catch (\Throwable $th) {
+            return $th;
+        }
+
+       }
+
+
+       public function deleteCaja_v2(Request $request){
+           try {
+         DB::beginTransaction(); 
+         $id=$request->id_sucursal;   
+         DB::table('siat__emisors')->where('id_siat_sucursal', $id)->update(['id_caja'=>null]);            
+  
+         
+        DB::commit();
+        return 0;
+        } catch (\Throwable $th) {
+            return $th;
+        }             
+       }
 }

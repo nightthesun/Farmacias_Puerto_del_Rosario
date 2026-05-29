@@ -22,7 +22,7 @@
                 <div class="col-md-2" style="text-align: center">
                      <label for="">Sucursal siat:</label>
                 </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <div class="input-group">
                                 <select class="form-control" v-model="sucursalSeleccionada" @change="listarIndex();">
                                     <option value="0" disabled selected>Seleccionar...</option>
@@ -32,13 +32,13 @@
                                 </select>
                             </div>
                         </div> 
-                        <div class="col-md-3" v-show="sucursalSeleccionada != 0"  >
-                            <button type="button" @click="consultarPuntoV(1)" class="btn btn-primary"><i class="fa fa-volume-control-phone" aria-hidden="true"></i> Consultar punto de venta a siat</button>
+                        <div class="col-md-7" v-show="sucursalSeleccionada != 0"  >
+                            <button type="button" @click="consultarPuntoV(1)" class="btn btn-primary" style="margin-right: 10px;"><i class="fa fa-volume-control-phone" aria-hidden="true"></i> Consultar punto de venta a siat</button>
+                            <button type="button" @click="consultarPuntoV(2);" class="btn btn-danger" :disabled="puedeActivar===1" hidden style="margin-right: 10px;"><i class="fa fa-lock" aria-hidden="true"></i> Cerrar punto de venta </button>
+                            <button type="button" @click="eliminarCaja_v2()" class="btn btn-warning" style="margin-right: 10px;"><i class="fa fa-bell-slash-o" aria-hidden="true"></i> Eliminar caja</button>
+                           
                         </div>      
-                
-                        <div class="col-md-3" v-show="sucursalSeleccionada != 0 " :disabled="puedeActivar===1" hidden>
-                            <button type="button" @click="consultarPuntoV(2);" class="btn btn-danger"><i class="fa fa-lock" aria-hidden="true"></i> Cerrar punto de venta </button>
-                        </div>      
+                     
                        
 
             </div>
@@ -63,12 +63,14 @@
                 </thead>
                 <tbody>
                     <tr v-for="i in arrayIndex" :key="i.id">
+                       
                         <td >
                             <button type="button" style="color: white;" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
     <i class="fa fa-bars" aria-hidden="true"></i>
   </button>     
 <div class="dropdown-menu">
-    <a v-show="i.nombre_caja===null && i.tipo===1000" @click="abrirModal('caja',i);listar_caja();" class="dropdown-item" href="#"><i style="color: black;" class="icon-pencil"></i> Añadir caja</a>
+    <div v-if="i.punto_venta_eliminado===1">
+        <a v-show="i.nombre_caja===null && i.tipo===1000" @click="abrirModal('caja',i);listar_caja();" class="dropdown-item" href="#"><i style="color: black;" class="icon-pencil"></i> Añadir caja</a>
     <a v-show="i.nombre_caja!=null" @click="quitarCaja(i.id)" class="dropdown-item" href="#"><i style="color:black;" class="fa fa-window-close-o" aria-hidden="true"></i> Quitar nombre de caja</a>
     <a v-show="i.tipo!=1000 && i.estado===1" @click="abrirModal('cerrar_PV',i);" class="dropdown-item" href="#"><i style="color: black;" class="fa fa-trash" aria-hidden="true"></i> Eliminar punto de venta</a> 
     
@@ -79,7 +81,16 @@
         </div>
         <div v-else>
             <a v-show="i.tipo!=1000  && i.estado===1" @click="cerrarOperaciones(i.codigo_siat,i.id,i.cuis,i.id_cufd,i.id_cuis,i.id_punto_venta)" class="dropdown-item" href="#"><i style="color: black;" class="fa fa-refresh" aria-hidden="true"></i> Cierre de operaciones en punto de venta (inhabilita el CUIS y el CUFD) </a> 
-        </div>                                                                                        
+        </div> 
+<a v-show="i.tipo!=1000  && i.estado===1" @click="solicitarCuis(i.codigo_siat,i.id,i.id_punto_venta)" class="dropdown-item" href="#"><i style="color: black;"  class="fa fa-key" aria-hidden="true"></i> Forzar CUIS</a> 
+<a v-if="i.estado===1" @click="desactivarActivarTabla(i.id,i.descripcion,i.id_cuis,0)" class="dropdown-item" href="#"><i style="color: black;" class="fa fa-bell" aria-hidden="true"></i> Desactivar</a>
+<a v-else @click="desactivarActivarTabla(i.id,i.descripcion,i.id_cuis,1)" class="dropdown-item" href="#"><i style="color: black;" class="fa fa-bell-o" aria-hidden="true"></i> Activar</a> 
+    </div> 
+    <div v-else>
+      <a class="dropdown-item" href="#"> Sin datos</a>              
+     
+    </div>   
+
 </div>  
                         </td>
                         <td class="col-md-1">{{ i.nombre }}</td>
@@ -99,6 +110,10 @@
                             <span v-if="i.nombre_caja===null&&i.estado===1" class="badge badge-pill badge-warning">Nesecita caja</span>
                             <span v-else-if="i.estado===1 && i.nombre_caja!=null" class="badge badge-pill badge-success">Caja activo</span>
                             <span v-else class="badge badge-pill badge-danger">Caja Desactivado</span> 
+
+                            <span v-if="i.estado===1" class="badge badge-pill badge-success">Tabla activo</span>
+                            <span v-else class="badge badge-pill badge-danger">Tabla desactivado</span> 
+                            
                         </td>                    
                     </tr>
                 </tbody>
@@ -718,6 +733,59 @@ cerrarOperaciones(codigo_siat,id,cuis,id_cufd,id_cuis,id_emisor)
                 })               
             },
 
+            eliminarCaja_v2(){
+                  let me=this;    
+             
+                const swalWithBootstrapButtons = Swal.mixin({
+                customClass: {
+                    confirmButton: 'btn btn-success',
+                    cancelButton: 'btn btn-danger'
+                },
+                buttonsStyling: false
+                })
+
+                swalWithBootstrapButtons.fire({
+                title: '¿Esta seguro de eliminar las cajas asignadas?',
+                text: 'Se eliminara todas las cajas en la lista.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Si, Solicitar',
+                cancelButtonText: 'No, Solicitar',
+                reverseButtons: true
+                }).then((result) => {
+                if (result.isConfirmed) {
+                   axios.put('/siat_emisor/eliminarCaja_v2',{
+                        'id_sucursal': me.sucursalSeleccionada
+                    }).then(function (response) {
+                        let respuesta =response.data;
+                        console.log(respuesta);
+                        if (respuesta==0) {
+                         
+                                    Swal.fire("Lista","Elimida","success",);  
+                        } else {
+                           
+                               Swal.fire("Error"," "+respuesta,"error",); 
+                        }
+                       
+                        me.listarIndex(1);
+                    }).catch(function (error) {
+                        error401(error);
+                  
+                    });                   
+                    
+                } else if (
+                    /* Read more about handling dismissals below */
+                    result.dismiss === Swal.DismissReason.cancel
+                ) {
+                    /* swalWithBootstrapButtons.fire(
+                    'Cancelado!',
+                    'El Registro no fue Activado',
+                    'error'
+                    ) */
+                }
+                })
+            },
+
             EliminarCuis(id,id_cuis,id_cufd,id_emisor){
         let me = this;    
                 axios.post("/siat_emisor/eliminar_operaciones_V", {
@@ -943,6 +1011,66 @@ console.log(respuesta);
                    error401(error);              
             });  
         },
+
+        desactivarActivarTabla(id,descripcion,id_cuis,data){
+            let me=this;
+            let titulo="Activar";       
+            if (data==0) {
+                titulo="Desactivar";
+            } 
+          const swalWithBootstrapButtons = Swal.mixin({
+                customClass: {
+                    confirmButton: 'btn btn-success',
+                    cancelButton: 'btn btn-danger'
+                },
+                buttonsStyling: false
+                })
+
+                swalWithBootstrapButtons.fire({
+                title: '¿Desea cambiar el estado del registro?',
+                text: titulo,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Si, Cambiar',
+                cancelButtonText: 'No, Cancelar',
+                reverseButtons: true
+                }).then((result) => {
+                
+                if (result.isConfirmed) {
+                     axios.put("/siat_emisor/desactivarActivarTabla", {
+                    id:id,
+                    descripcion:descripcion,
+                    data:data,
+                    id_cuis:id_cuis                      
+                })
+                .then(function (response) {
+                    
+                     me.listarIndex(); 
+                    let respuesta=response.data;             
+                    
+                    if (respuesta===0) {
+                        Swal.fire("Se cambio!","Correctamente","success",);    
+                    } else {                        
+                        Swal.fire("Error!",respuesta,"error",);  
+                    }                               
+                })               
+                .catch(function (error) {                
+                   error401(error);              
+            });  
+                        
+                } else if (
+                    /* Read more about handling dismissals below */
+                    result.dismiss === Swal.DismissReason.cancel
+                ) {
+                    /* swalWithBootstrapButtons.fire(
+                    'Cancelado!',
+                    'El Registro no fue desactivado',
+                    'error'
+                    ) */
+                }
+                })               
+        },
+
 
         requerirCreacionPV(){
             let me=this;   

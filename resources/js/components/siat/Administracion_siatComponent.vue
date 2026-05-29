@@ -13,7 +13,7 @@
            
             <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
                 <li class="nav-item">
-                    <a class="nav-link active" id="pills-home-tab" @click="resert_0(1);listarIndex()" data-toggle="pill" href="#pills-home" role="tab" aria-controls="pills-general" aria-selected="true">CUIS / CUFD</a>
+                    <a class="nav-link active" id="pills-home-tab" @click="resert_0(1);listarIndex()" data-toggle="pill" href="#pills-home" role="tab" aria-controls="pills-home" aria-selected="true">CUIS / CUFD</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" id="pills-profile-tab" @click="resert_0(2);listar_inicio_v2();" data-toggle="pill" href="#pills-profile" role="tab" aria-controls="pills-profile" aria-selected="false">Sincronización SIAT</a>
@@ -26,7 +26,7 @@
         </div>
         <div class="card-body">           
              <div class="tab-content" id="pills-tabContent">
-                    <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-general-tab">
+                    <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
                         <div class="card">
                             <div class="card-header d-flex justify-content-between align-items-center">
                                 
@@ -40,7 +40,7 @@
                                 <div class="row">
                                
                                 <div class="form-group col-sm-4">
-                                    <button  type="button" class="btn btn-primary btn-sm btn-block"><i class="fa fa-cube" aria-hidden="true"></i> Solicitar CUIS Para todos</button>
+                                    <button  type="button" class="btn btn-primary btn-sm btn-block"><i class="fa fa-cube" aria-hidden="true" @click="solicitarCuis_all()"></i> Solicitar CUIS Para todos</button>
                                  </div> 
                                  <div class="form-group col-sm-4">
                                     <button  type="button" class="btn btn-info btn-sm btn-block" style="color: white;" @click="solicitarCufd_all()"><i class="fa fa-cubes" aria-hidden="true"></i> Solicitar CUFD Para todos</button>
@@ -1308,6 +1308,12 @@ insertar_cufd(codigo_siat,cuis,id,id_emisor,cufd){
                 });       
 
                
+        },
+
+
+        solicitarCuis_all(){
+            let me = this;  
+            Swal.fire("Error","Esta acción solo puede ser realizada manualmente y uno por uno sucursal y sus respectivos puntos de venta, ya que es una acción que se hace cada año","warning",);  
         },
 ////////////////////--------------------------------------
 
