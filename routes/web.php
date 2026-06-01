@@ -209,6 +209,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/listarBloqueoLinea', [GetController::class, 'getBloqueoLinea']);  
     Route::get('/litarRubroSiat_xd', [GetController::class, 'getRubroSiat_xd']);    
     Route::get('/listarTablaSiatConfiguracion', [GetController::class, 'getTablaSiatConfiguracion']);  
+    Route::get('/listarSiatListaContingencia', [GetController::class, 'getSiatListaContingencia']);     
      
         
     /**********************verificador de apertura cierre retornod e datos****************************** */

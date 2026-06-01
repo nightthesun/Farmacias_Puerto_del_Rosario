@@ -152,7 +152,7 @@ class SiatEventoController extends Controller
             ->select('*')
             ->where('id_catalogo', 6)
             ->where('codigo', (int)$request->id_contigencia)
-            ->get();
+            ->first();
 
             $sucursal = DB::table('adm__sucursals as ass')
             ->join('siat__sucursals as ss', 'ass.id', '=', 'ss.id_sucursal')
@@ -163,7 +163,7 @@ class SiatEventoController extends Controller
             )
             ->where('ass.id', (int)$request->id_sucursal)
             ->where('ss.codigo_siat', (int)$request->suc)
-            ->get();
+            ->first();
         
     return response()->json(['contigencia' => $contigencia, 'sucursal' => $sucursal]);        
      

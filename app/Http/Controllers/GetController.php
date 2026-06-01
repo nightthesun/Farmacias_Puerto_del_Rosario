@@ -644,5 +644,12 @@ if ($resultado) {
         return $configuracion;
         }
 
+        public function getSiatListaContingencia(){
+               $query = DB::table('excel__emision')
+                ->where('id_catalogo', 6)
+                ->get();
+        return $query;
+        }
+
 
 }

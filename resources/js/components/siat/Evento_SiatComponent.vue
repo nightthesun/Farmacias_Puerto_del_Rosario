@@ -121,10 +121,10 @@
     <i class="fa fa-bars" aria-hidden="true"></i>
   </button>     
   <div class="dropdown-menu">    
-      <a class="dropdown-item" href="#" @click="abrirModal('registrar',i);"><i style="color: black;" class="fa fa-eye" aria-hidden="true"></i>Ver datos</a>
+      <a class="dropdown-item" href="#" @click="listarQueryModal_1(i);"><i style="color: black;" class="fa fa-eye" aria-hidden="true"></i>Ver datos</a>
     <a  class="dropdown-item" href="#" ><i style="color: black;" class="fa fa-eye" aria-hidden="true"></i>Ver estado factura</a>     
     <a  class="dropdown-item" href="#"><i style="color: black;" class="fa fa-eye" aria-hidden="true"></i>Ver en SIAT</a>
-    <a v-show="i.codEstado != '908'" class="dropdown-item" href="#" ><i style="color: black;"  class="fa fa-exclamation-triangle" aria-hidden="true"></i>Contingencia</a>
+    <a v-show="i.codEstado != '908'" class="dropdown-item" href="#" @click="abrirModal('contingencia',i);" ><i style="color: black;"  class="fa fa-exclamation-triangle" aria-hidden="true"></i>Contingencia</a>
     <a  class="dropdown-item" href="#"><i style="color: black;" class="fa fa-refresh" aria-hidden="true"></i>Anular</a>   
      </div>  
                             
@@ -170,99 +170,178 @@
         <!-- fin de index -->
         </div>    
            <!--Inicio del modal agregar/actualizar-->
-           <transition name="fade">
-            <div v-if="showModal" class="modal d-block" tabindex="-1" role="dialog">
-                  <div class="modal-dialog modal-primary modal-lg modal-dialog-scrollable" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                        <h4 class="modal-title">{{ tituloModal }}</h4>
-                        <button type="button" class="close" @click="cerrarModal('registrar')">
-                            <span>&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body" style="max-height: 60vh; overflow-y: auto;"> 
-                     
-                        <form action="" class="form-horizontal">
-                        
-                            <!-- insertar datos -->
-                            <div class="container">
-                                
-                                
-                                    <table class="table table-bordered table-striped table-sm">
-                                        <thead>
-                                            <tr>
-                                                <th colspan="4" class="text-center">
-                                                    <strong>Datos de cliente</strong>
-                                                </th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <th>Documento:</th>
-                                                <td>{{ documento_modal }}</td>
-                                                <th>Razón social:</th>
-                                                <td>{{ rasonSocial_modal }}</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                     <table  class="table table-bordered table-striped table-sm table-responsive">
-                                        <thead>
-                                            <tr>
-                                                <th colspan="4" class="text-center">
-                                                    <strong>Datos de factura</strong>
-                                                </th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td class="col-3">Numero Fac.:</td>
-                                                <td class="col-3">{{ numeroFactura_modal }}</td>
-                                                <td class="col-3">Cod. Resepción:</td>
-                                                <td class="col-3">{{ codRecepcion_modal }}</td>
-                                            </tr>
-                                            <tr>
-                                                <td class="col-md-3">Cod. Autorización:</td>
-                                                <td class="col-md-3">{{ codAutorizacion_modal }}</td>
-                                                <td class="col-md-3">fecha Emision:</td>
-                                                <td class="col-md-3">{{ fechaEmision_modal }}</td>
-                                            </tr>
-                                            <tr>
-                                                <td class="col-md-3">Sucursal S.:</td>
-                                                <td class="col-md-3">{{nombreSucursal_modal}}</td>
-                                                <td class="col-md-3">Punto venta:</td>
-                                                <td class="col-md-3">{{ razonSocialSucursal_modal}}</td>
-                                            </tr>
-                                            <tr>
-                                                <td class="col-md-3">Sector:</td>
-                                                <td class="col-md-3">{{sectorDescripcion_modal}}</td>
-                                                <td class="col-md-3">Estado:</td>
-                                                <td class="col-md-3">{{estado_modal}}</td>
-                                            </tr>
-                                            <tr>
-                                                <td class="col-md-3">Contigencia:</td>
-                                                <td class="col-md-3">{{contingencia_modal}}</td>
-                                                <td class="col-md-3">Estado contigencia:</td>
-                                                <td class="col-md-3">{{ contigenciaDes_modal }}</td>
-     
-                                            </tr>                                            
-                                        </tbody>
-                                    </table>       
-                                </div>
-                         
-                        </form>
-                    </div>
-                  
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" @click="cerrarModal('registrar')">
-                            Cerrar
-                        </button>
-                     
-                    </div>
-                    </div>    
+      <transition name="fade">
+    <div v-if="showModal" class="modal d-block" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-primary modal-lg modal-dialog-scrollable" role="document">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h4 class="modal-title">{{ tituloModal }}</h4>
+                    <button type="button" class="close" @click="cerrarModal('registrar')">
+                        <span>&times;</span>
+                    </button>
                 </div>
-            </div>  
-    </transition>
+
+                <div class="modal-body">
+
+                    <form class="form-horizontal">
+
+                        <div class="container-fluid">
+
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-striped table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th colspan="4" class="text-center">
+                                                <strong>Datos de cliente</strong>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td width="15%"><strong>Documento:</strong></td>
+                                            <td width="20%">{{ documento_modal }}</td>
+                                            <td width="20%"><strong>Razón social:</strong></td>
+                                            <td width="45%">{{ rasonSocial_modal }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-striped table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th colspan="4" class="text-center">
+                                                <strong>Datos de factura</strong>
+                                            </th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        <tr>
+                                            <td width="15%"><strong>Número Fac.:</strong></td>
+                                            <td width="10%">{{ numeroFactura_modal }}</td>
+                                            <td width="20%"><strong>Cód. Recepción:</strong></td>
+                                            <td width="55%">
+                                                <small>{{ codRecepcion_modal }}</small>
+                                            </td>
+                                        </tr>
+
+                                        <tr>
+                                            <td><strong>Fecha Emisión:</strong></td>
+                                            <td>{{ fechaEmision_modal }}</td>
+                                            <td><strong>Cód. Autorización:</strong></td>
+                                            <td>
+                                                <small>{{ codAutorizacion_modal }}</small>
+                                            </td>
+                                        </tr>
+
+                                        <tr>
+                                            <td><strong>Sucursal S.:</strong></td>
+                                            <td>{{ nombreSucursal_modal }}</td>
+                                            <td><strong>Punto de venta:</strong></td>
+                                            <td>{{ razonSocialSucursal_modal }}</td>
+                                        </tr>
+
+                                        <tr>
+                                            <td><strong>Sector:</strong></td>
+                                            <td>{{ sectorDescripcion_modal }}</td>
+                                            <td><strong>Estado:</strong></td>
+                                            <td>{{ estado_modal }}</td>
+                                        </tr>
+
+                                        <tr>
+                                            <td><strong>Contingencia:</strong></td>
+                                            <td>{{ contingencia_modal }}</td>
+                                            <td><strong>Estado contingencia:</strong></td>
+                                            <td>{{ contigenciaDes_modal }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                        </div>
+
+                    </form>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button
+                        type="button"
+                        class="btn btn-secondary"
+                        @click="cerrarModal('registrar')">
+                        Cerrar
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</transition>
         <!--fin del modal-->
+
+        <!--Inicio del modal agregar/actualizar-->
+      <transition name="fade">
+    <div v-if="showModal_2" class="modal d-block" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-primary modal-lg modal-dialog-scrollable" role="document">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h4 class="modal-title">{{ tituloModal }}</h4>
+                    <button type="button" class="close" @click="cerrarModal('contingencia')">
+                        <span>&times;</span>
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                   
+                    <form class="form-horizontal">
+                         <div class="row">
+                            <div class="col-4">
+                                <label for="">Tipo de evento significativo</label>
+                            </div>
+                            <div class="col-8">
+                                 <select class="form-control" v-model="selectModal_2_2">
+                        <option value="0" disabled selected>Seleccionar...</option>    
+                        <option value="1">Emisión de facturas digitales Fuera de línea</option> 
+                        <option value="2">Emitir facturas manuales</option> 
+                  
+                    </select>
+                            </div>                      
+                    </div>
+                    <div class="row">
+                        <div class="col-3">
+                        <label for="">Tipo de contingencia</label>
+                        </div>
+                        <div class="col-9">
+                              <select class="form-control" v-model="selectListaContingencia_2">
+                            <option value="0" disabled selected>Seleccionar...</option>    
+                        <option  v-for="(i, index) in arrayListaContingencia_2" :key="index" :value="i.codigo">{{ i.descripcion }}</option> 
+                              </select>
+                            
+                        </div>
+                    </div>           
+                    </form>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button
+                        type="button"
+                        class="btn btn-secondary"
+                        @click="cerrarModal('contingencia')">
+                        Cerrar
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</transition>
+        <!--fin del modal-->
+
     </main>
 </template>
 
@@ -317,6 +396,11 @@ offset:3,
         contigenciaDes_modal:'',
         contingencia_modal:'',
 
+        showModal_2:false,
+        selectModal_2_2:'0',
+        arrayListaContingencia_2:[],
+        selectListaContingencia_2:'0',
+
         };
     },
 
@@ -362,25 +446,31 @@ offset:3,
     methods: {
 
         
-         listarQueryModal_1(id_sucursal,punto,id_contigencia) {
+         listarQueryModal_1(data2) {
             let me = this;
             
-           var url = "/siat_eventos/listarQueryModal_1?id_sucursal="+id_sucursal+"&suc="+punto+"&id_contigencia="+id_contigencia;
+             
+           let url = "/siat_eventos/listarQueryModal_1?id_sucursal="+data2.id_sucursal+"&suc="+data2.punto_venta+"&id_contigencia="+data2.tipo_contigencia;
             axios
                 .get(url)
                 .then(function (response) {
                     let respuesta = response.data;   
-                                   
-                    if(id_contigencia===0){
+                        let respues_conti=respuesta.contigencia;           
+                    let r=respuesta.sucursal;
+                    console.log(r);
+                    console.log(r.razon_social);
+
+                        if(data2.tipo_contigencia===0){
                         me.contingencia_modal="Sin contingencia";
                         me.contigenciaDes_modal="Catalogo normal";
                     }else{
-                        let respues_conti=respuesta.contigencia;
+                        
                        me.contingencia_modal=respues_conti.descripcion; 
                         me.contigenciaDes_modal="Caralogo "+respues_conti.codigo; 
                     }
-                    let r=respuesta.sucursal;
-                    if (length.r>0) {
+                   
+
+                    if (r!=null) {
                            me.nombreSucursal_modal=r.nombre_suc_siat;
                             me.razonSocialSucursal_modal=r.razon_social;
                     }else{
@@ -388,7 +478,26 @@ offset:3,
                             me.razonSocialSucursal_modal="error razon social";
                         
                     }
-                    console.log(respuesta);
+                    me.tipoAccion = 1;
+                
+                    me.documento_modal=data2.nro_doc;
+                    me.rasonSocial_modal=data2.nom_cliente;
+
+                    me.numeroFactura_modal=data2.numFactura;
+                    me.codRecepcion_modal=data2.codRecepcion;
+                    me.codAutorizacion_modal=data2.cuf;
+                    me.fechaEmision_modal=data2.fechaEmision;
+
+                    me.sectorDescripcion_modal=data2.sector_descripcion;
+                    if (data2.codEstado==='908') {
+                    me.estado_modal="VALIDO";    
+                    }else{
+                    me.estado_modal="OBSERVADO";                        
+                    }
+                    me.puntoVenta_modal=data2.punto_suc;
+                    me.tituloModal = "Datos de venta facturada.";
+                
+                    
                      me.showModal = true;
                     me.classModal.openModal("registrar");
                  
@@ -502,6 +611,24 @@ listarInicio(page,data)
                 });
         },
 
+          listarSiatListaContingencia() {
+            let me = this;
+           // var url = "/traspaso/listarSucursal";
+           var url = "/listarSiatListaContingencia";
+            axios
+                .get(url)
+                .then(function (response) {
+                    var respuesta = response.data;
+                  
+                    me.arrayListaContingencia_2 = respuesta;
+                 
+                })
+                .catch(function (error) {
+                    error401(error);
+                    console.log(error);
+                });
+        },
+
 
         cambiarPestana(idPestana) {
             this.pestañaActiva = idPestana;
@@ -542,14 +669,7 @@ listarInicio(page,data)
                     }else{
                     me.estado_modal="OBSERVADO";                        
                     }
-                    
-                    
                     me.puntoVenta_modal=data.punto_suc;
-                    
-                   
-
-
-
                     me.tituloModal = "Datos de venta facturada.";
                     me.listarQueryModal_1(data.id_sucursal,data.punto_suc,data.tipo_contigencia);
                 
@@ -563,6 +683,16 @@ listarInicio(page,data)
                     me.classModal.openModal("registrar");
 
                     break;
+                }
+
+                case "contingencia":{
+                   me.tipoAccion = 1;
+                   me.showModal_2=true;
+                    me.tituloModal = "Contingencia de datos.";
+            
+                    me.classModal.openModal("contingencia");
+
+                    break;  
                 }
             
             }
@@ -588,9 +718,14 @@ listarInicio(page,data)
                 me.classModal.closeModal(accion);
                 me.showModal = false;
                 me.tituloModal = " ";
-             
-             
-            }           
+            }    
+            if (accion == "contingencia") {
+                me.classModal.closeModal(accion);
+                me.showModal_2 = false;
+                me.selectModal_2_2='0';
+
+                me.tituloModal = " ";
+            }        
         },
 
      
@@ -607,7 +742,9 @@ listarInicio(page,data)
         this.sucursalFiltro();
         this.fecha_inicial();
         this.listarEmisorAndSector();
+        this.listarSiatListaContingencia();
         this.classModal.addModal("registrar");
+        this.classModal.addModal("contingencia");
     
     
     },
