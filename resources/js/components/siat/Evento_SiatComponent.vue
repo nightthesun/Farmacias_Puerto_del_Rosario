@@ -298,41 +298,46 @@
                 <div class="modal-body">
                    
                     <form class="form-horizontal">
-                         <div class="row">
-                            <div class="col-4">
-                                <label for="">Tipo de evento significativo</label>
-                            </div>
-                            <div class="col-8">
-                                 <select class="form-control" v-model="selectModal_2_2">
-                        <option value="0" disabled selected>Seleccionar...</option>    
-                        <option value="1">Emisión de facturas digitales Fuera de línea</option> 
-                        <option value="2">Emitir facturas manuales</option> 
-                  
-                    </select>
-                            </div>                      
-                    </div>
-                    <div class="row">
-                        <div class="col-3">
-                        <label for="">Tipo de contingencia</label>
+                         <div class="row" style="margin-top: 10px;">
+                        <div class="col-4">
+                        <label for="">Tipo de contingencia:</label>
                         </div>
-                        <div class="col-9">
-                              <select class="form-control" v-model="selectListaContingencia_2">
+                        <div class="col-8">
+                              <select class="form-control" v-model="selectListaContingencia_2" @change="cambioOpcion_modal(selectListaContingencia_2)">
                             <option value="0" disabled selected>Seleccionar...</option>    
-                        <option  v-for="(i, index) in arrayListaContingencia_2" :key="index" :value="i.codigo">{{ i.descripcion }}</option> 
+                        <option  v-for="(i, index) in arrayListaContingencia_2" :key="index" :value="i.codigo" :hidden="i.codigo>=5">{{ i.descripcion }}</option> 
                               </select>
                             
                         </div>
-                    </div>           
+                    </div>
+                    <div class="row" style="margin-top: 10px;">
+                        <div class="col-4">
+                        <label for="">Fecha y hora de inicio de contingencia:</label>
+                        </div>
+                        <div class="col-8">
+                    <input id="start-date" type="datetime-local" class="form-control" v-model="startDate_modal_1">
+                        </div>                       
+                    </div>  
+                    <div class="row" style="margin-top: 10px;">
+                        <div class="col-4">
+                        <label for="">Fecha y hora de finalización de contingencia:</label>
+                        </div>
+                        <div class="col-8">
+                    <input id="end-date" type="datetime-local" class="form-control" v-model="endDate_modal_1">
+                        </div>                       
+                    </div>  
+                                    
+                             
                     </form>
 
                 </div>
 
                 <div class="modal-footer">
-                    <button
-                        type="button"
-                        class="btn btn-secondary"
-                        @click="cerrarModal('contingencia')">
+                    <button type="button" class="btn btn-secondary" @click="cerrarModal('contingencia')">
                         Cerrar
+                    </button>
+                    <button type="button" class="btn btn-primary" @click="enviarContingencia()" :disabled="selectListaContingencia_2==='0' || startDate_modal_1==='' || endDate_modal_1===''">
+                        Enviar  
                     </button>
                 </div>
 
@@ -397,9 +402,20 @@ offset:3,
         contingencia_modal:'',
 
         showModal_2:false,
-        selectModal_2_2:'0',
+      
         arrayListaContingencia_2:[],
         selectListaContingencia_2:'0',
+        contingencia_descripcion_modal:'',
+        contigenciaDes_codigo_modal:'',
+        startDate_modal_1:'',
+        endDate_modal_1:'',
+        id_sucursal_modal:'',
+         id_cufd_modal:'',
+        punto_suc:'',
+        punto_venta:'',
+        id_sucursal_modal:'',
+        
+        pagina_uno:0,
 
         };
     },
@@ -444,7 +460,44 @@ offset:3,
     },
 
     methods: {
+        enviarContingencia(){
+            let me = this; 
+                axios.post("/siat_eventos/enviarContingencia", { 
+                    contingencia: me.selectListaContingencia_2,
+                    contingencia_descripcion_modal: me.contingencia_descripcion_modal,
+                    contigenciaDes_codigo_modal: me.contigenciaDes_codigo_modal,
+                    startDate_modal_1: me.startDate_modal_1,
+                    endDate_modal_1: me.endDate_modal_1,
+                    id_sucursal_modal: me.id_sucursal_modal,
+         id_cufd_modal:me.id_cufd_modal,
+        punto_suc:me.punto_suc,
+        punto_venta:me.punto_venta,
+       
+                                  
+                })
+                .then(function (response) {                   
+                    let respuesta=response.data;                   
+                          console.log(respuesta);
+                 //   listarInicio(0,me.pagina_uno)              
+                 //   me.cerrarModal('contingencia');        
+                                             
+                })               
+                .catch(function (error) {                
+                 error401(error);              
+            });
+        },
 
+        cambioOpcion_modal(data){
+            let me=this;
+                let array=me.arrayListaContingencia_2.find(e=>e.codigo==data);
+                
+              console.log(array);
+                  if (array!=undefined) {
+                    me.contingencia_descripcion_modal=array.descripcion;
+                  me.contigenciaDes_codigo_modal=array.codigo;   
+            }
+            console.log(me.contingencia_descripcion_modal+"--"+me.contigenciaDes_codigo_modal);
+        },  
         
          listarQueryModal_1(data2) {
             let me = this;
@@ -544,6 +597,7 @@ listarInicio(page,data)
                 let me=this;
                 let valor=0;
                 let url="";
+                me.pagina_uno=data;
                 switch (data) {
                     case 1:{
                      url='/siat_eventos/listarInicio?page='+page+'&id_sucursal='+me.selectEmisor+'&inicial='+data;
@@ -641,7 +695,7 @@ listarInicio(page,data)
         cambiarPagina(page) {
             let me = this;
             me.pagination.current_page = page;
-            me.listarInicio(page);
+            me.listarInicio(page,me.pagina_uno);
         },
 
         abrirModal(accion, data = []) {
@@ -689,6 +743,16 @@ listarInicio(page,data)
                    me.tipoAccion = 1;
                    me.showModal_2=true;
                     me.tituloModal = "Contingencia de datos.";
+                    me.selectListaContingencia_2='0';
+                    me.contingencia_descripcion_modal='';
+                    me.contigenciaDes_codigo_modal='';
+                    me.startDate_modal_1='';
+                     me.endDate_modal_1='';
+                     me.id_cufd_modal=data.id_cufd;
+                     me.punto_suc=data.punto_suc;
+                    me.punto_venta=data.punto_venta;
+                    me.id_sucursal_modal=data.id_sucursal;
+                    console.log(data);
             
                     me.classModal.openModal("contingencia");
 
@@ -722,8 +786,16 @@ listarInicio(page,data)
             if (accion == "contingencia") {
                 me.classModal.closeModal(accion);
                 me.showModal_2 = false;
-                me.selectModal_2_2='0';
-
+          me.selectListaContingencia_2='0';
+                    me.contingencia_descripcion_modal='';
+                    me.contigenciaDes_codigo_modal='';
+                    me.startDate_modal_1='';
+                     me.endDate_modal_1='';
+   
+     me.id_cufd_modal='';
+                     me.punto_suc='';
+                    me.punto_venta='';
+                    me.id_sucursal_modal='';
                 me.tituloModal = " ";
             }        
         },

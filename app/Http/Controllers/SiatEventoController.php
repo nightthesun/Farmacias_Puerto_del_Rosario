@@ -168,4 +168,24 @@ class SiatEventoController extends Controller
     return response()->json(['contigencia' => $contigencia, 'sucursal' => $sucursal]);        
      
     }
+
+    public function sendContingencia(Request $request){
+            $configuracion_1 = DB::table('siat__configuracions')
+            ->select('cod_sis,tipo_ambiente','token_delegado','tipo_modalidad')
+            ->where('id', 1)          
+            ->first();
+
+            $configuracion_2 = DB::table('adm__credecial_correos')
+            ->select('nit','nro_celular','nom_empresa')
+            ->where('id', 1)          
+            ->first();
+
+           $configuracion_3 = DB::table('siat__cufd')
+    ->where('id', $request->id_cufd_modal)
+    ->value('dato');
+
+
+    return $request->all();
+
+    }
 }
