@@ -510,8 +510,6 @@ offset:3,
                     let respuesta = response.data;   
                         let respues_conti=respuesta.contigencia;           
                     let r=respuesta.sucursal;
-                    console.log(r);
-                    console.log(r.razon_social);
 
                         if(data2.tipo_contigencia===0){
                         me.contingencia_modal="Sin contingencia";

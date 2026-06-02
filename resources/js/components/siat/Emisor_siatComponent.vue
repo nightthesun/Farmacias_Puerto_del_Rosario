@@ -24,7 +24,7 @@
                 </div>
                         <div class="col-md-3">
                             <div class="input-group">
-                                <select class="form-control" v-model="sucursalSeleccionada" @change="listarIndex();">
+                                <select class="form-control" v-model="sucursalSeleccionada" @change="listarIndex(1,1);">
                                     <option value="0" disabled selected>Seleccionar...</option>
                                     <option v-for="sucursal in arraySucursal" :key="sucursal.id"  :value="sucursal.id"
                                         v-text="'codigo siat: '+sucursal.codigo_siat +' - '+sucursal.nombre_suc_siat">
@@ -36,11 +36,17 @@
                             <button type="button" @click="consultarPuntoV(1)" class="btn btn-primary" style="margin-right: 10px;"><i class="fa fa-volume-control-phone" aria-hidden="true"></i> Consultar punto de venta a siat</button>
                             <button type="button" @click="consultarPuntoV(2);" class="btn btn-danger" :disabled="puedeActivar===1" hidden style="margin-right: 10px;"><i class="fa fa-lock" aria-hidden="true"></i> Cerrar punto de venta </button>
                             <button type="button" @click="eliminarCaja_v2()" class="btn btn-warning" style="margin-right: 10px;"><i class="fa fa-bell-slash-o" aria-hidden="true"></i> Eliminar caja</button>
-                           
                         </div>      
                      
                        
 
+            </div>
+            <div class="form-group row">
+                <div class="col-md-12" style="text-align: center">
+                            <button type="button" @click="listarIndex(1,2)" class="btn btn-primary" style="margin-right: 10px;">Consultar toda la lista</button>
+                           <button type="button" @click="listarIndex(1,1)" class="btn btn-primary" style="margin-right: 10px;">Consultar estado con activo</button>
+                
+                </div>                    
             </div>
   <br>
             <!---inserte tabla-->
@@ -666,7 +672,7 @@ insertarCuis(id,cuis,fecha){
                 .then(function (response) {
                
                     let respuesta=response.data; 
-                    me.listarIndex();                  
+                    me.listarIndex(1,1);                  
                     if (respuesta.length>0) {
                         Swal.fire("Error!",""+respuesta,"error",);    
                     } else {
@@ -767,7 +773,7 @@ cerrarOperaciones(codigo_siat,id,cuis,id_cufd,id_cuis,id_emisor)
                                Swal.fire("Error"," "+respuesta,"error",); 
                         }
                        
-                        me.listarIndex(1);
+                        me.listarIndex(1,1);
                     }).catch(function (error) {
                         error401(error);
                   
@@ -802,7 +808,7 @@ cerrarOperaciones(codigo_siat,id,cuis,id_cufd,id_cuis,id_emisor)
                 .then(function (response) {
                  //   me.listarIndexEndPoint(); 
                     let respuesta=response.data; 
-                    me.listarIndex();                  
+                    me.listarIndex(1,1);                  
                     if (respuesta.length>0) {
                         Swal.fire("Error!",""+respuesta,"error",);    
                     } else {
@@ -815,10 +821,10 @@ cerrarOperaciones(codigo_siat,id,cuis,id_cufd,id_cuis,id_emisor)
             });      
         },
  //----------------------
-  listarIndex(page)
+  listarIndex(page,data2)
           {
                 let me=this;  
-                 var url='/siat_emisor/listar_inicio?page='+page+'&id='+me.sucursalSeleccionada;                     
+                 var url='/siat_emisor/listar_inicio?page='+page+'&id='+me.sucursalSeleccionada+'&iniE='+data2;                     
                 axios.get(url)
                 .then(function(response){
                     var respuesta = response.data;                
@@ -830,7 +836,20 @@ cerrarOperaciones(codigo_siat,id,cuis,id_cufd,id_cuis,id_emisor)
                 });               
             },
 
-
+listarIndex2(page)
+          {
+                let me=this;  
+                 var url='/siat_emisor/listar_inicio?page='+page+'&id='+me.sucursalSeleccionada+'&iniE='+2;                     
+                axios.get(url)
+                .then(function(response){
+                    var respuesta = response.data;                
+                    me.pagination = respuesta.pagination;
+                    me.arrayIndex = respuesta.index.data;                   
+                })
+                .catch(function(error){
+                    error401(error);
+                });               
+            },
 
             cerrarPuntoVenta(){
                 let me=this;                
@@ -841,7 +860,7 @@ cerrarOperaciones(codigo_siat,id,cuis,id_cufd,id_cuis,id_emisor)
                 })
                 .then(function (response) {
                  
-            me.listarIndex(); 
+            me.listarIndex(1,1); 
                     let respuesta=response.data;             
               
                     if (respuesta=="error") {
@@ -912,7 +931,7 @@ console.log(respuesta);
                             'El registro volvio a su estado de nulo Correctamente',
                             'success'
                         )
-                        me.listarIndex(1);
+                        me.listarIndex(1,1);
                     }).catch(function (error) {
                         error401(error);
                   
@@ -945,7 +964,7 @@ console.log(respuesta);
                 })
                 .then(function (response) {
                     me.cerrarModal('caja');
-                    me.listarIndex(); 
+                    me.listarIndex(1,1); 
                     let respuesta=response.data;    
                   
                     if (respuesta.length>0) {
@@ -970,7 +989,7 @@ console.log(respuesta);
                 })
                 .then(function (response) {
                     me.cerrarModal('cerrar_PV');
-                     me.listarIndex(); 
+                     me.listarIndex(1,1); 
                     let respuesta=response.data;             
                    
                     if (respuesta.length>0) {
@@ -998,7 +1017,7 @@ console.log(respuesta);
                 })
                 .then(function (response) {
                     me.cerrarModal('registrar');
-                     me.listarIndex(); 
+                     me.listarIndex(1,1); 
                     let respuesta=response.data;             
                     
                     if (respuesta.length>0) {
@@ -1045,7 +1064,7 @@ console.log(respuesta);
                 })
                 .then(function (response) {
                     
-                     me.listarIndex(); 
+                     me.listarIndex(1,1); 
                     let respuesta=response.data;             
                     
                     if (respuesta===0) {
@@ -1167,7 +1186,7 @@ console.log(respuesta);
         cambiarPagina(page) {
             let me = this;
             me.pagination.current_page = page;
-          me.listarIndex(page);
+          me.listarIndex(page,1);
         },
 
         abrirModal(accion, data = []) {
@@ -1313,7 +1332,7 @@ insertar_cufd(codigo_siat,cuis,id,id_emisor,cufd){
                         } else {
                             Swal.fire("Error",""+respuesta,"error",);  
                         } 
-                      me.listarIndex(1);
+                      me.listarIndex(1,1);
                     }).catch(function (error) {
                        error401(error);                        
                      

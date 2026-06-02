@@ -300,6 +300,7 @@ if (empty($response)) {
             </soapenv:Body>
          </soapenv:Envelope>
          EOD;
+         
          $tiempoEspera = DB::table('siat__configuracions')
          ->where('id', 1)
          ->value('tiempo_espera'); // Obtiene directamente el valor de la columna

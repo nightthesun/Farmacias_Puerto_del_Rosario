@@ -16,6 +16,13 @@ class SiatEmisorController extends Controller
     public function index(Request $request)
     {
       
+        $entarda=$request->iniE;
+        if ($entarda==1) {
+             $where="(se.estado = 1)";
+        }else{
+            $where="(se.estado = 1 or se.estado = 0)";
+        } 
+
         $index = DB::table('siat__emisors as se')
         ->leftJoin('siat__sucursals as ss', 'ss.id', '=', 'se.id_siat_sucursal')
         ->leftJoin('caja__creacions as sc', 'sc.id', '=', 'se.id_caja')
@@ -48,7 +55,9 @@ class SiatEmisorController extends Controller
             'se.id_caja',
             'se.punto_venta_eliminado'
         )
-        ->where('se.id_siat_sucursal', $request->id)       
+        ->where('se.id_siat_sucursal', $request->id)  
+        ->whereRaw($where) 
+        ->orderBy('id', 'desc')    
         ->paginate(15);
         return 
         [
