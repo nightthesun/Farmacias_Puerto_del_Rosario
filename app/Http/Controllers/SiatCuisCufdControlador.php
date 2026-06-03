@@ -277,7 +277,7 @@ if (empty($response)) {
         ->get(); 
     
         $cadena_url=$endPoints[0]->Url; 
-        $wsdl = $cadena_url;
+        
             // Asignación de la URL y API key
             $wsdl = $cadena_url; 
             $apikeyValue = 'TokenApi ' .$request->token_delegado; // Concatenar correctamente el valor del API key
