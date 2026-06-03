@@ -57,6 +57,7 @@ class SiatEventoController extends Controller
         $index = DB::table('ven__factura_siat as f')
     ->join('ven__recibos as r', 'r.id', '=', 'f.id_venta')
     ->join('adm__sucursals as ss', 'ss.id', '=', 'r.id_sucursal')
+    ->leftJoin('siat__sucursals as s', 'r.id_sucursal', '=', 's.id_sucursal')
     ->join('excel__emision as e', function ($join) {
         $join->on('e.codigo', '=', 'f.codSector')
              ->where('e.id_catalogo', 3);
@@ -83,7 +84,8 @@ class SiatEventoController extends Controller
         DB::raw('ss.id as id_sucursal'),
         DB::raw('ss.razon_social as nomre_sucursal'),
         DB::raw('e.descripcion as sector_descripcion'),
-        DB::raw('e.codigo as cod_sector')
+        DB::raw('e.codigo as cod_sector'),
+        's.id as id_suc_siat',
     )
   
     ->orderBy('f.id', 'desc')
@@ -147,6 +149,7 @@ class SiatEventoController extends Controller
     }
 
     public function getQueryModal_1(Request $request){
+       
                 
     $contigencia = DB::table('excel__emision')
             ->select('*')
@@ -167,6 +170,38 @@ class SiatEventoController extends Controller
         
     return response()->json(['contigencia' => $contigencia, 'sucursal' => $sucursal]);        
      
+    }
+
+    
+    public function sendContingencia(Request $request){
+                return $request->all();
+
+                //contigenciaDes_codigo_modal:1
+                //contingencia:1
+                //contingencia_descripcion_modal:"CORTE DEL SERVICIO DE INTERNET"
+                //endDate_modal_1:"2026-06-03T12:20"
+                //id_cufd_modal:76
+                //id_sucursal_modal:1
+                //punto_suc:0
+                //punto_venta:1
+                //startDate_modal_1:"2026-06-03T12:20"
+                //id_suc_siat:3
+                $query_1 = DB::table('siat__emisors as e')
+    ->leftJoin('siat__cuis as cuis', 'cuis.id', '=', 'e.id_cuis')
+    ->leftJoin('siat__cufd as cufd', 'cufd.id', '=', 'e.id_cufd')
+    ->where('e.id_siat_sucursal', 3)
+    ->where('e.estado', 1)
+    ->where('e.id_punto_venta', 1)
+    ->where('e.delete', 0)
+    ->select(
+        'cuis.dato as cuis',
+        'cufd.dato as cufd'
+    )
+    ->first();
+                if (!$query_1) {
+                    return "no exite el cuis o cufd para esta sucursal y punto de venta";
+                }
+                
     }
 
 

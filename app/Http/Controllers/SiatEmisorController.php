@@ -53,7 +53,8 @@ class SiatEmisorController extends Controller
             'cuf.fecha_vigencia as fecha_cufd',
             'cuf.estado as cufd_estado',
             'se.id_caja',
-            'se.punto_venta_eliminado'
+            'se.punto_venta_eliminado',
+            'se.delete'
         )
         ->where('se.id_siat_sucursal', $request->id)  
         ->whereRaw($where) 
@@ -660,6 +661,7 @@ XML;
             DB::table('log__sistema')->insert($datos);
             $emi = Siat_Emisor::findOrFail($request->id);
             $emi->estado=0;
+            $emi->delete=1;
             $emi->save();
        DB::commit();    
         } catch (\Throwable $th) {
@@ -716,7 +718,7 @@ XML;
               // Si el registro existe, actualizar el dato (cuis)
         DB::table('siat__cuis')->where('id', $id_cuis)->update(['estado' =>0,'id_emisor'=>$id]);
         DB::table('siat__cufd')->where('id', $id_cufd)->update(['estado' =>0,'id_emisor'=>$id]);     
-        DB::table('siat__emisors')->where('id', $id)->update(['id_cuis' =>null,'id_cufd'=>null,'punto_venta_eliminado'=>0,'id_caja'=>null,'estado'=>0]);    
+        DB::table('siat__emisors')->where('id', $id)->update(['id_cuis' =>null,'id_cufd'=>null,'punto_venta_eliminado'=>0,'id_caja'=>null]);    
             $datos = [
                 'id_modulo' => $request->id_modulo,
                 'id_sub_modulo' => $request->id_sub_modulo,

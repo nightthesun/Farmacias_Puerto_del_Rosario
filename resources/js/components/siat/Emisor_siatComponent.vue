@@ -32,7 +32,7 @@
                                 </select>
                             </div>
                         </div> 
-                        <div class="col-md-7" v-show="sucursalSeleccionada != 0"  >
+                        <div class="col-md-7" v-show="sucursalSeleccionada != 0">
                             <button type="button" @click="consultarPuntoV(1)" class="btn btn-primary" style="margin-right: 10px;"><i class="fa fa-volume-control-phone" aria-hidden="true"></i> Consultar punto de venta a siat</button>
                             <button type="button" @click="consultarPuntoV(2);" class="btn btn-danger" :disabled="puedeActivar===1" hidden style="margin-right: 10px;"><i class="fa fa-lock" aria-hidden="true"></i> Cerrar punto de venta </button>
                             <button type="button" @click="eliminarCaja_v2()" class="btn btn-warning" style="margin-right: 10px;"><i class="fa fa-bell-slash-o" aria-hidden="true"></i> Eliminar caja</button>
@@ -41,8 +41,9 @@
                        
 
             </div>
-            <div class="form-group row">
-                <div class="col-md-12" style="text-align: center">
+            <div class="form-group row" v-show="sucursalSeleccionada != 0">
+                <div class="col-md-2"></div>
+                <div class="col-md-10">
                             <button type="button" @click="listarIndex(1,2)" class="btn btn-primary" style="margin-right: 10px;">Consultar toda la lista</button>
                            <button type="button" @click="listarIndex(1,1)" class="btn btn-primary" style="margin-right: 10px;">Consultar estado con activo</button>
                 
@@ -50,37 +51,39 @@
             </div>
   <br>
             <!---inserte tabla-->
-            <table class="table table-bordered table-striped table-sm table-responsive" >
+        <div style="overflow-x: auto; width: 100%;">
+    <table class="table table-bordered table-striped table-sm">
                 <thead>
                     <tr>
                         <th>Opciones</th>
-                        <th class="col-md-1">Nombre</th>
-                        <th class="col-md-1">Descripción</th>
-                        <th class="col-md-1">Nombre caja</th>
-                        <th class="col-md-1">Tipo</th>
-                        <th class="col-md-1">Emisor</th>
-                        <th class="col-md-1">Cuis</th>
+                        <th>Nombre</th>
+                        <th>Descripción</th>
+                        <th>Nombre caja</th>
+                        <th>Tipo</th>
+                        <th>Emisor</th>
+                        <th>Cuis</th>
                         <th class="col-md-3">Cufd</th>
-                        <th class="col-md-1">Cuis vigencia</th>
-                        <th class="col-md-1">Cufd vigecia</th>
-                        <th class="col-md-1">Estado</th>                    
+                        <th>Cuis vigencia</th>
+                        <th>Cufd vigecia</th>
+                        <th>Estado</th>                    
                                
                     </tr>
                 </thead>
                 <tbody>
                     <tr v-for="i in arrayIndex" :key="i.id">
                        
-                        <td >
+                        <td v-show="i.id_punto_venta!=0">
                             <button type="button" style="color: white;" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
     <i class="fa fa-bars" aria-hidden="true"></i>
   </button>     
 <div class="dropdown-menu">
-    <div v-if="i.punto_venta_eliminado===1">
-        <a v-show="i.nombre_caja===null && i.tipo===1000" @click="abrirModal('caja',i);listar_caja();" class="dropdown-item" href="#"><i style="color: black;" class="icon-pencil"></i> Añadir caja</a>
-    <a v-show="i.nombre_caja!=null" @click="quitarCaja(i.id)" class="dropdown-item" href="#"><i style="color:black;" class="fa fa-window-close-o" aria-hidden="true"></i> Quitar nombre de caja</a>
-    <a v-show="i.tipo!=1000 && i.estado===1" @click="abrirModal('cerrar_PV',i);" class="dropdown-item" href="#"><i style="color: black;" class="fa fa-trash" aria-hidden="true"></i> Eliminar punto de venta</a> 
     
-    <a v-show="i.tipo!=1000  && i.estado===1" @click="insertar_cufd(i.codigo_siat,i.cuis,i.id,i.id_punto_venta,i.cufd)" class="dropdown-item" href="#"><i style="color: black;" class="fa fa-cubes" aria-hidden="true"></i> Solicitar CUFD</a>   
+    <a v-show="i.nombre_caja===null && i.tipo===1000" @click="abrirModal('caja',i);listar_caja();" class="dropdown-item" href="#"><i style="color: black;" class="icon-pencil"></i> Añadir caja</a>
+    <a v-show="i.nombre_caja!=null" @click="quitarCaja(i.id)" class="dropdown-item" href="#"><i style="color:black;" class="fa fa-window-close-o" aria-hidden="true"></i> Quitar nombre de caja</a>
+
+    <a v-show="i.tipo!=1000 && i.estado===1 || i.delete===0" @click="abrirModal('cerrar_PV',i);" class="dropdown-item" href="#"><i style="color: black;" class="fa fa-trash" aria-hidden="true"></i> Eliminar punto de venta</a> 
+    
+    <a v-show="i.tipo!=1000  && i.estado===1 ||i.delete==0" @click="insertar_cufd(i.codigo_siat,i.cuis,i.id,i.id_punto_venta,i.cufd)" class="dropdown-item" href="#"><i style="color: black;" class="fa fa-cubes" aria-hidden="true"></i> Solicitar CUFD</a>   
  
         <div v-if="i.id_cuis==null"> 
            <a v-show="i.tipo!=1000  && i.estado===1" @click="solicitarCuis(i.codigo_siat,i.id,i.id_punto_venta)" class="dropdown-item" href="#"><i style="color: black;" class="fa fa-cube" aria-hidden="true"></i> Solicitar CUIS</a>              
@@ -91,24 +94,21 @@
 <a v-show="i.tipo!=1000  && i.estado===1" @click="solicitarCuis(i.codigo_siat,i.id,i.id_punto_venta)" class="dropdown-item" href="#"><i style="color: black;"  class="fa fa-key" aria-hidden="true"></i> Forzar CUIS</a> 
 <a v-if="i.estado===1" @click="desactivarActivarTabla(i.id,i.descripcion,i.id_cuis,0)" class="dropdown-item" href="#"><i style="color: black;" class="fa fa-bell" aria-hidden="true"></i> Desactivar</a>
 <a v-else @click="desactivarActivarTabla(i.id,i.descripcion,i.id_cuis,1)" class="dropdown-item" href="#"><i style="color: black;" class="fa fa-bell-o" aria-hidden="true"></i> Activar</a> 
-    </div> 
-    <div v-else>
-      <a class="dropdown-item" href="#"> Sin datos</a>              
-     
-    </div>   
+
+   
 
 </div>  
                         </td>
-                        <td class="col-md-1">{{ i.nombre }}</td>
-                        <td class="col-md-1">{{ i.descripcion }}</td>
-                        <td class="col-md-1">{{ i.nombre_caja }}</td>
-                        <td class="col-md-1"><span v-if="i.tipo===1000">Principal</span><span v-else>{{ i.descripcion_tipo }}</span></td>
-                        <td class="col-md-1">{{ i.id_punto_venta }}</td>
-                        <td class="col-md-1">{{ i.cuis }}</td>
-                        <td class="col-md-3">{{ i.cufd }}</td>
-                        <td class="col-md-1">{{ i.fecha_cuis }}</td>
-                        <td class="col-md-1">{{ i.fecha_cufd }}</td>
-                        <td class="col-md-1">
+                        <td v-show="i.id_punto_venta!=0">{{ i.nombre }}</td>
+                        <td v-show="i.id_punto_venta!=0">{{ i.descripcion }}</td>
+                        <td v-show="i.id_punto_venta!=0">{{ i.nombre_caja }}</td>
+                        <td v-show="i.id_punto_venta!=0"><span v-if="i.tipo===1000">Principal</span><span v-else>{{ i.descripcion_tipo }}</span></td>
+                        <td v-show="i.id_punto_venta!=0">{{ i.id_punto_venta }}</td>
+                        <td v-show="i.id_punto_venta!=0">{{ i.cuis }}</td>
+                        <td v-show="i.id_punto_venta!=0" class="col-md-3">{{ i.cufd }}</td>
+                        <td v-show="i.id_punto_venta!=0">{{ i.fecha_cuis }}</td>
+                        <td v-show="i.id_punto_venta!=0">{{ i.fecha_cufd }}</td>
+                        <td v-show="i.id_punto_venta!=0">
                             <span v-if="i.cuis_estado===1" class="badge badge-pill badge-success">Cuis activo</span>
                             <span v-else class="badge badge-pill badge-danger">cuis desactivado</span> 
                             <span v-if="i.cufd_estado===1" class="badge badge-pill badge-success">Cufd activo</span>
@@ -139,6 +139,8 @@
                 </ul>
             </nav>
             <!-----fin de tabla------->
+            </div>
+          
         </div>
 
 

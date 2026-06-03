@@ -414,6 +414,8 @@ offset:3,
         punto_suc:'',
         punto_venta:'',
         id_sucursal_modal:'',
+        id_suc_siat:'',
+
         
         pagina_uno:0,
 
@@ -472,6 +474,7 @@ offset:3,
          id_cufd_modal:me.id_cufd_modal,
         punto_suc:me.punto_suc,
         punto_venta:me.punto_venta,
+        id_suc_siat:me.id_suc_siat
        
                                   
                 })
@@ -750,6 +753,7 @@ listarInicio(page,data)
                      me.punto_suc=data.punto_suc;
                     me.punto_venta=data.punto_venta;
                     me.id_sucursal_modal=data.id_sucursal;
+                    me.id_suc_siat=data.id_suc_siat;
                     console.log(data);
             
                     me.classModal.openModal("contingencia");
@@ -794,6 +798,8 @@ listarInicio(page,data)
                      me.punto_suc='';
                     me.punto_venta='';
                     me.id_sucursal_modal='';
+                    me.id_suc_siat='';
+
                 me.tituloModal = " ";
             }        
         },
