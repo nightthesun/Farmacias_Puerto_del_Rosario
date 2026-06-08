@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Siat_evento;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -174,17 +175,22 @@ class SiatEventoController extends Controller
 
     
     public function sendContingencia(Request $request){
-                return $request->all();
 
-                $contigenciaDesCodigo=$request->contigenciaDes_codigo_modal;
+            //    return $request->all();
+            try {
+
+                DB::beginTransaction();
+                  $contigenciaDesCodigo=$request->contigenciaDes_codigo_modal;
                 $codigoMotivoEvento=$request->contingencia;
-                //contingencia_descripcion_modal:"CORTE DEL SERVICIO DE INTERNET"
-                //endDate_modal_1:"2026-06-03T12:20"
+                $descripcion=$request->contingencia_descripcion_modal;
+
+                $fechaHoraFinEvento = Carbon::parse($request->endDate_modal_1)->format('Y-m-d\TH:i:s.v');
+                
                 $id_cufd_modal=$request->id_cufd_modal;
-                //id_sucursal_modal:1
-                //punto_suc:0
-                $punto_venta=$request->punto_venta;
-                //startDate_modal_1:"2026-06-03T12:20"
+                //id_sucursal_modal:1;
+                $codigoSucursal=$request->punto_suc;
+                $codigoPuntoVenta=$request->punto_venta;
+                $fechaHoraInicioEvento = Carbon::parse($request->startDate_modal_1)->format('Y-m-d\TH:i:s.v');
                 $id_suc_siat=$request->id_suc_siat;
 
                
@@ -193,15 +199,17 @@ class SiatEventoController extends Controller
     ->leftJoin('siat__cufd as cufd', 'cufd.id', '=', 'e.id_cufd')
     ->where('e.id_siat_sucursal', $id_suc_siat)
     ->where('e.estado', 1)
-    ->where('e.id_punto_venta', $punto_venta)
+    ->where('e.id_punto_venta', $codigoPuntoVenta)
     ->where('e.delete', 0)
     ->select('cuis.dato as cuis','cufd.dato as cufd')
     ->first();
                 if (!$query_1) {
                     return "no exite el cuis o cufd para esta sucursal y punto de venta";
                 }
-$cuis=$query_1->cuis;
-$cufd=$query_1->cufd;
+        
+        $cuis=$query_1->cuis;
+        $cufd=$query_1->cufd;
+
        $query_2 = DB::table('siat__configuracions as e')    
     ->where('e.id', 1)
     ->select('e.cod_sis','e.tipo_ambiente','e.token_delegado','e.tiempo_espera','e.tipo_modalidad')
@@ -224,7 +232,6 @@ $cufd=$query_1->cufd;
         if ($cufdAnterior==null) {
         return "No existe el cufd o la tabla.";
         }
-
         
        $nit = DB::table('adm__credecial_correos')
         ->where('id',1)
@@ -245,11 +252,13 @@ $cufd=$query_1->cufd;
                 }
 
         $cadena_url=$endPoints->Url; 
+         
         $wsdl = $cadena_url;
         // Asignación de la URL y API key
         $apikeyValue = 'TokenApi ' .$tokenDelegado; // Concatenar correctamente el valor del API key
                 // Crear el cuerpo del mensaje SOAP, sustituyendo los valores con los parámetros correspondientes
-          $xmlData = <<<EOD
+    
+        $xmlData = <<<EOD
          <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:siat="https://siat.impuestos.gob.bo/">
             <soapenv:Header/>
             <soapenv:Body>
@@ -257,23 +266,54 @@ $cufd=$query_1->cufd;
                   <SolicitudEventoSignificativo>
                     <codigoAmbiente>{$codigoAmbiente}</codigoAmbiente>
                     <codigoMotivoEvento>{$codigoMotivoEvento}</codigoMotivoEvento>
-                    <codigoPuntoVenta>?</codigoPuntoVenta>
-                    <codigoSistema>?</codigoSistema>
-                    <codigoSucursal>?</codigoSucursal>
-                    <cufd>?</cufd>
-                    <cufdEvento>?</cufdEvento>
-                    <cuis>?</cuis>
-                    <descripcion>?</descripcion>
-                    <fechaHoraFinEvento>?</fechaHoraFinEvento>
-                    <fechaHoraInicioEvento>?</fechaHoraInicioEvento>
-                    <nit>?</nit>
+                    <codigoPuntoVenta>{$codigoPuntoVenta}</codigoPuntoVenta>
+                    <codigoSistema>{$codigoSistema}</codigoSistema>
+                    <codigoSucursal>{$codigoSucursal}</codigoSucursal>
+                    <cufd>{$cufd}</cufd>
+                    <cufdEvento>{$cufdAnterior}</cufdEvento>
+                    <cuis>{$cuis}</cuis>
+                    <descripcion>{$descripcion}</descripcion>
+                    <fechaHoraFinEvento>{$fechaHoraFinEvento}</fechaHoraFinEvento>
+                    <fechaHoraInicioEvento>{$fechaHoraInicioEvento}</fechaHoraInicioEvento>
+                    <nit>{$nit}</nit>
                   </SolicitudEventoSignificativo>
                </siat:registroEventoSignificativo>
             </soapenv:Body>
          </soapenv:Envelope>
          EOD;
+           $ch = curl_init();
+            
+                        // Configuración de la solicitud cURL
+                        curl_setopt($ch, CURLOPT_URL, $wsdl); // Reemplaza con el endpoint correcto
+                        curl_setopt($ch, CURLOPT_POST, 1);
+                        curl_setopt($ch, CURLOPT_POSTFIELDS, $xmlData);
+                    
+                        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                            'Content-Type: text/xml; charset=utf-8',
+                            'SOAPAction: ""', // Si el SOAPAction es requerido, inclúyelo aquí
+                            'apikey: ' . $apikeyValue // Incluye la API key con el valor correspondiente
+                        ]);
+                        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            
+                        // Ejecutar la solicitud y obtener la respuesta
+                        $response = curl_exec($ch);
+                       
+                        // Verificar si hubo un error en cURL
+                        if (curl_errno($ch)) {
+                            throw new \Exception(curl_error($ch));
+                        }            
+                        // Cerrar la sesión de cURL
+                        curl_close($ch);
+                    // Convertir la respuesta en un objeto SimpleXMLElement
+                //    $xml = simplexml_load_string($response);                    
+                    $respuesta=$response;
+                  //  dd($respuesta);
+                 return $respuesta;    
 
-
+                 DB::commit();
+            } catch (\Throwable $th) {
+                return $th;
+            }             
 
     }
 

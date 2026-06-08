@@ -266,8 +266,7 @@ if ($datos_22 === false) {
                        </soapenv:Body>
                     </soapenv:Envelope>
                     EOD;
-                 //   $datos_22 = simplexml_load_string($xml); 
-            //dd($xmlData);
+                 //   $datos_22 = simplexml_load_string($xml);
                         // Inicializar cURL
                         $ch = curl_init();
             
