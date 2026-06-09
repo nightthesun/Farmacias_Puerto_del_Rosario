@@ -304,11 +304,33 @@ class SiatEventoController extends Controller
                         }            
                         // Cerrar la sesión de cURL
                         curl_close($ch);
-                    // Convertir la respuesta en un objeto SimpleXMLElement
-                //    $xml = simplexml_load_string($response);                    
-                    $respuesta=$response;
-                  //  dd($respuesta);
-                 return $respuesta;    
+                if (empty($response)) {
+    return("Error 2: ".$response);
+}
+    // Convertir la respuesta en un objeto SimpleXMLElement
+        $xml = simplexml_load_string($response);   
+        $respuesta=$response;
+         // Usar XPath para encontrar el nodo <transaccion>    
+        $transaccion = $xml->xpath('//transaccion');
+         if ($transaccion && isset($transaccion[0])) {
+
+            if ($transaccion[0]== 'true') {                     
+                
+                  //  $codigo_2 = $xml->xpath('//codigo');
+                 //   $fechaVigencia= $xml->xpath('//fechaVigencia');
+                 $codigoRecepcionEventoSignificativo=$xml->xpath('//codigoRecepcionEventoSignificativo');
+                                
+                    $dataa = simplexml_load_string($codigoRecepcionEventoSignificativo);   
+                    return $codigoRecepcionEventoSignificativo;
+
+
+            } else {
+               return $respuesta;
+            }                
+    } else {         
+        return $respuesta;
+    } 
+        return 0;
 
                  DB::commit();
             } catch (\Throwable $th) {

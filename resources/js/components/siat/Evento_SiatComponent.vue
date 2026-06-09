@@ -479,7 +479,13 @@ offset:3,
                                   
                 })
                 .then(function (response) {                   
-                    let respuesta=response.data;                   
+                    let respuesta=response.data;
+                    console.log(respuesta);     
+                        if(respuesta===0){
+                            return Swal.fire('Acción realizada','con exito.','success');
+                        }else{
+                            return Swal.fire('Error',' '+respuesta,'error');
+                        }              
                           console.log(respuesta);
                  //   listarInicio(0,me.pagina_uno)              
                  //   me.cerrarModal('contingencia');        

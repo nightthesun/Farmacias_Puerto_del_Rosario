@@ -637,7 +637,8 @@ if (empty($response)) {
         ];    
         DB::table('log__sistema')->insert($datos);
 
-        DB::commit();
+       
+        
     } catch (\Throwable $th) {
        return $th;
     }
