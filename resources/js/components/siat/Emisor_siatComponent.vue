@@ -72,7 +72,7 @@
                 <tbody>
                     <tr v-for="i in arrayIndex" :key="i.id">
                        
-                        <td v-show="i.id_punto_venta!=0">
+                        <td>
                             <button type="button" style="color: white;" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
     <i class="fa fa-bars" aria-hidden="true"></i>
   </button>     
@@ -80,18 +80,20 @@
     
     <a v-show="i.nombre_caja===null && i.tipo===1000" @click="abrirModal('caja',i);listar_caja();" class="dropdown-item" href="#"><i style="color: black;" class="icon-pencil"></i> Añadir caja</a>
     <a v-show="i.nombre_caja!=null" @click="quitarCaja(i.id)" class="dropdown-item" href="#"><i style="color:black;" class="fa fa-window-close-o" aria-hidden="true"></i> Quitar nombre de caja</a>
-
-    <a v-show="i.tipo!=1000 && i.estado===1 || i.delete===0" @click="abrirModal('cerrar_PV',i);" class="dropdown-item" href="#"><i style="color: black;" class="fa fa-trash" aria-hidden="true"></i> Eliminar punto de venta</a> 
+    <div v-show="i.id_punto_venta>0">
+        <a v-show="i.tipo!=1000 && i.estado===1  || i.delete===0" @click="abrirModal('cerrar_PV',i);" class="dropdown-item" href="#"><i style="color: black;" class="fa fa-trash" aria-hidden="true"></i> Eliminar punto de venta</a> 
     
-    <a v-show="i.tipo!=1000  && i.estado===1 ||i.delete==0" @click="insertar_cufd(i.codigo_siat,i.cuis,i.id,i.id_punto_venta,i.cufd)" class="dropdown-item" href="#"><i style="color: black;" class="fa fa-cubes" aria-hidden="true"></i> Solicitar CUFD</a>   
+    <a v-show="i.estado===1 ||i.delete==0" @click="insertar_cufd(i.codigo_siat,i.cuis,i.id,i.id_punto_venta,i.cufd)" class="dropdown-item" href="#"><i style="color: black;" class="fa fa-cubes" aria-hidden="true"></i> Solicitar CUFD</a>   
  
-        <div v-if="i.id_cuis==null"> 
-           <a v-show="i.tipo!=1000  && i.estado===1" @click="solicitarCuis(i.codigo_siat,i.id,i.id_punto_venta)" class="dropdown-item" href="#"><i style="color: black;" class="fa fa-cube" aria-hidden="true"></i> Solicitar CUIS</a>              
-        </div>
-        <div v-else>
-            <a v-show="i.tipo!=1000  && i.estado===1" @click="cerrarOperaciones(i.codigo_siat,i.id,i.cuis,i.id_cufd,i.id_cuis,i.id_punto_venta)" class="dropdown-item" href="#"><i style="color: black;" class="fa fa-refresh" aria-hidden="true"></i> Cierre de operaciones en punto de venta (inhabilita el CUIS y el CUFD) </a> 
-        </div> 
-<a v-show="i.tipo!=1000  && i.estado===1" @click="solicitarCuis(i.codigo_siat,i.id,i.id_punto_venta)" class="dropdown-item" href="#"><i style="color: black;"  class="fa fa-key" aria-hidden="true"></i> Forzar CUIS</a> 
+       
+           <a v-show="i.estado===1" @click="solicitarCuis(i.codigo_siat,i.id,i.id_punto_venta)" class="dropdown-item" href="#"><i style="color: black;" class="fa fa-cube" aria-hidden="true"></i> Solicitar CUIS</a>              
+ 
+     
+            <a v-show="i.estado===1" @click="cerrarOperaciones(i.codigo_siat,i.id,i.cuis,i.id_cufd,i.id_cuis,i.id_punto_venta)" class="dropdown-item" href="#"><i style="color: black;" class="fa fa-refresh" aria-hidden="true"></i> Cierre de operaciones en punto de venta (inhabilita el CUIS y el CUFD) </a> 
+   
+<a v-show=" i.estado===1" @click="solicitarCuis(i.codigo_siat,i.id,i.id_punto_venta)" class="dropdown-item" href="#"><i style="color: black;"  class="fa fa-key" aria-hidden="true"></i> Forzar CUIS</a> 
+
+    </div>    
 <a v-if="i.estado===1" @click="desactivarActivarTabla(i.id,i.descripcion,i.id_cuis,0)" class="dropdown-item" href="#"><i style="color: black;" class="fa fa-bell" aria-hidden="true"></i> Desactivar</a>
 <a v-else @click="desactivarActivarTabla(i.id,i.descripcion,i.id_cuis,1)" class="dropdown-item" href="#"><i style="color: black;" class="fa fa-bell-o" aria-hidden="true"></i> Activar</a> 
 
@@ -99,16 +101,16 @@
 
 </div>  
                         </td>
-                        <td v-show="i.id_punto_venta!=0">{{ i.nombre }}</td>
-                        <td v-show="i.id_punto_venta!=0">{{ i.descripcion }}</td>
-                        <td v-show="i.id_punto_venta!=0">{{ i.nombre_caja }}</td>
-                        <td v-show="i.id_punto_venta!=0"><span v-if="i.tipo===1000">Principal</span><span v-else>{{ i.descripcion_tipo }}</span></td>
-                        <td v-show="i.id_punto_venta!=0">{{ i.id_punto_venta }}</td>
-                        <td v-show="i.id_punto_venta!=0">{{ i.cuis }}</td>
-                        <td v-show="i.id_punto_venta!=0" class="col-md-3">{{ i.cufd }}</td>
-                        <td v-show="i.id_punto_venta!=0">{{ i.fecha_cuis }}</td>
-                        <td v-show="i.id_punto_venta!=0">{{ i.fecha_cufd }}</td>
-                        <td v-show="i.id_punto_venta!=0">
+                        <td>{{ i.nombre }}</td>
+                        <td>{{ i.descripcion }}</td>
+                        <td>{{ i.nombre_caja }}</td>
+                        <td><span v-if="i.tipo===1000">Principal</span><span v-else>{{ i.descripcion_tipo }}</span></td>
+                        <td>{{ i.id_punto_venta }}</td>
+                        <td>{{ i.cuis }}</td>
+                        <td class="col-md-3">{{ i.cufd }}</td>
+                        <td>{{ i.fecha_cuis }}</td>
+                        <td>{{ i.fecha_cufd }}</td>
+                        <td>
                             <span v-if="i.cuis_estado===1" class="badge badge-pill badge-success">Cuis activo</span>
                             <span v-else class="badge badge-pill badge-danger">cuis desactivado</span> 
                             <span v-if="i.cufd_estado===1" class="badge badge-pill badge-success">Cufd activo</span>

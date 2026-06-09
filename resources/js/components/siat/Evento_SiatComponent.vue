@@ -99,6 +99,8 @@
                 <div class="card-header">
                     RESULTADO DE TABLA     
                 </div>
+                 <div style="overflow-x: auto; width: 100%;">
+    
         <div class="card-body"> 
             <!---inserte tabla-->
             <table class="table table-bordered table-striped table-sm table-responsive" >
@@ -125,6 +127,7 @@
     <a  class="dropdown-item" href="#" ><i style="color: black;" class="fa fa-eye" aria-hidden="true"></i>Ver estado factura</a>     
     <a  class="dropdown-item" href="#"><i style="color: black;" class="fa fa-eye" aria-hidden="true"></i>Ver en SIAT</a>
     <a v-show="i.codEstado != '908'" class="dropdown-item" href="#" @click="abrirModal('contingencia',i);" ><i style="color: black;"  class="fa fa-exclamation-triangle" aria-hidden="true"></i>Contingencia</a>
+    <a v-show="i.codEstado != '908'" class="dropdown-item" href="#" @click="consultarEventoSiat(i);" ><i style="color: black;"  class="fa fa-exclamation-triangle" aria-hidden="true"></i>Consulta evento</a>
     <a  class="dropdown-item" href="#"><i style="color: black;" class="fa fa-refresh" aria-hidden="true"></i>Anular</a>   
      </div>  
                             
@@ -163,7 +166,7 @@
             </nav>
             <!-----fin de tabla------->
         </div>
-
+</div>
 
             </div>   
   
@@ -305,7 +308,7 @@
                         <div class="col-8">
                               <select class="form-control" v-model="selectListaContingencia_2" @change="cambioOpcion_modal(selectListaContingencia_2)">
                             <option value="0" disabled selected>Seleccionar...</option>    
-                        <option  v-for="(i, index) in arrayListaContingencia_2" :key="index" :value="i.codigo" :hidden="i.codigo>=5">{{ i.descripcion }}</option> 
+                        <option  v-for="(i, index) in arrayListaContingencia_2" :key="index" :value="i.codigo">{{  "("+i.codigo+") "+i.descripcion }}</option> 
                               </select>
                             
                         </div>
@@ -338,6 +341,46 @@
                     </button>
                     <button type="button" class="btn btn-primary" @click="enviarContingencia()" :disabled="selectListaContingencia_2==='0' || startDate_modal_1==='' || endDate_modal_1===''">
                         Enviar  
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</transition>
+        <!--fin del modal-->
+
+        <!--Inicio del modal estado de contingencia-->
+      <transition name="fade">
+    <div v-if="showModal_3" class="modal d-block" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-primary modal-lg modal-dialog-scrollable" role="document">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h4 class="modal-title">{{ tituloModal }}</h4>
+                    <button type="button" class="close" @click="cerrarModal('contingencia_consullta_modal')">
+                        <span>&times;</span>
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                   
+                    <form class="form-horizontal">
+                         <div class="row" style="margin-top: 10px;">
+                        <div class="col-4">
+                        <label for="">Tipo de contingencia:</label>
+                        </div>
+                        
+                    </div>               
+                                    
+                             
+                    </form>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @click="cerrarModal('contingencia_consullta_modal')">
+                        Cerrar
                     </button>
                 </div>
 
@@ -402,7 +445,7 @@ offset:3,
         contingencia_modal:'',
 
         showModal_2:false,
-      
+      showModal_3:false,
         arrayListaContingencia_2:[],
         selectListaContingencia_2:'0',
         contingencia_descripcion_modal:'',
@@ -462,6 +505,40 @@ offset:3,
     },
 
     methods: {
+
+         consultarEventoSiat(dato_i) {
+            let me = this;
+            let fechaEmision=dato_i.fechaEmision;
+             let fechaEmision_utc= new Date(fechaEmision).toISOString();
+            let id_suc_siat=dato_i.id_suc_siat;
+             let id_sucursal=dato_i.id_sucursal;
+ let punto_suc=dato_i.punto_suc;
+  let punto_venta=dato_i.punto_venta;
+
+             let tipo_contigencia=dato_i.tipo_contigencia;
+       
+             let url="/siat_eventos/consultarEventoSiat?fechaEmision="+fechaEmision_utc+"&id_suc_siat="+id_suc_siat+"&id_sucursal="+id_sucursal+"&punto_suc="+punto_suc+"&punto_venta="+punto_venta+"&tipo_contigencia="+tipo_contigencia;
+             axios.get(url)
+             .then(function (response) {
+                 let respuesta=response.data;
+                 console.log(respuesta);
+                 
+             })
+             .catch(function (error) {
+                 error401(error);
+                 console.log(error);
+             }); 
+            console.log(dato_i);
+            /* me.id_sucursal_modal=dato_i.id_sucursal;
+             me.id_cufd_modal=dato_i.id_cufd;
+             me.punto_suc=dato_i.punto_suc;
+             me.punto_venta=dato_i.punto_venta;
+             me.id_suc_siat=dato_i.id_suc_siat;
+             */
+           
+           
+        },
+
         enviarContingencia(){
             let me = this; 
                 axios.post("/siat_eventos/enviarContingencia", { 
@@ -487,8 +564,8 @@ offset:3,
                             return Swal.fire('Error',' '+respuesta,'error');
                         }              
                           console.log(respuesta);
-                 //   listarInicio(0,me.pagina_uno)              
-                 //   me.cerrarModal('contingencia');        
+                    me.listarInicio(0,me.pagina_uno)              
+                    me.cerrarModal('contingencia');        
                                              
                 })               
                 .catch(function (error) {                
@@ -766,6 +843,17 @@ listarInicio(page,data)
 
                     break;  
                 }
+                case "contingencia_consullta_modal":{
+                   me.tipoAccion = 1;
+                   me.showModal_3=true;
+                    me.tituloModal = "Estado contingencia.";
+                   
+                    console.log(data);
+            
+                    me.classModal.openModal("contingencia_consullta_modal");
+
+                    break;  
+                }
             
             }
         },
@@ -807,7 +895,12 @@ listarInicio(page,data)
                     me.id_suc_siat='';
 
                 me.tituloModal = " ";
-            }        
+            }    
+            if (accion == "contingencia_consullta_modal") {
+                me.classModal.closeModal(accion);
+                me.showModal_3 = false;
+                 me.tituloModal = " ";
+            }    
         },
 
      
@@ -827,8 +920,8 @@ listarInicio(page,data)
         this.listarSiatListaContingencia();
         this.classModal.addModal("registrar");
         this.classModal.addModal("contingencia");
-    
-    
+        this.classModal.addModal("contingencia_consullta_modal");
+         
     },
 };
 </script>

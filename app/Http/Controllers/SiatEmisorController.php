@@ -18,10 +18,11 @@ class SiatEmisorController extends Controller
       
         $entarda=$request->iniE;
         if ($entarda==1) {
-             $where="(se.estado = 1)";
+             $where="(se.estado = 1 and se.punto_venta_eliminado=1 and se.`delete`=0 )";
         }else{
             $where="(se.estado = 1 or se.estado = 0)";
         } 
+      
 
         $index = DB::table('siat__emisors as se')
         ->leftJoin('siat__sucursals as ss', 'ss.id', '=', 'se.id_siat_sucursal')
@@ -32,7 +33,7 @@ class SiatEmisorController extends Controller
         })
         ->leftJoin('siat__cuis as cui', 'cui.id', '=', 'se.id_cuis')
         ->leftJoin('siat__cufd as cuf', 'cuf.id', '=', 'se.id_cufd')
-        ->join('users as u', 'u.id', '=', 'se.id_usuario_modifica')
+        ->leftJoin('users as u', 'u.id', '=', 'se.id_usuario_modifica')
         ->select(
             'se.id',
             'se.nombre',
@@ -60,6 +61,7 @@ class SiatEmisorController extends Controller
         ->whereRaw($where) 
         ->orderBy('id', 'desc')    
         ->paginate(15);
+
         return 
         [
                 'pagination'=>
