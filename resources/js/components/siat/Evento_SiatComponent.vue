@@ -47,7 +47,7 @@
                     <label for="">Evento:</label>
                     <div class="input-group">
                         
-<button type="submit" class="btn btn-primary" @click="consultarEventoSiat()">Estado</button>
+<button type="submit" class="btn btn-primary" @click="abrirModal('contingencia_consullta_modal');">Estado</button>
                     </div>
                 </div> 
             </div>
@@ -134,7 +134,7 @@
     <a  class="dropdown-item" href="#" ><i style="color: black;" class="fa fa-eye" aria-hidden="true"></i>Ver estado factura</a>     
     <a  class="dropdown-item" href="#"><i style="color: black;" class="fa fa-eye" aria-hidden="true"></i>Ver en SIAT</a>
     <a v-show="i.codEstado != '908'" class="dropdown-item" href="#" @click="abrirModal('contingencia',i);" ><i style="color: black;"  class="fa fa-exclamation-triangle" aria-hidden="true"></i>Contingencia</a>
-    <a v-show="i.codEstado != '908'" class="dropdown-item" href="#" @click="consultarEventoSiat(i);" ><i style="color: black;"  class="fa fa-exclamation-triangle" aria-hidden="true"></i>Consulta evento</a>
+   
     <a  class="dropdown-item" href="#"><i style="color: black;" class="fa fa-refresh" aria-hidden="true"></i>Anular</a>   
      </div>  
                             
@@ -375,28 +375,58 @@
                     <form class="form-horizontal">
                         <div class="row" style="margin-top: 10px;">
                             <div class="col-md-4">
+                            <label for="">Fecha:</label>
+                                <div class="input-group">
+                                 <input type="date" class="form-control" v-model="fechaPP">                           
+                                </div>                                
+                            </div> 
+                            <div class="col-md-4">
                             <label for="">Seleccionar sucursal siat:</label>
                                 <div class="input-group">
-                                    <select class="form-control" v-model="select_query_1">
+                                    <select class="form-control" v-model="select_query_1" :disabled="siguienteP==1">
                                         <option value="0" disabled selected>Seleccionar...</option>                               
-                                        <option  v-for="(i, index) in array_query_1" :key="index" :value="i.id">{{  "("+i.codigo_siat+") "+i.nombre_suc_siat }}</option>                              
+                                        <option  v-for="(i, index) in array_query_1" :key="index" :value="i.id" >{{  "("+i.codigo_siat+") "+i.nombre_suc_siat }}</option>                              
                                     </select>
-                                 <button type="submit" class="btn btn-primary" @click="listarModalSucuralSiatPunto(2,select_query_1)" :disabled="select_query_1==='0'">
-                                    <i class="fa fa-search"></i> 
+                                 <button type="button" class="btn btn-primary" @click="listarModalSucuralSiatPunto(2,select_query_1); operacionT(1)" :disabled="siguienteP==1||select_query_1=='0'">
+                                    <i class="fa fa-angle-double-right" aria-hidden="true"></i>
                                 </button>
                                 </div>                                
                             </div>
-                            <div class="col-md-4" v-show="select_query_1!='0'">
-                            <label for="">punto de venta:</label>
+                            <div class="col-md-4" v-show="siguienteP==1">
+                            <label for="">Punto de venta:</label>
                                 <div class="input-group">
-                                    <select class="form-control" v-model="select_query_2">
+                                    <select class="form-control" v-model="select_query_2" :disabled="siguienteP_1==1">
                                         <option value="0" disabled selected>Seleccionar...</option>                               
-                                        <option  v-for="(i, index) in array_query_2" :key="index" :value="i.id_punto_venta">{{  "("+i.nombre+") "+i.descripcion }}</option>                              
-                                    </select>                                
+                                        <option  v-for="(i, index) in array_query_2" :key="index" :value="i.id" :disabled="siguienteP_1===1">{{  "("+i.nombre+") "+i.descripcion }}</option>                              
+                                    </select>
+                                     <button type="button" class="btn btn-primary" @click="operacionT(2)" style="margin-right: 5px;">
+                                    <i class="fa fa-angle-double-left" aria-hidden="true"></i>
+                                </button>
+                                    <button type="button" class="btn btn-primary" @click="consultarEventoSiat()" :disabled="siguienteP_1===1 || select_query_2=='0'||fechaPP==''">
+                                    Listar
+                                </button>
+                                                            
                                 </div>                                
-                            </div>                           
+                            </div>  
+                                                        
                         </div>         
                     </form>
+                    <div style="margin-top: 20px;" v-show="ver_1_==1">
+<div v-show="mesanje_3_===0" class="alert alert-success" role="alert">
+                        {{mesanje_1_}}
+                        </div>
+<div v-show="mesanje_3_===1" class="alert alert-warning" role="alert">
+                        {{mesanje_1_}}
+                        </div>
+                        <div v-show="mesanje_3_===2" class="alert alert-danger" role="alert">
+                        {{mesanje_1_}}
+                        </div>
+                         <label for="">
+                                {{mesanje_2_}}
+                         </label>
+                    </div>
+                        
+                     
 
                 </div>
 
@@ -485,9 +515,18 @@ offset:3,
         pagina_uno:0,
 
         array_query_1:[],
-        select_query_1:'0',
+        
         array_query_2:[],
         select_query_2:'0',
+        select_query_1:'0',
+        siguienteP:0,
+        siguienteP_1:0,  
+        fechaPP:'',
+
+        mesanje_1_:'',
+mesanje_2_:'',
+mesanje_3_:'',
+ver_1_:0,
         };
     },
 
@@ -534,28 +573,15 @@ offset:3,
 
          consultarEventoSiat() {
             let me=this;
-                me.tipoAccion = 1;
-                me.showModal_3=true;
-                me.tituloModal = "Estado contingencia.";
-            
-                    me.classModal.openModal("contingencia_consullta_modal");
-
-
-         return 0;
-
-            let fechaEmision=dato_i.fechaEmision;
-             let fechaEmision_utc= new Date(fechaEmision).toISOString();
-            let id_suc_siat=dato_i.id_suc_siat;
-             let id_sucursal=dato_i.id_sucursal;
- let punto_suc=dato_i.punto_suc;
-  let punto_venta=dato_i.punto_venta;
-
-             let tipo_contigencia=dato_i.tipo_contigencia;
-       
-             let url="/siat_eventos/consultarEventoSiat?fechaEmision="+fechaEmision_utc+"&id_suc_siat="+id_suc_siat+"&id_sucursal="+id_sucursal+"&punto_suc="+punto_suc+"&punto_venta="+punto_venta+"&tipo_contigencia="+tipo_contigencia;
+             let url="/siat_eventos/consultarEventoSiat?fechaEmision="+me.fechaPP+"&id_sucursal="+me.select_query_1+"&punto_ventar="+me.select_query_2;
              axios.get(url)
              .then(function (response) {
                  let respuesta=response.data;
+                
+                 me.mesanje_1_=respuesta.error;
+                me.mesanje_2_=respuesta.message;
+                me.mesanje_3_=respuesta.nivel;
+                me.ver_1_=1;
                  console.log(respuesta);
                  
              })
@@ -563,17 +589,26 @@ offset:3,
                  error401(error);
                  console.log(error);
              }); 
-            console.log(dato_i);
-            /* me.id_sucursal_modal=dato_i.id_sucursal;
-             me.id_cufd_modal=dato_i.id_cufd;
-             me.punto_suc=dato_i.punto_suc;
-             me.punto_venta=dato_i.punto_venta;
-             me.id_suc_siat=dato_i.id_suc_siat;
-             */
-           
            
         },
 
+        operacionT(dato){
+            let me=this;
+            if (dato==1) {
+               me.siguienteP=1; 
+            }
+            if (dato==2) {
+                me.select_query_2='0';
+               me.siguienteP=0; 
+            }
+           
+         
+         
+          //  if (dato==1) {
+          //      let array=me.array_query_1.find(e=>e.id==select_query_1);
+          //      me.punto_suc=array.codigo_siat;
+          //  }
+        },
         
 listarModalSucuralSiatPunto(entrada,id) {
         let me = this;
@@ -586,6 +621,7 @@ listarModalSucuralSiatPunto(entrada,id) {
                     }
 
                     if (entrada==2) {
+                       
                         me.array_query_2=[];
                         me.array_query_2=respuesta;
                     }                    
@@ -902,8 +938,16 @@ listarInicio(page,data)
                    me.tipoAccion = 1;
                    me.showModal_3=true;
                     me.tituloModal = "Estado contingencia.";
-                   
-                    console.log(data);
+            me.select_query_2='0';
+            me.select_query_1='0';
+            me.siguienteP=0;
+            me.siguienteP_1=0;  
+            me.fechaPP='';
+
+        me.mesanje_1_='';
+        me.mesanje_2_='';
+        me.mesanje_3_='';
+        me.ver_1_=0;
             
                     me.classModal.openModal("contingencia_consullta_modal");
 
@@ -955,6 +999,16 @@ listarInicio(page,data)
                 me.classModal.closeModal(accion);
                 me.showModal_3 = false;
                  me.tituloModal = " ";
+               me.select_query_2='0';
+            me.select_query_1='0';
+            me.siguienteP=0;
+            me.siguienteP_1=0;  
+            me.fechaPP='';
+
+        me.mesanje_1_='';
+        me.mesanje_2_='';
+        me.mesanje_3_='';
+        me.ver_1_=0;
             }    
         },
 

@@ -343,27 +343,46 @@ class SiatEventoController extends Controller
     public function getEventoSiat(Request $request){
         try {
            
-            $codigoPuntoVenta=$request->punto_venta;
-            //$fechaHoraInicioEvento = Carbon::parse($request->startDate_modal_1)->format('Y-m-d\TH:i:s.v');
-            $id_suc_siat=$request->id_suc_siat;
-            $fechaEvento=$request->fechaEmision;
-              $codigoSucursal=$request->punto_suc;
+        
+          $id_sucursal_siat=$request->id_sucursal;
+          $id_emisor=$request->punto_ventar;
+          $fechaEvento=$request->fechaEmision;
+
+
+                $query_0_0 = DB::table('siat__sucursals')
+    ->where('id', $id_sucursal_siat)
+    ->select('codigo_siat')
+    ->first();
+    if(!$query_0_0){
+        
+         return response()->json([
+                'error' => 'No existe la sucursal con id ".$id_sucursal_siat." o la tabla de sucursales no tiene datos.',  
+                'message' => 0,            
+                'nivel'=>2,
+            ]);    
+    }
+
 
                        $query_1 = DB::table('siat__emisors as e')
     ->leftJoin('siat__cuis as cuis', 'cuis.id', '=', 'e.id_cuis')
     ->leftJoin('siat__cufd as cufd', 'cufd.id', '=', 'e.id_cufd')
-    ->where('e.id_siat_sucursal', $id_suc_siat)
+    ->where('e.id_siat_sucursal', $id_sucursal_siat)
     ->where('e.estado', 1)
-    ->where('e.id_punto_venta', $codigoPuntoVenta)
+    ->where('e.id', $id_emisor)
     ->where('e.delete', 0)
-    ->select('cuis.dato as cuis','cufd.dato as cufd')
+    ->select('cuis.dato as cuis','cufd.dato as cufd','e.id_punto_venta')
     ->first();
       if (!$query_1) {
-                    return "no exite el cuis o cufd para esta sucursal y punto de venta";
+        return response()->json([
+                'error' => 'No exite el cuis o cufd para esta sucursal y punto de ventas.',   
+                'message' => 0,           
+                'nivel'=>2,
+            ]);                 
                 }
         
         $cuis=$query_1->cuis;
         $cufd=$query_1->cufd;
+        $id_punto_venta=$query_1->id_punto_venta;
 
                $query_2 = DB::table('siat__configuracions as e')    
     ->where('e.id', 1)
@@ -371,7 +390,11 @@ class SiatEventoController extends Controller
     ->first();
     
     if (!$query_2) {
-        return "La tabla de configuracion no tiene los datos para hacer esta operacion.";
+        return response()->json([
+                'error' => 'La tabla de configuracion no tiene los datos para hacer esta operacion.', 
+                'message' => 0,             
+                'nivel'=>2,
+            ]);      
         }
 
     $codigoSistema=$query_2->cod_sis;
@@ -384,7 +407,11 @@ class SiatEventoController extends Controller
         ->value('nit');
 
         if ($nit==null) {
-        return "NIT sin configurar.";
+            return response()->json([
+                'error' => 'NIT sin configurar.',  
+                'message' => 0,            
+                'nivel'=>2,
+            ]);        
         }
 
         $endPoints = DB::table('siat__endpoints as se')    
@@ -394,7 +421,11 @@ class SiatEventoController extends Controller
         ->first(); 
 
                 if (!$endPoints) {
-                    return "no exite la tabla o el id fue cambiado ya que debe ser el 2 como id pivote";
+                    return response()->json([
+                        'error' => 'No existe la tabla de endpoints o el id fue cambiado ya que debe ser el 2 como id pivote',
+                        'message' => 0,   
+                        'nivel' => 2,
+                    ]);
                 }
 
         $cadena_url=$endPoints->Url; 
@@ -410,9 +441,9 @@ class SiatEventoController extends Controller
                <siat:consultaEventoSignificativo>
                     <SolicitudConsultaEvento>                    
                     <codigoAmbiente>{$codigoAmbiente}</codigoAmbiente>        
-                    <codigoPuntoVenta>{$codigoPuntoVenta}</codigoPuntoVenta>
+                    <codigoPuntoVenta>{$id_punto_venta}</codigoPuntoVenta>
                     <codigoSistema>{$codigoSistema}</codigoSistema>
-                    <codigoSucursal>{$codigoSucursal}</codigoSucursal>
+                    <codigoSucursal>{$query_0_0->codigo_siat}</codigoSucursal>
                     <cufd>{$cufd}</cufd>
                     <cuis>{$cuis}</cuis>
                     <fechaEvento>{$fechaEvento}</fechaEvento>
@@ -447,9 +478,41 @@ class SiatEventoController extends Controller
                         // Cerrar la sesión de cURL
                         curl_close($ch);
                 if (empty($response)) {
-    return("Error 2: ".$response);
+                     return response()->json([
+                'error' => 'Error. '.$response,              
+                'nivel'=>1,
+            ]);    
 }
-return $response;
+ // Convertir la respuesta en un objeto SimpleXMLElement
+                   $xml = simplexml_load_string($response);  
+                 
+              
+                    // Usar XPath para encontrar el nodo <transaccion>
+  $transaccion = $xml->xpath('//transaccion');
+  if ($transaccion && isset($transaccion[0])) {  
+     if ($transaccion[0]== 'true') {  
+        
+            return response()->json([
+                'error' => 'Transacción exitosa',
+                'message' => $response,
+                'nivel'=>0,
+            ]);
+              
+     }else{
+        return response()->json([
+                'error' => 'Error nivel 1.',  
+                 'message' => $response,             
+                'nivel'=>1,
+            ]); 
+     }
+  }else{
+     return response()->json([
+                'error' => 'Error nivel 2.',  
+                 'message' => $response,            
+                'nivel'=>1,
+            ]); 
+  }
+
 
         } catch (\Throwable $th) {
             return $th;
@@ -483,7 +546,7 @@ public function getModalSucuralSiatPunto(Request $request){
     if ($entrada==2) {
     $sucursal=$request->id;
      $datos = DB::table('siat__emisors')
-    ->select('nombre', 'descripcion', 'id_punto_venta')
+    ->select('id','nombre', 'descripcion', 'id_punto_venta')
     ->where('id_siat_sucursal', $sucursal)
     ->where('estado', 1)
     ->where('punto_venta_eliminado', 1)
