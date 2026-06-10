@@ -33,7 +33,8 @@
                                 <button type="submit" class="btn btn-primary" @click="listarInicio(1,2)" :disabled="buscar_factura===''"><i class="fa fa-search"></i></button>
                     </div>
                 </div>
-                <div class="col-md-6">
+                 
+                <div class="col-md-5">
                     <label for="">CUF:</label>
                     <div class="input-group">
                                 <input type="text" class="form-control" placeholder="Buscar codigo de autorización" v-model="buscar_cuf"/>
@@ -41,7 +42,14 @@
                                     <i class="fa fa-search"></i> 
                                 </button>
                     </div>
-                </div>   
+                </div>
+                 <div class="col-md-1">
+                    <label for="">Evento:</label>
+                    <div class="input-group">
+                        
+<button type="submit" class="btn btn-primary" @click="consultarEventoSiat()">Estado</button>
+                    </div>
+                </div> 
             </div>
             <div class="form-group row">
                 <div class="col-md-3">
@@ -54,8 +62,7 @@
                                  <button type="submit" class="btn btn-primary" @click="listarInicio(1,4)" :disabled="selectSector==='0'">
                                     <i class="fa fa-search"></i> 
                                 </button>
-                 </div>
-                                
+                 </div>                                
                 </div>
                 <div class="col-md-3">
                      <label for="">Estado SIAT:</label>
@@ -351,7 +358,7 @@
         <!--fin del modal-->
 
         <!--Inicio del modal estado de contingencia-->
-      <transition name="fade">
+    <transition name="fade">
     <div v-if="showModal_3" class="modal d-block" tabindex="-1" role="dialog">
         <div class="modal-dialog modal-primary modal-lg modal-dialog-scrollable" role="document">
             <div class="modal-content">
@@ -366,14 +373,29 @@
                 <div class="modal-body">
                    
                     <form class="form-horizontal">
-                         <div class="row" style="margin-top: 10px;">
-                        <div class="col-4">
-                        <label for="">Tipo de contingencia:</label>
-                        </div>
-                        
-                    </div>               
-                                    
-                             
+                        <div class="row" style="margin-top: 10px;">
+                            <div class="col-md-4">
+                            <label for="">Seleccionar sucursal siat:</label>
+                                <div class="input-group">
+                                    <select class="form-control" v-model="select_query_1">
+                                        <option value="0" disabled selected>Seleccionar...</option>                               
+                                        <option  v-for="(i, index) in array_query_1" :key="index" :value="i.id">{{  "("+i.codigo_siat+") "+i.nombre_suc_siat }}</option>                              
+                                    </select>
+                                 <button type="submit" class="btn btn-primary" @click="listarModalSucuralSiatPunto(2,select_query_1)" :disabled="select_query_1==='0'">
+                                    <i class="fa fa-search"></i> 
+                                </button>
+                                </div>                                
+                            </div>
+                            <div class="col-md-4" v-show="select_query_1!='0'">
+                            <label for="">punto de venta:</label>
+                                <div class="input-group">
+                                    <select class="form-control" v-model="select_query_2">
+                                        <option value="0" disabled selected>Seleccionar...</option>                               
+                                        <option  v-for="(i, index) in array_query_2" :key="index" :value="i.id_punto_venta">{{  "("+i.nombre+") "+i.descripcion }}</option>                              
+                                    </select>                                
+                                </div>                                
+                            </div>                           
+                        </div>         
                     </form>
 
                 </div>
@@ -462,6 +484,10 @@ offset:3,
         
         pagina_uno:0,
 
+        array_query_1:[],
+        select_query_1:'0',
+        array_query_2:[],
+        select_query_2:'0',
         };
     },
 
@@ -506,8 +532,17 @@ offset:3,
 
     methods: {
 
-         consultarEventoSiat(dato_i) {
-            let me = this;
+         consultarEventoSiat() {
+            let me=this;
+                me.tipoAccion = 1;
+                me.showModal_3=true;
+                me.tituloModal = "Estado contingencia.";
+            
+                    me.classModal.openModal("contingencia_consullta_modal");
+
+
+         return 0;
+
             let fechaEmision=dato_i.fechaEmision;
              let fechaEmision_utc= new Date(fechaEmision).toISOString();
             let id_suc_siat=dato_i.id_suc_siat;
@@ -537,6 +572,27 @@ offset:3,
              */
            
            
+        },
+
+        
+listarModalSucuralSiatPunto(entrada,id) {
+        let me = this;
+        let url = "/siat_eventos/listarModalSucuralSiatPunto?entrada="+entrada+"&id="+id;
+        axios.get(url)
+                .then(function (response) {
+                    let respuesta = response.data;   
+                    if (entrada==1) {
+                        me.array_query_1=respuesta;
+                    }
+
+                    if (entrada==2) {
+                        me.array_query_2=[];
+                        me.array_query_2=respuesta;
+                    }                    
+                })
+                .catch(function (error) {
+                    error401(error);
+                });
         },
 
         enviarContingencia(){
@@ -587,7 +643,6 @@ offset:3,
         
          listarQueryModal_1(data2) {
             let me = this;
-            
              
            let url = "/siat_eventos/listarQueryModal_1?id_sucursal="+data2.id_sucursal+"&suc="+data2.punto_venta+"&id_contigencia="+data2.tipo_contigencia;
             axios
@@ -921,6 +976,7 @@ listarInicio(page,data)
         this.classModal.addModal("registrar");
         this.classModal.addModal("contingencia");
         this.classModal.addModal("contingencia_consullta_modal");
+        this.listarModalSucuralSiatPunto(1,0);
          
     },
 };

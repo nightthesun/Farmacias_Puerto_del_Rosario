@@ -281,6 +281,7 @@ class SiatEventoController extends Controller
             </soapenv:Body>
          </soapenv:Envelope>
          EOD;
+         
            $ch = curl_init();
             
                         // Configuración de la solicitud cURL
@@ -421,7 +422,8 @@ class SiatEventoController extends Controller
             </soapenv:Body>
          </soapenv:Envelope>
          EOD;  
-           $ch = curl_init();
+         
+         $ch = curl_init();
             
                         // Configuración de la solicitud cURL
                         curl_setopt($ch, CURLOPT_URL, $wsdl); // Reemplaza con el endpoint correcto
@@ -469,6 +471,27 @@ return $response;
         }
     }
 
+public function getModalSucuralSiatPunto(Request $request){
+    $entrada=$request->entrada;
+    if ($entrada==1) {
+        $datos = DB::table('siat__sucursals')
+    ->select('id', 'nombre_suc_siat', 'codigo_siat')    
+    ->get();
+    return $datos;
+    }
 
+    if ($entrada==2) {
+    $sucursal=$request->id;
+     $datos = DB::table('siat__emisors')
+    ->select('nombre', 'descripcion', 'id_punto_venta')
+    ->where('id_siat_sucursal', $sucursal)
+    ->where('estado', 1)
+    ->where('punto_venta_eliminado', 1)
+    ->where('delete', 0)
+    ->get();
+    return $datos;
+    } 
+    
+}
     
 }
