@@ -34,7 +34,7 @@
                     </div>
                 </div>
                  
-                <div class="col-md-5">
+                <div class="col-md-4">
                     <label for="">CUF:</label>
                     <div class="input-group">
                                 <input type="text" class="form-control" placeholder="Buscar codigo de autorización" v-model="buscar_cuf"/>
@@ -43,13 +43,18 @@
                                 </button>
                     </div>
                 </div>
-                 <div class="col-md-1">
-                    <label for="">Evento:</label>
-                    <div class="input-group">
-                        
-<button type="submit" class="btn btn-primary" @click="abrirModal('contingencia_consullta_modal');">Estado</button>
-                    </div>
+                 <div class="col-md-2">
+                   
+                                          
+                    <button type="submit" class="btn btn-primary" @click="abrirModal('contingencia_consullta_modal');" style="margin-top: 28px; margin-right: 10px;" data-toggle="tooltip" data-placement="top" title="CONSULTAR ESTADO DE CONTINGENCIA">
+                        <i class="fa fa-eye " aria-hidden="true" ></i>
+                    </button>
+                    <button type="submit" class="btn btn-primary" @click="abrirModal('contingencia_2');" style="margin-top: 28px; margin-right: 10px;" data-toggle="tooltip" data-placement="top" title="REALIZAR EVENTO SIGFICATIVO">
+                        <i class="fa fa-wrench" aria-hidden="true"></i>
+                    </button>
+                 
                 </div> 
+               
             </div>
             <div class="form-group row">
                 <div class="col-md-3">
@@ -315,7 +320,7 @@
                         <div class="col-8">
                               <select class="form-control" v-model="selectListaContingencia_2" @change="cambioOpcion_modal(selectListaContingencia_2)">
                             <option value="0" disabled selected>Seleccionar...</option>    
-                        <option  v-for="(i, index) in arrayListaContingencia_2" :key="index" :value="i.codigo">{{  "("+i.codigo+") "+i.descripcion }}</option> 
+                        <option  v-for="(i, index) in arrayListaContingencia_2" :key="index" :value="i.codigo" :hidden="i.codigo>=5">{{  "("+i.codigo+") "+i.descripcion }}</option> 
                               </select>
                             
                         </div>
@@ -442,12 +447,99 @@
 </transition>
         <!--fin del modal-->
 
+         <!--Inicio del modal estado de contingencia manual-->
+    <transition name="fade">
+    <div v-if="showModal_4" class="modal d-block" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-primary  modal-dialog-scrollable" role="document">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h4 class="modal-title">{{ tituloModal }}</h4>
+                    <button type="button" class="close" @click="cerrarModal('contingencia_2')">
+                        <span>&times;</span>
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                   
+                    <form class="form-horizontal">
+                        <div  style="margin-top: 10px;">                            
+                           
+                            <label for="">Seleccionar sucursal siat:</label>
+                                <div class="input-group">
+                                    <select class="form-control" v-model="select_query_1" :disabled="siguienteP==1">
+                                        <option value="0" disabled selected>Seleccionar...</option>                               
+                                        <option  v-for="(i, index) in array_query_1" :key="index" :value="i.id" >{{  "("+i.codigo_siat+") "+i.nombre_suc_siat }}</option>                              
+                                    </select>
+                                 <button type="button" class="btn btn-primary" @click="listarModalSucuralSiatPunto(2,select_query_1); operacionT(1)" :disabled="siguienteP==1||select_query_1=='0'">
+                                   <i class="fa fa-angle-double-down" aria-hidden="true"></i>
+                                </button>
+                                </div> 
+                                <div v-show="siguienteP==1" style="margin-top: 10px;">
+                                    <label for="">Punto de venta:</label>
+                                        <div class="input-group">
+                                        <select class="form-control" v-model="select_query_2" :disabled="siguienteP_1==1">
+                                            <option value="0" disabled selected>Seleccionar...</option>                               
+                                            <option  v-for="(i, index) in array_query_2" :key="index" :value="i.id" :disabled="siguienteP_1===1">{{  "("+i.nombre+") "+i.descripcion }}</option>                              
+                                        </select>
+                                        <button type="button" class="btn btn-primary" @click="operacionT(2)" style="margin-right: 5px;">
+                                        <i class="fa fa-angle-double-up" aria-hidden="true"></i>
+                                        </button>                          
+                                        </div>
+                                     <label for="">Tipo evento:</label>    
+                                         <select class="form-control" v-model="selectListaContingencia_2" @change="cambioOpcion_modal(selectListaContingencia_2)">
+                                        <option value="0" disabled selected>Seleccionar...</option>    
+                                        <option  v-for="(i, index) in arrayListaContingencia_2" :key="index" :value="i.codigo">{{  "("+i.codigo+") "+i.descripcion }}</option> 
+                                        </select>
+
+                                         <div class="row" style="margin-top: 10px;">
+                        <div class="col-6">
+                        <label for="">Fecha y hora de inicio de contingencia:</label>
+                        
+                    <input id="start-date" type="datetime-local" class="form-control" v-model="startDate_modal_1">
+                        </div>
+                        <div class="col-6">
+                        <label for="">Fecha y hora de finalización de contingencia:</label>                      
+                    <input id="end-date" type="datetime-local" class="form-control" v-model="endDate_modal_1">
+                        </div>     
+
+                    </div>  
+                    <div style="margin-top: 10px;" v-show="selectListaContingencia_2>=5">
+                    <label for="">CAFC:</label>  
+                     <div class="alert alert-warning" role="alert">
+                        Esta opcion es para tipo de contigencia 5, 6 y 7
+                    </div>
+                  <input type="text"  class="form-control" placeholder="Ingresa el codigo CAFC" v-model="codigo_cafc">
+                    </div>
+                   
+                                </div> 
+                        </div>  
+                    </form>
+                    
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @click="cerrarModal('contingencia_2')">
+                        Cerrar
+                    </button>
+                    <button type="button" class="btn btn-primary" @click="enviarEventoManual()" :disabled="siguienteP==0">
+                        Registrar
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</transition>
+        <!--fin del modal-->
+
     </main>
 </template>
 
 <script>
 import Swal from "sweetalert2";
 import { error401 } from "../../errores";
+import { calendarFormat } from "moment";
 //Vue.use(VeeValidate);
 export default {
     data() {
@@ -498,6 +590,7 @@ offset:3,
 
         showModal_2:false,
       showModal_3:false,
+      showModal_4:false,
         arrayListaContingencia_2:[],
         selectListaContingencia_2:'0',
         contingencia_descripcion_modal:'',
@@ -527,6 +620,7 @@ offset:3,
 mesanje_2_:'',
 mesanje_3_:'',
 ver_1_:0,
+codigo_cafc:'',
         };
     },
 
@@ -570,6 +664,38 @@ ver_1_:0,
     },
 
     methods: {
+
+        enviarEventoManual(){
+            let me=this;
+            if (me.select_query_1=='0'||me.select_query_2=='0'||me.selectListaContingencia_2=='0'||me.endDate_modal_1==''||me.startDate_modal_1=='') {
+                return Swal.fire('Error','No debe haber espacion sin llenar','error');
+            }
+            axios.post("/siat_eventos/enviarEventoManual", { 
+                    id_sucursal: me.select_query_1,
+                    punto_venta: me.select_query_2,
+                    id_contigencia:me.selectListaContingencia_2,
+                    fecha_fin:me.endDate_modal_1,
+                    fecha_ini:me.startDate_modal_1,
+                    cafc:me.codigo_cafc,  
+                    contingencia_descripcion_modal:me.contingencia_descripcion_modal,
+                  contigenciaDes_codigo_modal:me.contigenciaDes_codigo_modal                                                     
+                })
+                .then(function (response) {                   
+                    let respuesta=response.data;
+                    //   if(respuesta===0){
+                    //        return Swal.fire('Acción realizada','con exito.','success');
+                    //    }else{
+                    //        return Swal.fire('Error',' '+respuesta,'error');
+                     //   }              
+                          console.log(respuesta);
+                  //  me.listarInicio(0,me.pagina_uno)              
+                 //   me.cerrarModal('contingencia_2');        
+                                             
+                })               
+                .catch(function (error) {                
+                 error401(error);              
+            });
+        },
 
          consultarEventoSiat() {
             let me=this;
@@ -953,6 +1079,29 @@ listarInicio(page,data)
 
                     break;  
                 }
+
+                 case "contingencia_2":{
+                   me.tipoAccion = 1;
+                   me.showModal_4=true;
+                    me.tituloModal = "Registro de nuevo evento de contigencia.";
+                    me.select_query_2='0';
+                    me.selectListaContingencia_2='0';
+                    
+            me.select_query_1='0';
+            me.siguienteP=0;
+            me.siguienteP_1=0;  
+            me.fechaPP='';
+
+            me.codigo_cafc="";
+            me.endDate_modal_1="";
+            me.startDate_modal_1="";
+
+                
+            
+                    me.classModal.openModal("contingencia_2");
+
+                    break;  
+                }
             
             }
         },
@@ -1010,6 +1159,27 @@ listarInicio(page,data)
         me.mesanje_3_='';
         me.ver_1_=0;
             }    
+
+            if (accion == "contingencia_2") {
+                me.classModal.closeModal(accion);
+                me.showModal_4 = false;
+                 me.tituloModal = " ";
+                  me.select_query_2='0';
+                    me.selectListaContingencia_2='0';
+                    
+            me.select_query_1='0';
+            me.siguienteP=0;
+            me.siguienteP_1=0;  
+            me.fechaPP='';
+
+            me.codigo_cafc="";
+            me.endDate_modal_1="";
+            me.startDate_modal_1="";
+
+             
+            }  
+
+            
         },
 
      
@@ -1030,6 +1200,7 @@ listarInicio(page,data)
         this.classModal.addModal("registrar");
         this.classModal.addModal("contingencia");
         this.classModal.addModal("contingencia_consullta_modal");
+        this.classModal.addModal("contingencia_2");
         this.listarModalSucuralSiatPunto(1,0);
          
     },

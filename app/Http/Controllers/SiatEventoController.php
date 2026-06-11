@@ -323,6 +323,7 @@ class SiatEventoController extends Controller
                                 
                     $dataa = simplexml_load_string($codigoRecepcionEventoSignificativo);   
                     return $codigoRecepcionEventoSignificativo;
+                    
 
 
             } else {
@@ -331,9 +332,10 @@ class SiatEventoController extends Controller
     } else {         
         return $respuesta;
     } 
-        return 0;
+        
 
                  DB::commit();
+                 return 0;
             } catch (\Throwable $th) {
                 return $th;
             }             
@@ -555,6 +557,162 @@ public function getModalSucuralSiatPunto(Request $request){
     return $datos;
     } 
     
+}
+
+public function sendEventoManual(Request $request){
+    
+    try {
+                DB::beginTransaction();
+
+                $cafc=$request->cafc;
+              $fechaHoraFinEvento = Carbon::parse($request->endDate_modal_1)->format('Y-m-d\TH:i:s.v');
+               $fechaHoraInicioEvento = Carbon::parse($request->startDate_modal_1)->format('Y-m-d\TH:i:s.v');
+                $codigoMotivoEvento=$request->contigenciaDes_codigo_modal;
+                $id_suc_siat=$request->id_sucursal;
+                $codigoPuntoVenta=$request->punto_venta;
+                $descripcion=$request->contingencia_descripcion_modal;
+
+               // return $request->all();
+
+                   $query_0_0 = DB::table('siat__sucursals')
+    ->where('id', $id_suc_siat)
+    ->select('codigo_siat')
+    ->first();
+    if(!$query_0_0){
+        
+         return 'No existe la sucursal con id '.$id_suc_siat.' o la tabla de sucursales no tiene datos.';  
+                
+    }
+                $codigoSucursal=$query_0_0->codigo_siat;
+
+               
+                $query_1 = DB::table('siat__emisors as e')
+    ->leftJoin('siat__cuis as cuis', 'cuis.id', '=', 'e.id_cuis')
+    ->leftJoin('siat__cufd as cufd', 'cufd.id', '=', 'e.id_cufd')
+    ->where('e.id_siat_sucursal', $id_suc_siat)
+    ->where('e.estado', 1)
+    ->where('e.id', $codigoPuntoVenta)
+    ->where('e.delete', 0)
+    ->select('cuis.dato as cuis','cufd.dato as cufd','e.id_emisor','e.id_punto_venta')
+    ->first();
+                if (!$query_1) {
+                    return "no exite el cuis o cufd para esta sucursal y punto de venta";
+                }
+        
+        $cuis=$query_1->cuis;
+        $cufd=$query_1->cufd;
+        $id_emisor=$query_1->id_emisor;
+        $id_punto_venta=$query_1->id_punto_venta;        
+        
+    $cufdAnterior = DB::table('siat__cufd as c')
+    ->select('c.dato')
+    ->where('c.id_emisor', $codigoPuntoVenta)
+    ->whereRaw('? BETWEEN c.created_at AND c.fecha_vigencia', [$request->startDate_modal_1])
+    ->first();
+
+    if (!$cufdAnterior->dato) {
+       return "No se encontro cufd en ese rango de fecha inicial de evento.";
+    }
+  $cufdAnterior= $cufdAnterior->dato;
+
+       $query_2 = DB::table('siat__configuracions as e')    
+    ->where('e.id', 1)
+    ->select('e.cod_sis','e.tipo_ambiente','e.token_delegado','e.tiempo_espera','e.tipo_modalidad')
+    ->first();
+    
+    if (!$query_2) {
+        return "La tabla de configuracion no tiene los datos para hacer esta operacion.";
+        }
+
+    $codigoSistema=$query_2->cod_sis;
+    $codigoAmbiente=$query_2->tipo_ambiente;
+    $tokenDelegado=$query_2->token_delegado;
+    $tiempoEspera=$query_2->tiempo_espera;
+    $tipoModalidad=$query_2->tipo_modalidad;
+
+       
+        
+       $nit = DB::table('adm__credecial_correos')
+        ->where('id',1)
+        ->value('nit');
+
+        if ($nit==null) {
+        return "NIT sin configurar.";
+        }
+
+        $endPoints = DB::table('siat__endpoints as se')    
+        ->select('se.id', 'se.Descripcion', 'se.Url', 'se.Version')
+        ->where('se.tipo', intval($codigoAmbiente))
+        ->where('se.id', 2)
+        ->first(); 
+
+                if (!$endPoints) {
+                    return "no exite la tabla o el id fue cambiado ya que debe ser el 2 como id pivote";
+                }
+
+        $cadena_url=$endPoints->Url; 
+         
+        $wsdl = $cadena_url;
+        // Asignación de la URL y API key
+        $apikeyValue = 'TokenApi ' .$tokenDelegado; // Concatenar correctamente el valor del API key
+                // Crear el cuerpo del mensaje SOAP, sustituyendo los valores con los parámetros correspondientes
+    
+        $xmlData = <<<EOD
+         <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:siat="https://siat.impuestos.gob.bo/">
+            <soapenv:Header/>
+            <soapenv:Body>
+               <siat:registroEventoSignificativo>
+                  <SolicitudEventoSignificativo>
+                    <codigoAmbiente>{$codigoAmbiente}</codigoAmbiente>
+                    <codigoMotivoEvento>{$codigoMotivoEvento}</codigoMotivoEvento>
+                    <codigoPuntoVenta>{$codigoPuntoVenta}</codigoPuntoVenta>
+                    <codigoSistema>{$codigoSistema}</codigoSistema>
+                    <codigoSucursal>{$codigoSucursal}</codigoSucursal>
+                    <cufd>{$cufd}</cufd>
+                    <cufdEvento>{$cufdAnterior}</cufdEvento>
+                    <cuis>{$cuis}</cuis>
+                    <descripcion>{$descripcion}</descripcion>
+                    <fechaHoraFinEvento>{$fechaHoraFinEvento}</fechaHoraFinEvento>
+                    <fechaHoraInicioEvento>{$fechaHoraInicioEvento}</fechaHoraInicioEvento>
+                    <nit>{$nit}</nit>
+                  </SolicitudEventoSignificativo>
+               </siat:registroEventoSignificativo>
+            </soapenv:Body>
+         </soapenv:Envelope>
+         EOD;
+         
+           $ch = curl_init();
+            
+                        // Configuración de la solicitud cURL
+                        curl_setopt($ch, CURLOPT_URL, $wsdl); // Reemplaza con el endpoint correcto
+                        curl_setopt($ch, CURLOPT_POST, 1);
+                        curl_setopt($ch, CURLOPT_POSTFIELDS, $xmlData);
+                    
+                        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                            'Content-Type: text/xml; charset=utf-8',
+                            'SOAPAction: ""', // Si el SOAPAction es requerido, inclúyelo aquí
+                            'apikey: ' . $apikeyValue // Incluye la API key con el valor correspondiente
+                        ]);
+                        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            
+                        // Ejecutar la solicitud y obtener la respuesta
+                        $response = curl_exec($ch);
+                       
+                        // Verificar si hubo un error en cURL
+                        if (curl_errno($ch)) {
+                            throw new \Exception(curl_error($ch));
+                        }            
+                        // Cerrar la sesión de cURL
+                        curl_close($ch);
+                if (empty($response)) {
+    return("Error 2: ".$response);
+}
+ DB::commit();
+ return $response;
+
+    } catch (\Throwable $th) {
+        return $th;
+    }
 }
     
 }
