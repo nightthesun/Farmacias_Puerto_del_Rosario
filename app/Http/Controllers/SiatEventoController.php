@@ -319,6 +319,7 @@ class SiatEventoController extends Controller
                 
                   //  $codigo_2 = $xml->xpath('//codigo');
                  //   $fechaVigencia= $xml->xpath('//fechaVigencia');
+                 return $response;
                  $codigoRecepcionEventoSignificativo=$xml->xpath('//codigoRecepcionEventoSignificativo');
                                 
                     $dataa = simplexml_load_string($codigoRecepcionEventoSignificativo);   
@@ -568,19 +569,21 @@ public function sendEventoManual(Request $request){
               $fechaHoraFinEvento = Carbon::parse($request->endDate_modal_1)->format('Y-m-d\TH:i:s.v');
                $fechaHoraInicioEvento = Carbon::parse($request->startDate_modal_1)->format('Y-m-d\TH:i:s.v');
                 $codigoMotivoEvento=$request->contigenciaDes_codigo_modal;
-                $id_suc_siat=$request->id_sucursal;
-                $codigoPuntoVenta=$request->punto_venta;
+                $id_sucursal=$request->id_sucursal;
+                $id_emisor=$request->punto_venta;
                 $descripcion=$request->contingencia_descripcion_modal;
+
+                
 
                // return $request->all();
 
                    $query_0_0 = DB::table('siat__sucursals')
-    ->where('id', $id_suc_siat)
+    ->where('id', $id_sucursal)
     ->select('codigo_siat')
     ->first();
-    if(!$query_0_0){
+    if(!$query_0_0 ||$query_0_0==null){
         
-         return 'No existe la sucursal con id '.$id_suc_siat.' o la tabla de sucursales no tiene datos.';  
+         return 'No existe la sucursal con id '.$id_sucursal.' o la tabla de sucursales no tiene datos.';  
                 
     }
                 $codigoSucursal=$query_0_0->codigo_siat;
@@ -589,38 +592,39 @@ public function sendEventoManual(Request $request){
                 $query_1 = DB::table('siat__emisors as e')
     ->leftJoin('siat__cuis as cuis', 'cuis.id', '=', 'e.id_cuis')
     ->leftJoin('siat__cufd as cufd', 'cufd.id', '=', 'e.id_cufd')
-    ->where('e.id_siat_sucursal', $id_suc_siat)
+    ->where('e.id_siat_sucursal', $id_sucursal)
     ->where('e.estado', 1)
-    ->where('e.id', $codigoPuntoVenta)
+    ->where('e.id', $id_emisor)
     ->where('e.delete', 0)
-    ->select('cuis.dato as cuis','cufd.dato as cufd','e.id_emisor','e.id_punto_venta')
+    ->select('cuis.dato as cuis','cufd.dato as cufd','e.id_punto_venta')
     ->first();
-                if (!$query_1) {
+   
+                if (!$query_1||$query_1==null) {
                     return "no exite el cuis o cufd para esta sucursal y punto de venta";
                 }
         
         $cuis=$query_1->cuis;
-        $cufd=$query_1->cufd;
-        $id_emisor=$query_1->id_emisor;
-        $id_punto_venta=$query_1->id_punto_venta;        
-        
+        $cufd=$query_1->cufd;      
+        $punto_venta=$query_1->id_punto_venta;      
+
+        $fecha_22 = Carbon::parse($request->startDate_modal_1)->format('Y-m-d H:i:s');
     $cufdAnterior = DB::table('siat__cufd as c')
-    ->select('c.dato')
-    ->where('c.id_emisor', $codigoPuntoVenta)
-    ->whereRaw('? BETWEEN c.created_at AND c.fecha_vigencia', [$request->startDate_modal_1])
+    ->select('c.dato as cufd_evento')
+    ->where('c.id_emisor', $id_emisor)
+    ->whereRaw('? BETWEEN c.created_at AND c.fecha_vigencia', [$fecha_22])
     ->first();
 
-    if (!$cufdAnterior->dato) {
+    if (!$cufdAnterior || $cufdAnterior==null) {
        return "No se encontro cufd en ese rango de fecha inicial de evento.";
     }
-  $cufdAnterior= $cufdAnterior->dato;
+  $cufdAnterior= $cufdAnterior->cufd_evento;
 
        $query_2 = DB::table('siat__configuracions as e')    
     ->where('e.id', 1)
     ->select('e.cod_sis','e.tipo_ambiente','e.token_delegado','e.tiempo_espera','e.tipo_modalidad')
     ->first();
     
-    if (!$query_2) {
+    if (!$query_2||$query_2==null) {
         return "La tabla de configuracion no tiene los datos para hacer esta operacion.";
         }
 
@@ -665,7 +669,7 @@ public function sendEventoManual(Request $request){
                   <SolicitudEventoSignificativo>
                     <codigoAmbiente>{$codigoAmbiente}</codigoAmbiente>
                     <codigoMotivoEvento>{$codigoMotivoEvento}</codigoMotivoEvento>
-                    <codigoPuntoVenta>{$codigoPuntoVenta}</codigoPuntoVenta>
+                    <codigoPuntoVenta>{$punto_venta}</codigoPuntoVenta>
                     <codigoSistema>{$codigoSistema}</codigoSistema>
                     <codigoSucursal>{$codigoSucursal}</codigoSucursal>
                     <cufd>{$cufd}</cufd>
@@ -680,7 +684,7 @@ public function sendEventoManual(Request $request){
             </soapenv:Body>
          </soapenv:Envelope>
          EOD;
-         
+       
            $ch = curl_init();
             
                         // Configuración de la solicitud cURL
