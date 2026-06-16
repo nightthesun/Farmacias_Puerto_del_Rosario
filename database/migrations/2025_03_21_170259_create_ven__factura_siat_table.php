@@ -32,7 +32,8 @@ return new class extends Migration
             $table->smallInteger('codEstado')->nullable();
             $table->smallInteger('codSector')->nullable(); 
             $table->tinyInteger('tipo_contigencia')->default(0)->nullable();  
-            $table->text('zip_factura')->nullable();                            
+            $table->text('zip_factura')->nullable();  
+            $table->tinyInteger('tipo_emision')->default(0)->nullable();                         
         });
         
     }

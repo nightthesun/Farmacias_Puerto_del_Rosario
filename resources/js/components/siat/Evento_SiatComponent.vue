@@ -621,6 +621,7 @@ mesanje_2_:'',
 mesanje_3_:'',
 ver_1_:0,
 codigo_cafc:'',
+id_evento_:'',
         };
     },
 
@@ -769,22 +770,21 @@ listarModalSucuralSiatPunto(entrada,id) {
          id_cufd_modal:me.id_cufd_modal,
         punto_suc:me.punto_suc,
         punto_venta:me.punto_venta,
-        id_suc_siat:me.id_suc_siat
+        id_suc_siat:me.id_suc_siat,
+        id:me.id_evento_,
        
                                   
                 })
                 .then(function (response) {                   
                     let respuesta=response.data;
-                    console.log(respuesta);     
+                   console.log(respuesta);
+                    me.listarInicio(0,me.pagina_uno);              
+                    me.cerrarModal('contingencia');    
                         if(respuesta===0){
                             return Swal.fire('Acción realizada','con exito.','success');
                         }else{
                             return Swal.fire('Error',' '+respuesta,'error');
-                        }              
-                          console.log(respuesta);
-                    me.listarInicio(0,me.pagina_uno)              
-                    me.cerrarModal('contingencia');        
-                                             
+                        }                              
                 })               
                 .catch(function (error) {                
                  error401(error);              
@@ -1044,7 +1044,12 @@ listarInicio(page,data)
                    me.tipoAccion = 1;
                    me.showModal_2=true;
                     me.tituloModal = "Contingencia de datos.";
-                    me.selectListaContingencia_2='0';
+                     if (data.tipo_contigencia==0||data.tipo_contigencia==null) {
+                    me.selectListaContingencia_2="0";     
+                    }else{
+                    me.selectListaContingencia_2=data.tipo_contigencia; 
+                    }
+                    
                     me.contingencia_descripcion_modal='';
                     me.contigenciaDes_codigo_modal='';
                     me.startDate_modal_1='';
@@ -1054,6 +1059,7 @@ listarInicio(page,data)
                     me.punto_venta=data.punto_venta;
                     me.id_sucursal_modal=data.id_sucursal;
                     me.id_suc_siat=data.id_suc_siat;
+                    me.id_evento_=data.id;
                     console.log(data);
             
                     me.classModal.openModal("contingencia");
@@ -1141,7 +1147,7 @@ listarInicio(page,data)
                     me.punto_venta='';
                     me.id_sucursal_modal='';
                     me.id_suc_siat='';
-
+me.id_evento_="";
                 me.tituloModal = " ";
             }    
             if (accion == "contingencia_consullta_modal") {

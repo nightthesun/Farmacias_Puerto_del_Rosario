@@ -86,7 +86,7 @@ class SiatEventoController extends Controller
         DB::raw('ss.razon_social as nomre_sucursal'),
         DB::raw('e.descripcion as sector_descripcion'),
         DB::raw('e.codigo as cod_sector'),
-        's.id as id_suc_siat',
+        's.id as id_suc_siat'
     )
   
     ->orderBy('f.id', 'desc')
@@ -179,8 +179,8 @@ class SiatEventoController extends Controller
             //    return $request->all();
             try {
 
-                DB::beginTransaction();
-                  $contigenciaDesCodigo=$request->contigenciaDes_codigo_modal;
+                DB::beginTransaction(); 
+                $id=$request->id;
                 $codigoMotivoEvento=$request->contingencia;
                 $descripcion=$request->contingencia_descripcion_modal;
 
@@ -192,6 +192,22 @@ class SiatEventoController extends Controller
                 $codigoPuntoVenta=$request->punto_venta;
                 $fechaHoraInicioEvento = Carbon::parse($request->startDate_modal_1)->format('Y-m-d\TH:i:s.v');
                 $id_suc_siat=$request->id_suc_siat;
+
+                 
+$xml_zip = DB::table('ven__factura_siat')
+        ->where('id',$id)
+        ->value('zip_factura');
+
+        if ($xml_zip==null) {
+            return "No existe factura comprimida en sistema.";
+        }
+          // 13. GZIP + Base64
+ $gzipped = gzencode($xml_zip);
+ $archivo = base64_encode($gzipped);
+ // 14. Calcular el HASH SHA256
+ $hashArchivo = hash('sha256', $gzipped);
+
+                 return 0;
 
                
                 $query_1 = DB::table('siat__emisors as e')
@@ -319,11 +335,13 @@ class SiatEventoController extends Controller
                 
                   //  $codigo_2 = $xml->xpath('//codigo');
                  //   $fechaVigencia= $xml->xpath('//fechaVigencia');
+                     $data_load = [
+                    'tipo_contigencia' => intval($codigoMotivoEvento)          
+                ];
+                
+                 DB::table('ven__factura_siat')->where('id', $id)->update($data_load);  
                  return $response;
-                 $codigoRecepcionEventoSignificativo=$xml->xpath('//codigoRecepcionEventoSignificativo');
-                                
-                    $dataa = simplexml_load_string($codigoRecepcionEventoSignificativo);   
-                    return $codigoRecepcionEventoSignificativo;
+               
                     
 
 
@@ -711,6 +729,8 @@ public function sendEventoManual(Request $request){
                 if (empty($response)) {
     return("Error 2: ".$response);
 }
+
+//-------- 
  DB::commit();
  return $response;
 
