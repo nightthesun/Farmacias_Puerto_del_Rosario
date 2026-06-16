@@ -387,11 +387,17 @@ EOD;
             $tipoFactura_22= $arrayEstado_dosificacion_facctura['tipo_factura'];
             $tipo_modalidad=$arrayEstado_dosificacion_facctura['tipo_modalidad'];
             $valor_ca=$arrayProRecibo[0]['rubro_siat_2'];
-            $fartura_zip=""; 
+            $fartura_zip=null; 
 
             $tipo_ambiente=$arrayEstado_dosificacion_facctura['tipo_ambiente'];
                 
             $contigencia=$this->detectarContingencia($tipo_ambiente);
+
+            if($contigencia==1){
+                $emision_c=2;
+            }else{
+               $emision_c=1; 
+            }
 
             $user_1 = auth()->user()->id;   
             if($user_1==1){
@@ -559,7 +565,7 @@ $leyenda = $tipoEmision_desc_5;
            $fechaFormateada = $fechaHora->format('YmdHisv'); // yyyyMMddHHmmssSSS 
            $sucursal = $arrayQuery_siat_['id_sucursal_siat'];//<----------------------------------------8 cabecera
            $modalidad = $arrayEstado_dosificacion_facctura['tipo_modalidad'];
-           $tipoEmision = $tipoEmision_cod_1;
+           $tipoEmision = $emision_c;
            $tipoFactura = $request->id_tipo_doc;//<----------------------------------------13 cabecera
             $tipoDocumentoSector = $tipoEmision_cod_3;
              $puntoVenta = $arrayQuery_siat_['punto_venta'];//<----------------------------------------10 cabecera
@@ -654,7 +660,7 @@ $codigoSistema=$arrayEstado_dosificacion_facctura['cod_sis'];
 
 $hashArchivo = $firma_f['hash'];
 $archivo = $firma_f['archivo'];
-$fartura_zip=$archivo;
+$fartura_zip=$factura___e;
 if($contigencia == 0) {
                 // 15. Enviar al SIAT
  $soap_llamada = $this->enviarFactura_siat(
@@ -670,12 +676,11 @@ if($contigencia == 0) {
 
                 if ($tipo_modalidad==2) {
                     $factura___c=$this->fac__computarizada_compra_venta($nitEmisor,$razonSocialEmisor,$municipio,$telefono,$numeroFactura,$cuf,$cufd,$codigoSucursal,$direccion,$codigoPuntoVenta,$fechaEmision,$nombreRazonSocial,$codigoTipoDocumentoIdentidad,$numeroDocumento,$complemento,$codigoCliente,$codigoMetodoPago,$numeroTarjeta,$montoTotal,$montoTotalSujetoIva,$codigoMoneda,$tipoCambio,$montoTotalMoneda,$leyenda,$usuario,$codigoDocumentoSector,$arrayProRecibo,$montoGiftCard,$descuentoAdicional,$codigoExcepcion);
-             
-          
+                     
                     // 13. GZIP + Base64
  $gzipped = gzencode($factura___c);
  $archivo = base64_encode($gzipped);
- $fartura_zip=$archivo;
+ $fartura_zip=$factura___c;
  // 14. Calcular el HASH SHA256
  $hashArchivo = hash('sha256', $gzipped);
  if($contigencia == 0) {
@@ -784,7 +789,7 @@ $soap_llamada = (string) $soap_llamada;
            $insertarVenta_v= $this->insertarVenta($codigoCliente,$total_venta,$efectivo_venta,$cambio_venta,$descuento_venta,$total_sin_des,$dato_tipo,
            $codigo_tienda_almacen_0,$id_lista_v2,$numero_referencia,$numeroDocumento,$nombreRazonSocial,$estado_dosificacion_facctura,$id_apertura_cierre,$tipo_venta,
     $monto_vale,$monto_apagar,$codigoMoneda,$arrayDescuentoOperacion,$arrayDesatlleVenta,$numeroTarjeta,$cadenaOtros,$tipoBanco,$id_cufd,$id_cuis
-    ,$cuf,$id_credenciales,$sucursal_siat,$punto_venta,$direccion,$municipio, $numeroFactura, $fechaEmision, $soap_llamada, $tipoEmision_cod_5,$codigoRecepcion, $codigoEstado, $codigoDescripcion,$contigencia,$sector_venta);     
+    ,$cuf,$id_credenciales,$sucursal_siat,$punto_venta,$direccion,$municipio, $numeroFactura, $fechaEmision, $soap_llamada, $tipoEmision_cod_5,$codigoRecepcion, $codigoEstado, $codigoDescripcion,$contigencia,$sector_venta,$fartura_zip,$tipoEmision);     
      
      $data_22 = $insertarVenta_v->getData(true); 
     if($data_22['data_1']==0){
@@ -916,7 +921,7 @@ $soap_llamada="sin datos";
    $insertarVenta_v= $this->insertarVenta($codigoCliente,$total_venta,$efectivo_venta,$cambio_venta,$descuento_venta,$total_sin_des,$dato_tipo,
            $codigo_tienda_almacen_0,$id_lista_v2,$numero_referencia,$numeroDocumento,$nombreRazonSocial,$estado_dosificacion_facctura,$id_apertura_cierre,$tipo_venta,
     $monto_vale,$monto_apagar,$codigoMoneda,$arrayDescuentoOperacion,$arrayDesatlleVenta,$numeroTarjeta,$cadenaOtros,$tipoBanco,$id_cufd,$id_cuis
-    ,$cuf,$id_credenciales,$sucursal_siat,$punto_venta,$direccion,$municipio, $numeroFactura, $fechaEmision, $soap_llamada, $tipoEmision_cod_5,$codigoRecepcion, $codigoEstado, $codigoDescripcion,$contigencia,$sector_venta,$fartura_zip);    
+    ,$cuf,$id_credenciales,$sucursal_siat,$punto_venta,$direccion,$municipio, $numeroFactura, $fechaEmision, $soap_llamada, $tipoEmision_cod_5,$codigoRecepcion, $codigoEstado, $codigoDescripcion,$contigencia,$sector_venta,$fartura_zip,$tipoEmision);    
     $data_22 = $insertarVenta_v->getData(true);
 
     if($data_22['data_1']==0){
@@ -2430,7 +2435,7 @@ if ($hoy->greaterThan($fechaA)) {
     private function  insertarVenta($cliente_id,$total_venta,$efectivo_venta,$cambio_venta,$descuento_venta,$total_sin_des,$dato_tipo,$codigo_tienda_almacen_0
     ,$id_lista_v2,$numero_referencia,$num_documento,$nom_a_facturar,$estado_dosificacion_facctura,$id_apertura_cierre,$tipo_venta,
     $monto_vale,$monto_apagar,$moneda,$arrayDescuentoOperacion,$arrayDesatlleVenta,$numeroTarjeta,$cadenaOtros,$tipoBanco,$id_cufd,$id_cuis
-    ,$cuf,$id_credenciales,$sucursal_siat,$punto_venta,$direccion,$municipio, $numFactura, $fechaEmision, $xml, $id_leyenda, $codigoRecepcion,$codigoEstado,$codigoDescripcion,$contigencia,$sector_venta,$fartura_zip){
+    ,$cuf,$id_credenciales,$sucursal_siat,$punto_venta,$direccion,$municipio, $numFactura, $fechaEmision, $xml, $id_leyenda, $codigoRecepcion,$codigoEstado,$codigoDescripcion,$contigencia,$sector_venta,$fartura_zip,$tipoEmision){
     try {
      DB::beginTransaction();
         $user_1 = auth()->user()->id;
@@ -2620,7 +2625,8 @@ $data_siat = [
     'codDescripcion' => $codigoDescripcion,
     'codEstado' => $codigoEstado,
     'codSector' => $sector_venta,
-    'zip_factura' => $fartura_zip                     
+    'zip_factura' => $fartura_zip,
+    'tipo_emision' => $tipoEmision                     
    ];  
      
   DB::table('ven__factura_siat')->insert($data_siat);
