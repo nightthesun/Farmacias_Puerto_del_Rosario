@@ -16,6 +16,8 @@ return new class extends Migration
             $table->integer('codigo'); 
             $table->integer('id_catalogo'); // Cambiado de MEDIUMINT a INTEGER
             $table->bigInteger('id_erp')->nullable();
+            $table->string('s1',255)->nullable();
+           $table->string('s2',255)->nullable();
         });
     }
 

@@ -262,6 +262,8 @@ class SiatConfiguracionController extends Controller
                         'codigo' => $item['codigo'],
                         'id_catalogo' => $item['id_catalogo'],
                         'id_erp' => $item['id_erp'],
+                        's1' => $item['s1'],
+                        's2' => $item['s2'],
                     ];                
                     DB::table('excel__emision')->insert($datos);                 
                  }

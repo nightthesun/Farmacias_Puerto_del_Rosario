@@ -320,9 +320,10 @@
     <div class="card-header">
       Catalogo SIAT
     </div>
-    
+
 <div class="card-body">    
         <div class="row">
+        
         <div class="form-group col-sm-2">
             <strong >Actividad:</strong>
         </div> 
@@ -330,7 +331,7 @@
             <select class="form-control" v-model="selectCatalogo">
     <option value="0" disabled selected>Seleccionar...</option>
     
-    <option v-for="i in arrayCatalogo" :key="i.id" :value="i.id">{{ i.catalogo }}</option>
+    <option v-for="i in arrayCatalogo" :key="i.id" :value="i.id">{{ "( "+i.id+")"+i.catalogo }}</option>
 </select>
         </div>
         <div class="form-group col-sm-2">
@@ -1828,6 +1829,8 @@ validateFileExcel() {
         codigo: row.codigo || null,           // Incluir "codigo"
         id_catalogo: row.id_catalogo || null, // Incluir "id_catalogo"
         id_erp: row.id_erp === undefined || row.id_erp === "" ? null : row.id_erp, // Incluir "id_erp" con transformación
+         s1: row.s1 === undefined || row.s1 === "" ? null : row.s1, // Incluir "id_erp" con transformación
+          s2: row.s2 === undefined || row.s2 === "" ? null : row.s2, // Incluir "id_erp" con transformación
       }));
 
      

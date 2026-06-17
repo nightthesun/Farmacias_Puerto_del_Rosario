@@ -227,6 +227,7 @@ class SiatSincronizacionController extends Controller
     $respuesta_final= $this->operacionSincro($numero,$response);      
     
 
+
     if ($respuesta_final!=0) {
         return $respuesta_final;
     } 
@@ -271,7 +272,7 @@ class SiatSincronizacionController extends Controller
                    // Llamar al método privado dentro de la misma clase
              
     $xmlData = $this->endpoint($codigoAmbiente, $codigoPuntoVenta, $codigoSistema, $codigoSucursal, $cuis, $nit, $numero);
-   
+  
     $ch = curl_init();
     // Configuración de la solicitud cURL
     curl_setopt($ch, CURLOPT_URL, $wsdl); // Reemplaza con el endpoint correcto
@@ -296,8 +297,8 @@ class SiatSincronizacionController extends Controller
     curl_close($ch);
    
     $respuesta_final= $this->operacionSincro($numero,$response);   
+   
     
-
     if ($respuesta_final!=0) {
         return $respuesta_final;
     } 
@@ -778,6 +779,7 @@ class SiatSincronizacionController extends Controller
   // Convertir la respuesta en un objeto SimpleXMLElement
   
   // Convertir la respuesta en un objeto SimpleXMLElement
+ 
   $xml = simplexml_load_string($response);
                
   // Usar XPath para encontrar el nodo <transaccion>
@@ -789,6 +791,7 @@ if ($transaccion && isset($transaccion[0])) {
             // Extraer y decodificar las descripciones de actividades
             $codigos = $xml->xpath("//listaActividades/codigoCaeb"); 
            $descripciones = $xml->xpath("//listaActividades/descripcion");
+           $s1 = $xml->xpath("//listaActividades/tipoActividad");
             $tamaño=count($codigos);
                       
                 $data_query = $this->query_($n);  
@@ -823,7 +826,9 @@ if ($transaccion && isset($transaccion[0])) {
                       $dato_12= html_entity_decode($codigos[$i], ENT_QUOTES, 'UTF-8');
                       
                       $dato_13= html_entity_decode($descripciones[$i], ENT_QUOTES, 'UTF-8');
-                      $cadenaA=$cadenaA." codigo: ".$dato_12." descripcion: ".mb_strtoupper($dato_13, 'UTF-8');
+                       $dato_14= html_entity_decode($s1[$i], ENT_QUOTES, 'UTF-8');
+                       
+                      $cadenaA=$cadenaA." codigo: ".$dato_12." descripcion: ".mb_strtoupper($dato_13, 'UTF-8')." s1: ".$dato_14 ;
                     }
                     
                $respuesta=$cadenaA;
@@ -841,7 +846,7 @@ if ($transaccion && isset($transaccion[0])) {
             case 2:
                    // Convertir la respuesta en un objeto SimpleXMLElement
                    $xml = simplexml_load_string($response);     
-                       
+                   
                    // Usar XPath para encontrar el nodo <transaccion>
                 $transaccion = $xml->xpath('//transaccion');     
                 if ($transaccion && isset($transaccion[0])) {
@@ -889,13 +894,14 @@ $respuesta_minutos = abs($minutos_1 - $minutos_2); // Convierte a positivo
                 $xml = simplexml_load_string($response);
                 // Usar XPath para encontrar el nodo <transaccion>
                 $transaccion = $xml->xpath('//transaccion');
-            
+               
 if ($transaccion && isset($transaccion[0])) {
         if ($transaccion[0]== 'true') {
             // Extraer y decodificar las descripciones de actividades
             $codigos = $xml->xpath("//listaActividadesDocumentoSector/codigoDocumentoSector"); 
             $tipoDocumentoSector = $xml->xpath("//listaActividadesDocumentoSector/tipoDocumentoSector"); 
-          
+           $codigoActividad = $xml->xpath("//listaActividadesDocumentoSector/codigoActividad"); 
+
             $tamaño=count($codigos);
             $data_query = $this->query_($n); 
 
@@ -904,6 +910,7 @@ if ($transaccion && isset($transaccion[0])) {
              $existe_2=0;  
                 foreach ($codigos as $key_0 => $codigo) {
                      $dato= html_entity_decode($codigo, ENT_QUOTES, 'UTF-8');
+                    
                     foreach ($data_query as $key_1 => $data) {
                         if ($data->codigo==$dato) {                            
                             $existe_1=1;                           
@@ -926,7 +933,8 @@ if ($transaccion && isset($transaccion[0])) {
                       $dato_12= html_entity_decode($codigos[$i], ENT_QUOTES, 'UTF-8');
                       
                       $dato_13= html_entity_decode($tipoDocumentoSector[$i], ENT_QUOTES, 'UTF-8');
-                      $cadenaA=$cadenaA." codigo: ".$dato_12." descripcion: ".mb_strtoupper($dato_13, 'UTF-8');
+                       $dato_14= html_entity_decode($codigoActividad[$i], ENT_QUOTES, 'UTF-8');
+                      $cadenaA=$cadenaA." codigo: ".$dato_12." s1: ".mb_strtoupper($dato_13, 'UTF-8')." s2: ".$codigoActividad;
                     }
                     
                $respuesta=$cadenaA;
@@ -942,7 +950,8 @@ if ($transaccion && isset($transaccion[0])) {
 
             case 4:
                 // Convertir la respuesta en un objeto SimpleXMLElement                 
-                $xml = simplexml_load_string($response);              
+                $xml = simplexml_load_string($response);      
+                
                 // Usar XPath para encontrar el nodo <transaccion>
                 $transaccion = $xml->xpath('//transaccion');  
                    
@@ -999,7 +1008,8 @@ if ($transaccion && isset($transaccion[0])) {
 
             case 5:
                 // Convertir la respuesta en un objeto SimpleXMLElement                 
-                $xml = simplexml_load_string($response);              
+                $xml = simplexml_load_string($response);    
+                               
                 // Usar XPath para encontrar el nodo <transaccion>
                 $transaccion = $xml->xpath('//transaccion');  
                    
@@ -1057,6 +1067,7 @@ if ($transaccion && isset($transaccion[0])) {
                 // Convertir la respuesta en un objeto SimpleXMLElement                 
                 $xml = simplexml_load_string($response);              
                 // Usar XPath para encontrar el nodo <transaccion>
+                 
                 $transaccion = $xml->xpath('//transaccion');  
                     
                     if ($transaccion && isset($transaccion[0])) {
@@ -1112,7 +1123,8 @@ if ($transaccion && isset($transaccion[0])) {
             break;
             case 7:
                 // Convertir la respuesta en un objeto SimpleXMLElement                 
-                $xml = simplexml_load_string($response);              
+                $xml = simplexml_load_string($response);       
+                 
                 // Usar XPath para encontrar el nodo <transaccion>
                 $transaccion = $xml->xpath('//transaccion');  
                  
@@ -1166,7 +1178,8 @@ if ($transaccion && isset($transaccion[0])) {
             break;
             case 8:
                 // Convertir la respuesta en un objeto SimpleXMLElement                 
-                $xml = simplexml_load_string($response);              
+                $xml = simplexml_load_string($response);  
+                                  
                 // Usar XPath para encontrar el nodo <transaccion>
                 $transaccion = $xml->xpath('//transaccion');  
               
@@ -1219,7 +1232,8 @@ if ($transaccion && isset($transaccion[0])) {
             break;
             case 9:
                 // Convertir la respuesta en un objeto SimpleXMLElement                 
-                $xml = simplexml_load_string($response);              
+                $xml = simplexml_load_string($response);    
+                 
                 // Usar XPath para encontrar el nodo <transaccion>
                 $transaccion = $xml->xpath('//transaccion');  
                     
@@ -1273,7 +1287,8 @@ if ($transaccion && isset($transaccion[0])) {
             break;
             case 10:
                 // Convertir la respuesta en un objeto SimpleXMLElement                 
-                $xml = simplexml_load_string($response);              
+                $xml = simplexml_load_string($response);  
+                                     
                 // Usar XPath para encontrar el nodo <transaccion>
                 $transaccion = $xml->xpath('//transaccion');  
       
@@ -1325,7 +1340,8 @@ if ($transaccion && isset($transaccion[0])) {
 }  
             break;
             case 11:
-                // Convertir la respuesta en un objeto SimpleXMLElement                 
+                // Convertir la respuesta en un objeto SimpleXMLElement 
+                               
                 $xml = simplexml_load_string($response);              
                 // Usar XPath para encontrar el nodo <transaccion>
                 $transaccion = $xml->xpath('//transaccion');  
@@ -1379,6 +1395,7 @@ if ($transaccion && isset($transaccion[0])) {
 }  
             break;
             case 12:
+     
                 // Convertir la respuesta en un objeto SimpleXMLElement                 
                 $xml = simplexml_load_string($response);              
                 // Usar XPath para encontrar el nodo <transaccion>
@@ -1432,6 +1449,7 @@ if ($transaccion && isset($transaccion[0])) {
 }  
             break;
             case 13:
+              
                 // Convertir la respuesta en un objeto SimpleXMLElement                 
                 $xml = simplexml_load_string($response);              
                 // Usar XPath para encontrar el nodo <transaccion>
@@ -1485,6 +1503,7 @@ if ($transaccion && isset($transaccion[0])) {
 }  
             break;
             case 14:
+      
                 // Convertir la respuesta en un objeto SimpleXMLElement                 
                 $xml = simplexml_load_string($response);              
                 // Usar XPath para encontrar el nodo <transaccion>
@@ -1538,6 +1557,7 @@ if ($transaccion && isset($transaccion[0])) {
 }  
             break;
             case 15:
+                            
                 // Convertir la respuesta en un objeto SimpleXMLElement                 
                 $xml = simplexml_load_string($response);              
                 // Usar XPath para encontrar el nodo <transaccion>
@@ -1590,6 +1610,7 @@ if ($transaccion && isset($transaccion[0])) {
 }  
             break;
             case 16:
+                
                 // Convertir la respuesta en un objeto SimpleXMLElement                 
                 $xml = simplexml_load_string($response);              
                 // Usar XPath para encontrar el nodo <transaccion>
@@ -1642,6 +1663,7 @@ if ($transaccion && isset($transaccion[0])) {
 }  
             break;
             case 17:
+               
                 // Convertir la respuesta en un objeto SimpleXMLElement                 
                 $xml = simplexml_load_string($response);              
                 // Usar XPath para encontrar el nodo <transaccion>
@@ -1694,6 +1716,7 @@ if ($transaccion && isset($transaccion[0])) {
 }  
             break;
             case 18:
+                
                 // Convertir la respuesta en un objeto SimpleXMLElement                 
                 $xml = simplexml_load_string($response);              
                 // Usar XPath para encontrar el nodo <transaccion>
