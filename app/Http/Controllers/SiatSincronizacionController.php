@@ -768,24 +768,14 @@ class SiatSincronizacionController extends Controller
              break;   
             case 1:
                // Crear un objeto DOMDocument para formatear el XML
-//$dom = new DOMDocument();
-//$dom->preserveWhiteSpace = false;
-//$dom->formatOutput = true;
-//$dom->loadXML($response);
 
-// Mostrar el XML formateado
-//header('Content-Type: text/xml');
-//echo $dom->saveXML();
-  // Convertir la respuesta en un objeto SimpleXMLElement
-  
-  // Convertir la respuesta en un objeto SimpleXMLElement
  
   $xml = simplexml_load_string($response);
                
   // Usar XPath para encontrar el nodo <transaccion>
   $transaccion = $xml->xpath('//transaccion');
 
-if ($transaccion && isset($transaccion[0])) {
+    if ($transaccion && isset($transaccion[0])) {
     
         if ($transaccion[0]== 'true') {
             // Extraer y decodificar las descripciones de actividades

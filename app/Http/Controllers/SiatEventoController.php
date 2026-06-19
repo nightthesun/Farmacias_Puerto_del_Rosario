@@ -6,6 +6,7 @@ use App\Models\Siat_evento;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use ZipArchive;
 
 class SiatEventoController extends Controller
 {
@@ -176,7 +177,7 @@ class SiatEventoController extends Controller
     
     public function sendContingencia(Request $request){
 
-            //    return $request->all();
+     
             try {
 
                 DB::beginTransaction(); 
@@ -193,21 +194,22 @@ class SiatEventoController extends Controller
                 $fechaHoraInicioEvento = Carbon::parse($request->startDate_modal_1)->format('Y-m-d\TH:i:s.v');
                 $id_suc_siat=$request->id_suc_siat;
 
-                 
-$xml_zip = DB::table('ven__factura_siat')
-        ->where('id',$id)
-        ->value('zip_factura');
 
-        if ($xml_zip==null) {
+$factura_siat = DB::table('ven__factura_siat')
+        ->where('id',$id)
+        ->select('zip_factura','codSector','tipo_emision','modalidad','tipoFacturaDoc')
+        ->first();
+
+        if (!$factura_siat) {
             return "No existe factura comprimida en sistema.";
         }
-          // 13. GZIP + Base64
- $gzipped = gzencode($xml_zip);
- $archivo = base64_encode($gzipped);
- // 14. Calcular el HASH SHA256
- $hashArchivo = hash('sha256', $gzipped);
+        $codSector=$factura_siat->codSector;
+        $zip_factura=$factura_siat->zip_factura;  
+        $tipo_emision_=$factura_siat->tipo_emision;
+        $modalidad_=$factura_siat->modalidad;
+        $tipoFacturaDoc_=$factura_siat->tipoFacturaDoc;
 
-                 return 0;
+         
 
                
                 $query_1 = DB::table('siat__emisors as e')
@@ -240,6 +242,44 @@ $xml_zip = DB::table('ven__factura_siat')
     $tokenDelegado=$query_2->token_delegado;
     $tiempoEspera=$query_2->tiempo_espera;
     $tipoModalidad=$query_2->tipo_modalidad;
+
+                     
+$tablaCatalogo_siat = DB::table('siat__catalogo_lista_siat as c')
+    ->join('excel__emision as e', function ($join) {
+        $join->on('e.id_catalogo', '=', 'c.id_catalogo')
+             ->on('e.descripcion', '=', 'c.descripcion');
+    })
+    ->join('siat__endpoints as s', function ($join) {
+        $join->on('s.Descripcion', '=', 'c.descripcion');
+    })
+    ->select('c.id','c.id_catalogo','c.codigo','c.descripcion','e.s2','s.URL as url','s.modalidad')
+    ->where('c.id_catalogo', 3)
+    ->where('s.tipo', 2)
+    ->first();
+
+    if (!$tablaCatalogo_siat) {
+       return "No existe datos en la tabla catalogo de lista siat revise que no tenag espacios o datos inicesarios, de la tabla emision  el espacio descripcion.";
+    }
+
+    if($tablaCatalogo_siat->s2==null||$tablaCatalogo_siat->s2==""){
+        return "no existe datos en espacio s2 de la tabla emision.";
+    }
+    
+    $escada=explode('x', $tablaCatalogo_siat->s2);
+    $escada=array_filter($escada);
+   $factura_siat_2 = 0;
+
+foreach ($escada as $codigo) {
+    if (DB::table('excel__emision')->where('codigo', $codigo)->exists()) {
+        $factura_siat_2 = 1;
+        break;
+    }
+}
+
+if ($factura_siat_2==0) {
+    return "no existe un codigo a sociado a la tabla emision";
+}
+ $url_s2=$tablaCatalogo_siat->url;
 
         $cufdAnterior = DB::table('siat__cufd')
         ->where('id', $id_cufd_modal)
@@ -297,6 +337,104 @@ $xml_zip = DB::table('ven__factura_siat')
             </soapenv:Body>
          </soapenv:Envelope>
          EOD;
+       
+           $ch = curl_init();
+            
+                        // Configuración de la solicitud cURL
+                        curl_setopt($ch, CURLOPT_URL, $wsdl); // Reemplaza con el endpoint correcto
+                        curl_setopt($ch, CURLOPT_POST, 1);
+                        curl_setopt($ch, CURLOPT_POSTFIELDS, $xmlData);
+                    
+                        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                            'Content-Type: text/xml; charset=utf-8',
+                            'SOAPAction: ""', // Si el SOAPAction es requerido, inclúyelo aquí
+                            'apikey: ' . $apikeyValue // Incluye la API key con el valor correspondiente
+                        ]);
+                        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            
+                        // Ejecutar la solicitud y obtener la respuesta
+                        $response = curl_exec($ch);
+                       
+                        // Verificar si hubo un error en cURL
+                        if (curl_errno($ch)) {
+                            throw new \Exception(curl_error($ch));
+                        }            
+                        // Cerrar la sesión de cURL
+                        curl_close($ch);
+                if (empty($response)) {
+    return("Error 2: ".$response);
+}
+
+// Convertir la respuesta en un objeto SimpleXMLElement
+        $xml = simplexml_load_string($response);   
+        $respuesta=$response;
+         // Usar XPath para encontrar el nodo <transaccion>   
+    
+        $transaccion = $xml->xpath('//transaccion');
+      
+         if ($transaccion && isset($transaccion[0])) {
+
+            if ($transaccion[0]== 'true') {  
+                                 
+                  $codigoRecepcionEventoSignificativo = $xml->xpath('//codigoRecepcionEventoSignificativo');
+              $codigo_1=  html_entity_decode($codigoRecepcionEventoSignificativo[0], ENT_QUOTES, 'UTF-8');
+
+                $fechaEnvio = Carbon::now('America/La_Paz')->format('Y-m-d\TH:i:s.v');
+
+                $xml = $zip_factura;
+
+$tmpZip = tempnam(sys_get_temp_dir(), 'siat_');
+
+$zip = new ZipArchive();
+
+if ($zip->open($tmpZip, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== TRUE) {
+   return "error de comprecion";
+}
+
+// Agregar el XML al ZIP con el nombre que tendrá dentro
+$zip->addFromString($id . '.xml', $xml);
+
+$zip->close();
+$contenidoZip = file_get_contents($tmpZip);
+
+
+$gzipped = gzencode($zip_factura);
+        $archivo = base64_encode($gzipped); 
+        // 14. Calcular el HASH SHA256
+        $hashArchivo = hash('sha256', $gzipped);     
+        
+        // Asignación de la URL y API key
+        $wsdl = $url_s2; 
+  
+            // Crear el cuerpo del mensaje SOAP, sustituyendo los valores con los parámetros correspondientes    
+     $xmlData = <<<EOD
+         <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:siat="https://siat.impuestos.gob.bo/"> 
+            <soapenv:Header/>
+            <soapenv:Body>
+               <siat:recepcionPaqueteFactura>
+                    <SolicitudServicioRecepcionPaquete>
+                        <codigoAmbiente>{$codigoAmbiente}</codigoAmbiente>
+                        <codigoDocumentoSector>{$codSector}</codigoDocumentoSector>
+                        <codigoEmision>{$tipo_emision_}</codigoEmision>
+                        <codigoModalidad>{$modalidad_}</codigoModalidad>
+                        <!--Optional:-->
+                        <codigoPuntoVenta>{$codigoPuntoVenta}</codigoPuntoVenta>
+                        <codigoSistema>{$codigoSistema}</codigoSistema>
+                        <codigoSucursal>{$codigoSucursal}</codigoSucursal>
+                        <cufd>{$cufd}</cufd>
+                        <cuis>{$cuis}</cuis>
+                        <nit>{$nit}</nit>
+                        <tipoFacturaDocumento>{$tipoFacturaDoc_}</tipoFacturaDocumento>
+                        <archivo>{$archivo}</archivo>
+                        <fechaEnvio>{$fechaEnvio}</fechaEnvio>
+                        <hashArchivo>{$hashArchivo}</hashArchivo>                        
+                        <cantidadFacturas>1</cantidadFacturas>
+                        <codigoEvento>{$codigo_1}</codigoEvento>
+                  </SolicitudServicioRecepcionPaquete>
+               </siat:recepcionPaqueteFactura>
+            </soapenv:Body>
+         </soapenv:Envelope>
+         EOD;
          
            $ch = curl_init();
             
@@ -327,14 +465,10 @@ $xml_zip = DB::table('ven__factura_siat')
     // Convertir la respuesta en un objeto SimpleXMLElement
         $xml = simplexml_load_string($response);   
         $respuesta=$response;
-         // Usar XPath para encontrar el nodo <transaccion>    
-        $transaccion = $xml->xpath('//transaccion');
-         if ($transaccion && isset($transaccion[0])) {
+        return $respuesta;
+         
 
-            if ($transaccion[0]== 'true') {                     
-                
-                  //  $codigo_2 = $xml->xpath('//codigo');
-                 //   $fechaVigencia= $xml->xpath('//fechaVigencia');
+
                      $data_load = [
                     'tipo_contigencia' => intval($codigoMotivoEvento)          
                 ];

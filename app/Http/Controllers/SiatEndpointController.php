@@ -13,11 +13,28 @@ class SiatEndpointController extends Controller
      */
     public function index(Request $request)
     {
-        $index = DB::table('siat__endpoints as se')
+       
+  
+    $index = DB::table('siat__endpoints as se')
     ->leftJoin('users as u', 'u.id', '=', 'se.id_usuario_modifica')
     ->where('se.tipo',  intval($request->tipo))
-    ->select('se.id', 'se.Descripcion', 'se.Url', 'se.Version', 'se.updated_at', 'u.name')
-    ->paginate(15);
+    ->select(
+        'se.id',
+        'se.Descripcion',
+        'se.Url',
+        'se.Version',
+        'se.updated_at',
+        'u.name',
+        DB::raw("
+            CASE
+                WHEN se.modalidad = 1 THEN 'ELECTRONICA'
+                WHEN se.modalidad = 2 THEN 'COMPUTARIZADO'
+                WHEN se.modalidad = 3 THEN 'AMBAS'
+                ELSE 'SIN CONFIGURACION'
+            END AS modalidad
+        ")
+    )
+     ->paginate(15);
     
     return 
     [      'pagination'=>
