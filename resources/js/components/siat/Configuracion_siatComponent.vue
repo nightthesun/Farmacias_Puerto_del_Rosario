@@ -263,13 +263,15 @@
                     <tr>
                         <th>Opciones</th>
                         <th class="col-md-1">ID</th>   
-                        <th class="col-md-4">Descripción</th>                       
-                        <th class="col-md-5">Url</th>
+                        <th class="col-md-3">Descripción</th>                       
+                        <th class="col-md-4">Url</th>
+                        <th class="col-md-2">Modalidad</th>
                         <th class="col-md-2">Versión</th>
                  
                     </tr>
                 </thead> 
                 <tbody>
+              
                     <tr v-for="e in arrayEndpoint" :key="e.id">
                         <td>
                             <div  v-if="puedeEditar==1">
@@ -284,8 +286,9 @@
                             </div>
                         </td>
                         <td class="col-md-1">{{ e.id }}</td>
-                        <td class="col-md-4">{{ e.Descripcion }}</td>
-                        <td class="col-md-5">{{ e.Url }}</td>
+                        <td class="col-md-3">{{ e.Descripcion }}</td>
+                        <td class="col-md-4">{{ e.Url }}</td>
+                        <td class="col-md-2">{{ e.modalidad }}</td>
                         <td class="col-md-2">{{ e.Version }}</td>
                    
                     </tr>
@@ -323,7 +326,7 @@
 
 <div class="card-body">    
         <div class="row">
-        
+    
         <div class="form-group col-sm-2">
             <strong >Actividad:</strong>
         </div> 

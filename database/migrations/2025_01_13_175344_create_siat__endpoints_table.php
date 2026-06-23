@@ -19,6 +19,7 @@ return new class extends Migration
             $table->tinyInteger('tipo')->comment('1= produccion 2 =para pruebas');
             $table->smallInteger('id_usuario_registra')->nullable();
             $table->smallInteger('id_usuario_modifica')->nullable();
+            $table->tinyInteger('modalidad')->nullable()->default(0)->comment('0 sin datos, 1 electronica, 2 computarizado,3 ambos');            
             $table->timestamps();
         });
     }

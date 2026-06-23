@@ -13,9 +13,9 @@ class SiatEndpontSeeder extends Seeder
      */
     public function run(): void
     {
-        DB::table('siat__endpoints')->insert(['Descripcion'=>'SERVICIO DE SINCRONIZACIÓN DE DATOS','Url'=>'https://pilotosiatservicios.impuestos.gob.bo/v2/FacturacionSincronizacion?wsdl','Version'=>'2.0','tipo'=>2]);  
-        DB::table('siat__endpoints')->insert(['Descripcion'=>'SERVICIO DE OPERACIONES','Url'=>'https://pilotosiatservicios.impuestos.gob.bo/v2/FacturacionOperaciones?wsdl','Version'=>'2.0','tipo'=>2]);  
-        DB::table('siat__endpoints')->insert(['Descripcion'=>'SERVICIO DE OBTENCIÓN DE CÓDIGOS','Url'=>'https://pilotosiatservicios.impuestos.gob.bo/v2/FacturacionCodigos?wsdl','Version'=>'2.0','tipo'=>2]);  
-        DB::table('siat__endpoints')->insert(['Descripcion'=>'FACTURA COMPRA-VENTA','Url'=>'https://pilotosiatservicios.impuestos.gob.bo/v2/ServicioFacturacionCompraVenta?wsdl','Version'=>'2.0','tipo'=>2]);  
+        DB::table('siat__endpoints')->insert(['Descripcion'=>'SERVICIO DE SINCRONIZACIÓN DE DATOS','Url'=>'https://pilotosiatservicios.impuestos.gob.bo/v2/FacturacionSincronizacion?wsdl','Version'=>'2.0','tipo'=>2,'modalidad'=>3]);  
+        DB::table('siat__endpoints')->insert(['Descripcion'=>'SERVICIO DE OPERACIONES','Url'=>'https://pilotosiatservicios.impuestos.gob.bo/v2/FacturacionOperaciones?wsdl','Version'=>'2.0','tipo'=>2,'modalidad'=>3]);  
+        DB::table('siat__endpoints')->insert(['Descripcion'=>'SERVICIO DE OBTENCIÓN DE CÓDIGOS','Url'=>'https://pilotosiatservicios.impuestos.gob.bo/v2/FacturacionCodigos?wsdl','Version'=>'2.0','tipo'=>2,'modalidad'=>3]);  
+        DB::table('siat__endpoints')->insert(['Descripcion'=>'FACTURA COMPRA-VENTA','Url'=>'https://pilotosiatservicios.impuestos.gob.bo/v2/ServicioFacturacionCompraVenta?wsdl','Version'=>'2.0','tipo'=>2,'modalidad'=>3]);  
     }
 }

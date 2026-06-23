@@ -759,7 +759,13 @@ listarModalSucuralSiatPunto(entrada,id) {
         },
 
         enviarContingencia(){
-            let me = this; 
+             let me = this; 
+             
+       if (new Date(me.startDate_modal_1) > new Date(me.endDate_modal_1)) {
+    
+    return Swal.fire('Error','La fecha inicial no debe ser mayor a la fecha final.','error');
+}
+           
                 axios.post("/siat_eventos/enviarContingencia", { 
                     contingencia: me.selectListaContingencia_2,
                     contingencia_descripcion_modal: me.contingencia_descripcion_modal,
