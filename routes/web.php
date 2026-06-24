@@ -1000,6 +1000,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/siat_eventos/consultarEventoSiat', [SiatEventoController::class, 'getEventoSiat']);
     Route::get('/siat_eventos/listarModalSucuralSiatPunto', [SiatEventoController::class, 'getModalSucuralSiatPunto']); 
     Route::post('/siat_eventos/enviarEventoManual', [SiatEventoController::class, 'sendEventoManual']);
+    Route::get('/siat_eventos/listarModal_datos_adcionales', [SiatEventoController::class, 'getModal_datos_adcionales']);   
+    Route::get('/siat_eventos/listarAutmo_select', [SiatEventoController::class, 'getAutmo_select']);   
+    
     
         
 });

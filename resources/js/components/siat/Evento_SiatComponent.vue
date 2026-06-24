@@ -449,8 +449,9 @@
 
          <!--Inicio del modal estado de contingencia manual-->
     <transition name="fade">
-    <div v-if="showModal_4" class="modal d-block" tabindex="-1" role="dialog">
-        <div class="modal-dialog modal-primary  modal-dialog-scrollable" role="document">
+    <div v-if="showModal_4" class="modal d-block" tabindex="-1" role="dialog">      
+            <div class="modal-dialog modal-primary modal-dialog-scrollable" role="document">
+           <div class="modal-body" style="max-height: 60vh; overflow-y: auto;"> 
             <div class="modal-content">
 
                 <div class="modal-header">
@@ -463,7 +464,12 @@
                 <div class="modal-body">
                    
                     <form class="form-horizontal">
-                        <div  style="margin-top: 10px;">                            
+                        <div class="card">
+  <div class="card-header">
+    Envio de datos de contingencia
+  </div>
+  <div class="card-body">
+      <div  style="margin-top: 10px;">                            
                            
                             <label for="">Seleccionar sucursal siat:</label>
                                 <div class="input-group">
@@ -513,12 +519,73 @@
                     </div>
                    
                                 </div> 
-                        </div>  
+                        </div> 
+  </div>
+                        </div>
+
+                        <div class="card" v-show="siguienteP==1">
+                            <div class="card-header">
+                                Envio de datos adicionales                               
+                            </div>
+                             <button type="button" class="btn btn-primary" @click="listarAutmoSelect()">LLenar automatico</button>  
+                            <div class="card-body">
+                                  <label for="">Tipo de ambiente:</label>
+                                        <div class="input-group">
+                                        <select class="form-control" v-model="select_ambiente_2">
+                                            <option value="0" disabled selected>Seleccionar...</option>  
+                                            <option value="1">Producción</option>    
+                                            <option value="2">Piloto</option>                                 
+                                        </select>                                                             
+                                        </div>
+                            </div>
+                            <div class="card-body">
+                                  <label for="">Codigo sector:</label>
+                                        <div class="input-group">
+                                        <select class="form-control" v-model="select_codSector_2">
+                                            <option value="0" disabled selected>Seleccionar...</option>  
+                                            <option :value="i.codigo" v-for="(i, index) in array_codSector_2" :key="index">{{ i.descripcion }}</option>                                                                           
+                                        </select>                                                             
+                                        </div>
+                            </div>
+                            <div class="card-body">
+                                  <label for="">Codigo contigencia:</label>
+                                        <div class="input-group">
+                                        <select class="form-control" v-model="select_contigencia_2">
+                                            <option value="0" disabled selected>Seleccionar...</option>  
+                                            <option :value="i.codigo" v-for="(i, index) in array_contigencia_2" :key="index">{{ i.descripcion }}</option>                                                                           
+                                        </select>                                                             
+                                        </div>
+                            </div>
+                             <div class="card-body">
+                                  <label for="">Codigo sector:</label>
+                                        <div class="input-group">
+                                        <select class="form-control" v-model="select_tipoFacturaDoc_2">
+                                            <option value="0" disabled selected>Seleccionar...</option>  
+                                            <option :value="i.codigo" v-for="(i, index) in array_tipoFacturaDoc_2" :key="index">{{ i.descripcion }}</option>                                                                           
+                                        </select>                                                             
+                                        </div>
+                            </div>
+                            <div class="card-body">
+                                  <label for="">Tipo de modalidad:</label>
+                                        <div class="input-group">
+                                        <select class="form-control" v-model="select_modalidad_2">
+                                            <option value="0" disabled selected>Seleccionar...</option>  
+                                            <option value="1">Electronica</option>    
+                                            <option value="2">Computarizada</option>                                 
+                                        </select>                                                             
+                                        </div>
+                            </div>
+                        </div>
+                      
                     </form>
                     
                 </div>
 
-                <div class="modal-footer">
+               
+
+            </div>
+           </div>  
+             <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" @click="cerrarModal('contingencia_2')">
                         Cerrar
                     </button>
@@ -526,8 +593,6 @@
                         Enviar
                     </button>
                 </div>
-
-            </div>
         </div>
     </div>
 </transition>
@@ -622,6 +687,16 @@ mesanje_3_:'',
 ver_1_:0,
 codigo_cafc:'',
 id_evento_:'',
+select_ambiente_2:'0',
+select_tipoFacturaDoc_2:'0',
+array_tipoFacturaDoc_2:[],
+select_contigencia_2:'0',
+array_contigencia_2:[],
+select_codSector_2:'0',
+array_codSector_2:[],
+select_modalidad_2:'0',
+
+
         };
     },
 
@@ -668,7 +743,9 @@ id_evento_:'',
 
         enviarEventoManual(){
             let me=this;
-            if (me.select_query_1=='0'||me.select_query_2=='0'||me.selectListaContingencia_2=='0'||me.endDate_modal_1==''||me.startDate_modal_1=='') {
+            if (me.select_query_1=='0'||me.select_query_2=='0'||me.selectListaContingencia_2=='0'||me.endDate_modal_1==''||me.startDate_modal_1==''
+                || me.select_ambiente_2=='0'|| me.select_modalidad_2=='0'||me.select_tipoFacturaDoc_2=='0'||me.select_contigencia_2=='0'||me.select_codSector_2=='0'
+            ) {
                 return Swal.fire('Error','No debe haber espacion sin llenar','error');
             }
             axios.post("/siat_eventos/enviarEventoManual", { 
@@ -679,7 +756,12 @@ id_evento_:'',
                     fecha_ini:me.startDate_modal_1,
                     cafc:me.codigo_cafc,  
                     contingencia_descripcion_modal:me.contingencia_descripcion_modal,
-                  contigenciaDes_codigo_modal:me.contigenciaDes_codigo_modal                                                     
+                  contigenciaDes_codigo_modal:me.contigenciaDes_codigo_modal,
+                  ambiente_m:me.select_ambiente_2,
+                   modalidad_m:me.select_modalidad_2,
+                   tipoFacturaDoc_m:me.select_tipoFacturaDoc_2,
+                    contigencia_m:me.select_contigencia_2,
+                    codSector_m:me.select_codSector_2                                                     
                 })
                 .then(function (response) {                   
                     let respuesta=response.data;
@@ -990,6 +1072,52 @@ listarInicio(page,data)
                 });
         },
 
+        
+
+         listarAutmoSelect() {
+            let me = this;
+           var url = "/siat_eventos/listarAutmo_select";
+            axios
+                .get(url)
+                .then(function (response) {
+                    const valores = [2, 4];
+                    const random = valores[Math.floor(Math.random() * valores.length)];
+                    let respuesta = response.data; 
+                    let query_1=respuesta.query_1;  
+                    let query_2=respuesta.query_2;
+                    me.select_ambiente_2=query_2.tipo_ambiente; 
+                    me.select_modalidad_2=query_2.tipo_modalidad;
+                    me.select_tipoFacturaDoc_2=query_1.dos;
+                    me.select_contigencia_2=random;
+                    me.select_codSector_2=query_1.tres;
+                   console.log(respuesta);
+                 
+                })
+                .catch(function (error) {
+                    error401(error);
+                    console.log(error);
+                });
+        },
+
+         listarModalDatosAdcionales() {
+            let me = this;
+           var url = "/siat_eventos/listarModal_datos_adcionales";
+            axios
+                .get(url)
+                .then(function (response) {
+                    let respuesta = response.data;     
+                    me.array_contigencia_2=respuesta.contigencia;
+                    me.array_tipoFacturaDoc_2=respuesta.tipoFacturaDoc;
+                    me.array_codSector_2=respuesta.codsedtor;           
+                    console.log(me.array_codSector_2);
+                 
+                })
+                .catch(function (error) {
+                    error401(error);
+                    console.log(error);
+                });
+        },
+
 
         cambiarPestana(idPestana) {
             this.pestañaActiva = idPestana;
@@ -1108,6 +1236,12 @@ listarInicio(page,data)
             me.endDate_modal_1="";
             me.startDate_modal_1="";
 
+             me.select_ambiente_2='0';
+            me.select_tipoFacturaDoc_2='0';          
+            me.select_contigencia_2='0';
+            me.select_codSector_2='0';
+            me.select_modalidad_2='0';
+
                 
             
                     me.classModal.openModal("contingencia_2");
@@ -1188,6 +1322,12 @@ me.id_evento_="";
             me.endDate_modal_1="";
             me.startDate_modal_1="";
 
+            me.select_ambiente_2='0';
+            me.select_tipoFacturaDoc_2='0';          
+            me.select_contigencia_2='0';
+            me.select_codSector_2='0';
+            me.select_modalidad_2='0';
+
              
             }  
 
@@ -1214,6 +1354,7 @@ me.id_evento_="";
         this.classModal.addModal("contingencia_consullta_modal");
         this.classModal.addModal("contingencia_2");
         this.listarModalSucuralSiatPunto(1,0);
+        this.listarModalDatosAdcionales();
          
     },
 };

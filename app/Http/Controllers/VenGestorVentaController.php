@@ -789,7 +789,7 @@ $soap_llamada = (string) $soap_llamada;
            $insertarVenta_v= $this->insertarVenta($codigoCliente,$total_venta,$efectivo_venta,$cambio_venta,$descuento_venta,$total_sin_des,$dato_tipo,
            $codigo_tienda_almacen_0,$id_lista_v2,$numero_referencia,$numeroDocumento,$nombreRazonSocial,$estado_dosificacion_facctura,$id_apertura_cierre,$tipo_venta,
     $monto_vale,$monto_apagar,$codigoMoneda,$arrayDescuentoOperacion,$arrayDesatlleVenta,$numeroTarjeta,$cadenaOtros,$tipoBanco,$id_cufd,$id_cuis
-    ,$cuf,$id_credenciales,$sucursal_siat,$punto_venta,$direccion,$municipio, $numeroFactura, $fechaEmision, $soap_llamada, $tipoEmision_cod_5,$codigoRecepcion, $codigoEstado, $codigoDescripcion,$contigencia,$sector_venta,$fartura_zip,$tipoEmision,$modalidad,$docFactura);     
+    ,$cuf,$id_credenciales,$sucursal_siat,$punto_venta,$direccion,$municipio, $numeroFactura, $fechaEmision, $soap_llamada, $tipoEmision_cod_5,$codigoRecepcion, $codigoEstado, $codigoDescripcion,$contigencia,$sector_venta,$fartura_zip,$tipoEmision,$modalidad,$docFactura,$tipo_ambiente);     
      
      $data_22 = $insertarVenta_v->getData(true); 
     if($data_22['data_1']==0){
@@ -921,7 +921,7 @@ $soap_llamada="sin datos";
    $insertarVenta_v= $this->insertarVenta($codigoCliente,$total_venta,$efectivo_venta,$cambio_venta,$descuento_venta,$total_sin_des,$dato_tipo,
            $codigo_tienda_almacen_0,$id_lista_v2,$numero_referencia,$numeroDocumento,$nombreRazonSocial,$estado_dosificacion_facctura,$id_apertura_cierre,$tipo_venta,
     $monto_vale,$monto_apagar,$codigoMoneda,$arrayDescuentoOperacion,$arrayDesatlleVenta,$numeroTarjeta,$cadenaOtros,$tipoBanco,$id_cufd,$id_cuis
-    ,$cuf,$id_credenciales,$sucursal_siat,$punto_venta,$direccion,$municipio, $numeroFactura, $fechaEmision, $soap_llamada, $tipoEmision_cod_5,$codigoRecepcion, $codigoEstado, $codigoDescripcion,$contigencia,$sector_venta,$fartura_zip,$tipoEmision,$modalidad,$docFactura);    
+    ,$cuf,$id_credenciales,$sucursal_siat,$punto_venta,$direccion,$municipio, $numeroFactura, $fechaEmision, $soap_llamada, $tipoEmision_cod_5,$codigoRecepcion, $codigoEstado, $codigoDescripcion,$contigencia,$sector_venta,$fartura_zip,$tipoEmision,$modalidad,$docFactura,$tipo_ambiente);    
     $data_22 = $insertarVenta_v->getData(true);
 
     if($data_22['data_1']==0){
@@ -2435,7 +2435,7 @@ if ($hoy->greaterThan($fechaA)) {
     private function  insertarVenta($cliente_id,$total_venta,$efectivo_venta,$cambio_venta,$descuento_venta,$total_sin_des,$dato_tipo,$codigo_tienda_almacen_0
     ,$id_lista_v2,$numero_referencia,$num_documento,$nom_a_facturar,$estado_dosificacion_facctura,$id_apertura_cierre,$tipo_venta,
     $monto_vale,$monto_apagar,$moneda,$arrayDescuentoOperacion,$arrayDesatlleVenta,$numeroTarjeta,$cadenaOtros,$tipoBanco,$id_cufd,$id_cuis
-    ,$cuf,$id_credenciales,$sucursal_siat,$punto_venta,$direccion,$municipio, $numFactura, $fechaEmision, $xml, $id_leyenda, $codigoRecepcion,$codigoEstado,$codigoDescripcion,$contigencia,$sector_venta,$fartura_zip,$tipoEmision,$modalidad,$docFactura){
+    ,$cuf,$id_credenciales,$sucursal_siat,$punto_venta,$direccion,$municipio, $numFactura, $fechaEmision, $xml, $id_leyenda, $codigoRecepcion,$codigoEstado,$codigoDescripcion,$contigencia,$sector_venta,$fartura_zip,$tipoEmision,$modalidad,$docFactura,$tipo_ambiente){
     try {
      DB::beginTransaction();
         $user_1 = auth()->user()->id;
@@ -2628,7 +2628,8 @@ $data_siat = [
     'zip_factura' => $fartura_zip,
     'tipo_emision' => $tipoEmision,
     'modalidad' => $modalidad,
-    'tipoFacturaDoc' => $docFactura
+    'tipoFacturaDoc' => $docFactura,
+    'ambiente'   => $tipo_ambiente
 
    ];  
      

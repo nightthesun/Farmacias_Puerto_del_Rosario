@@ -873,6 +873,51 @@ public function getModalSucuralSiatPunto(Request $request){
     
 }
 
+public function getAutmo_select(){
+    $query_1 = DB::table('siat__catalogo_lista_siat')
+    ->selectRaw("
+        MAX(CASE WHEN id_catalogo = 1 THEN codigo END) AS uno,
+        MAX(CASE WHEN id_catalogo = 2 THEN codigo END) AS dos,
+        MAX(CASE WHEN id_catalogo = 3 THEN codigo END) AS tres
+    ")->first();
+    $query_2 = DB::table('siat__configuracions')
+    ->select('cod_sis', 'tipo_ambiente', 'tipo_modalidad')
+    ->where('id', 1)
+    ->first();
+
+    return response()->json([
+                'query_1' => $query_1,  
+                'query_2' => $query_2, 
+                
+            ]); 
+    
+}
+
+public function getModal_datos_adcionales(){
+     $query_1= DB::table('excel__emision')
+    ->select('*')
+    ->where('id_catalogo','=',1)    
+    ->get();
+
+    $query_2= DB::table('excel__emision')
+    ->select('*')
+    ->where('id_catalogo','=',2)    
+    ->get();
+
+    
+    $query_3= DB::table('excel__emision')
+    ->select('*')
+    ->where('id_catalogo','=',3)    
+    ->get();
+   
+
+      return response()->json([
+                'contigencia' => $query_1,  
+                'tipoFacturaDoc' => $query_2,  
+                'codsedtor' => $query_3,  
+            ]); 
+}
+
 public function sendEventoManual(Request $request){
     
     try {
@@ -1123,15 +1168,15 @@ if ($factura_siat_2==0) {
                         <codigoAmbiente>{$codigoAmbiente}</codigoAmbiente>
                         <codigoDocumentoSector>{$codSector}</codigoDocumentoSector>
                         <codigoEmision>2</codigoEmision>
-                        <codigoModalidad>{$modalidad_}</codigoModalidad>
+                        <codigoModalidad>0</codigoModalidad>
                         <!--Optional:-->
-                        <codigoPuntoVenta>{$codigoPuntoVenta}</codigoPuntoVenta>
+                        <codigoPuntoVenta>0</codigoPuntoVenta>
                         <codigoSistema>{$codigoSistema}</codigoSistema>
                         <codigoSucursal>{$codigoSucursal}</codigoSucursal>
                         <cufd>{$cufd}</cufd>
                         <cuis>{$cuis}</cuis>
                         <nit>{$nit}</nit>
-                        <tipoFacturaDocumento>{$tipoFacturaDoc_}</tipoFacturaDocumento>
+                        <tipoFacturaDocumento>0</tipoFacturaDocumento>
                         <archivo>{$archivo}</archivo>
                         <fechaEnvio>{$fechaEnvio}</fechaEnvio>
                         <hashArchivo>{$hashArchivo}</hashArchivo>                        
