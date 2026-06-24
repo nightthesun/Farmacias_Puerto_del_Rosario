@@ -523,7 +523,7 @@
                         Cerrar
                     </button>
                     <button type="button" class="btn btn-primary" @click="enviarEventoManual()" :disabled="siguienteP==0">
-                        Registrar
+                        Enviar
                     </button>
                 </div>
 
