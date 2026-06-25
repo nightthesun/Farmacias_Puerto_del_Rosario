@@ -922,7 +922,8 @@ public function sendEventoManual(Request $request){
     
     try {
                 DB::beginTransaction();
-
+                return $request->all();
+                //datos de entrada
                 $cafc=$request->cafc;
               $fechaHoraFinEvento = Carbon::parse($request->endDate_modal_1)->format('Y-m-d\TH:i:s.v');
                $fechaHoraInicioEvento = Carbon::parse($request->startDate_modal_1)->format('Y-m-d\TH:i:s.v');
@@ -930,6 +931,16 @@ public function sendEventoManual(Request $request){
                 $id_sucursal=$request->id_sucursal;
                 $id_emisor=$request->punto_venta;
                 $descripcion=$request->contingencia_descripcion_modal;
+
+                $ambiente_m=$request->ambiente_m;
+                $codSector_m=$request->codSector_m;
+                $contigencia_m=$request->contigencia_m;//tipo fuera de linea 2 y contigencia 4 datos de entrada
+                $modalidad_m=$request->modalidad_m;
+                $tipoFacturaDoc_m=$request->tipoFacturaDoc_m;
+                
+
+             
+
 
                  $query_0_0 = DB::table('siat__sucursals')
     ->where('id', $id_sucursal)
@@ -1045,18 +1056,27 @@ if ($factura_siat_2==0) {
                     return "no exite la tabla o el id fue cambiado ya que debe ser el 2 como id pivote";
                 }
 
-        $cadena_url=$endPoints->Url; 
-         
-        $wsdl = $cadena_url;
-           $factura_siat = DB::table('ven__factura_siat')
+            $factura_siat = DB::table('ven__factura_siat')
         ->where('codEstado','<>','908')
+        ->where('siat__sucursals','=',$codigoSucursal)
+        ->where('punto_venta','=',$punto_venta)
+        ->where('estado','=',1)
+        ->where('tipo_emision','=',$contigencia_m) 
+        ->where('modalidad','=',$modalidad_m)
+        ->where('tipoFacturaDoc','=',$tipoFacturaDoc_m)  
+        ->where('ambiente','=',$ambiente_m)  
         ->select('zip_factura','codSector','tipo_emision','modalidad','tipoFacturaDoc','cuf')
         ->get();
 
         if (count($factura_siat)<=0) {
             return "No existe factura comprimida en sistema.";
         }
+        
 
+        $cadena_url=$endPoints->Url; 
+         
+        $wsdl = $cadena_url;
+          
               // Asignación de la URL y API key
         $apikeyValue = 'TokenApi ' .$tokenDelegado; // Concatenar correctamente el valor del API key
                 // Crear el cuerpo del mensaje SOAP, sustituyendo los valores con los parámetros correspondientes
@@ -1067,7 +1087,7 @@ if ($factura_siat_2==0) {
             <soapenv:Body>
                <siat:registroEventoSignificativo>
                   <SolicitudEventoSignificativo>
-                    <codigoAmbiente>{$codigoAmbiente}</codigoAmbiente>
+                    <codigoAmbiente>{$ambiente_m}</codigoAmbiente>
                     <codigoMotivoEvento>{$codigoMotivoEvento}</codigoMotivoEvento>
                     <codigoPuntoVenta>{$punto_venta}</codigoPuntoVenta>
                     <codigoSistema>{$codigoSistema}</codigoSistema>
@@ -1119,10 +1139,12 @@ if ($factura_siat_2==0) {
         $transaccion = $xml->xpath('//transaccion');
       
         if ($transaccion && isset($transaccion[0])) {
-            if ($transaccion[0]== 'true') {                
+            if ($transaccion[0]== 'true') {    
                 $codigoRecepcionEventoSignificativo = $xml->xpath('//codigoRecepcionEventoSignificativo');
                 $codigo_1=  html_entity_decode($codigoRecepcionEventoSignificativo[0], ENT_QUOTES, 'UTF-8');
                 $fechaEnvio = Carbon::now('America/La_Paz')->format('Y-m-d\TH:i:s.v');
+
+              
                 // Crear ZIP temporal.............................
                 $tmpZip = tempnam(sys_get_temp_dir(), 'siat_');
                 $nombreTar = storage_path('app/paquete.tar');
@@ -1165,12 +1187,12 @@ if ($factura_siat_2==0) {
             <soapenv:Body>
                <siat:recepcionPaqueteFactura>
                     <SolicitudServicioRecepcionPaquete>
-                        <codigoAmbiente>{$codigoAmbiente}</codigoAmbiente>
-                        <codigoDocumentoSector>{$codSector}</codigoDocumentoSector>
-                        <codigoEmision>2</codigoEmision>
-                        <codigoModalidad>0</codigoModalidad>
+                        <codigoAmbiente>{$ambiente_m}</codigoAmbiente>
+                        <codigoDocumentoSector>{$codSector_m}</codigoDocumentoSector>
+                        <codigoEmision>{$contigencia_m}</codigoEmision>
+                        <codigoModalidad>{$modalidad_m}</codigoModalidad>
                         <!--Optional:-->
-                        <codigoPuntoVenta>0</codigoPuntoVenta>
+                        <codigoPuntoVenta>{$punto_venta}</codigoPuntoVenta>
                         <codigoSistema>{$codigoSistema}</codigoSistema>
                         <codigoSucursal>{$codigoSucursal}</codigoSucursal>
                         <cufd>{$cufd}</cufd>
@@ -1187,6 +1209,7 @@ if ($factura_siat_2==0) {
             </soapenv:Body>
          </soapenv:Envelope>
          EOD;
+         
              
                 }else{
                 return $respuesta;

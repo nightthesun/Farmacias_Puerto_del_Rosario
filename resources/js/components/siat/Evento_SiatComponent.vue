@@ -523,13 +523,14 @@
   </div>
                         </div>
 
-                        <div class="card" v-show="siguienteP==1">
+                        <div class="card"  v-show="siguienteP==1">
                             <div class="card-header">
                                 Envio de datos adicionales                               
                             </div>
                              <button type="button" class="btn btn-primary" @click="listarAutmoSelect()">LLenar automatico</button>  
                             <div class="card-body">
-                                  <label for="">Tipo de ambiente:</label>
+                                <div style="margin-top: 10px;">
+<label for="">Tipo de ambiente:</label>
                                         <div class="input-group">
                                         <select class="form-control" v-model="select_ambiente_2">
                                             <option value="0" disabled selected>Seleccionar...</option>  
@@ -537,44 +538,48 @@
                                             <option value="2">Piloto</option>                                 
                                         </select>                                                             
                                         </div>
-                            </div>
-                            <div class="card-body">
-                                  <label for="">Codigo sector:</label>
+                                </div>
+                                <div style="margin-top: 10px;">
+                                    <label for="">Codigo sector:</label>
                                         <div class="input-group">
                                         <select class="form-control" v-model="select_codSector_2">
                                             <option value="0" disabled selected>Seleccionar...</option>  
                                             <option :value="i.codigo" v-for="(i, index) in array_codSector_2" :key="index">{{ i.descripcion }}</option>                                                                           
                                         </select>                                                             
-                                        </div>
-                            </div>
-                            <div class="card-body">
-                                  <label for="">Codigo contigencia:</label>
+                                        </div> 
+                                </div>
+                                 <div style="margin-top: 10px;">
+                                    <label for="">Codigo contigencia:</label>
                                         <div class="input-group">
                                         <select class="form-control" v-model="select_contigencia_2">
                                             <option value="0" disabled selected>Seleccionar...</option>  
                                             <option :value="i.codigo" v-for="(i, index) in array_contigencia_2" :key="index">{{ i.descripcion }}</option>                                                                           
                                         </select>                                                             
                                         </div>
-                            </div>
-                             <div class="card-body">
-                                  <label for="">Codigo sector:</label>
+                                 </div> 
+                                 <div style="margin-top: 10px;">
+                                    <label for="">Codigo sector:</label>
                                         <div class="input-group">
                                         <select class="form-control" v-model="select_tipoFacturaDoc_2">
                                             <option value="0" disabled selected>Seleccionar...</option>  
                                             <option :value="i.codigo" v-for="(i, index) in array_tipoFacturaDoc_2" :key="index">{{ i.descripcion }}</option>                                                                           
                                         </select>                                                             
-                                        </div>
-                            </div>
-                            <div class="card-body">
-                                  <label for="">Tipo de modalidad:</label>
+                                        </div> 
+                                 </div>
+                                 <div style="margin-top: 10px;">
+                                    <label for="">Tipo de modalidad:</label>
                                         <div class="input-group">
                                         <select class="form-control" v-model="select_modalidad_2">
                                             <option value="0" disabled selected>Seleccionar...</option>  
                                             <option value="1">Electronica</option>    
                                             <option value="2">Computarizada</option>                                 
                                         </select>                                                             
-                                        </div>
+                                        </div>  
+                                 </div>
+                                           
                             </div>
+                          
+                          
                         </div>
                       
                     </form>
