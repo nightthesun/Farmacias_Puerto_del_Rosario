@@ -1002,7 +1002,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/siat_eventos/enviarEventoManual', [SiatEventoController::class, 'sendEventoManual']);
     Route::get('/siat_eventos/listarModal_datos_adcionales', [SiatEventoController::class, 'getModal_datos_adcionales']);   
     Route::get('/siat_eventos/listarAutmo_select', [SiatEventoController::class, 'getAutmo_select']);   
-    
-    
+    Route::get('/siat_eventos/listarEventoSignificativoPaquete', [SiatEventoController::class, 'getEvento_significativo_paquete']);   
+     Route::post('/siat_eventos/enviarPaquetes', [SiatEventoController::class, 'send_paquetes']);
         
 });

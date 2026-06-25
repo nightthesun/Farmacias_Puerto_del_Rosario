@@ -34,7 +34,7 @@
                     </div>
                 </div>
                  
-                <div class="col-md-4">
+                <div class="col-md-6">
                     <label for="">CUF:</label>
                     <div class="input-group">
                                 <input type="text" class="form-control" placeholder="Buscar codigo de autorización" v-model="buscar_cuf"/>
@@ -43,17 +43,7 @@
                                 </button>
                     </div>
                 </div>
-                 <div class="col-md-2">
-                   
-                                          
-                    <button type="submit" class="btn btn-primary" @click="abrirModal('contingencia_consullta_modal');" style="margin-top: 28px; margin-right: 10px;" data-toggle="tooltip" data-placement="top" title="CONSULTAR ESTADO DE CONTINGENCIA">
-                        <i class="fa fa-eye " aria-hidden="true" ></i>
-                    </button>
-                    <button type="submit" class="btn btn-primary" @click="abrirModal('contingencia_2');" style="margin-top: 28px; margin-right: 10px;" data-toggle="tooltip" data-placement="top" title="REALIZAR EVENTO SIGFICATIVO">
-                        <i class="fa fa-wrench" aria-hidden="true"></i>
-                    </button>
-                 
-                </div> 
+                
                
             </div>
             <div class="form-group row">
@@ -99,6 +89,20 @@
           <input id="end-date" type="date" class="form-control" v-model="endDate" @change="listarInicio(1,6)">
                   </div>    
             </div> 
+            <div class="form-group row">
+                <div class="col-md-12">
+                      <button type="submit" class="btn btn-primary" @click="abrirModal('contingencia_consullta_modal');" style="margin-top: 15px; margin-right: 10px;">
+                        Ver estado evento.
+                    </button>
+                    <button type="submit" class="btn btn-primary" @click="abrirModal('contingencia_2');" style="margin-top: 15px; margin-right: 10px;">
+                        Abrir evento.
+                    </button>
+                    <button type="submit" class="btn btn-primary" @click="abrirModal('envioPaquete');" style="margin-top: 15px; margin-right: 10px;">
+                        Envio de paquetes.
+                    </button>
+                    
+                </div>
+            </div>       
          </div>
 
 
@@ -202,7 +206,6 @@
                     <form class="form-horizontal">
 
                         <div class="container-fluid">
-
                             <div class="table-responsive">
                                 <table class="table table-bordered table-striped table-sm">
                                     <thead>
@@ -603,6 +606,84 @@
 </transition>
         <!--fin del modal-->
 
+        <!--Inicio del modal estado de contingencia-->
+    <transition name="fade">
+    <div v-if="showModal_5" class="modal d-block" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-dialog-scrollable modal-ancho" role="document">
+     
+            <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+                    <h4 class="modal-title">{{ tituloModal }}</h4>
+                    <button type="button" class="close" @click="cerrarModal('envioPaquete')">
+                        <span>&times;</span>
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                   
+                    <form class="form-horizontal">
+                       <button type="button" class="btn btn-primary" @click="listarEventoSignificativoPaquete(1)" style="margin-left: 10px;">
+                        Ver activos
+                        </button>
+                        <button type="button" class="btn btn-primary" @click="listarEventoSignificativoPaquete(0)" style="margin-left: 10px;">
+                        Ver desactivados
+                        </button>
+
+                        <div class="container-fluid">
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-striped table-sm" style="margin-top: 20px;">
+                                   <thead>
+                                        <tr>
+                                            <th>Opciones</th>
+                                            <th>Numero</th>
+                                            <th>Cod. recep</th>
+                                            <th>Descripción</th>
+                                            <th>Fecha inicio</th>
+                                            <th>Fecha final</th>
+                                            <th>Ambiente</th>
+                                            <th>Modalidad</th>
+                                            <th>Estado</th>   
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="(i, index) in arrayEnvento_mm" :key="index">
+                                            <td>
+                                             <button @click="activar_mm(i.created_at)"  v-if="i.estado==1" type="button" class="btn btn-danger"><i class="fa fa-trash-o" aria-hidden="true"></i></button>
+                                            <button v-else type="button" class="btn btn-secondary"><i class="fa fa-trash-o" aria-hidden="true"></i></button>                                           
+                                            </td>
+                                            <td>{{i.id}}</td>
+                                            <td>{{i.cod_recep_even}}</td>
+                                            <td>{{i.descrip}}</td>
+                                            <td>{{i.fechaI}}</td>
+                                            <td>{{i.fechaF}}</td>
+                                            <td>{{i.ambiente}}</td>
+                                            <td>{{i.modalidad}}</td>
+                                             <td>
+                                                <span v-if="i.estado==1" class="badge badge-pill badge-success">Activo</span>
+                                                <span v-else class="badge badge-pill badge-secondary">Desactivado</span>
+                                             </td>
+                                        </tr>                                        
+                                    </tbody>     
+                                </table>
+                            </div>
+                        </div>            
+                    </form>
+                  
+
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @click="cerrarModal('envioPaquete')">
+                        Cerrar
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</transition>
+        <!--fin del modal-->
+
     </main>
 </template>
 
@@ -661,6 +742,7 @@ offset:3,
         showModal_2:false,
       showModal_3:false,
       showModal_4:false,
+      showModal_5:false,
         arrayListaContingencia_2:[],
         selectListaContingencia_2:'0',
         contingencia_descripcion_modal:'',
@@ -700,6 +782,8 @@ array_contigencia_2:[],
 select_codSector_2:'0',
 array_codSector_2:[],
 select_modalidad_2:'0',
+
+arrayEnvento_mm:[],
 
 
         };
@@ -746,8 +830,67 @@ select_modalidad_2:'0',
 
     methods: {
 
+      
+
+        listarEventoSignificativoPaquete(dato_1) {
+            let me=this;
+             let url="/siat_eventos/listarEventoSignificativoPaquete?a="+dato_1;
+             axios.get(url)
+             .then(function (response) {
+                 let respuesta=response.data;              
+                 me.arrayEnvento_mm=respuesta
+                 console.log(respuesta);
+                 
+             })
+             .catch(function (error) {
+                 error401(error);
+                 console.log(error);
+             }); 
+           
+        },
+
+        activar_mm(fecha){
+             let me=this;
+
+  // Convertir a objeto Date
+    let nuevaFecha = new Date(fecha.replace(' ', 'T'));
+
+    // Sumar 24 horas
+    nuevaFecha.setHours(nuevaFecha.getHours() + 24);
+
+    // Formatear
+    const year = nuevaFecha.getFullYear();
+    const month = String(nuevaFecha.getMonth() + 1).padStart(2, '0');
+    const day = String(nuevaFecha.getDate()).padStart(2, '0');
+    const hours = String(nuevaFecha.getHours()).padStart(2, '0');
+    const minutes = String(nuevaFecha.getMinutes()).padStart(2, '0');
+    const seconds = String(nuevaFecha.getSeconds()).padStart(2, '0');
+
+    const fechaMas24 = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+
+      // Fecha enviada
+    const fechaComparar = new Date(fechaMas24.replace(' ', 'T'));
+  
+    // Fecha actual
+    const hoy = new Date();
+
+    if (hoy > fechaComparar) {    
+        return Swal.fire('Error','La fecha actual es mayor. Recuerda que de la fecha de creacion mas 24 hrs es el limite para la contigencia','error');
+    
+    } else {
+        console.log("La fecha actual es menor .");
+    
+    }
+    return 0;          
+          
+        },
+
         enviarEventoManual(){
             let me=this;
+            if (new Date(me.startDate_modal_1) > new Date(me.endDate_modal_1)) {
+    
+    return Swal.fire('Error','La fecha inicial no debe ser mayor a la fecha final.','error');
+}
             if (me.select_query_1=='0'||me.select_query_2=='0'||me.selectListaContingencia_2=='0'||me.endDate_modal_1==''||me.startDate_modal_1==''
                 || me.select_ambiente_2=='0'|| me.select_modalidad_2=='0'||me.select_tipoFacturaDoc_2=='0'||me.select_contigencia_2=='0'||me.select_codSector_2=='0'
             ) {
@@ -770,14 +913,15 @@ select_modalidad_2:'0',
                 })
                 .then(function (response) {                   
                     let respuesta=response.data;
-                    //   if(respuesta===0){
-                    //        return Swal.fire('Acción realizada','con exito.','success');
-                    //    }else{
-                    //        return Swal.fire('Error',' '+respuesta,'error');
-                     //   }              
+                       me.listarInicio(0,me.pagina_uno)              
+                    me.cerrarModal('contingencia_2')
+                      if(respuesta===0){
+                       return Swal.fire('Acción realizada','con exito.','success');
+                       }else{
+                           return Swal.fire('Error',' '+respuesta,'error');
+                       }              
                           console.log(respuesta);
-                  //  me.listarInicio(0,me.pagina_uno)              
-                 //   me.cerrarModal('contingencia_2');        
+                 ;        
                                              
                 })               
                 .catch(function (error) {                
@@ -1253,6 +1397,14 @@ listarInicio(page,data)
 
                     break;  
                 }
+
+                case "envioPaquete":{
+                
+                me.showModal_5= true;
+                me.tituloModal="Envio de paquetes";
+                me.classModal.openModal("envioPaquete");
+                break;
+                }
             
             }
         },
@@ -1334,7 +1486,14 @@ me.id_evento_="";
             me.select_modalidad_2='0';
 
              
-            }  
+            } 
+            
+            if (accion=="envioPaquete") {
+                me.classModal.closeModal(accion);
+                me.showModal_5= false;
+                me.tituloModal="";
+                
+            }
 
             
         },
@@ -1358,6 +1517,7 @@ me.id_evento_="";
         this.classModal.addModal("contingencia");
         this.classModal.addModal("contingencia_consullta_modal");
         this.classModal.addModal("contingencia_2");
+         this.classModal.addModal("envioPaquete");
         this.listarModalSucuralSiatPunto(1,0);
         this.listarModalDatosAdcionales();
          
@@ -1368,5 +1528,10 @@ me.id_evento_="";
 .error {
     color: red;
     font-size: 10px;
+}
+.modal-ancho {
+    width: 98%;
+    max-width: 98%;
+    margin: 10px auto;
 }
 </style>

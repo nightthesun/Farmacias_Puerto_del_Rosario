@@ -918,15 +918,38 @@ public function getModal_datos_adcionales(){
             ]); 
 }
 
+public function send_paquetes(Request $request){
+                try {
+                    DB::beginTransaction();
+
+                    
+                    DB::commit();
+                } catch (\Throwable $th) {
+                    return $th;
+                }
+}
+
+
+public function getEvento_significativo_paquete(Request $request){
+   $estado = $request->a;
+
+$query_3 = DB::table('evento__significativos')
+    ->where('estado', $estado)
+    ->get();
+    return $query_3;
+}
+
 public function sendEventoManual(Request $request){
     
     try {
                 DB::beginTransaction();
-                return $request->all();
+          
                 //datos de entrada
                 $cafc=$request->cafc;
-              $fechaHoraFinEvento = Carbon::parse($request->endDate_modal_1)->format('Y-m-d\TH:i:s.v');
-               $fechaHoraInicioEvento = Carbon::parse($request->startDate_modal_1)->format('Y-m-d\TH:i:s.v');
+                 
+              $fechaHoraFinEvento = Carbon::parse($request->fecha_fin)->format('Y-m-d\TH:i:s.v');
+               $fechaHoraInicioEvento = Carbon::parse($request->fecha_ini)->format('Y-m-d\TH:i:s.v');
+          
                 $codigoMotivoEvento=$request->contigenciaDes_codigo_modal;
                 $id_sucursal=$request->id_sucursal;
                 $id_emisor=$request->punto_venta;
@@ -938,8 +961,6 @@ public function sendEventoManual(Request $request){
                 $modalidad_m=$request->modalidad_m;
                 $tipoFacturaDoc_m=$request->tipoFacturaDoc_m;
                 
-
-             
 
 
                  $query_0_0 = DB::table('siat__sucursals')
@@ -960,7 +981,7 @@ public function sendEventoManual(Request $request){
     ->where('e.estado', 1)
     ->where('e.id', $id_emisor)
     ->where('e.delete', 0)
-    ->select('cuis.dato as cuis','cufd.dato as cufd','e.id_punto_venta')
+    ->select('cuis.dato as cuis','cufd.dato as cufd','e.id_punto_venta','cuis.id as id_cuis','cufd.id as id_cufd')
     ->first();
    
                 if (!$query_1||$query_1==null) {
@@ -968,7 +989,9 @@ public function sendEventoManual(Request $request){
                 }
         
         $cuis=$query_1->cuis;
-        $cufd=$query_1->cufd;      
+        $cufd=$query_1->cufd;    
+        $id_cuis=$query_1->id_cuis;
+        $id_cufd=$query_1->id_cufd;     
         $punto_venta=$query_1->id_punto_venta;     
 
               
@@ -1055,23 +1078,33 @@ if ($factura_siat_2==0) {
                 if (!$endPoints) {
                     return "no exite la tabla o el id fue cambiado ya que debe ser el 2 como id pivote";
                 }
-
-            $factura_siat = DB::table('ven__factura_siat')
-        ->where('codEstado','<>','908')
-        ->where('siat__sucursals','=',$codigoSucursal)
-        ->where('punto_venta','=',$punto_venta)
-        ->where('estado','=',1)
-        ->where('tipo_emision','=',$contigencia_m) 
-        ->where('modalidad','=',$modalidad_m)
-        ->where('tipoFacturaDoc','=',$tipoFacturaDoc_m)  
-        ->where('ambiente','=',$ambiente_m)  
-        ->select('zip_factura','codSector','tipo_emision','modalidad','tipoFacturaDoc','cuf')
-        ->get();
+/* 
+$factura_siat = DB::table('ven__factura_siat')
+    ->where('codEstado', '<>', '908')
+    ->where('sucursal_siat', $codigoSucursal)
+    ->where('punto_venta', $punto_venta)
+    ->where('estado', 1)
+    ->where('tipo_emision', $contigencia_m)
+    ->where('modalidad', $modalidad_m)
+    ->where('tipoFacturaDoc', $tipoFacturaDoc_m)
+    ->where('ambiente', $ambiente_m)
+    ->select([
+        'zip_factura',
+        'codSector',
+        'tipo_emision',
+        'modalidad',
+        'tipoFacturaDoc',
+        'cuf'
+    ])
+    ->get();
 
         if (count($factura_siat)<=0) {
             return "No existe factura comprimida en sistema.";
         }
         
+*/
+        
+      
 
         $cadena_url=$endPoints->Url; 
          
@@ -1104,7 +1137,7 @@ if ($factura_siat_2==0) {
             </soapenv:Body>
          </soapenv:Envelope>
          EOD;
-       
+
            $ch = curl_init();            
                         // Configuración de la solicitud cURL
                         curl_setopt($ch, CURLOPT_URL, $wsdl); // Reemplaza con el endpoint correcto
@@ -1134,18 +1167,39 @@ if ($factura_siat_2==0) {
 // Convertir la respuesta en un objeto SimpleXMLElement
         $xml = simplexml_load_string($response);   
         $respuesta=$response;
+     
          // Usar XPath para encontrar el nodo <transaccion>   
     
         $transaccion = $xml->xpath('//transaccion');
-      
+         
         if ($transaccion && isset($transaccion[0])) {
             if ($transaccion[0]== 'true') {    
                 $codigoRecepcionEventoSignificativo = $xml->xpath('//codigoRecepcionEventoSignificativo');
                 $codigo_1=  html_entity_decode($codigoRecepcionEventoSignificativo[0], ENT_QUOTES, 'UTF-8');
                 $fechaEnvio = Carbon::now('America/La_Paz')->format('Y-m-d\TH:i:s.v');
-
-              
-                // Crear ZIP temporal.............................
+                DB::table('evento__significativos')->insert([
+    'codigo_evento' => $codigoMotivoEvento,
+    'cod_recep_even' => $codigo_1,
+    'descrip' => $descripcion,
+    'fechaI' => $fechaHoraInicioEvento,
+    'fechaF' => $fechaHoraFinEvento,
+    'cod_sucursal_siat' => $codigoSucursal,
+    'cod_punto_venta_siat' => $punto_venta,
+    'cafc'=>$cafc,    
+    'ambiente'=>$ambiente_m,
+    'cod_sector'=> $codSector_m,
+    'cod_contigencia'=> $contigencia_m,
+    'tipo_factura'=>$tipoFacturaDoc_m,
+    'modalidad' =>$modalidad_m, 
+    'id_cuis' => $id_cuis,
+    'id_cufd' => $id_cufd,           
+    'created_at' => $fechaEnvio,
+    'updated_at' => $fechaEnvio
+]);
+                                            DB::commit();
+                                            return 0;
+              /*
+               Crear ZIP temporal.............................
                 $tmpZip = tempnam(sys_get_temp_dir(), 'siat_');
                 $nombreTar = storage_path('app/paquete.tar');
                 if (file_exists($nombreTar)) {
@@ -1209,7 +1263,52 @@ if ($factura_siat_2==0) {
             </soapenv:Body>
          </soapenv:Envelope>
          EOD;
-         
+         return $xmlData;
+                        $ch = curl_init();            
+                        // Configuración de la solicitud cURL
+                        curl_setopt($ch, CURLOPT_URL, $wsdl); // Reemplaza con el endpoint correcto
+                        curl_setopt($ch, CURLOPT_POST, 1);
+                        curl_setopt($ch, CURLOPT_POSTFIELDS, $xmlData);
+
+                        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                            'Content-Type: text/xml; charset=utf-8',
+                            'SOAPAction: ""', // Si el SOAPAction es requerido, inclúyelo aquí
+                            'apikey: ' . $apikeyValue // Incluye la API key con el valor correspondiente
+                        ]);
+                        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+                        // Ejecutar la solicitud y obtener la respuesta
+                        $response = curl_exec($ch);                       
+                        // Verificar si hubo un error en cURL
+                        if (curl_errno($ch)) {
+                            throw new \Exception(curl_error($ch));
+                        }            
+                        // Cerrar la sesión de cURL
+                        if (empty($response)) {
+                            return("Error 2: ".$response);
+                        }
+
+                        // Convertir la respuesta en un objeto SimpleXMLElement
+                        $xml = simplexml_load_string($response);   
+                        $respuesta=$response;
+                        return $respuesta;    
+                         // Usar XPath para encontrar el nodo <transaccion>   
+                        $transaccion = $xml->xpath('//transaccion');
+
+                        if ($transaccion && isset($transaccion[0])) {
+                            if ($transaccion[0]== 'true') {
+                                sleep(2);
+                                $codigoDescripcion = $xml->xpath('//codigoDescripcion');
+                                $codigoEstado = $xml->xpath('//codigoEstado');
+                                $codigoRecepcion = $xml->xpath('//codigoRecepcion');
+
+                            }else{
+                                return $respuesta;
+                            }
+                        }else{ 
+                            return $respuesta;
+                        }
+               */                
              
                 }else{
                 return $respuesta;
