@@ -313,7 +313,7 @@
             </div>
      </transition>                   
 
-        <!--fin del modal-->
+        <!--fin del modal-->ººººº-
         <!--Inicio del modal AUTOMATICO-->
          <transition name="fade">
             <div v-if="showModal_2" class="modal d-block" tabindex="-1" role="dialog">

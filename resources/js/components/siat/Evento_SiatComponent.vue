@@ -648,9 +648,34 @@
                                     <tbody>
                                         <tr v-for="(i, index) in arrayEnvento_mm" :key="index">
                                             <td>
-                                             <button @click="activar_mm(i.created_at)"  v-if="i.estado==1" type="button" class="btn btn-danger"><i class="fa fa-trash-o" aria-hidden="true"></i></button>
-                                            <button v-else type="button" class="btn btn-secondary"><i class="fa fa-trash-o" aria-hidden="true"></i></button>                                           
-                                            </td>
+    <div class="d-flex align-items-center gap-2">
+        <div>
+            <button
+                @click="activar_mm(i.created_at,i.id)"
+                v-if="i.estado==1"
+                type="button"
+                class="btn btn-danger">
+                <i class="fa fa-trash-o" aria-hidden="true"></i>
+            </button>
+
+            <button
+                v-else
+                type="button"
+                class="btn btn-secondary">
+                <i class="fa fa-trash-o" aria-hidden="true"></i>
+            </button>
+        </div>
+
+        <div>
+            <button v-if="i.estado==1" type="button" class="btn btn-warning" @click="enviarPaquete_mm(i.id);" style="color: white;margin-left: 8px;">
+                <i class="fa fa-podcast" aria-hidden="true"></i>
+            </button>
+            <button v-else type="button" class="btn btn-secondary" style="color: white;margin-left: 8px;">
+                <i class="fa fa-podcast" aria-hidden="true"></i>
+            </button>
+        </div>
+    </div>
+</td>
                                             <td>{{i.id}}</td>
                                             <td>{{i.cod_recep_even}}</td>
                                             <td>{{i.descrip}}</td>
@@ -830,7 +855,28 @@ arrayEnvento_mm:[],
 
     methods: {
 
-      
+      enviarPaquete_mm(id){
+        let me=this;     
+         axios.post("/siat_eventos/enviarPaquetes", { 
+                    id: id,                                                                       
+                })
+                .then(function (response) {                   
+                    let respuesta=response.data;
+                     console.log(respuesta);
+                     me.listarEventoSignificativoPaquete(1);
+                     if(respuesta===0){                        
+                       return Swal.fire('Acción realizada','con exito.','success');
+                       }else{
+                           return Swal.fire('Error',' '+respuesta,'error');
+                       }   
+                      
+                                 
+                                                                                  
+                })               
+                .catch(function (error) {                
+                 error401(error);              
+            });
+      },
 
         listarEventoSignificativoPaquete(dato_1) {
             let me=this;
@@ -838,8 +884,7 @@ arrayEnvento_mm:[],
              axios.get(url)
              .then(function (response) {
                  let respuesta=response.data;              
-                 me.arrayEnvento_mm=respuesta
-                 console.log(respuesta);
+                 me.arrayEnvento_mm=respuesta;              
                  
              })
              .catch(function (error) {
@@ -849,9 +894,9 @@ arrayEnvento_mm:[],
            
         },
 
-        activar_mm(fecha){
-             let me=this;
 
+        activar_mm(fecha,id){
+             let me=this;
   // Convertir a objeto Date
     let nuevaFecha = new Date(fecha.replace(' ', 'T'));
 
@@ -875,13 +920,42 @@ arrayEnvento_mm:[],
     const hoy = new Date();
 
     if (hoy > fechaComparar) {    
-        return Swal.fire('Error','La fecha actual es mayor. Recuerda que de la fecha de creacion mas 24 hrs es el limite para la contigencia','error');
+       Swal.fire({
+  title: "Desea desactivar?",
+  text: "Una vez que pase las 24 hora el registro ya no es funcional!",
+  icon: "warning",
+  showCancelButton: true,
+  confirmButtonColor: "#3085d6",
+  cancelButtonColor: "#d33",
+  confirmButtonText: "SI, desactivar!"
+}).then((result) => {
+    
+  if (result.isConfirmed) {
+    axios.put("/siat_eventos/cambioEstadoEvento", { 
+                    id: id,                                                                       
+                })
+                .then(function (response) {                   
+                    let respuesta=response.data;
+                      me.listarEventoSignificativoPaquete(1);
+                      if(respuesta===0){
+                       return Swal.fire('Acción realizada','con exito.','success');
+                       }else{
+                           return Swal.fire('Error',' '+respuesta,'error');
+                       }              
+                         console.log(respuesta);                                                          
+                })               
+                .catch(function (error) {                
+                 error401(error);              
+            });
+  }
+
+});
     
     } else {
-        console.log("La fecha actual es menor .");
+     return Swal.fire('Error','No se puede desactivar, no paso 24 horas para desactivar.','error');
     
     }
-    return 0;          
+       
           
         },
 

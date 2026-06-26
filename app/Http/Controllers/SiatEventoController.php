@@ -919,9 +919,231 @@ public function getModal_datos_adcionales(){
 }
 
 public function send_paquetes(Request $request){
-                try {
-                    DB::beginTransaction();
 
+                try {        
+                    DB::beginTransaction();
+                    $id=$request->id;
+                    $query_1 = DB::table('evento__significativos')
+                    ->where('id', $id)
+                    ->first();
+
+                    if (!$query_1)
+                        return "No existe registro en la tabla de eventos";                    
+                   
+                    $ambiente=$query_1->ambiente;
+                    $cafc=$query_1->cafc;//null
+                    $cod_contigencia=$query_1->cod_contigencia;
+                    $cod_punto_venta_siat=$query_1->cod_punto_venta_siat;
+                    $cod_recep_even=$query_1->cod_recep_even;
+                    $cod_sector=$query_1->cod_sector;
+                    $cod_sucursal_siat=$query_1->cod_sucursal_siat;
+                    $codigo_evento=$query_1->codigo_evento;
+                    $creacion=$query_1->created_at;//"2026-06-25 10:50:00"
+                    $descripcion=$query_1->descrip;
+                    $estado=$query_1->estado;
+                    $fechaF=$query_1->fechaF;//2026-06-25T11:27:00.000"
+                    $fechaI=$query_1->fechaI;                 
+                    $id_cufd=$query_1->id_cufd;
+                    $id_cuis=$query_1->id_cuis;
+                    $modalidad=$query_1->modalidad;
+                    $tipo_factura=$query_1->tipo_factura;
+                   
+                     $factura_siat = DB::table('ven__factura_siat')
+    ->where('codEstado', '<>', '908')
+    ->where('sucursal_siat', $cod_sucursal_siat)
+    ->where('punto_venta', $cod_punto_venta_siat)
+    ->where('estado', 1)
+    ->where('tipo_emision', $cod_contigencia)
+    ->where('modalidad', $modalidad)
+    ->where('tipoFacturaDoc', $cod_sector)
+    ->where('ambiente', $ambiente)
+    ->where('fechaEmision', '>=', $fechaI)
+    ->where('fechaEmision', '<=', $fechaF)
+    ->select([
+        'id',
+        'zip_factura',
+        'codSector',
+        'tipo_emision',
+        'modalidad',
+        'tipoFacturaDoc',
+        'cuf'
+    ])->get();
+
+        if (count($factura_siat)<=0) {
+            return "No existe factura con ese rango o datos enviados";
+        }
+
+         $query_1 = DB::table('siat__emisors as e')
+    ->leftJoin('siat__cuis as cuis', 'cuis.id', '=', 'e.id_cuis')
+    ->leftJoin('siat__cufd as cufd', 'cufd.id', '=', 'e.id_cufd')
+    ->where('e.id_siat_sucursal', $id_suc_siat)
+    ->where('e.estado', 1)
+    ->where('e.id_punto_venta', $codigoPuntoVenta)
+    ->where('e.delete', 0)
+    ->select('cuis.dato as cuis','cufd.dato as cufd')
+    ->first();
+                if (!$query_1) {
+                    return "no exite el cuis o cufd para esta sucursal y punto de venta";
+                }
+        
+        $cuis=$query_1->cuis;
+        $cufd=$query_1->cufd;
+
+          $query_2 = DB::table('siat__configuracions as e')    
+    ->where('e.id', 1)
+    ->select('e.cod_sis','e.tipo_ambiente','e.token_delegado','e.tiempo_espera','e.tipo_modalidad')
+    ->first();
+    
+    if (!$query_2) {
+        return "La tabla de configuracion no tiene los datos para hacer esta operacion.";
+        }
+
+    $codigoSistema=$query_2->cod_sis;
+    $codigoAmbiente=$query_2->tipo_ambiente;
+    $tokenDelegado=$query_2->token_delegado;
+    $tiempoEspera=$query_2->tiempo_espera;
+    $tipoModalidad=$query_2->tipo_modalidad;
+
+
+    $tablaCatalogo_siat = DB::table('siat__catalogo_lista_siat as c')
+    ->join('excel__emision as e', function ($join) {
+        $join->on('e.id_catalogo', '=', 'c.id_catalogo')
+             ->on('e.descripcion', '=', 'c.descripcion');
+    })
+    ->join('siat__endpoints as s', function ($join) {
+        $join->on('s.Descripcion', '=', 'c.descripcion');
+    })
+    ->select('c.id','c.id_catalogo','c.codigo','c.descripcion','e.s2','s.URL as url','s.modalidad')
+    ->where('c.id_catalogo', 3)
+    ->where('s.tipo', 2)
+    ->first();
+    if (!$tablaCatalogo_siat) {
+        return "no existe datos en la tabla, o id de catalogo deber ser 3 y endpoint el tipo debe ser 2";
+    }
+    
+    if($tablaCatalogo_siat->s2==null||$tablaCatalogo_siat->s2==""){
+        return "no existe datos en espacio s2 de la tabla emision.";
+    }
+    
+    $escada=explode('x', $tablaCatalogo_siat->s2);
+    $escada=array_filter($escada);
+   $factura_siat_2 = 0;
+
+foreach ($escada as $codigo) {
+    if (DB::table('excel__emision')->where('codigo', $codigo)->exists()) {
+        $factura_siat_2 = 1;
+        break;
+    }
+}
+if ($factura_siat_2==0) {
+    return "no existe un codigo a sociado a la tabla emision";
+}
+ $endPoints = DB::table('siat__endpoints as se')    
+        ->select('se.id', 'se.Descripcion', 'se.Url', 'se.Version')
+        ->where('se.tipo', intval($ambiente))
+        ->where('se.id', 2)
+        ->first(); 
+
+                if (!$endPoints) {
+                    return "no exite la tabla o el id fue cambiado ya que debe ser el 2 como id pivote";
+                }
+
+        $cadena_url=$endPoints->Url; 
+
+  
+
+        $codigoRecepcionEventoSignificativo = $cod_recep_even;
+       
+        $fechaEnvio = Carbon::now('America/La_Paz')->format('Y-m-d\TH:i:s.v');
+
+       // Crear ZIP temporal.............................
+$tmpZip = tempnam(sys_get_temp_dir(), 'siat_');
+
+$nombreTar = storage_path('app/paquete.tar');
+$rutaGz    = storage_path('app/paquete.tar.gz');
+
+if (file_exists($nombreTar)) {
+    unlink($nombreTar);
+}
+
+if (file_exists($rutaGz)) {
+    unlink($rutaGz);
+}
+
+$tar = new PharData($nombreTar);
+
+foreach ($factura_siat as $v) {
+
+    $xml = $v->zip_factura;
+    $cuf = $v->cuf;
+
+    if (empty($xml)) {
+        continue;
+    }
+
+    $rutaTemporal = storage_path('app/temp/' . $cuf . '.xml');
+
+    file_put_contents($rutaTemporal, $xml);
+
+    $tar->addFile($rutaTemporal, $cuf . '.xml');
+
+    // Eliminar el XML temporal
+    unlink($rutaTemporal);
+}
+
+// Comprimir el TAR
+$contenidoTar = file_get_contents($nombreTar);
+$gzip = gzencode($contenidoTar, 9);
+file_put_contents($rutaGz, $gzip);
+
+// Hash SHA-256
+$hashArchivo = hash_file('sha256', $rutaGz);
+
+// Archivo Base64
+$archivoBase64 = base64_encode(file_get_contents($rutaGz));
+
+$archivo = $archivoBase64;
+$cantidadFacturas = count($factura_siat);
+
+  $xmlData = <<<EOD
+         <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:siat="https://siat.impuestos.gob.bo/"> 
+            <soapenv:Header/>
+            <soapenv:Body>
+               <siat:recepcionPaqueteFactura>
+                    <SolicitudServicioRecepcionPaquete>
+                        <codigoAmbiente>{$ambiente}</codigoAmbiente>
+                        <codigoDocumentoSector>{$cod_sector}</codigoDocumentoSector>
+                        <codigoEmision>{$cod_contigencia}</codigoEmision>
+                        <codigoModalidad>{$modalidad}</codigoModalidad>
+                        <!--Optional:-->
+                        <codigoPuntoVenta>{$cod_punto_venta_siat}</codigoPuntoVenta>
+                        <codigoSistema>{$codigoSistema}</codigoSistema>
+                        <codigoSucursal>{$cod_sucursal_siat}</codigoSucursal>
+                        <cufd>{$cufd}</cufd>
+                        <cuis>{$cuis}</cuis>
+                        <nit>{$nit}</nit>
+                        <tipoFacturaDocumento>{$tipoFacturaDoc_}</tipoFacturaDocumento>
+                        <archivo>{$archivo}</archivo>
+                        <fechaEnvio>{$fechaEnvio}</fechaEnvio>
+                        <hashArchivo>{$hashArchivo}</hashArchivo>                        
+                        <cantidadFacturas>{$cantidadFacturas}</cantidadFacturas>
+                        <codigoEvento>{$codigoRecepcionEventoSignificativo}</codigoEvento>
+                  </SolicitudServicioRecepcionPaquete>
+               </siat:recepcionPaqueteFactura>
+            </soapenv:Body>
+         </soapenv:Envelope>
+         EOD;
+  return $archivo;
+
+
+
+            //.........envio.................
+                $cadena_url=$url_s2;         
+                $wsdl = $cadena_url;
+                // Asignación de la URL y API key
+                $apikeyValue = 'TokenApi ' .$tokenDelegado; // Concatenar correctamente el valor del API key
+           
+                    return $factura_siat;
                     
                     DB::commit();
                 } catch (\Throwable $th) {
@@ -937,6 +1159,19 @@ $query_3 = DB::table('evento__significativos')
     ->where('estado', $estado)
     ->get();
     return $query_3;
+}
+
+public function cambio_estado_evento(Request $request){
+   try {
+    DB::beginTransaction();
+    DB::table('evento__significativos')
+                ->where('id', $request->id)
+                ->update(['estado' => 0 ]);
+                     DB::commit();
+                 return 0;       
+   } catch (\Throwable $th) {
+    return $th;
+   }
 }
 
 public function sendEventoManual(Request $request){
