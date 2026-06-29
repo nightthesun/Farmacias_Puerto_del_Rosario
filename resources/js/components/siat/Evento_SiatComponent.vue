@@ -939,7 +939,8 @@ tipo_modal_mmm:'',
                 .then(function (response) {                   
                     let respuesta=response.data;
                      console.log(respuesta);
-                     me.listarEventoSignificativoPaquete(1);
+                    me.cerrarModal('anular_modal');
+                    me.listarEventoSignificativoPaquete(1);
                      if(respuesta===0){                        
                        return Swal.fire('Acción realizada','con exito.','success');
                        }else{
@@ -1652,6 +1653,7 @@ listarInicio(page,data)
 
         cerrarModal(accion) {
             let me = this;
+            
             if (accion == "registrar") {
                 me.classModal.closeModal(accion);
                 me.showModal = false;

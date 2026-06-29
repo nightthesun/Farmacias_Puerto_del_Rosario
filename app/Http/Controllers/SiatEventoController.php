@@ -970,20 +970,25 @@ public function anulacion_reversion(Request $request){
             }
 
               $codigoAmbiente=$query_1->ambiente;
-            $codigoDocumentoSector=$query_1->tipoFacturaDoc;
+            $tipoFacturaDocumento=$query_1->tipoFacturaDoc;
             $codigoEmision=$query_1->tipo_emision;    
             $codigoModalidad=$query_1->modalidad;
             $codigoPuntoVenta=$query_1->punto_venta;
-            $codigoSucursal=$query_1->sucursal_siat;          
+            $codigoSucursal=$query_1->sucursal_siat;             
+            $codigoDocumentoSector=$query_1->codSector; 
+            $cuf=$query_1->cuf;        
 
             $id_sucursal_siat=$query_1->id_sucursal_siat;
+            $codigoMotivo=$request->codMotivo;
+            $descripcion=$request->descripcion;
+            
 
             $siat_data = DB::table('siat__emisors as e')
     ->leftJoin('siat__cuis as c', 'c.id', '=', 'e.id_cuis')
     ->leftJoin('siat__cufd as cc', 'cc.id', '=', 'e.id_cufd')
     ->select(
         'c.dato as cuis',
-        'cc.dato as id_cufd'
+        'cc.dato as cufd'
     )
     ->where('e.id_siat_sucursal', $id_sucursal_siat)
     ->where('e.id_punto_venta', $codigoPuntoVenta)
@@ -1008,31 +1013,8 @@ public function anulacion_reversion(Request $request){
                 if (!$query_2) {
                 return "La tabla de configuracion no tiene los datos para hacer esta operacion.";
                 }
+          
 
-            return 0;
-
-         
-                
-                
-
-               
-
-
-            $query_11 = DB::table('siat__emisors as e')
-    ->leftJoin('siat__cuis as cuis', 'cuis.id', '=', 'e.id_cuis')
-    ->leftJoin('siat__cufd as cufd', 'cufd.id', '=', 'e.id_cufd')
-  //  ->where('e.id_siat_sucursal', $id_sucursal_siat)
-    ->where('e.estado', 1)
-  //  ->where('e.id_punto_venta', $cod_punto_venta_siat)
-    ->where('e.delete', 0)
-    ->select('cuis.dato as cuis','cufd.dato as cufd')
-    ->first();
-                if (!$query_11) {
-                    return "no exite el cuis o cufd para esta sucursal y punto de venta";
-                }
-        
-        $cuis=$query_11->cuis;
-        $cufd=$query_11->cufd;
 
         $nit = DB::table('adm__credecial_correos')
         ->where('id',1)
@@ -1043,41 +1025,180 @@ public function anulacion_reversion(Request $request){
         }
 
             $codigoSistema=$query_2->cod_sis;
-
-          
-
+            $tokenDelegado=$query_2->token_delegado;
             
+   $tablaCatalogo_siat = DB::table('siat__catalogo_lista_siat as c')
+    ->join('excel__emision as e', function ($join) {
+        $join->on('e.id_catalogo', '=', 'c.id_catalogo')
+             ->on('e.descripcion', '=', 'c.descripcion');
+    })
+    ->join('siat__endpoints as s', function ($join) {
+        $join->on('s.Descripcion', '=', 'c.descripcion');
+    })
+    ->select('c.id','c.id_catalogo','c.codigo','c.descripcion','e.s2','s.URL as url','s.modalidad')
+    ->where('c.id_catalogo', 3)
+    ->where('s.tipo', 2)
+    ->first();
+
+    if (!$tablaCatalogo_siat) {
+       return "No existe datos en la tabla catalogo de lista siat revise que no tenag espacios o datos inicesarios, de la tabla emision  el espacio descripcion.";
+    }
+
+          $wsdl = $tablaCatalogo_siat->url;
+        // Asignación de la URL y API key
+        $apikeyValue = 'TokenApi ' .$tokenDelegado; // Concatenar correctamente el valor del API key
 
             if ($dato==1) {
 
-
-                /*
-                <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:siat="https://siat.impuestos.gob.bo/">
-   <soapenv:Header/>
-   <soapenv:Body>
-      <siat:anulacionFactura>
-         <SolicitudServicioAnulacionFactura>
-            <codigoAmbiente>?</codigoAmbiente>
-            <codigoDocumentoSector>?</codigoDocumentoSector>
-            <codigoEmision>?</codigoEmision>
-            <codigoModalidad>?</codigoModalidad>
-            <!--Optional:-->
-            <codigoPuntoVenta>?</codigoPuntoVenta>
-            <codigoSistema>?</codigoSistema>
-            <codigoSucursal>?</codigoSucursal>
-            <cufd>?</cufd>
-            <cuis>?</cuis>
-            <nit>?</nit>
-            <tipoFacturaDocumento>?</tipoFacturaDocumento>
-            <codigoMotivo>?</codigoMotivo>
-            <cuf>?</cuf>
-         </SolicitudServicioAnulacionFactura>
-      </siat:anulacionFactura>
-   </soapenv:Body>
-</soapenv:Envelope>
-                */
+                    $xmlData = <<<EOD
+                    <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:siat="https://siat.impuestos.gob.bo/">
+                    <soapenv:Header/>
+                    <soapenv:Body>
+                    <siat:anulacionFactura>
+                        <SolicitudServicioAnulacionFactura>
+                            <codigoAmbiente>{$codigoAmbiente}</codigoAmbiente>
+                            <codigoDocumentoSector>{$codigoDocumentoSector}</codigoDocumentoSector>
+                            <codigoEmision>1</codigoEmision>
+                            <codigoModalidad>{$codigoModalidad}</codigoModalidad>
+                            <!--Optional:-->
+                            <codigoPuntoVenta>{$codigoPuntoVenta}</codigoPuntoVenta>
+                            <codigoSistema>{$codigoSistema}</codigoSistema>
+                            <codigoSucursal>{$codigoSucursal}</codigoSucursal>
+                            <cufd>{$cufd}</cufd>
+                            <cuis>{$cuis}</cuis>
+                            <nit>{$nit}</nit>
+                            <tipoFacturaDocumento>{$tipoFacturaDocumento}</tipoFacturaDocumento>
+                            <codigoMotivo>{$codigoMotivo}</codigoMotivo>
+                            <cuf>{$cuf}</cuf>                       
+                        </SolicitudServicioAnulacionFactura>
+                    </siat:anulacionFactura>
+                    </soapenv:Body>
+                    </soapenv:Envelope>
+                    EOD;
+                    $ch = curl_init();
+            
+                        // Configuración de la solicitud cURL
+                        curl_setopt($ch, CURLOPT_URL, $wsdl); // Reemplaza con el endpoint correcto
+                        curl_setopt($ch, CURLOPT_POST, 1);
+                        curl_setopt($ch, CURLOPT_POSTFIELDS, $xmlData);
+                    
+                        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                            'Content-Type: text/xml; charset=utf-8',
+                            'SOAPAction: ""', // Si el SOAPAction es requerido, inclúyelo aquí
+                            'apikey: ' . $apikeyValue // Incluye la API key con el valor correspondiente
+                        ]);
+                        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            
+                        // Ejecutar la solicitud y obtener la respuesta
+                        $response = curl_exec($ch);
+                       
+                        // Verificar si hubo un error en cURL
+                        if (curl_errno($ch)) {
+                            throw new \Exception(curl_error($ch));
+                        }            
+                        // Cerrar la sesión de cURL
+                        curl_close($ch);
+                        if (empty($response)) {
+                        return("Error 2: ".$response);
+                        }
+                        // Convertir la respuesta en un objeto SimpleXMLElement
+        $xml = simplexml_load_string($response);   
+        $respuesta=$response;
+         // Usar XPath para encontrar el nodo <transaccion>   
+        $transaccion = $xml->xpath('//transaccion');
+          if ($transaccion && isset($transaccion[0])) {
+                if ($transaccion[0]== 'true') {
+                    $codigoEstado = $xml->xpath('//codigoEstado');
+                    $codigoDescripcion = $xml->xpath('//codigoDescripcion');
+                    $data_load_2 = [
+                        'codDescripcion' =>  html_entity_decode($codigoDescripcion[0], ENT_QUOTES, 'UTF-8'),
+                        'codEstado' =>  html_entity_decode($codigoEstado[0], ENT_QUOTES, 'UTF-8'), 
+                        'estado'=>0
+                                ];                
+                        DB::table('ven__factura_siat')->where('id', $id)->update($data_load_2);  
+                        DB::commit();     
+                        return 0; 
+                }else{
+                    return $respuesta;
+                }    
             }else{
-                return "en construccion";
+                return $respuesta;
+            }    
+          //---------------dato para -------------------------      
+            }else{
+                $xmlData = <<<EOD
+                    <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:siat="https://siat.impuestos.gob.bo/">
+                    <soapenv:Header/>
+                    <soapenv:Body>
+                    <siat:reversionAnulacionFactura>
+                        <SolicitudServicioReversionAnulacionFactura>
+                            <codigoAmbiente>{$codigoAmbiente}</codigoAmbiente>
+                            <codigoDocumentoSector>{$codigoDocumentoSector}</codigoDocumentoSector>
+                            <codigoEmision>1</codigoEmision>
+                            <codigoModalidad>{$codigoModalidad}</codigoModalidad>
+                            <!--Optional:-->
+                            <codigoPuntoVenta>{$codigoPuntoVenta}</codigoPuntoVenta>
+                            <codigoSistema>{$codigoSistema}</codigoSistema>
+                            <codigoSucursal>{$codigoSucursal}</codigoSucursal>
+                            <cufd>{$cufd}</cufd>
+                            <cuis>{$cuis}</cuis>
+                            <nit>{$nit}</nit>
+                            <tipoFacturaDocumento>{$tipoFacturaDocumento}</tipoFacturaDocumento>
+                            <cuf>{$cuf}</cuf>                      
+                        </SolicitudServicioReversionAnulacionFactura>
+                    </siat:reversionAnulacionFactura>
+                    </soapenv:Body>
+                    </soapenv:Envelope>
+                    EOD;
+                   $ch = curl_init();
+            
+                        // Configuración de la solicitud cURL
+                        curl_setopt($ch, CURLOPT_URL, $wsdl); // Reemplaza con el endpoint correcto
+                        curl_setopt($ch, CURLOPT_POST, 1);
+                        curl_setopt($ch, CURLOPT_POSTFIELDS, $xmlData);
+                    
+                        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                            'Content-Type: text/xml; charset=utf-8',
+                            'SOAPAction: ""', // Si el SOAPAction es requerido, inclúyelo aquí
+                            'apikey: ' . $apikeyValue // Incluye la API key con el valor correspondiente
+                        ]);
+                        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            
+                        // Ejecutar la solicitud y obtener la respuesta
+                        $response = curl_exec($ch);
+                       
+                        // Verificar si hubo un error en cURL
+                        if (curl_errno($ch)) {
+                            throw new \Exception(curl_error($ch));
+                        }            
+                        // Cerrar la sesión de cURL
+                        curl_close($ch);
+                        if (empty($response)) {
+                        return("Error 2: ".$response);
+                        }
+                        // Convertir la respuesta en un objeto SimpleXMLElement
+        $xml = simplexml_load_string($response);   
+        $respuesta=$response;
+         // Usar XPath para encontrar el nodo <transaccion>   
+        $transaccion = $xml->xpath('//transaccion');
+          if ($transaccion && isset($transaccion[0])) {
+                if ($transaccion[0]== 'true') {
+                    $codigoEstado = $xml->xpath('//codigoEstado');
+                    $codigoDescripcion = $xml->xpath('//codigoDescripcion');
+                    $data_load_2 = [
+                        'codDescripcion' =>  html_entity_decode($codigoDescripcion[0], ENT_QUOTES, 'UTF-8'),
+                        'codEstado' =>  html_entity_decode($codigoEstado[0], ENT_QUOTES, 'UTF-8'), 
+                        'estado'=>1
+                                ];                
+                        DB::table('ven__factura_siat')->where('id', $id)->update($data_load_2);  
+                        DB::commit();     
+                        return 0; 
+                }else{
+                    return $respuesta;
+                }    
+            }else{
+                return $respuesta;
+            }   
             }
 
         DB::commit();       
@@ -1266,7 +1387,7 @@ if ($factura_siat_2==0) {
                     $codigoRecepcion = $xml->xpath('//codigoRecepcion');
 
                       $data_load = [
-                    'cod_recep_even_2' => $codigoRecepcion,
+                    'cod_recep_even_2' => html_entity_decode($codigoRecepcion[0], ENT_QUOTES, 'UTF-8') ,
                     'paso' => 2,
                     'estado'=>0,
                 ];                
