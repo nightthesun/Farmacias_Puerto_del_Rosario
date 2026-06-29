@@ -69,6 +69,7 @@ class SiatEventoController extends Controller
     ->whereRaw($sqls)
     ->select(
         'f.id',
+        'f.estado',
         'f.id_venta',
         'f.id_cufd',
         'f.id_cuis',
@@ -918,20 +919,86 @@ public function getModal_datos_adcionales(){
             ]); 
 }
 
+public function get_motivo(){
+    $datos = DB::table('excel__emision')
+    ->where('id_catalogo', 4)
+    ->get();
+    return $datos; 
+}
+
 public function anulacion_reversion(Request $request){
     try {
         DB::beginTransaction();
             $id=$request->id;
             $dato=$request->dato;
+            $query_1 = DB::table('ven__factura_siat as f')
+    ->join('ven__recibos as r', 'r.id', '=', 'f.id_venta')
+    ->join('siat__sucursals as s', 'r.id_sucursal', '=', 's.id_sucursal')
+    ->select(
+        'f.id',
+        'f.id_venta',
+        'f.id_cufd',
+        'f.id_cuis',
+        'f.cuf',
+        'f.sucursal_siat',
+        'f.punto_venta',
+        'f.numFactura',
+        'f.fechaEmision',
+        'f.xml',
+        'f.estado',
+        'f.codRecepcion',
+        'f.codDescripcion',
+        'f.codEstado',
+        'f.codSector',
+        'f.tipo_contigencia',
+        'f.zip_factura',
+        'f.tipo_emision',
+        'f.modalidad',
+        'f.tipoFacturaDoc',
+        'f.ambiente',
+        'r.id_sucursal',
+        'r.anulado as estado_recibo',
+        's.id as id_sucursal_siat'
+    )
+    ->where('f.id', $id)
+    ->first();
 
-            $query_1 = DB::table('ven__factura_siat')
-            ->select('*')
-            ->where('id', $id)
-            ->first();
+          
 
             if (!$query_1) {
                 return "No existe la factura";
             }
+
+              $codigoAmbiente=$query_1->ambiente;
+            $codigoDocumentoSector=$query_1->tipoFacturaDoc;
+            $codigoEmision=$query_1->tipo_emision;    
+            $codigoModalidad=$query_1->modalidad;
+            $codigoPuntoVenta=$query_1->punto_venta;
+            $codigoSucursal=$query_1->sucursal_siat;          
+
+            $id_sucursal_siat=$query_1->id_sucursal_siat;
+
+            $siat_data = DB::table('siat__emisors as e')
+    ->leftJoin('siat__cuis as c', 'c.id', '=', 'e.id_cuis')
+    ->leftJoin('siat__cufd as cc', 'cc.id', '=', 'e.id_cufd')
+    ->select(
+        'c.dato as cuis',
+        'cc.dato as id_cufd'
+    )
+    ->where('e.id_siat_sucursal', $id_sucursal_siat)
+    ->where('e.id_punto_venta', $codigoPuntoVenta)
+    ->where('e.estado', 1)
+    ->where('e.delete', 0)
+    ->first();
+
+    if (!$siat_data) {
+        return "no exite datos en la tabla de cuis y cufd";
+    }
+
+    $cuis=$siat_data->cuis;
+    $cufd=$siat_data->cufd;
+
+
 
             $query_2 = DB::table('siat__configuracions as e')    
             ->where('e.id', 1)
@@ -942,26 +1009,21 @@ public function anulacion_reversion(Request $request){
                 return "La tabla de configuracion no tiene los datos para hacer esta operacion.";
                 }
 
-                select s.id,s.id_venta,s.id_cuis,s.id_cuis,
-s.cuf,s.sucursal_siat,s.punto_venta,s.numFactura,
-s.fechaEmision,s.xml,s.estado,s.codRecepcion,s.codEstado,s.codDescripcion,s.codSector,
-s.tipo_contigencia,s.zip_factura,s.tipo_emision,s.modalidad,
-s.tipoFacturaDoc,s.ambiente,v.id_sucursal,ss.id as id_sucursal_siat
-from ven__factura_siat s
-join ven__recibos v on v.id=s.id
-join siat__sucursals ss on v.id_sucursal=ss.id_sucursal
-where s.id=113;
+            return 0;
 
-select * from siat__emisors
-where estado=1 and  ;
+         
+                
+                
+
+               
 
 
             $query_11 = DB::table('siat__emisors as e')
     ->leftJoin('siat__cuis as cuis', 'cuis.id', '=', 'e.id_cuis')
     ->leftJoin('siat__cufd as cufd', 'cufd.id', '=', 'e.id_cufd')
-    ->where('e.id_siat_sucursal', $id_sucursal_siat)
+  //  ->where('e.id_siat_sucursal', $id_sucursal_siat)
     ->where('e.estado', 1)
-    ->where('e.id_punto_venta', $cod_punto_venta_siat)
+  //  ->where('e.id_punto_venta', $cod_punto_venta_siat)
     ->where('e.delete', 0)
     ->select('cuis.dato as cuis','cufd.dato as cufd')
     ->first();
@@ -979,18 +1041,11 @@ where estado=1 and  ;
         if ($nit==null) {
         return "NIT sin configurar.";
         }
-    
-    
 
-    $codigoSistema=$query_2->cod_sis;
+            $codigoSistema=$query_2->cod_sis;
 
-            $codigoAmbiente=$query_1->ambiente;
-            $codigoDocumentoSector=$query_1->tipoFacturaDoc;
-            $codigoEmision=$query_1->tipo_emision;    
-            $codigoModalidad=$query_1->modalidad;
-            $codigoPuntoVenta=$query_1->punto_venta;
-            $codigoSucursal=$query_1->sucursal_siat;
-            $codigoSucursal=$query_1->sucursal_siat;
+          
+
             
 
             if ($dato==1) {

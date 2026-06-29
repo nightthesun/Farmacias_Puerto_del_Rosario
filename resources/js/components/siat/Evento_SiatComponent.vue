@@ -142,10 +142,10 @@
       <a class="dropdown-item" href="#" @click="listarQueryModal_1(i);"><i style="color: black;" class="fa fa-eye" aria-hidden="true"></i>Ver datos</a>
     <a  class="dropdown-item" href="#" ><i style="color: black;" class="fa fa-eye" aria-hidden="true"></i>Ver estado factura</a>     
     <a  class="dropdown-item" href="#"><i style="color: black;" class="fa fa-eye" aria-hidden="true"></i>Ver en SIAT</a>
-    <a v-show="i.codEstado != '908'" class="dropdown-item" href="#" @click="abrirModal('contingencia',i);" ><i style="color: black;"  class="fa fa-exclamation-triangle" aria-hidden="true"></i>Contingencia</a>
+    <a v-show="i.codEstado != '908'" class="dropdown-item" @click="abrirModal('contingencia',i);" ><i style="color: black;"  class="fa fa-exclamation-triangle" aria-hidden="true"></i>Contingencia</a>
    
-    <a v-show="i.estado==1"  @click="anulacionReversion(1,i.id)" class="dropdown-item" href="#"><i style="color: black;" class="fa fa-refresh" aria-hidden="true"></i>Anular</a>   
-    <a v-show="i.estado==0" @click="anulacionReversion(2,i.id)" class="dropdown-item" href="#"><i style="color: black;" class="fa fa-refresh" aria-hidden="true"></i>Reversión</a>   
+    <a v-show="i.estado==1"  @click="abrirModalAnulacion(1,i.id)" class="dropdown-item" style="color: black;" ><i style="color: black;" class="fa fa-trash-o" aria-hidden="true"></i>Anular</a>   
+    <a v-show="i.estado==0" @click="abrirModalAnulacion(2,i.id)" class="dropdown-item" style="color: black;"><i style="color: black;" class="fa fa-repeat" aria-hidden="true"></i>Reversión</a>   
           
 </div>  
                             
@@ -711,6 +711,62 @@
                     <button type="button" class="btn btn-secondary" @click="cerrarModal('envioPaquete')">
                         Cerrar
                     </button>
+                    
+                </div>
+
+            </div>
+        </div>
+    </div>
+</transition>
+        <!--fin del modal-->
+
+
+           <!--Inicio del modal ANULACION -->
+    <transition name="fade">
+    <div v-if="showModal_6" class="modal d-block" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-primary modal-sm modal-dialog-scrollable" role="document">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h4 class="modal-title">{{ tituloModal }}</h4>
+                    <button type="button" class="close" @click="cerrarModal('anular_modal')">
+                        <span>&times;</span>
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                   
+                    <form class="form-horizontal">
+                        <div class="row" style="margin-top: 10px;">
+                           
+                            <div class="col-md-12">
+                            <label for="">Seleccionar motivo:</label>
+                                <div class="input-group">
+                                    <select class="form-control" v-model="selectMotivo">
+                                        <option value="0" disabled selected>Seleccionar...</option>                               
+                                        <option  v-for="(i, index) in arrayMotivo" :key="index" :value="i.codigo" >{{  "("+i.codigo+") "+i.descripcion }}</option>                              
+                                    </select>                             
+                                </div>                                
+                            </div>
+                            <div class="col-md-12">
+                                 <label for="">Descripción del motivo:</label>
+                                    <textarea class="form-control" id="exampleFormControlTextarea1" rows="3" v-model="textMotivo"></textarea>                     
+                            </div>  
+                                                        
+                        </div>         
+                    </form>              
+                        
+                     
+
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @click="cerrarModal('anular_modal')">
+                        Cerrar
+                    </button>
+                    <button type="button" class="btn btn-primary" @click="anulacionReversion()" :disabled="selectMotivo=='0' || textMotivo=='' || textMotivo==null">
+                        Enviar
+                    </button>
                 </div>
 
             </div>
@@ -778,6 +834,7 @@ offset:3,
       showModal_3:false,
       showModal_4:false,
       showModal_5:false,
+      showModal_6:false,
         arrayListaContingencia_2:[],
         selectListaContingencia_2:'0',
         contingencia_descripcion_modal:'',
@@ -819,6 +876,12 @@ array_codSector_2:[],
 select_modalidad_2:'0',
 
 arrayEnvento_mm:[],
+arrayMotivo:[],
+selectMotivo:'0',
+textMotivo:'',
+
+id_archivo:'',
+tipo_modal_mmm:'',
 
 
         };
@@ -865,11 +928,13 @@ arrayEnvento_mm:[],
 
     methods: {
 
-        anulacionReversion(dato,id){
+        anulacionReversion(){
             let me=this;     
          axios.put("/siat_eventos/anulacionReversion", { 
-                    id: id,
-                    dato:dato                                                                       
+                    id: me.id_archivo,
+                    dato:me.tipo_modal_mmm,
+                    codMotivo:me.selectMotivo,
+                    descripcion:me.textMotivo,                                                                                        
                 })
                 .then(function (response) {                   
                     let respuesta=response.data;
@@ -884,6 +949,36 @@ arrayEnvento_mm:[],
                 .catch(function (error) {                
                  error401(error);              
             });
+        },
+        
+        abrirModalAnulacion(dato,id){
+            let me=this;
+             me.showModal_6= true;
+                me.tituloModal="Anulación de facturas";
+                me.selectMotivo="0";
+                me.textMotivo="";
+
+                me.id_archivo=id;
+                me.tipo_modal_mmm=dato;
+
+
+                me.classModal.openModal("anular_modal");
+        },
+
+         listarMotivo() {
+            let me=this;
+             let url="/siat_eventos/listarMotivo";
+             axios.get(url)
+             .then(function (response) {
+                 let respuesta=response.data;              
+                    me.arrayMotivo=respuesta;               
+                 
+             })
+             .catch(function (error) {
+                 error401(error);
+                 console.log(error);
+             }); 
+           
         },
 
         enviarValidacion_mm(id){
@@ -1527,6 +1622,16 @@ listarInicio(page,data)
                 me.classModal.openModal("envioPaquete");
                 break;
                 }
+
+                 case "anular_modal":{
+                
+                me.showModal_6= true;
+                me.tituloModal="Anulación de facturas";
+                me.selectMotivo="0";
+                me.textMotivo="";
+                me.classModal.openModal("anular_modal");
+                break;
+                }
             
             }
         },
@@ -1617,6 +1722,16 @@ me.id_evento_="";
                 
             }
 
+             if (accion=="anular_modal") {
+                me.classModal.closeModal(accion);
+                me.showModal_6= false;
+                me.tituloModal="";
+                me.selectMotivo="0";
+                me.textMotivo="";                
+            }
+
+            
+
             
         },
 
@@ -1638,10 +1753,12 @@ me.id_evento_="";
         this.classModal.addModal("registrar");
         this.classModal.addModal("contingencia");
         this.classModal.addModal("contingencia_consullta_modal");
+        this.classModal.addModal("anular_modal");
         this.classModal.addModal("contingencia_2");
          this.classModal.addModal("envioPaquete");
         this.listarModalSucuralSiatPunto(1,0);
         this.listarModalDatosAdcionales();
+        this.listarMotivo();
          
     },
 };
