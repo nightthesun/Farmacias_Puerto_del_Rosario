@@ -144,8 +144,10 @@
     <a  class="dropdown-item" href="#"><i style="color: black;" class="fa fa-eye" aria-hidden="true"></i>Ver en SIAT</a>
     <a v-show="i.codEstado != '908'" class="dropdown-item" href="#" @click="abrirModal('contingencia',i);" ><i style="color: black;"  class="fa fa-exclamation-triangle" aria-hidden="true"></i>Contingencia</a>
    
-    <a  class="dropdown-item" href="#"><i style="color: black;" class="fa fa-refresh" aria-hidden="true"></i>Anular</a>   
-     </div>  
+    <a v-show="i.estado==1"  @click="anulacionReversion(1,i.id)" class="dropdown-item" href="#"><i style="color: black;" class="fa fa-refresh" aria-hidden="true"></i>Anular</a>   
+    <a v-show="i.estado==0" @click="anulacionReversion(2,i.id)" class="dropdown-item" href="#"><i style="color: black;" class="fa fa-refresh" aria-hidden="true"></i>Reversión</a>   
+          
+</div>  
                             
                         </td>
                         <td class="col-md-1">{{i.nro_doc}}</td>
@@ -667,11 +669,19 @@
         </div>
 
         <div>
-            <button v-if="i.estado==1" type="button" class="btn btn-warning" @click="enviarPaquete_mm(i.id);" style="color: white;margin-left: 8px;">
+            <button v-if="i.estado==1&&i.paso==0" type="button" class="btn btn-warning" @click="enviarPaquete_mm(i.id);" style="color: white;margin-left: 8px;">
                 <i class="fa fa-podcast" aria-hidden="true"></i>
             </button>
             <button v-else type="button" class="btn btn-secondary" style="color: white;margin-left: 8px;">
                 <i class="fa fa-podcast" aria-hidden="true"></i>
+            </button>
+        </div>
+        <div>
+            <button v-if="i.estado==1&&i.paso==1" type="button" class="btn btn-success" @click="enviarValidacion_mm(i.id)" style="color: white;margin-left: 8px;">
+                <i class="fa fa-rocket" aria-hidden="true"></i>
+            </button>
+            <button v-else type="button" class="btn btn-secondary" style="color: white;margin-left: 8px;">
+              <i class="fa fa-rocket" aria-hidden="true"></i>
             </button>
         </div>
     </div>
@@ -855,9 +865,30 @@ arrayEnvento_mm:[],
 
     methods: {
 
-      enviarPaquete_mm(id){
+        anulacionReversion(dato,id){
+            let me=this;     
+         axios.put("/siat_eventos/anulacionReversion", { 
+                    id: id,
+                    dato:dato                                                                       
+                })
+                .then(function (response) {                   
+                    let respuesta=response.data;
+                     console.log(respuesta);
+                     me.listarEventoSignificativoPaquete(1);
+                     if(respuesta===0){                        
+                       return Swal.fire('Acción realizada','con exito.','success');
+                       }else{
+                           return Swal.fire('Error',' '+respuesta,'error');
+                       }                                                               
+                })               
+                .catch(function (error) {                
+                 error401(error);              
+            });
+        },
+
+        enviarValidacion_mm(id){
         let me=this;     
-         axios.post("/siat_eventos/enviarPaquetes", { 
+         axios.put("/siat_eventos/enviarValidacion_2", { 
                     id: id,                                                                       
                 })
                 .then(function (response) {                   
@@ -868,10 +899,27 @@ arrayEnvento_mm:[],
                        return Swal.fire('Acción realizada','con exito.','success');
                        }else{
                            return Swal.fire('Error',' '+respuesta,'error');
-                       }   
-                      
-                                 
-                                                                                  
+                       }                                                               
+                })               
+                .catch(function (error) {                
+                 error401(error);              
+            });
+      },
+
+      enviarPaquete_mm(id){
+        let me=this;     
+         axios.put("/siat_eventos/enviarPaquetes", { 
+                    id: id,                                                                       
+                })
+                .then(function (response) {                   
+                    let respuesta=response.data;
+                     console.log(respuesta);
+                     me.listarEventoSignificativoPaquete(1);
+                     if(respuesta===0){                        
+                       return Swal.fire('Acción realizada','con exito.','success');
+                       }else{
+                           return Swal.fire('Error',' '+respuesta,'error');
+                       }                                                               
                 })               
                 .catch(function (error) {                
                  error401(error);              
@@ -1311,7 +1359,7 @@ listarInicio(page,data)
                     me.select_ambiente_2=query_2.tipo_ambiente; 
                     me.select_modalidad_2=query_2.tipo_modalidad;
                     me.select_tipoFacturaDoc_2=query_1.dos;
-                    me.select_contigencia_2=random;
+                    me.select_contigencia_2=2;
                     me.select_codSector_2=query_1.tres;
                    console.log(respuesta);
                  

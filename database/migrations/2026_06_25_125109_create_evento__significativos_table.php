@@ -28,7 +28,12 @@ return new class extends Migration
             $table->tinyInteger('tipo_factura')->default(0)->comment('estos era mayor mente valor 1 factura cond erecho a credito fiscal');
             $table->tinyInteger('modalidad')->default(0);                                     
              $table->bigInteger('id_cuis');
-              $table->bigInteger('id_cufd');
+            $table->bigInteger('id_cufd');                           
+              $table->smallInteger('id_sucursal')->nullable(); 
+              $table->smallInteger('id_emisor')->nullable();   
+               $table->string('cod_recep_even_2',255)->nullable()->comment('recepcion de codigo de validadcion de paquete');
+            $table->tinyInteger('paso')->nullable()->default(0)->comment('para inidicar que paso esta para terminar el proceso');          
+            $table->text('id_fac')->nullable()->comment('0x1x');           
             $table->timestamps();
         });
     }
