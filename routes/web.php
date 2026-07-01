@@ -1007,7 +1007,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::put('/siat_eventos/enviarPaquetes', [SiatEventoController::class, 'send_paquetes']);
     Route::put('/siat_eventos/enviarValidacion_2', [SiatEventoController::class, 'send_validacion_2']);
     Route::put('/siat_eventos/anulacionReversion', [SiatEventoController::class, 'anulacion_reversion']);
-    Route::get('/siat_eventos/listarMotivo', [SiatEventoController::class, 'get_motivo']);   
-    
+    Route::get('/siat_eventos/listarMotivo', [SiatEventoController::class, 'get_motivo']);  
+    Route::get('/siat_eventos/estadoFacturaSiat', [SiatEventoController::class, 'status_factura_siat']);  
+    Route::get('/siat_eventos/qrSiat', [SiatEventoController::class, 'qr_siat']);     
            
 });

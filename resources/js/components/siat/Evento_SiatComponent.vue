@@ -139,9 +139,9 @@
     <i class="fa fa-bars" aria-hidden="true"></i>
   </button>     
   <div class="dropdown-menu">    
-      <a class="dropdown-item" href="#" @click="listarQueryModal_1(i);"><i style="color: black;" class="fa fa-eye" aria-hidden="true"></i>Ver datos</a>
-    <a  class="dropdown-item" href="#" ><i style="color: black;" class="fa fa-eye" aria-hidden="true"></i>Ver estado factura</a>     
-    <a  class="dropdown-item" href="#"><i style="color: black;" class="fa fa-eye" aria-hidden="true"></i>Ver en SIAT</a>
+      <a class="dropdown-item" @click="listarQueryModal_1(i);"><i style="color: black;" class="fa fa-eye" aria-hidden="true"></i>Ver datos</a>
+    <a  class="dropdown-item" @click="estadoFacturaSiat(i.id)"><i style="color: black;" class="fa fa-eye" aria-hidden="true" ></i>Ver estado factura</a>     
+    <a  class="dropdown-item" @click="qrSiat(i.id)"><i style="color: black;" class="fa fa-eye" aria-hidden="true"></i>Ver en SIAT</a>
     <a v-show="i.codEstado != '908'" class="dropdown-item" @click="abrirModal('contingencia',i);" ><i style="color: black;"  class="fa fa-exclamation-triangle" aria-hidden="true"></i>Contingencia</a>
    
     <a v-show="i.estado==1"  @click="abrirModalAnulacion(1,i.id)" class="dropdown-item" style="color: black;" ><i style="color: black;" class="fa fa-trash-o" aria-hidden="true"></i>Anular</a>   
@@ -928,6 +928,50 @@ tipo_modal_mmm:'',
 
     methods: {
 
+        qrSiat(id){
+             let me=this;
+      
+             let url="/siat_eventos/qrSiat?id="+id;
+             axios.get(url)
+             .then(function (response) {
+                 let respuesta=response.data;
+                 const error_1=respuesta.error;
+                 const url=respuesta.message;
+                
+                 console.log(respuesta);                
+
+                 if (error_1==0) {
+                        window.open(url, "_blank");                    
+                       }else{
+                           return Swal.fire('Error',' '+url,'error');
+                       }               
+             })
+             .catch(function (error) {
+                 error401(error);
+                 console.log(error);
+             });  
+        },
+
+        estadoFacturaSiat(id){
+            let me=this;
+      
+             let url="/siat_eventos/estadoFacturaSiat?id="+id;
+             axios.get(url)
+             .then(function (response) {
+                 let respuesta=response.data; 
+                 if (respuesta==0) {
+                  return Swal.fire("FACTURA SIN ERRORES!");
+                       }else{
+                           return Swal.fire('Error',' '+respuesta,'error');
+                       } 
+                 console.log(respuesta);                
+             })
+             .catch(function (error) {
+                 error401(error);
+                 console.log(error);
+             });  
+        },
+
         anulacionReversion(){
             let me=this;     
          axios.put("/siat_eventos/anulacionReversion", { 
@@ -940,7 +984,7 @@ tipo_modal_mmm:'',
                     let respuesta=response.data;
                      console.log(respuesta);
                     me.cerrarModal('anular_modal');
-                    me.listarEventoSignificativoPaquete(1);
+                    me.listarInicio(1,5);
                      if(respuesta===0){                        
                        return Swal.fire('Acción realizada','con exito.','success');
                        }else{
@@ -954,16 +998,47 @@ tipo_modal_mmm:'',
         
         abrirModalAnulacion(dato,id){
             let me=this;
-             me.showModal_6= true;
-                me.tituloModal="Anulación de facturas";
-                me.selectMotivo="0";
+            me.selectMotivo="0";
                 me.textMotivo="";
-
                 me.id_archivo=id;
                 me.tipo_modal_mmm=dato;
-
-
+            if(dato==1){
+                 me.showModal_6= true;
+                me.tituloModal="Anulación de facturas";           
                 me.classModal.openModal("anular_modal");
+            }else{
+                  Swal.fire({
+                    title: "Desea revertir?",
+                    text: "La factura ya que esta opcion solo se puede hacer una vez por factura!",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#3085d6",
+                    cancelButtonColor: "#d33",
+                    confirmButtonText: "SI, revertir!"
+                  }).then((result) => {    
+                    if (result.isConfirmed) {                        
+                       axios.put("/siat_eventos/anulacionReversion", { 
+                    id: me.id_archivo,
+                    dato:me.tipo_modal_mmm,
+                    codMotivo:me.selectMotivo,
+                    descripcion:me.textMotivo,                                                                                        
+                })
+                .then(function (response) {                   
+                    let respuesta=response.data;
+                     console.log(respuesta);
+                    me.listarInicio(1,5);
+                     if(respuesta===0){                        
+                       return Swal.fire('Acción realizada','con exito.','success');
+                       }else{
+                           return Swal.fire('Error',' '+respuesta,'error');
+                       }                                                               
+                })               
+                .catch(function (error) {                
+                 error401(error);              
+            });                       
+                    }
+                });
+            }               
         },
 
          listarMotivo() {
@@ -978,8 +1053,7 @@ tipo_modal_mmm:'',
              .catch(function (error) {
                  error401(error);
                  console.log(error);
-             }); 
-           
+             });            
         },
 
         enviarValidacion_mm(id){

@@ -926,6 +926,249 @@ public function get_motivo(){
     return $datos; 
 }
 
+
+public function status_factura_siat(Request $request){
+
+    try {
+        DB::beginTransaction();
+        $id=$request->id;
+       
+        $query_1 = DB::table('ven__factura_siat as f')
+    ->join('ven__recibos as r', 'r.id', '=', 'f.id_venta')
+    ->join('siat__sucursals as s', 'r.id_sucursal', '=', 's.id_sucursal')
+    ->select(
+        'f.id',
+        'f.id_venta',
+        'f.id_cufd',
+        'f.id_cuis',
+        'f.cuf',
+        'f.sucursal_siat',
+        'f.punto_venta',
+        'f.numFactura',
+        'f.fechaEmision',
+        'f.xml',
+        'f.estado',
+        'f.codRecepcion',
+        'f.codDescripcion',
+        'f.codEstado',
+        'f.codSector',
+        'f.tipo_contigencia',
+        'f.zip_factura',
+        'f.tipo_emision',
+        'f.modalidad',
+        'f.tipoFacturaDoc',
+        'f.ambiente',
+        'r.id_sucursal',
+        'r.anulado as estado_recibo',
+        's.id as id_sucursal_siat'
+    )
+    ->where('f.id', $id)
+    ->first();
+
+    if (!$query_1) {
+    return "No existe la factura";
+    }
+
+         $codigoAmbiente=$query_1->ambiente;
+            $tipoFacturaDocumento=$query_1->tipoFacturaDoc;
+            $codigoEmision=$query_1->tipo_emision;    
+            $codigoModalidad=$query_1->modalidad;
+            $codigoPuntoVenta=$query_1->punto_venta;
+            $codigoSucursal=$query_1->sucursal_siat;             
+            $codigoDocumentoSector=$query_1->codSector; 
+            $cuf=$query_1->cuf;        
+
+            $id_sucursal_siat=$query_1->id_sucursal_siat;
+
+        $query_2 = DB::table('siat__configuracions as e')    
+            ->where('e.id', 1)
+            ->select('e.cod_sis','e.tipo_ambiente','e.token_delegado','e.tiempo_espera','e.tipo_modalidad')
+            ->first();
+
+                if (!$query_2) {
+                return "La tabla de configuracion no tiene los datos para hacer esta operacion.";
+                }
+
+        $codigoSistema=$query_2->cod_sis;
+        $tokenDelegado=$query_2->token_delegado;    
+        
+         $siat_data = DB::table('siat__emisors as e')
+    ->leftJoin('siat__cuis as c', 'c.id', '=', 'e.id_cuis')
+    ->leftJoin('siat__cufd as cc', 'cc.id', '=', 'e.id_cufd')
+    ->select(
+        'c.dato as cuis',
+        'cc.dato as cufd'
+    )
+    ->where('e.id_siat_sucursal', $id_sucursal_siat)
+    ->where('e.id_punto_venta', $codigoPuntoVenta)
+    ->where('e.estado', 1)
+    ->where('e.delete', 0)
+    ->first();
+
+    if (!$siat_data) {
+        return "no exite datos en la tabla de cuis y cufd";
+    }
+
+    $cuis=$siat_data->cuis;
+    $cufd=$siat_data->cufd;
+
+      $nit = DB::table('adm__credecial_correos')
+        ->where('id',1)
+        ->value('nit');
+
+        if ($nit==null) {
+        return "NIT sin configurar.";
+        }
+
+         $tablaCatalogo_siat = DB::table('siat__catalogo_lista_siat as c')
+    ->join('excel__emision as e', function ($join) {
+        $join->on('e.id_catalogo', '=', 'c.id_catalogo')
+             ->on('e.descripcion', '=', 'c.descripcion');
+    })
+    ->join('siat__endpoints as s', function ($join) {
+        $join->on('s.Descripcion', '=', 'c.descripcion');
+    })
+    ->select('c.id','c.id_catalogo','c.codigo','c.descripcion','e.s2','s.URL as url','s.modalidad')
+    ->where('c.id_catalogo', 3)
+    ->where('s.tipo', 2)
+    ->first();
+
+    if (!$tablaCatalogo_siat) {
+       return "No existe datos en la tabla catalogo de lista siat revise que no tenag espacios o datos inicesarios, de la tabla emision  el espacio descripcion.";
+    }
+
+       $wsdl = $tablaCatalogo_siat->url;
+        // Asignación de la URL y API key
+        $apikeyValue = 'TokenApi ' .$tokenDelegado;     
+
+      $xmlData = <<<EOD
+                    <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:siat="https://siat.impuestos.gob.bo/">
+                    <soapenv:Header/>
+                    <soapenv:Body>
+                    <siat:verificacionEstadoFactura>
+                        <SolicitudServicioVerificacionEstadoFactura>
+                            <codigoAmbiente>{$codigoAmbiente}</codigoAmbiente>
+                            <codigoDocumentoSector>{$codigoDocumentoSector}</codigoDocumentoSector>
+                            <codigoEmision>1</codigoEmision>
+                            <codigoModalidad>{$codigoModalidad}</codigoModalidad>
+                            <!--Optional:-->
+                            <codigoPuntoVenta>{$codigoPuntoVenta}</codigoPuntoVenta>
+                            <codigoSistema>{$codigoSistema}</codigoSistema>
+                            <codigoSucursal>{$codigoSucursal}</codigoSucursal>
+                            <cufd>{$cufd}</cufd>
+                            <cuis>{$cuis}</cuis>
+                            <nit>{$nit}</nit>
+                            <tipoFacturaDocumento>{$tipoFacturaDocumento}</tipoFacturaDocumento>
+                            <cuf>{$cuf}</cuf>                       
+                        </SolicitudServicioVerificacionEstadoFactura>
+                    </siat:verificacionEstadoFactura>
+                    </soapenv:Body>
+                    </soapenv:Envelope>
+                    EOD;
+                    $ch = curl_init();
+            
+                        // Configuración de la solicitud cURL
+                        curl_setopt($ch, CURLOPT_URL, $wsdl); // Reemplaza con el endpoint correcto
+                        curl_setopt($ch, CURLOPT_POST, 1);
+                        curl_setopt($ch, CURLOPT_POSTFIELDS, $xmlData);
+                    
+                        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                            'Content-Type: text/xml; charset=utf-8',
+                            'SOAPAction: ""', // Si el SOAPAction es requerido, inclúyelo aquí
+                            'apikey: ' . $apikeyValue // Incluye la API key con el valor correspondiente
+                        ]);
+                        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            
+                        // Ejecutar la solicitud y obtener la respuesta
+                        $response = curl_exec($ch);
+                       
+                        // Verificar si hubo un error en cURL
+                        if (curl_errno($ch)) {
+                            throw new \Exception(curl_error($ch));
+                        }            
+                        // Cerrar la sesión de cURL
+                        curl_close($ch);
+                        if (empty($response)) {
+                        return("Error 2: ".$response);
+                        }
+                        // Convertir la respuesta en un objeto SimpleXMLElement
+        $xml = simplexml_load_string($response);   
+        $respuesta=$response;
+         // Usar XPath para encontrar el nodo <transaccion>   
+        $transaccion = $xml->xpath('//transaccion');
+          if ($transaccion && isset($transaccion[0])) {
+                if ($transaccion[0]== 'true') {
+                    return 0;                  
+                }else{
+                    return $respuesta;
+                }                
+          }else{
+            return $respuesta;
+          }        
+     DB::commit(); 
+        return  $respuesta;     
+    } catch (\Throwable $th) {
+        return $th;
+    }  
+}
+
+public function qr_siat(Request $request){
+                try {
+                DB::beginTransaction();
+        $id=$request->id;
+       
+        $url_xd =DB::table('siat__configuracions')       
+        ->where('id',1)
+        ->value('url_QR');
+        if ($url_xd==null) {
+              return response()->json([
+                'error' => 1,
+                'message' => 'no existe la url'
+            ]);
+        }   
+      
+        
+        
+
+        $query_1 = DB::table('ven__factura_siat as f')    
+    ->select('f.cuf','f.numFactura','r.nro_doc')
+    ->join('ven__recibos as r', 'r.id', '=', 'f.id_venta')
+    ->where('f.id', $id)
+    ->first();
+
+    if (!$query_1) {    
+    return response()->json([
+                'error' => 1,
+                'message' => 'No existe la factura'
+            ]);
+    }
+
+                
+       $t_xd=2;
+       $cuf=$query_1->cuf;
+       $nit_1=$query_1->nro_doc;
+       $numFactura=$query_1->numFactura;
+$url = str_replace(
+    ['{nit_emisor}', '{cuf}', '{nro_factura}','{formato 1=rollo/ 2= A4 carta default= 2}'],
+    [$nit_1, $cuf, $numFactura, $t_xd],
+    $url_xd
+);
+
+    DB::commit(); 
+    return response()->json([
+                'error' => 0,
+                'message' => $url
+            ]); 
+ 
+                } catch (\Throwable $th) {
+                return response()->json([
+                'error' => 1,
+                'message' => $th
+            ]);
+                }
+}
+
+
 public function anulacion_reversion(Request $request){
     try {
         DB::beginTransaction();
