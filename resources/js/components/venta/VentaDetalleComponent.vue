@@ -226,7 +226,7 @@
           <th class="col-md-2" style="font-size: 11px; text-align: center;">Tipo de dato</th>
           <th class="col-md-2" style="font-size: 11px; text-align: center;">Nro. Factura</th>
           <th class="col-md-2" style="font-size: 11px; text-align: center;">Cod. Autorización</th>
-          <th class="col-md-2" style="font-size: 11px; text-align: center;">Codigo de control</th>
+          <th class="col-md-2" style="font-size: 11px; text-align: center;">Se puede anular</th>
         </tr>
       </thead>
       <tbody>
@@ -237,7 +237,11 @@
           <td class="col-md-2" style="font-size: 11px; text-align: center;">{{data_factura_tipo_docuemnto}}</td>
           <td class="col-md-2" style="font-size: 11px; text-align: center;">{{data_factura_nro_factura}}</td>
           <td class="col-md-2" style="font-size: 11px; text-align: center;">{{data_factura_cod_control}}</td>
-          <td class="col-md-2" style="font-size: 11px; text-align: center;">{{data_factura_nro_auto}}</td>
+          <td class="col-md-2" style="font-size: 11px; text-align: center;">
+            <span v-if="estadoAnulacion==9">x</span>
+            <span v-if="estadoAnulacion==1">SI</span>
+            <span v-if="estadoAnulacion==0">NO</span>
+          </td>
         </tr>
       </tbody>   
 
@@ -256,7 +260,8 @@
           <th class="col-md-2" style="font-size: 11px; text-align: center;">Fecha</th>
           <th class="col-md-2" style="font-size: 11px; text-align: center;">Hora</th>
           <th class="col-md-2" style="font-size: 11px; text-align: center;">Vendedor</th>
-          <th class="col-md-2" style="font-size: 11px; text-align: center;">Estado</th>          
+          <th class="col-md-2" style="font-size: 11px; text-align: center;">Estado</th>
+                    
         </tr>
       </thead>
       <tbody>
@@ -498,6 +503,8 @@ export default {
                 puedeCrear:2,
                 //-----------
                   showModal: false,
+
+         estadoAnulacion:9,    
         };
     },
 
@@ -1441,29 +1448,52 @@ listarDetalle_producto_x(id,tipo_per_emp) {
 
     factura_dosificacion(id) {
             let me = this;
-           
+           console.log("-------");
            var url = "/detalle_venta_2/factura_dosificacion?id="+id;
             axios
                 .get(url)
                 .then(function (response) {
-                    var respuesta = response.data;                    
-                   
-                    if (respuesta.length===0) {
+                    const respuesta = response.data;   
+                    console.log(respuesta);
+                    const fac_dosi = respuesta.fac_dosi;
+                    const fac_siat = respuesta.fac_siat;
+
+                    if (fac_dosi==null&&fac_siat==null) {
                       me.data_factura_tipo="Recibo";
                       me.data_factura_tipo_docuemnto="x";                             
                       me.data_factura_nro_factura="x";
                       me.data_factura_cod_control="x";
-                      me.data_factura_nro_auto="x";
-                    }else{
-                      if (respuesta[0].key_0===1) {
-                        me.data_factura_tipo="Factura";
-                      me.data_factura_tipo_docuemnto="Dosificación";                             
-                      me.data_factura_nro_factura=respuesta[0].numero_factura;
-                      me.data_factura_cod_control=respuesta[0].codigo_control;
-                      me.data_factura_nro_auto=respuesta[0].nro_autorizacion;
-                      }
+                      me.data_factura_nro_auto="x";                      
+                      me.estadoAnulacion=9;    
+                      return;
                     }
-                    
+                    if (fac_dosi!=null&&fac_siat==null) {
+                      me.data_factura_tipo="Factura";
+                      me.data_factura_tipo_docuemnto="Dosificación";                             
+                      me.data_factura_nro_factura=fac_dosi.numero_factura;
+                      me.data_factura_cod_control=fac_dosi.codigo_control;
+                      me.data_factura_nro_auto=fac_dosi.nro_autorizacion;
+                        if (fac_dosi.estado_factura===0&&fac_dosi.estado===1) {
+                          me.estadoAnulacion=1;  
+                        }else{
+                          me.estadoAnulacion=0;  
+                        }
+
+                      return;
+                    }
+                     if (fac_dosi==null&&fac_siat!=null) {
+                      me.data_factura_tipo="Factura";
+                      me.data_factura_tipo_docuemnto="SIAT";                             
+                      me.data_factura_nro_factura=fac_siat.numFactura;
+                      me.data_factura_cod_control=fac_siat.codigoControl;
+                      me.data_factura_nro_auto=fac_siat.codEstado;
+                      if (fac_siat.estado===1&&fac_siat.enviado===1) {
+                          me.estadoAnulacion=1;  
+                        }else{
+                          me.estadoAnulacion=0;  
+                        }
+                      return;
+                    }  
                     
                 })
                 .catch(function (error) {
@@ -1863,12 +1893,24 @@ const isInRange = today >= startDate && today <= endDate;
                             })
                             .then(function (response) {
                                // me.listarAjusteNegativos();
+                               let respuesta=response.data;                               
+                               console.log(respuesta);
                                me.listarVentas();
+                                
+                               if (respuesta==0) {
                                 swalWithBootstrapButtons.fire(
                                     "Desactivado!",
                                     "El registro eliminado",
                                     "success",
+                                ); 
+                               }else{
+                                swalWithBootstrapButtons.fire(
+                                    "Error...",
+                                    " "+respuesta,
+                                    "error",
                                 );
+                               }
+                               
                              //   me.listarAjusteNegativos();
                             })
                     
@@ -1934,8 +1976,9 @@ const isInRange = today >= startDate && today <= endDate;
                   me.data_factura_tipo_docuemnto="";       
                   me.data_factura_nro_factura="";
                   me.data_factura_cod_control="";
-                  me.data_factura_nro_auto="",
-                  me.classModal.openModal("ver_detalle");
+                  me.data_factura_nro_auto="";
+                  me.estadoAnulacion=9;
+                  //me.classModal.openModal("ver_detalle");
          },
 
      

@@ -33,10 +33,11 @@ return new class extends Migration
             $table->smallInteger('codSector')->nullable(); 
             $table->tinyInteger('tipo_contigencia')->default(0)->nullable();  
             $table->text('zip_factura')->nullable();  
-            $table->tinyInteger('tipo_emision')->default(0)->nullable();
+            $table->tinyInteger('tipo_emision')->default(0)->nullable()->comment('1 en linea ,2 fuera de linea');
             $table->tinyInteger('modalidad')->default(0)->nullable();  
             $table->smallInteger('tipoFacturaDoc')->default(0)->nullable(); 
             $table->tinyInteger('ambiente')->default(0)->nullable(); 
+            $table->tinyInteger('enviado')->default(1)->nullable()->comment('1 enviado 0 no');  
                                    
         });
         

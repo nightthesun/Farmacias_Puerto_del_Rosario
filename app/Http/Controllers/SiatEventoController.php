@@ -605,7 +605,8 @@ $contador_2=0;
                                     $data_load = [
                                         'codDescripcion' =>  html_entity_decode($codigoDescripcion[0], ENT_QUOTES, 'UTF-8'),
                                         'codEstado' =>  html_entity_decode($codigoEstado[0], ENT_QUOTES, 'UTF-8'), 
-                                        'codRecepcion' => html_entity_decode($codigoRecepcion[0], ENT_QUOTES, 'UTF-8') 
+                                        'codRecepcion' => html_entity_decode($codigoRecepcion[0], ENT_QUOTES, 'UTF-8'),
+                                        'enviado'=>1
                                         ];                
                                         DB::table('ven__factura_siat')->where('id', $id)->update($data_load);  
                                             DB::commit();
@@ -1356,7 +1357,8 @@ public function anulacion_reversion(Request $request){
                     $data_load_2 = [
                         'codDescripcion' =>  html_entity_decode($codigoDescripcion[0], ENT_QUOTES, 'UTF-8'),
                         'codEstado' =>  html_entity_decode($codigoEstado[0], ENT_QUOTES, 'UTF-8'), 
-                        'estado'=>0
+                        'estado'=>0,
+                        'enviado'=>0
                                 ];                
                         DB::table('ven__factura_siat')->where('id', $id)->update($data_load_2);  
                         DB::commit();     
@@ -1431,7 +1433,8 @@ public function anulacion_reversion(Request $request){
                     $data_load_2 = [
                         'codDescripcion' =>  html_entity_decode($codigoDescripcion[0], ENT_QUOTES, 'UTF-8'),
                         'codEstado' =>  html_entity_decode($codigoEstado[0], ENT_QUOTES, 'UTF-8'), 
-                        'estado'=>1
+                        'estado'=>1,
+                        'enviado'=>1
                                 ];                
                         DB::table('ven__factura_siat')->where('id', $id)->update($data_load_2);  
                         DB::commit();     
@@ -1639,7 +1642,8 @@ if ($factura_siat_2==0) {
                      $data_load_2 = [
                                         'codDescripcion' =>  html_entity_decode($codigoDescripcion[0], ENT_QUOTES, 'UTF-8'),
                                         'codEstado' =>  html_entity_decode($codigoEstado[0], ENT_QUOTES, 'UTF-8'), 
-                                        'codRecepcion' => html_entity_decode($codigoRecepcion[0], ENT_QUOTES, 'UTF-8') 
+                                        'codRecepcion' => html_entity_decode($codigoRecepcion[0], ENT_QUOTES, 'UTF-8'), 
+                                        'enviado'=>1
                                         ];                
                                         DB::table('ven__factura_siat')->where('id', $id_1)->update($data_load_2);  
                 }
@@ -1974,34 +1978,7 @@ $cadena_url=$url_s2;
                  DB::table('evento__significativos')->where('id', $id)->update($data_load);
                     DB::commit();  
                 return 0;
-                $contador_2=0;
-                  while($contador_2<=2){
-                     $xmlData = <<<EOD
-                    <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:siat="https://siat.impuestos.gob.bo/">
-                    <soapenv:Header/>
-                    <soapenv:Body>
-                    <siat:validacionRecepcionPaqueteFactura>
-                        <SolicitudServicioValidacionRecepcionPaquete>
-                            <codigoAmbiente>{$ambiente}</codigoAmbiente>
-                            <codigoDocumentoSector>{$cod_sector}</codigoDocumentoSector>
-                            <codigoEmision>{$cod_contigencia}</codigoEmision>
-                            <codigoModalidad>{$modalidad}</codigoModalidad>
-                            <!--Optional:-->
-                            <codigoPuntoVenta>{$cod_punto_venta_siat}</codigoPuntoVenta>
-                            <codigoSistema>{$codigoSistema}</codigoSistema>
-                            <codigoSucursal>{$cod_sucursal_siat}</codigoSucursal>
-                            <cufd>{$cufd}</cufd>
-                            <cuis>{$cuis}</cuis>
-                            <nit>{$nit}</nit>
-                            <tipoFacturaDocumento>{$tipo_factura}</tipoFacturaDocumento>
-                        <codigoRecepcion>{$codigoRecepcion}</codigoRecepcion>                        
-                    </SolicitudServicioValidacionRecepcionPaquete>
-                    </siat:validacionRecepcionPaqueteFactura>
-                    </soapenv:Body>
-                    </soapenv:Envelope>
-                    EOD;
-                    $ch = curl_init();
-                  }
+               
             }else{
                 return $respuesta;
             }
