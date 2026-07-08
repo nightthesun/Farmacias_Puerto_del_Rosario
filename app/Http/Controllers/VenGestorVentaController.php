@@ -662,7 +662,7 @@ $hashArchivo = $firma_f['hash'];
 $archivo = $firma_f['archivo'];
 $fartura_zip=$factura___e;
 if($contigencia == 0) {
-                // 15. Enviar al SIAT
+                // 15. Enviar al SIAT docFactura
  $soap_llamada = $this->enviarFactura_siat(
      $tipo_ambiente, $token_delegado, $codigoDocumentoSector, $tipoEmision,
      $modalidad, $puntoVenta, $codigoSistema, $sucursal,

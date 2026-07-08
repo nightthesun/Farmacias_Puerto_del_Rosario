@@ -425,6 +425,8 @@ import Swal from "sweetalert2";
 import { error401 } from "../../errores";
 import pdfMake from 'pdfmake/build/pdfmake';
 import pdfFonts from 'pdfmake/build/vfs_fonts';
+import { generarPDF_factura_rollo } from "../../services/pdf/factura_siat_rollo"; 
+import { generarPDF_factura_a4 } from "../../services/pdf/factura_siat_4a"; 
 import moment from 'moment';
 // Asigna los fonts a pdfmake
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
@@ -653,36 +655,36 @@ tableBody.push(
     pageMargins: [25, 30, 25, 30], // Márgenes: [left, top, right, bottom]
     content: [
     {
-  		table: {
-				widths: [65,150,'*',80, 90],
-				body: [
-      	[{rowSpan: 3,image: base64, fit: [65, 65]},{text: nom_empresa ,fontSize: 9,bold: true},{ },{text: 'NIT: ',fontSize: 8},{text: nit ,fontSize: 8}],
-					[{ },{text: nomsucursal,fontSize: 8},{ },{text: 'FACTURA Nº:',fontSize: 8},{text: numero_factura_dosifi,fontSize: 8}],
+      table: {
+        widths: [65,150,'*',80, 90],
+        body: [
+        [{rowSpan: 3,image: base64, fit: [65, 65]},{text: nom_empresa ,fontSize: 9,bold: true},{ },{text: 'NIT: ',fontSize: 8},{text: nit ,fontSize: 8}],
+          [{ },{text: nomsucursal,fontSize: 8},{ },{text: 'FACTURA Nº:',fontSize: 8},{text: numero_factura_dosifi,fontSize: 8}],
           [{ },{text: direccionMayusculas+' \n'+ciudad_su_1+' - '+departamento_su_1+' \n'+'TELEFONO '+numero_referencia ,fontSize: 8},{ },{text: 'COD. AUTORIZACIÓN:',fontSize: 8},
             {text: nro_autorizacion_dosifi ,fontSize: 8}],
-				]
-			},
+        ]
+      },
       layout: 'noBorders'
-		},
+    },
     {text: 'FACTURA', style: 'header' },
     {			
-			table: {
-				widths: [90,120,'*',60,105],
-				body: [
-					[{text: 'Fecha:',style:'negritas'},
+      table: {
+        widths: [90,120,'*',60,105],
+        body: [
+          [{text: 'Fecha:',style:'negritas'},
           {text: fecha+' '+ hora ,fontSize: 8},{ },
           {text: 'NIT/CI/CEX:',style:'negritas'},
           {text: num_documento,fontSize: 8},         
           ],
-					[{text: 'Nombre/Razón Social:',style:'negritas'},
+          [{text: 'Nombre/Razón Social:',style:'negritas'},
           {text: nom_a_facturar,fontSize: 8},{ },
           {text: 'Cod. Cliente:',style:'negritas'},
           {text: cod_cliente,fontSize: 8},         
           ],
-				]
-			},
+        ]
+      },
       layout: 'noBorders'
-		},
+    },
    {
         style: 'tableExample',
         margin:[0,10,0,0],
@@ -691,7 +693,7 @@ tableBody.push(
           widths: [50,'*',55,34,32,37,40,40,43,40], // Ajusta los anchos de las columnas
           body: tableBody         
         },      
-		},
+    },
     {
       text: 'Son: '+respuesta_total ,fontSize: 8,bold: true,
     },
@@ -702,18 +704,18 @@ tableBody.push(
       text: 'Fecha de emisiòn: '+fecha_e_dosifi ,fontSize: 8,bold: true, margin:[0,0,0,15]
     },
     {
-  		table: {
-				widths: [75,'*'],
-				body: [      
-					[{rowSpan: 4,qr:  nit+'|'+numero_factura_dosifi+'|'+nro_autorizacion_dosifi+'|'+fecha+'|'+total_venta+'|'+codigo_control_dosifi+'|'+cod_cliente+'|0|0|0|0.00', fit: '85'},{text:'Valido desde '+ fecha +' hasta '+fechaMas7Dias+',valor de vigencia para el cambio valido hasta '+ fecha+' en la misma tienda, términos y codiciones según politica de cambios y devoluiones.',fontSize: 7}],
+      table: {
+        widths: [75,'*'],
+        body: [      
+          [{rowSpan: 4,qr:  nit+'|'+numero_factura_dosifi+'|'+nro_autorizacion_dosifi+'|'+fecha+'|'+total_venta+'|'+codigo_control_dosifi+'|'+cod_cliente+'|0|0|0|0.00', fit: '85'},{text:'Valido desde '+ fecha +' hasta '+fechaMas7Dias+',valor de vigencia para el cambio valido hasta '+ fecha+' en la misma tienda, términos y codiciones según politica de cambios y devoluiones.',fontSize: 7}],
           [{ },{text:'"ESTA FACTURA CONTRIBUYE AL DESARROLLO DEL PAÍS, EL USO ILÍCITO SERÁ SANCIONADO PENALMENTE DE ACUERDO A LEY."',fontSize: 7}],
           [{ },{text:'Ley N° 453: Cuando lo solicite el paciente, se debe informar los resultados de exámenes, diagnósticos y estudios de laboratorio.',fontSize: 7}],
           [{ },{text:'Este documento es la Representación Gráfica de un Documento Fiscal Digital emitido en una modalidad de facturación en línea.',fontSize: 7}],
         
-				]
-			},
+        ]
+      },
       layout: 'noBorders'
-		},
+    },
   ],
   watermark: watermark, // Agrega la marca de agua condicionalmente
   styles: {
@@ -929,7 +931,7 @@ tableBody.push(
           body: tableBody_2
         },
         layout: 'noBorders'
-		},
+    },
     {
         text: '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -',    
         style:'linea_2' 
@@ -1114,7 +1116,7 @@ tableBody.push(
           body: tableBody
         },
         layout: 'noBorders'
-		},
+    },
         {
         canvas: [
           { type: 'line', x1: 0, y1: 0, x2: 226.8, y2: 0, lineWidth: 1, dash: { length: 1, space: 2 } } // Línea punteada
@@ -1208,9 +1210,9 @@ tableBody.push(
             alignment: 'left',         
           },
           tableExample: {
-			margin: [1, 6, 1, 6],
+      margin: [1, 6, 1, 6],
            
-		},
+    },
         tableHeader_1: {
         bold: true,
         fontSize: 7,
@@ -1307,14 +1309,14 @@ tableBody.push(
     content: [
 
     {
-			
-			table: {
-				widths: [120,'*',90, 100],
-				body: [
-					[{text: nom_empresa ,fontSize: 8},
+      
+      table: {
+        widths: [120,'*',90, 100],
+        body: [
+          [{text: nom_empresa ,fontSize: 8},
           { },{text: 'IDENTIFICACIÓN ',fontSize: 8},{text: numero_identificacion ,fontSize: 8}
           ],
-					[{text: nomsucursal,fontSize: 8},{ },
+          [{text: nomsucursal,fontSize: 8},{ },
            {text: 'RECIBO Nº:',fontSize: 8},
             {text: nuevoComprobante,fontSize: 8}, 
             ],
@@ -1322,30 +1324,30 @@ tableBody.push(
            {text: 'COD DE CONTROL:',fontSize: 8},
             {text: nuevoComprobante ,fontSize: 8}, 
             ],
-				]
-			},
+        ]
+      },
       layout: 'noBorders'
-		},
+    },
    
     {text: 'RECIBO TIPO '+tipo_venta_1, style: 'header' },
     {			
-			table: {
-				widths: [90,120,'*',60,105],
-				body: [
-					[{text: 'Fecha:',fontSize: 8},
+      table: {
+        widths: [90,120,'*',60,105],
+        body: [
+          [{text: 'Fecha:',fontSize: 8},
           {text: fecha+' '+ hora ,fontSize: 8},{ },
           {text: 'NIT/CI/CEX:',fontSize: 8},
           {text: num_documento,fontSize: 8},         
           ],
-					[{text: 'Nombre/Razón Social:',fontSize: 8},
+          [{text: 'Nombre/Razón Social:',fontSize: 8},
           {text: nom_a_facturar,fontSize: 8},{ },
           {text: 'Cod. Cliente:',fontSize: 8},
           {text: cod_cliente,fontSize: 8},         
           ],
-				]
-			},
+        ]
+      },
       layout: 'noBorders'
-		},
+    },
     {
         style: 'tableExample',
         margin:[0,10,0,0],
@@ -1354,7 +1356,7 @@ tableBody.push(
           widths: [50,'*',55,34,32,37,40,40,43,40], // Ajusta los anchos de las columnas
           body: tableBody         
         },      
-		},
+    },
     
     {
       text: respuesta_total ,fontSize: 7
@@ -1386,24 +1388,24 @@ tableBody.push(
         fontSize: 8,
         bold: true,
       },
-		tableHeader: {
-			bold: true,
-			fontSize: 9,
-			color: 'black',
+    tableHeader: {
+      bold: true,
+      fontSize: 9,
+      color: 'black',
      // margin:[ 0, 0, 100,0]
-		},
+    },
     tableHeader2 : {
-			bold: true,
-			fontSize: 7,
-			color: 'black',
+      bold: true,
+      fontSize: 7,
+      color: 'black',
       margin:[ 180, 0, 20,0] 
-		},
+    },
     tableHeader3 : {
-			bold: true,
-			fontSize: 7,
-			color: 'black',
+      bold: true,
+      fontSize: 7,
+      color: 'black',
       margin:[ 50, 0, 10,0] 
-		}
+    }
     }
   };
  // margin: [left, top, right, bottom]
@@ -1533,6 +1535,21 @@ listarDetalle_producto_x(id,tipo_per_emp) {
         },
 
       
+        detalleVentaSiat(id_venta,recibo_ticket_plana,departamento,ciudad){
+          let me=this;      
+          const url = "/detalle_venta_2/re_imprecion_siat?id_venta="+id_venta;
+            axios
+                .get(url)
+                .then(function (response) {
+                    const respuesta = response.data;   
+                    console.log(respuesta);                                       
+                                  
+                })
+                .catch(function (error) {
+                    error401(error);
+              
+                });
+        },
         
         detalleVenta(cod_cliente,validor_12,id,tipo,direccion,razon_social,nro_comprobante_venta,fecha_formateada,hora_formateada,
         num_documento,nom_a_facturar,total_sin_des,descuento_venta,total_venta,efectivo_venta,cambio_venta,fecha_mas_siete,
@@ -1725,6 +1742,8 @@ switch (data.tipo_venta) {
                 }
 
                 case "recibo_r": {
+                  console.log("==============================");
+                  console.log(data);
                   let monto_apagar_1=data.monto_apagar;
                   let monto_vale_1=data.monto_vale;
                   let tipo_venta_1="S/N";
@@ -1747,23 +1766,27 @@ switch (data.tipo_venta) {
 }
                   me.recibo_ticket_plana=1;
          
-                    if (data.tipo_venta_reci_fac==="RECIBO") {
+                    if (data.tipo_venta_reci_fac==="RECIBO"&&data.dosificacion_o_electronica===0) {
                       me.detalleVenta(data.id_cliente,me.recibo_ticket_plana,data.id,data.tipo_venta_reci_fac,data.direccion,data.razon_social,data.nro_comprobante_venta,
                     data.fecha_formateada,data.hora_formateada,data.num_documento,data.nom_a_facturar,data.total_sin_des,
                     data.descuento_venta,data.total_venta,data.efectivo_venta,data.cambio_venta,data.fecha_mas_siete,
                     data.numero_referencia,data.nombre_completo_empleado,data.anulado,data.dosificacion_o_electronica,data.ciudad,data.departamento,tipo_venta_1,monto_apagar_1,monto_vale_1
                     );
-                    } else {
-                 
-                    if (data.tipo_venta_reci_fac==="FACTURA") {         
-                          me.detalleVenta(data.id_cliente,me.recibo_ticket_plana,data.id,data.tipo_venta_reci_fac,data.direccion,data.razon_social,data.nro_comprobante_venta,
+                    return ;
+                    } 
+                  if (data.tipo_venta_reci_fac==="FACTURA"&&data.dosificacion_o_electronica===2) {
+                       me.detalleVenta(data.id_cliente,me.recibo_ticket_plana,data.id,data.tipo_venta_reci_fac,data.direccion,data.razon_social,data.nro_comprobante_venta,
                     data.fecha_formateada,data.hora_formateada,data.num_documento,data.nom_a_facturar,data.total_sin_des,
                     data.descuento_venta,data.total_venta,data.efectivo_venta,data.cambio_venta,data.fecha_mas_siete,
                     data.numero_referencia,data.nombre_completo_empleado,data.anulado,data.dosificacion_o_electronica,data.ciudad,data.departamento,tipo_venta_1,monto_apagar_1,monto_vale_1
                     );
-                        
-                    } 
+                    return ;
                   }
+                  if (data.tipo_venta_reci_fac==="FACTURA"&&data.dosificacion_o_electronica===3) {
+                    me.detalleVentaSiat(data.id,me.recibo_ticket_plana,data.departamento,data.ciudad);                    
+                    return ;
+                  }
+
                     
                     break;
                 }
@@ -1790,20 +1813,26 @@ switch (data.tipo_venta) {
     tipo_venta_1="OTROS";
     break;
 }
-                  if (data.tipo_venta_reci_fac==="RECIBO") {
+                  if (data.tipo_venta_reci_fac==="RECIBO"&&data.dosificacion_o_electronica===0) {
                     me.detalleVenta(data.id_cliente,me.recibo_ticket_plana,data.id,data.tipo_venta_reci_fac,data.direccion,data.razon_social,data.nro_comprobante_venta,
                     data.fecha_formateada,data.hora_formateada,data.num_documento,data.nom_a_facturar,data.total_sin_des,
                     data.descuento_venta,data.total_venta,data.efectivo_venta,data.cambio_venta,data.fecha_mas_siete,
                     data.numero_referencia,data.nombre_completo_empleado,data.anulado,data.dosificacion_o_electronica,data.ciudad,data.departamento,tipo_venta_1,monto_apagar_1,monto_vale_1
-                    );              
+                    );   
+                    return;           
                   } 
-                  if (data.tipo_venta_reci_fac==="FACTURA") {         
+                  if (data.tipo_venta_reci_fac==="FACTURA"&&data.dosificacion_o_electronica===2) {         
                           me.detalleVenta(data.id_cliente,me.recibo_ticket_plana,data.id,data.tipo_venta_reci_fac,data.direccion,data.razon_social,data.nro_comprobante_venta,
                     data.fecha_formateada,data.hora_formateada,data.num_documento,data.nom_a_facturar,data.total_sin_des,
                     data.descuento_venta,data.total_venta,data.efectivo_venta,data.cambio_venta,data.fecha_mas_siete,
                     data.numero_referencia,data.nombre_completo_empleado,data.anulado,data.dosificacion_o_electronica,data.ciudad,data.departamento,tipo_venta_1,monto_apagar_1,monto_vale_1
                     );                        
-                    } 
+                  return;  
+                  } 
+                   if (data.tipo_venta_reci_fac==="FACTURA"&&data.dosificacion_o_electronica===3) {
+                   me.detalleVentaSiat(data.id,me.recibo_ticket_plana,data.departamento,data.ciudad);                   
+                    return ;
+                  }
 
                  
                   break;
@@ -1892,43 +1921,32 @@ const isInRange = today >= startDate && today <= endDate;
                                 tipo_venta_reci_fac:tipo_venta_reci_fac,
                             })
                             .then(function (response) {
-                               // me.listarAjusteNegativos();
-                               let respuesta=response.data;                               
+                            
+                               let respuesta=response.data;  
+                               const msn = respuesta.msn;
+                               const error = respuesta.error;
+
                                console.log(respuesta);
                                me.listarVentas();
                                 
-                               if (respuesta==0) {
+                               if (error==0) {
                                 swalWithBootstrapButtons.fire(
                                     "Desactivado!",
-                                    "El registro eliminado",
+                                    " "+msn,
                                     "success",
                                 ); 
                                }else{
                                 swalWithBootstrapButtons.fire(
                                     "Error...",
-                                    " "+respuesta,
+                                    " "+error,
                                     "error",
                                 );
                                }
-                               
-                             //   me.listarAjusteNegativos();
                             })
                     
                        .catch(function (error) {                
-                if (error.response.status === 500) {
-                    me.errorMsg = error.response.data.error; // Asigna el mensaje de error a la variable errorMsg
-                Swal.fire(
-                    "Error",
-                    "500 (Internal Server Error)"+me.errorMsg, // Muestra el mensaje de error en el alert
-                    "error"       );
-                }else{
-                    Swal.fire(
-                    "Error",
-                    ""+error, // Muestra el mensaje de error en el alert
-                    "error"
-                );  
-                }              
-            });
+                      console.log(error);             
+                   });
                     } else if (
                         /* Read more about handling dismissals below */
                         result.dismiss === Swal.DismissReason.cancel

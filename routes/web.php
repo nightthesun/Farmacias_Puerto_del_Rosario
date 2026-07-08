@@ -816,6 +816,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/detalle_venta_2/verCliente_x_venta', [VenGestorVentaVistaController::class, 'verCliente_x_venta']);
     Route::post('/detalle_venta_2/desactivar', [VenGestorVentaVistaController::class, 'desactivar']);
     Route::get('/detalle_venta_2/factura_dosificacion', [VenGestorVentaVistaController::class, 'factura_dosificacion']); 
+    Route::get('/detalle_venta_2/re_imprecion_siat', [VenGestorVentaVistaController::class, 'get_data_factura_siat']); 
     
     //caducidad---
     Route::get('/caducida/index', [VenCaducidadController::class, 'index']);

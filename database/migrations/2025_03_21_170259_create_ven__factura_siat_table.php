@@ -30,15 +30,15 @@ return new class extends Migration
             $table->text('codRecepcion')->nullable();              
             $table->string('codDescripcion',160)->nullable();              
             $table->smallInteger('codEstado')->nullable();
-            $table->smallInteger('codSector')->nullable(); 
-            $table->tinyInteger('tipo_contigencia')->default(0)->nullable();  
+            $table->smallInteger('codSector')->nullable()->comment('1 FACTURA COMPRA-VENTA, codigoDocumentoSector'); 
+            $table->tinyInteger('tipo_contigencia')->default(0)->nullable()->comment('0 cero sin accion 1 segun se selecciona');   
             $table->text('zip_factura')->nullable();  
             $table->tinyInteger('tipo_emision')->default(0)->nullable()->comment('1 en linea ,2 fuera de linea');
-            $table->tinyInteger('modalidad')->default(0)->nullable();  
-            $table->smallInteger('tipoFacturaDoc')->default(0)->nullable(); 
-            $table->tinyInteger('ambiente')->default(0)->nullable(); 
+            $table->tinyInteger('modalidad')->default(0)->nullable()->comment('1 Electrónica en Línea, 2 Computarizada en Línea');  
+            $table->smallInteger('tipoFacturaDoc')->default(0)->nullable()->comment('1 FACTURA CON DERECHO A CREDITO FISCAL , tipoFacturaDocumento');  
+            $table->tinyInteger('ambiente')->default(0)->nullable()->comment('1 produccion , 2 piloto'); 
             $table->tinyInteger('enviado')->default(1)->nullable()->comment('1 enviado 0 no');  
-                                   
+                            
         });
         
     }

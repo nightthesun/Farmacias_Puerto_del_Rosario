@@ -8,6 +8,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use NumberToWords\NumberToWords;
 use App\Helpers\converso_numero_a_texto;
+use App\Models\Alm_IngresoProducto;
 use App\Models\Inv_AjustePositivo;
 use App\Models\Tda_IngresoProducto;
 
@@ -422,8 +423,13 @@ if (auth()->user()->super_usuario == 0) {
                 ->select('*')
                 ->first(); 
 
-                if ($query_1==null) 
-                    return "No existe la venta.";
+                if ($query_1==null){
+                    return response()->json([
+                        'msn' => "No existe la venta.",
+                        'error' => 1,
+                        ]);
+                } 
+                
                 $id_sucursal=$query_1->id_sucursal;   
  
                 if ($tipo==3) {
@@ -431,13 +437,25 @@ if (auth()->user()->super_usuario == 0) {
                 ->where('id_venta', $id)
                 ->select('estado','enviado')
                 ->first();
-                    if ($siat==null)
-                        return "No existe factura";
+                    if ($siat==null){
+                        return response()->json([
+                        'msn' => "No existe factura",
+                        'error' => 1,
+                    ]);
+                    }                    
+                     
                     if ($siat->estado==0) {
-                        return "La factura debe estar anulada en sistema del siat";
+                        return response()->json([
+                        'msn' => "La factura debe estar anulada en sistema del siat",
+                        'error' => 1,
+                    ]);
                     }
                     if ($siat->enviado==0) {
-                        return "La factura no esta enviada al siat";
+                       
+                        return response()->json([
+                            'msn' => "La factura no esta enviada al siat",
+                        'error' => 1,
+                        ]);
                     }                 
                 }
 
@@ -449,7 +467,10 @@ if (auth()->user()->super_usuario == 0) {
                 ->get();
 
                 if (count($datos_venta_detalle)<=0) {
-                    return "no existe datos de la venta";
+                    return response()->json([
+                        'msn' => "no existe datos de la venta",
+                        'error' => 1,
+                    ]);
                 }
           
                
@@ -539,78 +560,53 @@ if (auth()->user()->super_usuario == 0) {
     )
     ->first();
 
-    return $pivote;
 
+        
+                $now = Carbon::now();
                 $operacion = $pivote->stock_ingreso+$value->cantidad_venta;
               $fecha_ingreso=$pivote->fecha_ingreso;
               $fecha_vencimiento=$pivote->fecha_vencimiento;
               $lote=$pivote->lote;
               $tipo=$pivote->tipo;
-              if($tipo=='TDA'){
-                $ajusteNegativo=new Inv_AjustePositivo();
-                    $ajusteNegativo->id_usuario = auth()->user()->id;
-                    $ajusteNegativo->usuario = auth()->user()->name;
-                    $ajusteNegativo->id_usuario_registra = auth()->user()->id;
-                    $ajusteNegativo->id_tipo=4;
-                    $ajusteNegativo->id_sucursal=$id_sucursal;
-                    $ajusteNegativo->id_producto_linea=$id_producto;
-                    $ajusteNegativo->codigo=$cod_prod;
-                    $ajusteNegativo->linea=$nom_linea;
-                    $ajusteNegativo->producto=$nom_prod;
-                    $ajusteNegativo->cantidad=$cantidad_venta;
-                    $ajusteNegativo->stock=$cantidad_venta;
-                    $ajusteNegativo->fecha_ingreso=$fecha_ingreso;
-                    $ajusteNegativo->lote=$lote;
-                    $ajusteNegativo->fecha_vencimiento=$fecha_vencimiento;
-                    $ajusteNegativo->descripcion="por anulacion de productos"; 
-                    $ajusteNegativo->id_usuario_modifica = auth()->user()->id;  
-                    $ajusteNegativo->cod=$codigo_tienda_almacen;           
-                    $ajusteNegativo->id_ingreso=$id_ingreso;
-                    $ajusteNegativo->leyenda = $nom_prod." - Envase: ".$envase;
-                    $ajusteNegativo->save();
-               
-        
-                    $update=Tda_IngresoProducto::find($id_ingreso);
-                    $update->stock_ingreso=$operacion;
-                    $update->save();    
-                }
-                if($tipo=='TDA'){
-                $ajusteNegativo=new Inv_AjustePositivo();
-                    $ajusteNegativo->id_usuario = auth()->user()->id;
-                    $ajusteNegativo->usuario = auth()->user()->name;
-                    $ajusteNegativo->id_usuario_registra = auth()->user()->id;
-                    $ajusteNegativo->id_tipo=4;
-                    $ajusteNegativo->id_sucursal=$id_sucursal;
-                    $ajusteNegativo->id_producto_linea=$id_producto;
-                    $ajusteNegativo->codigo=$cod_prod;
-                    $ajusteNegativo->linea=$nom_linea;
-                    $ajusteNegativo->producto=$nom_prod;
-                    $ajusteNegativo->cantidad=$cantidad_venta;
-                    $ajusteNegativo->stock=$cantidad_venta;
-                    $ajusteNegativo->fecha_ingreso=$fecha_ingreso;
-                    $ajusteNegativo->lote=$lote;
-                    $ajusteNegativo->fecha_vencimiento=$fecha_vencimiento;
-                    $ajusteNegativo->descripcion="por anulacion de productos"; 
-                    $ajusteNegativo->id_usuario_modifica = auth()->user()->id;  
-                    $ajusteNegativo->cod=$codigo_tienda_almacen;           
-                    $ajusteNegativo->id_ingreso=$id_ingreso;
-                    $ajusteNegativo->leyenda = $nom_prod." - Envase: ".$envase;
-                    $ajusteNegativo->save();
-               
-        
-                    $update=Tda_IngresoProducto::find($id_ingreso);
-                    $update->stock_ingreso=$operacion;
-                    $update->save();
+                    $ajuste=new Inv_AjustePositivo();
+                    $ajuste->id_usuario = auth()->user()->id;
+                    $ajuste->usuario = auth()->user()->name;
+                    $ajuste->id_usuario_registra = auth()->user()->id;
+                    $ajuste->id_tipo=4;
+                    $ajuste->id_sucursal=$id_sucursal;
+                    $ajuste->id_producto_linea=$id_producto;
+                    $ajuste->codigo=$cod_prod;
+                    $ajuste->linea=$nom_linea;
+                    $ajuste->producto=$nom_prod;
+                    $ajuste->cantidad=$cantidad_venta;
+                    $ajuste->stock=$cantidad_venta;
+                    $ajuste->fecha_ingreso=$fecha_ingreso;
+                    $ajuste->lote=$lote;
+                    $ajuste->fecha_vencimiento=$fecha_vencimiento;
+                    $ajuste->descripcion="por anulacion de productos"; 
+                    $ajuste->id_usuario_modifica = auth()->user()->id;  
+                    $ajuste->cod=$codigo_tienda_almacen;           
+                    $ajuste->id_ingreso=$id_ingreso;
+                    $ajuste->leyenda = $nom_prod." - Envase: ".$envase;
+                    $ajuste->save();
 
-                      
+              if($tipo=='TDA'){              
+                    $ingreso=Tda_IngresoProducto::find($id_ingreso);
+                    $ingreso->stock_ingreso=$operacion;
+                    $ingreso->save();              
+                }
+                if($tipo=='ALM'){
+                    $ingreso=Alm_IngresoProducto::find($id_ingreso);
+                    $ingreso->stock_ingreso=$operacion;
+                    $ingreso->save();                      
                 }
                 }
+
+                //fin de bucle============================================
                 $eliminar = Ven_GestorVentaVista::findOrFail($id);
                 $eliminar->anulado=1;
                 $eliminar->save(); 
 
-
-                $now = Carbon::now();
          //   DB::table('par__asignacion_descuento')->truncate();
             $datos = [
                 'id_modulo' => $request->id_modulo,
@@ -624,122 +620,17 @@ if (auth()->user()->super_usuario == 0) {
         
             DB::table('log__sistema')->insert($datos);  
                DB::commit();
-                return 0;
-
-              
-
-
-                /*                
-select p.id as id_pivote,p.tipo,p.id_tienda_almacen,
-   CASE 
-        WHEN aa.idsucursal is not null THEN aa.idsucursal 
-        WHEN tt.idsucursal is not null THEN tt.idsucursal 
-        ELSE NULL 
-    END AS idsucursal,
-     CASE 
-        WHEN aa.idsucursal is not null THEN aip.stock_ingreso 
-        WHEN tt.idsucursal is not null THEN tip.stock_ingreso 
-        ELSE NULL 
-    END AS stock_ingreso
-from pivot__modulo_tienda_almacens p
-
-left join alm__ingreso_producto aip on aip.id=p.id_ingreso and aip.envase='primario' and aip.id_prod_producto=9
-left join tda__ingreso_productos tip on tip.id=p.id_ingreso and tip.envase='primario'and tip.id_prod_producto=9
-where p.id_ingreso=16
-                */
-
-                return $datos_venta_detalle;
-      
-                return "sin accion";
-            
-                 $query_2 = DB::table('ven__detalle_ventas as dv')    
-                ->where('dv.id_venta', $id)
-                ->select('ambiente','enviado')
-                ->get();
-
-                if(count($query_2)<=0)
-                    return "no existe productos a sociados con la venta";
-
-                
-                $dato_activador=0;
-                 foreach ($query_2 as $key => $v) {
-                $almacenIngreso = DB::table('alm__ingreso_producto as ai')
-                ->join('alm__almacens as aa', 'ai.idalmacen', '=', 'aa.id')
-                ->where('ai.id', '=', $v->id_ingreso)
-                ->where('aa.codigo', '=', $v->codigo_tienda_almacen)
-                ->select('ai.id as id', 'aa.codigo as codigo')
-                ->first();
-                $tinedaIngreso = DB::table('tda__ingreso_productos as ti')
-                ->join('tda__tiendas as tt', 'ti.idtienda', '=', 'tt.idsucursal')
-                ->where('ti.id', '=', $v->id_ingreso)
-                ->where('tt.codigo', '=', $v->codigo_tienda_almacen)
-                ->select('ti.id as id', 'tt.codigo as codigo')
-                ->first();
-                    if($almacenIngreso!=null){
-
-                    }
-
-
-                    
-                 }
-            
-
-
-
-               
-              
-            //recibo---
-            if ($request->dosificacion_o_electronica==0&&$request->tipo_venta_reci_fac=="RECIBO") {
-                $eliminar = Ven_GestorVentaVista::findOrFail($request->id);
-                $eliminar->anulado=1;
-                $eliminar->save(); 
-                $now = Carbon::now();
-         //   DB::table('par__asignacion_descuento')->truncate();
-            $datos = [
-                'id_modulo' => $request->id_modulo,
-                'id_sub_modulo' => $request->id_sub_modulo,
-                'accion' => 2,
-                'descripcion' => $request->des,          
-                'user_id' =>auth()->user()->id, 
-                'created_at'=>$now,
-                'id_movimiento'=>$request->id        
-            ];
-        
-            DB::table('log__sistema')->insert($datos);   
-            } else {
-                    if ($request->dosificacion_o_electronica==1&&$request->tipo_venta_reci_fac=="FACTURA") {
-                       //*************************************************** */
-                        dd("factura electronica");
-                    } else {
-                        if ($request->dosificacion_o_electronica==2&&$request->tipo_venta_reci_fac=="FACTURA"){
-                            $eliminar = Ven_GestorVentaVista::findOrFail($request->id);
-                            $eliminar->anulado=1;
-                            $eliminar->save(); 
-
-                            $now = Carbon::now();
-                            DB::table('ven__factura_dosi')->where('id_venta', $request->id)->update(['estado_factura' => 1]);
-    
-                        $datos = [
-                            'id_modulo' => $request->id_modulo,
-                            'id_sub_modulo' => $request->id_sub_modulo,
-                            'accion' => 2,
-                            'descripcion' => $request->des,          
-                            'user_id' =>auth()->user()->id, 
-                            'created_at'=>$now,
-                            'id_movimiento'=>$request->id        
-                        ];
-                    
-                        DB::table('log__sistema')->insert($datos);                          
-                        }else{
-                            dd("error... de ingreso de dosificacion_o_electronica,tipo_venta_reci_fac");
-                        }
-                    }
-                }
-                  
+               return response()->json([
+            'msn' => "Accion realizada con exito",
+            'error' => 0,
+        ]);
            
         } catch (\Throwable $th) {
-           // DB::rollback();
-            return response()->json(['error' => $th->getMessage()],500);
+           DB::rollback();
+            return response()->json([
+            'msn' => $th,
+            'error' => 1,
+        ]);
         }    
     }
 
