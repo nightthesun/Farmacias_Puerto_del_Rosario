@@ -48,6 +48,7 @@ class DatabaseSeeder extends Seeder
             'siat__configuracions',
             'siat__endpoints',
             'ven_metodo_pago',
+            'siat__sincronizacions'
         ]);
 
         $seeders = [
@@ -88,6 +89,7 @@ class DatabaseSeeder extends Seeder
             SiatConfiguracion::class,
             SiatEndpontSeeder::class, 
             VenMetodoPagoSeeder::class,
+            AutoSincronizacionComplemento::class,
         ];
  
         foreach ($seeders as $seeder) {

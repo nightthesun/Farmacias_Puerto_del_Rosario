@@ -18,6 +18,16 @@ class SiatSincronizacionController extends Controller
         
     }
 
+    public function getDetalleSincro(){
+        try {
+            
+          $data = DB::table('siat__sincronizacions')->select('*')->get();
+            return $data;
+        } catch (\Throwable $th) {
+            return $th;
+        }
+    }
+
     public function iniciarAutomatizacion(Request $request){
         try {
             $tareaActiva = DB::table('auto__sincronizacion')->where('id', 1)->first();
@@ -116,16 +126,16 @@ class SiatSincronizacionController extends Controller
 
    public function cambiarConfiguracion(Request $request){
     try {
+           DB::beginTransaction();
+       
+           $array=$request->array;
         if ($request->frecuencia_a==1) {
             $datos = [
                 'hora' => $request->hora_a,
                 'frecuencia' => $request->frecuencia_a,
                 'intentos' => $request->intentos,
                 'intervalo_min' => $request->intervalo_min,
-                'fecha_siguiente' => null,
-                'fecha_ini' => null,
-                'activacionCufd' => $request->activacionCufd,
-                'hora_cufd' => $request->hora_cufd,          
+                 'intervalo_seg' => $request->intervalo_seg,       
             ];   
         } else {
             $now = Carbon::now();          
@@ -135,19 +145,30 @@ class SiatSincronizacionController extends Controller
                 'frecuencia' => $request->frecuencia_a,
                 'intentos' => $request->intentos,
                 'intervalo_min' => $request->intervalo_min,
-                'fecha_siguiente' => $nuevaFecha,
-                'fecha_ini' => $now, 
-                'activacionCufd' => $request->activacionCufd,
-                'hora_cufd' => $request->hora_cufd,           
+              'intervalo_seg' => $request->intervalo_seg,           
             ];  
         }  
         $a=DB::table('auto__sincronizacion')->where('id', 1)->exists();
-        if ($a) {
-            DB::table('auto__sincronizacion')->where('id', 1)->update($datos);
-            return "1";
+        if ($a) {    
+           
+             
+          
+            foreach ($array as $key => $value) {
+               
+                  $d = [
+                'estado' => $value['estado'],
+                'prioridad' =>  $value['prioridad'],          
+            ];  
+                DB::table('siat__sincronizacions')->where('id', $value['id'])->update($d);
+            }
+            //siat__sincronizacions
+             DB::table('auto__sincronizacion')->where('id', 1)->update($datos);
+             DB::commit();
+            return 0;
         }else{
-            return "0"; 
+            return 1; 
         }
+         DB::commit();
        
     } catch (\Throwable $th) {
         return $th;

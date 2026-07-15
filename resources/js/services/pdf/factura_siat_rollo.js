@@ -9,11 +9,18 @@ pdfMake.vfs = pdfFonts.vfs;
 export function generarPDF_factura_rollo(direccionMayusculas,nomsucursal,nuevoComprobante,fecha,hora,num_documento,nom_a_facturar,array_recibo,
                       total_sin_des,descuento_venta,total_venta,efectivo_venta,cambio_venta,fechaMas7Dias,numero_referencia,nombreCompleto_1,
                       nombre_empresa,actividad_economica,num_auto,cod_autorizacion,fecha_e_2,ciudad_su_1,departamento_su_1,numero_factura,cliente_id,
-                      descuento_final_2,total_literal,nit_2,tipo_venta_1,monto_vale_1,monto_apagar_1,credito_fiscal,leyenda,puntoVenta,url_qr,ambiente,factura_,montoGiftCard,moneda) {
+                      descuento_final_2,total_literal,nit_2,tipo_venta_1,monto_vale_1,monto_apagar_1,credito_fiscal,leyenda,puntoVenta,url_qr,ambiente,factura_,montoGiftCard,moneda,anulado) {
           try {
-            let watermark = {};      
+         
+            let watermark = {};   
+           
       if (ambiente===2) { // Aquí puedes poner tu condición
   watermark = { text: 'SIN VALOR LEGAL', color: 'red', angle: -65, opacity: 0.3, bold: true, italics: false, fontSize: 30 };
+}
+  
+ let watermark_2 = {};    
+if (anulado==1) {
+   watermark_2 = { text: 'ANULADO', color: 'red', angle: 65, opacity: 0.3, bold: true, italics: false, fontSize: 30 };
 }
               if (montoGiftCard===0) {
                         montoGiftCard="0.00";
@@ -259,6 +266,7 @@ export function generarPDF_factura_rollo(direccionMayusculas,nomsucursal,nuevoCo
       
         ],
          watermark: watermark, // Agrega la marca de agua condicionalmente
+         watermark_2:watermark_2,
         styles: {
             linea_2: {
                 fontSize: 9,

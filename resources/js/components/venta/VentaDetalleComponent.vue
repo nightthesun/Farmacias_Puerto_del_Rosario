@@ -1535,15 +1535,47 @@ listarDetalle_producto_x(id,tipo_per_emp) {
         },
 
       
-        detalleVentaSiat(id_venta,recibo_ticket_plana,departamento,ciudad){
+        detalleVentaSiat(id_venta,recibo_ticket_plana,departamento,ciudad,direccionMayusculas,
+          fecha_formateada,hora_formateada
+        ){
           let me=this;      
           const url = "/detalle_venta_2/re_imprecion_siat?id_venta="+id_venta;
             axios
                 .get(url)
                 .then(function (response) {
-                    const respuesta = response.data;   
-                    console.log(respuesta);                                       
-                                  
+                    const respuesta = response.data;
+                    let detalle_venta = respuesta.detalle_venta;
+                    let error = respuesta.error;
+                    let msn = respuesta.msn;
+                    let total_literal = respuesta.total_literal;
+                    let venta = respuesta.venta;
+                    let empresa =respuesta.empresa;
+                    let data_siat =respuesta.data_siat;      
+                    let descuento_final_2= respuesta.descuento_detalle_venta; 
+                    let qr= respuesta.qr;   
+                    let credito_fiscal = respuesta.credito_fiscal;
+                    let factura_ =respuesta.factura_;
+                    if (error==1) {
+                           Swal.fire("Error"," "+msn,"error");
+                           return;
+                    }
+                    let total_venta=parseInt(venta.total_venta);
+                    let efectivo_venta=parseInt(venta.efectivo_venta); 
+                    if (recibo_ticket_plana==1) {
+                      const res=   generarPDF_factura_rollo(direccionMayusculas,venta.nom_suc,0,fecha_formateada,hora_formateada,venta.nro_doc,venta.nom_facturar,detalle_venta,
+                      venta.total_sin_des,venta.descuento_venta,total_venta,efectivo_venta,venta.cambio_venta,"00/00/00",empresa.nro_celular,"0",                      empresa.nom_empresa,0,venta.cod_auto,venta.cod_auto,"00/00/00",ciudad,departamento,venta.numFactura,venta.id_cliente,
+                      descuento_final_2,total_literal,empresa.nit,0,0,0,credito_fiscal,venta.leyenda,venta.punto_venta,qr,data_siat.tipo_ambiente,factura_,venta.git_card,venta.simbolo,venta.anulado);  
+                       return res; 
+                    
+                      }
+                    if (recibo_ticket_plana==2) {
+                       const res_2=   generarPDF_factura_a4(direccionMayusculas,venta.nom_suc,0,fecha_formateada,hora_formateada,venta.nro_doc,venta.nom_facturar,detalle_venta,
+                      venta.total_sin_des,venta.descuento_venta,total_venta,efectivo_venta,venta.cambio_venta,"00/00/00",empresa.nro_celular,"0",                      empresa.nom_empresa,0,venta.cod_auto,venta.cod_auto,"00/00/00",ciudad,departamento,venta.numFactura,venta.id_cliente,
+                      descuento_final_2,total_literal,empresa.nit,0,0,0,credito_fiscal,venta.leyenda,venta.punto_venta,qr,data_siat.tipo_ambiente,factura_,venta.git_card,venta.simbolo,venta.anulado);  
+                       return res_2;
+                      
+                    }
+                    console.log(res);              
                 })
                 .catch(function (error) {
                     error401(error);
@@ -1783,7 +1815,7 @@ switch (data.tipo_venta) {
                     return ;
                   }
                   if (data.tipo_venta_reci_fac==="FACTURA"&&data.dosificacion_o_electronica===3) {
-                    me.detalleVentaSiat(data.id,me.recibo_ticket_plana,data.departamento,data.ciudad);                    
+                    me.detalleVentaSiat(data.id,me.recibo_ticket_plana,data.departamento,data.ciudad,data.direccion,data.fecha_formateada,data.hora_formateada);                    
                     return ;
                   }
 
@@ -1830,7 +1862,7 @@ switch (data.tipo_venta) {
                   return;  
                   } 
                    if (data.tipo_venta_reci_fac==="FACTURA"&&data.dosificacion_o_electronica===3) {
-                   me.detalleVentaSiat(data.id,me.recibo_ticket_plana,data.departamento,data.ciudad);                   
+                   me.detalleVentaSiat(data.id,me.recibo_ticket_plana,data.departamento,data.ciudad,data.direccion,data.fecha_formateada,data.hora_formateada);                   
                     return ;
                   }
 

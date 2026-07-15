@@ -5,9 +5,14 @@ import pdfFonts from 'pdfmake/build/vfs_fonts';
 //pdfMake.vfs = pdfFonts.pdfMake.vfs;
 pdfMake.vfs = pdfFonts.vfs;
 
-export function  generarPDF_recibo(direccionMayusculas,nomsucursal,nuevoComprobante,fecha,hora,num_documento,nom_a_facturar,array_recibo,total_sin_des,descuento_venta,total_venta,efectivo_venta,cambio_venta,fechaMas7Dias,numero_referencia,nombreCompleto_1,nombre_empresa,tipo_venta_1,monto_vale_1,monto_apagar_1) {
+export function  generarPDF_recibo(direccionMayusculas,nomsucursal,nuevoComprobante,fecha,hora,num_documento,nom_a_facturar,array_recibo,total_sin_des,descuento_venta,total_venta,efectivo_venta,cambio_venta,fechaMas7Dias,numero_referencia,nombreCompleto_1,nombre_empresa,tipo_venta_1,monto_vale_1,monto_apagar_1,anulado) {
       // Define el contenido del PDF
 try {
+
+   let watermark = {};    
+if (anulado==1) {
+   watermark = { text: 'ANULADO', color: 'red', angle: 65, opacity: 0.3, bold: true, italics: false, fontSize: 30 };
+}
     // Crea el cuerpo de la tabla dinámicamente
  const tableBody = [
     // Agrega los encabezados de la tabla
@@ -173,6 +178,7 @@ try {
       },
       
         ],
+           watermark: watermark, // Agrega la marca de agua condicionalmente
         styles: {
           header: {
             fontSize: 7,

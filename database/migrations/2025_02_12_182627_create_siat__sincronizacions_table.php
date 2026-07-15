@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('siat__sincronizacions', function (Blueprint $table) {
             $table->id();
-            $table->tinyInteger('tipo_sincronizacion')->comment('1=manual 2=automatico');
-            $table->smallInteger('id_sucursal_siat');           
-            $table->string('estado');
+            $table->string('descripcion',200)->comment('nombre de la accion');
+            $table->tinyInteger('estado')->comment('0 deactivado 1 activado');           
+            $table->tinyInteger('prioridad')->comment('1 primero , 2 segundo , 3 tercero');
             $table->timestamps();
         });
     }

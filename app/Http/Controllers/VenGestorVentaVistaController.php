@@ -11,6 +11,8 @@ use App\Helpers\converso_numero_a_texto;
 use App\Models\Alm_IngresoProducto;
 use App\Models\Inv_AjustePositivo;
 use App\Models\Tda_IngresoProducto;
+use Illuminate\Database\Schema\IndexDefinition;
+use Ramsey\Uuid\Type\Integer;
 
 class VenGestorVentaVistaController extends Controller
 {
@@ -652,4 +654,230 @@ if (auth()->user()->super_usuario == 0) {
         ]);
     }
    
+
+    public function get_data_factura_siat(Request $request){
+
+    try {
+        $id_catalogo=2;
+        $id_catalogo_3=3;
+        $id_catalogo_2=11;
+        $idVenta=$request->id_venta;
+      
+           $venta = DB::table('ven__recibos as r')
+           ->select('s.direccion as dir_suc','s.razon_social as nom_suc',
+            'f.fechaEmision','r.nro_doc','r.razon_social as nom_facturar',
+            'r.total_sin_des','r.descuento_venta','r.total_venta','f.cuf as cod_auto',
+            'f.numFactura','r.efectivo_venta','r.cambio_venta','r.id_cliente',
+            'f.tipoFacturaDoc','f.id_leyenda','f.punto_venta','f.sucursal_siat','r.monto_vale as git_card',
+            'n.simbolo','r.anulado','e.descripcion as nom_tipofacturaDocumento','ee.descripcion as leyenda','eee.descripcion as tipoEmision')
+           ->join('ven__factura_siat as f', 'r.id','=','f.id_venta')
+           ->join('adm__sucursals as s', 's.id','=','r.id_sucursal')   
+            ->leftJoin('adm__nacionalidads as n', 'n.id','=','r.moneda')           
+    ->leftJoin('excel__emision as e', function ($join) use ($id_catalogo) {
+        $join->on('e.codigo', '=', 'f.tipoFacturaDoc')
+             ->where('e.id_catalogo', '=', $id_catalogo);
+    })
+    ->leftJoin('excel__emision as ee', function ($join) use ($id_catalogo_2) {
+        $join->on('ee.codigo', '=', 'f.tipoFacturaDoc')
+             ->where('ee.id_catalogo', '=', $id_catalogo_2);
+    })
+    ->leftJoin('excel__emision as eee', function ($join) use ($id_catalogo_3) {
+        $join->on('eee.codigo', '=', 'f.codSector')
+             ->where('eee.id_catalogo', '=', $id_catalogo_3);
+    })
+    ->where('r.id',$idVenta)
+    ->first();
+
+    if ($venta==null) {
+        return response()->json([
+            'error' => 1,
+            'msn' => "no existe la venta",
+            'total_literal' =>'cero',
+            'venta'=> null,
+            'detalle_venta'=>null,
+             'empresa'=> null,
+            'data_siat'=> null,
+            'descuento_detalle_venta'=>0,
+            'qr'=>null,
+            'credito_fiscal' => null,
+            'factura_' => null
+        ]);
+    }
+ 
+
+      $detalle_venta = DB::table('ven__detalle_ventas as vd')
+            ->select(
+                'vd.id_venta as id',
+                'vd.cantidad_venta as cant',
+                DB::raw("
+                    CASE 
+                        WHEN tip.envase = 'primario' THEN CONCAT(
+                            UPPER(COALESCE(pp.nombre, '')), ' ', 
+                            UPPER(COALESCE(pd_1.nombre, '')), ' X ', 
+                            COALESCE(pp.cantidadprimario, ''), ' ', 
+                            UPPER(COALESCE(ff_1.nombre, ''))
+                        ) 
+                        WHEN tip.envase = 'secundario' THEN CONCAT(
+                            UPPER(COALESCE(pp.nombre, '')), ' ', 
+                            UPPER(COALESCE(pd_2.nombre, '')), ' X ', 
+                            COALESCE(pp.cantidadsecundario, ''), ' ', 
+                            UPPER(COALESCE(ff_2.nombre, ''))
+                        ) 
+                        WHEN tip.envase = 'terciario' THEN CONCAT(
+                            UPPER(COALESCE(pp.nombre, '')), ' ', 
+                            UPPER(COALESCE(pd_3.nombre, '')), ' X ', 
+                            COALESCE(pp.cantidadterciario, ''), ' ', 
+                            UPPER(COALESCE(ff_3.nombre, ''))
+                        ) 
+                        ELSE NULL 
+                    END AS descrip
+                "),
+                DB::raw("
+             CASE 
+                    WHEN tip.envase = 'primario' THEN UPPER(CONCAT(COALESCE(ff_1.nombre, '')))
+                    WHEN tip.envase = 'secundario' THEN UPPER(CONCAT(COALESCE(ff_2.nombre, '')))
+                    WHEN tip.envase = 'terciario' THEN UPPER(CONCAT(COALESCE(ff_3.nombre, '')))
+                    ELSE NULL
+                END AS unidad_medida
+             "), 
+                'vd.precio_venta as p_u',
+                DB::raw('(vd.cantidad_venta * vd.precio_venta) as tot'),
+                'pp.codigo as cod_prod',
+                DB::raw("DATE_FORMAT(tip.fecha_vencimiento, '%d/%m/%Y') as fecha_vencimiento"),
+              
+                'tip.lote',
+                'pl.nombre as linea_nombre',
+                'vd.descuento as descuento',
+                'vd.id_detalle_descuento as id_detalle_descuento'
+
+            )
+            ->join('prod__productos as pp', 'vd.id_producto', '=', 'pp.id')
+            
+            ->join('prod__lineas as pl','pp.idlinea','=','pl.id')
+            ->join('tda__ingreso_productos as tip', 'tip.id', '=', 'vd.id_ingreso')
+            ->leftJoin('prod__dispensers as pd_1', 'pd_1.id', '=', 'pp.iddispenserprimario')
+            ->leftJoin('prod__dispensers as pd_2', 'pd_2.id', '=', 'pp.iddispensersecundario')
+            ->leftJoin('prod__dispensers as pd_3', 'pd_3.id', '=', 'pp.iddispenserterciario')
+            ->leftJoin('prod__forma_farmaceuticas as ff_1', 'ff_1.id', '=', 'pp.idformafarmaceuticaprimario')
+            ->leftJoin('prod__forma_farmaceuticas as ff_2', 'ff_2.id', '=', 'pp.idformafarmaceuticasecundario')
+            ->leftJoin('prod__forma_farmaceuticas as ff_3', 'ff_3.id', '=', 'pp.idformafarmaceuticaterciario')
+            ->where('vd.id_venta', $idVenta)
+            ->get();
+
+            if (count($detalle_venta)<=0) {
+                return response()->json([
+            'error' => 1,
+            'msn' => "no exite detalle de venta",
+            'total_literal' =>'cero',
+            'venta'=> null,
+            'detalle_venta'=>null,
+             'empresa'=> null,
+            'data_siat'=> null,
+            'descuento_detalle_venta'=>0,
+            'qr'=>null,
+            'credito_fiscal' => null,
+            'factura_' => null
+        ]);
+            }
+    $descuento_detalle_venta =0;
+    foreach ($detalle_venta as $key => $value) {
+        $descuento_detalle_venta = $descuento_detalle_venta+$value->descuento;
+    }
+
+  $total_literal = converso_numero_a_texto::convertirNumeroATexto($venta->total_venta);
+
+    $data_emp =  DB::table('adm__credecial_correos')
+        ->select('nro_celular','nit','nom_empresa')    
+        ->where('id', 1)
+        ->first();
+        if($data_emp==null){
+    return response()->json([
+            'error' => 1,
+            'msn' => "no existe datos en la tabla de credenciales",
+            'total_literal' =>'cero',
+            'venta'=> null,
+            'detalle_venta'=>null,
+             'empresa'=> null,
+            'data_siat'=> null,
+            'descuento_detalle_venta'=>0,
+            'qr'=>null,
+            'credito_fiscal' => null,
+            'factura_' => null
+        ]);
+        }
+
+        $data_siat =  DB::table('siat__configuracions')
+        ->select('tipo_ambiente','url_QR','tipo_modalidad')    
+        ->where('id', 1)
+        ->first();
+        if($data_siat==null){
+    return response()->json([
+            'error' => 1,
+            'msn' => "no existe datos en la tabla de configuracion",
+            'total_literal' =>'cero',
+            'venta'=> null,
+            'detalle_venta'=>null,
+             'empresa'=> null,
+            'data_siat'=> null,
+            'descuento_detalle_venta'=>0,          
+            'qr'=>null,
+            'credito_fiscal' => null,
+            'factura_' => null
+        ]);
+        }
+ //  https://pilotosiat.impuestos.gob.bo/consulta/QR?nit={nit_emisor}&cuf={cuf}&numero={nro_factura}&t={formato 1=rollo/ 2= A4 carta default= 2}    
+$t_xd=2;
+$url_xd=$data_siat->url_QR;
+$numeroDocumento = $venta->nro_doc;
+$num_auto=$venta->cod_auto;
+$numeroFactura=$venta->numFactura;
+$url = str_replace(
+    ['{nit_emisor}', '{cuf}', '{nro_factura}','{formato 1=rollo/ 2= A4 carta default= 2}'],
+    [$numeroDocumento, $num_auto, $numeroFactura, $t_xd],
+    $url_xd
+);
+
+        $texto = $venta->nom_tipofacturaDocumento;
+        $resultado = str_replace("FACTURA", "", strtoupper($texto));
+
+         $texto_2= strtoupper($venta->tipoEmision);
+        if ($texto_2=="FACTURA COMPRA-VENTA"|| "FACTURA COMPRA VENTA" || "COMPRA-VENTA" || "COMPRA VENTA") {
+           $cadena_2="FACTURA";
+        }else{
+            $cadena_2=$texto_2;
+        }
+
+return response()->json([
+            'error' => 0,
+            'msn' => "Sin problema",
+            'total_literal' =>$total_literal,
+            'venta'=> $venta,
+            'detalle_venta'=> $detalle_venta,
+            'empresa'=> $data_emp,
+            'data_siat'=>$data_siat,
+            'descuento_detalle_venta'=>$descuento_detalle_venta,
+            'qr'=>$url,
+            'credito_fiscal' => $resultado,
+            'factura_' => $cadena_2
+        ]);
+
+
+         
+    } catch (\Throwable $th) {
+      return response()->json([
+            'error' => 1,
+            'msn' => $th,
+            'total_literal' =>'cero',
+            'venta'=> null,
+            'detalle_venta'=>null,
+            'empresa'=> null,
+            'data_siat'=> null,
+            'descuento_detalle_venta'=>0,
+            'qr'=>null,
+            'credito_fiscal' => null,
+            'factura_' => null
+        ]);
+    }
+
+    }
 }

@@ -166,7 +166,7 @@
                                  </div> 
                                  <div class="form-group col-sm-3">
                                     <button  v-if="evento_manual_automatico===0" @click="abrirModal('manual'); listar_emisor_v()" type="button" class="btn btn-success btn-sm btn-block" style="color: white;"><i class="fa fa-hand-paper-o" aria-hidden="true"></i> Sincronización manual</button>
-                                    <button  v-else-if="evento_manual_automatico===1" @click="abrirModal('auto_v'); listarAuto_sicro() " type="button" class="btn btn-warning btn-sm btn-block" style="color: white;"><i class="fa fa-simplybuilt" aria-hidden="true"></i> Sincronización automatico</button>
+                                    <button  v-else-if="evento_manual_automatico===1" @click="abrirModal('auto_v'); listarAuto_sicro();listarDetalleSincro() " type="button" class="btn btn-warning btn-sm btn-block" style="color: white;"><i class="fa fa-simplybuilt" aria-hidden="true"></i> Sincronización automatico</button>
                                 </div>   
                                 </div>    
                                
@@ -313,7 +313,7 @@
             </div>
      </transition>                   
 
-        <!--fin del modal-->ººººº-
+        <!--fin del modal-->
         <!--Inicio del modal AUTOMATICO-->
          <transition name="fade">
             <div v-if="showModal_2" class="modal d-block" tabindex="-1" role="dialog">
@@ -331,16 +331,17 @@
                             <table class="table table-bordered table-striped table-sm table-responsive" >
                 <thead>
                     <tr>
-                        <th class="col-md-3">Hora de sincronización</th>
-                        <th class="col-md-3">Frecuencia para la sincronización</th>
-                        <th class="col-md-3">Cantidad de intentos</th>
-                        <th class="col-md-3">Intervalo de tiempo para los intentos en minutos:</th>                             
+                        <th class="col-md-2">Hora de sincronización</th>
+                        <th class="col-md-2">Frecuencia para la sincronización</th>
+                        <th class="col-md-2">Cantidad de intentos</th>
+                        <th class="col-md-3">Intervalo de tiempo para los intentos en minutos:</th> 
+                        <th class="col-md-3">Tiempo de espera en segundos:</th>                               
                     </tr>
                 </thead>
                 <tbody>
                         <tr>
-                            <td class="col-md-3"><input  type="time" class="form-control" v-model="hora_a"></td>
-                            <td class="col-md-3">
+                            <td class="col-md-2"><input  type="time" class="form-control" v-model="hora_a"></td>
+                            <td class="col-md-2">
                                 <select  class="form-control"  v-model="frecuencia_a">
                                             <option value="0" disabled selected>Seleccionar...</option>
                                             <option value="1">Ejecutar todos los días</option>
@@ -349,28 +350,38 @@
                                             <option value="4">Ejecutar cada trimestre el día 1</option>                                                                                                                          
                                 </select>
                             </td>
-                            <td class="col-md-3"><input  type="text" class="form-control" v-model="intentos" @keypress="onlyNumbers($event)"></td>
+                            <td class="col-md-2"><input  type="text" class="form-control" v-model="intentos" @keypress="onlyNumbers($event)"></td>
                             <td class="col-md-3"><input  type="text" class="form-control" v-model="intervalo_min" @keypress="onlyNumbers($event)"></td>
+                              <td class="col-md-3"><input  type="text" class="form-control" v-model="intervalo_seg" @keypress="onlyNumbers($event)"></td>
                         </tr>
                 </tbody>
                 </table> 
                 <table class="table table-bordered table-striped table-sm table-responsive" >
                 <thead>
                     <tr>
-                        <th class="col-md-3">Hora de sincronización</th>
-                        <th class="col-md-3">Activar automatización cufd</th>
-                                 
+                        <th class="col-md-2">Identificador</th>
+                        <th class="col-md-4">Descripción</th>
+                        <th class="col-md-3">Estado</th>
+                        <th class="col-md-3">Prioridad</th>
                     </tr>
                 </thead>
                 <tbody>
-                        <tr>
-                            <td class="col-md-3"><input  type="time" class="form-control" v-model="hora_cufd"></td>
+                        <tr v-for="(i, index) in arrayDetalleSincro" :key="index">
+                            <td class="col-md-2">{{i.id}}</td>
+                            <td class="col-md-4">{{i.descripcion}}</td>
                             <td class="col-md-3">
-                                <select  class="form-control"  v-model="activacionCufd">
-                                            <option value="2" disabled selected>Seleccionar...</option>
-                                            <option value="1">Activar</option>
-                                            <option value="0">Desactivar</option>
-                                                                                                                                                                     
+                                  <select  class="form-control" v-model="i.estado">
+                                            <option value=2 disabled selected>Seleccionar...</option>
+                                            <option value=1>Activar</option>
+                                            <option value=0>Desactivar</option>                                                                                                                                                                     
+                                </select>
+                            </td>
+                            <td class="col-md-3">
+                                <select  class="form-control" v-model="i.prioridad">
+                                            <option value=0 disabled selected>Seleccionar...</option>
+                                            <option value=1>Primero</option>
+                                            <option value=2>Segundo</option>
+                                            <option value=3>Tercero</option>                                                                                                                                                                     
                                 </select>
                             </td>
                            
@@ -458,15 +469,21 @@ export default {
                 hora_a:"",
                 intentos:0,
                 intervalo_min:0,
+                intervalo_seg:0,
 
                 arrayInicio:[],
 
-                hora_cufd:'',
-                activacionCufd:'2',
+              
+                
 
                 selectFacturaMostrar:'0',
 
                 tipoFactura_2:'0',
+
+
+                arrayDetalleSincro:[],
+               
+                arraySelectorPrioridad: [{ id: 0, data: "0" },{ id: 1, data: "0" },{ id: 2, data: "0" },{ id: 3, data: "0" }],
 
         };
     },
@@ -954,6 +971,7 @@ if (data===1) {
                 me.tipoAccion=1;
                 me.tituloModal="";
                         me.showModal_2 = false;
+                      me.arrayDetalleSincro=[];  
                 me.classModal.closeModal(accion);
             }
         },
@@ -964,35 +982,73 @@ if (data===1) {
         verificarComunicacion(){
             
         },
-        
+
         cambiarSicronizacion(){
-            let me = this;         
+            let me = this;      
+            let contador_1=0;
+            let contador_2=0;
+            let contador_3=0;   
+                me.arrayDetalleSincro.forEach(e => {
+                      if (e.prioridad===1) {
+                        contador_1++;
+                      }
+                      if (e.prioridad===2) {
+                        contador_2++;
+                      }
+                      if (e.prioridad===3) {
+                        contador_3++;
+                      }  
+                });
+                if (contador_1>=2||contador_1>=2||contador_1>=2) {
+                      Swal.fire("Error!","solo puede haber una prioridad por seleccion es decir solo puede haber un primero,segundo y tercero no se puede repetir","error",);  
+                    return ;
+                    }
                 axios.put("/siat_sincronizacion/cambiarConfiguracion", {                      
                     frecuencia_a:me.frecuencia_a,
                     hora_a:me.hora_a,
                     intentos:me.intentos,
-                    intervalo_min:me.intervalo_min,  
-                    hora_cufd:me.hora_cufd,
-                    activacionCufd:me.activacionCufd,           
+                    intervalo_min:me.intervalo_min,                 
+                 
+                    intervalo_seg:me.intervalo_seg,
+                    array:me.arrayDetalleSincro          
                 })
                 .then(function (response) {
                  //   me.listarIndexEndPoint(); 
                     let respuesta=response.data; 
-                              
-                    if (respuesta==="0") {
-                        me.cerrarModal('auto_v');
-                        Swal.fire("Error!","no exite la tabla con ese ID","error",);    
-                    } else {        
-                        me.cerrarModal('auto_v');                
-                        me.listarAuto_sicro();
-                        Swal.fire("Activacion y actualización","Correctamente","success",); 
+                    console.log(respuesta);
+                         me.cerrarModal('auto_v');           
+                    if (respuesta===0) {
+                      me.listarAuto_sicro();
+                        Swal.fire("Activacion y actualización","Correctamente","success",);                     
+                    } else {                                        
+                         Swal.fire("Error!"," "+respuesta,"error",);  
                     }
                                                     
                 })               
                 .catch(function (error) {                
          error401(error);             
             }); 
-        },    
+        },   
+
+        
+        listarDetalleSincro(){
+            let me=this;  
+                 var url='/siat_sincronizacion/listarDetalleSincro';                        
+                axios.get(url)
+                .then(function(response){
+                    var respuesta = response.data;
+                    me.arrayDetalleSincro=respuesta;
+                    console.log(respuesta);
+                          
+                })
+                .catch(function(error){
+                    error401(error);
+                }); 
+        },
+
+      
+        
+       
         
         sinCronizacion(){
             let me=this;
@@ -1038,8 +1094,7 @@ if (data===1) {
                     me.intervalo_min=respuesta.intervalo_min;
                     me.id_estado=respuesta.activo;
                     me.evento_manual_automatico=respuesta.activo;
-                    me.hora_cufd=respuesta.hora_cufd,
-                    me.activacionCufd=respuesta.activacionCufd          
+                   me.intervalo_seg=respuesta.intervalo_seg;        
                 })
                 .catch(function(error){
                     error401(error);
@@ -1335,6 +1390,7 @@ insertar_cufd(codigo_siat,cuis,id,id_emisor,cufd){
         this.classModal.addModal("manual");
         this.classModal.addModal("auto_v");
         this.listarAuto_sicro();
+        this.listarDetalleSincro();
     
     },
 };
