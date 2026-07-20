@@ -9,7 +9,7 @@ use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Models\Siat_Paramatros_sincronizacion;
-
+use PharData;
 
 class Kernel extends ConsoleKernel
 {
@@ -22,8 +22,7 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-
-        
+      
 
         $tablaSincro_S=DB::table('log__sincro_ges_stock')->where('id', 1)->first();
       
@@ -89,7 +88,7 @@ class Kernel extends ConsoleKernel
                 break;
             default:
                 Log::info("Frecuencia no válida.");
-        }       
+        }      
  
         }
 
@@ -102,14 +101,14 @@ class Kernel extends ConsoleKernel
         $intervalo_seg=$tareaActiva->intervalo_seg;
 
         if ($tareaActiva && $tareaActiva->activo == 1) {
-                 $datos_1 = DB::table('siat__configuracions')->where('id', 1)->first();
+                $datos_1 = DB::table('siat__configuracions')->where('id', 1)->first();
                 $datos_2 = DB::table('adm__credecial_correos')->where('id', 1)->first();  
                     $configuracion = DB::table('siat__emisors as s')
                     ->join('siat__sucursals as ss', 'ss.id', '=', 's.id_siat_sucursal')
                     ->join('siat__cuis as c', 'c.id', '=', 's.id_cuis')
                     ->join('siat__cufd as cc', 'cc.id', '=', 's.id_cufd')
                     ->where('s.estado', 1)->where('c.estado', 1)->where('cc.estado', 1)
-                    ->where('s.punto_venta_eliminado', 1)->where('c.delete', 0)                    
+                    ->where('s.punto_venta_eliminado', 1)->where('s.delete', 0)                    
                     ->select('s.id','s.nombre as nombre_emisor','s.id_punto_venta as punto_venta','ss.nombre_suc_siat','ss.codigo_siat','c.dato as cuf','cc.dato as cufd','cc.id as id_cufd')->get();
                 
             
@@ -2291,10 +2290,135 @@ if ($transaccion && isset($transaccion[0])) {
     }
 
 
-    private function sendContingencia($id_factura_siat,$descripcion_contigencia,$fin_fecha,$id_cufd,$codigoSucursal,$codigoPuntoVenta,
-    $ini_fecha,$id_siat_sucursal,$factura_codSector,$zip_factura,$factura_tipo_emision,$modalidad
+    private function registroEventoSignificativo($fecha_fin,$fecha_ini,$codigoMotivoEvento
+    ,$id_sucursal,$codigoPuntoVenta,$contingencia_descripcion,$codigoAmbiente,$id_emisor
+    ,$codigoSistema,$codigoSucursal,$tokenDelegado,$endPointsUrl,$cufd,$cuis,$nit
     ){
 
+    try {
+                DB::beginTransaction();
+                 
+              $fechaHoraFinEvento = Carbon::parse($fecha_fin)->format('Y-m-d\TH:i:s.v');
+               $fechaHoraInicioEvento = Carbon::parse($fecha_ini)->format('Y-m-d\TH:i:s.v');
+                   
+$descripcion=$contingencia_descripcion;
+        $cadena_url=$endPointsUrl; 
+    
+        $fecha_22 = Carbon::parse($fecha_ini)->format('Y-m-d H:i:s');
+    $cufdAnterior = DB::table('siat__cufd as c')
+    ->select('c.dato as cufd_evento')
+    ->where('c.id_emisor', $id_emisor)
+    ->whereRaw('? BETWEEN c.created_at AND c.fecha_vigencia', [$fecha_22])
+    ->first();
+
+    if (!$cufdAnterior || $cufdAnterior==null) {
+    return [
+        'codigo' => 1,
+        'mensaje' => "No se encontro cufd en ese rango de fecha inicial de evento."
+    ];
+    }
+  $cufdAnterior= $cufdAnterior->cufd_evento;
+         
+        $wsdl = $cadena_url;
+          
+              // Asignación de la URL y API key
+        $apikeyValue = 'TokenApi ' .$tokenDelegado; // Concatenar correctamente el valor del API key
+                // Crear el cuerpo del mensaje SOAP, sustituyendo los valores con los parámetros correspondientes
+          
+        $xmlData = <<<EOD
+         <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:siat="https://siat.impuestos.gob.bo/">
+            <soapenv:Header/>
+            <soapenv:Body>
+               <siat:registroEventoSignificativo>
+                  <SolicitudEventoSignificativo>
+                    <codigoAmbiente>{$codigoAmbiente}</codigoAmbiente>
+                    <codigoMotivoEvento>{$codigoMotivoEvento}</codigoMotivoEvento>
+                    <codigoPuntoVenta>{$codigoPuntoVenta}</codigoPuntoVenta>
+                    <codigoSistema>{$codigoSistema}</codigoSistema>
+                    <codigoSucursal>{$codigoSucursal}</codigoSucursal>
+                    <cufd>{$cufd}</cufd>
+                    <cufdEvento>{$cufdAnterior}</cufdEvento>
+                    <cuis>{$cuis}</cuis>
+                    <descripcion>{$descripcion}</descripcion>
+                    <fechaHoraFinEvento>{$fechaHoraFinEvento}</fechaHoraFinEvento>
+                    <fechaHoraInicioEvento>{$fechaHoraInicioEvento}</fechaHoraInicioEvento>
+                    <nit>{$nit}</nit>
+                  </SolicitudEventoSignificativo>
+               </siat:registroEventoSignificativo>
+            </soapenv:Body>
+         </soapenv:Envelope>
+         EOD;
+
+           $ch = curl_init();            
+                        // Configuración de la solicitud cURL
+                        curl_setopt($ch, CURLOPT_URL, $wsdl); // Reemplaza con el endpoint correcto
+                        curl_setopt($ch, CURLOPT_POST, 1);
+                        curl_setopt($ch, CURLOPT_POSTFIELDS, $xmlData);
+                    
+                        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                            'Content-Type: text/xml; charset=utf-8',
+                            'SOAPAction: ""', // Si el SOAPAction es requerido, inclúyelo aquí
+                            'apikey: ' . $apikeyValue // Incluye la API key con el valor correspondiente
+                        ]);
+                        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            
+                        // Ejecutar la solicitud y obtener la respuesta
+                        $response = curl_exec($ch);
+                       
+                        // Verificar si hubo un error en cURL
+                        if (curl_errno($ch)) {
+                            throw new \Exception(curl_error($ch));
+                        }            
+                        // Cerrar la sesión de cURL
+                        curl_close($ch);
+                if (empty($response)) {
+                    $gzip = gzencode($response);
+                     return [
+        'codigo' => 1,
+        'mensaje' => $gzip
+    ];
+      
+                }
+                
+// Convertir la respuesta en un objeto SimpleXMLElement
+        $xml = simplexml_load_string($response);   
+        $respuesta=$response;
+     
+         // Usar XPath para encontrar el nodo <transaccion>   
+    
+        $transaccion = $xml->xpath('//transaccion');
+         
+        if ($transaccion && isset($transaccion[0])) {
+            if ($transaccion[0]== 'true') {    
+                $codigoRecepcionEventoSignificativo = $xml->xpath('//codigoRecepcionEventoSignificativo');
+                $codigo_1=  html_entity_decode($codigoRecepcionEventoSignificativo[0], ENT_QUOTES, 'UTF-8');
+                $fechaEnvio = Carbon::now('America/La_Paz')->format('Y-m-d\TH:i:s.v');
+
+                DB::commit();
+                return ['codigo' => 0,'mensaje' => $codigo_1];             
+                }else{
+                $gzip = gzencode($respuesta);
+                return ['codigo' => 1,'mensaje' => $gzip];
+            }
+        }else {
+            $gzip = gzencode($respuesta);
+            return ['codigo' => 1,'mensaje' => $gzip];
+        }
+
+//-------- 
+ DB::commit();
+
+    } catch (\Throwable $th) {
+        return $th;
+    }
+    }
+
+    private function sendContingencia($id_factura_siat,$descripcion_contigencia,$fin_fecha,
+    $id_cufd,$codigoSucursal,$codigoPuntoVenta,$ini_fecha,$id_siat_sucursal,$factura_codSector,
+    $zip_factura,$factura_tipo_emision,$modalidad,$tipoFacturaDocumento,
+    $codigoSistema,$codigoAmbiente,$tokenDelegado,$tiempoEspera,$tipoModalidad,
+    $cuf            
+    ){
                  try {
            
          DB::beginTransaction(); 
@@ -2306,13 +2430,10 @@ if ($transaccion && isset($transaccion[0])) {
                 $id_cufd_modal=$id_cufd;        
                 $fechaHoraInicioEvento = Carbon::parse($ini_fecha)->format('Y-m-d\TH:i:s.v');
                 $id_suc_siat=$id_siat_sucursal;
-
-
-
         $codSector=$factura_codSector;       
         $tipo_emision_=$factura_tipo_emision;
-        $modalidad_=$factura_siat->modalidad;
-        $tipoFacturaDoc_=$factura_siat->tipoFacturaDoc;
+        $modalidad_=$modalidad;
+        $tipoFacturaDoc_=$tipoFacturaDocumento;
 
          
 
@@ -2333,20 +2454,16 @@ if ($transaccion && isset($transaccion[0])) {
         $cuis=$query_1->cuis;
         $cufd=$query_1->cufd;
 
-       $query_2 = DB::table('siat__configuracions as e')    
-    ->where('e.id', 1)
-    ->select('e.cod_sis','e.tipo_ambiente','e.token_delegado','e.tiempo_espera','e.tipo_modalidad')
-    ->first();
-    
-    if (!$query_2) {
-        return "La tabla de configuracion no tiene los datos para hacer esta operacion.";
-        }
+   //    $query_2 = DB::table('siat__configuracions as e')    
+   // ->where('e.id', 1)
+   // ->select('e.cod_sis','e.tipo_ambiente','e.token_delegado','e.tiempo_espera','e.tipo_modalidad')
+  //  ->first();
 
-    $codigoSistema=$query_2->cod_sis;
-    $codigoAmbiente=$query_2->tipo_ambiente;
-    $tokenDelegado=$query_2->token_delegado;
-    $tiempoEspera=$query_2->tiempo_espera;
-    $tipoModalidad=$query_2->tipo_modalidad;
+  //   if (!$query_2) {
+   //     return "La tabla de configuracion no tiene los datos para hacer esta operacion.";
+  //      }
+
+    
 
                      
 $tablaCatalogo_siat = DB::table('siat__catalogo_lista_siat as c')
@@ -2384,8 +2501,9 @@ foreach ($escada as $codigo) {
 if ($factura_siat_2==0) {
     return "no existe un codigo a sociado a la tabla emision";
 }
+
  $url_s2=$tablaCatalogo_siat->url;
- $cuf=$factura_siat->cuf;
+ 
 
         $cufdAnterior = DB::table('siat__cufd')
         ->where('id', $id_cufd_modal)
