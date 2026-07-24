@@ -125,12 +125,23 @@
                     <tr v-for="i in arrayIndex" :key="i.id">                    
                         <td class="col-md-1"> 
                             <div  class="d-flex justify-content-start">
-                                <button type="button" class="btn btn-warning" v-if="codigoApertura===1" style="margin-right: 5px; color: whitesmoke;" @click="abrirModal('ver',i);">
+                                <div>
+                                     <button type="button" class="btn btn-warning" v-if="codigoApertura===1" style="margin-right: 5px; color: whitesmoke;" @click="abrirModal('ver',i);">
                                 <i class="fa fa-eye" aria-hidden="true"></i>
                                 </button> 
                                 <button type="button" class="btn btn-light" v-else style="margin-right: 5px; color: black;">
                                 <i class="fa fa-eye" aria-hidden="true"></i>
                                 </button> 
+                                </div>
+                                <div>
+                                     <button type="button" class="btn btn-success" v-if="codigoApertura===1" style="margin-right: 5px; color: whitesmoke;" @click="listarArqueoLista(i);">
+                                <i class="fa fa-low-vision" aria-hidden="true"></i>                               
+                                </button> 
+                                 <button type="button" class="btn btn-light" v-else style="margin-right: 5px; color: black;">
+                                <i class="fa fa-low-vision" aria-hidden="true"></i>
+                                </button> 
+                                </div>
+                               
                                 <button v-if="i.id_apertura_cierre === 0" type="button" class="btn btn-danger" style="margin-right: 5px;" @click="abrirModalCerrar(i);">
                                     <i class="fa fa-lock" aria-hidden="true"></i></button>                             
                                     <button v-else type="button" class="btn btn-light" style="margin-right: 5px;">
@@ -992,6 +1003,96 @@
             </div>
         </transition>  
         <!--fin del modal-->
+                <!--Inicio del modal VER_222-->
+        <transition name="fade">
+            <div v-if="showModal_6" class="modal d-block" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-primary modal-lg modal-dialog-scrollable" role="document">
+
+                    <div class="modal-content">
+                        <div class="modal-header">
+                        <h4 class="modal-title">{{ tituloModal }}</h4>
+                        <button type="button" class="close" @click="cerrarModal('ver_2')">
+                            <span>&times;</span>
+                        </button>
+                        </div>
+
+  <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">                      
+            <table class="table table-bordered table-striped table-sm table-responsive">
+                <thead>
+                    <tr>
+<th colspan="4" style="background-color: green; color: white; text-align: center;" >Registro de arqueo</th>
+                    </tr>
+                    <tr>
+                        
+                        <th>Descripción</th>
+                        <th>Tipo</th>
+                        <th>Cantidad</th>
+                        <th>Operación</th>
+                    </tr>                    
+                </thead>
+                <tbody>
+                    <tr v-for="(i, index) in arrayMonedaDos_v2" :key="index">
+                        <td>{{i.texto_unidad_entera+" "+i.unidad}}</td>
+                        <td style="text-align: right;">{{i.unidad_entera+" "+i.unidad}}</td>
+                        <td style="text-align: right;">{{i.cantidad}}</td>
+                        <td style="text-align: right;">{{i.operacion}}</td>
+                      
+                    </tr>
+                    <tr>
+                        <td colspan="3" style="background-color: burlywood; text-align: end;"><strong>Total arqueo</strong></td>
+                        <td  style="background-color: burlywood; text-align: end;"> <strong>{{total_arqueo_caja_moda_v2+" "+caja_moneda_v2_modal_v2}}</strong></td>
+                    </tr>
+                </tbody>    
+            </table>    
+            <table class="table table-bordered table-striped table-sm table-responsive">
+                <thead>
+                    <tr>
+                    <th style="background-color: orange; color: white; text-align: center;" >Registro de Turno</th>            
+                    </tr>                       
+                </thead>
+            </table>  
+                
+                <div class="row">
+                    <div class="form-group col-sm-6">
+                        <strong>Usuario: {{usuario_cerrar_apertura}}</strong>
+                    </div>
+                    <div class="form-group col-sm-6">
+                        <strong>Fecha/Hora: {{fecha_modal}}</strong>
+                    </div>                    
+                 
+                </div>
+                <div class="row">
+                    <div class="form-group col-sm-6">
+                       <strong>Tuno: {{turno_modal+" - "+tipo_moda_v2}}</strong>
+                    </div>
+                    <div class="form-group col-sm-6">
+                           <strong>Nombre caja: {{caja_nombre_caja_v2}}</strong>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-sm-6">
+                        <strong>Codigo caja: {{caja_codigo_v2}}</strong>
+                    </div>
+                    <div class="form-group col-sm-6">
+                         
+                     <strong style="color: green;">Estado: {{estado_modal}}</strong>
+                    </div>
+                </div>
+     
+                                 
+                    </div>                   
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" @click="cerrarModal('ver_2')">
+                            Cerrar
+                        </button>
+                    </div>
+
+                    </div>
+                </div>
+            </div>
+        </transition>  
+        <!--fin del modal-->
+
         </div>      
      
     </main>
@@ -1122,8 +1223,14 @@ export default {
             showModal_3: false,
             showModal_4: false,
             showModal_5: false,
-
+  showModal_6: false,
             id_modal_:'',
+
+            arrayMonedaDos_v2:[],
+            total_arqueo_caja_moda_v2:0,
+            caja_moneda_v2_modal_v2:'',
+            caja_codigo_v2:'',
+            caja_nombre_caja_v2:'',
 
            
         };
@@ -1824,6 +1931,66 @@ let operacion_apertura = operacion_acciones + monto_cerrar_apertura;
                 });
         },
 
+        listarArqueoLista(data){
+            let me = this;    
+            const id=data.id_arqueo;       
+            var url ="/apertura_cierre/listarArqueoLista?id_arqueo="+id;
+            axios.get(url)
+                .then(function (response) {
+                    var respuesta = response.data; 
+                    const e_1=respuesta.error;
+                    const e_2=respuesta.msn;
+                    const e_3=respuesta.valor;
+                    if (e_1==1) {
+                    Swal.fire("Error"," "+e_2,"error");
+                    return; 
+                    }                      
+                      console.log(data);                   
+                     console.log(respuesta);
+
+                      switch (me.selectApertura_cierre) {
+                        case "0":
+                            me.tituloModal = "Apertura de caja vista";
+                            me.arrayMonedaDos_v2=e_3;
+                            me.total_arqueo_caja_moda_v2=data.total_arqueo_caja;
+                            me.caja_moneda_v2_modal_v2=data.caja_moneda_v2;
+                            me.usuario_cerrar_apertura=data.name;
+                           me.fecha_modal=data.created_at;
+                            me.estado_modal=data.estado_caja;
+                            me.tipo_moda_v2="Apertura"; 
+                            me.caja_codigo_v2=data.caja_codigo_v2;
+                            me.caja_nombre_caja_v2=data.caja_nombre_caja_v2;
+                            if (data.turno_caja===1) {
+                                me.turno_modal="Uno";
+                                } else {
+                                if (data.turno_caja===2) {
+                                 me.turno_modal="Dos"; 
+                                } else {
+                            me.turno_modal="Completo";   
+                            }
+                           
+                    }
+                            break;
+                            
+                        case "9":
+                            me.tituloModal = "Cierre de caja vista";
+                            break;
+                        default:
+                        me.tituloModal = "Error de caja";
+                            break;
+                            
+                      }
+                       me.showModal_6 = true;
+                       me.classModal.openModal("ver_2");  
+                                   
+              
+                             
+                })
+                .catch(function (error) {
+                    error401(error);
+                });
+        },
+
        listar_tras_operacion(id_apertura,id_sucursal){
             let me = this;           
             var url ="/apertura_cierre/listarImpTrans?id_apertura="+id_apertura+"&id_sucursal="+id_sucursal+"&data="+1;
@@ -2250,6 +2417,8 @@ me.isSubmitting = true; // Deshabilita el botón
 
                     break;
                 }
+            
+                
 
                 case "ver": {
                         me.showModal_5 = true;
@@ -2355,6 +2524,11 @@ me.isSubmitting = true; // Deshabilita el botón
                         me.bloqueador_v2=0;
                         me.sepuede_guardar=0;  
             }
+
+            if(accion==="ver_2"){
+            me.showModal_6 = false;
+            me.classModal.closeModal(accion); 
+            }
             
             if(accion=== "ver"){
             me.id_modal="";
@@ -2436,6 +2610,8 @@ me.isSubmitting = true; // Deshabilita el botón
             }
         },
 
+
+
        fecha_inicial() {
     // Obtener la fecha actual
     const today = new Date();    
@@ -2473,6 +2649,7 @@ me.isSubmitting = true; // Deshabilita el botón
         this.verModalapertura();
         this.classModal.addModal("registrar");
         this.classModal.addModal("ver");
+         this.classModal.addModal("ver_2");
         this.classModal.addModal("cerrar_apertura");
         this.classModal.addModal("registrar_2");
         this.classModal.addModal("cerrar_apertura_2");

@@ -1051,4 +1051,61 @@ $resultado = DB::table(DB::raw("({$combinado->toSql()}) as sub"))
 
     }
 
+
+    public function get_arqueo_list(Request $request){
+
+    try {
+       $query_1 = DB::table('adm__credecial_correos')->select('moneda')->where('id',1)->first();
+       if($query_1==null){
+        return response()->json([  
+            'error'=> 1,
+            'valor'=>0,                             
+            'msn' => 'no existe datos en la table credenacial de monedas'                 
+                 ]); 
+       }
+              
+       $moneda=$query_1->moneda;
+        $id=$request->id_arqueo;
+        $query_2 = DB::table('caja__monedas as cm')
+        ->leftJoin('caja__arqueo_array as caa', 
+        function ($join) use ($id)
+        {
+            $join->on('cm.id','=','caa.id_moneda')
+            ->where('caa.id_arqueo',$id);
+        })
+        ->select('cm.valor','cm.unidad','cm.unidad_entera','cm.texto_unidad_entera',
+         DB::raw("
+            CASE
+        WHEN caa.cantidad is null  THEN 0
+        ELSE caa.cantidad
+    END AS cantidad
+        "),
+        DB::raw("
+            CASE
+        WHEN caa.cantidad is null  THEN 0
+        ELSE caa.cantidad*cm.valor
+    END AS operacion
+        ")
+        )
+        ->where('cm.activo',1)
+        ->where('cm.id_nacionalidad_pais',$moneda)
+        ->orderBy('cm.id')
+        ->get();
+       
+       return response()->json([  
+            'error'=> 0,
+            'valor'=>$query_2,                          
+            'msn' => 'query existosa'                 
+                 ]);  
+
+    } catch (\Throwable $th) {
+      return response()->json([  
+            'error'=> 1,
+            'valor'=>0,                             
+            'msn' => $th                 
+                 ]); 
+    }
+
+    }
+
 }
