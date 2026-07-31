@@ -155,7 +155,7 @@ class CajaAperturaCierreController extends Controller
     
     public function suma_operacion_v2(Request $request){
         $suma_venta = DB::table('ven__recibos')
-        ->where('id_usuario', auth()->user()->id)
+       
         ->where('id_apertura', $request->id_apertura) 
         ->whereIn('tipo_venta', [1, 4])
         ->selectRaw('COALESCE(SUM(total_venta), 0) as total')
@@ -1054,24 +1054,28 @@ $resultado = DB::table(DB::raw("({$combinado->toSql()}) as sub"))
 
     public function get_arqueo_list(Request $request){
 
+
     try {
        $query_1 = DB::table('adm__credecial_correos')->select('moneda')->where('id',1)->first();
        if($query_1==null){
         return response()->json([  
             'error'=> 1,
             'valor'=>0,                             
-            'msn' => 'no existe datos en la table credenacial de monedas'                 
+            'msn' => 'no existe datos en la table credenacial de monedas',
+            'query'=>0                   
                  ]); 
        }
               
        $moneda=$query_1->moneda;
-        $id=$request->id_arqueo;
+        $id_arqueo=$request->id_arqueo;
+        $id_apertura=$request->id_apertura;
+      
         $query_2 = DB::table('caja__monedas as cm')
         ->leftJoin('caja__arqueo_array as caa', 
-        function ($join) use ($id)
+        function ($join) use ($id_arqueo)
         {
             $join->on('cm.id','=','caa.id_moneda')
-            ->where('caa.id_arqueo',$id);
+            ->where('caa.id_arqueo',$id_arqueo);
         })
         ->select('cm.valor','cm.unidad','cm.unidad_entera','cm.texto_unidad_entera',
          DB::raw("
@@ -1091,20 +1095,95 @@ $resultado = DB::table(DB::raw("({$combinado->toSql()}) as sub"))
         ->where('cm.id_nacionalidad_pais',$moneda)
         ->orderBy('cm.id')
         ->get();
-       
+  
+if ($request->tipo=="9" || $request->tipo==9) {
+        $a=$this->get_data_apertura_v2($id_apertura);
+    
+        } else{
+            $a=0;
+        }  
+
        return response()->json([  
             'error'=> 0,
             'valor'=>$query_2,                          
-            'msn' => 'query existosa'                 
-                 ]);  
+            'msn' => 'query existosa',   
+            'query'=>$a              
+                 ]);               
 
     } catch (\Throwable $th) {
       return response()->json([  
             'error'=> 1,
             'valor'=>0,                             
-            'msn' => $th                 
+            'msn' => $th,
+            'query'=>0                  
                  ]); 
     }
+
+    }
+
+    private function get_data_apertura_v2($id_apertura){
+    //1=efectivo,2=tarjeta,3=qr,4=vales
+    
+  
+    $n=1;
+    $efe=0;
+    $tj=0;
+    $qr=0;
+    $gift=0;
+    $entrada=0;
+    $salida=0;
+    while($n<=4){      
+  $total_venta = DB::table('ven__recibos')  
+     
+        ->where('id_apertura', $id_apertura) 
+        ->where('tipo_venta',  $n)
+        ->selectRaw('COALESCE(SUM(total_venta), 0) as total')
+        ->value('total');
+   
+    if($n<=2){
+    // entrada 1 salida 2
+   
+
+    $alta_baja = DB::table('caja__entrada_salidas')  
+        ->where('id_apertura_cierre', $id_apertura) 
+        ->where('entrada_salida',  $n)
+        ->selectRaw('COALESCE(SUM(valor), 0) as total')
+        ->value('total');
+    }    
+
+    switch ($n) {
+        case 1:
+          $efe=$total_venta; 
+          $entrada=$alta_baja;
+        break;
+          case 2:
+          $tj=$total_venta; 
+          $salida=$alta_baja;
+        break;
+          case 3:
+          $qr=$total_venta; 
+        break;
+          case 4:
+          $gift=$total_venta; 
+        break;
+        default:
+       $efe=0;
+    $tj=0;
+    $qr=0;
+    $gift=0;
+            break;
+    }
+      $n++;  
+    }
+    $operacion_suma_all=$efe+$tj+$qr+$gift;
+    $operacion_suma_only_elec=$tj+$qr;
+    $operacion_suma_only_f=$efe+$gift;
+    $operacion_suma_with_e_sum_f=$operacion_suma_only_f+$entrada;
+    $operacion_diferencia=$operacion_suma_only_f-$salida;
+    
+    
+     return [ 'efectivo'=> $efe,'tarjeta'=> $tj,'qr'=> $qr,'vale'=> $gift,
+              'entrada'=> number_format($entrada,2,'.','') ,'salida'=> number_format($salida,2,'.',''),'suma_total'=>number_format($operacion_suma_all,2,'.','') ,'suma_solo_elec'=>number_format($operacion_suma_only_elec,2,'.',''),'suma_efectivo'=>number_format($operacion_suma_only_f,2,'.','') ,'suma_total_f'=>number_format($operacion_suma_with_e_sum_f,2,'.',''),'diferencia'=>number_format($operacion_diferencia,2,'.','')];  
 
     }
 

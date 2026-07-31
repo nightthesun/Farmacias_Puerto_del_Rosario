@@ -266,21 +266,17 @@ if ($factura_siat_2==0) {
                     break;
 
                     case 3:
-
                         $a=1;
-                        dd("sssssssssssssss");
-                    $catalogo_xx = DB::table('excel__emision')    
+        $catalogo_xx = DB::table('excel__emision')    
         ->select('*')
         ->where('id_catalogo', 6)
-        ->where('id_catalogo', 1)
+        ->where('codigo',1)
         ->first();  
-        if (!$endPoints) {
-                        $error_nivel_1=2;
-                        $errores_1=$errores_1." no exite la tabla el catalogo para contigencia: ";
-                       
-                    return "no exite la tabla el catalogo para contigencia.";
-                    break;
-                }   
+     if ($catalogo_xx==null) {
+        $error_nivel_1=2;
+        $errores_1=$errores_1." no existe datos en la tabla de emision: ";                  
+        break;
+        }           
                        
                     $endPoints = DB::table('siat__endpoints as se')    
         ->select('se.id', 'se.Descripcion', 'se.Url', 'se.Version')
@@ -288,84 +284,100 @@ if ($factura_siat_2==0) {
         ->where('se.id', 2)
         ->first(); 
 
-                if (!$endPoints) {
+                if ($endPoints==null) {
                         $error_nivel_1=2;
-                        $errores_1=$errores_1." error al pedir el endpoint: ";
-                       
-                    return "no exite la tabla o el id fue cambiado ya que debe ser el 2 como id pivote";
+                        $errores_1=$errores_1." no exite la tabla o el id fue cambiado ya que debe ser el 2 como id pivote: ";
                     break;
                 }
                  $fecha_h=Carbon::today();
-                $fecha_ini=$fecha_h->setTimeFromTimeString($horaDB);              
+              
+                 list($hora, $minuto) = explode(':', $horaDB);
+
+                 $fechaDemo=Carbon::today()->format('Y-m-d\TH:i:s.v');
+              //  dd($fechaDemo);
+                 $fecha_ini=$fecha_h->setTimeFromTimeString($horaDB);              
                 $fecha_fin=$fecha_ini->addHours(22);
+             //   dd($fecha_ini."---".$fecha_fin);
                 $pasoN=0;
                 $codigoRecepcionEventoSignificativo=0;
-                         foreach ($configuracion as $key => $value) { 
+              
+                        if ($error_nivel_1==1) {
+                               foreach ($configuracion as $key => $value) { 
                             $intento_2=1;
-                           $pasoN=1;
-                            $fechaI=Carbon::today()->subDay()->setTime(0,0,0)->format('Y-m-d H:i:s');
-                            $fechaF=Carbon::today()->subDay()->setTime(0,0,0)->format('Y-m-d H:i:s');
-                         
-                                 $factura_siat = DB::table('ven__factura_siat')
+                           $pasoN=3;// cambiar a 1
+                            $fechaI=Carbon::today()->subDay(2)->setTime(0,0,0)->format('Y-m-d\TH:i:s.v');
+                           $fechaF = Carbon::today()->setTime(23, 59, 59)->format('Y-m-d\TH:i:s.v');
+    
+  $factura_siat = DB::table('ven__factura_siat')
     ->where('codEstado', '<>', '908')
     ->where('sucursal_siat', $value->codigo_siat)
     ->where('punto_venta', $value->punto_venta)
     ->where('estado', 1)
-    ->whereIn('tipo_emision', [2,4])
+    ->whereIn('tipo_emision', [2, 4])
     ->where('modalidad', $datos_1->tipo_modalidad)
     ->where('ambiente', $datos_1->tipo_ambiente)
-    ->where('fechaEmision', '>=', $fechaI)
-    ->where('fechaEmision', '<=', $fechaF)
-    ->select([
+    ->where('fechaEmision','>=',$fechaI)
+    ->where('fechaEmision','<=',$fechaF) 
+    //->whereBetween('fechaEmision', [$fechaI, $fechaF])
+    ->select(
         'id',
         'zip_factura',
         'codSector',
         'tipo_emision',
         'modalidad',
         'tipoFacturaDoc',
-        'cuf'
-    ])->get();
+        'cuf','fechaEmision'
+    )
+    ->get();
 
-     
+   
 
         if (count($factura_siat)>0) {
+            $fechaMenor = $factura_siat->min('fechaEmision');
+$fechaMayor = $factura_siat->max('fechaEmision');
+
              $intento_2=1;
              $codigoMotivoEvento=$catalogo_xx->codigo;
   $fechaEnvio="0";
   $codigoRecepcionEventoSignificativo=0;
   $codigoRecepcionEventoSignificativo_2=0;
-           while($pasoN<=3){
-                        switch ($pasoN) {
-              
-                case 1:
-                     while ($intento_2 <= $intentos) { 
-                        $a=$this->registroEventoSignificativo_f($fecha_fin,$fecha_ini,$codigoMotivoEvento
+        if ($pasoN==1) {
+            while ($intento_2 <= $intentos) { 
+                        
+                        $a=$this->registroEventoSignificativo_f($fechaMayor,$fechaMenor,$codigoMotivoEvento
                         ,$value->id_sucursal,$value->punto_venta,$catalogo_xx->descripcion,$datos_1->tipo_ambiente,$value->id,$datos_1->cod_sis,
                         $value->codigo_siat,$datos_1->token_delegado,$endPoints->Url,$value->cufd,$value->cuis,$datos_2->nit);    
+                   
                         $codigo_registroES=$a['codigo'];
-                        $mensaje_registroES=$a['mensaje'];                                          
+                        $mensaje_registroES=$a['mensaje'];  
+                                            
                     // hacer los retornos de a 
                          if ($codigo_registroES==0) {
                            $intento_2= $intentos+10;
+                        
                            $codigoRecepcionEventoSignificativo=$mensaje_registroES;
-                           $pasoN++;
-                                $fechaEnvio = Carbon::now('America/La_Paz')->format('Y-m-d\TH:i:s.v');
-                           break;
-                         }else{
-                            sleep($operacion); 
-                            $intento_2++;
-                         }      
+                           $pasoN=2;
+                            $fechaEnvio = Carbon::now('America/La_Paz')->format('Y-m-d\TH:i:s.v');
+                     
+                         }else{                           
+                            sleep(1);                             
+                            $intento_2++;                                                
+                         }                    
+                             
                        }
-                       if($codigo_registroES==1){
-                            $error_nivel_1=2;
-                            $pasoN=100;
-                            $errores_1="[ ".$errores_1." error al pedir cufd en punto de venta: ".$value->punto_venta." sucursal: ".$value->codigo_siat ." Intento Nro: ".$intento_2." error_siat: "+$mensaje_registroES." ]";
-                        }  
-                break;
-
-                case 2:
-                    
-                     while ($intento_2 <= $intentos) { 
+                  
+                       if($codigo_registroES==1){                  
+                       $error_nivel_1=2;                        
+                            $pasoN=100;                            
+                            $errores_1 = "[ ".$errores_1." error al pedir cufd en punto de venta: "
+    .$value->punto_venta ." sucursal: " .$value->codigo_siat ." Intento Nro: "    .$intento_2
+    ." error_siat: " .$mensaje_registroES ." ]";                       
+                            }  
+        }
+                     
+        if ($pasoN==2) {
+            
+           
 
                         // Crear ZIP temporal.............................
 $tmpZip = tempnam(sys_get_temp_dir(), 'siat_');
@@ -415,71 +427,70 @@ $archivoBase64 = base64_encode(file_get_contents($rutaGz));
 
 $archivo = $archivoBase64;
 $cantidadFacturas = count($factura_siat);
+ while ($intento_2 <= $intentos) { 
 
                         $a=$this->registroServicioRecepcionPaquete_f($url_s2,$datos_1->token_delegado,$datos_1->tipo_ambiente,$codigoDocumentoSector_2,2,$datos_1->tipo_modalidad
     ,$value->punto_venta,$datos_1->cod_sis,$value->codigo_siat,$value->cufd,$value->cuis,$datos_2->nit,$tipoFacturaDocumento_2,$archivo,$fechaEnvio,
     $hashArchivo,$codigoRecepcionEventoSignificativo,$codigoMotivoEvento,$factura_siat,$cantidadFacturas);                                                
-                      $codigo_registroES=$a['codigo'];
-                        $mensaje_registroES=$a['mensaje'];  
+                  
+    $codigo_registroES=$a['codigo'];
+                        $mensaje_registroES=$a['mensaje']; 
+                     
                          if ($codigo_registroES==0) {
                             $intento_2= $intentos+10;
                            $codigoRecepcionEventoSignificativo_2=$mensaje_registroES;
-                           $pasoN++;
-                           break;
+                           $pasoN=3;
+                        
                          }else{
-                            sleep($operacion); 
+                            sleep(1); 
                             $intento_2++;
                          }      
                        }
-                       if($a==1){
+                       if($codigo_registroES==1){
                            $error_nivel_1=2;
                            $pasoN=100;
-                            $errores_1="[ ".$errores_1." error al pedir cufd en punto de venta: ".$value->punto_venta." sucursal: ".$value->codigo_siat ." Intento Nro: ".$intento_2." error_siat: "+$mensaje_registroES." ]";
+                            $errores_1="[ ".$errores_1." error en el punto de venta: ".$value->punto_venta." sucursal: ".$value->codigo_siat ." Intento Nro: ".$intento_2." error_siat: ".$mensaje_registroES." ]";
                          }  
-                break;
+        }
+       
 
-                case 3:
-                while ($intento_2 <= $intentos) { 
+        if ($pasoN==3) {
+           
+            while ($intento_2 <= $intentos) { 
                     $a=$this->validacionRecepcionPaqueteFactura_f($url_s2,$datos_1->token_delegado,$datos_1->tipo_ambiente,$codigoDocumentoSector_2,
     2,$datos_1->tipo_modalidad,$value->punto_venta,$datos_1->cod_sis,$value->codigo_siat,$value->cufd,$value->cuis,$datos_2->nit,
     $tipoFacturaDocumento_2,$codigoRecepcionEventoSignificativo_2,$factura_siat);
-                        $codigo_registroES=$a['codigo'];
+                  
+    $codigo_registroES=$a['codigo'];
                         $mensaje_registroES=$a['mensaje'];                                          
                     // hacer los retornos de a 
                          if ($codigo_registroES==0) {
                            $intento_2= $intentos+10;
                            $codigoRecepcionEventoSignificativo=$mensaje_registroES;
-                           $pasoN++;
+                           $pasoN=4;
                         
-                           break;
                          }else{
-                            sleep($operacion); 
+                            sleep(1); 
                             $intento_2++;
                          }      
                        }
                        if($codigo_registroES==1){
                             $error_nivel_1=2;
                             $pasoN=100;
-                            $errores_1="[ ".$errores_1." error al pedir cufd en punto de venta: ".$value->punto_venta." sucursal: ".$value->codigo_siat ." Intento Nro: ".$intento_2." error_siat: "+$mensaje_registroES." ]";
+                            $errores_1="[ ".$errores_1." error en el venta: ".$value->punto_venta." sucursal: ".$value->codigo_siat ." Intento Nro: ".$intento_2." error_siat: ".$mensaje_registroES." ]";
                         } 
-                break;
-                default:
-                $pasoN=100;
-                break;
-            } 
-           }           
-               if($pasoN==100||$pasoN<=2){
+        }
+             
+               if($pasoN==100){
                     $error_nivel_1=2;                         
                     $errores_1="[ ".$errores_1." error en el siglo  en el punto de venta: ".$value->punto_venta." sucursal: ".$value->codigo_siat ." Intento Nro: ".$intento_2."]";
                         
-               }else{
-                     $error_nivel_1=1;                         
-                    $errores_1="[ ".$errores_1." sin errores en punto de venta: ".$value->punto_venta." sucursal: ".$value->codigo_siat."]";
-                    }  
+               }
         }
-
                        
                     } 
+                        }
+                      
                  
                     break;    
                     
@@ -2466,7 +2477,9 @@ if ($transaccion && isset($transaccion[0])) {
                  
               $fechaHoraFinEvento = Carbon::parse($fecha_fin)->format('Y-m-d\TH:i:s.v');
                $fechaHoraInicioEvento = Carbon::parse($fecha_ini)->format('Y-m-d\TH:i:s.v');
-                   
+            //  $fechaHoraFinEvento= '2026-07-24T04:51:40.748';
+            //   $fechaHoraInicioEvento='2026-07-24T03:51:27.399';
+              
 $descripcion=$contingencia_descripcion;
         $cadena_url=$endPointsUrl; 
     
@@ -2490,7 +2503,7 @@ $descripcion=$contingencia_descripcion;
               // Asignación de la URL y API key
         $apikeyValue = 'TokenApi ' .$tokenDelegado; // Concatenar correctamente el valor del API key
                 // Crear el cuerpo del mensaje SOAP, sustituyendo los valores con los parámetros correspondientes
-          
+        
         $xmlData = <<<EOD
          <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:siat="https://siat.impuestos.gob.bo/">
             <soapenv:Header/>
@@ -2538,10 +2551,9 @@ $descripcion=$contingencia_descripcion;
                         // Cerrar la sesión de cURL
                         curl_close($ch);
                 if (empty($response)) {
-                    $gzip = gzencode($response);
                      return [
         'codigo' => 1,
-        'mensaje' => $gzip
+        'mensaje' => $response
     ];
       
                 }
@@ -2549,7 +2561,7 @@ $descripcion=$contingencia_descripcion;
 // Convertir la respuesta en un objeto SimpleXMLElement
         $xml = simplexml_load_string($response);   
         $respuesta=$response;
-     
+  
          // Usar XPath para encontrar el nodo <transaccion>   
     
         $transaccion = $xml->xpath('//transaccion');
@@ -2697,6 +2709,7 @@ $descripcion=$contingencia_descripcion;
     ){
         try {
             DB::beginTransaction();
+           
             $wsdl = $url_endpoint;
         // Asignación de la URL y API key
         $apikeyValue = 'TokenApi ' .$tokenDelegado; // Concatenar correctamente el valor del API key
@@ -2754,6 +2767,7 @@ $descripcion=$contingencia_descripcion;
                         // Convertir la respuesta en un objeto SimpleXMLElement
         $xml = simplexml_load_string($response);   
         $respuesta=$response;
+       
                // Usar XPath para encontrar el nodo <transaccion>   
         $transaccion = $xml->xpath('//transaccion');
           if ($transaccion && isset($transaccion[0])) {

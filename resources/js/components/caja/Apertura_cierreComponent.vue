@@ -1047,37 +1047,69 @@
             <table class="table table-bordered table-striped table-sm table-responsive">
                 <thead>
                     <tr>
-                    <th style="background-color: orange; color: white; text-align: center;" >Registro de Turno</th>            
+                    <th colspan="4" style="background-color: orange; color: white; text-align: center;" >Registro de Turno</th>            
                     </tr>                       
                 </thead>
-            </table>  
+                <tbody>
+                     <tr>
+                        <td><strong>Usuario:</strong></td>
+                        <td>{{usuario_cerrar_apertura}}</td>
+                        <td><strong>Fecha/Hora:</strong></td>
+                        <td>{{fecha_modal}}</td>
+                     </tr>
+                     <tr>
+                        <td><strong>Tuno:</strong></td>
+                        <td>{{turno_modal+" - "+tipo_moda_v2}}</td>
+                        <td><strong>Nombre caja:</strong></td>
+                        <td>{{caja_nombre_caja_v2}}</td>
+                     </tr> 
+                      <tr>
+                        <td><strong>Codigo caja:</strong></td>
+                        <td>{{caja_codigo_v2}}</td>
+                        <td><strong>Estado:</strong></td>
+                        <td><strong style="color: green;">{{estado_modal}}</strong></td>
+                     </tr>
+                </tbody>
+            </table>
+              <table class="table table-bordered table-striped table-sm table-responsive" v-show="selectApertura_cierre=='9'">
+                <thead>
+                    <tr>
+                    <th colspan="2" style="background-color: cadetblue; color: white; text-align: center;" >Datos de venta</th>            
+                    </tr>
+                    <tr>                        
+                    <th style="text-align: center;" class="col-md-10">Tipo</th>
+                    <th style="text-align: center;" class="col-md-2">Valor</th>
+                    </tr>                       
+                </thead>
+                <tbody>
+                    <tr>
+                            <td style="text-align: end;">Total venta sistema:</td>
+                            <td style="text-align: end;">{{efe_m_2}}</td>
+                    </tr>
+                    <tr>
+                        <td style="text-align: end;">Total venta tarjeta:</td>
+                        <td style="text-align: end;">{{tar_m_2}}</td>
+                    </tr>
+                    <tr>
+                        <td style="text-align: end;">Total venta QR:</td>
+                        <td style="text-align: end;">{{qr_m_2}}</td>
+                    </tr>
+                    <tr>
+                        <td style="text-align: end;">Total venta vales:</td>
+                        <td style="text-align: end;">{{val_m_2}}</td>
+                    </tr>
+                    <tr>
+                        <td style="text-align: end;">Total entradas:</td>
+                        <td style="text-align: end;">{{ entrada_m_2}}</td>
+                    </tr>
+                    <tr>
+                         <td style="text-align: end;">Total salidas:</td>
+                        <td style="text-align: end;">{{salida_m_2}}</td>
+                    </tr>
+                </tbody>
+               </table>   
                 
-                <div class="row">
-                    <div class="form-group col-sm-6">
-                        <strong>Usuario: {{usuario_cerrar_apertura}}</strong>
-                    </div>
-                    <div class="form-group col-sm-6">
-                        <strong>Fecha/Hora: {{fecha_modal}}</strong>
-                    </div>                    
-                 
-                </div>
-                <div class="row">
-                    <div class="form-group col-sm-6">
-                       <strong>Tuno: {{turno_modal+" - "+tipo_moda_v2}}</strong>
-                    </div>
-                    <div class="form-group col-sm-6">
-                           <strong>Nombre caja: {{caja_nombre_caja_v2}}</strong>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="form-group col-sm-6">
-                        <strong>Codigo caja: {{caja_codigo_v2}}</strong>
-                    </div>
-                    <div class="form-group col-sm-6">
-                         
-                     <strong style="color: green;">Estado: {{estado_modal}}</strong>
-                    </div>
-                </div>
+                
      
                                  
                     </div>                   
@@ -1232,6 +1264,12 @@ export default {
             caja_codigo_v2:'',
             caja_nombre_caja_v2:'',
 
+            efe_m_2:0,
+            tar_m_2:0,
+            qr_m_2:0,
+            val_m_2:0,
+            entrada_m_2:0,
+            salida_m_2:0,
            
         };
     },
@@ -1757,13 +1795,15 @@ swalWithBootstrapButtons.fire({
        cerrar_apertura(){
             let me = this;
         
-                let suma_venta = parseFloat(me.suma_venta) || 0;
+      let suma_venta = parseFloat(me.suma_venta) || 0;
 let sumaEntrada = parseFloat(me.sumaEntrada) || 0;
 let sumaSalida = parseFloat(me.sumaSalida) || 0;
 
 let monto_cerrar_apertura = parseFloat(me.monto_cerrar_apertura) || 0;
 let operacion_acciones = (suma_venta + sumaEntrada) - sumaSalida;
 let operacion_apertura = operacion_acciones + monto_cerrar_apertura;
+
+
 
             //------------------algoritmo-------------------------
                  
@@ -1933,20 +1973,34 @@ let operacion_apertura = operacion_acciones + monto_cerrar_apertura;
 
         listarArqueoLista(data){
             let me = this;    
-            const id=data.id_arqueo;       
-            var url ="/apertura_cierre/listarArqueoLista?id_arqueo="+id;
+            let id=0;  
+            let id_arqueo_caja = 0;
+            let id_apertura=0;
+            let id_cierre=0;
+   id_cierre = data.id_cierre_2; 
+    id_apertura = data.id;      
+   
+            if (me.selectApertura_cierre=='0') {
+                 id_arqueo_caja = data.id_arqueo;             
+            }
+            if (me.selectApertura_cierre=='9') {                
+                id_arqueo_caja = data.id_arqueo_cierre;                 
+            }          
+            var url ="/apertura_cierre/listarArqueoLista?id_arqueo="+id_arqueo_caja+"&tipo="+me.selectApertura_cierre+"&id_apertura="+id_apertura+"&id_cierre="+id_cierre;
             axios.get(url)
                 .then(function (response) {
                     var respuesta = response.data; 
                     const e_1=respuesta.error;
                     const e_2=respuesta.msn;
                     const e_3=respuesta.valor;
+                     console.log(data);                   
+                     console.log(respuesta);
+                     console.log(respuesta.query.efectivo);
                     if (e_1==1) {
                     Swal.fire("Error"," "+e_2,"error");
                     return; 
                     }                      
-                      console.log(data);                   
-                     console.log(respuesta);
+                     
 
                       switch (me.selectApertura_cierre) {
                         case "0":
@@ -1967,13 +2021,62 @@ let operacion_apertura = operacion_acciones + monto_cerrar_apertura;
                                  me.turno_modal="Dos"; 
                                 } else {
                             me.turno_modal="Completo";   
+                            }                           
                             }
-                           
-                    }
                             break;
                             
                         case "9":
                             me.tituloModal = "Cierre de caja vista";
+                         me.arrayMonedaDos_v2=e_3;
+                            me.total_arqueo_caja_moda_v2=data.total_arqueo_caja_cierre;
+                            me.caja_moneda_v2_modal_v2=data.caja_moneda_v2;
+                            me.usuario_cerrar_apertura=data.name;
+                           me.fecha_modal=data.created_at;
+                            me.estado_modal=data.estado_caja_cierre;
+                            me.tipo_moda_v2="Cierre"; 
+                            me.caja_codigo_v2=data.caja_codigo_v2;
+                            me.caja_nombre_caja_v2=data.caja_nombre_caja_v2;
+                            if (data.turno_caja===1) {
+                                me.turno_modal="Uno";
+                                } else {
+                                if (data.turno_caja===2) {
+                                 me.turno_modal="Dos"; 
+                                } else {
+                            me.turno_modal="Completo";   
+                            }                           
+                            }
+                            me.efe_m_2=respuesta.query.efectivo;
+                            me.tar_m_2=respuesta.query.tarjeta;
+                            me.qr_m_2=respuesta.query.qr;
+                            me.val_m_2=respuesta.query.vale;
+                            me.entrada_m_2=respuesta.query.entrada;
+                            me.salida_m_2=respuesta.query.salida
+
+                            let entrada = respuesta.query.entrada;
+                            let salida =respuesta.query.salida;
+                            let suma_total=respuesta.query.suma_total;
+                            let suma_solo_elec=respuesta.query.suma_solo_elec;
+                            let suma_efectivo = respuesta.query.suma_efectivo;
+                            let suma_total_f = respuesta.query.suma_total_f;
+                            let diferencia= respuesta.query.diferencia;
+                            //(valor).toFixed(2);
+                            console.log(entrada+"---"+salida+"---"+suma_total+"---"+suma_solo_elec+"---"+suma_efectivo+"---"+suma_total_f+"---"+diferencia);
+                            console.log(data.total_arqueo_caja);
+                            console.log(parseFloat(data.total_arqueo_caja));
+                            let operacion=parseFloat(data.total_arqueo_caja)-diferencia
+                            console.log(operacion);
+                            console.log((operacion).toFixed(2));
+                            
+                            let estado_22="error de operacion";
+                                if(operacion==0)
+                                    estado_22="OK";
+
+                                if(operacion<0)
+                                    estado_22="Faltante";
+                                
+                                if(operacion>0)
+                                    estado_22="Sobrante";  
+                            console.log(estado_22);
                             break;
                         default:
                         me.tituloModal = "Error de caja";
@@ -2316,7 +2419,7 @@ me.isSubmitting = true; // Deshabilita el botón
                 }
 
                 case "cerrar_apertura":{
-                    me.tipoAccion = 3;               
+                    me.tipoAccion = 3;                
                     me.tituloModal = "Cerrar caja del usuario "+data.name;
                     me.isSubmitting=false;   
                     me.suma_venta="";
@@ -2369,7 +2472,7 @@ me.isSubmitting = true; // Deshabilita el botón
                     me.sumaSalida="";
                     me.id_modal_=data.id;
                     me.showModal_4 = true;       
-                    me.get_operacion_v2(data.id);     
+                    me.get_operacion_v2(data.id);      
                     me.codigo_cerrar_apertura=data.id;               
                     me.monto_cerrar_apertura=data.total_arqueo_caja;
                     me.usuario_cerrar_apertura=data.name;
