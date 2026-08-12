@@ -27,7 +27,7 @@ class AdmVentanaModuloSeeder extends Seeder
         $log = Adm_Modulo::where('nombre', 'Logistica')->first();         
         $dir = Adm_Modulo::where('nombre', 'Directorio')->first(); 
         $ven = Adm_Modulo::where('nombre', 'Ventas')->first(); 
-        $caja = Adm_Modulo::where('nombre', 'Caja')->first(); 
+        $caja = Adm_Modulo::where('nombre', 'Caja menor')->first(); 
         $comp = Adm_Modulo::where('nombre', 'Compras')->first(); 
         $siat = Adm_Modulo::where('nombre', 'Siat')->first(); 
 
