@@ -13,9 +13,9 @@ class DatabaseSeeder extends Seeder
         $this->command->info('=== INICIANDO SEEDERS ===');
         // las que tiene *** tres azteristicos son importatntes 
         $this->truncateTables([
-           // 'adm__rubros',
-           // 'adm__sucursals',
-           // 'rrh__unidad_organizacionals',
+              'adm__rubros',
+              'adm__sucursals',
+              'rrh__unidad_organizacionals',
             'rrh__cargos',
             'rrh__formacions',
             'rrh__profesions',
@@ -30,9 +30,9 @@ class DatabaseSeeder extends Seeder
             'adm__departamentos',
             'adm__nacionalidads',
             'adm__ciudads',
-           // 'adm__bancos',
-           // 'prod__categorias',
-           //***  'prod__tipo_descuentos',
+              'adm__bancos',
+              'prod__categorias',
+              'prod__tipo_descuentos',
             'par__desc_servicios',
             'adm__qr_glosa',
             'adm__credecial_correos',
@@ -52,8 +52,8 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $seeders = [
-           // AdmRubroSeeder::class,
-           // AdmSucursalSeeder::class,
+              AdmRubroSeeder::class,
+              AdmSucursalSeeder::class,
             RrhUnidadOrganizacionalSeeder::class,
             RrhCargoSeeder::class,
             RrhFormacionSeeder::class,
@@ -69,9 +69,9 @@ class DatabaseSeeder extends Seeder
             AdmDepartamentoSeeder::class,
             AdmNacionalidadSeeder::class,
             AdmCiudadSeeder::class,
-           // AdmBancoSeeder::class,
-          //  ProdCategoriaSeeder::class,
-        //***    ProdFormaUnidadMedidaSeeder::class,
+              AdmBancoSeeder::class,
+              ProdCategoriaSeeder::class,
+              ProdFormaUnidadMedidaSeeder::class,
             ProdTipoDescuentSeeder::class,
             ParDescServiciosSeeder::class,
             ProdTipoEntradasSeeder::class,
