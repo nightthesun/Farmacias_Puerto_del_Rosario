@@ -325,7 +325,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::put('/credenciales_correo/modificarTraspaso_recepcio_SS', [AdmCredecialCorreoController::class, 'updateTraspaso_recepcio_SS']);   
     Route::put('/credenciales_correo/modificarEcuacionZ', [AdmCredecialCorreoController::class, 'updateEcuacionZ']);   
     Route::post('/credenciales_correo/actualizar_efecto_sobrante', [AdmCredecialCorreoController::class, 'updateEfecto_sobrante']);  
-        
+    Route::put('/credenciales_correo/actualizarTipoCaja_v_1', [AdmCredecialCorreoController::class, 'update_tipo_caja_v_1']);    
                
     Route::get('/dosificacion/getDataSucursal', [AdmCredecialCorreoController::class, 'getDataSucursal']);
     Route::post('/dosificacion/store_dosificacion', [AdmCredecialCorreoController::class, 'store_dosificacion']);
@@ -861,7 +861,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/apertura_cierre/modal_apertura', [CajaAperturaCierreController::class, 'getModalApertura']);     
     Route::get('/apertura_cierre/listarImpTrans', [CajaAperturaCierreController::class, 'getImpTrans']); 
     Route::post('/apertura_cierre/sobrante_auto', [CajaAperturaCierreController::class, 'createSobrante_auto']); 
-    Route::get('/apertura_cierre/listarArqueoLista', [CajaAperturaCierreController::class, 'get_arqueo_list']);      
+    Route::get('/apertura_cierre/listarArqueoLista', [CajaAperturaCierreController::class, 'get_arqueo_list']);  
+     Route::get('/apertura_cierre/verConfiguracionCaja', [CajaAperturaCierreController::class, 'get_configuracion_caja']);       
     
     //entrada_salida
     Route::post('/entrada_salida/store', [CajaEntradaSalidaController::class, 'store']); 

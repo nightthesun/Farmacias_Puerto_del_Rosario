@@ -1101,4 +1101,32 @@ class AdmCredecialCorreoController extends Controller
     } 
     }
 
+    public function update_tipo_caja_v_1(Request $request){
+    try {
+           DB::beginTransaction(); 
+             $fechaActual = Carbon::now(); // Obtiene la fecha y hora actual
+       $datos=['tipo_Caja'=>$request->tipo_caja];               
+               
+     DB::table('adm__credecial_correos')->where('id', 1)->update($datos); 
+     
+            $datos = [
+                'id_modulo' => $request->id_modulo,
+                'id_sub_modulo' => $request->id_sub_modulo,
+                'accion' => 2,
+                'descripcion' => $request->des,          
+                'user_id' =>auth()->user()->id, 
+                'created_at'=>$fechaActual,
+                'id_movimiento'=>$request->id,   
+            ];
+        
+            DB::table('log__sistema')->insert($datos);  
+      DB::commit();
+        return 0;
+    } catch (\Throwable $th) {
+            return $th;
+    } 
+    }
+
+    
+
 }

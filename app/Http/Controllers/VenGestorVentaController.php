@@ -2310,6 +2310,9 @@ if ($hoy->greaterThan($fechaA)) {
    // ->where('id_apertura_cierre', '=',0)
    // ->orderBy('id', 'desc')
    // ->first();
+$query= DB::table('adm__credecial_correos')
+->where('id',1)->value('tipo_caja');
+
 
     $ultimoRegistro = DB::table('caja__apertura_cierres as cac')
     ->join('caja__arqueo as ca', 'cac.id_arqueo', '=', 'ca.id')
@@ -2325,7 +2328,29 @@ if ($hoy->greaterThan($fechaA)) {
     if($ultimoRegistro==null){
         $ultimoRegistro=0;  
     }     
- return $ultimoRegistro;  
+ return $ultimoRegistro; 
+ 
+ // te quedaste aqui---------------------------------- para compelltar 
+if($query==null || $query==0){
+    return response()->json([
+            'error' => 1,
+            'datos'=>null,
+            'tipo'=>null, 
+            'msn' => 'La configuracion de la caja no esta o esta con valor cero necesita configuracion',
+        ]);
+}
+
+if ($query==1) {
+
+      return response()->json([
+            'error' => 0,
+            'datos'=>null,
+            
+            'msn' => 'La configuracion caja normal',
+        ]);
+}
+
+
 
     }
     

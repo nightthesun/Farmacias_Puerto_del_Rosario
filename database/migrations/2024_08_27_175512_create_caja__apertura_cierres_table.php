@@ -28,7 +28,8 @@ return new class extends Migration
             $table->timestamps();
             $table->smallInteger('id_cierre')->default(0)->comment('valor 0 es para indicar cuando se tiene apertura abierta');
             $table->smallInteger('id_caja')->nullable();
-            
+            $table->string('estadoInicial',110)->nullable()->default('ERROR');
+            $table->decimal('montoInicial_v2',11,2)->nullable()->default(0);
         });
     }
 

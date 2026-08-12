@@ -47,6 +47,7 @@ class CajaCreacionController extends Controller
                 )
                 ->whereRaw($sqls) 
                 ->where('cc.id_sucursal', $request->id_sucursal)
+                ->where('cc.tipo_caja', $request->tipoCaja)
                 ->orderByDesc('cc.id')           
                 ->paginate(15);            
             }
@@ -79,6 +80,7 @@ class CajaCreacionController extends Controller
                     'u.name'
                 )             
                 ->where('cc.id_sucursal', $request->id_sucursal)
+                ->where('cc.tipo_caja', $request->tipoCaja)
                 ->orderByDesc('cc.id')           
                 ->paginate(15); 
                 return 
@@ -134,6 +136,7 @@ class CajaCreacionController extends Controller
             $crear->estado=1;
             $crear->id_usuario_registra=auth()->user()->id;
             $crear->id_usuario_modifica=auth()->user()->id;
+            $crear->tipo_caja=$request->tipo_caja;
             $crear->save();
             DB::commit();
             

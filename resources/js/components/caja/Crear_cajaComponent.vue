@@ -10,21 +10,48 @@
         <div class="container-fluid">
             <div class="card">
                 <div class="card-header">
-                    <i class="fa fa-align-justify"></i> Crear caja               
+                    <div  class="d-flex justify-content-start">
+                        <div style="margin-inline-end: 10px;">
+                        <i class="fa fa-align-justify"></i>
+                        </div>
+                         <div style="margin-inline-end: 10px;">                      
+                        <button type="button" class="btn btn-warning" @click="abrirModalTipoCaja();" style="color: white;">Tipo de caja</button>
+                        </div>
+                        <div style="margin-inline-end: 10px;">
+                                           
                     <button
                         type="button"
                         class="btn btn-secondary"
                         @click="listarUsuario(0); abrirModal('registrar');"
                         :disabled="sucursalSeleccionada == 0"
                     >
-                        <i class="icon-plus"></i>&nbsp;Nuevo
+                        <i class="icon-plus"></i>&nbsp;  Crear nueva caja  
                     </button>
                     <span v-if="sucursalSeleccionada == 0" class="error"
                         >&nbsp; &nbsp;Debe Seleccionar un almacen o
                         tienda.</span >
+                        </div>
+                    </div>
+                  
                 </div>
         <div class="card-body">
             <div class="form-group row">
+                <div class="col-md-2" style="text-align: right">
+                     <label for="">Tipo de caja:</label>
+                </div>
+                <div class="col-md-4">
+                    <select class="form-control" v-model="sucursalTipoCaja" @change="cambioIndex()">
+                                    <option value="0" disabled selected>Seleccionar...</option>
+                                    <option value="1" >CAJA NORMAL</option>
+                                    <option value="2" >CAJA SIN APERTURA & CIERRE</option>
+                                    
+                    </select>
+                                 
+                      
+                                      
+                </div>
+            </div>
+            <div class="form-group row" v-show="sucursalTipoCaja!='0'">
                 <div class="col-md-2" style="text-align: right">
                      <label for="">Sucursal:</label>
                 </div>
@@ -73,8 +100,8 @@
 
   <br>
             <!---inserte tabla-->
-            <div class="alert alert-warning" role="alert" v-if="sucursalSeleccionada===0">
-               Debe seleccionar una sucursal.     
+            <div class="alert alert-warning" role="alert" v-if="sucursalSeleccionada===0 ">
+               Debe seleccionar una sucursal y tipo de caja.     
 </div>
 <div v-else>
     <table class="table table-bordered table-striped table-sm table-responsive" >
@@ -297,10 +324,67 @@
                     </div>
                 </div>
              </div>
-    </transition>                    
+    </transition>    
+        <!--fin del modal-->
 
+        <!--Inicio del modal TIPO CAJA-->
+ <transition name="fade">
+            <div v-if="showModal_3" class="modal d-block" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-primary modal-lg modal-dialog-scrollable" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                        <h4 class="modal-title">{{ tituloModal }}</h4>
+                        <button type="button" class="close" @click="cerrarModal('tipoCaja')">
+                            <span>&times;</span>
+                        </button>
+                        </div>
 
-   
+<div class="modal-body" style="max-height: 60vh; overflow-y: auto;"> 
+                      <div class="card-body">
+            <div class="alert alert-info" role="alert">
+                Solo puede tener una opcion activa para todas las sucursales. <strong>Caja normal con las acciones de apertura y cierre</strong> y <strong>Caja sin apertura & cierre</strong>
+            </div>
+            <div class="form-group row">
+                <label class="col-md-1 form-control-label" for="text-input" style="font-size: 12px;"><strong>Tipo:</strong></label>                                 
+                    <div class="col-md-3">
+                        <select v-if="puedeHacerOpciones_especiales===1" class="form-control"  v-model="selectTipoCaja_x2" @change="cambioEfecto_ev_caja(selectTipoCaja_x2)">
+                                        <option value=0 disabled selected>Seleccionar...</option>
+                                        <option value=1>Caja normal</option>
+                                        <option value=2>Caja sin apertura/cierre</option>
+                                    </select>    
+                                        <select v-else class="form-control">
+                                            <option value="0" disabled selected>Sin permiso...</option>
+                                        
+                                        </select>
+                    </div>                                   
+                                    <div class="col-md-4">
+                                        <div v-if="selectTipoCaja_x2===0" class="alert alert-danger" role="alert">
+                                             {{ modal_caja_v1}}
+                                        </div>
+                                        <div v-else class="alert alert-primary" role="alert">
+                                             {{ modal_caja_v1}}
+                                        </div>
+                                     </div>   
+                                     <div class="col-md-2">       
+                                    <button v-if="puedeEditar==1" type="button" class="btn btn-warning" style="color: white;" @click="actualizarTipoCaja_v_1()" >Actualizar caja</button>
+                                    <button v-else type="button" class="btn btn-light">Actualizar caja</button>   
+                                </div>           
+            </div>
+                                 
+                                
+                            
+       </div>            
+                    </div>
+                  
+                    <div class="modal-footer">                        
+                        <button type="button" class="btn btn-secondary"  @click="cerrarModal('tipoCaja')">Cerrar</button>
+                 
+                    </div>
+
+                    </div>
+                </div>
+             </div>
+    </transition>    
         <!--fin del modal-->
     </main>
 </template>
@@ -356,6 +440,12 @@ export default {
 
     showModal: false,
     showModal_2: false,
+    showModal_3: false,
+    sucursalTipoCaja:'0',
+     //caja----
+        modal_caja_v1:'Sin acción',
+        selectTipoCaja_x2:0, 
+
         };
     },
 
@@ -431,9 +521,78 @@ export default {
    },
    //--------------------------------------------------------------  
 
+        cambioIndex(){
+            let me = this;
+            me.sucursalSeleccionada =0;
+             me.arrayIndex=[];
+           
+        },
+
+        cambioEfecto_ev_caja(data){
+            let me = this;
+          let numero = Number(data); // 123
+          switch (numero) {
+            case 0: {
+                me.modal_caja_v1="No tiene ninguna configuración";  
+                    break;
+                }
+            case 1: {
+                me.modal_caja_v1="Valor por defecto con caja con apertura y cierre.";  
+                    break;
+                }
+            case 2: {
+                me.modal_caja_v1="Valor caja modificada sin apertura o cierre.";  
+                    break;
+                }        
+          }       
+        },
+
+        actualizarTipoCaja_v_1(){
+                let me = this;
+                
+                axios.put("/credenciales_correo/actualizarTipoCaja_v_1", {
+                    id: 1,                   
+                    tipo_caja:me.selectTipoCaja_x2,
+
+                    id_modulo: me.idmodulo,
+                id_sub_modulo:me.codventana, 
+                des:"Cambia el modo de caja",                
+                }).then(function (response) {  
+                
+                    const respuesta=response.data;
+                      me.listarCredencial();
+                          
+                    if (respuesta==0) {
+                         Swal.fire("Se registro exitosamente","Haga click en Ok", "success",);   
+                   
+                    }else{
+                        Swal.fire("Error!!!"," "+respuesta, "error",);   
+                    }                  
+                                                                
+                    })                
+                  .catch(function (error) { 
+                    error401(error);                        
+            }); 
+            },
+
+            listarCredencial() {
+            let me = this;
+            var url = "/credenciales_correo";
+            axios.get(url)
+                .then(function (response) {
+                    var respuesta = response.data;             
+                    me.selectTipoCaja_x2=response.data[0].tipo_caja; 
+                    me.cambioEfecto_ev_caja(me.selectTipoCaja_x2);              
+                   
+                })
+                .catch(function (error) {
+                    error401(error);
+                });
+        },
+
         listarIndex(page) {
             let me = this;        
-            var url ="/caja_crear/listarInicio?page="+page+"&buscar="+me.buscar+"&id_sucursal="+me.id_sucursal;         
+            var url ="/caja_crear/listarInicio?page="+page+"&buscar="+me.buscar+"&id_sucursal="+me.id_sucursal+"&tipoCaja="+me.sucursalTipoCaja;         
             axios.get(url)
                 .then(function (response) {
                     var respuesta = response.data;
@@ -463,6 +622,7 @@ export default {
                 monto_caja:me.monto_caja,
                 id_sucursal:me.id_sucursal,
                 array_id_v:array_id,   
+                tipo_caja:me.sucursalTipoCaja
                     })       
                     .then(function (response) {                                            
                         let a=response.data;
@@ -633,10 +793,15 @@ export default {
                     me.tituloModal = "Nombre "+data.nombre_caja;
                     me.classModal.openModal("ver");
                 }
-            
             }
         },
 
+        abrirModalTipoCaja(){
+            let me=this;
+            me.showModal_3 = true;
+            me.tituloModal = "Configuración tipo caja";
+            me.classModal.openModal("tipoCaja");
+        },
        
         cerrarModal(accion) {
             let me = this;
@@ -653,6 +818,12 @@ export default {
             }
             if (accion == "ver") {
                    me.showModal_2 = false;
+                me.classModal.closeModal(accion);
+            }
+
+            if (accion=="tipoCaja") {
+                me.showModal_3 = false;
+                me.tituloModal = "";  
                 me.classModal.closeModal(accion);
             }
         },
@@ -765,11 +936,13 @@ export default {
     mounted() {
         this.classModal = new _pl.Modals();
         this.sucursalFiltro();
+          this.listarCredencial();
    //-------permiso E_W_S-----
    this.listarPerimsoxyz();       
         //-----------------------
         this.classModal.addModal("registrar");
         this.classModal.addModal("ver");
+         this.classModal.addModal("tipoCaja");
     
     },
 };

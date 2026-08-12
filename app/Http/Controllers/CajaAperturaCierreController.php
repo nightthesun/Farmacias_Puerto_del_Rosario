@@ -78,7 +78,18 @@ class CajaAperturaCierreController extends Controller
         'cc.diferencia_caja as diferencia_caja_cierre',
         'cc.estado_caja as estado_caja_cierre',
         'cc.created_at as created_at_cierre','cc_1.monto_caja as caja_monto_v2','cc_1.moneda as caja_moneda_v2','cc_1.codigo as caja_codigo_v2','cc_1.nombre_caja as caja_nombre_caja_v2'
-                        )
+        , DB::raw('ABS(cac.montoInicial_v2) as montoInicial'),
+          DB::raw("CASE 
+                        WHEN cac.estadoInicial IS NULL THEN 'Error'                        
+                        ELSE cac.estadoInicial 
+                    END AS estadoInicial"),
+        DB::raw("CASE
+            WHEN cac.montoInicial_v2 >= 0 THEN 'P'
+            WHEN cac.montoInicial_v2 < 0 THEN 'N'
+           ELSE 'E'
+        END AS estadoColor") 
+        )         
+                        
                      //   ->where('cac.id_sucursal','=',$request->id_sucursal)
                      //   ->where('cac.tipo_caja_c_a','=',$request->a_e)          
                      //   ->where('ca.id_usuario','=',$user)   
@@ -120,7 +131,17 @@ class CajaAperturaCierreController extends Controller
         'cc.total_arqueo_caja as total_arqueo_caja_cierre',
         'cc.diferencia_caja as diferencia_caja_cierre',
         'cc.estado_caja as estado_caja_cierre',    
-        'cc.created_at as created_at_cierre','cc_1.monto_caja as caja_monto_v2','cc_1.moneda as caja_moneda_v2','cc_1.codigo as caja_codigo_v2','cc_1.nombre_caja as caja_nombre_caja_v2'
+        'cc.created_at as created_at_cierre','cc_1.monto_caja as caja_monto_v2','cc_1.moneda as caja_moneda_v2','cc_1.codigo as caja_codigo_v2','cc_1.nombre_caja as caja_nombre_caja_v2',
+        DB::raw('ABS(cac.montoInicial_v2) as montoInicial'),
+          DB::raw("CASE 
+                        WHEN cac.estadoInicial IS NULL THEN 'Error'                        
+                        ELSE cac.estadoInicial 
+                    END AS estadoInicial"),
+                    DB::raw("CASE
+            WHEN cac.montoInicial_v2 >= 0 THEN 'P'
+            WHEN cac.montoInicial_v2 < 0 THEN 'N'
+           ELSE 'E'
+        END AS estadoColor") 
                         )
                         ->whereRaw($where) 
               ->whereBetween(DB::raw('DATE(cac.created_at)'), [$ini, $fini]) 
@@ -148,7 +169,9 @@ class CajaAperturaCierreController extends Controller
         $sumaEntrada = DB::table('caja__entrada_salidas')
             ->where('id_apertura_cierre', $id_apertura)
             ->where('entrada_salida', 1)
-            ->sum('valor');
+            ->selectRaw('COALESCE(SUM(valor), 0) as valor')
+            ->value('valor');
+            
 
         return $sumaEntrada;
     }
@@ -190,7 +213,7 @@ return response()->json([
                     
                     $id_sucursal=$request->id_sucursal;
                     $efecto_sobrante=$request->efecto_sobrante;
-                   
+                  $get_entrada = $this->suma_entrada($request->id_apertura);   
                     $numero = $request->diferencia;
                     $resultado=0;
                         if ($numero < 0) {
@@ -248,7 +271,7 @@ foreach ($request->input as $key => $value) {
                         'id_apertura' => $request->id_apertura,
                         'id_arqueo' => $id,
                         'total_venta_caja' => $request->total_venta_caja,                       
-                        'total_ingreso_caja' => $request->total_ingreso_caja,  
+                        'total_ingreso_caja' => $get_entrada,  
                         'total_salida_caja' => $request->total_salida_caja, 
                         'total_caja' => $request->total_caja, 
                         'total_arqueo_caja' => $request->total_arqueo_caja, 
@@ -649,6 +672,8 @@ $sucu = DB::table('adm__sucursals as ass')
                     $apertura_cierre->diferencia_caja = $request->diferencia; 
                     $apertura_cierre->estado_caja = $request->estado;
                     $apertura_cierre->id_caja = $request->id_cajaxUsuario;
+                    $apertura_cierre->estadoInicial = $request->estadoInicial;
+                    $apertura_cierre->montoInicial_v2 = $request->operacionInicial;
                     $apertura_cierre->save();        
                               
             
@@ -702,7 +727,7 @@ $data_1 = $moneda;
       $contar = DB::table('caja__apertura_cierres as c')
     ->join('caja__arqueo as a', 'c.id_arqueo', '=', 'a.id')
     ->where('a.id_usuario', $id_user)
-    //->where('id_sucursal', $request->id_sucursal)   
+    ->where('id_sucursal', $request->id_sucursal)   
     ->where('c.id_cierre', 0)
     ->count('c.id');
 
@@ -785,13 +810,14 @@ $data_1 = $moneda;
     return $resultado;
     }
 
-    public function getCaja_x_usuario(Request $request){
+    public function getCaja_x_usuario(Request $request){ 
         $usuario = auth()->user()->id;
         $resultado = DB::table('caja__creacions as cc')
             ->select('cc.id', 'cc.codigo', 'cc.nombre_caja', 'cc.monto_caja', 'cc.moneda')
             ->where('cc.id_sucursal', $request->id_sucursal)
             ->whereRaw('FIND_IN_SET(?, cc.id_users)', [$usuario])
             ->where('cc.estado', 1)
+            ->where('cc.tipo_caja', 1)
             ->get();
         
         return $resultado;
@@ -1052,6 +1078,15 @@ $resultado = DB::table(DB::raw("({$combinado->toSql()}) as sub"))
     }
 
 
+    public function get_configuracion_caja(Request $request){
+    $query_1 = DB::table('adm__credecial_correos')->where('id',1)->value('tipo_caja');
+    if($query_1==null){
+        return 0;
+    }else{
+        return $query_1;
+    }
+    }
+
     public function get_arqueo_list(Request $request){
 
 
@@ -1178,12 +1213,13 @@ if ($request->tipo=="9" || $request->tipo==9) {
     $operacion_suma_all=$efe+$tj+$qr+$gift;
     $operacion_suma_only_elec=$tj+$qr;
     $operacion_suma_only_f=$efe+$gift;
+    $operacion_e_s=$entrada-$salida;
     $operacion_suma_with_e_sum_f=$operacion_suma_only_f+$entrada;
     $operacion_diferencia=$operacion_suma_only_f-$salida;
     
     
      return [ 'efectivo'=> $efe,'tarjeta'=> $tj,'qr'=> $qr,'vale'=> $gift,
-              'entrada'=> number_format($entrada,2,'.','') ,'salida'=> number_format($salida,2,'.',''),'suma_total'=>number_format($operacion_suma_all,2,'.','') ,'suma_solo_elec'=>number_format($operacion_suma_only_elec,2,'.',''),'suma_efectivo'=>number_format($operacion_suma_only_f,2,'.','') ,'suma_total_f'=>number_format($operacion_suma_with_e_sum_f,2,'.',''),'diferencia'=>number_format($operacion_diferencia,2,'.','')];  
+              'entrada'=> number_format($entrada,2,'.','') ,'salida'=> number_format($salida,2,'.',''),'suma_total'=>number_format($operacion_suma_all,2,'.','') ,'suma_solo_elec'=>number_format($operacion_suma_only_elec,2,'.',''),'suma_efectivo'=>number_format($operacion_suma_only_f,2,'.','') ,'suma_total_f'=>number_format($operacion_suma_with_e_sum_f,2,'.',''),'diferencia'=>number_format($operacion_diferencia,2,'.',''),'operacion_e_s'=>number_format($operacion_e_s,2,'.','')];  
 
     }
 

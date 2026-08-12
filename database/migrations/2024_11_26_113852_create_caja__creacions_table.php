@@ -22,6 +22,7 @@ return new class extends Migration
             $table->tinyInteger('estado')->default(1);
             $table->smallInteger('id_usuario_registra')->nullable();
             $table->smallInteger('id_usuario_modifica')->nullable();
+            $table->tinyInteger('tipo_caja')->nullable()->default(0)->comment('0 en configuracion, 1 caja normal, 2 caja sin apertura y cierre');            
             $table->timestamps();
         });
     }

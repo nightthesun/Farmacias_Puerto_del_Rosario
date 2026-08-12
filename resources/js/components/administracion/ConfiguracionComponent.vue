@@ -34,7 +34,7 @@
                     <a class="nav-link" id="pills-superUser-tab" data-toggle="pill" href="#pills-superUser" role="tab" aria-controls="pills-superUser" @click="listarUser()" aria-selected="false">Super usuario</a>
                 </li>    
                 <li class="nav-item">
-                    <a class="nav-link" id="pills-modal-tab" data-toggle="pill" href="#pills-modal" role="tab" aria-controls="pills-modal" aria-selected="false">Conf. Interfase apertura y cierre / activación sobrantes</a>
+                    <a class="nav-link" id="pills-modal-tab" data-toggle="pill" href="#pills-modal" role="tab" aria-controls="pills-modal" aria-selected="false">Conf. Interfase apertura y cierre / activación sobrantes / Tipo caja</a>
                 </li> 
                 <li class="nav-item">
                     <a class="nav-link" id="pills-imp_tras-tab" data-toggle="pill" href="#pills-imp_tras" role="tab" aria-controls="pills-imp_tras" aria-selected="false">Imprecion transacción</a>
@@ -591,7 +591,7 @@
                   </div>
         </div>
                     </div>
-    <!---------------------------------------------------------------------------------------------------------------------------->
+    <!--------------------------------------------------MODAL-------------------------------------------------------------------------->
   <div class="tab-pane fade" id="pills-modal" role="tabpanel" aria-labelledby="pills-modal-tab">
     <div id="accordion">
   <div class="card">
@@ -682,6 +682,50 @@
                                 <div class="col-md-3 d-flex justify-content-center">       
                                     <button v-if="puedeEditar==1" type="button" class="btn btn-warning" style="color: white;" @click="actualizarEfectoSobrante()" >Actualizar efecto</button>
                                     <button v-else type="button" class="btn btn-light">Actualizar efecto</button>   
+                                </div>
+                            </div>   
+       </div>
+    </div>
+  </div> 
+   <div class="card">
+    <div class="card-header" id="headingTwo_x1_x">
+      <h5 class="mb-0">
+        <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseTwo_x1_x" aria-expanded="false" aria-controls="collapseTwo_x1_x">
+         Configuración tipo de caja
+        </button>
+      </h5>
+    </div>
+    <div id="collapseTwo_x1_x" class="collapse" aria-labelledby="headingTwo_x1_x" data-parent="#accordion">
+      <div class="card-body">
+            <div class="alert alert-info" role="alert">
+                Escoja el tipo de caja donde puede ser. <strong>Caja normal con las acciones de apertura y cierre</strong> y <strong>Caja modificada solo puede haber una caja sin fecha de apertura o cierre</strong>
+            </div>
+             <div class="form-group row">
+                <label class="col-md-2 form-control-label" for="text-input" style="font-size: 12px;"><strong>Tipo:</strong></label>                                 
+                    <div class="col-md-3">
+                        <select v-if="puedeHacerOpciones_especiales===1" class="form-control"  v-model="selectTipoCaja_x2" @change="cambioEfecto_ev_caja(selectTipoCaja_x2)">
+                                        <option value=0 disabled selected>Seleccionar...</option>
+                                        <option value=1>Caja normal</option>
+                                        <option value=2>Caja modificada</option>
+                                    </select>    
+                                        <select v-else class="form-control">
+                                            <option value="0" disabled selected>Sin permiso...</option>
+                                        
+                                        </select>
+                                     </div>                                   
+                                    <div class="col-md-3">
+                                        <div v-if="selectTipoCaja_x2===0" class="alert alert-danger" role="alert">
+                                             {{ modal_caja_v1}}
+                                        </div>
+                                        <div v-else class="alert alert-primary" role="alert">
+                                             {{ modal_caja_v1}}
+                                        </div>
+                                     </div>              
+                                </div>
+                                 <div class="form-group row justify-content-center">
+                                <div class="col-md-3 d-flex justify-content-center">       
+                                    <button v-if="puedeEditar==1" type="button" class="btn btn-warning" style="color: white;" @click="actualizarTipoCaja_v_1()" >Actualizar caja</button>
+                                    <button v-else type="button" class="btn btn-light">Actualizar caja</button>   
                                 </div>
                             </div>   
        </div>
@@ -1912,7 +1956,7 @@ import Swal from "sweetalert2";
 import { error401 } from "../../errores";
 import VueMultiselect from 'vue-multiselect';
 import Multiselect from 'vue-multiselect'
-import { toInteger, trim } from "lodash";
+import { indexOf, toInteger, trim } from "lodash";
 //Vue.use(VeeValidate);
 
 export default {
@@ -2085,6 +2129,10 @@ puedeEditar:2,
             error_bottom:0,
             bandera_error_4_SS:0,
             error_4_SS:'',
+
+            //caja----
+            modal_caja_v1:'Sin acción',
+            selectTipoCaja_x2:0, 
 
             //ecuaciones
             ecuacion_radio_1:null,
@@ -3286,6 +3334,25 @@ listarDistribuidorAutomatico_2() {
           }       
         },
 
+           cambioEfecto_ev_caja(data){
+            let me = this;
+          let numero = Number(data); // 123
+          switch (numero) {
+            case 0: {
+                me.modal_caja_v1="No tiene ninguna configuración";  
+                    break;
+                }
+            case 1: {
+                me.modal_caja_v1="Valor por defecto con caja con apertura y cierre.";  
+                    break;
+                }
+            case 2: {
+                me.modal_caja_v1="Valor caja modificada sin apertura o cierre.";  
+                    break;
+                }        
+          }       
+        },
+
 
         añadirOquitar_Responsable(data){
             let me = this;      
@@ -4205,7 +4272,7 @@ listarDistribuidorAutomatico_2() {
 
              actualizarEfectoSobrante(){
                 let me = this;
-                axios.post("/credenciales_correo/actualizar_efecto_sobrante", {
+                axios.put("/credenciales_correo/actualizar_efecto_sobrante", {
                     id: me.id_credencial,                   
                     efecto_sobrante:me.selectEfcto,
 
@@ -4214,6 +4281,39 @@ listarDistribuidorAutomatico_2() {
                 des:"Activacion o descativacion de efecto sobrante",                
                 }).then(function (response) {                    
                         Swal.fire("Se registro exitosamente","Haga click en Ok", "success",);                                            
+                    })                
+                  .catch(function (error) { 
+                    error401(error);                        
+            }); 
+            },
+
+            actualizarTipoCaja_v_1(){
+                let me = this;
+                console.log(me.selectTipoCaja_x2);
+                
+                console.log(indexOf(me.limite_monto));
+                if (me.limite_monto<=0||me.limite_monto==null||me.limite_monto=="") {
+                   Swal.fire("Error!!!","el limite debe ser mayor a cerro", "error",);  
+                   return; 
+                }
+                axios.put("/credenciales_correo/actualizarTipoCaja_v_1", {
+                    id: me.id_credencial,                   
+                    tipo_caja:me.selectTipoCaja_x2,
+
+                    id_modulo: me.idmodulo,
+                id_sub_modulo:me.codventana, 
+                des:"Cambia el modo de caja",                
+                }).then(function (response) {  
+                
+                    const respuesta=response.data;
+                                   
+                    if (respuesta==0) {
+                         Swal.fire("Se registro exitosamente","Haga click en Ok", "success",);   
+                         me.listarCredencial(); 
+                    }else{
+                        Swal.fire("Error!!!"," "+respuesta, "error",);   
+                    }                  
+                                                                
                     })                
                   .catch(function (error) { 
                     error401(error);                        
@@ -4265,7 +4365,8 @@ listarDistribuidorAutomatico_2() {
                     me.limite_horas=response.data[0].tiempo_limite;  
                     me.selectModalApertura=response.data[0].modal_apertura;
                     me.selectEfcto=response.data[0].efecto_sobrante
-                    me.transaccion_data=response.data[0].imprimir_trans;                 
+                    me.transaccion_data=response.data[0].imprimir_trans; 
+                    me.selectTipoCaja_x2=response.data[0].tipo_caja;                
                    me.cambioModalApertura(me.selectModalApertura);
                    me.cambioEfecto(me.selectEfcto);
                     

@@ -28,7 +28,7 @@ class ProdFormaUnidadMedidaSeeder extends Seeder
         DB::table('prod__forma_farmaceuticas')->insert([ 'nombre'=>'Blister','activo'=>1]);
         DB::table('prod__forma_farmaceuticas')->insert([ 'nombre'=>'Bobinas','activo'=>1]);
         DB::table('prod__forma_farmaceuticas')->insert([ 'nombre'=>'Bolsa','activo'=>1]);
-        DB::table('prod__forma_farmaceuticas')->insert([ 'nombre'=>'Bolsa','activo'=>1]);
+    //    DB::table('prod__forma_farmaceuticas')->insert([ 'nombre'=>'Bolsa','activo'=>1]);
         DB::table('prod__forma_farmaceuticas')->insert([ 'nombre'=>'Botellas','activo'=>1]);
         DB::table('prod__forma_farmaceuticas')->insert([ 'nombre'=>'Bultos','activo'=>1]);
         DB::table('prod__forma_farmaceuticas')->insert([ 'nombre'=>'Caja ','activo'=>1]);
@@ -137,7 +137,7 @@ class ProdFormaUnidadMedidaSeeder extends Seeder
         DB::table('prod__forma_farmaceuticas')->insert([ 'nombre'=>'Vaso','activo'=>1]);
         DB::table('prod__forma_farmaceuticas')->insert([ 'nombre'=>'Vial','activo'=>1]);
         DB::table('prod__forma_farmaceuticas')->insert([ 'nombre'=>'Yarda','activo'=>1]);
-        DB::table('prod__forma_farmaceuticas')->insert([ 'nombre'=>'Yarda','activo'=>1]);
+      //  DB::table('prod__forma_farmaceuticas')->insert([ 'nombre'=>'Yarda','activo'=>1]);
         DB::table('prod__forma_farmaceuticas')->insert([ 'nombre'=>'Yarda cuadrada','activo'=>1]);
     }
 }

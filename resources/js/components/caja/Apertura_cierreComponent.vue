@@ -2,7 +2,8 @@
     
     <main class="main">
         <div  v-if="bloqueador>0">
-            <!-- Breadcrumb -->
+            <div v-if="tipo_caja_x2_c===1">
+                     <!-- Breadcrumb -->
         <ol class="breadcrumb">
             <li class="breadcrumb-item">Home</li>
             <li class="breadcrumb-item"><a href="#">Admin</a></li>
@@ -13,7 +14,7 @@
         <div class="container-fluid">
             <div v-if="verificador>0" class="card">
                 <div class="card-header">
-               
+              
                     <i class="fa fa-align-justify"></i> Aperturar caja:             
                     <button type="button"  class="btn btn-secondary" @click="cajaAnteriror();"
                         :disabled="selectApertura_cierre!=0">
@@ -1069,48 +1070,211 @@
                         <td><strong>Estado:</strong></td>
                         <td><strong style="color: green;">{{estado_modal}}</strong></td>
                      </tr>
+                      <tr>
+                        <td><strong>Estado inicial de apertura de caja:</strong></td>
+                        <td>
+                            <div v-show="estadoColor==='P'">
+                                <strong style="color: green;">{{operacionInicial_c_c2}}</strong>
+                            </div>
+                            <div v-show="estadoColor==='N'">
+                                <strong style="color: red;">{{operacionInicial_c_c2}}</strong>
+                            </div>
+                            <div v-show="estadoColor==='E'">
+                                <strong style="color: black;">{{operacionInicial_c_c2}}</strong>
+                            </div>
+                        </td>                           
+                        <td><strong>Monto inicial de apertura de caja:</strong></td>
+                        <td><strong>{{estadoInicial_c_2}}</strong></td>
+                     </tr>
                 </tbody>
             </table>
-              <table class="table table-bordered table-striped table-sm table-responsive" v-show="selectApertura_cierre=='9'">
-                <thead>
-                    <tr>
-                    <th colspan="2" style="background-color: cadetblue; color: white; text-align: center;" >Datos de venta</th>            
-                    </tr>
-                    <tr>                        
-                    <th style="text-align: center;" class="col-md-10">Tipo</th>
-                    <th style="text-align: center;" class="col-md-2">Valor</th>
-                    </tr>                       
-                </thead>
-                <tbody>
-                    <tr>
-                            <td style="text-align: end;">Total venta sistema:</td>
-                            <td style="text-align: end;">{{efe_m_2}}</td>
-                    </tr>
-                    <tr>
-                        <td style="text-align: end;">Total venta tarjeta:</td>
-                        <td style="text-align: end;">{{tar_m_2}}</td>
-                    </tr>
-                    <tr>
-                        <td style="text-align: end;">Total venta QR:</td>
-                        <td style="text-align: end;">{{qr_m_2}}</td>
+            <div class="alert alert-info" role="alert" style="text-align: center;" v-show="selectApertura_cierre=='9'">
+                <strong style="color: black;">Datos de venta </strong>
+            </div>
+            <div class="card-body"  v-show="selectApertura_cierre=='9'">    
+                <div class="form-group row">
+                         <div class="col-md-6">
+                            <table class="table table-bordered table-striped table-sm table-responsive">
+                                <thead>
+                                    <tr>
+                                        <th colspan="2" style="text-align: center;">Venta digital</th>
+                                    </tr>
+                                    <tr>                                        
+                                        <th>Tipo</th>
+                                        <th>Monto</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                     <tr>
+                        <td style="text-align: start;">Total venta tarjeta:</td>
+                        <td style="text-align: end;">{{tar_m_2+" "+caja_moneda_v2_modal_v2}}</td>
                     </tr>
                     <tr>
-                        <td style="text-align: end;">Total venta vales:</td>
-                        <td style="text-align: end;">{{val_m_2}}</td>
+                        <td style="text-align: start;">Total venta QR:</td>
+                        <td style="text-align: end;">{{qr_m_2+" "+caja_moneda_v2_modal_v2}}</td>
                     </tr>
                     <tr>
-                        <td style="text-align: end;">Total entradas:</td>
-                        <td style="text-align: end;">{{ entrada_m_2}}</td>
+                        <td><strong>Total:</strong> </td>
+                    <td style="text-align: end;"><strong>{{suma_solo_elec+" "+caja_moneda_v2_modal_v2}}</strong></td>
+                    </tr>
+                                </tbody>
+                            </table>    
+                         </div>
+                         <div class="col-md-6">
+                            <table class="table table-bordered table-striped table-sm table-responsive">
+                                <thead>
+                                    <tr>
+                                        <th colspan="2" style="text-align: center;">Venta en efectivo</th>
+                                    </tr>
+                                    <tr>                                        
+                                        <th>Tipo</th>
+                                        <th>Monto</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                      <tr>
+                            <td >Total venta sistema:</td>
+                            <td style="text-align: end;">{{efe_m_2+" "+caja_moneda_v2_modal_v2}}</td>
                     </tr>
                     <tr>
-                         <td style="text-align: end;">Total salidas:</td>
-                        <td style="text-align: end;">{{salida_m_2}}</td>
+                        <td >Total venta vales:</td>
+                        <td style="text-align: end;">{{val_m_2+" "+caja_moneda_v2_modal_v2}}</td>
                     </tr>
-                </tbody>
-               </table>   
+                    <tr>
+                        <td> <strong>Total:</strong></td>
+                    <td style="text-align: end;"><strong>{{suma_efectivo+" "+caja_moneda_v2_modal_v2}}</strong></td>
+                    </tr>
+                                </tbody>
+                            </table>  
+                         </div>
+                </div>
+
+                <div class="form-group row">
+                         <div class="col-md-6">
+                            <table class="table table-bordered table-striped table-sm table-responsive">
+                                <thead>
+                                    <tr>
+                                        <th colspan="2" style="text-align: center;">Operacion adicionales</th>
+                                    </tr>
+                                    <tr>                                        
+                                        <th>Tipo</th>
+                                        <th>Monto</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                     <tr>
+                        <td style="text-align: start;">Total entradas:</td>
+                        <td style="text-align: end;">{{entrada_m_2+" "+caja_moneda_v2_modal_v2}}</td>
+                    </tr>
+                    <tr>
+                        <td style="text-align: start;">Total salidas:</td>
+                        <td style="text-align: end;">{{salida_m_2+" "+caja_moneda_v2_modal_v2}}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Total:</strong></td>
+                    <td style="text-align: end;"><strong>{{operacion_e_s+" "+caja_moneda_v2_modal_v2}}</strong></td>
+                    </tr>
+                                </tbody>
+                            </table>    
+                         </div>
+                         <div class="col-md-6">
+                            <table class="table table-bordered table-striped table-sm table-responsive">
+                                <thead>
+                                    <tr>
+                                        <th colspan="2" style="text-align: center;">Arqueo de caja</th>
+                                    </tr>
+                                    <tr>                                        
+                                        <th>Tipo</th>
+                                        <th>Monto</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                       <tr>    
+                        <td >Apertura:</td>
+                        <td style="text-align: end;">{{ arqueo_inicial_v2+" "+caja_moneda_v2_modal_v2}}</td>
+                    </tr>
+                    <tr>
+                         <td >Cierre:</td>
+                        <td style="text-align: end;">{{arqueo_final_v2+" "+caja_moneda_v2_modal_v2}}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Total:</strong></td>
+                    <td style="text-align: end;"><strong>{{arqueo_total_v2+" "+caja_moneda_v2_modal_v2}}</strong></td>
+                    </tr>
+                                </tbody>
+                            </table>  
+                         </div>
+                </div>
+
+                <div class="form-group row">
+                         <div class="col-md-6">
+                            <table class="table table-bordered table-striped table-sm table-responsive">
+                                <thead>
+                                    <tr>
+                                        <th colspan="2" style="text-align: center;">Totales</th>
+                                    </tr>
+                                    <tr>                                        
+                                        <th>Tipo</th>
+                                        <th>Monto</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                     <tr>
+                        <td style="text-align: start;">Total venta en efectivo:</td>
+                        <td style="text-align: end;">{{tar_m_2+" "+caja_moneda_v2_modal_v2}}</td>
+                    </tr>
+                    <tr>
+                        <td style="text-align: start;">Total Operacion adicionales:</td>
+                        <td style="text-align: end;">{{operacion_e_s+" "+caja_moneda_v2_modal_v2}}</td>
+                    </tr>
+                    <tr>
+                        <td style="text-align: start;">Arqueo de caja salida:</td>
+                        <td style="text-align: end;">{{arqueo_final_v2+" "+caja_moneda_v2_modal_v2}}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Total:</strong> </td>
+                    <td style="text-align: end;"><strong>{{suma_1_v2+" "+caja_moneda_v2_modal_v2}}</strong></td>
+                    </tr>
+                                </tbody>
+                            </table>    
+                         </div>
+                         <div class="col-md-6">
+                            <table class="table table-bordered table-striped table-sm table-responsive">
+                                <thead>
+                                    <tr>
+                                        <th colspan="2" style="text-align: center;">Estados</th>
+                                    </tr>
+                                    <tr>                                        
+                                        <th>Tipo</th>
+                                        <th>Descripción</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                      <tr>
+                            <td >Estado caja:</td>   
+       
+          
+                            <td style="text-align: end;">{{estado_1_1_v2}}</td>
+                    </tr>
+                    <tr>
+                        <td >Estado sistema:</td>
+                        <td style="text-align: end;">{{estado_1_2_v2}}</td>
+                    </tr>
+                    <tr>
+                        <td> Estado operativo:</td>
+                    <td style="text-align: end;">{{estado_1_3_v2}}</td>
+                    </tr>
+                    <tr>
+                        <td> Diferencia:</td>
+                    <td style="text-align: end;">{{diferencia_caja_cierre_1_v2}}</td>
+                    </tr>
+                                </tbody>
+                            </table>  
+                         </div>
+                </div>
                 
-                
-     
+            </div>        
+      
                                  
                     </div>                   
                     <div class="modal-footer">
@@ -1123,7 +1287,12 @@
                 </div>
             </div>
         </transition>  
-        <!--fin del modal-->
+        <!--fin del modal-->   
+            </div>
+            <div class="alert alert-warning" role="alert" v-else>
+ Error!!!. <h4><strong>Esta opcion solo es para caja normal ya que la configuracion se cambio a caja modificada debe usar el otro modulo</strong></h4>
+</div>
+        
 
         </div>      
      
@@ -1270,7 +1439,25 @@ export default {
             val_m_2:0,
             entrada_m_2:0,
             salida_m_2:0,
-           
+            suma_solo_elec:0,
+            suma_efectivo:0,
+            operacion_e_s:0,
+           arqueo_inicial_v2:0,
+            arqueo_final_v2:0,
+             arqueo_total_v2:0,
+            suma_1_v2:0, 
+            estado_1_1_v2:'Error',
+            estado_1_2_v2:'Error',
+            estado_1_3_v2:'Error',
+            diferencia_caja_cierre_1_v2:0,
+
+            tipo_caja_x2_c:0,
+
+            monto_caja:0,
+            operacionInicial_c_c2:0,
+            estadoInicial_c_2:'error',
+            estadoColor:'E',
+
         };
     },
 
@@ -1289,7 +1476,8 @@ export default {
            let s = this.arrayCajaUsuario.find(
                        (element) => element.id === newValue);
                if (s) {               
-                   this.id_cajaxUsuario = s.id;  
+                   this.id_cajaxUsuario = s.id; 
+                   this.monto_caja=s.monto_caja; 
                }        
            }
     },
@@ -1532,6 +1720,7 @@ general_pdf(razon_social,sucursal,direccion,lugar,array_pdf,id_apertura,valor_to
                     var respuesta = response.data;
                     me.pagination = respuesta.pagination;
                     me.arrayIndex = respuesta.resultado.data;
+                    console.log(me.arrayIndex);
             
                 })
                 .catch(function (error) {
@@ -1562,7 +1751,7 @@ general_pdf(razon_social,sucursal,direccion,lugar,array_pdf,id_apertura,valor_to
                     }
 
                     if (respuesta_1===2) {
-                        Swal.fire("Ya se realizo una pertura.",
+                        Swal.fire("El usuario ya realizo la apertura en esta sucursal.",
                                         "Haga click en Ok",
                                         "error");
                     } else {
@@ -1971,6 +2160,22 @@ let operacion_apertura = operacion_acciones + monto_cerrar_apertura;
                 });
         },
 
+         verConfiguracionCaja(){
+            let me = this;           
+            var url ="/apertura_cierre/verConfiguracionCaja";
+            axios.get(url)
+                .then(function (response) {
+                    var respuesta = response.data;
+                   
+                    me.tipo_caja_x2_c=respuesta;   
+                    console.log(me.tipo_caja_x2_c);           
+                             
+                })
+                .catch(function (error) {
+                    error401(error);
+                });
+        },
+
         listarArqueoLista(data){
             let me = this;    
             let id=0;  
@@ -1978,7 +2183,10 @@ let operacion_apertura = operacion_acciones + monto_cerrar_apertura;
             let id_apertura=0;
             let id_cierre=0;
    id_cierre = data.id_cierre_2; 
-    id_apertura = data.id;      
+    id_apertura = data.id;   
+            me.operacionInicial_c_c2=data.estadoInicial;
+            me.estadoInicial_c_2=data.montoInicial;
+            me.estadoColor=data.estadoColor;
    
             if (me.selectApertura_cierre=='0') {
                  id_arqueo_caja = data.id_arqueo;             
@@ -2055,15 +2263,50 @@ let operacion_apertura = operacion_acciones + monto_cerrar_apertura;
                             let entrada = respuesta.query.entrada;
                             let salida =respuesta.query.salida;
                             let suma_total=respuesta.query.suma_total;
-                            let suma_solo_elec=respuesta.query.suma_solo_elec;
-                            let suma_efectivo = respuesta.query.suma_efectivo;
+                            me.suma_solo_elec=respuesta.query.suma_solo_elec;
+                            me.suma_efectivo = respuesta.query.suma_efectivo;
                             let suma_total_f = respuesta.query.suma_total_f;
                             let diferencia= respuesta.query.diferencia;
+                            me.operacion_e_s=respuesta.query.operacion_e_s;
                             //(valor).toFixed(2);
-                            console.log(entrada+"---"+salida+"---"+suma_total+"---"+suma_solo_elec+"---"+suma_efectivo+"---"+suma_total_f+"---"+diferencia);
+                            console.log(entrada+"---"+salida+"---"+suma_total+"---"+me.suma_solo_elec+"---"+me.suma_efectivo+"---"+suma_total_f+"---"+diferencia);
                             console.log(data.total_arqueo_caja);
                             console.log(parseFloat(data.total_arqueo_caja));
-                            let operacion=parseFloat(data.total_arqueo_caja)-diferencia
+                            let operacion=parseFloat(data.total_arqueo_caja)-diferencia;
+                            me.diferencia_caja_cierre_1_v2=data.diferencia_caja_cierre;
+                            me.arqueo_inicial_v2=data.total_arqueo_caja;
+                            me.arqueo_final_v2=data.total_arqueo_caja_cierre;
+                            me.arqueo_total_v2=parseFloat(me.arqueo_final_v2)-parseFloat(me.arqueo_inicial_v2);
+                            me.arqueo_total_v2=(me.arqueo_total_v2).toFixed(2);
+                            me.suma_1_v2=parseFloat(me.operacion_e_s)+parseFloat(me.suma_efectivo)+parseFloat(me.arqueo_final_v2);
+                            me.suma_1_v2=(me.suma_1_v2).toFixed(2);
+                          
+                            if (parseFloat(me.arqueo_final_v2)>parseFloat(me.arqueo_inicial_v2)) {
+                                me.estado_1_1_v2="Normal";
+                            }
+                            if (parseFloat(me.arqueo_final_v2)==parseFloat(me.arqueo_inicial_v2)) {
+                                me.estado_1_1_v2="Sin movimiento";
+                            }
+                             if (parseFloat(me.arqueo_final_v2)<parseFloat(me.arqueo_inicial_v2)) {
+                                me.estado_1_1_v2="Sospechoso";
+                            } 
+
+                            me.estado_1_2_v2 =data.estado_caja_cierre; 
+
+                            let suma_2_v2=parseFloat(me.operacion_e_s)+parseFloat(me.suma_efectivo)+parseFloat(me.arqueo_inicial_v2);
+                             suma_2_v2=(suma_2_v2).toFixed(2);
+                            if (suma_2_v2>parseFloat(me.arqueo_final_v2)) {
+                                me.estado_1_3_v2="Faltante";
+                            }
+                            if (suma_2_v2==parseFloat(me.arqueo_final_v2)) {
+                                me.estado_1_3_v2="Normal";
+                            }
+                            if (suma_2_v2<parseFloat(me.arqueo_final_v2)) {
+                                me.estado_1_3_v2="sobrante";
+                            }
+                            
+
+
                             console.log(operacion);
                             console.log((operacion).toFixed(2));
                             
@@ -2111,7 +2354,9 @@ let operacion_apertura = operacion_acciones + monto_cerrar_apertura;
         },
         
         registrarArqueo(){
-            let me = this;      
+            let me = this;
+            console.log(me.monto_caja);     
+       
             if (me.selectTurno === "0") {
                 Swal.fire(
                     "No se selecciono un tuno ",
@@ -2122,16 +2367,35 @@ let operacion_apertura = operacion_acciones + monto_cerrar_apertura;
                 if (me.isSubmitting) return;
 
 me.isSubmitting = true; // Deshabilita el botón
+
                 //------------------algoritmo-------------------------
                 let a=me.totalMonto;
                 let b=me.total_caja;
                 let estado="";
+                let operacionInicial=Number(0).toFixed(2);
+                let estadoInicial="Error";
                 //c ---- diferencia
                   //  b=40.60;
-                let cero=Number(0).toFixed(2);
-            
-                let c=a-b;   
-                         
+                let cero=Number(0).toFixed(2);              
+                let c=a-b;               
+                operacionInicial=a-Number(me.monto_caja).toFixed(2);
+                operacionInicial=  Number(operacionInicial).toFixed(2);
+
+               
+                    if (operacionInicial === cero) {
+                        estadoInicial="OK";                                       
+                    }
+
+                    if (operacionInicial < cero) {
+                        estadoInicial="Faltante";                                   
+                    }
+
+                    if (operacionInicial > cero) {
+                        estadoInicial="Sobrante";                                  
+                    }
+                    
+
+                
                 if (c===0) {
                     if (a===cero && b===cero) {
                         estado="Acción nula";
@@ -2197,7 +2461,9 @@ me.isSubmitting = true; // Deshabilita el botón
                         diferencia:0,
                         estado:estado,
                         moneda_s1:me.moneda_s1,
-                        id_cajaxUsuario:me.id_cajaxUsuario
+                        id_cajaxUsuario:me.id_cajaxUsuario,
+                        operacionInicial:operacionInicial,
+                        estadoInicial:estadoInicial,
                     })
                     .then(function (response) {
                        
@@ -2743,7 +3009,7 @@ me.isSubmitting = true; // Deshabilita el botón
     },
 
     mounted() {
-       
+       this.verConfiguracionCaja();
         this.verificador_moneda_sistemas();
      
         this.classModal = new _pl.Modals();
