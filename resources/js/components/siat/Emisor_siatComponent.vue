@@ -961,10 +961,22 @@ console.log(respuesta);
         subir_caja(){
             let me=this;
             // me.isSubmitting = true; // Deshabilita el botón
+            let tipo_caja=0;
+              let dato_a_buscar = this.arrayCaja.find(
+                    (element) => element.id === me.selectCaja,
+                );
+            
+            
+            if (dato_a_buscar) {
+                    tipo_caja = dato_a_buscar.tipo_caja;
+                }
+          
+                
             me.isSubmitting=true;
                 axios.put("/siat_emisor/subir_caja", {
                     id:me.id,
-                    id_caja:me.selectCaja,                                       
+                    id_caja:me.selectCaja, 
+                    tipo_caja:tipo_caja                                      
                 })
                 .then(function (response) {
                     me.cerrarModal('caja');
@@ -1010,20 +1022,31 @@ console.log(respuesta);
 
         crear(data){
             let me=this;
-           // me.isSubmitting = true; // Deshabilita el botón
+            let tipo_caja=0;
+              let dato_a_buscar = this.arrayCaja.find(
+                    (element) => element.id === me.selectCaja,
+                );
+            
+            
+            if (dato_a_buscar) {
+                    tipo_caja = dato_a_buscar.tipo_caja;
+                }
+
+            me.isSubmitting = true; // Deshabilita el botón
                 axios.post("/siat_emisor/crear", {
                     nombre:me.nombrePuntoVenta,
                     descripcion:me.descripcion,
                     id_siat_sucursal:me.sucursalSeleccionada,
                     id_punto_venta:data,
                     id_caja:me.selectCaja,  
-                    tipo:me.codigoTipoPuntoVenta,                      
+                    tipo:me.codigoTipoPuntoVenta,   
+                    tipo_caja:tipo_caja                   
                 })
                 .then(function (response) {
                     me.cerrarModal('registrar');
                      me.listarIndex(1,1); 
                     let respuesta=response.data;             
-                    
+                     me.isSubmitting=false;
                     if (respuesta.length>0) {
                         Swal.fire("Error!",""+respuesta,"error",);    
                     } else {

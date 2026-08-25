@@ -18,12 +18,13 @@ class CajaTransaccionController extends Controller
         $buscararray = array();
         $ini=$request->ini;
         $fini=$request->fini;
+        $id_caja=$request->id_caja;
 
         if (auth()->user()->super_usuario == 0) {
             $user = auth()->user()->id; 
-            $where = "(ct.id_sucursal = $request->id_sucursal and ct.tipo_deposito = $request->tipo_deposito and ct.id_usuario_registra = $user)";            
+            $where = "(ct.id_sucursal = $request->id_sucursal and ct.tipo_deposito = $request->tipo_deposito and ct.id_usuario_registra = $user and ct.id_caja = $id_caja)";            
         } else {
-            $where = "(ct.id_sucursal = $request->id_sucursal and ct.tipo_deposito = $request->tipo_deposito)";
+            $where = "(ct.id_sucursal = $request->id_sucursal and ct.tipo_deposito = $request->tipo_deposito and ct.id_caja = $id_caja)";
         }
         
         if ($request->tipo_deposito==1) {           
@@ -307,6 +308,7 @@ class CajaTransaccionController extends Controller
          $crear->observacion=$request->observacion;
          $crear->id_usuario_registra=auth()->user()->id;
          $crear->tipo_deposito=$request->tipo_deposito;
+         $crear->id_caja=$request->id_caja;
          $crear->save();
          $array=$request->array;
        
@@ -347,6 +349,7 @@ class CajaTransaccionController extends Controller
              $e->observacion=$request->observacion;
              $e->id_usuario_modifica=auth()->user()->id;
              $e->tipo_deposito=$request->tipo_deposito;
+              $e->id_caja=$request->id_caja;
              $e->save();
              
              if (count($array)>0) {

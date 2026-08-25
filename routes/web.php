@@ -209,7 +209,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/listarBloqueoLinea', [GetController::class, 'getBloqueoLinea']);  
     Route::get('/litarRubroSiat_xd', [GetController::class, 'getRubroSiat_xd']);    
     Route::get('/listarTablaSiatConfiguracion', [GetController::class, 'getTablaSiatConfiguracion']);  
-    Route::get('/listarSiatListaContingencia', [GetController::class, 'getSiatListaContingencia']);     
+    Route::get('/listarSiatListaContingencia', [GetController::class, 'getSiatListaContingencia']);  
+    Route::get('/listarTipoCajaX2', [GetController::class, 'get_tipo_caja_x2']); 
+       
      
         
     /**********************verificador de apertura cierre retornod e datos****************************** */
@@ -803,7 +805,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/gestor_ventas/venta/pdf2', [VenGestorVentaController::class, 'mostrarPDF']);
     Route::get('/gestor_ventas/verificador_dosificacion_o_facturacion', [VenGestorVentaController::class, 'verificador_dosificacion_o_facturacion']);    
     Route::get('/gestor_ventas/tieneApertura', [VenGestorVentaController::class, 'tieneApertura']);
-    Route::get('/gestor_ventas/get_producto_bloque', [VenGestorVentaController::class, 'get_producto_bloque']);    
+    Route::get('/gestor_ventas/get_producto_bloque', [VenGestorVentaController::class, 'get_producto_bloque']);   
+    Route::get('/gestor_ventas/tipoCajaV2', [VenGestorVentaController::class, 'tipo_caja_v2']);    
+    
 
         //*****SIAT FACTURACION VENTAS */
         Route::post('/gestor_ventas/ventaFacturaSiat', [VenGestorVentaController::class, 'ventaFacturaSiat']);
@@ -862,8 +866,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/apertura_cierre/listarImpTrans', [CajaAperturaCierreController::class, 'getImpTrans']); 
     Route::post('/apertura_cierre/sobrante_auto', [CajaAperturaCierreController::class, 'createSobrante_auto']); 
     Route::get('/apertura_cierre/listarArqueoLista', [CajaAperturaCierreController::class, 'get_arqueo_list']);  
-     Route::get('/apertura_cierre/verConfiguracionCaja', [CajaAperturaCierreController::class, 'get_configuracion_caja']);       
-    
+     Route::get('/apertura_cierre/verConfiguracionCaja', [CajaAperturaCierreController::class, 'get_configuracion_caja']); 
+     Route::put('/apertura_cierre/activarDesactivar_v2', [CajaAperturaCierreController::class, 'activar_desactivar_v2']); 
+         
     //entrada_salida
     Route::post('/entrada_salida/store', [CajaEntradaSalidaController::class, 'store']); 
     Route::get('/entrada_salida/index', [CajaEntradaSalidaController::class, 'index']); 

@@ -240,7 +240,7 @@ class SiatEmisorController extends Controller
     {
         try {
             // Iniciar una transacción
-           DB::beginTransaction();
+        DB::beginTransaction();
           $crear = new Siat_Emisor();
           $crear->nombre=$request->nombre;
           $crear->descripcion=$request->descripcion;
@@ -250,8 +250,8 @@ class SiatEmisorController extends Controller
           $crear->id_punto_venta=$request->id_punto_venta;      
           $crear->id_usuario_registra=auth()->user()->id;
           $crear->id_usuario_modifica=auth()->user()->id;
-          $crear->save();
-       
+          $crear->tipo_caja=$request->tipo_caja;
+          $crear->save();       
           DB::commit();
       } catch (\Throwable $th) {
          return $th;
@@ -289,6 +289,11 @@ class SiatEmisorController extends Controller
     }
 
     public function listar_caja(Request $request){
+
+         $tipo_caja = DB::table('adm__credecial_correos as acc')
+    ->where('id',1)   
+    ->value('acc.tipo_caja');                
+
         $resultado = DB::table('caja__creacions as ca')
     ->join('adm__sucursals as ass', 'ass.id', '=', 'ca.id_sucursal')
     ->join('siat__sucursals as ss', 'ss.id_sucursal', '=', 'ca.id_sucursal')
@@ -299,11 +304,13 @@ class SiatEmisorController extends Controller
         'ass.razon_social',
         'ss.nombre_suc_siat',
         'ss.codigo_siat',
-        'se.estado'    
+        'se.estado',
+        'ca.tipo_caja'    
     )
     ->where('ss.estado', 1)
     ->where('ass.activo', 1)
-    ->where('ca.estado', 1)    
+    ->where('ca.estado', 1) 
+    ->where('ca.tipo_caja',$tipo_caja)   
     ->where('ss.codigo_siat', $request->id)
     ->whereNull('se.id_caja') // Filtra los valores donde se.id_caja es NULL
     ->get();
@@ -318,6 +325,7 @@ class SiatEmisorController extends Controller
         $actualizar = Siat_Emisor::findOrFail($request->id);
         $actualizar->id_caja = $request->id_caja;       
         $actualizar->updated_at=auth()->user()->id;
+        $actualizar->tipo_caja=$request->tipo_caja;
         $actualizar->save();
         DB::commit();
         
@@ -334,6 +342,7 @@ class SiatEmisorController extends Controller
     
             $actualizar = Siat_Emisor::findOrFail($request->id);
             $actualizar->id_caja = null;
+            $actualizar->tipo_caja = 0;
             $actualizar->save();
     
             DB::commit();

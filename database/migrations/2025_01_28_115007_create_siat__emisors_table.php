@@ -26,7 +26,7 @@ return new class extends Migration
             $table->bigInteger('id_cufd')->nullable();   
             $table->tinyInteger('punto_venta_eliminado')->default(1);   
             $table->tinyInteger('delete')->nullable()->default(0); 
-                        
+            $table->tinyInteger('tipo_caja')->nullable()->default(0)->comment('0= sin datos , 1 = normal ,2 = modificada');            
             $table->timestamps();                       
         });
     }

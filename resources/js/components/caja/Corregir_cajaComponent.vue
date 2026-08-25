@@ -10,17 +10,17 @@
         <div class="container-fluid">
             <div class="card">
                 <div class="card-header">
-                    <i class="fa fa-align-justify"></i> Corregir caja               
-                   
+                    <i class="fa fa-align-justify"></i> Corregir caja   
                 </div>
         <div class="card-body">
             <div class="form-group row">
                 <div class="col-md-1" style="text-align: right">
                      <label for="">Sucursal:</label>
                 </div>
+                   
                         <div class="col-md-5">
                             <div class="input-group">
-                                <select class="form-control" v-model="sucursalSeleccionada" @change="listarIndex(0)">
+                                <select class="form-control" v-model="sucursalSeleccionada" @change="listarCajaUsuario()">
                                     <option value="0" disabled selected>Seleccionar...</option>
                                     <option v-for="sucursal in arraySucursal" :key="sucursal.id"  :value="sucursal.codigo" :hidden="sucursal.id_almacen!=null"
                                         v-text="sucursal.codigoS + ' -> ' + sucursal.codigo+' '+sucursal.razon_social">
@@ -28,40 +28,50 @@
                                 </select>
                             </div>
                         </div>
+                          
+                        
                         <div class="col-md-6">
                             <div class="input-group">
                                 <input type="text" id="texto" name="texto" class="form-control" placeholder="Buscar por usuario, codigo de caja, codigo "
                                     v-model="buscar"
                                     @keyup.enter="listarIndex(1)" 
-                                    :hidden="sucursalSeleccionada == 0"
-                                    :disabled="sucursalSeleccionada == 0"/>
+                                    :hidden="sucursalSeleccionada == 0 "
+                                    :disabled="sucursalSeleccionada == 0 || selectCajaxUsuario===0"/>
                                 <button type="submit" class="btn btn-primary"
                                 @click="listarIndex(1)"  
                                     :hidden="sucursalSeleccionada == 0"
-                                    :disabled="sucursalSeleccionada == 0"><i class="fa fa-search"></i> Buscar</button>
+                                    :disabled="sucursalSeleccionada == 0 || selectCajaxUsuario===0"><i class="fa fa-search"></i> Buscar</button>
                             </div>
                         </div>
                         
             </div>             
     <div class="form-group row"  :hidden="sucursalSeleccionada == 0" :disabled="sucursalSeleccionada == 0">
+
                 <div class="col-md-1">
                      <label for=""></label>
                 </div>
-                <div class="col-md-5">                      
+                <div class="col-md-5">
+                    <select class="form-control" style="margin-top: 25px;" v-model="selectCajaxUsuario" :hidden="sucursalSeleccionada===0" @change="listarIndex(0)">
+                        <option value="0" disabled selected>Seleccionar caja...</option>
+                        <option v-for="caja in arrayCajaUsuario" :key="caja.id" :value="caja.id"
+                                v-text="(caja.nombre_caja).toUpperCase()+' -> '+(caja.codigo).toUpperCase()"></option>
+                    </select>                                                          
                 </div>
         <div class="col-md-3">
           <label for="start-date">Fecha inicial:</label>
-          <input id="start-date" type="date" class="form-control" v-model="startDate" :disabled="sucursalSeleccionada===0" @change="listarIndex(0)">
+          <input id="start-date" type="date" class="form-control" v-model="startDate" :disabled="sucursalSeleccionada===0 || selectCajaxUsuario===0" @change="listarIndex(0)">
         </div>
         <div class="col-md-3">
           <label for="end-date">Fecha final:</label>
-          <input id="end-date" type="date" class="form-control" v-model="endDate" :disabled="sucursalSeleccionada===0" @change="listarIndex(0)">
+          <input id="end-date" type="date" class="form-control" v-model="endDate" :disabled="sucursalSeleccionada===0 || selectCajaxUsuario===0" @change="listarIndex(0)">
         </div>        
     </div> 
       
   <br>
-    <div class="alert alert-warning" role="alert" v-if="sucursalSeleccionada===0">
-        <span>Debe elegir una opción</span>
+    <div class="alert alert-warning" role="alert" v-if="sucursalSeleccionada===0 || selectCajaxUsuario===0 || tipo_caja_index ===2 || tipo_caja_index ===null" >
+        <span v-if="tipo_caja_index==1">Debe elegir una sucursal y una caja</span>
+        <span v-else>EN MODO DE CAJA AUTOMATICA NO SE PUEDE HACER ESTA OPCIÓN</span>
+   
     </div>
     <div v-else>
   <!---inserte tabla-->
@@ -408,6 +418,11 @@ export default {
 
             showModal: false,
             showModal_2: false,
+
+            
+            arrayCajaUsuario:[],    
+            selectCajaxUsuario:0,
+            tipo_caja_index:null,
         };
     },
 
@@ -459,8 +474,35 @@ export default {
             }        
         },
 
+          selectCajaxUsuario: function (newValue) {           
+           let s = this.arrayCajaUsuario.find(
+                       (element) => element.id === newValue);
+               if (s) {               
+                   this.id_cajaxUsuario = s.id; 
+                   this.monto_caja=s.monto_caja; 
+               }        
+           }
+
     },
     methods: {        
+
+
+ tipoCajaX2() {
+            let me = this;
+            const url = "/listarTipoCajaX2";
+            axios.get(url)
+                .then(function (response) {
+                   const respuesta=response.data;   
+                   if(respuesta==null){
+                    Swal.fire("Tabla de creacion de tipo sin seleccionar","Haga click en Ok","error",);
+                   }else{
+                    me.tipo_caja_index=respuesta;
+                   }
+                })
+                .catch(function (error) {
+                    error401(error);
+                });
+        },
 
         listaArqueo(data) {
             let me = this;
@@ -500,6 +542,7 @@ export default {
                     totalMonedas:me.totalMonedas,
                     moneda_s1:me.moneda_s1,
                     input:me.input,
+                    id_caja:me.selectCajaxUsuario,
                  
 
 
@@ -534,7 +577,7 @@ export default {
         listarIndex(page) {
             let me = this;  
             
-            var url ="/caja_modificar/listarInicio?page="+page+"&buscar=" +me.buscar+"&id_sucursal="+me.id_sucursal+"&ini="+me.startDate+"&fini="+me.endDate;
+            const url ="/caja_modificar/listarInicio?page="+page+"&buscar=" +me.buscar+"&id_sucursal="+me.id_sucursal+"&ini="+me.startDate+"&fini="+me.endDate+"&id_caja="+me.selectCajaxUsuario+"&tipo_caja="+me.tipo_caja_index;
           
             axios.get(url)
                 .then(function (response) {
@@ -547,6 +590,37 @@ export default {
                     error401(error);
                 });
         },
+
+         listarCajaUsuario() {
+            let me = this;
+           me.arrayCajaUsuario=[];
+           var url = "/apertura_cierre/listarCaja_usuario?id_sucursal="+me.id_sucursal;
+            axios.get(url).then(function (response) {
+                    const respuesta = response.data;   
+                    const msn =respuesta.msn;
+                    const respuestaJson=respuesta.dato;
+                    const tipo=respuesta.tipo
+                    if (tipo==1) {
+                      Swal.fire( "Error.",""+msn,"error");
+                      return;  
+                    }
+                    me.arrayCajaUsuario = respuestaJson;
+                  console.log(respuesta);
+                  console.log(msn);
+                  
+                })
+                .catch(function (error) {
+                    error401(error);
+                });
+        },
+
+         cambioDeEstado(){
+            let me = this;
+            me.arrayIndex=[];
+     //    me.selectApertura_cierre=1;
+         me.selectCajaxUsuario=0;
+        },
+
 
         validateIntegerInput(id,index) {
             let me = this;
@@ -740,7 +814,7 @@ export default {
     const today = new Date();    
     // Obtener la fecha actual menos 5 días
     const startDate = new Date();
-    startDate.setDate(today.getDate() - 20);
+    startDate.setDate(today.getDate() - 31);
     // Formatear el año, mes y día para la fecha de inicio
     const startYear = startDate.getFullYear();
     const startMonth = String(startDate.getMonth() + 1).padStart(2, '0'); // Meses en JavaScript son de 0 a 11
@@ -764,6 +838,7 @@ export default {
 
     mounted() {
         this.classModal = new _pl.Modals();
+        this.tipoCajaX2();
         this.verificador_moneda_sistemas();
         this.sucursalFiltro();
         this.fecha_inicial();

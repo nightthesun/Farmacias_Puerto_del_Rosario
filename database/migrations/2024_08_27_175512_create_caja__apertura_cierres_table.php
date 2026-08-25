@@ -30,7 +30,10 @@ return new class extends Migration
             $table->smallInteger('id_caja')->nullable();
             $table->string('estadoInicial',110)->nullable()->default('ERROR');
             $table->decimal('montoInicial_v2',11,2)->nullable()->default(0);
-        });
+            $table->tinyInteger('tipo_caja')->nullable()->default(0)->comment('0 error, 1 con apertura y cierre, 2 caja normal sin apertura o cierre');
+            $table->tinyInteger('estado')->nullable()->default(1)->comment('solo se puede desactivar en caja modificada');
+      
+            });
     }
 
     /**

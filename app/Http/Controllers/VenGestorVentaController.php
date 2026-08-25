@@ -2142,16 +2142,17 @@ $nombre_empresa = strtoupper($nombre_e);
     public function verificador_dosificacion_o_facturacion(Request $request){
         
         $credencialesCorreos = DB::table('adm__credecial_correos as acc')
-    ->select('acc.id', 'acc.factura_dosificacion')    
-    ->get();
+    ->select('acc.id', 'acc.factura_dosificacion','acc.tipo_caja')  
+    ->where('id',1)   
+    ->first();
     $data_return_estado="";
     $fechaHoy = Carbon::now()->format('Y-m-d');  
   
-    if ($credencialesCorreos[0]->factura_dosificacion==null || $credencialesCorreos[0]->factura_dosificacion=="" || $credencialesCorreos[0]->factura_dosificacion==0) {
+    if ($credencialesCorreos->factura_dosificacion==null || $credencialesCorreos->factura_dosificacion=="" || $credencialesCorreos->factura_dosificacion==0) {
         return response()->json(['estado' => 0, 'consulta' => null,'query'=>null]);
     } else{
 
-            switch ($credencialesCorreos[0]->factura_dosificacion) {
+            switch ($credencialesCorreos->factura_dosificacion) {
                 case 1:
                        ///---- falta datos de factura en linea siat
                        $query_1 =  DB::table('adm__credecial_correos as a')
@@ -2178,6 +2179,7 @@ $query_emisor= DB::table('siat__emisors as e')
     ->whereNotNull('e.id_caja')
     ->where('e.id_caja', $request->id_caja)//emisor
     ->where('c.id_sucursal', $request->id_sucursal)//sucursal de sistema
+    ->where('c.tipo_caja', $request->tipo)
     ->first();
   
                         
@@ -2313,7 +2315,17 @@ if ($hoy->greaterThan($fechaA)) {
 $query= DB::table('adm__credecial_correos')
 ->where('id',1)->value('tipo_caja');
 
+if($query==null || $query==0){
+    return response()->json([
+            'error' => 1,
+            'datos'=>null,
+            'tipo'=>null, 
+            'msn' => 'La configuracion de la caja no esta o esta con valor cero necesita configuracion',
+        ]);
+}
 
+  
+if ($query==1) {  
     $ultimoRegistro = DB::table('caja__apertura_cierres as cac')
     ->join('caja__arqueo as ca', 'cac.id_arqueo', '=', 'ca.id')
     ->join('users as u', 'u.id', '=', 'ca.id_usuario')
@@ -2324,34 +2336,67 @@ $query= DB::table('adm__credecial_correos')
     ->where('cac.id_cierre', 0)
     ->orderBy('cac.created_at', 'desc')
     ->first();
-
-    if($ultimoRegistro==null){
-        $ultimoRegistro=0;  
-    }     
- return $ultimoRegistro; 
- 
- // te quedaste aqui---------------------------------- para compelltar 
-if($query==null || $query==0){
-    return response()->json([
+    if($ultimoRegistro==null){        
+        return response()->json([
             'error' => 1,
-            'datos'=>null,
-            'tipo'=>null, 
-            'msn' => 'La configuracion de la caja no esta o esta con valor cero necesita configuracion',
+            'datos'=>null,  
+            'tipo'=>$query,           
+            'msn' => 'Debe aperturar una caja. Caja no existente',
         ]);
-}
-
-if ($query==1) {
-
-      return response()->json([
+    }else{       
+        if($ultimoRegistro->tipo_caja_c_a==9||$ultimoRegistro->id_apertura_cierre!=0){
+             return response()->json([
+            'error' => 1,
+            'datos'=>null,  
+            'tipo'=>$query,           
+            'msn' => 'Debe aperturar una caja nivel. Duplicidad de caja o caja ya existente',
+        ]);          
+        }else{
+            return response()->json([
             'error' => 0,
-            'datos'=>null,
-            
-            'msn' => 'La configuracion caja normal',
-        ]);
+            'datos'=>$ultimoRegistro,  
+            'tipo'=>$query,           
+            'msn' => 'Carga correcta',
+        ]);  
+        }
+    } 
+      
 }
 
 
 
+    
+ 
+ 
+
+
+
+    }
+
+
+    public function tipo_caja_v2(){
+         $id_user=auth()->user()->id; 
+        if ($id_user==1) {
+            $idsuc = 1;
+        } else {
+            $idsuc = session('idsuc');
+        }
+
+          $tipo_caja = DB::table('adm__credecial_correos')       
+            ->where('id', 1)
+            ->value('tipo_caja');
+        if($tipo_caja==null||$tipo_caja==""){
+            $tipo_caja=0;
+        }
+            
+          $caja = DB::table('caja__creacions')
+          ->select('id','codigo','nombre_caja','monto_caja','moneda')
+          ->whereRaw('FIND_IN_SET(?,id_users)',[$id_user])
+    ->where('id_sucursal', $idsuc)
+    ->where('tipo_caja', $tipo_caja)
+    ->where('estado', 1)
+    ->get();
+                    return $caja;
     }
     
 

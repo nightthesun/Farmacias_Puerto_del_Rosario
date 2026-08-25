@@ -18,12 +18,15 @@ class CajaModificacionController extends Controller
 
         $bus = $request->id_sucursal;
         $ok="OK";
+        $id_caja=$request->id_caja;
+        $tipo_caja=$request->tipo_caja;
+        
      
         if (auth()->user()->super_usuario == 0) {
             $user = auth()->user()->id; 
-            $where = "(cac.id_sucursal = '$bus' and cc.estado_caja <> '$ok' and ca.id_usuario = $user)";            
+            $where = "(cac.id_sucursal = '$bus' and cc.estado_caja <> '$ok' and ca.id_usuario = $user and cc_2.id = $id_caja and cac.estado = 1 and cac.tipo_caja = $tipo_caja)";            
         } else {
-            $where = "(cac.id_sucursal = '$bus' and cc.estado_caja <> '$ok')"; 
+            $where = "(cac.id_sucursal = '$bus' and cc.estado_caja <> '$ok' and cc_2.id = $id_caja and cac.estado = 1 and cac.tipo_caja = $tipo_caja)"; 
         }
 
         if (!empty($request->buscar)) {
@@ -68,6 +71,7 @@ class CajaModificacionController extends Controller
                 'cc_2.codigo',
                 'cc_2.nombre_caja',
                 'cc_2.moneda',
+                'cac.tipo_caja',
               
                'u.name','cc.estado_caja',
                'cm.id as id_mod_v2','cm.monto_dif as monto_v2',
@@ -78,9 +82,9 @@ class CajaModificacionController extends Controller
                 ])
                // ->where('cc.estado_caja', '<>', 'OK')
                // ->where('cac.id_sucursal', $request->id_sucursal)
-               ->whereRaw($where)
-               ->whereRaw($sqls)               
-                ->orderByDesc('cc.id')
+            ->whereRaw($where)
+            ->whereRaw($sqls)               
+            ->orderByDesc('cc.id')
            
                 ->paginate(15);    
             }
@@ -118,6 +122,7 @@ class CajaModificacionController extends Controller
                 'cc_2.codigo',
                 'cc_2.nombre_caja',
                 'cc_2.moneda',
+                'cac.tipo_caja',
                'u.name','cc.estado_caja', 
                'cm.id as id_mod_v2','cm.monto_dif as monto_v2',
                'cm.estado as estado_v2','cm.motivo as motivo_v2',
@@ -153,8 +158,7 @@ class CajaModificacionController extends Controller
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
-    {
-       
+    {       
         try {
             DB::beginTransaction();
            

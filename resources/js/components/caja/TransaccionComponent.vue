@@ -26,21 +26,33 @@
                 <div class="col-md-1" style="text-align: right">
                      <label for="">Sucursal:</label>
                 </div>
-                        <div class="col-md-5">
+              
+                        <div class="col-md-3">
                             <div class="input-group">
-                                <select class="form-control" v-model="sucursalSeleccionada" @change="cambioDeSucursal()">
+                                <select class="form-control" v-model="sucursalSeleccionada" @change="cambioDeSucursal(); listarCajaUsuario()">
                                     <option value="0" disabled selected>Seleccionar...</option>
                                     <option v-for="sucursal in arraySucursal" :key="sucursal.id"  :value="sucursal.codigo" :hidden="sucursal.tipoCodigo==='Almacen'"
-                                        v-text="sucursal.codigoS +' -> '+sucursal.codigo+' '+sucursal.razon_social"></option>
+                                        v-text="sucursal.codigoS +' -> '+sucursal.codigo+' '+sucursal.razon_social">
+                                    </option>
                                 </select>
                             </div>
                         </div>
+                        <div class="col-md-3">
+                            <div class="input-group">
+                                <select class="form-control" v-model="selectCajaxUsuario" :hidden="sucursalSeleccionada===0" @change="cambioDeEstado_ver_2()">
+                                    <option value="0" disabled selected>Seleccionar caja...</option>
+                                    <option v-for="caja in arrayCajaUsuario" :key="caja.id" :value="caja.id"
+                                     v-text="(caja.nombre_caja).toUpperCase()+' -> '+(caja.codigo).toUpperCase()"></option>
+                                </select>
+                            </div>
+                        </div>
+                         
                         <div class="col-md-5">
                             <div class="input-group">
                                 <input type="text" id="texto" name="texto" class="form-control" placeholder="Comprobante a buscar..." v-model="buscar" @keyup.enter="listarIndex(1)" 
                                     :hidden="sucursalSeleccionada == 0"
-                                    :disabled="sucursalSeleccionada == 0"/>
-                                <button type="submit" class="btn btn-primary" @click="listarIndex(1)" :hidden="sucursalSeleccionada == 0" :disabled="sucursalSeleccionada == 0">
+                                    :disabled="sucursalSeleccionada == 0 || selectCajaxUsuario===0 || selectPersona_banco===0"/>
+                                <button type="submit" class="btn btn-primary" @click="listarIndex(1)" :hidden="selectPersona_banco == 0" :disabled="sucursalSeleccionada == 0 || selectCajaxUsuario===0 || selectPersona_banco===0">
                                     <i class="fa fa-search"></i> Buscar
                                 </button>
                             </div>
@@ -474,6 +486,9 @@ export default {
                 puedeCrear:2,
                 //-----------
 
+               arrayCajaUsuario:[],    
+                selectCajaxUsuario:0,
+
            
         };
     },
@@ -525,7 +540,15 @@ export default {
             if (s) {               
                 this.id_sucursal = s.id_sucursal;  
             }        
-        }
+        },
+         selectCajaxUsuario: function (newValue) {           
+           let s = this.arrayCajaUsuario.find(
+                       (element) => element.id === newValue);
+               if (s) {               
+                   this.id_cajaxUsuario = s.id; 
+                   this.monto_caja=s.monto_caja; 
+               }        
+           }
     },
 
     methods: {
@@ -564,7 +587,7 @@ listarPerimsoxyz() {
         listarIndex(page){
          //   /transaccion/listar_   
                 let me=this;
-                var url='/transaccion/listar_?page='+page+'&buscar='+me.buscar+'&id_sucursal='+me.id_sucursal+'&tipo_deposito='+me.selectPersona_banco+"&ini="+me.startDate+"&fini="+me.endDate;
+                var url='/transaccion/listar_?page='+page+'&buscar='+me.buscar+'&id_sucursal='+me.id_sucursal+'&tipo_deposito='+me.selectPersona_banco+"&ini="+me.startDate+"&fini="+me.endDate+"&id_caja="+me.selectCajaxUsuario;
                 axios.get(url).then(function(response){
                     var respuesta=response.data;
                     me.pagination = respuesta.pagination;
@@ -590,6 +613,12 @@ listarPerimsoxyz() {
                 });
         },
 
+     cambioDeEstado_ver_2(){
+            let me = this;
+            me.arrayIndex=[];
+      //   me.selectApertura_cierre=1;        
+        },
+        
         registrar_2() {
             let me = this;
         
@@ -635,7 +664,8 @@ me.isSubmitting = true; // Deshabilita el botón
                     monto_total:me.valor_total,
                     observacion:me.observacion,
                     tipo_deposito:me.selectPersona_banco,
-                    array:me.arrayAñadir                     
+                    array:me.arrayAñadir,
+                    id_caja:me.selectCajaxUsuario                 
                     })       
                     .then(function (response) {
                         me.cerrarModal("registrar");
@@ -656,6 +686,36 @@ me.isSubmitting = true; // Deshabilita el botón
                 Swal.fire("Error","Acción sospechosa","error");
             }
 
+        },
+
+        cambioDeEstado(){
+            let me = this;
+            me.arrayIndex=[];
+     //    me.selectApertura_cierre=1;
+         me.selectCajaxUsuario=0;
+        },
+
+        listarCajaUsuario() {
+            let me = this;
+           me.arrayCajaUsuario=[];
+           var url = "/apertura_cierre/listarCaja_usuario?id_sucursal="+me.id_sucursal;
+            axios.get(url).then(function (response) {
+                    const respuesta = response.data;   
+                    const msn =respuesta.msn;
+                    const respuestaJson=respuesta.dato;
+                    const tipo=respuesta.tipo
+                    if (tipo==1) {
+                      Swal.fire( "Error.",""+msn,"error");
+                      return;  
+                    }
+                    me.arrayCajaUsuario = respuestaJson;
+                  console.log(respuesta);
+                  console.log(msn);
+                  
+                })
+                .catch(function (error) {
+                    error401(error);
+                });
         },
 
         editar_2(){
@@ -711,7 +771,8 @@ if (me.arrayAñadir.length>0) {
                     observacion:me.observacion,
                     tipo_deposito:me.selectPersona_banco,
                     array:me.arrayAñadir,
-                    
+                    id_caja:me.selectCajaxUsuario,
+
                     id_modulo: me.idmodulo,
                     id_sub_modulo:me.codventana, 
                     des:permiso_e,  

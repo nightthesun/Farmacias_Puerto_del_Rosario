@@ -2,7 +2,7 @@
     
     <main class="main">
         <div  v-if="bloqueador>0">
-            <div v-if="tipo_caja_x2_c===1">
+          
                      <!-- Breadcrumb -->
         <ol class="breadcrumb">
             <li class="breadcrumb-item">Home</li>
@@ -14,14 +14,24 @@
         <div class="container-fluid">
             <div v-if="verificador>0" class="card">
                 <div class="card-header">
-              
-                    <i class="fa fa-align-justify"></i> Aperturar caja:             
+                      <div class="row">
+                            <div class="col-9">
+ <i class="fa fa-align-justify"></i> Aperturar caja:             
                     <button type="button"  class="btn btn-secondary" @click="cajaAnteriror();"
                         :disabled="selectApertura_cierre!=0">
                         <i class="icon-plus"></i>&nbsp;Nuevo
                     </button>
                     <span v-if="sucursalSeleccionada === 0 " class="error"
                         >&nbsp; &nbsp;Debe Seleccionar una sucursal.</span >
+                            </div>                   
+                      
+                            <div class="col-3">
+                                <strong style="color: grey;" v-if="tipo_caja_x2_c==1">CAJA NORMAL</strong>
+                                <strong style="color: darkgoldenrod;" v-else-if="tipo_caja_x2_c==2">CAJA MODIFICADA</strong>
+                                <strong style="color: red;"  v-else>ERROR DE CAJA</strong>
+                            </div>
+                            
+                        </div>
                 </div>
         <div class="card-body">
             <div class="form-group row">
@@ -85,15 +95,15 @@
                         <select class="form-control" v-model="selectApertura_cierre" :disabled="selectCajaxUsuario===0" @change="listarIndex(0)">
                                     <option value=1 disabled selected>Seleccionar...</option>
                                     <option value=0>Apertura</option>
-                                    <option value=9>Cierre</option>
+                                    <option value=9 v-show="tipo_caja_x2_c===1">Cierre</option>
                         </select>
                                         
                 </div>
-        <div class="col-md-3">
+        <div class="col-md-3" v-show="tipo_caja_x2_c==1">
           <label for="start-date">Fecha inicial:</label>
           <input id="start-date" type="date" class="form-control"  v-model="startDate" :disabled="sucursalSeleccionada===0 || selectApertura_cierre===1" @change="listarIndex(0)" >
         </div>
-        <div class="col-md-3">
+        <div class="col-md-3" v-show="tipo_caja_x2_c==1">
           <label for="end-date">Fecha final:</label>
           <input id="end-date" type="date" class="form-control" v-model="endDate" :disabled="sucursalSeleccionada===0 || selectApertura_cierre===1" @change="listarIndex(0)">
         </div>        
@@ -142,11 +152,19 @@
                                 <i class="fa fa-low-vision" aria-hidden="true"></i>
                                 </button> 
                                 </div>
-                               
-                                <button v-if="i.id_apertura_cierre === 0" type="button" class="btn btn-danger" style="margin-right: 5px;" @click="abrirModalCerrar(i);">
+                               <div v-if="tipo_caja_x2_c==1">
+                                    <button v-if="i.id_apertura_cierre === 0" type="button" class="btn btn-danger" style="margin-right: 5px;" @click="abrirModalCerrar(i);">
                                     <i class="fa fa-lock" aria-hidden="true"></i></button>                             
                                     <button v-else type="button" class="btn btn-light" style="margin-right: 5px;">
                                         <i class="fa fa-lock" aria-hidden="true"></i></button>   
+                               </div>
+                               <div v-else>
+                                    <button v-if="i.estado === 1" type="button" class="btn btn-danger" style="margin-right: 5px;" @click="activarDesactivar_v2(i.id,0,i)">
+                                    <i class="icon-trash"></i></button>                           
+                                    <button v-else type="button" class="btn btn-info" style="margin-right: 5px;" @click="activarDesactivar_v2(i.id,1,i)">
+                                          <i class="icon-check"></i></button> 
+                               </div>
+                              
                             </div>
                         </td>
               
@@ -220,8 +238,10 @@
 
                         </td>                       
                         <td class="col-md-1">
-                            <span v-if="i.id_apertura_cierre===0" class="badge badge-pill badge-success">Activo</span>
+                            <span v-if="i.id_apertura_cierre===0" class="badge badge-pill badge-success">Abrierta</span>
                             <span v-else class="badge badge-pill badge-danger">Cerrado</span>
+                            <span v-if="i.estado===1" class="badge badge-pill badge-success">Activo</span>
+                            <span v-else class="badge badge-pill badge-danger">Desactivado</span>
                         </td>
                     </tr>
                 </tbody>
@@ -1288,10 +1308,8 @@
             </div>
         </transition>  
         <!--fin del modal-->   
-            </div>
-            <div class="alert alert-warning" role="alert" v-else>
- Error!!!. <h4><strong>Esta opcion solo es para caja normal ya que la configuracion se cambio a caja modificada debe usar el otro modulo</strong></h4>
-</div>
+       
+        
         
 
         </div>      
@@ -1457,6 +1475,7 @@ export default {
             operacionInicial_c_c2:0,
             estadoInicial_c_2:'error',
             estadoColor:'E',
+      
 
         };
     },
@@ -1713,7 +1732,7 @@ general_pdf(razon_social,sucursal,direccion,lugar,array_pdf,id_apertura,valor_to
         listarIndex(page) {
             let me = this;  
             let entrada=me.selectApertura_cierre;      
-            var url ="/apertura_cierre/index?page="+page+"&buscar=" +me.buscar+"&id_sucursal="+me.id_sucursal+"&a_e="+parseInt(entrada)+"&ini="+me.startDate+"&fini="+me.endDate+"&id_caja="+me.selectCajaxUsuario;
+            var url ="/apertura_cierre/index?page="+page+"&buscar=" +me.buscar+"&id_sucursal="+me.id_sucursal+"&a_e="+parseInt(entrada)+"&ini="+me.startDate+"&fini="+me.endDate+"&id_caja="+me.selectCajaxUsuario+"&tipo_caja="+me.tipo_caja_x2_c;
           
             axios.get(url)
                 .then(function (response) {
@@ -1730,18 +1749,24 @@ general_pdf(razon_social,sucursal,direccion,lugar,array_pdf,id_apertura,valor_to
 
         cajaAnteriror(){
             let me=this;
-            var url = "/apertura_cierre/cajaAnteriror?id_sucursal="+me.id_sucursal+"&id_caja="+me.selectCajaxUsuario;
+            var url = "/apertura_cierre/cajaAnteriror?id_sucursal="+me.id_sucursal+"&id_caja="+me.selectCajaxUsuario+"&tipo_caja="+me.tipo_caja_x2_c;
     
             me.estado_aperturaCierre="";
             me.monto_aperturaCierre="";
             me.bandera_aperturaCierre=0;
             axios.get(url).then(function (response) {
-              
-                    var respuesta = response.data; 
-                    var respuesta_1 = (response.data).ultimoRegistro;
-                    var respuesta_2 = (response.data).ultimoRegistro_2;
+              console.log("*-----");
+                    const respuesta = response.data; 
+                    console.log(respuesta);
+                    const respuesta_1 = (response.data).ultimoRegistro;
+                    const respuesta_2 = (response.data).ultimoRegistro_2;
+                    const msn = respuesta.msn;
+                    console.log(msn.errorInfo);
+                    const data_q = respuesta.data;
 
-                    if (respuesta_2===0 || respuesta_2===1 || respuesta_2===2) {
+                    if (data_q===0) {
+
+                        if (respuesta_2===0 || respuesta_2===1 || respuesta_2===2) {
                         me.bandera_aperturaCierre=0; 
                     } else {                        
                     
@@ -1750,14 +1775,10 @@ general_pdf(razon_social,sucursal,direccion,lugar,array_pdf,id_apertura,valor_to
                         me.bandera_aperturaCierre=1; 
                     }
 
-                    if (respuesta_1===2) {
-                        Swal.fire("El usuario ya realizo la apertura en esta sucursal.",
-                                        "Haga click en Ok",
-                                        "error");
+                    if (respuesta_1===2) {                        
+                       
+                        Swal.fire(""+msn.errorInfo,"Haga click en Ok","error");
                     } else {
-                 
-                        
-
                  if (respuesta_1===0 || respuesta_1===1) {
                         if (respuesta_1===1) {
                             me.respuesta_inicio=1;
@@ -1814,7 +1835,10 @@ general_pdf(razon_social,sucursal,direccion,lugar,array_pdf,id_apertura,valor_to
                         }
                     }
                     }
-                   
+
+                    }else{
+                       Swal.fire(""+msn.errorInfo,"Haga click en Ok","error"); 
+                    }                   
                 })
                 .catch(function (error) {
                     error401(error);
@@ -1832,8 +1856,76 @@ general_pdf(razon_social,sucursal,direccion,lugar,array_pdf,id_apertura,valor_to
         cambioDeEstado_ver_2(){
             let me = this;
             me.arrayIndex=[];
-         me.selectApertura_cierre=1;
-        
+         me.selectApertura_cierre=1;        
+        },
+
+       
+
+         activarDesactivar_v2(id,estado,datos) {
+            let me = this;
+            console.log(datos);
+            let text_cambiar_1="";
+            let text_cambiar_2="";
+            if(estado==1){
+                text_cambiar_1="Esta Seguro de Desactivar?";
+                text_cambiar_2="Desactivar";
+            }else{
+                text_cambiar_1="Esta Seguro de Activar?";
+                text_cambiar_2="Activar";
+            }           
+            const swalWithBootstrapButtons = Swal.mixin({
+                customClass: {
+                    confirmButton: "btn btn-success",
+                    cancelButton: "btn btn-danger",
+                },
+                buttonsStyling: false,
+            });
+
+            swalWithBootstrapButtons
+                .fire({
+                    title: text_cambiar_1,
+                    text: "Es una eliminacion logica",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Si, "+text_cambiar_2,
+                    cancelButtonText: "No, Cancelar",
+                    reverseButtons: true,
+                })
+                .then((result) => {
+                    if (result.isConfirmed) {
+                   
+                        axios.put("/apertura_cierre/activarDesactivar_v2", {
+                                id: id,
+                                estado: estado,       
+                                id_sucursal:datos.id_sucursal,
+                                tipo_caja:2,
+                                id_caja:datos.id_caja_v2                    
+                            })
+                            .then(function (response) {
+                                const respuesta=response.data;
+                                console.log(respuesta);
+                                if(respuesta==0){
+                                me.listarIndex();
+                                swalWithBootstrapButtons.fire(
+                                    text_cambiar_2,"El registro a sido "+text_cambiar_2+" Correctamente","success",
+                                );    
+                                }else{
+                                   swalWithBootstrapButtons.fire(
+                                      ""+respuesta, "Error.","error",
+                                );   
+                                }
+                                                          
+                            })                          
+                           .catch(function (error) {           
+                            
+                            
+            });
+                    } else if (
+                        /* Read more about handling dismissals below */
+                        result.dismiss === Swal.DismissReason.cancel
+                    ) {
+                    }
+                });
         },
 
         añadir_v2(){        
@@ -2078,6 +2170,7 @@ let operacion_apertura = operacion_acciones + monto_cerrar_apertura;
                         id_sucursal:me.id_sucursal,
 
                         efecto_sobrante:me.efecto_sobrante,
+                         tipo_caja:me.tipo_caja_x2_c
 
                     }).then(function (response) {
                        let estado_res=estado;
@@ -2165,10 +2258,9 @@ let operacion_apertura = operacion_acciones + monto_cerrar_apertura;
             var url ="/apertura_cierre/verConfiguracionCaja";
             axios.get(url)
                 .then(function (response) {
-                    var respuesta = response.data;
-                   
+                    var respuesta = response.data;                   
                     me.tipo_caja_x2_c=respuesta;   
-                    console.log(me.tipo_caja_x2_c);           
+                        
                              
                 })
                 .catch(function (error) {
@@ -2464,6 +2556,7 @@ me.isSubmitting = true; // Deshabilita el botón
                         id_cajaxUsuario:me.id_cajaxUsuario,
                         operacionInicial:operacionInicial,
                         estadoInicial:estadoInicial,
+                        tipo_caja:me.tipo_caja_x2_c
                     })
                     .then(function (response) {
                        
@@ -2554,8 +2647,19 @@ me.isSubmitting = true; // Deshabilita el botón
            me.arrayCajaUsuario=[];
            var url = "/apertura_cierre/listarCaja_usuario?id_sucursal="+me.id_sucursal;
             axios.get(url).then(function (response) {
-                    var respuesta = response.data;                  
-                    me.arrayCajaUsuario = respuesta;                     
+                    const respuesta = response.data;   
+                    const msn =respuesta.msn;
+                    const respuestaJson=respuesta.dato;
+                    const tipo=respuesta.tipo
+                    if (tipo==1) {
+                      Swal.fire( "Error.",""+msn,"error");
+                      return;  
+                    }
+                    me.arrayCajaUsuario = respuestaJson;
+                  console.log(respuesta);
+                  console.log(msn);
+
+                  
                 })
                 .catch(function (error) {
                     error401(error);
@@ -2611,6 +2715,10 @@ me.isSubmitting = true; // Deshabilita el botón
                     error401(error);
                 });
         },
+
+      
+
+        
 
         cambiarPestana(idPestana) {
             this.pestañaActiva = idPestana;
@@ -2982,6 +3090,8 @@ me.isSubmitting = true; // Deshabilita el botón
 
 
        fecha_inicial() {
+        console.log("------------");
+     
     // Obtener la fecha actual
     const today = new Date();    
     // Obtener la fecha actual menos 5 días
@@ -3009,6 +3119,7 @@ me.isSubmitting = true; // Deshabilita el botón
     },
 
     mounted() {
+        
        this.verConfiguracionCaja();
         this.verificador_moneda_sistemas();
      

@@ -258,15 +258,33 @@ return $result;
      //   ->orderBy('id', 'desc')
      //   ->first();
      $id_user = Auth()->user()->id;
-     $ultimoRegistro = DB::table('caja__apertura_cierres as cac')
+     /* 
+       $ultimoRegistro = DB::table('caja__apertura_cierres as cac')
     ->join('caja__arqueo as ca', 'cac.id_arqueo', '=', 'ca.id')
+    ->select('cac.id','cac.turno_caja', 'cac.tipo_caja_c_a', 'cac.total_caja', 'cac.estado_caja', 'cac.id_arqueo','cac.id_cierre as id_apertura_cierre')
+    
     ->where('cac.tipo_caja_c_a', 0)
     ->where('cac.id_sucursal', $request->id_sucursal)
     ->where('cac.id_cierre', 0)
     ->where('ca.id_usuario', $id_user)
     ->orderBy('cac.created_at', 'DESC')    
-    ->select('cac.id','cac.turno_caja', 'cac.tipo_caja_c_a', 'cac.total_caja', 'cac.estado_caja', 'cac.id_arqueo','cac.id_cierre as id_apertura_cierre')
     ->first();
+     */
+   
+
+    $ultimoRegistro=DB::table('caja__apertura_cierres as cac')
+            ->join('caja__arqueo as ca', 'cac.id_arqueo', '=', 'ca.id')
+            ->join('users as u', 'u.id', '=', 'ca.id_usuario')
+            ->select('cac.id','cac.turno_caja', 'cac.tipo_caja_c_a', 'cac.total_caja', 'cac.estado_caja', 'cac.id_arqueo','cac.id_cierre as id_apertura_cierre')    
+            ->where('cac.id_sucursal', $request->id_sucursal)
+            ->where('cac.id_caja', $request->id_caja)   
+            ->where('ca.id_usuario', $id_user)
+            ->where('cac.tipo_caja_c_a', 0)
+            ->where('cac.id_cierre', 0)
+            ->where('cac.estado',1)
+            ->where('cac.tipo_caja', $request->tipo_caja)
+            ->orderBy('cac.created_at', 'desc')
+            ->first();  
 
         if($ultimoRegistro==null){
             $ultimoRegistro=0;  
@@ -650,6 +668,16 @@ if ($resultado) {
                 ->get();
         return $query;
         }
+
+        public function get_tipo_caja_x2(){
+               $tipo_caja = DB::table('adm__credecial_correos')       
+            ->where('id', 1)
+            ->value('tipo_caja');
+        return $tipo_caja;
+        }
+
+
+        
 
 
 }

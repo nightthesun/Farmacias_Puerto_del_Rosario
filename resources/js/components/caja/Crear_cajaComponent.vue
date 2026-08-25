@@ -43,7 +43,7 @@
                     <select class="form-control" v-model="sucursalTipoCaja" @change="cambioIndex()">
                                     <option value="0" disabled selected>Seleccionar...</option>
                                     <option value="1" >CAJA NORMAL</option>
-                                    <option value="2" >CAJA SIN APERTURA & CIERRE</option>
+                                    <option value="2" >CAJA MODIFICADA</option>
                                     
                     </select>
                                  
@@ -342,7 +342,7 @@
 <div class="modal-body" style="max-height: 60vh; overflow-y: auto;"> 
                       <div class="card-body">
             <div class="alert alert-info" role="alert">
-                Solo puede tener una opcion activa para todas las sucursales. <strong>Caja normal con las acciones de apertura y cierre</strong> y <strong>Caja sin apertura & cierre</strong>
+                Solo puede tener una opcion activa para todas las sucursales. <strong>Caja normal con las acciones de apertura y cierre</strong> y <strong>Caja modificada es una caja que solo se apertura una vez no se puede cerrar</strong>
             </div>
             <div class="form-group row">
                 <label class="col-md-1 form-control-label" for="text-input" style="font-size: 12px;"><strong>Tipo:</strong></label>                                 
@@ -350,7 +350,7 @@
                         <select v-if="puedeHacerOpciones_especiales===1" class="form-control"  v-model="selectTipoCaja_x2" @change="cambioEfecto_ev_caja(selectTipoCaja_x2)">
                                         <option value=0 disabled selected>Seleccionar...</option>
                                         <option value=1>Caja normal</option>
-                                        <option value=2>Caja sin apertura/cierre</option>
+                                        <option value=2>Caja modificada</option>
                                     </select>    
                                         <select v-else class="form-control">
                                             <option value="0" disabled selected>Sin permiso...</option>

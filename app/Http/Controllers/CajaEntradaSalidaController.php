@@ -52,6 +52,7 @@ class CajaEntradaSalidaController extends Controller
                ->join('users as u', 'u.id', '=', 'ca.id_usuario')
                ->join('adm__sucursals AS ass', 'ass.id', '=', 'ces.id_sucursal')
                ->join('adm__departamentos AS ad', 'ad.id', '=', 'ass.departamento')
+               ->join('caja__apertura_cierres as cac', 'cac.id','=','ces.id_apertura_cierre')  
                ->select(
                    'ces.id',
                    'ces.id_arqueo as num_arqueo',
@@ -73,6 +74,7 @@ class CajaEntradaSalidaController extends Controller
                    DB::raw('CONCAT(ad.nombre, " - ", ass.ciudad) AS dir')
 
                )
+               ->where('cac.id_caja',$request->id_caja)
                ->whereRaw($where)   
                //->where('ces.id_sucursal', $request->id_sucursal)
                //->where('ces.entrada_salida', $request->entrada_salida)
@@ -101,6 +103,7 @@ class CajaEntradaSalidaController extends Controller
                ->join('users as u', 'u.id', '=', 'ca.id_usuario')
                ->join('adm__sucursals AS ass', 'ass.id', '=', 'ces.id_sucursal')
                 ->join('adm__departamentos AS ad', 'ad.id', '=', 'ass.departamento')
+                ->join('caja__apertura_cierres as cac', 'cac.id','=','ces.id_apertura_cierre')  
                ->select(
                    'ces.id',
                    'ces.id_arqueo as num_arqueo',
@@ -125,6 +128,7 @@ class CajaEntradaSalidaController extends Controller
                //->where('ces.entrada_salida', $request->entrada_salida) 
                //->where('ca.id_usuario', $user)               
                ->whereRaw($where)   
+               ->where('cac.id_caja',$request->id_caja)
                ->orderByDesc('ces.id')          
                ->whereBetween(DB::raw('DATE(ces.created_at)'), [$ini, $fini]) 
                ->paginate(15);

@@ -6,9 +6,14 @@
           <!-- También puedes agregar un spinner en lugar de una imagen -->
         </div>
         <div v-else>
-          <div v-if="tieneApertura_0===0">
-            <main class="main">           
-                  Sin apertura. debe realizar una apartura primero.                            
+          <div v-if="tieneApertura_0===0||tamañoArrayTipoCaja_v2<=0">
+            <main class="main">
+                  <div v-if="tieneApertura_0===0">
+                     Sin apertura. debe realizar una apartura primero.  
+                  </div>           
+                    <div v-if="tamañoArrayTipoCaja_v2<=0">
+                     Debe añadir un usuario a la caja   
+                  </div>                         
              </main>              
           </div>
           <div v-else>            
@@ -55,8 +60,8 @@
                                <div v-else class="ml-2 mb-2">
                                  <span class="badge badge-pill badge-dark">{{ descuentoNombre }}</span>
                                </div>
-
                              </div>
+                            
                            </div>
                            
                          
@@ -69,7 +74,20 @@
                          <div class="card w-100" style=" border-left: 3px solid #04660c; padding-bottom: 2px;">
          
                              <div class="card-body" style="margin-top: -1rem; margin-bottom: -1rem;">
-                               <strong >Detalle de producto</strong> 
+                              <div class="row">
+                                <div class="col-8">                                  
+                                <strong >Detalle de producto</strong>
+                                </div>
+                                <div class="col-1" style="align-items: end;">
+                                    <strong>Caja:</strong> 
+                                </div>
+                                <div class="col-3">                                                                   
+                                  <select class="form-control" v-model="selectTipoCaja_v2">                               
+                                    <option v-for="(i, index) in arrayTipoCaja_v2" :key="index" :value="i.id">{{i.codigo+' '+i.nombre_caja}}</option>
+                                  </select>
+                                </div>
+                              </div>
+                          
                                <hr> <!-- Línea horizontal -->                      
                                <div class="row" >
                              
@@ -1063,6 +1081,10 @@ export default {
     selectBanco_v:'0',
 
     rubro_xd:0,
+
+    selectTipoCaja_v2:'0',
+    arrayTipoCaja_v2:[],
+    tamañoArrayTipoCaja_v2:0,
             
         };
     },
@@ -1881,9 +1903,9 @@ if (tipo_can_valor==='BS') {
     },
 
         
-        listarPermisoFacturacion(sucursal,caja){
+        listarPermisoFacturacion(sucursal,caja,tipo){
             let me = this; 
-            var url ="/gestor_ventas/verificador_dosificacion_o_facturacion?id_sucursal="+sucursal+"&id_caja="+caja;  
+            var url ="/gestor_ventas/verificador_dosificacion_o_facturacion?id_sucursal="+sucursal+"&id_caja="+caja+"&tipo="+tipo;  
             axios
                 .get(url)
                 .then(function (response){
@@ -3345,22 +3367,29 @@ total_sin_des,descuento_venta,total_venta,efectivo_venta,cambio_venta,fechaMas7D
             var url = "/gestor_ventas/tieneApertura";
             axios.get(url)
                 .then(function (response) {
-                    var respuesta = response.data;  
-               
-                    if (respuesta===0||respuesta.tipo_caja_c_a===9||respuesta.id_apertura_cierre!=0) {
+                    const respuesta = response.data;  
+                    console.log(respuesta);
+                    
+                    const error = respuesta.error;
+                    const datos = respuesta.datos;
+                    const msn = respuesta.msn;
+                    const tipo = respuesta.tipo;
+
+                 
+                    if (error===1) {
                       me.tieneApertura_0=0;
-                        Swal.fire(
-                    "Debe aperturar una caja",
-                    "Haga click en Ok",
-                    "warning",
-                    );    
+                        Swal.fire(""+msn,"Haga click en Ok","warning",);  
+                        return;  
                     } else {
-                      me.tieneApertura_0=1;
-                         me.id_apertura_cierre=respuesta.id;
-                         me.listarPermisoFacturacion(respuesta.id_sucursal,respuesta.id_caja);
-                         
-                         me.id_sucursal_siat=respuesta.id_sucursal;
-                         me.id_caja_siat=respuesta.id_caja;
+                      if (tipo==1) {
+                        me.tieneApertura_0=1;
+                         me.id_apertura_cierre=datos.id;
+                         me.listarPermisoFacturacion(datos.id_sucursal,datos.id_caja,tipo);                         
+                         me.id_sucursal_siat=datos.id_sucursal;
+                         me.id_caja_siat=datos.id_caja;
+                        
+                      }
+                      
                          
                      } 
                 })
@@ -3469,12 +3498,41 @@ if (!correoRegex.test(me.correo)) {
            
         },
 
+   
+   tipoCajaV2(){
+      let me = this;   
+        me.arrayTipoCaja_v2=[];
+        me.tamañoArrayTipoCaja_v2=0;
+           const url = "/gestor_ventas/tipoCajaV2";          
+            axios.get(url)
+                .then(function (response) {
+                    const respuesta = response.data;
+                    me.arrayTipoCaja_v2=respuesta;
+                    me.tamañoArrayTipoCaja_v2=respuesta.length;
+                    if (me.tamañoArrayTipoCaja_v2>0) {
+                      me.selectTipoCaja_v2=me.arrayTipoCaja_v2[0].id;
+                    }else{
+                     me.selectTipoCaja_v2=0; 
+                      Swal.fire("Error","No existe datos de usuario en esta caja","error"); 
+                    }
+                     console.log(respuesta);
+                     console.log(me.tamañoArrayTipoCaja_v2);                              
+                })
+                .catch(function (error) {
+                    error401(error);
+              
+                });
+    },
 
         selectAll: function (event) {
             setTimeout(function () {
                 event.target.select();
             }, 0);
         },
+
+
+
+
         ////////////////////////////////////SIAT/////////////////////////////////////////
 
         EnviarFactura(){
@@ -3864,6 +3922,7 @@ me.descuento_1=totalDescuento+me.descuento_final;
         this.verRubroSiat_xd();
         this.listarPago_();   
         this.actividadEconomica();
+        this.tipoCajaV2();
     },
 };
 </script>

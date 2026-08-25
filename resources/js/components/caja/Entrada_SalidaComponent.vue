@@ -23,12 +23,12 @@
                 </div>
         <div class="card-body">
             <div class="form-group row">
-                <div class="col-md-2" style="text-align: right">
-                     <label for="">Almacen/Tienda:</label>
+                <div class="col-md-1" style="text-align: right">
+                     <label for="">Sucursal:</label>
                 </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <div class="input-group">
-                                <select class="form-control" v-model="sucursalSeleccionada"  @change="cambiarEstadoSucursal()">
+                                <select class="form-control" v-model="sucursalSeleccionada"  @change="cambioDeEstado(); listarCajaUsuario()">
                                     <option value="0" disabled selected>Seleccionar...</option>
                                     <option v-for="sucursal in arraySucursal" :key="sucursal.id"  :value="sucursal.codigo" :hidden="sucursal.id_tienda===null"
                                         v-text="sucursal.codigoS +' -> ' +sucursal.codigo+' '+sucursal.razon_social"
@@ -36,41 +36,52 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-3">
                             <div class="input-group">
+                                <select class="form-control" v-model="selectCajaxUsuario" :hidden="sucursalSeleccionada===0" @change="cambioDeEstado_ver_2()">
+                                    <option value="0" disabled selected>Seleccionar caja...</option>
+                                    <option v-for="caja in arrayCajaUsuario" :key="caja.id" :value="caja.id"
+                                     v-text="(caja.nombre_caja).toUpperCase()+' -> '+(caja.codigo).toUpperCase()"></option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-5">
+                            <div class="input-group">
+                             
                                 <input
                                     type="text"
                                     id="texto"
                                     name="texto"
                                     class="form-control"
-                                    placeholder="BUSCAR POR USUARIO,CODIGO, RECEPTOR O EMISOR"
+                                    placeholder="BUSCAR POR USUARIO, CODIGO O ESTADO DE CAJA."
                                     v-model="buscar"
                                     @keyup.enter="listarIndex(1)" 
-                                    :hidden="sucursalSeleccionada == 0"
-                                    :disabled="sucursalSeleccionada == 0"
+                                    :hidden="sucursalSeleccionada === 0 " 
+                                    :disabled="sucursalSeleccionada === 0 || selectCajaxUsuario===0 || selectEntradaSalida===0"
                                 />
                                 <button
                                     type="submit"
                                     class="btn btn-primary"
                                     @click="listarIndex(1)"  
-                                    :hidden="sucursalSeleccionada == 0"
-                                    :disabled="sucursalSeleccionada == 0"
+                                    :hidden="sucursalSeleccionada === 0"
+                                    :disabled="sucursalSeleccionada === 0 || selectCajaxUsuario===0 || selectEntradaSalida===0"
                                 >
                                     <i class="fa fa-search"></i> Buscar
                                 </button>
                             </div>
                         </div>
                         
-                       
+                      
 
-            </div>             
-            <div class="form-group row" :hidden="sucursalSeleccionada === 0" :disabled="sucursalSeleccionada === 0">
-                <div class="col-md-2" style="text-align: center">
+            </div>
+                       
+            <div class="form-group row" :hidden="sucursalSeleccionada === 0 && selectCajaxUsuario===0" :disabled="sucursalSeleccionada === 0 && selectCajaxUsuario===0">
+                <div class="col-md-1" style="text-align: center">
                     <label for=""></label>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <label for="Apectura / Cierre:">Entrada / Salida:</label>
-                <select class="form-control" v-model="selectEntradaSalida" @change="listarIndex(0)">
+                <select class="form-control" v-model="selectEntradaSalida" @change="listarIndex(0)" :disabled="sucursalSeleccionada === 0 || selectCajaxUsuario===0" >
                     <option value="0" disabled selected >Seleccionar...</option>
                     <option value="1" >Entrada</option> 
                     <option value="2" >Salida</option>                 
@@ -439,6 +450,10 @@ export default {
             ver_observacion:'',   
             ver_usuario:'',
 
+            selectCajaxUsuario:0,
+            selectApertura_cierre:1,
+            arrayCajaUsuario:[],
+
             ver_cantidad_moenda:'',
             ver_monto_moneda:'',
             ver_cantidad_billete:'',
@@ -454,6 +469,8 @@ export default {
             endDate: '',
             //apertura 
             arrayExisteApertura:[],
+
+            tipo_caja_x2_c:0,
         };
     },
 
@@ -502,7 +519,16 @@ export default {
             if (s) {               
                 this.id_sucursal = s.id_sucursal;  
             }        
-        }
+        },
+
+        selectCajaxUsuario: function (newValue) {           
+           let s = this.arrayCajaUsuario.find(
+                       (element) => element.id === newValue);
+               if (s) {               
+                   this.id_cajaxUsuario = s.id; 
+                   this.monto_caja=s.monto_caja; 
+               }        
+           }
     },
     methods: {
 
@@ -621,6 +647,43 @@ general_pdf(razon_social,direccion,lugar,cadena_A,id,soloFecha,soloHora,mensaje,
                 });
         },
 
+        cambioDeEstado(){
+            let me = this;
+            me.arrayIndex=[];
+         me.selectApertura_cierre=1;
+         me.selectCajaxUsuario=0;
+        },
+
+        cambioDeEstado_ver_2(){
+            let me = this;
+            me.arrayIndex=[];
+         me.selectApertura_cierre=1;        
+        },
+
+          listarCajaUsuario() {
+            let me = this;
+           me.arrayCajaUsuario=[];
+           var url = "/apertura_cierre/listarCaja_usuario?id_sucursal="+me.id_sucursal;
+            axios.get(url).then(function (response) {
+                    const respuesta = response.data;   
+                    const msn =respuesta.msn;
+                    const respuestaJson=respuesta.dato;
+                    const tipo=respuesta.tipo
+                    if (tipo==1) {
+                      Swal.fire( "Error.",""+msn,"error");
+                      return;  
+                    }
+                    me.arrayCajaUsuario = respuestaJson;
+                  console.log(respuesta);
+                  console.log(msn);
+
+                  
+                })
+                .catch(function (error) {
+                    error401(error);
+                });
+        },
+
     validatePassword() {
             let me = this;           
             var url ="/entrada_salida/validate-password?password="+me.password;
@@ -643,7 +706,7 @@ general_pdf(razon_social,direccion,lugar,cadena_A,id,soloFecha,soloHora,mensaje,
         listarIndex(page) {
             let me = this;    
        
-            var url ="/entrada_salida/index?page="+page+"&buscar="+me.buscar+"&id_sucursal="+me.id_sucursal+"&entrada_salida="+parseInt(me.selectEntradaSalida)+"&ini="+me.startDate+"&fini="+me.endDate;
+            var url ="/entrada_salida/index?page="+page+"&buscar="+me.buscar+"&id_sucursal="+me.id_sucursal+"&entrada_salida="+parseInt(me.selectEntradaSalida)+"&ini="+me.startDate+"&fini="+me.endDate+"&id_caja="+me.selectCajaxUsuario;
             axios.get(url)
                 .then(function (response) {
                     var respuesta = response.data;
@@ -851,9 +914,23 @@ me.isSubmitting = true; // Deshabilita el botón
                 });
         },
 
+         verConfiguracionCaja(){
+            let me = this;           
+            var url ="/apertura_cierre/verConfiguracionCaja";
+            axios.get(url)
+                .then(function (response) {
+                    var respuesta = response.data;                   
+                    me.tipo_caja_x2_c=respuesta;   
+                        
+                             
+                })
+                .catch(function (error) {
+                    error401(error);
+                });
+        }, 
         verificadorAperturaCierre(){
             let me=this;
-            var url = "/verificacionAperturaCierre?id_sucursal="+me.id_sucursal;
+            var url = "/verificacionAperturaCierre?id_sucursal="+me.id_sucursal+"&id_caja="+me.selectCajaxUsuario+"&tipo_caja="+me.tipo_caja_x2_c;
             axios.get(url)
                 .then(function (response) {
                     var respuesta = response.data;       
@@ -1087,8 +1164,9 @@ me.isSubmitting = true; // Deshabilita el botón
         },
     },
 
-    mounted() {
+    mounted() {        
         this.classModal = new _pl.Modals();
+        this.verConfiguracionCaja();
         this.verificador_moneda_sistemas();
         this.sucursalFiltro();
         this.listarLimite();

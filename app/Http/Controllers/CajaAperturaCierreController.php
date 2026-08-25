@@ -23,7 +23,16 @@ class CajaAperturaCierreController extends Controller
         
         $ini=$request->ini;
         $fini=$request->fini;
-        
+        $tipo_caja=$request->tipo_caja;
+      
+
+        if($tipo_caja==1){ 
+            $where_2="(DATE(cac.created_at) >= '$ini' AND DATE(cac.created_at) <= '$fini' AND cc_1.tipo_caja=$tipo_caja)";
+        }
+        else{
+            $where_2="(cc_1.tipo_caja=$tipo_caja)";
+        }
+   
         if (auth()->user()->super_usuario == 0) {
             $user = auth()->user()->id; 
             if ($request->a_e==0) {
@@ -64,7 +73,7 @@ class CajaAperturaCierreController extends Controller
                 ->join('users as u', 'u.id', '=', 'ca.id_usuario')
                 ->join('caja__creacions as cc_1','cc_1.id','=','cac.id_caja')
                 ->leftJoin('caja__cierre as cc', 'cac.id_cierre', '=', 'cc.id')
-                ->select('cac.id','cac.id_arqueo','cac.turno_caja','cac.tipo_caja_c_a','cac.total_caja',
+                ->select('cac.id','cac.id_sucursal','cac.id_arqueo','cac.turno_caja','cac.tipo_caja_c_a','cac.total_caja',
                         'cac.total_arqueo_caja','cac.diferencia_caja','cac.estado_caja','cac.created_at','u.name','cac.id_cierre as id_apertura_cierre',
                 
                        'ca.cantidad_billete','ca.total_billete','ca.cantidad_moneda','ca.total_moneda','ca.tipo_moneda',
@@ -77,7 +86,7 @@ class CajaAperturaCierreController extends Controller
         'cc.total_arqueo_caja as total_arqueo_caja_cierre',
         'cc.diferencia_caja as diferencia_caja_cierre',
         'cc.estado_caja as estado_caja_cierre',
-        'cc.created_at as created_at_cierre','cc_1.monto_caja as caja_monto_v2','cc_1.moneda as caja_moneda_v2','cc_1.codigo as caja_codigo_v2','cc_1.nombre_caja as caja_nombre_caja_v2'
+        'cc.created_at as created_at_cierre','cc_1.monto_caja as caja_monto_v2','cc_1.moneda as caja_moneda_v2','cc_1.codigo as caja_codigo_v2','cc_1.nombre_caja as caja_nombre_caja_v2','cc_1.id as id_caja_v2'
         , DB::raw('ABS(cac.montoInicial_v2) as montoInicial'),
           DB::raw("CASE 
                         WHEN cac.estadoInicial IS NULL THEN 'Error'                        
@@ -87,14 +96,15 @@ class CajaAperturaCierreController extends Controller
             WHEN cac.montoInicial_v2 >= 0 THEN 'P'
             WHEN cac.montoInicial_v2 < 0 THEN 'N'
            ELSE 'E'
-        END AS estadoColor") 
+        END AS estadoColor"),'cac.estado' 
         )         
                         
                      //   ->where('cac.id_sucursal','=',$request->id_sucursal)
                      //   ->where('cac.tipo_caja_c_a','=',$request->a_e)          
                      //   ->where('ca.id_usuario','=',$user)   
                      ->whereRaw($where)
-                     ->whereRaw($sqls)               
+                     ->whereRaw($sqls)    
+                     ->where('cac.tipo_caja',$tipo_caja)           
                 ->orderByDesc('cac.id')
            
                 ->paginate(15);               
@@ -118,7 +128,7 @@ class CajaAperturaCierreController extends Controller
                 ->join('users as u', 'u.id', '=', 'ca.id_usuario')
                 ->join('caja__creacions as cc_1','cc_1.id','=','cac.id_caja')
                 ->leftJoin('caja__cierre as cc', 'cac.id_cierre', '=', 'cc.id')
-                ->select('cac.id','cac.id_arqueo','cac.turno_caja','cac.tipo_caja_c_a','cac.total_caja',
+                ->select('cac.id','cac.id_sucursal','cac.id_arqueo','cac.turno_caja','cac.tipo_caja_c_a','cac.total_caja',
                         'cac.total_arqueo_caja','cac.diferencia_caja','cac.estado_caja','cac.created_at','u.name',
                 'cac.id_cierre as id_apertura_cierre',
                         'ca.cantidad_billete','ca.total_billete','ca.cantidad_moneda','ca.total_moneda','ca.tipo_moneda',
@@ -131,7 +141,7 @@ class CajaAperturaCierreController extends Controller
         'cc.total_arqueo_caja as total_arqueo_caja_cierre',
         'cc.diferencia_caja as diferencia_caja_cierre',
         'cc.estado_caja as estado_caja_cierre',    
-        'cc.created_at as created_at_cierre','cc_1.monto_caja as caja_monto_v2','cc_1.moneda as caja_moneda_v2','cc_1.codigo as caja_codigo_v2','cc_1.nombre_caja as caja_nombre_caja_v2',
+        'cc.created_at as created_at_cierre','cc_1.monto_caja as caja_monto_v2','cc_1.moneda as caja_moneda_v2','cc_1.codigo as caja_codigo_v2','cc_1.nombre_caja as caja_nombre_caja_v2','cc_1.id as id_caja_v2',
         DB::raw('ABS(cac.montoInicial_v2) as montoInicial'),
           DB::raw("CASE 
                         WHEN cac.estadoInicial IS NULL THEN 'Error'                        
@@ -141,10 +151,13 @@ class CajaAperturaCierreController extends Controller
             WHEN cac.montoInicial_v2 >= 0 THEN 'P'
             WHEN cac.montoInicial_v2 < 0 THEN 'N'
            ELSE 'E'
-        END AS estadoColor") 
+        END AS estadoColor"),'cac.estado'
                         )
                         ->whereRaw($where) 
-              ->whereBetween(DB::raw('DATE(cac.created_at)'), [$ini, $fini]) 
+                     
+                        ->whereRaw($where_2)
+            //  ->whereBetween(DB::raw('DATE(cac.created_at)'), [$ini, $fini]) 
+        ->where('cac.tipo_caja',$tipo_caja)      
                 ->orderByDesc('cac.id')
                 ->paginate(15);  
                 return 
@@ -285,6 +298,7 @@ foreach ($request->input as $key => $value) {
                   
                     $apertura_cierre = Caja_AperturaCierre::findOrFail($request->id_apertura);
                     $apertura_cierre->id_cierre = $id_1;
+                      $apertura_cierre->tipo_caja = $request->tipo_caja;
                     $apertura_cierre->save(); 
                    //// para imprimir boleta QR o tarjeta                
                         $fechaHora = Carbon::now(); // Se usará automáticamente el formato correcto
@@ -363,6 +377,42 @@ foreach ($request->input as $key => $value) {
         } catch (\Throwable $th) {
             return $th;
         }
+    }
+
+    public function activar_desactivar_v2(Request $request){
+        
+    try{
+             DB::beginTransaction();  
+             
+              $query = DB::table('caja__apertura_cierres')
+            ->select('id')
+            ->where('id_sucursal', $request->id_sucursal)
+            ->where('tipo_caja', $request->tipo_caja)
+            ->where('id_caja', $request->id_caja)
+            ->orderBy('id', 'desc')
+            ->get();
+            
+            if ( count($query)>0 ) { 
+                $a = $query[0]->id;
+                if($a==$request->id){
+                    $update = Caja_AperturaCierre::findOrFail($request->id);
+                    $update->estado=$request->estado;
+                    $update->save();
+                    DB::commit();
+                    return 0;
+                }
+                else{
+                    return "operacion caducada no puede, hacer esta operacion por que ya exite otra apertura";
+                }
+      
+            }else{
+                return "Tabla sin datos... de apertura y cierre";
+            }  
+        }
+        catch (\Throwable $th) {
+            return $th;
+        }
+
     }
 
      private function createSobrante_auto_2($id_apertura,$id_sucursal,$diferencia){
@@ -674,6 +724,7 @@ $sucu = DB::table('adm__sucursals as ass')
                     $apertura_cierre->id_caja = $request->id_cajaxUsuario;
                     $apertura_cierre->estadoInicial = $request->estadoInicial;
                     $apertura_cierre->montoInicial_v2 = $request->operacionInicial;
+                    $apertura_cierre->tipo_caja = $request->tipo_caja;
                     $apertura_cierre->save();        
                               
             
@@ -722,28 +773,42 @@ $data_1 = $moneda;
       //  ->where('id_sucursal', $request->id_sucursal)    
       //  ->orderBy('created_at', 'desc')
       //  ->first();
-      $id_user = Auth()->user()->id;
 
-      $contar = DB::table('caja__apertura_cierres as c')
-    ->join('caja__arqueo as a', 'c.id_arqueo', '=', 'a.id')
-    ->where('a.id_usuario', $id_user)
-    ->where('id_sucursal', $request->id_sucursal)   
-    ->where('c.id_cierre', 0)
-    ->count('c.id');
+       try {
+         $tipo_caja=$request->tipo_caja;
+         $id_caja=$request->tipo_caja;
+        
+        if($tipo_caja>0){            
+            $id_user = Auth()->user()->id;
+      
+             $contar = DB::table('caja__apertura_cierres as cac')
+    ->join('caja__arqueo as a', 'cac.id_arqueo', '=', 'a.id')  
+    ->join('caja__creacions as cc','cc.id','=','cac.id_caja') 
+    ->where('cac.id_cierre', 0)
+    ->where('cac.id_caja', $id_caja)
+    ->where('cac.tipo_caja', $tipo_caja)
+    ->where('cac.estado',1)
+    ->where('cc.estado',1)
+    ->count('cac.id');
 
     if ($contar>0) {
         return response()->json([                        
             'ultimoRegistro' => 2,
             'ultimoRegistro_2' => 2, 
+            'msn' => 'El usuario ya realizo la apertura en esta caja.',
+            'data'=>0,
         ]);
     } else {
-        $totalRegistros = DB::table('caja__apertura_cierres')
-        ->where('id_sucursal', $request->id_sucursal)   
+        $totalRegistros = DB::table('caja__apertura_cierres as cac')
+        ->where('cac.id_sucursal', $request->id_sucursal)   
+        ->where('cac.tipo_caja', $tipo_caja)
         ->count();
         if ($totalRegistros===0) {
             return response()->json([                        
                 'ultimoRegistro' => 1,
                 'ultimoRegistro_2' => 1, 
+                'msn' => 'Caja cero',
+                'data'=>0,
             ]);
         } else {
            
@@ -752,10 +817,12 @@ $data_1 = $moneda;
             ->join('users as u', 'u.id', '=', 'ca.id_usuario')
             ->select('cac.turno_caja', 'cac.tipo_caja_c_a', 'cac.total_caja', 'cac.estado_caja')
             ->where('cac.id_sucursal', $request->id_sucursal)
-            // ->where('cac.id_caja', $request->id_caja)   
+            ->where('cac.id_caja', $request->id_caja)   
             ->where('ca.id_usuario', $id_user)
             ->where('cac.tipo_caja_c_a', 0)
             ->where('cac.id_cierre', 0)
+            ->where('cac.estado',1)
+             ->where('cac.tipo_caja', $tipo_caja)
             ->orderBy('cac.created_at', 'desc')
             ->first();    
                 
@@ -765,6 +832,7 @@ $data_1 = $moneda;
           ->select('cc.id', 'cc.diferencia_caja', 'cc.estado_caja')
           ->where('cac.id_sucursal',  $request->id_sucursal)
           ->where('cac.id_caja', $request->id_caja)   
+           ->where('cac.tipo_caja', $tipo_caja)
           ->orderBy('cc.created_at', 'desc')
           ->first();
  
@@ -784,10 +852,29 @@ $data_1 = $moneda;
          
                 return response()->json([                        
                     'ultimoRegistro' => $data_11,
-                    'ultimoRegistro_2' => $data_12, 
+                    'ultimoRegistro_2' => $data_12,                  
+                    'msn' => 'ok',
+                    'data'=>0,
                 ]);     
         }
     }
+
+        }else{
+           return response()->json([                        
+                    'ultimoRegistro' => null,
+                    'ultimoRegistro_2' => null,                  
+                    'msn' => 'valor de estado de caja 0 debe ser caja normal o caja modificada',
+                    'data'=>1,
+                ]);   
+        }
+       } catch (\Throwable $th) {
+         return response()->json([                        
+                    'ultimoRegistro' => null,
+                    'ultimoRegistro_2' => null,                  
+                    'msn' => $th,
+                    'data'=>1,
+                ]);
+       } 
     }
     
     public function monedaModal(Request $request){
@@ -811,16 +898,41 @@ $data_1 = $moneda;
     }
 
     public function getCaja_x_usuario(Request $request){ 
+        try {
+            $tipo_caja = DB::table('adm__credecial_correos')       
+            ->where('id', 1)
+            ->value('tipo_caja');
+
+        if($tipo_caja==null||$tipo_caja==""){
+            $tipo_caja=0;
+                return response()->json([                        
+                    'msn' => "La tabla credencial no esta mal configurado o el campo de tipo de caja noe sta configurado vea a creacion de caja para revisar el error",
+                    'dato' => null,
+                    'tipo' => 1 
+                ]);  
+        }
+
         $usuario = auth()->user()->id;
         $resultado = DB::table('caja__creacions as cc')
             ->select('cc.id', 'cc.codigo', 'cc.nombre_caja', 'cc.monto_caja', 'cc.moneda')
             ->where('cc.id_sucursal', $request->id_sucursal)
             ->whereRaw('FIND_IN_SET(?, cc.id_users)', [$usuario])
             ->where('cc.estado', 1)
-            ->where('cc.tipo_caja', 1)
+            ->where('cc.tipo_caja', $tipo_caja)
             ->get();
+          return response()->json([                        
+                    'msn' => "ok",
+                    'dato' => $resultado,
+                    'tipo' => 0 
+                ]);  
         
-        return $resultado;
+        } catch (\Throwable $th) {
+             return response()->json([                        
+                    'msn' => "error interno",
+                    'dato' => $th,
+                    'tipo' => 1 
+                ]);  
+        }        
     }
 
     public function getModalApertura(Request $request){
