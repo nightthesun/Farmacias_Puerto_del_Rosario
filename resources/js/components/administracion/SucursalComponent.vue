@@ -30,7 +30,7 @@
                                 <th>Opciones</th>
                                 <th>Codigo</th>
                                 <th>Tipo</th>
-                                <th>Nit</th>
+                               
                                 <th>Razòn social</th>
                                 <th>Codigo ALM y TDA</th>
                                 <!-- <th>Rubro</th> -->
@@ -90,7 +90,7 @@
                                 </td>
                                 <td v-text="sucursal.cod"></td>
                                 <td v-text="sucursal.tipo == 'Casa_Matriz'? (sucursal.tipo + (sucursal.codalamcen==null?'':' -> '+sucursal.codalamcen)):(sucursal.tipo + ' - ' +sucursal.correlativo)+(sucursal.codalamcen==null?'':' -> '+sucursal.codalamcen)"></td>
-                                <td v-text="sucursal.nit"></td>
+                             
                                 <td v-text="sucursal.razon_social"></td>
                                 <td>{{'['+sucursal.codalmacen+']'+'['+sucursal.codigo_tienda+']'}}</td>
                                 <!-- <td v-text="sucursal.nomrubro"></td> -->
@@ -186,13 +186,7 @@
                                     <input type="text" id="telefono" name="telefono" class="form-control" placeholder="Ingrese Los numeros de Telefono" onkeypress="return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 45 || event.charCode == 32 || event.charCode == 43 )" v-model="telefono" v-on:focus="selectAll" :disabled="activador_2===1 && tipoAccion===2">
                                     <span  v-if="telefono==''" class="error">Debe Ingresar La Razon Social</span>                                </div>
                             </div>
-                            <div class="form-group row">
-                                <label class="col-md-3 form-control-label" for="text-input">Nit <span  v-if="nit ==''" class="error">(*)</span></label>
-                                <div class="col-md-9">
-                                    <input type="text" id="nit" name="nit" class="form-control" placeholder="Ingrese el numero de NIT" onkeypress="return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 48 && event.charCode <= 57))" v-model="nit" v-on:focus="selectAll" :disabled="activador_2===1 && tipoAccion===2">
-                                    <span  v-if="nit==''" class="error">Debe Ingresar el NIT</span>                                
-                                </div>
-                            </div>
+                           
                             <div class="form-group row">
                                 <label class="col-md-3 form-control-label" for="text-input">Direccion <span  v-if="direccion ==''" class="error">(*)</span></label>
                                 <div class="col-md-9">
@@ -480,7 +474,8 @@ import { error401 } from '../../errores';
                 puedeHacerOpciones_especiales:2,
                 puedeCrear:2,
                 //-----------
-                activador_2:0
+                activador_2:0,
+                nit_v2:'@@@',
             }
 
         },
@@ -488,7 +483,7 @@ import { error401 } from '../../errores';
 
             sicompleto(){
                 let me=this;
-                if (me.tipo!=0 && me.razonsocial!='' && me.telefono!='' && me.nit!='' && me.direccion!='' && me.ciudad!='' && me.controlEnvio == 1)
+                if (me.tipo!=0 && me.razonsocial!='' && me.telefono!='' && me.direccion!='' && me.ciudad!='' && me.controlEnvio == 1)
                     return true;
                 else
                     return false;
@@ -675,6 +670,29 @@ import { error401 } from '../../errores';
             
             },
 
+            listarNit(id)
+            {
+                let me = this;                
+                const url = "/sucursal/listarNit";             
+            axios
+                .get(url)
+                .then(function (response) {
+                    const respuesta = response.data;
+                    if (respuesta.valor===1) {
+                        Swal.fire("Error.",""+respuesta.msn,"error");
+                    }else{
+                        me.nit_v2=respuesta.dato;
+                    }                                   
+                })
+                .catch(function (error) {
+                    error401(error);
+                });  
+                   
+            
+            },
+
+           
+
             listarSucursales(page){
                 let me=this;
                 var url='/sucursal?page='+page+'&buscar='+me.buscar;
@@ -717,7 +735,7 @@ import { error401 } from '../../errores';
                     'razon_social':me.razonsocial,
                     'nombre_comercial':me.nombrecomercial,
                     'telefonos':me.telefono,
-                    'nit':me.nit,
+                    'nit':me.nit_v2,
                     'direccion':me.direccion,
                     'departamento':me.departamento,
                     'ciudad':me.ciudad,
@@ -846,7 +864,7 @@ import { error401 } from '../../errores';
                     'razon_social':me.razonsocial,
                     'nombre_comercial':me.nombrecomercial,
                     'telefonos':me.telefono,
-                    'nit':me.nit,
+                    'nit':me.nit_v2,
                     'direccion':me.direccion,
                     'tipo':me.tipo,
                     'departamento':me.departamento,
@@ -872,7 +890,8 @@ import { error401 } from '../../errores';
                 switch(accion){
                     case 'registrar':
                     {
-                        me.isSubmitting=false;
+                        if (me.nit_v2!='@@@') {
+                             me.isSubmitting=false;
                         me.tituloModal='Registar Sucursal'
                         me.tipoAccion=1;
                         me.tipo=0;
@@ -886,13 +905,15 @@ import { error401 } from '../../errores';
                         me.idrubro=0;
                         me.showModal = true;
                         me.classModal.openModal('registrar');
+                        }
+                       
                         break;
                     }
                     
                     case 'actualizar':
                     {
-                     
-                      if (data.max_id_sucursal===null) {
+                        if (me.nit_v2!='@@@') {
+                             if (data.max_id_sucursal===null) {
                         me.activador_2=0;
                       } else {
                         me.activador_2=1;
@@ -913,18 +934,24 @@ import { error401 } from '../../errores';
                         me.ciudad=data.ciudad;
                         me.idrubro=data.idrubro;
                         me.classModal.openModal('registrar');
+                        
+                        }
                         break;
                     }
                     case 'modal_listas':
                     {
-                        me.showModal_2 = true;
+                         if (me.nit_v2!='@@@') {
+                            me.showModal_2 = true;
                         me.tituloModalSub='Codigo de almacen: '+data.codalmacen+' Codigo tienda: '+data.codigo_tienda;
                         me.tituloModal='Añadir lista a '+data.razon_social
                         me.id_sucursal_z=data.id;
                         me.listarArrayRapido(data.id);
                        me.classModal.openModal('modal_listas');
                       
-                        break;
+                       
+                         }
+                          break;
+                        
                     }    
 
                 }
@@ -1006,6 +1033,7 @@ import { error401 } from '../../errores';
             this.listarPerimsoxyz();
             //-----------------------
             this.selectRubros();
+            this.listarNit();
             this.listarSucursales(1);
             this.selectDepartamentos();
             this.selectCiudades();

@@ -269,6 +269,26 @@ $sucursalesPaginated = new \Illuminate\Pagination\LengthAwarePaginator(
         //
     }
 
+    public function get_nit(){
+    $nit = DB::table('adm__credecial_correos')
+    ->where('id', 1)    
+    ->value('nit');
+    if ($nit==null || $nit== '') {
+        return response()->json([                        
+                'valor' => 1,
+                'msn' => 'No existe el dato de nit o la tabla credencial',
+                'dato' => null, 
+            ]);
+    }else{
+        return response()->json([                        
+                'valor' => 0,
+                'msn' => 'OK',
+                'dato' => $nit, 
+            ]);
+    }
+
+    }
+
     /**
      * Store a newly created resource in storage.
      *

@@ -25,6 +25,7 @@ class VenGestorVentaVistaController extends Controller
 $codigo = $request->codigo_tienda_almacen;
 $startDate = $request->startDate;
 $endDate = $request->endDate;
+$id_caja = $request->id_caja;
 //->where('vr.id_sucursal', $sucursalId)
     //->where('vr.cod', $codigo)
 if (auth()->user()->super_usuario == 0) {
@@ -65,7 +66,8 @@ if (auth()->user()->super_usuario == 0) {
     ->join('users as u', 'u.id', '=', 'vr.id_usuario')
     ->join('adm__sucursals as ass','ass.id','=','vr.id_sucursal') 
     ->join('adm__departamentos as ad', 'ass.departamento', '=', 'ad.id')
-    ->join('rrh__empleados as re','re.id','=','u.idempleado')            
+    ->join('rrh__empleados as re','re.id','=','u.idempleado')   
+    ->join('caja__apertura_cierres as cac','vr.id_apertura','=','cac.id')          
     ->leftJoin('dir__personas as dp', function ($join) {
         $join->on('dp.id', '=', 'dc.id_per_emp')
              ->where('dc.tipo_per_emp', '=', 1);
@@ -125,6 +127,7 @@ if (auth()->user()->super_usuario == 0) {
     ->whereRaw($where)
     //->whereBetween(DB::raw('DATE(vr.created_at)'), [$startDate, $endDate])
     ->whereRaw($sqls)
+    ->where('cac.id_caja',$id_caja)
     ->orderByDesc('vr.id')
     ->paginate(15);
 
@@ -149,6 +152,7 @@ if (auth()->user()->super_usuario == 0) {
     ->join('adm__sucursals as ass','ass.id','=','vr.id_sucursal')
     ->join('adm__departamentos as ad', 'ass.departamento', '=', 'ad.id') 
     ->join('rrh__empleados as re','re.id','=','u.idempleado') 
+    ->join('caja__apertura_cierres as cac','vr.id_apertura','=','cac.id') 
     ->leftJoin('dir__personas as dp', function ($join) {
         $join->on('dp.id', '=', 'dc.id_per_emp')
              ->where('dc.tipo_per_emp', '=', 1);
@@ -203,7 +207,7 @@ if (auth()->user()->super_usuario == 0) {
     )
     ->where('vr.id_sucursal', $sucursalId)
     ->where('vr.cod', $codigo)
-    //->whereRaw($where)
+    ->where('cac.id_caja',$id_caja)
     ->whereBetween(DB::raw('DATE(vr.created_at)'), [$startDate, $endDate])
    
     ->orderByDesc('vr.id')
@@ -227,6 +231,127 @@ if (auth()->user()->super_usuario == 0) {
    
     }
 
+    public function get_operacion_general(Request $request){
+
+    /*
+    tipo_venta 1 4  2,3
+  
+  select sum(r.total_venta) as total from ven__recibos r
+  join caja__apertura_cierres c on r.id_apertura=c.id
+  where c.id_caja=1 and r.tipo_venta =2 or r.tipo_venta = 3
+  
+  select sum(e.valor) as total from caja__entrada_salidas e
+  join caja__apertura_cierres c on e.entrada_salida=c.id
+  where c.id_caja=1 and e.entrada_salida=1
+    */
+  $id_sucursal=$request->id_sucursal;
+   $id_caja=$request->id_caja;
+   $startDate = $request->startDate;
+$endDate = $request->endDate;
+ $where_1 = "( r.tipo_venta = 1 or r.tipo_venta = 4)";  
+ $where_2 = "( r.tipo_venta = 2 or r.tipo_venta = 3)"; 
+
+  $entrada = DB::table('caja__entrada_salidas as e') 
+              ->join('caja__apertura_cierres as c', 'e.entrada_salida', '=', 'c.id')
+              ->selectRaw('sum(e.valor) as total')
+    ->where('e.id_sucursal', '=' ,$id_sucursal)  
+     ->where('c.id_caja', '=' ,$id_caja)  
+   ->where('e.entrada_salida', '=' ,1)   
+  ->whereBetween(DB::raw('DATE(e.created_at)'), [$startDate, $endDate])
+    ->value('total');
+
+    
+  $salida = DB::table('caja__entrada_salidas as e') 
+              ->join('caja__apertura_cierres as c', 'e.entrada_salida', '=', 'c.id')
+              ->selectRaw('sum(e.valor) as total')
+    ->where('e.id_sucursal', '=' ,$id_sucursal)  
+     ->where('c.id_caja', '=' ,$id_caja)  
+   ->where('e.entrada_salida', '=' ,2)   
+  ->whereBetween(DB::raw('DATE(e.created_at)'), [$startDate, $endDate])
+    ->value('total');
+
+              $efectivo = DB::table('ven__recibos as r') 
+              ->join('caja__apertura_cierres as c', 'r.id_apertura', '=', 'c.id')
+              ->selectRaw('sum(r.total_venta) as total')
+    ->where('r.id_sucursal', '=' ,$id_sucursal)  
+     ->where('c.id_caja', '=' ,$id_caja)  
+    ->where('r.anulado', '=' ,0)
+    ->whereRaw($where_1)
+  ->whereBetween(DB::raw('DATE(r.created_at)'), [$startDate, $endDate])
+    ->value('total');
+
+    $digital = DB::table('ven__recibos as r') 
+              ->join('caja__apertura_cierres as c', 'r.id_apertura', '=', 'c.id')
+              ->selectRaw('sum(r.total_venta) as total')
+    ->where('r.id_sucursal', '=' ,$id_sucursal)  
+     ->where('c.id_caja', '=' ,$id_caja)  
+    ->where('r.anulado', '=' ,0)
+    ->whereRaw($where_2)
+  ->whereBetween(DB::raw('DATE(r.created_at)'), [$startDate, $endDate])
+    ->value('total');
+
+     $total = DB::table('ven__recibos as r') 
+              ->join('caja__apertura_cierres as c', 'r.id_apertura', '=', 'c.id')
+              ->selectRaw('sum(r.total_venta) as total')
+    ->where('r.id_sucursal', '=' ,$id_sucursal)  
+     ->where('c.id_caja', '=' ,$id_caja)  
+    ->where('r.anulado', '=' ,0)
+   
+  ->whereBetween(DB::raw('DATE(r.created_at)'), [$startDate, $endDate])
+    ->value('total');
+
+    if ($entrada==null) {
+        $entrada=0;
+    }
+if ($salida==null) {
+        $salida=0;
+    }
+    if ($efectivo==null) {
+        $efectivo=0;
+    }
+    if ($digital==null) {
+        $digital=0;
+    }
+    if ($total==null) {
+        $total=0;
+    }
+    $operacion=($total+$entrada)-$salida;
+     $operacion=number_format($operacion,2,'.','');
+   
+   // entrada'=> number_format($entrada,2,'.','')'
+return response()->json([
+                        'entrada' => $entrada,
+                        'salida' => $salida,
+                        'efectivo'=>$efectivo,
+                        'digital'=>$digital,
+                        'total'=>$total,
+                        'operacion'=>$operacion
+                        ]);
+    
+   
+    }
+
+    public function get_tipo_caja(Request $request){
+   
+  $id_sucursal=$request->id_sucursal;
+   $query = DB::table('caja__creacions') 
+    ->where('id_sucursal', '=' ,$id_sucursal)  
+    ->where('estado', '=' ,1)  
+    ->select('id','codigo','nombre_caja','tipo_caja',
+     DB::raw("CASE 
+        WHEN tipo_caja = 1 THEN 'Caja normal'
+        WHEN tipo_caja = 2 THEN 'Caja modificada'
+        ELSE 'Caja sin configurar'
+    END AS tipo_caja"),
+    )->get();
+    if(count($query)>0){
+    return $query;
+    }else{
+        return 0;
+    }      
+
+    }
+    
 
     public function re_imprecion(Request $request){
 

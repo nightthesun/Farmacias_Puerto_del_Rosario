@@ -24,6 +24,7 @@ class AdmUserController extends Controller
     {
         
         $raw=DB::raw('concat(nombre," ",ifnull(papellido," ")," ",ifnull(sapellido," ")) as nombre');
+        $raw3="(rrh__empleados.codempleado <> 'ADMIN' AND rrh__empleados.codempleado <> 'ADMIN2')";
         $buscararray=array();
         if(!empty($request->buscar)){
             $buscararray = explode(" ",$request->buscar);
@@ -42,7 +43,7 @@ class AdmUserController extends Controller
     
                 }
                 $users= User::join('rrh__empleados','rrh__empleados.id','users.idempleado')
-            
+             ->whereRaw($raw3)
                                 ->select($raw,
                                         'users.id as id',
                                         'email',
@@ -58,7 +59,7 @@ class AdmUserController extends Controller
         else
         {
             $users= User::join('rrh__empleados','rrh__empleados.id','users.idempleado')
-            
+             ->whereRaw($raw3)
                             ->select($raw,
                                     'users.id as id',
                                     'email',

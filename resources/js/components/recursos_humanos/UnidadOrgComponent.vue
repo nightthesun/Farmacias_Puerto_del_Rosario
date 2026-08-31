@@ -28,7 +28,8 @@
                         <thead>
                             <tr>
                                 <th class="col-md-1">Opciones</th>
-                                <th class="col-md-10">Nombre</th>
+                                <th class="col-md-5">Nombre</th>
+                                <th class="col-md-5">Descripción</th>
                                 <th class="col-md-1">Estado</th>
                             </tr>
                         </thead>
@@ -64,7 +65,8 @@
                                         </div>
                                     </div>                                     
                                 </td>
-                                <td v-text="nivelunidadorg.nombre" class="col-md-10"></td>
+                                <td v-text="nivelunidadorg.nombre" class="col-md-5"></td>
+                                <td v-text="nivelunidadorg.descripcion" class="col-md-5"></td>
                                 <td class="col-md-1">
                                     <div v-if="nivelunidadorg.activo==1">
                                         <span class="badge badge-success">Activo</span>
@@ -266,9 +268,9 @@ import { error401 } from '../../errores';
 //--------------------------------------------------------------   
             listarUnidadOrg(page){
                 let me=this;
-                var url='/unidadorg?page='+page+'&buscar='+me.buscar;
+                const url='/unidadorg?page='+page+'&buscar='+me.buscar;
                 axios.get(url).then(function(response){
-                    var respuesta=response.data;
+                    const respuesta=response.data;              
                     me.pagination=respuesta.pagination;
                     me.arrayUnidadOrg=respuesta.unidadorg.data;
                 })

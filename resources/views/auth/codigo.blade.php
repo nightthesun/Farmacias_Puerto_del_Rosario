@@ -87,7 +87,7 @@
                 </div>
                 <br>
                 <div class="form-group other_auth_links">
-                    <a class="" href="{{ route('login.index') }}"><-Volver al login</a>
+                    <a class="" href="{{ route('login.index') }}">Volver al login</a>
                 </div>
               </form>
             </div>

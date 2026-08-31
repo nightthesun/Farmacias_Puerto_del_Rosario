@@ -11,7 +11,12 @@
             <div class="card">
                 <div class="card-header">
                     <i class="fa fa-align-justify"></i> Detalle de ventas               
-                 
+                <button type="button" class="btn btn-secondary" v-if="sucursalSeleccionada == 0 || selectCajaTipo==='0'">
+                Ver informe  
+                </button>
+                 <button type="button" class="btn btn-primary" v-else @click="abrirModalGeneral();listarOperacionGeneral();">
+                Ver informe  
+                </button>
                 </div>
         <div class="card-body">
             <div class="form-group row">
@@ -20,7 +25,7 @@
                 </div>
                         <div class="col-md-4">
                             <div class="input-group">
-                                <select class="form-control" v-model="sucursalSeleccionada"    @change="listarVentas(0)">
+                                <select class="form-control" v-model="sucursalSeleccionada"    @change="listarTipoCaja()">
                                     <option value="0" disabled selected>Seleccionar...</option>
                                     <option v-for="sucursal in arraySucursal" :key="sucursal.id"  :value="sucursal.codigo"
                                         v-text="
@@ -45,14 +50,14 @@
                                     v-model="buscar"
                                     @keyup.enter="listarVentas(1)" 
                                     :hidden="sucursalSeleccionada == 0"
-                                    :disabled="sucursalSeleccionada == 0"
+                                    :disabled="sucursalSeleccionada == 0 || selectCajaTipo==='0'"
                                 />
                                 <button
                                     type="submit"
                                     class="btn btn-primary"
                                     @click="listarVentas(1)"
                                     :hidden="sucursalSeleccionada == 0"
-                                    :disabled="sucursalSeleccionada == 0"
+                                    :disabled="sucursalSeleccionada == 0 || selectCajaTipo==='0'"
                                 >
                                     <i class="fa fa-search"></i> Buscar
                                 </button>
@@ -61,23 +66,29 @@
             </div>
 
             <div class="form-group row"  :hidden="sucursalSeleccionada == 0" :disabled="sucursalSeleccionada == 0">
-                <div class="col-md-1">
-                     <label for=""></label>
+                  <div class="col-md-2" style="text-align: center">
+                    <label for=""></label>
                 </div>
-                <div class="col-md-5">              
-                               
+                <div class="col-md-4">              
+                     
+                                  
+                                <select class="form-control" v-model="selectCajaTipo" style="margin-top: 28px;" @change="listarVentas(0)">
+                                    <option value="0" disabled selected>Seleccionar caja</option>
+                                    <option v-for="c in arrayCajaTipo" :key="c.id"  :value="c.id">
+                                      <span>{{"Codigo: "+c.codigo+" Nom.Caja: "+c.nombre_caja+" T.Caja: "+c.tipo_caja}}</span>
+                                    </option>
+                                </select>
+             
                 </div>
         <div class="col-md-3">
           <label for="start-date">Fecha inicial:</label>
-          <input id="start-date" type="date" class="form-control" v-model="startDate" :disabled="sucursalSeleccionada===0" @change="listarVentas(0)">
+          <input id="start-date" type="date" class="form-control" v-model="startDate" :disabled="sucursalSeleccionada===0 || selectCajaTipo==='0'" @change="listarVentas(0)">
         </div>
         <div class="col-md-3">
           <label for="end-date">Fecha final:</label>
-          <input id="end-date" type="date" class="form-control" v-model="endDate" :disabled="sucursalSeleccionada===0" @change="listarVentas(0)">
-        </div>
-        
+          <input id="end-date" type="date" class="form-control" v-model="endDate" :disabled="sucursalSeleccionada===0 || selectCajaTipo==='0'" @change="listarVentas(0)">
+        </div>        
             </div>   
-
    
   <br>
   
@@ -417,6 +428,84 @@
           </transition>             
 
         <!--fin del modal-->
+
+        <!--Inicio del modal detalle general-->
+
+       <transition name="fade">
+            <div v-if="showModal_2" class="modal d-block" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-primary modal-lg modal-dialog-scrollable" role="document">
+
+                    <div class="modal-content">
+                        <div class="modal-header">
+                        <h4 class="modal-title">{{ tituloModal }}</h4>
+                        <button type="button" class="close" @click="cerrarModal('ver_detalle_general')">
+                            <span>&times;</span>
+                        </button>
+                        </div>
+                 <div class="modal-body" style="max-height: 70vh; overflow-y: auto;"> 
+                        
+                        <form  enctype="multipart/form-data" class="form-horizontal">
+                           <table class="table table-bordered table-striped table-sm table-responsive">
+                            <thead>
+                              <tr>
+                                <th>Descripción</th>
+                                <th>Entrada</th>
+                                <th>Salida</th>
+                                <th>Monto</th>                               
+                              </tr>                             
+                            </thead>
+                            <tbody>
+                              <tr>
+                                <td>Ventas en efectivo:</td>
+                        <td>0.00</td>  
+                         <td>0.00</td>  
+                                <td>
+                                  <span v-if="efectivo_v==0">0.00</span>
+                                  <span v-else>{{efectivo_v}}</span>
+                                </td>                                
+                              </tr>
+                              <tr>
+                                <td>Ventas electronicas:</td>
+                            <td>0.00</td>  
+                         <td>0.00</td>  
+                                <td>
+                                  <span v-if="digital_v==0">0.00</span>
+                                  <span v-else>{{digital_v}}</span>
+                                </td>  
+                              </tr>
+                              <tr>
+                                 <td>Ventas total:</td>
+                            <td>
+                              <span v-if="entrada_v==0">0.00</span>
+                                  <span v-else>{{entrada_v}}</span>
+                            </td>  
+                         <td>
+                          <span v-if="salida_v==0">0.00</span>
+                                  <span v-else>{{salida_v}}</span>
+                         </td>  
+                                <td>
+                                  <span v-if="operacion_v==0">0.00</span>
+                                  <span v-else>{{operacion_v}}</span>
+                                </td>  
+                              </tr>                              
+                            </tbody>
+                          </table>    
+                        </form>
+                    </div>
+                
+                 
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary"  @click="cerrarModal('ver_detalle_general')">Cerrar</button>
+                                         
+                  
+                    </div>
+                    </div>
+                </div>
+            </div>
+        </transition>             
+
+        <!--fin del modal-->
+
     </main>
 </template>
 
@@ -487,8 +576,8 @@ export default {
        monto_vale_1:'',
        tipo_venta_1:'',
 
-
-              
+      arrayCajaTipo:[],
+      selectCajaTipo:'0',                   
       
        //---
        array_nombre_des:[],
@@ -505,8 +594,15 @@ export default {
                 puedeCrear:2,
                 //-----------
                   showModal: false,
-
-         estadoAnulacion:9,    
+ showModal_2: false,
+         estadoAnulacion:9,   
+         
+           entrada_v:0,
+           salida_v:0,
+          efectivo_v:0,
+          digital_v:0,
+          total_v:0,
+          operacion_v:0,
         };
     },
 
@@ -1429,10 +1525,32 @@ listarDetalle_producto_x(id,tipo_per_emp) {
                 });
         },
 
+        listarTipoCaja() {
+            let me = this;
+            me.arrayCajaTipo=[];  
+            me.selectCajaTipo="0";         
+            var url = "/detalle_venta_2/listarTipoCaja?id_sucursal="+me.id_seleccionada_sucursal;
+            axios
+                .get(url)
+                .then(function (response) {
+                    const respuesta = response.data;                                          
+                    if (respuesta===0) {
+                       Swal.fire("Error","No exite datos en la tabla crecion de caja","error");
+                    }else{
+                      console.log(respuesta);
+                      me.arrayCajaTipo=respuesta;
+                    }                   
+                })
+                .catch(function (error) {
+                    error401(error);
+       
+                });
+        },
+
 
     listarVentas(page){
         let me=this;       
-        var url = "/detalle_venta_2/index?page="+page+"&buscar=" +me.buscar+"&id_sucursal="+me.id_seleccionada_sucursal+"&codigo_tienda_almacen="+me.cod_seleccionada_sucursal+"&startDate="+me.startDate+"&endDate="+me.endDate;
+        const url = "/detalle_venta_2/index?page="+page+"&buscar=" +me.buscar+"&id_sucursal="+me.id_seleccionada_sucursal+"&codigo_tienda_almacen="+me.cod_seleccionada_sucursal+"&startDate="+me.startDate+"&endDate="+me.endDate+"&id_caja="+me.selectCajaTipo;
         axios
                 .get(url)
                 .then(function (response) {
@@ -1520,6 +1638,33 @@ listarDetalle_producto_x(id,tipo_per_emp) {
           
                 });
         },
+
+        listarOperacionGeneral() {
+            let me = this;
+           // var url = "/traspaso/listarSucursal";
+           const url = "/detalle_venta_2/listarOperacionGeneral?id_sucursal="+me.id_seleccionada_sucursal+"&startDate="+me.startDate+"&endDate="+me.endDate+"&id_caja="+me.selectCajaTipo;
+            axios
+                .get(url)
+                .then(function (response) {
+                    const respuesta = response.data;
+                     me.entrada_v=respuesta.entrada;
+                      me.salida_v=respuesta.salida,
+                      me.efectivo_v=respuesta.efectivo;
+                      me.digital_v=respuesta.digital;
+                      me.total_v=respuesta.total;
+                      me.operacion_v=respuesta.operacion;
+
+
+                   console.log(respuesta);
+                 
+                })
+                .catch(function (error) {
+                    error401(error);
+          
+                });
+        },
+
+        
         cambiarPestana(idPestana) {
             this.pestañaActiva = idPestana;
 
@@ -1703,6 +1848,14 @@ listarDetalle_producto_x(id,tipo_per_emp) {
                 });
         },
 
+        abrirModalGeneral(){
+          let me=this;
+          me.tipoAccion = 1;
+                    me.tituloModal = "Vista detalle de venta general ";
+                     me.showModal_2 = true;
+                    me.classModal.openModal("ver_detalle_general");
+        },
+
         abrirModal(accion, data = []) {
             let me = this;
         //    let respuesta = me.arraySucursal.find(
@@ -1711,10 +1864,12 @@ listarDetalle_producto_x(id,tipo_per_emp) {
            
          switch (accion) {
                 
-                case "registrar": {
+                case "ver_detalle_general": {
                     me.tipoAccion = 1;
-                    me.tituloModal = "Registro de traspaso origen ";
-                    me.classModal.openModal("registrar");
+                    me.tituloModal = "";
+                     me.showModal_2 = true;
+                    me.classModal.openModal("ver_detalle_general");
+
                     break;
                 }
                 case "ver_detalle_venta":{
@@ -1872,7 +2027,7 @@ switch (data.tipo_venta) {
                 
                 case "actualizar": {
                     me.tipoAccion = 2;
-                    me.classModal.openModal("registrar");
+                    me.classModal.openModal("ver_detalle_general");
 
                     break;
                 }
@@ -1997,7 +2152,20 @@ const isInRange = today >= startDate && today <= endDate;
 
         cerrarModal(accion) {
             let me = this;          
-               me.showModal = false; 
+             
+              if (accion == "ver_detalle_general") {
+                 me.showModal_2 = false;
+                 me.tituloModal = "";
+                      me.entrada_v=0;
+                      me.salida_v=0;
+                      me.efectivo_v=0;
+                      me.digital_v=0;
+                      me.total_v=0;
+                      me.operacion_v=0;
+                 me.classModal.closeModal(accion);  
+              }
+               if (accion == "ver_detalle") {
+ me.showModal = false; 
                 me.classModal.closeModal(accion);               
                 me.tituloModal = "";
                 me.cod_cliente="";
@@ -2028,6 +2196,7 @@ const isInRange = today >= startDate && today <= endDate;
                   me.data_factura_cod_control="";
                   me.data_factura_nro_auto="";
                   me.estadoAnulacion=9;
+               }              
                   //me.classModal.openModal("ver_detalle");
          },
 
@@ -2048,7 +2217,7 @@ const isInRange = today >= startDate && today <= endDate;
         this.classModal = new _pl.Modals();
         this.sucursalFiltro();
         this.fecha_inicial();
-        this.classModal.addModal("registrar");
+        this.classModal.addModal("ver_detalle_general");
 
         this.classModal.addModal("ver_detalle");
     

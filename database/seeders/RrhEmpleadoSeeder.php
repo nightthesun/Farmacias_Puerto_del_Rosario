@@ -22,5 +22,6 @@ class RrhEmpleadoSeeder extends Seeder
         $profecion = Rrh_Profesion::where('nombre', 'Ingeniero de Sistemas')->first();        
 
         DB::table('rrh__empleados')->insert(['codempleado'=>'ADMIN','nombre'=>'ADMIN','sexo'=>'M','idcargo'=>$cargo->id,'idformacion'=>$formacion->id,'idprofesion'=>$profecion->id]);
+        DB::table('rrh__empleados')->insert(['codempleado'=>'ADMIN2','nombre'=>'RENZO','sexo'=>'M','idcargo'=>$cargo->id,'idformacion'=>$formacion->id,'idprofesion'=>$profecion->id]);
     }
 }

@@ -29,11 +29,11 @@
           <div class="card shadow-2-strong" style="border-radius: 1rem;">
             <div class="card-body p-5 text-center">
   
-              <h3 class="mb-5">Generar Nuevo Password</h3>
+              <h3 class="mb-5">Generar Nueva Contraseña</h3>
               <form action="" class="mt-4" method="POST">
                 @csrf
                 <div class="alert alert-success bg-soft-primary border-0" role="alert">
-                    Ingrese su direccion de correo electronico y le enviaremos un email con un codigo para confirmar su identidad.
+                    Ingrese su dirección de correo electronico y se le enviara un email con un codigo para confirmar su identidad.
                 </div>                    
                 @if(isset($error))
                   @if($error=='error')
@@ -50,7 +50,7 @@
                 </div>
                 <br>
                 <div class="form-group other_auth_links">
-                    <a class="" href="{{ route('login.index') }}"><-Volver</a>
+                    <a class="" href="{{ route('login.index') }}">Volver</a>
                     {{-- <a class="" href="https://procraft.studio">Register</a> --}}
                 </div>
               </form>

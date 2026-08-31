@@ -1761,7 +1761,7 @@ general_pdf(razon_social,sucursal,direccion,lugar,array_pdf,id_apertura,valor_to
                     const respuesta_1 = (response.data).ultimoRegistro;
                     const respuesta_2 = (response.data).ultimoRegistro_2;
                     const msn = respuesta.msn;
-                    console.log(msn.errorInfo);
+                 
                     const data_q = respuesta.data;
 
                     if (data_q===0) {
@@ -1777,7 +1777,7 @@ general_pdf(razon_social,sucursal,direccion,lugar,array_pdf,id_apertura,valor_to
 
                     if (respuesta_1===2) {                        
                        
-                        Swal.fire(""+msn.errorInfo,"Haga click en Ok","error");
+                        Swal.fire(""+msn,"Haga click en Ok","error");
                     } else {
                  if (respuesta_1===0 || respuesta_1===1) {
                         if (respuesta_1===1) {

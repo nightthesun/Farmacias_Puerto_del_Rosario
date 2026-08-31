@@ -142,10 +142,16 @@ class AdmSessionController extends Controller
 
     public function sendEmail($email,$token)
     {
-        $detalles=[
-            'title'=>'Correo de prueba',
-            'body'=>'Este es el codigo de Recuperacion de Contraseña '. $token .'Copielo y peguelo en la aplicacion'
-        ];
+    //    $detalles=[            
+    //        'title'=>'Correo de prueba',
+    //        'body'=>'Este es el codigo de Recuperacion de Contraseña '. $token .'Copielo y peguelo en la aplicacion'
+    //    ];
+    $detalles = [
+    'title' => 'Recuperación de contraseña',
+    'body' => 'Hemos recibido una solicitud para recuperar tu contraseña.',
+    'token' => $token,
+    'expira' => '10 minutos',
+];
         Mail::to($email)->send(new PruebaMail($detalles));
         return "correcto";
     }

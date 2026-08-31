@@ -370,8 +370,9 @@ $terciario = DB::table('prod__productos as pp')
         $id_user2 = session('id_user2'); 
         $user_1 = auth()->user()->id;
         $user_2 = auth()->user()->name;
-        
-        if ($user_1 == 1 && $user_2 == 'admin') {
+         $user_3 = auth()->user()->user_unique;
+    
+    if ($user_3 != 0 ) {   
             // Uniendo ambas consultas para el administrador
           
     

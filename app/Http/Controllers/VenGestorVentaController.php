@@ -400,7 +400,9 @@ EOD;
             }
 
             $user_1 = auth()->user()->id;   
-            if($user_1==1){
+             $user_3 = auth()->user()->user_unique;
+    
+    if ($user_3 != 0 ) {   
                  return response()->json([ 
                     'error_msn' => 'El usuario root no puede hacer ventas',
                     'estado' => 1
@@ -953,6 +955,7 @@ $soap_llamada="sin datos";
       
         try {
                // Iniciar una transacción
+       
                $num_factura="";
                $fechaHoy = Carbon::now()->format('Y-m-d');
                DB::beginTransaction();
@@ -961,7 +964,9 @@ $soap_llamada="sin datos";
                $iduserrolesuc = "";
                $idsuc = "";
                $name_user = ""; 
-               if ($user_1==1) {
+               $user_3 = auth()->user()->user_unique;
+    
+    if ($user_3 != 0 ) {   
                 $valor = '1';
                 return response()->json(['data' => $valor]);
                }else{
@@ -1312,7 +1317,9 @@ $nombre_empresa = strtoupper($nombre_e);
         $user_1 = auth()->user()->id;
         $user_2 = auth()->user()->name;
         //dd(session()->all());
-        if ($user_1==1) {
+         $user_3 = auth()->user()->user_unique;
+    
+    if ($user_3 != 0 ) {   
             $idsuc=1;
         }else{
             $iduserrolesuc = session('iduserrolesuc');
@@ -1527,7 +1534,9 @@ $nombre_empresa = strtoupper($nombre_e);
         }
         $idrubro = explode(',', $user_rubro);
         //dd(session()->all());
-        if ($user_1==1) {
+        $user_3 = auth()->user()->user_unique;
+    
+    if ($user_3 != 0 ) {   
             $idsuc=1;
         }else{
             $iduserrolesuc = session('iduserrolesuc');
@@ -1925,7 +1934,9 @@ $nombre_empresa = strtoupper($nombre_e);
 
         $user_1 = auth()->user()->id;   
 
-        if ($user_1==1) {
+        $user_3 = auth()->user()->user_unique;
+    
+    if ($user_3 != 0 ) {   
             $idsuc=1;
         }else{
             $iduserrolesuc = session('iduserrolesuc');
@@ -1991,7 +2002,9 @@ $nombre_empresa = strtoupper($nombre_e);
     public function listarDescuento_Tipo_tabla(){
         $user_1 = auth()->user()->id;   
 
-        if ($user_1==1) {
+         $user_3 = auth()->user()->user_unique;
+    
+    if ($user_3 != 0 ) {   
             $idsuc=1;
         }else{
             $iduserrolesuc = session('iduserrolesuc');
@@ -2291,7 +2304,10 @@ if ($hoy->greaterThan($fechaA)) {
     
     }
 
-    public function tieneApertura(){
+    public function tieneApertura(Request $request){
+
+                  //  dd($request->all());
+                    $id_caja=$request->id_caja;
         $id_user=auth()->user()->id; 
         if ($id_user==1) {
             $idsuc = 1;
@@ -2312,35 +2328,57 @@ if ($hoy->greaterThan($fechaA)) {
    // ->where('id_apertura_cierre', '=',0)
    // ->orderBy('id', 'desc')
    // ->first();
-$query= DB::table('adm__credecial_correos')
+$tipo_caja= DB::table('adm__credecial_correos')
 ->where('id',1)->value('tipo_caja');
 
-if($query==null || $query==0){
+
+
+if($tipo_caja==null || $tipo_caja==0){
     return response()->json([
             'error' => 1,
             'datos'=>null,
             'tipo'=>null, 
+            'usuario' => $id_user,
+            'sucursal' => $idsuc,  
             'msn' => 'La configuracion de la caja no esta o esta con valor cero necesita configuracion',
         ]);
 }
+/* 
+$id_caja = DB::table('caja__creacions')
+          ->select('id','codigo','nombre_caja','monto_caja','moneda')
+          ->whereRaw('FIND_IN_SET(?,id_users)',[$id_user])
+    ->where('id_sucursal', $idsuc)
+    ->where('tipo_caja', $tipo_caja)
+    ->where('estado', 1)
+    ->first();
+$id_caja = $id_caja->id;
+*/
 
   
-if ($query==1) {  
-    $ultimoRegistro = DB::table('caja__apertura_cierres as cac')
-    ->join('caja__arqueo as ca', 'cac.id_arqueo', '=', 'ca.id')
-    ->join('users as u', 'u.id', '=', 'ca.id_usuario')
-    ->select('cac.id','cac.turno_caja', 'cac.tipo_caja_c_a', 'cac.total_caja', 'cac.estado_caja', 'cac.id_arqueo','cac.id_cierre as id_apertura_cierre','cac.id_caja','cac.id_sucursal')
-    ->where('cac.id_sucursal', $idsuc)
-    ->where('ca.id_usuario', $id_user)
-    ->where('cac.tipo_caja_c_a', 0)
-    ->where('cac.id_cierre', 0)
-    ->orderBy('cac.created_at', 'desc')
-    ->first();
+//dd($idsuc." ".$id_caja." ".$id_user." ".$tipo_caja);
+
+ 
+     $ultimoRegistro=DB::table('caja__apertura_cierres as cac')
+            ->join('caja__arqueo as ca', 'cac.id_arqueo', '=', 'ca.id')
+            ->join('users as u', 'u.id', '=', 'ca.id_usuario')
+            ->select( 'cac.id','cac.turno_caja', 'cac.tipo_caja_c_a', 'cac.total_caja', 'cac.estado_caja','cac.id_arqueo','cac.id_cierre as id_apertura_cierre','cac.id_caja','cac.id_sucursal')
+            ->where('cac.id_sucursal', $idsuc)
+            ->where('cac.id_caja', $id_caja)   
+            ->where('ca.id_usuario', $id_user)
+            ->where('cac.tipo_caja_c_a', 0)
+            ->where('cac.id_cierre', 0)
+            ->where('cac.estado',1)
+            ->where('cac.tipo_caja', $tipo_caja)
+            ->orderBy('cac.created_at', 'desc')
+            ->first();   
+
     if($ultimoRegistro==null){        
         return response()->json([
             'error' => 1,
             'datos'=>null,  
-            'tipo'=>$query,           
+            'tipo'=>$tipo_caja,
+            'usuario' => $id_user,
+            'sucursal' => $idsuc,          
             'msn' => 'Debe aperturar una caja. Caja no existente',
         ]);
     }else{       
@@ -2348,19 +2386,22 @@ if ($query==1) {
              return response()->json([
             'error' => 1,
             'datos'=>null,  
-            'tipo'=>$query,           
+            'tipo'=>$tipo_caja,   
+            'usuario' => $id_user,
+            'sucursal' => $idsuc,          
             'msn' => 'Debe aperturar una caja nivel. Duplicidad de caja o caja ya existente',
         ]);          
         }else{
             return response()->json([
             'error' => 0,
             'datos'=>$ultimoRegistro,  
-            'tipo'=>$query,           
+            'tipo'=>$tipo_caja, 
+            'usuario' => $id_user,
+            'sucursal' => $idsuc,            
             'msn' => 'Carga correcta',
         ]);  
         }
-    } 
-      
+          
 }
 
 
@@ -2714,7 +2755,5 @@ $data_siat = [
         return $th->getMessage();
     }   
    
-  } 
-
-    
+  }     
 }

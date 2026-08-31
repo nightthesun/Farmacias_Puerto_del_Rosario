@@ -18,6 +18,7 @@ class RrhEmpleadoController extends Controller
     {
         $raw=DB::raw('concat(ifnull(papellido," ")," ",ifnull(sapellido," ")," ",rrh__empleados.nombre) as nomempleado');
         $raw2=DB::raw('concat(domicilio,"-",adm__ciudads.nombre) as direccion');
+        $raw3="(rrh__empleados.codempleado <> 'ADMIN' AND rrh__empleados.codempleado <> 'ADMIN2')";
         $buscararray=array();
         if(!empty($request->buscar)){
             $buscararray = explode(" ",$request->buscar);
@@ -85,7 +86,9 @@ class RrhEmpleadoController extends Controller
                                         ->orderby('rrh__empleados.papellido','asc')
                                         ->orderby('rrh__empleados.sapellido','asc')
                                         ->orderby('rrh__empleados.nombre','asc')
-                                        ->whereraw($sqls)->paginate(50);
+                                        ->whereraw($sqls)
+                                        ->whereRaw($raw3)
+                                        ->paginate(50);
             }
         }
         
@@ -98,6 +101,7 @@ class RrhEmpleadoController extends Controller
                                     ->leftjoin('adm__nacionalidads','adm__nacionalidads.id', 'rrh__empleados.idnacionalidad')
                                     ->leftjoin('adm__ciudads','adm__ciudads.id', 'rrh__empleados.idciudad')
                                     ->leftjoin('adm__bancos','adm__bancos.id', 'rrh__empleados.idbanco')
+                                     ->whereRaw($raw3)
                                     ->select('rrh__empleados.id',
                                             'rrh__empleados.nombre',
                                             'papellido',
@@ -130,6 +134,7 @@ class RrhEmpleadoController extends Controller
                                             'complementoci',
                                             'celular',
                                             'nit')
+                                           
                                     ->orderby('rrh__empleados.papellido','asc')
                                     ->orderby('rrh__empleados.sapellido','asc')
                                     ->orderby('rrh__empleados.nombre','asc')

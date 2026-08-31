@@ -82,7 +82,7 @@
                                     <strong>Caja:</strong> 
                                 </div>
                                 <div class="col-3">                                                                   
-                                  <select class="form-control" v-model="selectTipoCaja_v2">                               
+                                  <select class="form-control" v-model="selectTipoCaja_v2" @change="verificadorAperturaCierre(selectTipoCaja_v2)">                               
                                     <option v-for="(i, index) in arrayTipoCaja_v2" :key="index" :value="i.id">{{i.codigo+' '+i.nombre_caja}}</option>
                                   </select>
                                 </div>
@@ -3139,7 +3139,7 @@ me.importe_fiscal=me.monto_a_pagar;
 
     EnviarRecibo(){
         let me = this; 
-    
+   
               if (me.validadorPersonal===3) {           
             me.array_ven__detalle_descuentos.push({id_contador:0,id_tabla:0,id_descuento:0,cantidad_descuento:0.00,tipo:1});            
           }
@@ -3362,18 +3362,23 @@ total_sin_des,descuento_venta,total_venta,efectivo_venta,cambio_venta,fechaMas7D
         },
    
 
-        verificadorAperturaCierre(){
+        verificadorAperturaCierre(id_caja_2){
             let me=this;
-            var url = "/gestor_ventas/tieneApertura";
+       
+            console.log(me.selectTipoCaja_v2+"sss");
+            var url = "/gestor_ventas/tieneApertura?id_caja="+id_caja_2;
             axios.get(url)
                 .then(function (response) {
                     const respuesta = response.data;  
+                    console.log("******");
                     console.log(respuesta);
-                    
+                     console.log("******");
                     const error = respuesta.error;
                     const datos = respuesta.datos;
                     const msn = respuesta.msn;
                     const tipo = respuesta.tipo;
+                    const id_user_query= respuesta.usuario;
+                    const id_sucursal_query = respuesta.sucursal;
 
                  
                     if (error===1) {
@@ -3381,14 +3386,12 @@ total_sin_des,descuento_venta,total_venta,efectivo_venta,cambio_venta,fechaMas7D
                         Swal.fire(""+msn,"Haga click en Ok","warning",);  
                         return;  
                     } else {
-                      if (tipo==1) {
+                     
                         me.tieneApertura_0=1;
                          me.id_apertura_cierre=datos.id;
                          me.listarPermisoFacturacion(datos.id_sucursal,datos.id_caja,tipo);                         
                          me.id_sucursal_siat=datos.id_sucursal;
-                         me.id_caja_siat=datos.id_caja;
-                        
-                      }
+                         me.id_caja_siat=datos.id_caja;      
                       
                          
                      } 
@@ -3511,6 +3514,7 @@ if (!correoRegex.test(me.correo)) {
                     me.tamañoArrayTipoCaja_v2=respuesta.length;
                     if (me.tamañoArrayTipoCaja_v2>0) {
                       me.selectTipoCaja_v2=me.arrayTipoCaja_v2[0].id;
+                      me.verificadorAperturaCierre(me.selectTipoCaja_v2);
                     }else{
                      me.selectTipoCaja_v2=0; 
                       Swal.fire("Error","No existe datos de usuario en esta caja","error"); 
@@ -3907,13 +3911,13 @@ me.descuento_1=totalDescuento+me.descuento_final;
 
     
     mounted() {
+      // this.verificadorAperturaCierre(id_caja);
         this.listarDescuento_Tipo_tabla();
         this.classModal = new _pl.Modals();
         this.listarDescuentos_listas();
         this.listarSucursalGet();
         this.verificarUnidadMedida();       
-        this.listarBanco();
-        this.verificadorAperturaCierre();
+        this.listarBanco();       
         this.classModal.addModal("registrar");
         this.classModal.addModal("cliente_modal");
         this.classModal.addModal("lote_cliete"); 

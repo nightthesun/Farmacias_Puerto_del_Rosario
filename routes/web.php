@@ -243,6 +243,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/sucursal/listarListas', [AdmSucursalController::class, 'listarListas']);
     Route::post('/sucursal/registrarlista', [AdmSucursalController::class, 'registrarlista']);
     Route::get('/sucursal/listarArray', [AdmSucursalController::class, 'listarArray']);
+    Route::get('/sucursal/listarNit', [AdmSucursalController::class, 'get_nit']);
+    
       
     Route::get('/modulo', [AdmModuloController::class, 'index']);
     Route::post('/modulo/registrar', [AdmModuloController::class, 'store']);
@@ -821,6 +823,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/detalle_venta_2/desactivar', [VenGestorVentaVistaController::class, 'desactivar']);
     Route::get('/detalle_venta_2/factura_dosificacion', [VenGestorVentaVistaController::class, 'factura_dosificacion']); 
     Route::get('/detalle_venta_2/re_imprecion_siat', [VenGestorVentaVistaController::class, 'get_data_factura_siat']); 
+    Route::get('/detalle_venta_2/listarTipoCaja', [VenGestorVentaVistaController::class, 'get_tipo_caja']); 
+    Route::get('/detalle_venta_2/listarOperacionGeneral', [VenGestorVentaVistaController::class, 'get_operacion_general']); 
+    
     
     //caducidad---
     Route::get('/caducida/index', [VenCaducidadController::class, 'index']);

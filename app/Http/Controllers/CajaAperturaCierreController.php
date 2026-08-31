@@ -103,8 +103,10 @@ class CajaAperturaCierreController extends Controller
                      //   ->where('cac.tipo_caja_c_a','=',$request->a_e)          
                      //   ->where('ca.id_usuario','=',$user)   
                      ->whereRaw($where)
+
                      ->whereRaw($sqls)    
-                     ->where('cac.tipo_caja',$tipo_caja)           
+                     ->where('cac.tipo_caja',$tipo_caja)     
+                     ->whereRaw($where_2)      
                 ->orderByDesc('cac.id')
            
                 ->paginate(15);               
@@ -776,7 +778,7 @@ $data_1 = $moneda;
 
        try {
          $tipo_caja=$request->tipo_caja;
-         $id_caja=$request->tipo_caja;
+         $id_caja=$request->id_caja;
         
         if($tipo_caja>0){            
             $id_user = Auth()->user()->id;
@@ -785,8 +787,9 @@ $data_1 = $moneda;
     ->join('caja__arqueo as a', 'cac.id_arqueo', '=', 'a.id')  
     ->join('caja__creacions as cc','cc.id','=','cac.id_caja') 
     ->where('cac.id_cierre', 0)
-    ->where('cac.id_caja', $id_caja)
-    ->where('cac.tipo_caja', $tipo_caja)
+    //->where('a.id_usuario',$id_user)
+    ->where('cac.id_caja', (int)$id_caja)
+    ->where('cac.tipo_caja', (int)$tipo_caja)
     ->where('cac.estado',1)
     ->where('cc.estado',1)
     ->count('cac.id');

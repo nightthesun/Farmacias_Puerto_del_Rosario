@@ -24,7 +24,9 @@ class GestionPerimsoController extends Controller
     
         $user_1 = Auth()->user()->id;
         $user_2 = Auth()->user()->name;
-        if($user_1==1&&$user_2=='admin'){
+        $user_3 = auth()->user()->user_unique;
+    
+    if ($user_3 != 0 ) {       
             $resultadoConsulta = "root";
             return $resultadoConsulta;           
         }else{   
@@ -51,7 +53,9 @@ class GestionPerimsoController extends Controller
         $id_user2=session('id_user2'); 
         $user_1 = Auth()->user()->id;
         $user_2 = Auth()->user()->name;
-        if($user_1==1&&$user_2=='admin'){
+        $user_3 = auth()->user()->user_unique;
+    
+    if ($user_3 != 0 ) {   
             $resultadoConsulta = "root";
             return $resultadoConsulta;           
         }else{   
@@ -126,9 +130,9 @@ class GestionPerimsoController extends Controller
         $idsuc = session('idsuc');
         $id_user2 = session('id_user2'); 
         $user_1 = auth()->user()->id;
-        $user_2 = auth()->user()->name;
-        
-        if ($user_1 == 1 && $user_2 == 'admin') {
+        $user_3 = auth()->user()->user_unique;
+    
+    if ($user_3 != 0 ) {   
             // Uniendo ambas consultas para el administrador
             $tiendas = DB::table('tda__tiendas')
                 ->join('adm__sucursals as ass', 'tda__tiendas.idsucursal', '=', 'ass.id')
@@ -226,7 +230,9 @@ class GestionPerimsoController extends Controller
         $id_user2 = session('id_user2'); 
         $user_1 = auth()->user()->id;
         $user_2 = auth()->user()->name;
-         if ($user_1 == 1 && $user_2 == 'admin') {
+        $user_3 = auth()->user()->user_unique;
+    
+    if ($user_3 != 0 ) {   
            $sucursal = DB::table('adm__sucursals as ass')
             ->join('adm__departamentos as ad', 'ass.departamento', '=', 'ad.id')
             ->select('ass.id','ass.razon_social','ass.telefonos','ass.nit','ass.direccion','ass.nombre_comercial','ad.nombre as departamento')

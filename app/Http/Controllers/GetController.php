@@ -14,7 +14,9 @@ class GetController extends Controller
         $iduserrolesuc=session('iduserrolesuc');
         $user_1 = Auth()->user()->id;
         $user_2 = Auth()->user()->name;
-        if($user_1==1&&$user_2=='admin'){
+   $user_3 = auth()->user()->user_unique;
+    
+    if ($user_3 != 0 ) {   
             $resultadoConsulta = [
                 ['id' => 1, 'edit' => 1, 'activar' => 1]
             ];
@@ -58,7 +60,9 @@ class GetController extends Controller
             $where1 = "(ass.id = $idsuc)";
             $where2 = "(ass.id = $idsuc)";
             }
-                if ($user_1 == 1) {
+                $user_3 = auth()->user()->user_unique;
+    
+    if ($user_3 != 0 ) {   
                 $tiendas = DB::table('tda__tiendas')
                 ->join('adm__sucursals as ass', 'tda__tiendas.idsucursal', '=', 'ass.id')
                 ->select(
@@ -137,7 +141,9 @@ return $result;
        
         $idsuc = session('idsuc');
         $user_1 = Auth()->user()->id;
-        if($user_1==1){
+      $user_3 = auth()->user()->user_unique;
+    
+    if ($user_3 != 0 ) {   
             $sucursalesActivas = DB::table('adm__sucursals')
             ->select('id', 'cod', 'razon_social')
             ->where('activo', 1)
