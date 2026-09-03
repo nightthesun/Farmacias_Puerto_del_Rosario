@@ -107,7 +107,7 @@ class ProdProductoController extends Controller
                     'prod__productos.codigo as codprod',
                     'prod__productos.nombre as nomprod',
                     'prod__productos.idrubro',
-                    'adm__rubros.nombre as nomrubro',
+                    'adm_actividad_economicas.nombre as nomrubro',
                     'prod__productos.idlinea',
                     'prod__productos.preciolistaprimario',
                     'prod__productos.preciolistasecundario',
@@ -156,17 +156,17 @@ class ProdProductoController extends Controller
                 ])
                 ->join('prod__lineas', 'prod__lineas.id', '=', 'prod__productos.idlinea')
                 ->join('prod__categorias', 'prod__categorias.id', '=', 'prod__productos.idcategoria')
-                ->join('adm__rubros', 'adm__rubros.id', '=', 'prod__productos.idrubro')
+                ->join('adm_actividad_economicas', 'adm_actividad_economicas.id', '=', 'prod__productos.idrubro')
                 ->leftJoin('ven__detalle_ventas as vdv', 'vdv.id_producto', '=', 'prod__productos.id')
                 ->where('prod__productos.estado', 1)
-                ->where('adm__rubros.id',$request->idrubro)
+                ->where('adm_actividad_economicas.id',$request->idrubro)
                 ->whereraw($sqls)
                 ->groupBy([
                     'prod__productos.id',
                     'prod__productos.codigo',
                     'prod__productos.nombre',
                     'prod__productos.idrubro',
-                    'adm__rubros.nombre',
+                    'adm_actividad_economicas.nombre',
                     'prod__productos.idlinea',
                     'prod__productos.preciolistaprimario',
                     'prod__productos.preciolistasecundario',
@@ -227,7 +227,7 @@ class ProdProductoController extends Controller
                 'prod__productos.codigo as codprod',
                 'prod__productos.nombre as nomprod',
                 'prod__productos.idrubro',
-                'adm__rubros.nombre as nomrubro',
+                'adm_actividad_economicas.nombre as nomrubro',
                 'prod__productos.idlinea',
                 'prod__productos.preciolistaprimario',
                 'prod__productos.preciolistasecundario',
@@ -276,17 +276,17 @@ class ProdProductoController extends Controller
             ])
             ->join('prod__lineas', 'prod__lineas.id', '=', 'prod__productos.idlinea')
             ->join('prod__categorias', 'prod__categorias.id', '=', 'prod__productos.idcategoria')
-            ->join('adm__rubros', 'adm__rubros.id', '=', 'prod__productos.idrubro')
+            ->join('adm_actividad_economicas', 'adm_actividad_economicas.id', '=', 'prod__productos.idrubro')
             ->leftJoin('ven__detalle_ventas as vdv', 'vdv.id_producto', '=', 'prod__productos.id')
             ->where('prod__productos.estado', 1)
-            ->where('adm__rubros.id',$request->idrubro)
+            ->where('adm_actividad_economicas.id',$request->idrubro)
             
             ->groupBy([
                 'prod__productos.id',
                 'prod__productos.codigo',
                 'prod__productos.nombre',
                 'prod__productos.idrubro',
-                'adm__rubros.nombre',
+                'adm_actividad_economicas.nombre',
                 'prod__productos.idlinea',
                 'prod__productos.preciolistaprimario',
                 'prod__productos.preciolistasecundario',
@@ -658,7 +658,7 @@ class ProdProductoController extends Controller
         $raw = DB::raw(DB::raw('concat(ifnull(prod__productos.codigo,"")," ",ifnull(prod__productos.nombre,"")," ",ifnull(prod__dispensers.nombre,"")," X ",ifnull(prod__productos.cantidadprimario,"")," - ",ifnull(prod__forma_farmaceuticas.nombre,"")) as cod'));
         $productos = Prod_Producto::leftJoin('prod__forma_farmaceuticas','prod__forma_farmaceuticas.id','prod__productos.idformafarmaceuticaprimario')
                                     ->leftJoin('prod__dispensers','prod__dispensers.id','prod__productos.iddispenserprimario')
-                                    ->leftJoin('adm__rubros','adm__rubros.id','prod__productos.idrubro')
+                                    ->leftJoin('adm_actividad_economicas','adm_actividad_economicas.id','prod__productos.idrubro')
                                     ->select(DB::raw('prod__productos.id as idproduc,
                                                 prod__productos.codigo,
                                                 prod__productos.nombre, 
@@ -667,13 +667,13 @@ class ProdProductoController extends Controller
                                                 prod__forma_farmaceuticas.nombre as nomformafarmaceutica,
                                                 prod__dispensers.id as idenvase,
                                                 prod__dispensers.nombre as nomenvase,
-                                                adm__rubros.id as idrubro,
-                                                adm__rubros.nombre as nomrubro,
-                                                adm__rubros.areamedica'),
+                                                adm_actividad_economicas.id as idrubro,
+                                                adm_actividad_economicas.nombre as nomrubro,
+                                                adm_actividad_economicas.areamedica'),
                                                 $raw
                                             )
                                     ->where('prod__productos.activo',1)
-                                    ->where('adm__rubros.id',$idrubroTable)
+                                    ->where('adm_actividad_economicas.id',$idrubroTable)
                                     ->orderby('prod__productos.nombre','asc')
                                     ->get();
         
@@ -682,8 +682,8 @@ class ProdProductoController extends Controller
 
     public function selectProductoPerecedero (Request $request)
     {
-        $productos=Prod_Producto::leftJoin('adm__rubros','adm__rubros.id','prod__productos.idrubro')
-                                ->select('adm__rubros.areamedica')
+        $productos=Prod_Producto::leftJoin('adm_actividad_economicas','adm_actividad_economicas.id','prod__productos.idrubro')
+                                ->select('adm_actividad_economicas.areamedica')
                                 ->where('prod__productos.id',$request->idproducto)
                                 ->get();
         return $productos;
@@ -704,7 +704,7 @@ class ProdProductoController extends Controller
         $raw = DB::raw(DB::raw('concat(ifnull(prod__productos.codigo,"")," ",ifnull(prod__productos.nombre,"")," ",ifnull(prod__dispensers.nombre,"")," X ",ifnull(prod__productos.cantidad'.$request->envase.',"")," - ",ifnull(prod__forma_farmaceuticas.nombre,"")) as cod'));
         $productos = Prod_Producto::leftJoin('prod__forma_farmaceuticas','prod__forma_farmaceuticas.id','prod__productos.idformafarmaceutica'.$request->envase)
                                     ->leftJoin('prod__dispensers','prod__dispensers.id','prod__productos.iddispenser'.$request->envase)
-                                    ->leftJoin('adm__rubros','adm__rubros.id','prod__productos.idrubro')
+                                    ->leftJoin('adm_actividad_economicas','adm_actividad_economicas.id','prod__productos.idrubro')
                                     ->select(DB::raw('prod__productos.id as idproduc,
                                                 prod__productos.codigo,
                                                 prod__productos.nombre, 
@@ -713,16 +713,16 @@ class ProdProductoController extends Controller
                                                 prod__forma_farmaceuticas.nombre as nomformafarmaceutica,
                                                 prod__dispensers.id as idenvase,
                                                 prod__dispensers.nombre as nomenvase,
-                                                adm__rubros.id as idrubro,
-                                                adm__rubros.nombre as nomrubro,
-                                                adm__rubros.areamedica,
+                                                adm_actividad_economicas.id as idrubro,
+                                                adm_actividad_economicas.nombre as nomrubro,
+                                                adm_actividad_economicas.areamedica,
                                                 prod__productos.codigointernacional,
                                                 prod__productos.tienda'.$request->envase.',
                                                 prod__productos.almacen'.$request->envase),
                                                 $raw
                                             )
                                     ->where('prod__productos.activo',1)
-                                    ->where('adm__rubros.id',$idrubroTable)
+                                    ->where('adm_actividad_economicas.id',$idrubroTable)
                                     ->orderby('prod__productos.nombre','asc')
                                     ->get();
         
@@ -731,8 +731,8 @@ class ProdProductoController extends Controller
 
     public function getProductosTiendaEnvase(Request $request)
     {
-        $idrubroDeTiendaSeleccionado = DB::table('adm__sucursals')
-                                        ->select('adm__sucursals.idrubro') 
+        $idrubroDeTiendaSeleccionado = DB::table('adm_actividad_economicas')
+                                        ->select('adm_actividad_economicas.id')
                                         ->leftJoin('tda__tiendas','tda__tiendas.idsucursal','adm__sucursals.id')
                                         ->where('tda__tiendas.id',$request->idtienda)
                                         ->get();
@@ -744,7 +744,7 @@ class ProdProductoController extends Controller
         $raw = DB::raw(DB::raw('concat(ifnull(prod__productos.codigo,"")," ",ifnull(prod__productos.nombre,"")," ",ifnull(prod__dispensers.nombre,"")," X ",ifnull(prod__productos.cantidad'.$request->envase.',""),if(isnull(prod__forma_farmaceuticas.nombre),""," - "||prod__forma_farmaceuticas.nombre)) as cod'));
         $productos = Prod_Producto::leftJoin('prod__forma_farmaceuticas','prod__forma_farmaceuticas.id','prod__productos.idformafarmaceutica'.$request->envase)
                                     ->leftJoin('prod__dispensers','prod__dispensers.id','prod__productos.iddispenser'.$request->envase)
-                                    ->leftJoin('adm__rubros','adm__rubros.id','prod__productos.idrubro')
+                                    ->leftJoin('adm_actividad_economicas','adm_actividad_economicas.id','prod__productos.idrubro')
                                     ->select(DB::raw('prod__productos.id as idproduc,
                                                 prod__productos.codigo,
                                                 prod__productos.nombre, 
@@ -753,16 +753,16 @@ class ProdProductoController extends Controller
                                                 prod__forma_farmaceuticas.nombre as nomformafarmaceutica,
                                                 prod__dispensers.id as idenvase,
                                                 prod__dispensers.nombre as nomenvase,
-                                                adm__rubros.id as idrubro,
-                                                adm__rubros.nombre as nomrubro,
-                                                adm__rubros.areamedica,
+                                                adm_actividad_economicas.id as idrubro,
+                                                adm_actividad_economicas.nombre as nomrubro,
+                                                adm_actividad_economicas.areamedica,
                                                 prod__productos.codigointernacional,
                                                 prod__productos.tienda'.$request->envase.',
                                                 prod__productos.almacen'.$request->envase),
                                                 $raw
                                             )
                                     ->where('prod__productos.activo',1)
-                                    ->where('adm__rubros.id',$idrubroTable)
+                                    ->where('adm_actividad_economicas.id',$idrubroTable)
                                     ->orderby('prod__productos.nombre','asc')
                                     ->get();
         

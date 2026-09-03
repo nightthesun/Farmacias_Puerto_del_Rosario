@@ -36,8 +36,8 @@ class AdmVentanaModuloSeeder extends Seeder
         DB::table('adm__ventana_modulos')->insert(['codventana'=>'101','idmodulo'=>$admin->id,'nombre'=>'Mod. Vent. Acc.','template'=>'modulo-component']);
         DB::table('adm__ventana_modulos')->insert(['codventana'=>'102','idmodulo'=>$admin->id,'nombre'=>'Roles-Permisos','template'=>'rolpermiso-component']);
         DB::table('adm__ventana_modulos')->insert(['codventana'=>'103','idmodulo'=>$admin->id,'nombre'=>'Usuarios','template'=>'usuario-component']);
-        DB::table('adm__ventana_modulos')->insert(['codventana'=>'104','idmodulo'=>$admin->id,'nombre'=>'Sucursales','template'=>'sucursal-component']);
-        DB::table('adm__ventana_modulos')->insert(['codventana'=>'105','idmodulo'=>$admin->id,'nombre'=>'Rubros','template'=>'rubros-component']);
+        DB::table('adm__ventana_modulos')->insert(['codventana'=>'104','idmodulo'=>$admin->id,'nombre'=>'Sucursales','template'=>'sucursal-component']);        
+        DB::table('adm__ventana_modulos')->insert(['codventana'=>'105','idmodulo'=>$admin->id,'nombre'=>'Actividad comerccial','template'=>'actividad-comercial-component']);
         DB::table('adm__ventana_modulos')->insert(['codventana'=>'106','idmodulo'=>$admin->id,'nombre'=>'Configuración','template'=>'configuracion-component']);
         DB::table('adm__ventana_modulos')->insert(['codventana'=>'107','idmodulo'=>$admin->id,'nombre'=>'Dosificación','template'=>'dofisicacion-component']); 
         DB::table('adm__ventana_modulos')->insert(['codventana'=>'108','idmodulo'=>$admin->id,'nombre'=>'QR Simple','template'=>'qr-simple-component']);  

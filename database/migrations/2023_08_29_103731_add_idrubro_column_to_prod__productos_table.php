@@ -16,7 +16,7 @@ return new class extends Migration
                   ->after('nombre')
                   ->default(1)
                   ->comment("Identificador unico que hace referencia a la tabla rubros, y que relaciona la tabla productos y rubros");
-            $table->foreign('idrubro')->references('id')->on('adm__rubros');
+            $table->foreign('idrubro')->references('id')->on('adm_actividad_economicas');
         });
     }
 

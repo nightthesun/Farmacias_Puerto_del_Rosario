@@ -15,8 +15,8 @@ createApp ({
     .component('example',require('./components/Example.vue').default)
     .component('another-example',require('./components/AnotherExample.vue').default)
     
-    //administracion
-    .component('rubros-component',require('./components/administracion/RubrosComponent.vue').default)
+    //administracion    
+    .component('actividad-comercial-component',require('./components/administracion/ActividadComercialComponent.vue').default)
     .component('sucursal-component',require('./components/administracion/SucursalComponent.vue').default)
     .component('modulo-component',require('./components/administracion/ModuloVentanaAccionComponent.vue').default)
     .component('rolpermiso-component',require('./components/administracion/RolPermisoComponent.vue').default)

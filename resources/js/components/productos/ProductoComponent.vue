@@ -1003,7 +1003,7 @@ import QrcodeVue from 'qrcode.vue';
 
             listarrubro(){
                 let me=this;
-                var url='/rubro/selectrubro';
+                var url='/Actividad_economica/selectrubro';
                 axios.get(url).then(function(response){
                     var respuesta=response.data;
                     me.rubros=respuesta.rubros;

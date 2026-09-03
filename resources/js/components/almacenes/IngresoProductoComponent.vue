@@ -476,7 +476,7 @@ import { error401 } from '../../errores';
 
             listarRubro(){
                 let me=this;
-                var url='/rubro/selectrubro';
+                var url='/Actividad_economica/selectrubro';
                 axios.get(url).then(function (response) {
                     var respuesta= response.data; 
                     me.arrayRubro=respuesta.rubros;

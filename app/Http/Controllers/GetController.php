@@ -459,7 +459,7 @@ return $result;
     }
 
     public function getRubro(){
-        $rubros = DB::table('adm__rubros')
+        $rubros = DB::table('adm_actividad_economicas')
             ->where('activo', 1)
             ->get();
         return $rubros;    
@@ -645,7 +645,7 @@ return response()->json($query); // buena práctica en API
     } 
 
     public function getRubroSiat_xd(){
-       $resultado = DB::table('adm__rubros AS a')
+       $resultado = DB::table('adm_actividad_economicas AS a')
     ->select('a.id','a.nombre','a.codigo_activdad_siat')  
     ->where('a.activo', 1)
     ->where('a.uso_unico', 1)

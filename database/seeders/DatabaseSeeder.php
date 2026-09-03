@@ -13,7 +13,7 @@ class DatabaseSeeder extends Seeder
         $this->command->info('=== INICIANDO SEEDERS ===');
         // las que tiene *** tres azteristicos son importatntes 
         $this->truncateTables([
-            //  'adm__rubros',
+      
             //  'adm__sucursals',
             //  'rrh__unidad_organizacionals',
             'rrh__cargos',

@@ -39,7 +39,7 @@ class AdmSucursalController extends Controller
     
                 }
                 $sucursales0 = DB::table('adm__sucursals as ass')
-    ->join('adm__rubros as ar', 'ass.idrubro', '=', 'ar.id')
+    ->join('adm_actividad_economicas as ar', 'ass.idrubro', '=', 'ar.id')
     ->join('tda__tiendas as tt', 'tt.idsucursal', '=', 'ass.id')
     ->join('adm__departamentos as ad', 'ad.id', '=', 'ass.departamento')
     ->leftJoin('ven__recibos as vdv', 'vdv.id_sucursal', '=', 'ass.id')
@@ -149,7 +149,7 @@ class AdmSucursalController extends Controller
         
         else
         {$sucursales0 = DB::table('adm__sucursals as ass')
-            ->join('adm__rubros as ar', 'ass.idrubro', '=', 'ar.id')
+            ->join('adm_actividad_economicas as ar', 'ass.idrubro', '=', 'ar.id')
             ->join('tda__tiendas as tt', 'tt.idsucursal', '=', 'ass.id')
             ->join('adm__departamentos as ad', 'ad.id', '=', 'ass.departamento')
             ->leftJoin('ven__recibos as vdv', 'vdv.id_sucursal', '=', 'ass.id')
@@ -423,28 +423,12 @@ $sucursalesPaginated = new \Illuminate\Pagination\LengthAwarePaginator(
         //                         ->get();
 
         $sucursales2 = DB::table('adm__sucursals')
-    ->join('adm__rubros', 'adm__rubros.id', '=', 'adm__sucursals.idrubro')
-    ->select('adm__sucursals.id', 'adm__sucursals.cod', 'adm__sucursals.tipo', 'adm__sucursals.razon_social as nombre', 'adm__sucursals.activo as activosucursal', 'adm__rubros.id as rubro_id', 'adm__rubros.nombre as nomrubro', 'adm__rubros.areamedica', 'adm__rubros.activo as activorubro')
+    ->join('adm_actividad_economicas', 'adm_actividad_economicas.id', '=', 'adm__sucursals.idrubro')
+    ->select('adm__sucursals.id', 'adm__sucursals.cod', 'adm__sucursals.tipo', 'adm__sucursals.razon_social as nombre', 'adm__sucursals.activo as activosucursal', 'adm_actividad_economicas.id as rubro_id', 'adm_actividad_economicas.nombre as nomrubro', 'adm_actividad_economicas.areamedica', 'adm_actividad_economicas.activo as activorubro')
     ->where('adm__sucursals.activo', 1)
     ->orderBy('adm__sucursals.cod', 'asc')
     ->get();
-        // corregido por el ing.remberto datos uso del modelo incorrecto 
-       // $sucursales=Adm_Sucursal::join('adm__rubros','adm__rubros.id','adm__sucursals.idrubro')
-        //                        ->select(DB::raw('
-        //                            adm__sucursals.id,
-        //                            adm__sucursals.cod,
-         //                           adm__sucursals.tipo,
-          //                          adm__sucursals.razon_social as nombre,
-          //                          adm__sucursals.activo as activosucursal,
-           //                         adm__rubros.id,
-           //                         adm__rubros.nombre as nomrubro,
-           //                         adm__rubros.areamedica,
-            //                        adm__rubros.activo as activorubro
-            //                        '))
-            //                    ->where('adm__sucursals.activo',1)
-             //                   ->orderBy('adm__sucursals.cod', 'asc')
-             //                   ->get();
-          
+    
         return $sucursales2;
     }
 

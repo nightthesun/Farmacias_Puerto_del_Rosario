@@ -626,7 +626,7 @@ import { error401 } from '../../errores';
 
             selectRubros(){
                 let me=this;
-                var url='/rubro/selectrubro';
+                var url='/Actividad_economica/selectrubro';
                 axios.get(url).then(function(response){
                     var respuesta=response.data;
                     me.arrayRubros=respuesta;

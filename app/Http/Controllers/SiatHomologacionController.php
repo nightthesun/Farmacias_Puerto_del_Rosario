@@ -177,7 +177,7 @@ return $productos;
        }
        
        public function getRubro(){
-        $rubros = DB::table('adm__rubros')
+        $rubros = DB::table('adm_actividad_economicas')
             ->select('id', 'nombre', 'codigo_activdad_siat')
             ->where('activo', 1)
             ->where('codigo_activdad_siat', '<>', 0)

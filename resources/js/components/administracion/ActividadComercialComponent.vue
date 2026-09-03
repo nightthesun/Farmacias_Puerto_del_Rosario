@@ -10,7 +10,7 @@
             <!-- Ejemplo de tabla Listado -->
             <div class="card">
                 <div class="card-header">
-                    <i class="fa fa-align-justify"></i> Rubro
+                    <i class="fa fa-align-justify"></i> Actividad Comercial
                     <button v-if="puedeCrear==1" type="button" class="btn btn-secondary" @click="abrirModal('registrar')">
                         <i class="icon-plus"></i>&nbsp;Nuevo
                     </button>
@@ -345,7 +345,7 @@ import {error401} from '../../errores.js';
             listarRubros(page){
                 // obj.methods.actualizarTiempoSessionUsuario();    
                 let me=this;
-                var url='/rubro?page='+page+'&buscar='+me.buscar;
+                var url='/Actividad_economica?page='+page+'&buscar='+me.buscar;
                 axios.get(url).then(function(response){
                     var respuesta=response.data;
                     me.pagination=respuesta.pagination;                  
@@ -365,7 +365,7 @@ import {error401} from '../../errores.js';
                   // Si ya está enviando, no permitas otra solicitud
       if (me.isSubmitting) return;
       me.isSubmitting = true; // Deshabilita el botón
-                axios.post('/rubro/registrar',{
+                axios.post('/Actividad_economica/registrar',{
                     'nombre':me.nombre,
                     'descripcion':me.descripcion,
                     'areamedica':me.areamedica,
@@ -407,7 +407,7 @@ import {error401} from '../../errores.js';
                 reverseButtons: true
                 }).then((result) => {
                 if (result.isConfirmed) {
-                     axios.put('/rubro/desactivar',{
+                     axios.put('/Actividad_economica/desactivar',{
                         'id': idrubro
                     }).then(function (response) {
                         
@@ -456,7 +456,7 @@ import {error401} from '../../errores.js';
                 reverseButtons: true
                 }).then((result) => {
                 if (result.isConfirmed) {
-                     axios.put('/rubro/activarUso',{
+                     axios.put('/Actividad_economica/activarUso',{
                         'id': idrubro,
                         'uso': data,
                     }).then(function (response) {
@@ -506,7 +506,7 @@ import {error401} from '../../errores.js';
                 reverseButtons: true
                 }).then((result) => {
                 if (result.isConfirmed) {
-                     axios.put('/rubro/activar',{
+                     axios.put('/Actividad_economica/activar',{
                         'id': idrubro
                     }).then(function (response) {
                         
@@ -536,7 +536,7 @@ import {error401} from '../../errores.js';
             actualizarRubro(){
                // const Swal = require('sweetalert2')
                 let me =this;
-                axios.put('/rubro/actualizar',{
+                axios.put('/Actividad_economica/actualizar',{
                     'id':me.idrubro,
                     'nombre':me.nombre,
                     'descripcion':me.descripcion,

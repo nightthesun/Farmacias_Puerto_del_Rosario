@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AdmAccionVentanaController;
+use App\Http\Controllers\AdmActividadEconomicaController;
 use App\Http\Controllers\AdmBancoController;
 use App\Http\Controllers\AdmCiudadController;
 use App\Http\Controllers\AdmCredecialCorreoController;
@@ -225,6 +226,14 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/tipoSector_siat', [GetController::class, 'getsectorFactura']);  
     Route::get('/listarUnidadMedidaExcell', [GetController::class, 'getUnidadMedida']);  
     //adm///////////////////////////////////////////////////////////////////////////////////
+
+    Route::get('/Actividad_economica', [AdmActividadEconomicaController::class, 'index']);
+    Route::post('/Actividad_economica/registrar', [AdmActividadEconomicaController::class, 'store']);
+    Route::put('/Actividad_economica/actualizar', [AdmActividadEconomicaController::class, 'update']);
+    Route::put('/Actividad_economica/desactivar', [AdmActividadEconomicaController::class, 'desactivar']);
+    Route::put('/Actividad_economica/activar', [AdmActividadEconomicaController::class, 'activar']);
+    Route::get('/Actividad_economica/selectrubro', [AdmActividadEconomicaController::class, 'selectRubro']);
+    Route::put('/Actividad_economica/activarUso', [AdmActividadEconomicaController::class, 'use_active']);
 
     Route::get('/rubro', [AdmRubroController::class, 'index']);
     Route::post('/rubro/registrar', [AdmRubroController::class, 'store']);
