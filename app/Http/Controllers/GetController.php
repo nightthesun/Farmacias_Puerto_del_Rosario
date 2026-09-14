@@ -356,7 +356,7 @@ return $result;
     ////////////////////////////USUARIOS///////////////////////////////
     public function getUser(){
         $usuario = DB::table('users as u')
-            ->join('rrh__empleados as re', 're.id', '=', 'u.idempleado')
+            ->join('rrh__personals as re', 're.id', '=', 'u.idempleado')
             ->select('u.id','u.name','u.responsable',DB::raw("CONCAT(COALESCE(re.nombre, ''), ' ', COALESCE(re.papellido, ''), ' ', COALESCE(re.sapellido, '')) AS nom_completo"),'re.ci','u.super_usuario','u.rubro_x_usuario')
             ->where('u.activo', 1)
             ->get();
@@ -368,7 +368,7 @@ return $result;
    
        $arrayIds = explode(',', $request->id_users); // Convertir la cadena en un array       
        $usuario = DB::table('users as u')
-           ->join('rrh__empleados as re', 're.id', '=', 'u.idempleado')
+           ->join('rrh__personals as re', 're.id', '=', 'u.idempleado')
            ->select('u.id','u.name','u.responsable',DB::raw("CONCAT(COALESCE(re.nombre, ''), ' ', COALESCE(re.papellido, ''), ' ', COALESCE(re.sapellido, '')) AS nom_completo"),
                're.ci','u.super_usuario')
            ->whereIn('u.id', $arrayIds) // Utiliza whereIn para comparar con múltiples valores
@@ -378,7 +378,7 @@ return $result;
     }
     ////////////////////////////////EMPLEADO///////////////////////////////////
     public function getEmpelado(){
-        $empleados = DB::table('rrh__empleados AS re')
+        $empleados = DB::table('rrh__personals AS re')
         ->select(
             're.id',
             DB::raw('UPPER(re.codempleado) AS name'), // Convertir codempleado a mayúsculas

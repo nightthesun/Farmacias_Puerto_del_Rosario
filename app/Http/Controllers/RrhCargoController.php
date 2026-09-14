@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Rrh_Cargo;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class RrhCargoController extends Controller
@@ -22,7 +23,7 @@ class RrhCargoController extends Controller
                                         'rrh__cargos.descripcion',
                                         'act_especificas',
                                         'rrh__cargos.activo',
-                                        'rrh__cargos.idunidadorganizacional')
+                                        'rrh__cargos.idunidadorganizacional','rrh__cargos.codigo')
                             ->orderby('rrh__unidad_organizacionals.nombre','asc')
                             ->orderby('rrh__cargos.nombre','asc')
                             ->paginate(50);
@@ -58,6 +59,8 @@ class RrhCargoController extends Controller
      */
     public function store(Request $request)
     {
+        try {
+        DB::beginTransaction();
         $validator=Validator::make($request->all(),['nombre'=>'unique:rrh__cargos']);
 
         //dd($validator->errors());
@@ -66,15 +69,50 @@ class RrhCargoController extends Controller
         {
             return 'error';
         }
+        $nombre = $request->nombre;
+        $cadenaSinEspacios = str_replace(' ', '', $nombre);
+        $tamano = strlen($cadenaSinEspacios);
         
+    
+        if($tamano<=3)
+        {
+          return "el nombre de cargo debe tener mas de 3 caracteres";
+        }
+        $idunidadorganizacional=$request->idunidadorganizacional;
+        $letras = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $letraAleatoria = $letras[random_int(0, strlen($letras) - 1)];
+        $tresCarteres = substr($cadenaSinEspacios, 0, 1);
+        $query = DB::table('rrh__cargos')        
+        ->where('activo','=',1)
+        ->orderBy('id', 'desc')->value('id');
+        $suma=$query+1;   
+          if($suma<10)
+        {
+            $cadena='00'.$suma;
+        }else{            
+            if($suma<100)
+            {
+                $cadena='0'.$suma;
+            }else{
+                $cadena=$suma;
+            }
+        }
+        $codigo=$letraAleatoria.$idunidadorganizacional.$tresCarteres.$cadena;
+
         $cargo = new Rrh_Cargo();
 
         $cargo->nombre=$request->nombre;
+        $cargo->codigo=$codigo;
         $cargo->idunidadorganizacional=$request->idunidadorganizacional;
         $cargo->descripcion=$request->descripcion;
         $cargo->act_especificas=$request->act_especificas;
         $cargo->id_usuario_registra=auth()->user()->id;
         $cargo->save();
+        DB::commit();   
+        return 0;
+        } catch (\Throwable $th) {
+            return $th;
+        }        
     }
 
     /**

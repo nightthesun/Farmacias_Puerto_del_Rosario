@@ -618,7 +618,7 @@ $numeroTarjeta=$numeroTarjeta_sis;
  
  $id_user2 = session('id_user2'); 
             $user_nom=auth()->user()->id;
-            $nombreCompletoObj = DB::table('rrh__empleados as re')
+            $nombreCompletoObj = DB::table('rrh__personals as re')
             ->join('users as u', 're.id', '=', 'u.idempleado')
             ->where('u.id', $user_nom)
             ->value(DB::raw('UPPER(re.nombre)'));
@@ -1236,7 +1236,7 @@ $nombre_empresa = strtoupper($nombre_e);
         //  ->where('id', $idsuc)
         //  ->value('direccion'); 
   
-      $nombreCompletoObj = DB::table('rrh__empleados as re')
+      $nombreCompletoObj = DB::table('rrh__personals as re')
           ->join('users as u', 're.id', '=', 'u.idempleado')
           ->where('u.id', $id_user2)
           ->select(DB::raw("CONCAT(

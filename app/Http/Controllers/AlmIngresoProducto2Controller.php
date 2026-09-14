@@ -306,7 +306,7 @@ try {
     ->join('prod__forma_farmaceuticas AS ff_1', 'ff_1.id', '=', 'pp.idformafarmaceuticaprimario')
     ->where('pp.almacenprimario', 1)
     ->where('pp.tiendaprimario', 0)
-    ->where('pp.idrubro', 1)
+  
     ->where('pp.activo', 1)
     ->select(
         'pp.id',
@@ -337,7 +337,7 @@ try {
     ->join('prod__forma_farmaceuticas AS ff_1', 'ff_1.id', '=', 'pp.idformafarmaceuticasecundario')
     ->where('pp.almacensecundario', 1)
     ->where('pp.tiendasecundario', 0)
-    ->where('pp.idrubro', 1)
+    //->where('pp.idrubro', 1)
     ->where('pp.activo', 1)
     ->select(
         'pp.id',
@@ -367,7 +367,7 @@ $terciario = DB::table('prod__productos as pp')
     ->join('prod__forma_farmaceuticas AS ff_1', 'ff_1.id', '=', 'pp.idformafarmaceuticaterciario')
     ->where('pp.almacenterciario', 1)
     ->where('pp.tiendaterciario', 0)
-    ->where('pp.idrubro', 1)
+    //->where('pp.idrubro', 1)
     ->where('pp.activo', 1)
     ->select(
         'pp.id',

@@ -4,17 +4,15 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateRrhEmpleadosTable extends Migration
+return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::create('rrh__empleados', function (Blueprint $table) {
-            $table->smallIncrements('id');
+        Schema::create('rrh__personals', function (Blueprint $table) {
+          $table->smallIncrements('id');
             //////////datos empleado///////////////
             $table->string('codempleado',30)->nullable();
             $table->string('nombre',50);
@@ -59,11 +57,9 @@ class CreateRrhEmpleadosTable extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::dropIfExists('rrh__empleados');
+        Schema::dropIfExists('rrh__personals');
     }
-}
+};

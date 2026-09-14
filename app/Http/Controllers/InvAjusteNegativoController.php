@@ -269,7 +269,7 @@ class InvAjusteNegativoController extends Controller
 
         $productos = DB::table('prod__productos as pp')
             ->join('alm__ingreso_producto as ai', 'pp.id', '=', 'ai.id_prod_producto')
-           
+           ->join('adm_actividad_economicas as ar', 'pp.idrubro', '=', 'ar.id')
             ->leftJoin('prod__dispensers as pd_1', 'pd_1.id', '=', 'pp.iddispenserprimario')
             ->leftJoin('prod__dispensers as pd_2', 'pd_2.id', '=', 'pp.iddispensersecundario')
             ->leftJoin('prod__dispensers as pd_3', 'pd_3.id', '=', 'pp.iddispenserterciario')
@@ -288,12 +288,12 @@ class InvAjusteNegativoController extends Controller
             ->when($request->tipo == 1, function ($query) use ($cod) {
                 $query->where('ai.stock_ingreso', '>', 0)
                       ->where('aa.codigo', '=',$cod)
-                      ->where('pp.idrubro','=',1)
+                     // ->where('pp.idrubro','=',1)
                       ->where('pp.activo','=',1);
                 })
                 ->when($request->tipo == 2, function ($query) use ($cod) {
                 $query->where('aa.codigo', '=',$cod)
-                      ->where('pp.idrubro','=',1)
+                    //  ->where('pp.idrubro','=',1)
                       ->where('pp.activo','=',1);
                 })
  
@@ -338,7 +338,7 @@ class InvAjusteNegativoController extends Controller
 
         $tiendas = DB::table('prod__productos as pp')
             ->join('tda__ingreso_productos as ti', 'pp.id', '=', 'ti.id_prod_producto')
-           
+           ->join('adm_actividad_economicas as ar', 'pp.idrubro', '=', 'ar.id')
             ->leftJoin('prod__dispensers as pd_1', 'pd_1.id', '=', 'pp.iddispenserprimario')
             ->leftJoin('prod__dispensers as pd_2', 'pd_2.id', '=', 'pp.iddispensersecundario')
             ->leftJoin('prod__dispensers as pd_3', 'pd_3.id', '=', 'pp.iddispenserterciario')
@@ -356,12 +356,12 @@ class InvAjusteNegativoController extends Controller
             ->when($request->tipo == 1, function ($query) use ($cod) {
                 $query->where('ti.stock_ingreso', '>', 0)
                       ->where('tt.codigo','=', $cod)
-                      ->where('pp.idrubro','=',1)
+                      // ->where('pp.idrubro','=',1)
                       ->where('pp.activo','=',1);
                 })
                 ->when($request->tipo == 2, function ($query) use ($cod) {
                 $query->where('tt.codigo', '=',$cod)
-                      ->where('pp.idrubro','=',1)
+                      // ->where('pp.idrubro','=',1)
                       ->where('pp.activo','=',1);
                 })  
             ->select(
@@ -713,6 +713,7 @@ class InvAjusteNegativoController extends Controller
                 $productos = DB::table('prod__productos as pp')
                     ->join('alm__ingreso_producto as ai', 'pp.id', '=', 'ai.id_prod_producto')
                     ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
+                    ->join('adm_actividad_economicas as ar', 'pp.idrubro', '=', 'ar.id')
                     ->leftJoin('prod__dispensers as pd_1', 'pd_1.id', '=', 'pp.iddispenserprimario')
                     ->leftJoin('prod__dispensers as pd_2', 'pd_2.id', '=', 'pp.iddispensersecundario')
                     ->leftJoin('prod__dispensers as pd_3', 'pd_3.id', '=', 'pp.iddispenserterciario')
@@ -724,7 +725,7 @@ class InvAjusteNegativoController extends Controller
                     ->join('prod__lineas as l', 'l.id', '=', 'pp.idlinea')
                     ->where('ai.stock_ingreso', '>', 0)
                     ->where('aa.codigo', $cod)
-                    ->where('pp.idrubro','=',1) 
+                   // ->where('pp.idrubro','=',1) 
                     ->whereRaw($sqls)
                     ->select(
                         'pp.codigointernacional as codigointernacional',
@@ -766,6 +767,7 @@ class InvAjusteNegativoController extends Controller
                 $tiendas = DB::table('prod__productos as pp')
                     ->join('tda__ingreso_productos as ti', 'pp.id', '=', 'ti.id_prod_producto')
                     ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
+                    ->join('adm_actividad_economicas as ar', 'pp.idrubro', '=', 'ar.id')
                     ->leftJoin('prod__dispensers as pd_1', 'pd_1.id', '=', 'pp.iddispenserprimario')
                     ->leftJoin('prod__dispensers as pd_2', 'pd_2.id', '=', 'pp.iddispensersecundario')
                     ->leftJoin('prod__dispensers as pd_3', 'pd_3.id', '=', 'pp.iddispenserterciario')
@@ -778,7 +780,7 @@ class InvAjusteNegativoController extends Controller
                     ->where('ti.stock_ingreso', '>', 0)
                     ->where('tt.codigo', $cod)
                     ->whereRaw($sqls)
-                    ->where('pp.idrubro','=',1) 
+                    //->where('pp.idrubro','=',1) 
                     ->select(
                         'pp.codigointernacional as codigointernacional',
                         'ti.envase as envase',
@@ -825,6 +827,7 @@ class InvAjusteNegativoController extends Controller
             $productos = DB::table('prod__productos as pp')
                 ->join('alm__ingreso_producto as ai', 'pp.id', '=', 'ai.id_prod_producto')
                 ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
+                ->join('adm_actividad_economicas as ar', 'pp.idrubro', '=', 'ar.id')
                 ->leftJoin('prod__dispensers as pd_1', 'pd_1.id', '=', 'pp.iddispenserprimario')
                 ->leftJoin('prod__dispensers as pd_2', 'pd_2.id', '=', 'pp.iddispensersecundario')
                 ->leftJoin('prod__dispensers as pd_3', 'pd_3.id', '=', 'pp.iddispenserterciario')
@@ -836,7 +839,7 @@ class InvAjusteNegativoController extends Controller
                 ->join('prod__lineas as l', 'l.id', '=', 'pp.idlinea')
                 ->where('ai.stock_ingreso', '>', 0)
                 ->where('aa.codigo', $cod)
-                ->where('pp.idrubro','=',1) 
+               // ->where('pp.idrubro','=',1) 
                 ->select(
                     'pp.codigointernacional as codigointernacional',
                     'ai.envase as envase',
@@ -877,6 +880,7 @@ class InvAjusteNegativoController extends Controller
             $tiendas = DB::table('prod__productos as pp')
                 ->join('tda__ingreso_productos as ti', 'pp.id', '=', 'ti.id_prod_producto')
                 ->join('prod__lineas as pl', 'pl.id', '=', 'pp.idlinea')
+                ->join('adm_actividad_economicas as ar', 'pp.idrubro', '=', 'ar.id')
                 ->leftJoin('prod__dispensers as pd_1', 'pd_1.id', '=', 'pp.iddispenserprimario')
                 ->leftJoin('prod__dispensers as pd_2', 'pd_2.id', '=', 'pp.iddispensersecundario')
                 ->leftJoin('prod__dispensers as pd_3', 'pd_3.id', '=', 'pp.iddispenserterciario')
@@ -888,7 +892,7 @@ class InvAjusteNegativoController extends Controller
                 ->join('tda__tiendas as tt', 'tt.id', '=', 'ti.idtienda')
                 ->where('ti.stock_ingreso', '>', 0)
                 ->where('tt.codigo', $cod)
-                ->where('pp.idrubro','=',1) 
+                //->where('pp.idrubro','=',1) 
                 ->select(
                     'pp.codigointernacional as codigointernacional',
                     'ti.envase as envase',

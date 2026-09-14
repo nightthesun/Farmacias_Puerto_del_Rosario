@@ -202,7 +202,9 @@ class ProdCategoriaController extends Controller
     public function selectCategoria2(Request $request)
     {
         $categoria = Prod_Categoria::select('id','nombre')
-                                    ->where('activo',1)
+         ->join('adm_actividad_economicas as ar','prod__categorias.idrubro', '=','ar.id')
+        
+                                   // ->where('activo',1)
                                     ->where('idrubro',$request->idrubro)
                                     ->orderby('nombre','asc')
                                     ->get();

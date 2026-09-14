@@ -16,8 +16,10 @@ class CreateRrhUnidadOrganizacionalsTable extends Migration
         Schema::create('rrh__unidad_organizacionals', function (Blueprint $table) {
             $table->smallIncrements('id');
             $table->string('nombre');
-            $table->string('descripcion')->nullable();
+            $table->text('descripcion')->nullable();
             $table->boolean('activo')->default(1);
+            $table->string('alias')->nullable();
+            $table->string('codigo')->nullable();
             $table->timestamps();
         });
     }

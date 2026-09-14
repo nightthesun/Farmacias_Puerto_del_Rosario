@@ -48,7 +48,7 @@ use App\Http\Controllers\ProdProductoController;
 use App\Http\Controllers\ProdTipoDescuentoController;
 use App\Http\Controllers\ProdTipoEntradaController;
 use App\Http\Controllers\RrhCargoController;
-use App\Http\Controllers\RrhEmpleadoController;
+
 use App\Http\Controllers\RrhFormacionController;
 use App\Http\Controllers\RrhProfesionController;
 use App\Http\Controllers\RrhUnidadOrganizacionalController;
@@ -78,6 +78,7 @@ use App\Http\Controllers\InvMetodoABCController;
 use App\Http\Controllers\ParDescuentoController;
 use App\Http\Controllers\ProdListaController;
 use App\Http\Controllers\ProdRegistroPreXListController;
+use App\Http\Controllers\RrhPersonalController;
 use App\Http\Controllers\SiatConfiguracionController;
 use App\Http\Controllers\SiatCuisCufdControlador;
 use App\Http\Controllers\SiatEmisorController;
@@ -400,15 +401,15 @@ Route::group(['middleware' => 'auth'], function () {
         
 
     //rrhh ////////////////////////////////////////////////////////////////////////////////////////////////
-    Route::get('/empleado', [RrhEmpleadoController::class, 'index']);
-    Route::get('/empleado/perfil', [RrhEmpleadoController::class, 'perfil']);
-    Route::post('/empleado/registrar', [RrhEmpleadoController::class, 'store']);
-    Route::post('/empleado/actualizar', [RrhEmpleadoController::class, 'update']);
-    Route::put('/empleado/desactivar', [RrhEmpleadoController::class, 'desactivar']);
-    Route::put('/empleado/activar', [RrhEmpleadoController::class, 'activar']);
-    Route::get('/empleado/selectempleado', [RrhEmpleadoController::class, 'selectEmpleado']);
-    Route::get('/empleado/selectnouser', [RrhEmpleadoController::class, 'selectNoUser']);
-    Route::get('/empleado/getsaldo', [RrhEmpleadoController::class, 'getsaldo']);    
+    Route::get('/empleado', [RrhPersonalController::class, 'index']);
+    Route::get('/empleado/perfil', [RrhPersonalController::class, 'perfil']);
+    Route::post('/empleado/registrar', [RrhPersonalController::class, 'store']);
+    Route::post('/empleado/actualizar', [RrhPersonalController::class, 'update']);
+    Route::put('/empleado/desactivar', [RrhPersonalController::class, 'desactivar']);
+    Route::put('/empleado/activar', [RrhPersonalController::class, 'activar']);
+    Route::get('/empleado/selectempleado', [RrhPersonalController::class, 'selectEmpleado']);
+    Route::get('/empleado/selectnouser', [RrhPersonalController::class, 'selectNoUser']);
+    Route::get('/empleado/getsaldo', [RrhPersonalController::class, 'getsaldo']);    
 
     Route::get('/formacion', [RrhFormacionController::class, 'index']);
     Route::post('/formacion/registrar', [RrhFormacionController::class, 'store']);

@@ -17,7 +17,8 @@ class CreateRrhCargosTable extends Migration
             $table->smallIncrements('id');
             $table->smallInteger('idunidadorganizacional')->unsigned();
             $table->string('nombre',50);
-            $table->string('descripcion',255)->nullable();
+            $table->string('codigo',101);
+            $table->text('descripcion')->nullable();
             $table->text('act_especificas')->nullable()->comment('detalla los objetivos especificos del cargo');
             $table->boolean('activo')->default(1);
             $table->smallInteger('id_usuario_registra')->unsigned()->nullable()->comment('null->viene del seeder');

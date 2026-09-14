@@ -58,7 +58,7 @@ class LogVehiculoController extends Controller
                 })
                 ->join('users as u', 'u.id', '=', 'iv.id_user')
                 ->leftJoin('users as u2', 'u2.id', '=', 'iv.id_emple')
-                ->leftJoin('rrh__empleados as re', 'u2.idempleado', '=', 're.id')
+                ->leftJoin('rrh__personals as re', 'u2.idempleado', '=', 're.id')
                 ->select(
                     'iv.id as id',
                     'iv.razon_social as razon_social',
@@ -86,7 +86,7 @@ class LogVehiculoController extends Controller
                 ->join('adm__sucursals as ass', 'ass.id', '=', 'tt.idsucursal')
                 ->join('users as u', 'u.id', '=', 'iv.id_user')
                 ->leftJoin('users as u2', 'u2.id', '=', 'iv.id_emple')
-                ->leftJoin('rrh__empleados as re', 'u2.idempleado', '=', 're.id')
+                ->leftJoin('rrh__personals as re', 'u2.idempleado', '=', 're.id')
                 ->select(
                     'iv.id as id',
                     'iv.razon_social as razon_social',
@@ -136,7 +136,7 @@ class LogVehiculoController extends Controller
             })
             ->join('users as u', 'u.id', '=', 'iv.id_user')
             ->leftJoin('users as u2', 'u2.id', '=', 'iv.id_emple')
-            ->leftJoin('rrh__empleados as re', 'u2.idempleado', '=', 're.id')
+            ->leftJoin('rrh__personals as re', 'u2.idempleado', '=', 're.id')
             ->select(
                 'iv.id as id',
                 'iv.razon_social as razon_social',
@@ -163,7 +163,7 @@ class LogVehiculoController extends Controller
             ->join('adm__sucursals as ass', 'ass.id', '=', 'tt.idsucursal')
             ->join('users as u', 'u.id', '=', 'iv.id_user')
             ->leftJoin('users as u2', 'u2.id', '=', 'iv.id_emple')
-            ->leftJoin('rrh__empleados as re', 'u2.idempleado', '=', 're.id')
+            ->leftJoin('rrh__personals as re', 'u2.idempleado', '=', 're.id')
             ->select(
                 'iv.id as id',
                 'iv.razon_social as razon_social',
@@ -289,7 +289,7 @@ class LogVehiculoController extends Controller
             'rc.id as id_cargo',
             'rc.nombre as cargo'
         )
-        ->join('rrh__empleados as re', 'u.idempleado', '=', 're.id')
+        ->join('rrh__personals as re', 'u.idempleado', '=', 're.id')
         ->join('rrh__cargos as rc', 're.idcargo', '=', 'rc.id')
         ->where('rc.id', '=', 18)
         ->get();

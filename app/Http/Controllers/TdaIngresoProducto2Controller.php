@@ -206,7 +206,7 @@ class TdaIngresoProducto2Controller extends Controller
     ->join('prod__forma_farmaceuticas AS ff_1', 'ff_1.id', '=', 'pp.idformafarmaceuticaprimario')
     ->where('pp.almacenprimario', 0)
     ->where('pp.tiendaprimario', 1)
-    ->where('pp.idrubro', 1)
+    //->where('pp.idrubro', 1)
     ->where('pp.activo', 1)
     ->select(
         'pp.id',
@@ -237,7 +237,7 @@ class TdaIngresoProducto2Controller extends Controller
     ->join('prod__forma_farmaceuticas AS ff_1', 'ff_1.id', '=', 'pp.idformafarmaceuticasecundario')
     ->where('pp.almacensecundario', 0)
     ->where('pp.tiendasecundario', 1)
-    ->where('pp.idrubro', 1)
+   // ->where('pp.idrubro', 1)
     ->where('pp.activo', 1)
     ->select(
         'pp.id',
@@ -267,7 +267,7 @@ $terciario = DB::table('prod__productos as pp')
     ->join('prod__forma_farmaceuticas AS ff_1', 'ff_1.id', '=', 'pp.idformafarmaceuticaterciario')
     ->where('pp.almacenterciario', 0)
     ->where('pp.tiendaterciario', 1)
-    ->where('pp.idrubro', 1)
+   // ->where('pp.idrubro', 1)
     ->where('pp.activo', 1)
     ->select(
         'pp.id',

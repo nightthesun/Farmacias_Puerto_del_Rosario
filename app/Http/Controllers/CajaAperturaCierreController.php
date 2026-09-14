@@ -990,7 +990,7 @@ $data_1 = $moneda;
             
     
             $usuario = DB::table('users as u')
-        ->join('rrh__empleados as e', 'e.id', '=', 'u.idempleado')
+        ->join('rrh__personals as e', 'e.id', '=', 'u.idempleado')
         ->select('u.name', 'e.nombre')
         ->where('u.id', $user_id)
         ->first();

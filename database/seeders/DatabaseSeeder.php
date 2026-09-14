@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Rrh_Personal;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -19,7 +20,7 @@ class DatabaseSeeder extends Seeder
             'rrh__cargos',
             'rrh__formacions',
             'rrh__profesions',
-            'rrh__empleados',
+            'rrh__personals',
             'adm__modulos',
             'adm__ventana_modulos',
             'adm__accion_ventanas',
@@ -57,8 +58,8 @@ class DatabaseSeeder extends Seeder
             RrhUnidadOrganizacionalSeeder::class,
             RrhCargoSeeder::class,
             RrhFormacionSeeder::class,
-            RrhProfesionSeeder::class,
-            RrhEmpleadoSeeder::class,
+            RrhProfesionSeeder::class,           
+            PersonalSeeder::class,
             AdmModuloSeeder::class,
             AdmVentanaModuloSeeder::class,
             AdmAccionVentanaSeeder::class,

@@ -28,8 +28,9 @@
                         <thead>
                             <tr>
                                 <th class="col-md-1">Opciones</th>
-                                <th class="col-md-5">Nombre</th>
-                                <th class="col-md-5">Descripción</th>
+                                <th class="col-md-4">Nombre</th>
+                                <th class="col-md-2">Codigo</th>
+                                <th class="col-md-4">Descripción</th>
                                 <th class="col-md-1">Estado</th>
                             </tr>
                         </thead>
@@ -65,8 +66,9 @@
                                         </div>
                                     </div>                                     
                                 </td>
-                                <td v-text="nivelunidadorg.nombre" class="col-md-5"></td>
-                                <td v-text="nivelunidadorg.descripcion" class="col-md-5"></td>
+                                <td v-text="nivelunidadorg.nombre" class="col-md-4"></td>
+                                <td v-text="nivelunidadorg.codigo" class="col-md-2"></td>
+                                <td v-text="nivelunidadorg.descripcion" class="col-md-4"></td>
                                 <td class="col-md-1">
                                     <div v-if="nivelunidadorg.activo==1">
                                         <span class="badge badge-success">Activo</span>
@@ -273,6 +275,7 @@ import { error401 } from '../../errores';
                     const respuesta=response.data;              
                     me.pagination=respuesta.pagination;
                     me.arrayUnidadOrg=respuesta.unidadorg.data;
+                    console.log(me.arrayUnidadOrg);
                 })
                 .catch(function(error){
                     error401(error);
@@ -283,27 +286,32 @@ import { error401 } from '../../errores';
                 me.pagination.current_page = page;
                 me.listarUnidadOrg(page);
             },
+
             registrarUnidadOrg(){
                 let me = this;
                 // Si ya está enviando, no permitas otra solicitud
-      if (me.isSubmitting) return;
+     
+                if (me.isSubmitting) return;
       me.isSubmitting = true; // Deshabilita el botón
+      
                 axios.post('/unidadorg/registrar',{
                     'nombre':me.nombre,
                     'descripcion':me.descripcion
                 }).then(function(response){
-                    me.errorMensajeValidacion ='';
-                    me.cerrarModal('registrar');
-                    me.listarUnidadOrg();
-                    Swal.fire('Registrado Correctamente');
+                    let respuesta=response.data;
+                    if(respuesta==0){
+                        me.errorMensajeValidacion ='';
+                        me.cerrarModal('registrar');
+                        me.listarUnidadOrg();
+                        me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
+                         Swal.fire("Se guardo Correctamente","Haga click en Ok","success");
+                        return;
+                    }else{
+                          Swal.fire("Error",""+respuesta,"error");
+                    }                  
                 }).catch(function(error){
-                    error401(error);
-                    if (error.response.status == 422) {
-                        me.errorMensajeValidacion = '<<'+me.nombre + '>> ya existe en la base de datos';
-                    }
-                }).finally(() => {
-          me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
-        });
+                   console.log(error);
+                });
 
             },
             eliminarUnidadOrg(idnivelunidadorg){

@@ -10,7 +10,7 @@
             <!-- Ejemplo de tabla Listado -->
             <div class="card">
                 <div class="card-header">
-                    <i class="fa fa-align-justify"></i> Empleados
+                    <i class="fa fa-align-justify"></i> Personal
                     <button  v-if="puedeCrear==1" type="button" class="btn btn-secondary rounded" @click="abrirModal('registrar')">
                         <i class="icon-plus"></i>&nbsp;Nuevo
                     </button>
@@ -84,7 +84,20 @@
                                     <td v-text="empleado.fechanacimiento" class="col-md-1"></td>
                                     <td v-text="empleado.estadocivil" class="col-md-1"></td>
                                     <td v-text="empleado.direccion" class="col-md-1"></td>
-                                    <td v-text="empleado.nrcuenta + ' '+empleado.nombanco" class="col-md-2"></td>
+                                    <td class="col-md-2">
+                                        <div v-if="empleado.nrcuenta===null || empleado.nrcuenta===''">
+                                            <span class="badge badge-warning">Sin Cuenta</span>
+                                        </div>
+                                        <div v-else>
+                                            <span class="badge badge-success">{{ empleado.nrcuenta }}</span>
+                                        </div>
+                                        <div v-if="empleado.nombanco===null || empleado.nombanco===''">
+                                            <span class="badge badge-warning">Sin Banco</span>
+                                        </div>
+                                        <div v-else>
+                                            <span class="badge badge-success">{{ empleado.nombanco }}</span>
+                                        </div>
+                                    </td>
                                 <td >
                                     <div v-if="empleado.activo==1">
                                         <span class="badge badge-success">Activo</span>
@@ -318,7 +331,7 @@
                                                     <option value="0" disabled>Seleccionar...</option>
                                                     <option v-for="bank in arrayBancos" :key="bank.id" :value="bank.id" v-text="bank.nombre"></option>
                                                 </select>
-                                                <span  v-if="bancoselected==0" class="error">Este campo es requerido</span>
+                                      
                                             </div>
                                             <div class="form-group">
                                                 <button type="button" class="btn btn-success btn-sm rounded" @click="abrirModal('regbanco')" style="padding-bottom: 7px;padding-top: 7px;">
@@ -331,7 +344,7 @@
                                     <div class="form-group col-sm-6">
                                         <strong>Nro de Cuenta: </strong>
                                         <input type="text" id="nrcuenta" name="nrcuenta" class="form-control rounded" placeholder="Numero de Cuenta" onkeypress="return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 45 )" v-model="nrcuenta" v-on:focus="selectAll" >
-                                        <span  v-if="nrcuenta==''" class="error">El numero de cuenta es requerido</span>
+                                    
                                     </div>
                                 </div>
                                 <div class="row">
@@ -540,7 +553,7 @@ import { error401 } from '../../errores';
             },
             sicompleto(){
                 let me=this;
-                if (me.nombre!='' && me.ci!='' && me.deptoselected!=0 && me.fechanacimiento!='' && me.estadocivil!='' && me.sexo!='' && me.domicilio!='' && me.ciudadselected!=0 && me.celular!='' && me.formacion!=0 && me.profesion!=0 && me.cargo!=0 && me.fechaingreso!='' && me.bancoselected!=0 && me.nrcuenta!='')
+                if (me.nombre!='' && me.ci!='' && me.deptoselected!=0 && me.fechanacimiento!='' && me.estadocivil!='' && me.sexo!='' && me.domicilio!='' && me.ciudadselected!=0 && me.celular!='' && me.formacion!=0 && me.profesion!=0 && me.cargo!=0 && me.fechaingreso!='')
                     return true;
                 else
                     return false;

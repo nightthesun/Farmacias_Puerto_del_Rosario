@@ -28,8 +28,9 @@
                         <thead>
                             <tr>
                                 <th class="col-md-1">Opciones</th>
-                                <th class="col-md-3">Unidad Org.</th>                               
-                                <th class="col-md-3">Nombre</th>
+                                <th class="col-md-2">Código</th>
+                                <th class="col-md-2">Unidad Org.</th>                               
+                                <th class="col-md-2">Nombre</th>
                                 <th class="col-md-2">Descripcion</th>
                                 <th class="col-md-2">Actividades Especificas</th>
                                 <th class="col-md-1">Estado</th>
@@ -69,8 +70,9 @@
                                    
                                     
                                 </td>
-                                <td v-text="cargo.nomunidadorg" class="col-md-3"></td>
-                                <td v-text="cargo.nombre" class="col-md-3"></td>
+                                 <td v-text="cargo.codigo" class="col-md-2"></td>
+                                <td v-text="cargo.nomunidadorg" class="col-md-2"></td>
+                                <td v-text="cargo.nombre" class="col-md-2"></td>
                                 <td v-text="cargo.descripcion" class="col-md-2"></td>
                                 <td v-text="cargo.act_especificas" class="col-md-2"></td>
 
@@ -327,13 +329,19 @@ import { error401 } from '../../errores';
                     'descripcion':me.descripcion,
                     'act_especificas':me.especificas
                 }).then(function(response){
+                    const respuesta=response.data;
                     me.cerrarModal('registrar');
                     me.listarCargo();
+                    if(respuesta==0){
+                        Swal.fire("Se guardo Correctamente","Haga click en Ok","success"); 
+                    }
+                    else{
+                        Swal.fire("Error",""+respuesta,"error");
+                    }    
+                    
                 }).catch(function(error){
                     error401(error);
-                }).finally(() => {
-          me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
-        });
+                });
 
             },
             eliminarCargo(idcargo){

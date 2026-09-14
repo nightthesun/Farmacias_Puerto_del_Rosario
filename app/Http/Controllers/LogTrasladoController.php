@@ -51,7 +51,7 @@ class LogTrasladoController extends Controller
                 $resultado = DB::table('log__traslados as lt')
                  ->join('inv__traspasos as it', 'it.id', '=', 'lt.id_traspaso')
                  ->join('prod__tipo_entradas as pte', 'pte.id', '=', 'it.id_tipoentrada')
-                 ->join('rrh__empleados as re', 're.id', '=', 'lt.id_empleado')
+                 ->join('rrh__personals as re', 're.id', '=', 'lt.id_empleado')
                  ->join('log__vehiculos as lv', 'lv.id', '=', 'lt.id_vehiculo')
                  ->join('users as u', 'u.id', '=', 'lt.id_user')
                   ->select('lt.id as id', 
@@ -102,7 +102,7 @@ class LogTrasladoController extends Controller
              $resultado = DB::table('log__traslados as lt')
     ->join('inv__traspasos as it', 'it.id', '=', 'lt.id_traspaso')
     ->join('prod__tipo_entradas as pte', 'pte.id', '=', 'it.id_tipoentrada')
-    ->join('rrh__empleados as re', 're.id', '=', 'lt.id_empleado')
+    ->join('rrh__personals as re', 're.id', '=', 'lt.id_empleado')
     ->join('log__vehiculos as lv', 'lv.id', '=', 'lt.id_vehiculo')
     ->join('users as u', 'u.id', '=', 'lt.id_user')
     ->select(
@@ -506,7 +506,7 @@ class LogTrasladoController extends Controller
             'rc.id as id_cargo',
             'rc.nombre as cargo'
         )
-        ->join('rrh__empleados as re', 'u.idempleado', '=', 're.id')
+        ->join('rrh__personals as re', 'u.idempleado', '=', 're.id')
         ->join('rrh__cargos as rc', 're.idcargo', '=', 'rc.id')
         ->where('re.activo', '=', 1)
         ->get();

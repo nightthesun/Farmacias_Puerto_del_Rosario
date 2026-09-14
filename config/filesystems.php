@@ -68,7 +68,7 @@ return [
 
     'links' => [
        // public_path('storage') => storage_path('app/public'),
-        public_path('storage') => storage_path('app/empleados'),
+        public_path('storage') => storage_path('app/personals'),
         public_path('imgproductos') => storage_path('app/producto'),
         public_path('monedas') => storage_path('app/monedas'),
         public_path('firma') => storage_path('app/firma'),

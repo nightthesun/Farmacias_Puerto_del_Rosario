@@ -352,7 +352,7 @@ class InvProcesarTraspasoController extends Controller
         //
     }
     public function listarUsuario(){
-        $resultado = DB::table('rrh__empleados as re')
+        $resultado = DB::table('rrh__personals as re')
         ->join('users as u', 're.id', '=', 'u.idempleado')
         ->select(
             're.id as id_empleado',

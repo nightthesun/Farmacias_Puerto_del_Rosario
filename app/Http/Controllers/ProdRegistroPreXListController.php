@@ -76,7 +76,7 @@ class ProdRegistroPreXListController extends Controller
                 ->join('tda__ingreso_productos as ti','ti.id', '=','prp.id_ingreso') 
                 ->where('prp.cod_tda_alm', '=', $bus)
                 ->whereRaw($sqls)
-                ->where('pp.idrubro', '=', 1)
+               // ->where('pp.idrubro', '=', 1)
             ->where('pp.activo', '=', 1)
             ->orderBy('prp.id', 'desc')
                 ;
@@ -112,7 +112,7 @@ END AS cantidadEnvase'),
     ->join('alm__ingreso_producto as ai','ai.id', '=','prp.id_ingreso') 
                 ->where('prp.cod_tda_alm', '=', $bus)
                 ->whereRaw($sqls)
-                ->where('pp.idrubro', '=', 1)
+               // ->where('pp.idrubro', '=', 1)
             ->where('pp.activo', '=', 1)
                 
                 ->orderBy('prp.id', 'desc')
@@ -165,7 +165,7 @@ END AS cantidadEnvase'),
             ->join('tda__ingreso_productos as ti','ti.id', '=','prp.id_ingreso') 
                 ->where('prp.cod_tda_alm', '=', $bus)
            
-                ->where('pp.idrubro', '=', 1)
+                //->where('pp.idrubro', '=', 1)
             ->where('pp.activo', '=', 1)
             ->orderBy('prp.id', 'desc')
                 ;
@@ -201,7 +201,7 @@ END AS cantidadEnvase'),
     ->join('alm__ingreso_producto as ai','ai.id', '=','prp.id_ingreso') 
                 ->where('prp.cod_tda_alm', '=', $bus)
                 
-                ->where('pp.idrubro', '=', 1)
+              //  ->where('pp.idrubro', '=', 1)
             ->where('pp.activo', '=', 1)
                 
                 ->orderBy('prp.id', 'desc')
@@ -415,7 +415,7 @@ return $resultadoCombinacion;
                     WHEN '$envase' = 'terciario' THEN COALESCE(FORMAT(pp.preciolistaterciario / pp.cantidadterciario, 2), '') 
                     ELSE NULL 
                 END AS costocompraEnvase"))
-            ->where('pp.idrubro', '=', 1)
+            //->where('pp.idrubro', '=', 1)
             ->where('pp.activo', '=', 1)
             ->where('tt.codigo','=',$tienda_almacen)
             ->whereRaw($where)
@@ -512,7 +512,7 @@ return $resultadoCombinacion;
                     WHEN '$envase' = 'terciario' THEN COALESCE(FORMAT(pp.preciolistaterciario / pp.cantidadterciario, 2), '') 
                     ELSE NULL 
                 END AS costocompraEnvase"))
-            ->where('pp.idrubro', '=', 1)
+            //->where('pp.idrubro', '=', 1)
             ->where('pp.activo', '=', 1)
             ->where('aa.codigo','=',$tienda_almacen)
             ->whereRaw($where)
@@ -662,7 +662,7 @@ return $resultadoCombinacion;
                                 ELSE NULL 
                             END AS costocompraEnvase")
                         )
-                        ->where('pp.idrubro', '=', 1)
+                      //  ->where('pp.idrubro', '=', 1)
                         ->where('tt.codigo','=',$tienda_almacen)
                         ->where('pp.activo', '=', 1)
                         ->whereRaw(implode(' AND ', $where))
@@ -770,7 +770,7 @@ return $resultadoCombinacion;
                                 ELSE NULL 
                             END AS costocompraEnvase")
                         )
-                        ->where('pp.idrubro', '=', 1)
+                      //  ->where('pp.idrubro', '=', 1)
                         ->where('aa.codigo','=',$tienda_almacen)
                         ->where('pp.activo', '=', 1)
                         ->whereRaw(implode(' AND ', $where))
@@ -893,7 +893,7 @@ if ($codigo == "TDA") {
             ELSE NULL 
         END AS costocompraEnvase")
     )
-    ->where('pp.idrubro', '=', 1)
+    //->where('pp.idrubro', '=', 1)
     ->where('tt.codigo','=',$tienda_almacen)
             ->where('pp.activo', '=', 1)
     ->whereRaw(implode(' AND ', $where))
@@ -1000,7 +1000,7 @@ if ($codigo == "ALM") {
             ELSE NULL 
         END AS costocompraEnvase")
     )
-    ->where('pp.idrubro', '=', 1)
+   // ->where('pp.idrubro', '=', 1)
     ->where('aa.codigo','=',$tienda_almacen)
             ->where('pp.activo', '=', 1)
     ->whereRaw(implode(' AND ', $where))

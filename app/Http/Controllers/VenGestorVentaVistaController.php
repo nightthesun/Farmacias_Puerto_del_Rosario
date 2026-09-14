@@ -66,7 +66,7 @@ if (auth()->user()->super_usuario == 0) {
     ->join('users as u', 'u.id', '=', 'vr.id_usuario')
     ->join('adm__sucursals as ass','ass.id','=','vr.id_sucursal') 
     ->join('adm__departamentos as ad', 'ass.departamento', '=', 'ad.id')
-    ->join('rrh__empleados as re','re.id','=','u.idempleado')   
+    ->join('rrh__personals as re','re.id','=','u.idempleado')   
     ->join('caja__apertura_cierres as cac','vr.id_apertura','=','cac.id')          
     ->leftJoin('dir__personas as dp', function ($join) {
         $join->on('dp.id', '=', 'dc.id_per_emp')
@@ -151,7 +151,7 @@ if (auth()->user()->super_usuario == 0) {
     ->join('users as u', 'u.id', '=', 'vr.id_usuario')
     ->join('adm__sucursals as ass','ass.id','=','vr.id_sucursal')
     ->join('adm__departamentos as ad', 'ass.departamento', '=', 'ad.id') 
-    ->join('rrh__empleados as re','re.id','=','u.idempleado') 
+    ->join('rrh__personals as re','re.id','=','u.idempleado') 
     ->join('caja__apertura_cierres as cac','vr.id_apertura','=','cac.id') 
     ->leftJoin('dir__personas as dp', function ($join) {
         $join->on('dp.id', '=', 'dc.id_per_emp')

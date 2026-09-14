@@ -24,7 +24,7 @@ class AdmUserController extends Controller
     {
         
         $raw=DB::raw('concat(nombre," ",ifnull(papellido," ")," ",ifnull(sapellido," ")) as nombre');
-        $raw3="(rrh__empleados.codempleado <> 'ADMIN' AND rrh__empleados.codempleado <> 'ADMIN2')";
+        $raw3="(rrh__personals.codempleado <> 'ADMIN' AND rrh__personals.codempleado <> 'ADMIN2')";
         $buscararray=array();
         if(!empty($request->buscar)){
             $buscararray = explode(" ",$request->buscar);
@@ -34,23 +34,23 @@ class AdmUserController extends Controller
                 $sqls='';
                 foreach($buscararray as $valor){
                     if(empty($sqls)){
-                        $sqls="(rrh__empleados.nombre like '%".$valor."%' or rrh__empleados.papellido like '%".$valor."%' or rrh__empleados.sapellido like '%".$valor."%' or email like '%".$valor."%')" ;
+                        $sqls="(rrh__personals.nombre like '%".$valor."%' or rrh__personals.papellido like '%".$valor."%' or rrh__personals.sapellido like '%".$valor."%' or email like '%".$valor."%')" ;
                     }
                     else
                     {
-                        $sqls.=" and (rrh__empleados.nombre  like '%".$valor."%' or rrh__empleados.papellido like '%".$valor."%' or rrh__empleados.sapellido like '%".$valor."%' or email like '%".$valor."%')" ;
+                        $sqls.=" and (rrh__personals.nombre  like '%".$valor."%' or rrh__personals.papellido like '%".$valor."%' or rrh__personals.sapellido like '%".$valor."%' or email like '%".$valor."%')" ;
                     }
     
                 }
-                $users= User::join('rrh__empleados','rrh__empleados.id','users.idempleado')
+                $users= User::join('rrh__personals','rrh__personals.id','users.idempleado')
              ->whereRaw($raw3)
                                 ->select($raw,
                                         'users.id as id',
                                         'email',
                                         'users.activo',
                                         'name')
-                                ->orderby('rrh__empleados.papellido','asc')
-                                ->orderby('rrh__empleados.sapellido','asc')
+                                ->orderby('rrh__personals.papellido','asc')
+                                ->orderby('rrh__personals.sapellido','asc')
                                 ->orderby('nombre','asc')
                                 ->whereraw($sqls)->paginate(50);
             }
@@ -58,15 +58,15 @@ class AdmUserController extends Controller
         
         else
         {
-            $users= User::join('rrh__empleados','rrh__empleados.id','users.idempleado')
+            $users= User::join('rrh__personals','rrh__personals.id','users.idempleado')
              ->whereRaw($raw3)
                             ->select($raw,
                                     'users.id as id',
                                     'email',
                                     'users.activo',
                                     'name')
-                            ->orderby('rrh__empleados.papellido','asc')
-                            ->orderby('rrh__empleados.sapellido','asc')
+                            ->orderby('rrh__personals.papellido','asc')
+                            ->orderby('rrh__personals.sapellido','asc')
                             ->orderby('nombre','asc')
                             ->paginate(20);
         }

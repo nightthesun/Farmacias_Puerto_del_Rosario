@@ -167,7 +167,8 @@ if ($sucursales->count() > 0) {
 
     $sucursales = DB::table('adm__sucursals as ass')
     ->select('ass.id', 'ass.tipo', 'ass.cod', 'ass.razon_social', 'ass.nombre_comercial', 'ass.direccion')
-    ->where('ass.idrubro', 1)
+      ->join('adm_actividad_economicas as ar', 'ass.idrubro', '=', 'ar.id')
+    //->where('ass.idrubro', 1)
     ->whereIn('ass.id', $sArray)
     ->get();
 

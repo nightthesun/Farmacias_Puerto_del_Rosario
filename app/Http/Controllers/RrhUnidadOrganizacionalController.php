@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Rrh_UnidadOrganizacional;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class RrhUnidadOrganizacionalController extends Controller
@@ -48,6 +49,9 @@ class RrhUnidadOrganizacionalController extends Controller
      */
     public function store(Request $request)
     {
+        try {
+       DB::beginTransaction();
+      
         // $validator=Validator::make($request->all(),[
         //     'nombre'=>'unique:rrh__unidad_organizacionals'
         // ]);
@@ -61,11 +65,50 @@ class RrhUnidadOrganizacionalController extends Controller
         $validate=$request->validate([
             'nombre'=>'required | unique:rrh__unidad_organizacionals'
         ]);
-        $unidadorg = new Rrh_UnidadOrganizacional();
-        $unidadorg->nombre=$request->nombre;
+        $nombre = $request->nombre;
+        $cadenaSinEspacios = str_replace(' ', '', $nombre);
+        $tamano = strlen($cadenaSinEspacios);
+        
+    
+        if($tamano<=3)
+        {
+          return "el nombre de la unidad organizacional debe tener mas de 3 caracteres";
+        }
+        $tresCarteres = substr($cadenaSinEspacios, 0, 3);
+        
+
+$query = DB::table('rrh__unidad_organizacionals')        
+        ->where('activo','=',1)
+        ->orderBy('id', 'desc')->value('id');
+        $suma=$query+1;   
+        
+         
+        if($suma<10)
+        {
+            $cadena='00'.$suma;
+        }else{            
+            if($suma<100)
+            {
+                $cadena='0'.$suma;
+            }else{
+                $cadena=$suma;
+            }
+        }
+        $codigo=$tresCarteres.$cadena;
+             
+               $unidadorg = new Rrh_UnidadOrganizacional();
+        $unidadorg->nombre=$nombre;
         $unidadorg->descripcion=$request->descripcion;
+        $unidadorg->alias= strtoupper($tresCarteres);
+        $unidadorg->codigo= strtoupper($codigo);
+
         //$unidadorg->id_usuario_registra=auth()->user()->id;
         $unidadorg->save();
+        DB::commit();   
+        return 0;        
+        } catch (\Throwable $th) {  
+        return $th;
+        }        
     }
 
     /**

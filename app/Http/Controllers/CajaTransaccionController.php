@@ -46,7 +46,7 @@ class CajaTransaccionController extends Controller
                     }
                     $resultado = DB::table('caja__transaccions as ct')
         ->join('users as u', 'u.id', '=', 'ct.id_cuenta')
-        ->join('rrh__empleados as re', 're.id', '=', 'u.idempleado')
+        ->join('rrh__personals as re', 're.id', '=', 'u.idempleado')
         ->join('rrh__empleado as re', 're.id', '=', 'u.idempleado')
         ->join('users as u_2', 'u_2.id', '=', 'ct.id_usuario_registra')
         ->select(
@@ -105,7 +105,7 @@ class CajaTransaccionController extends Controller
                 $resultado = DB::table('caja__transaccions as ct')
                 ->join('users as u', 'u.id', '=', 'ct.id_cuenta')
                 ->join('users as u_2', 'u_2.id', '=', 'ct.id_usuario_registra')
-                ->join('rrh__empleados as re', 're.id', '=', 'u.idempleado')
+                ->join('rrh__personals as re', 're.id', '=', 'u.idempleado')
                 ->select(
                     'ct.id',
                     'ct.id_cuenta',

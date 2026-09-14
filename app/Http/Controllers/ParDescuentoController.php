@@ -487,7 +487,7 @@ class ParDescuentoController extends Controller
             ->join('prod__forma_farmaceuticas as ff_1', 'ff_1.id', '=', 'pp.idformafarmaceuticaprimario')
             ->where('pp.almacenprimario', 0)
             ->where('pp.tiendaprimario', 1)
-            ->where('pp.idrubro', 1)
+            //->where('pp.idrubro', 1)
             ->where('pp.activo', 1);
 
         $consulta2 = DB::table('prod__productos as pp')
@@ -506,7 +506,7 @@ class ParDescuentoController extends Controller
             ->join('prod__forma_farmaceuticas as ff_1', 'ff_1.id', '=', 'pp.idformafarmaceuticasecundario')
             ->where('pp.almacensecundario', 0)
             ->where('pp.tiendasecundario', 1)
-            ->where('pp.idrubro', 1)
+           // ->where('pp.idrubro', 1)
             ->where('pp.activo', 1);
 
         $consulta3 = DB::table('prod__productos as pp')
@@ -525,7 +525,7 @@ class ParDescuentoController extends Controller
             ->join('prod__forma_farmaceuticas as ff_1', 'ff_1.id', '=', 'pp.idformafarmaceuticaterciario')
             ->where('pp.almacenterciario', 0)
             ->where('pp.tiendaterciario', 1)
-            ->where('pp.idrubro', 1)
+           // ->where('pp.idrubro', 1)
             ->where('pp.activo', 1);
 
         $consulta4 = DB::table('prod__productos as pp')
@@ -544,7 +544,7 @@ class ParDescuentoController extends Controller
             ->join('prod__forma_farmaceuticas as ff_1', 'ff_1.id', '=', 'pp.idformafarmaceuticaprimario')
             ->where('pp.almacenprimario', 1)
             ->where('pp.tiendaprimario', 0)
-            ->where('pp.idrubro', 1)
+           // ->where('pp.idrubro', 1)
             ->where('pp.activo', 1);
 
         $consulta5 = DB::table('prod__productos as pp')
@@ -563,7 +563,7 @@ class ParDescuentoController extends Controller
             ->join('prod__forma_farmaceuticas as ff_1', 'ff_1.id', '=', 'pp.idformafarmaceuticasecundario')
             ->where('pp.almacensecundario', 1)
             ->where('pp.tiendasecundario', 0)
-            ->where('pp.idrubro', 1)
+           // ->where('pp.idrubro', 1)
             ->where('pp.activo', 1);
 
         $consulta6 = DB::table('prod__productos as pp')
@@ -582,7 +582,7 @@ class ParDescuentoController extends Controller
             ->join('prod__forma_farmaceuticas as ff_1', 'ff_1.id', '=', 'pp.idformafarmaceuticaterciario')
             ->where('pp.almacenterciario', 1)
             ->where('pp.tiendaterciario', 0)
-            ->where('pp.idrubro', 1)
+          //  ->where('pp.idrubro', 1)
             ->where('pp.activo', 1);
 
         // Combinar las consultas con UNION ALL

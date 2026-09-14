@@ -52,8 +52,8 @@ class AdmSessionController extends Controller
     public function store(Request $request)
     {
         
-         $res=User::join('rrh__empleados','rrh__empleados.id','users.idempleado')
-                    ->select('rrh__empleados.activo')                
+         $res=User::join('rrh__personals','rrh__personals.id','users.idempleado')
+                    ->select('rrh__personals.activo')                
                     ->where('email',request()->email)
                     ->get()->toarray();
         //dd($res);
