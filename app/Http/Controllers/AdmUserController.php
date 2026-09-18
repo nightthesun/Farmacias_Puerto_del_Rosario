@@ -22,9 +22,8 @@ class AdmUserController extends Controller
      */
     public function index(Request $request)
     {
-        
+  
         $raw=DB::raw('concat(nombre," ",ifnull(papellido," ")," ",ifnull(sapellido," ")) as nombre');
-        $raw3="(rrh__personals.codempleado <> 'ADMIN' AND rrh__personals.codempleado <> 'ADMIN2')";
         $buscararray=array();
         if(!empty($request->buscar)){
             $buscararray = explode(" ",$request->buscar);
@@ -43,7 +42,7 @@ class AdmUserController extends Controller
     
                 }
                 $users= User::join('rrh__personals','rrh__personals.id','users.idempleado')
-             ->whereRaw($raw3)
+             ->where('users.user_unique',0)
                                 ->select($raw,
                                         'users.id as id',
                                         'email',
@@ -59,7 +58,7 @@ class AdmUserController extends Controller
         else
         {
             $users= User::join('rrh__personals','rrh__personals.id','users.idempleado')
-             ->whereRaw($raw3)
+             ->where('users.user_unique',0)
                             ->select($raw,
                                     'users.id as id',
                                     'email',
@@ -155,16 +154,46 @@ class AdmUserController extends Controller
     public function update(Request $request, User $adm_Rubro)
     {
         try {
-            $user = User::findOrFail($request->id);
-            $user->email=$request->email;
-    
-            if($request->cambiarpass)
-                $user->password=$request->password;
-    
-            $user->id_usuario_modifica=auth()->user()->id;
-            $user->save();
+                DB::beginTransaction();
+                     $contraseña = $request->password;
+
+            
+            if($request->cambiarpass==false){
+                $user =User::findOrFail($request->id);
+                $user->email=$request->email;
+                $user->id_usuario_modifica=auth()->user()->id;
+                $user->save(); 
+                
+            }
+
+            if ($request->cambiarpass==true) {
+                   $cadena = str_replace(' ', '', $contraseña);
+                   $cadena_2= str_replace(' ', '', $contraseña);
+
+$cumple =
+    strlen($cadena) >= 5 &&
+    preg_match('/[A-Z]/', $cadena) &&
+    preg_match('/[a-z]/', $cadena) &&
+    preg_match('/[0-9]/', $cadena) &&
+    preg_match('/[^A-Za-z0-9]/', $cadena);
+
+$cumple = (int) $cumple;   
+
+if ($cumple==0) {
+    return "La contraseña no cumple con los requisitos debe tener al menos un tamaño de 5, una letra mayúscula, una letra minúscula, un número y un carácter especial";
+}
+                $user =User::findOrFail($request->id);
+                $user->email=$request->email;
+                $user->password=$cadena_2;
+                $user->id_usuario_modifica=auth()->user()->id;
+                $user->save(); 
+            }                
+             
+                  DB::commit();
+        return 0;
             
         } catch (\Throwable $th) {
+                DB::rollback();
             return $th;
         }
        

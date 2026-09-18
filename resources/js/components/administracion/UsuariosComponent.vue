@@ -1,12 +1,8 @@
 <template>
     <main class="main">
         <!-- Breadcrumb -->
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item">Home</li>
-            <li class="breadcrumb-item"><a href="#">Admin</a></li>
-            <li class="breadcrumb-item active">Usuarios</li>
-        </ol>
-        <div class="container-fluid">
+       
+        <div class="container-fluid" style="margin-top: 15px;">
             <!-- Ejemplo de tabla Listado -->
             <div class="card">
                 <div class="card-header">
@@ -987,17 +983,14 @@ allKeys.forEach(key => {
             registrarUsuario(){
                 let me = this;   
                 if (me.password===null || me.password==="") {
-                    Swal.fire(
-                    "Error",
-                    "La contraseña esta vacia",
-                    "error");
+                    Swal.fire( "Error", "La contraseña esta vacia", "error");
                 } else {
                     //let resp=me.arrayEmpleado.find(element=>element.id==me.idempleado);
 
 // Si ya está enviando, no permitas otra solicitud
 if (me.isSubmitting) return;
 me.isSubmitting = true; // Deshabilita el botón
-me.generateRandomString()
+me.generateRandomString();
                 let cadena=(me.selected).name+"-"+me.randomString;
 axios.post('/registro',{
    //'name':resp.name,
@@ -1009,23 +1002,19 @@ axios.post('/registro',{
    'idrole':me.rol,
    'idsucursal':me.sucursal
 }).then(function(response){
+    const respuesta = response.data;
+    console.log(respuesta);
+    if (respuesta===0) {     
    me.cerrarModal('registrar');
-   me.listarUsuarios();
-   if(response.data.length){
-                      
-                        Swal.fire(
-                    "Error",
-                    "Correo duplicado",
-                    "error");
-                     
-                    }else{
-                        Swal.fire("Se creo","Correctamente","success");
-                    }
+   me.listarUsuarios(); 
+   Swal.fire("Se creo","Correctamente","success");  
+    } else {
+        me.isSubmitting = false; // Habilita el botón nuevamentes
+        Swal.fire("Error"," "+respuesta,"error");
+    }
 
 }).catch(function(error){
    error401(error);
-}).finally(() => {
-me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
 });
                 }
             },
@@ -1258,22 +1247,25 @@ me.isSubmitting = false; // Habilita el botón nuevamente al finalizar
                     'password':me.password
                     
                 }).then(function (response) {         
-            
-                    if(response.data.length){
-                        me.listarUsuarios();
-                        Swal.fire(
-                    "Error",
-                    "Correo duplicado",
-                    "error");
-                     
-                    }else{
+                        const respuesta = response.data;
+                        console.log(respuesta);
+                        if (respuesta===0) {
                             Swal.fire('Actualizado Correctamente')                            
                             me.listarUsuarios();
-                    } 
+                            me.cerrarModal('registrar');
+                        }else{
+                            
+                            Swal.fire(
+                                "Error",
+                                " "+respuesta,
+                                "error"
+                            );
+                        }
+                    
                 }).catch(function (error) {
                     error401(error);
                 });
-                me.cerrarModal('registrar');
+                
                 }  
             },
 

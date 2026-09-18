@@ -1,14 +1,10 @@
 <template>
     <main class="main">
    <!-- Breadcrumb -->
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item">Home</li>
-            <li class="breadcrumb-item"><a href="#">Admin</a></li>
-            <li class="breadcrumb-item active">Dashboard</li>
-        </ol>
+        
         <!-- inicio de index -->
  
-        <div v-if="limite_meseje===0">
+        <div v-if="limite_meseje===0" style="margin-top: 15px;">
 
         </div>  
         <div v-else class="container-fluid" >

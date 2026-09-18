@@ -2,13 +2,9 @@
     <main class="main">
          <div v-if="activador_nivel_1==0">
             <!-- Breadcrumb -->
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item">Home</li>
-            <li class="breadcrumb-item"><a href="#">Admin</a></li>
-            <li class="breadcrumb-item active">Dashboard</li>
-        </ol>
+     
         <!-- inicio de index -->
-        <div class="container-fluid">
+        <div class="container-fluid" style="margin-top: 15px;">
             <div class="card">
                 <div class="card-header">
                     <i class="fa fa-align-justify"></i> Ejemplo               

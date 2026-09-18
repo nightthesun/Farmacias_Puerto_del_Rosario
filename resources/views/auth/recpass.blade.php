@@ -40,6 +40,13 @@
                     <h4 style="color: crimson">No existe el Email <br> <small>Intentelo otra vez</small></h4>
                   @endif
                 @endif
+                @if(isset($error_x2))
+                  @if($error_x2=='error_x2')
+                    <h4 style="color: crimson">Ha excedido el número de intentos permitidos <br> <small>Intentelo despues de 24 horas</small></h4>
+                  @endif
+                @endif
+
+                
                     
                 <div class="form-group">
                   <input type="email" class="form-control" name="email" placeholder="Direccion de Correo" required>

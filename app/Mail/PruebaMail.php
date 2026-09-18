@@ -30,7 +30,7 @@ class PruebaMail extends Mailable
      */
     public function build()
     {
-        return $this->subject('prueba de correo eddy claros')->view('emails.PruebaEmail');
+        return $this->subject('Recuperacion de contraseña')->view('emails.PruebaEmail');
         //return $this->view('view.name');
 
     }

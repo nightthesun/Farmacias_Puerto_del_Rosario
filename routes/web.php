@@ -177,7 +177,9 @@ Route::post('/registro', [AdmRegistroController::class, 'store'])
 
 Route::group(['middleware' => 'auth'], function () {
 
-    //////////////////////////////////////controlador  generales/////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////controlador  generales/////////////////////////////////////////////////////////////
     /*****************permiso**************** */        
     Route::get('/gestion_permiso_editar_eliminar', [GestionPerimsoController::class, 'permisos_editar_activar']);
     Route::get('/bloqueado', [GestionPerimsoController::class, 'bloqueado']);

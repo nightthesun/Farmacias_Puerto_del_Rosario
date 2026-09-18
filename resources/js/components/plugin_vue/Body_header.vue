@@ -147,12 +147,28 @@
                     
                         <div class="form-group row rounded " style="background-color:gainsboro ;margin-left: 15px;margin-right: 15px; margin-bottom: 8px;">
                             <label for="" class="col-sm-6 col-form-label" style="text-align:right">Cuenta de Banco: </label>
-                            <label for="" class="col-sm-6 col-form-label">{{ arrayEmpleado.nombanco + ' ' + arrayEmpleado.nrcuenta }}</label>
+                            
+                            <label for="" class="col-sm-6 col-form-label" v-if="(arrayEmpleado.nombanco != null && arrayEmpleado.nrcuenta!='')">
+                                
+                                {{ arrayEmpleado.nombanco + ' ' + arrayEmpleado.nrcuenta }}
+                            </label>
+                               <label for="" class="col-sm-6 col-form-label" v-else>
+                                SIN INFORMACION
+                            </label>
+                          
                         </div>
                     
                         <div class="form-group row rounded" style="background-color:gainsboro ;margin-left: 15px;margin-right: 15px; margin-bottom: 8px;">
                             <label for="" class="col-sm-6 col-form-label" style="text-align:right">Fecha de Ingreso: </label>
                             <label for="" class="col-sm-6 col-form-label">{{ arrayEmpleado.fechaingreso }}</label>
+                        </div>
+                          <div class="form-group row rounded" style="background-color:gainsboro ;margin-left: 15px;margin-right: 15px; margin-bottom: 8px;">
+                            <label for="" class="col-sm-6 col-form-label" style="text-align:right">Nombre de unidad: </label>
+                            <label for="" class="col-sm-6 col-form-label">{{ arrayEmpleado.nomunidadorganizacional }}</label>
+                        </div>
+                         <div class="form-group row rounded" style="background-color:gainsboro ;margin-left: 15px;margin-right: 15px; margin-bottom: 8px;">
+                            <label for="" class="col-sm-6 col-form-label" style="text-align:right">Nombre de unidad descripcion: </label>
+                            <label for="" class="col-sm-6 col-form-label">{{ arrayEmpleado.descripcionunidadorganizacional }}</label>
                         </div>
                     </div>
                 </div>
@@ -311,7 +327,7 @@ import {error401} from '../../errores';
                 var url='/empleado/perfil';
                 axios.get(url).then(function(response){
                     var respuesta=response.data;
-                    me.arrayEmpleado=respuesta[0];               
+                    me.arrayEmpleado=respuesta;               
                     
                 })
                 .catch(function(error){

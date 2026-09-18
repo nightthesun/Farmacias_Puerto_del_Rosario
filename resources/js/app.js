@@ -26,7 +26,7 @@ createApp ({
     .component('qr-simple-component',require('./components/administracion/QrSimpleComponent.vue').default)
     .component('banco-nacionalidad-component',require('./components/administracion/bancoNacionalidadComponent.vue').default)    
     //rrhh
-    .component('rrhempleados-component',require('./components/recursos_humanos/EmpleadosComponent.vue').default)
+    .component('rrhpersonal-component',require('./components/recursos_humanos/PersonalComponent.vue').default)
     .component('rrhnivel-component',require('./components/recursos_humanos/NivelComponent.vue').default)
     .component('rrhprofesion-component',require('./components/recursos_humanos/ProfesionComponent.vue').default)
     .component('rrhcargos-component',require('./components/recursos_humanos/CargoComponent.vue').default)

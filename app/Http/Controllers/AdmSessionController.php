@@ -87,26 +87,59 @@ class AdmSessionController extends Controller
 
     public function verEmail(Request $request)
     {
-        //dd($request);
-        $usuario= User::where('email',$request->email)->get();
-        $token=mt_rand(10000,99999);
+   
+        $usuario= User::where('email',$request->email)->first(); // saca false si no existe el correo       
         
-        
-        
-        if(count($usuario)>0)
+        if($usuario!=null)
         {
-            $email=$usuario[0]->email;
-            DB::table('password_resets')->where('email',$request->email)->delete();
-            DB::table('password_resets')->insert(['email'=>$email,'token'=>$token]);
-            $respuesta=$this->sendEmail($email,$token);
-            if($respuesta=='correcto')
-                /* return view('auth.codigo')->with('email',$email); */
-                //return redirect('/resetpass');
+            $email=$usuario->email;
+            $query_2=DB::table('password_resets')->where('email',$email)->first();            
+            $token=mt_rand(10000,99999);
+          $fecha = date('Y-m-d H:i:s');
+         
+            if($query_2==null)
+            {               
+                DB::table('password_resets')->insert(['email'=>$email,'token'=>$token,'created_at'=>$fecha]);
+                     $respuesta=$this->sendEmail($email,$token);
+                    if($respuesta=='correcto');
                 return redirect('/resetpass');
-            //return "correcto";
+            }
+            else
+            {
+              $intentos=$query_2->intentos;
+              $masIntos= $intentos+1;
+              if($masIntos>3)
+              {
+                $fecha = date('Y-m-d H:i:s');
+                $fecha_a = date('Y-m-d H:i:s',strtotime($query_2->created_at . ' +1 day'));
+                if ($fecha > $fecha_a) {                  
+                    DB::table('password_resets')
+                    ->where('email', $email)
+                    ->update(['token' => $token, 'created_at' => $fecha]);
+                       $respuesta=$this->sendEmail($email,$token);
+                    if($respuesta=='correcto');
+                    return redirect('/resetpass');
+                }
+                return view('auth.recpass')->with('error_x2','error_x2');
+              }
+              else
+              {
+                
+                DB::table('password_resets')
+                    ->where('email', $email)
+                    ->update(['token' => $token, 'created_at' => $fecha,'intentos'=>$masIntos]);
+                       $respuesta=$this->sendEmail($email,$token);
+                    if($respuesta=='correcto');
+                    return redirect('/resetpass');
+
+              }
+              
+            } 
         }
-        else
+        else{
             return view('auth.recpass')->with('error','error');
+        }   
+            
             
     }
 
@@ -118,40 +151,68 @@ class AdmSessionController extends Controller
 
     public function actpass(Request $request)
     {
-        //dd($request);
-        $respuesta=DB::table('password_resets')->where('token',$request->codigo)->get();
-        $password=$request->newpass;
+        
+        $respuesta=DB::table('password_resets')->where('token',$request->codigo)->first();
 
-        if(count($respuesta)>0)
+           if($respuesta!=null)
         {
-            $usuario=User::where('email',$respuesta[0]->email)->get();
-            $user = User::findOrFail($usuario[0]->id);
-            $user->password=$password;
+              $fecha = date('Y-m-d H:i:s');
+            $fecha_expira = date('Y-m-d H:i:s',strtotime($respuesta->created_at . ' +15 minutes'));
+            if ($fecha<$fecha_expira) {
+                $password=$request->newpass;
+                  
+                   $cadena = str_replace(' ', '', $password);
+                   $cadena_2= str_replace(' ', '', $password);
+
+$cumple =
+    strlen($cadena) >= 5 &&
+    preg_match('/[A-Z]/', $cadena) &&
+    preg_match('/[a-z]/', $cadena) &&
+    preg_match('/[0-9]/', $cadena) &&
+    preg_match('/[^A-Za-z0-9]/', $cadena);
+
+$cumple = (int) $cumple;   
+
+if ($cumple==0) {
+    $cadena='cadena';
+     
+    return view('auth.codigo')->with('cadena',$cadena);  
+}else{
+    $usuario=User::where('email',$respuesta->email)->first();
+            $user = User::findOrFail($usuario->id);
+            $user->password=$cadena_2;
             $user->save();
-            DB::table('password_resets')->where('email',$respuesta[0]->email)->delete();
-            return redirect()->to('/');
-            
+          //  DB::table('password_resets')->where('email',$respuesta->email)->delete();
+           // return redirect()->to('/');
+            return view('auth.password-success');
+}
+
+
+                
+             
+            }else{
+                 $limite='limite';
+            return view('auth.codigo')->with('limite',$limite);
+                
+            }   
+           
         }
         else
         {
             $incorrecto='Incorrecto';
             return view('auth.codigo')->with('incorrecto',$incorrecto);            
         }
-        
+           
     }
 
     public function sendEmail($email,$token)
     {
-    //    $detalles=[            
-    //        'title'=>'Correo de prueba',
-    //        'body'=>'Este es el codigo de Recuperacion de Contraseña '. $token .'Copielo y peguelo en la aplicacion'
-    //    ];
-    $detalles = [
-    'title' => 'Recuperación de contraseña',
-    'body' => 'Hemos recibido una solicitud para recuperar tu contraseña.',
-    'token' => $token,
-    'expira' => '10 minutos',
-];
+ $detalles = [
+    'title' => 'RECUPERACIÓN DE CONTRASEÑA',
+    'body' => 'Hemos recibido una solicitud para recuperar el acceso a su cuenta. Utilice el siguiente código para continuar con el proceso.',
+    'token' => $token
+]; 
+
         Mail::to($email)->send(new PruebaMail($detalles));
         return "correcto";
     }
@@ -289,6 +350,7 @@ return view('auth.sucursal')->with('sucursales',$sucursales);
 
                 $value->ventanas=$ventanas;
             }
+          
             return ['modulos'=>$modulos];
         }
         else
@@ -334,7 +396,7 @@ return view('auth.sucursal')->with('sucursales',$sucursales);
     public static function listarVentanas()
     {
         $ventanas =Adm_VentanaModulo::where('activo',1)->get();
-    
+       // dd($ventanas);
         return $ventanas;
     }
 

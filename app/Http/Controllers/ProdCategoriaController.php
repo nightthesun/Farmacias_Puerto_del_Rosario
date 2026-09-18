@@ -201,13 +201,19 @@ class ProdCategoriaController extends Controller
 
     public function selectCategoria2(Request $request)
     {
-        $categoria = Prod_Categoria::select('id','nombre')
-         ->join('adm_actividad_economicas as ar','prod__categorias.idrubro', '=','ar.id')
-        
-                                   // ->where('activo',1)
-                                    ->where('idrubro',$request->idrubro)
-                                    ->orderby('nombre','asc')
-                                    ->get();
+       $categoria = Prod_Categoria::select(
+        'prod__categorias.id',
+        'prod__categorias.nombre'
+    )
+    ->join(
+        'adm_actividad_economicas as ar',
+        'prod__categorias.idrubro',
+        '=',
+        'ar.id'
+    )
+    ->where('prod__categorias.idrubro', $request->idrubro)
+    ->orderBy('prod__categorias.nombre', 'asc')
+    ->get();
         return $categoria;
     }
 }

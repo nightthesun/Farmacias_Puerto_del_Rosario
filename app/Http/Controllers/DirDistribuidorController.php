@@ -281,10 +281,14 @@ class DirDistribuidorController extends Controller
     public function listarLinea(){
         $lineas = DB::table('prod__lineas as pp')
         ->join('adm_actividad_economicas as ar', 'pp.idrubro', '=', 'ar.id')
-            ->select('id', 'codigo',  DB::raw('UPPER(nombre) as nombre'))          
-            ->where('activo', 1)
-            ->orderBy('id', 'desc')
+            ->select('pp.id', 'pp.codigo',  DB::raw('UPPER(pp.nombre) as nombre'))          
+            ->where('pp.activo', 1)
+            ->orderBy('pp.id', 'desc')
             ->get();
+
+
+        
+
         return $lineas;
     }
 

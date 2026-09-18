@@ -39,6 +39,7 @@ class AdmRegistroController extends Controller
     public function store(Request $request)
     {
         try {
+             DB::beginTransaction();
             $this->validate(request(),[
                 'name'=>'required',
                 'idempleado'=>'required',
@@ -46,6 +47,30 @@ class AdmRegistroController extends Controller
                 'password'=>'required',
             ]);
             
+            $email = $request->email;
+            $existe = DB::table('users')  
+            ->where('email', $email)
+            ->exists();
+        if ($existe==1) {
+            return "Correo duplicado";
+        }
+        $contraseña = $request->password;
+         $cadena = str_replace(' ', '', $contraseña);
+
+$cumple =
+    strlen($cadena) >= 5 &&
+    preg_match('/[A-Z]/', $cadena) &&
+    preg_match('/[a-z]/', $cadena) &&
+    preg_match('/[0-9]/', $cadena) &&
+    preg_match('/[^A-Za-z0-9]/', $cadena);
+
+$cumple = (int) $cumple;   
+
+if ($cumple==0) {
+    return "La contraseña no cumple con los requisitos debe tener al menos un tamaño de 5, una letra mayúscula, una letra minúscula, un número y un carácter especial";
+}
+    
+        
             /* $user =new User();
             $user->idempleado=$request->idempleado;
             $user->email=$request->email;
@@ -63,57 +88,16 @@ class AdmRegistroController extends Controller
             $userrolesuc->idsucursal=$request->idsucursal;
             $userrolesuc->id_usuario_registra=auth()->user()->id;
             $userrolesuc->save();
-    
-    
+      DB::commit();
+        return 0;
             //auth()->login($user);
             //return redirect()->to('/');
         } catch (\Throwable $th) {
+              DB::rollback();
             return $th;
         }        
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Adm_Registro  $adm_Registro
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Adm_Registro $adm_Registro)
-    {
-        //
-    }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Adm_Registro  $adm_Registro
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Adm_Registro $adm_Registro)
-    {
-        //
-    }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Adm_Registro  $adm_Registro
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, Adm_Registro $adm_Registro)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Adm_Registro  $adm_Registro
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Adm_Registro $adm_Registro)
-    {
-        //
-    }
 }

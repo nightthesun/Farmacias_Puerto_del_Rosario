@@ -166,6 +166,7 @@ class RrhPersonalController extends Controller
                                     ->join('rrh__formacions','rrh__formacions.id','rrh__personals.idformacion')
                                     ->join('rrh__profesions','rrh__profesions.id','rrh__personals.idprofesion')
                                     ->join('rrh__cargos','rrh__cargos.id','rrh__personals.idcargo')
+                                    ->leftJoin('rrh__unidad_organizacionals','rrh__cargos.idunidadorganizacional','rrh__unidad_organizacionals.id')
                                     ->leftjoin('adm__departamentos','adm__departamentos.id','rrh__personals.iddepartamento')
                                     ->leftjoin('adm__nacionalidads','adm__nacionalidads.id', 'rrh__personals.idnacionalidad')
                                     ->leftjoin('adm__ciudads','adm__ciudads.id', 'rrh__personals.idciudad')
@@ -201,12 +202,14 @@ class RrhPersonalController extends Controller
                                             'adm__bancos.nombre as nombanco',
                                             'complementoci',
                                             'celular',
-                                            'nit')
+                                            'nit',
+                                            'rrh__unidad_organizacionals.nombre as nomunidadorganizacional',
+                                            'rrh__unidad_organizacionals.descripcion as descripcionunidadorganizacional')
                                     ->orderby('rrh__personals.papellido','asc')
                                     ->orderby('rrh__personals.sapellido','asc')
                                     ->orderby('rrh__personals.nombre','asc')
                                     ->where('users.id',auth()->user()->id)
-                                    ->get();
+                                    ->first();
        
         
         return $empleados;

@@ -33,7 +33,7 @@ class AdmModuloController extends Controller
             $value->ventana=$ventana;
             $value->mostrarventana=false;
         }
-
+    
         //$modulo = Adm_Modulo::all();
         return ['modulos'=>$modulo];
     }

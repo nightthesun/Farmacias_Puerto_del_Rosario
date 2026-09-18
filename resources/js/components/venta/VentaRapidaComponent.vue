@@ -20,13 +20,9 @@
           <!-- Contenido de tu aplicación que se mostrará después de cargar -->
           <main class="main">
             <!-- Breadcrumb -->
-                 <ol class="breadcrumb">
-                     <li class="breadcrumb-item">Home</li>
-                     <li class="breadcrumb-item"><a href="#">Admin</a></li>
-                     <li class="breadcrumb-item active">Dashboard</li>
-                 </ol>
+               
                  <!-- inicio de index -->
-                 <div class="container-fluid">
+                 <div class="container-fluid" style="margin-top: 15px;">
                      <div class="card">
                          <div class="card-header d-flex flex-wrap align-items-center">
                              <div style="margin-right: 50px;">

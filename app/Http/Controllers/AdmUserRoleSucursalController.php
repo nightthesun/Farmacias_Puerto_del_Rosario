@@ -283,8 +283,9 @@ $ventanasModulos = DB::table('adm__ventana_modulos')
         ];
         $arrayModelos[] = $arrayModelo;
     }
+    
+      
 return($arrayModelos);
-       
     }
 
     public function listar_asig_permiso_e_a_s(Request $request){

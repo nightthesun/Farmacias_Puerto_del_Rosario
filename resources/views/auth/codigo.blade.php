@@ -56,6 +56,16 @@
                   <h4 style="color: crimson">El Codigo no Coincide <br> <small>Intentelo otra vez</small></h4>
                   @endif
                 @endif
+                 @if(isset($limite))
+                  @if($limite=='limite')
+                  <h4 style="color: crimson">El Codigo ha expirado <br> <small>Intentelo otra vez</small></h4>
+                  @endif
+                @endif
+                @if(isset($cadena))
+                  @if($cadena=='cadena')
+                  <h4 style="color: crimson">La contraseña no cumple con los requisitos <br> <small>Debe tener al menos un tamaño de 5, una letra mayúscula, una letra minúscula, un número y un carácter especial</small></h4>
+                  @endif
+                @endif
                 <div class="form-group" >
                   <input type="text" class="form-control" name="codigo" id="codigo" placeholder="00000" required autocomplete="new-password" style="text-align: center; font-size:xx-large " size="5" maxlength="5">
                 </div>
@@ -88,6 +98,9 @@
                 <br>
                 <div class="form-group other_auth_links">
                     <a class="" href="{{ route('login.index') }}">Volver al login</a>
+                </div>
+                <div class="alert alert-success bg-soft-primary border-0" role="alert">
+                    <strong>Solo tiene 15 minutos para cambiar su contraseña</strong>
                 </div>
               </form>
             </div>
