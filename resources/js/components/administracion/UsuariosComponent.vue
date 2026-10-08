@@ -2,7 +2,7 @@
     <main class="main">
         <!-- Breadcrumb -->
        
-        <div class="container-fluid" style="margin-top: 15px;">
+        <div class="container-fluid"  style="margin-top: 15px;">
             <!-- Ejemplo de tabla Listado -->
             <div class="card">
                 <div class="card-header">
@@ -10,6 +10,7 @@
                     <button v-if="puedeCrear==1" type="button" class="btn btn-secondary" @click="listarEmepleado_2(); abrirModal('registrar')">
                         <i class="icon-plus"></i>&nbsp;Nuevo
                     </button>
+                    
                 </div>
                 <div class="card-body">
                     <div class="form-group row">
@@ -152,12 +153,12 @@
                         </button>
                         </div>
                         <div class="modal-body" style="max-height: 60vh; overflow-y: auto;"> 
-                        <form action=""  class="form-horizontal">
+                       
                               <!-- insertar datos -->
                             
                             <div class="form-group row">
                                 <label class="col-md-3 form-control-label" for="text-input">Empleado: <span  v-if="selected==null" class="error">(*)</span></label>
-                                <div class="col-md-9" v-if="!siactualizar">
+                                <div class="col-md-7" v-if="!siactualizar">
                                     <VueMultiselect
                         v-model="selected"
                         :options="arrayEmpleado_2 "
@@ -177,9 +178,17 @@
                       </template>
                     </VueMultiselect> 
                                     <span  v-if="selected==null " class="error">Debe seleccionar una opcion</span>
+                                    
+                                    
                                 </div>
-                                <div class="col-md-9" v-else>
+                                <div class="col-md-7" v-else>
                                     <strong>{{ nameempleado }}</strong>                                    
+                                </div>
+                                <div class="col-md-1">
+                                                   <button class="btn"  :class="puedeHacerOpciones_especiales == 1 ? 'btn-primary' : 'btn-secondary'"  :disabled="puedeHacerOpciones_especiales != 1"
+    @click="puedeHacerOpciones_especiales == 1 && irPersonal()"><i class="fa fa-window-restore"></i></button>   
+                                                             
+                           
                                 </div>
                             </div>
                             <div class="form-group row">
@@ -188,7 +197,10 @@
                                     <input type="text" id="email" name="email" class="form-control" placeholder="Ingrese un Email" v-model="email" v-on:focus="selectAll">
                                     <span  v-if="email==''" class="error">Debe Ingresar el email</span>
                                 </div>
+                            
                             </div>
+
+
                             <div v-if="tipoAccion == 2">
                               
                                 <table class="table table-bordered table-striped table-sm table-responsive">
@@ -216,38 +228,56 @@
                             </div>
 
                             <div v-if="siactualizar" >
-
                                 <input type="checkbox" v-model="cambiarpass" unchecked id="cambiarpass"> <label for="cambiarpass">Actualizar Password?</label>
                             </div>
 
                             
                             <div class="form-group row" v-if="cambiarpass ||!siactualizar">
                                 <label class="col-md-3 form-control-label" for="password"> Password: <span  v-if="password==''" class="error">(*)</span> </label>
-                                <div class="col-md-9">
+                                <div class="col-md-7">
                                     <input type="password"  class="form-control"  v-model="password"   >
                                     <span  v-if="password==''" class="error">Debe Ingresar el password</span>
+                                </div>
+                                <div class="col-md-1">
+                                    <button @click="autoContraseña(1)"  class="btn btn-primary"><i class="fa fa-keyboard-o" aria-hidden="true"></i>                              
+                                    </button>
+                                </div>
+                                <div class="col-md-1">
+                                    <button @click="autoContraseña(0)"  class="btn btn-secondary"><i class="fa fa-keyboard-o" aria-hidden="true"></i>                               
+                                    </button>
                                 </div>
                             </div>
 
                             <div class="form-group row" v-if="!siactualizar">
                                 <label class="col-md-2 form-control-label" for="text-input">Seleccionar Rol: <span  v-if="rol==0" class="error">(*)</span></label>
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <select  v-model="rol" class="form-control">
                                         <option value="0" disabled>Seleccionar...</option>
                                         <option v-for="roles in arrayRoles" :key="roles.id" :value="roles.id" v-text="roles.nombre" ></option>
                                     </select>
                                     <span  v-if="rol==0 " class="error">Debe seleccionar una opcion</span>
                                 </div>
+                                <div class="col-md-1">
+                                            <button class="btn"  :class="puedeHacerOpciones_especiales == 1 ? 'btn-primary' : 'btn-secondary'"  :disabled="puedeHacerOpciones_especiales != 1"
+    @click="puedeHacerOpciones_especiales == 1 && irRol()"><i class="fa fa-window-restore"></i></button>  
+                               
+                                </div>
+
                                 <label class="col-md-2 form-control-label" for="text-input">Seleccionar Sucursal <span  v-if="sucursal==0" class="error">(*)</span></label>
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <select v-model="sucursal" class="form-control">
                                         <option value="0" disabled>Seleccionar...</option>
                                         <option v-for="sucur in arraySucursal" :key="sucur.id" :value="sucur.id" v-text="sucur.nombre" ></option>
                                     </select>
                                     <span  v-if="sucursal==0" class="error">Debe seleccionar una opcion</span>
                                 </div>
+                                <div class="col-md-1">
+                                      <button class="btn"  :class="puedeHacerOpciones_especiales == 1 ? 'btn-primary' : 'btn-secondary'"  :disabled="puedeHacerOpciones_especiales != 1"
+    @click="puedeHacerOpciones_especiales == 1 && irSucursal()"><i class="fa fa-window-restore"></i></button>  
+                              
+                                </div>
                             </div>
-                        </form>
+                    
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary"  @click="cerrarModal('registrar')">Cerrar</button>
@@ -555,6 +585,13 @@ import VueMultiselect from 'vue-multiselect';
         components: { VueMultiselect },
         //---permisos_R_W_S
         props: ['codventana'],
+
+        idmodulo: {
+            type: Number,
+            default: 0
+        },
+
+    emits: ['cambiar-ventana'],
         //-------------------
         data(){
             return{
@@ -620,6 +657,7 @@ import VueMultiselect from 'vue-multiselect';
                 arrayEmpleado_2:[],
                 selected: null,
                 randomString:'',
+                autoPass:0,
             }
 
         },
@@ -704,7 +742,79 @@ import VueMultiselect from 'vue-multiselect';
             error401(error);
         });
 },
-//--------------------------------------------------------------   
+//--------------------------------------------------------------  
+
+
+ irPersonal() {
+    Swal.fire({
+  title: "Desea crear nuevo personal?",
+  text: "Al realziar esta acción se cerrar la venta y se abrira la ventana personal!",
+  icon: "warning",
+  showCancelButton: true,
+  confirmButtonColor: "#3085d6",
+  cancelButtonColor: "#d33",
+  confirmButtonText: "Cambiar, de ventana!"
+}).then((result) => {
+  if (result.isConfirmed){
+ this.cerrarModal('registrar');
+        
+            this.$emit('cambiar-ventana', 205);
+  }
+});
+        },
+
+         irSucursal() {
+    Swal.fire({
+  title: "Desea crear nueva sucursal?",
+  text: "Al realziar esta acción se cerrar la venta y se abrira la ventana sucursal!",
+  icon: "warning",
+  showCancelButton: true,
+  confirmButtonColor: "#3085d6",
+  cancelButtonColor: "#d33",
+  confirmButtonText: "Cambiar, de ventana!"
+}).then((result) => {
+  if (result.isConfirmed){
+ this.cerrarModal('registrar');
+        
+            this.$emit('cambiar-ventana', 104);
+  }
+});
+        },
+
+         irRol() {
+    Swal.fire({
+  title: "Desea crear nuevo rol?",
+  text: "Al realziar esta acción se cerrar la venta y se abrira la ventana de roles!",
+  icon: "warning",
+  showCancelButton: true,
+  confirmButtonColor: "#3085d6",
+  cancelButtonColor: "#d33",
+  confirmButtonText: "Cambiar, de ventana!"
+}).then((result) => {
+  if (result.isConfirmed){
+ this.cerrarModal('registrar');
+        
+            this.$emit('cambiar-ventana', 102);
+  }
+});
+        },
+
+
+        autoContraseña(datos){
+            const me=this;
+            me.autoPass=datos;
+            if (datos==0) {
+            me.password="";    
+            }else{
+                me.password="CONTRASEÑA AUTOMATICA";
+            }
+           
+        },
+
+
+
+
+
             listarGetUsersWithRolesAndSucursals(user_id){
                 let me = this;
                 var url ="/userrolesuc/getUsersWithRolesAndSucursals?user_id="+user_id;
@@ -982,6 +1092,19 @@ allKeys.forEach(key => {
 
             registrarUsuario(){
                 let me = this;   
+  if (!me.email) {
+        Swal.fire('Atención', 'Ingrese un correo electrónico.', 'warning');
+        return;
+    }
+
+    const formatoCorreo = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!formatoCorreo.test(me.email)) {
+        Swal.fire('Correo inválido','Ingrese un correo electrónico válido.','warning');
+        return;
+    }    
+
+
                 if (me.password===null || me.password==="") {
                     Swal.fire( "Error", "La contraseña esta vacia", "error");
                 } else {
@@ -991,7 +1114,7 @@ allKeys.forEach(key => {
 if (me.isSubmitting) return;
 me.isSubmitting = true; // Deshabilita el botón
 me.generateRandomString();
-                let cadena=(me.selected).name+"-"+me.randomString;
+let cadena=(me.selected).name+"-"+me.randomString;
 axios.post('/registro',{
    //'name':resp.name,
    'name':cadena,
@@ -1000,17 +1123,24 @@ axios.post('/registro',{
    'email':me.email,
    'password':me.password,
    'idrole':me.rol,
-   'idsucursal':me.sucursal
+   'idsucursal':me.sucursal,
+   'autoPass':me.autoPass
+
 }).then(function(response){
     const respuesta = response.data;
+    
+        const estado_2=respuesta.estado;
+        const mensaje_2=respuesta.mensaje;
+        const correo_2=respuesta.correo;
+        const error_2=respuesta.error;
     console.log(respuesta);
-    if (respuesta===0) {     
+    if (estado_2===0) {     
    me.cerrarModal('registrar');
    me.listarUsuarios(); 
-   Swal.fire("Se creo","Correctamente","success");  
+   Swal.fire("Se creo",""+mensaje_2+" Correo: "+correo_2,"success");  
     } else {
         me.isSubmitting = false; // Habilita el botón nuevamentes
-        Swal.fire("Error"," "+respuesta,"error");
+        Swal.fire("Error","Mensaje: "+mensaje_2+" Error:"+error_2,"error");
     }
 
 }).catch(function(error){
@@ -1430,6 +1560,7 @@ axios.post('/registro',{
                 me.arrayEmpleado_2=[];
                 me.selected= null;
                 me.randomString='';
+                me.autoPass=0;
                 
             },
 

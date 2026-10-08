@@ -100,7 +100,7 @@
                     <a class="" href="{{ route('login.index') }}">Volver al login</a>
                 </div>
                 <div class="alert alert-success bg-soft-primary border-0" role="alert">
-                    <strong>Solo tiene 15 minutos para cambiar su contraseña</strong>
+                    <strong>Solo tiene 15 minutos para cambiar su contraseña si no encuentra el email revise en spam en su correo</strong>
                 </div>
               </form>
             </div>

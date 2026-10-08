@@ -12,7 +12,7 @@
                      Sin apertura. debe realizar una apartura primero.  
                   </div>           
                     <div v-if="tamañoArrayTipoCaja_v2<=0">
-                     Debe añadir un usuario a la caja   
+                      <h1>Debe añadir un usuario a la caja</h1>                   
                   </div>                         
              </main>              
           </div>
@@ -2562,9 +2562,9 @@ me.importe_fiscal=me.monto_a_pagar;
   
   
 
-        nameWithLang ({leyenda, nombre_linea,fecha_vencimiento}) {
+        nameWithLang ({leyenda, nombre_linea,fecha_vencimiento,codigo_imprecion}) {
             
-      return `${leyenda} ${nombre_linea} FV:${fecha_vencimiento}`
+      return `${leyenda} ${nombre_linea} FV:${fecha_vencimiento} Code: ${codigo_imprecion}`
     },
 
         toggle () {
@@ -2848,7 +2848,7 @@ me.importe_fiscal=me.monto_a_pagar;
                 .then(function (response) {
                     var respuesta = response.data;                   
                     if (respuesta==="000") {
-                      Swal.fire("Error","El usuario debe tener rubro, contacte al administrador...","warning",);
+                      Swal.fire("Error","Debe ir a Configuracion pestaña añadir usuario a rubro  selecciar el rubro que esta trabajando","warning",);
                     }else{
                       me.arrayProducto = respuesta;                 
                       console.log(me.arrayProducto);

@@ -546,7 +546,7 @@ export default {
         actualizarTipoCaja_v_1(){
                 let me = this;
                 
-                axios.put("/credenciales_correo/actualizarTipoCaja_v_1", {
+                axios.put("/config_erp_v2/actualizarTipoCaja_v_1", {
                     id: 1,                   
                     tipo_caja:me.selectTipoCaja_x2,
 
@@ -573,7 +573,7 @@ export default {
 
             listarCredencial() {
             let me = this;
-            var url = "/credenciales_correo";
+            var url = "/config_erp_v2";
             axios.get(url)
                 .then(function (response) {
                     var respuesta = response.data;             

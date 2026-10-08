@@ -1023,8 +1023,8 @@ sucursalSeleccionadaDestino: function (newValue) {
 //--------------------------------------------------------------  
 
 
-          nameWithLang ({codigo_producto, leyenda, fecha_ingreso, lote, fecha_vencimiento, stock_ingreso, activo_blo}) {
-    return `Cod: ${codigo_producto} ${leyenda} FI: ${fecha_ingreso} Lote: ${lote} FV: ${fecha_vencimiento} Stock: ${activo_blo === 1 ? '???' : stock_ingreso}`;
+          nameWithLang ({codigo_producto, leyenda, fecha_ingreso, lote, fecha_vencimiento, stock_ingreso, activo_blo,codigo_imprecion}) {
+    return `Cod: ${codigo_producto} ${leyenda} FI: ${fecha_ingreso} Lote: ${lote} FV: ${fecha_vencimiento} Stock: ${activo_blo === 1 ? '???' : stock_ingreso} Cód. Impresión: ${codigo_imprecion}`;
 },
 
           validarNew(newValue){
@@ -1418,7 +1418,7 @@ validarQuitar(){
                 } else {
                     let suma = me.cantidadProductoLineaIngreso - me.cantidadS;
 
-                    if (suma>cantidadProductoLineaCantidad) {
+                    if (suma>me.cantidadProductoLineaCantidad) {
                          Swal.fire(
                     "No puede hacer traspasos la cantidad es mayor ala cantida total",
                     "Haga click en Ok",

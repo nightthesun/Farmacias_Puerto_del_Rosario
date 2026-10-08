@@ -2,23 +2,84 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\adm_CredecialCorreo;
+use App\Models\Adm_configuracionV2;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
-use App\Helpers\Verhoeff;
-use App\Helpers\AllegedRC4Helper;
-use App\Helpers\Base64SINHelper;
-use App\Helpers\operacionDosificacion;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Config;
 
-class AdmCredecialCorreoController extends Controller
+class AdmConfiguracionV2Controller extends Controller
 {
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, adm_CredecialCorreo $adm_CredecialCorreo)
+     public function get_credencial_erp(Request $request){
+        $datos = DB::table('adm__credencial_erp')->first();
+        return $datos;
+    }
+
+    public function probarCorreo()
+{
+    try {
+
+        $correo = DB::table('adm__credencial_erp')
+            ->where('id', 1)
+            ->first();
+
+        if (!$correo) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No existe la configuración de correo.'
+            ], 400);
+        }
+$cadena_pass = $correo->mail_password;
+
+$textoEncriptado = substr($cadena_pass, 2, -3);
+
+$password = Crypt::decrypt($textoEncriptado);
+
+
+        // Cargar configuración desde la BD
+        Config::set('mail.default', $correo->mail_mailer);
+
+        Config::set('mail.mailers.smtp.host', $correo->mail_host);
+        Config::set('mail.mailers.smtp.port', $correo->mail_port);
+        Config::set('mail.mailers.smtp.username', $correo->mail_username);
+        Config::set('mail.mailers.smtp.password', $password);
+        
+        Config::set('mail.mailers.smtp.encryption', $correo->mail_encryp);
+   
+       Config::set('mail.from.address', $correo->mail_from_add);
+         
+    Config::set('mail.from.name', $correo->mail_from_na);
+  
+        // Enviar correo al mismo correo configurado
+        Mail::raw(
+            'Este es un correo de prueba enviado correctamente desde el sistema.',
+            function ($message) use ($correo) {
+
+                $message->to($correo->mail_from_add)
+                    ->subject('Correo de prueba');
+            }
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Correo de prueba enviado correctamente.'
+        ]);
+
+    } catch (\Exception $e) {
+
+        return response()->json([
+            'success' => false,
+            'message' => $e->getMessage()
+        ], 500);
+    }
+}
+
+    public function update(Request $request)
     {
         try {
+             DB::beginTransaction();
             $fechaActual = Carbon::now(); // Obtiene la fecha y hora actual
             $datos = [
                 'id_modulo' => $request->id_modulo,
@@ -30,17 +91,85 @@ class AdmCredecialCorreoController extends Controller
                 'id_movimiento'=>$request->id,   
             ];
         
-            DB::table('log__sistema')->insert($datos);   
-            $update = adm_CredecialCorreo::find($request->id);
-            $update->host=$request->host;
-            $update->correo=$request->correo;
-            $update->puerto=$request->puerto;
-            $update->usuario=$request->usuario;
-            $update->contraseña=$request->contraseña;
-            $update->ssl=$request->ssl;
-            $update->save();
+            DB::table('log__sistema')->insert($datos);  
+          $mailet=$request->mailet;
+          $host=$request->host;
+          $port=$request->port;
+          $userName=$request->userName;
+
+          $password=$request->password;
+          $encryp=$request->encryp;
+          $fromAddress=$request->fromAddress;
+          $fromName=$request->fromName;
+
+          $caracteres = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+                            $randomString_2 = substr(str_shuffle($caracteres), 0, 2);
+                            $randomString_3 = substr(str_shuffle($caracteres), 0, 3);
+                            $textoEncriptado = Crypt::encrypt($password);   
+                            $cadena_pass=$randomString_2.$textoEncriptado.$randomString_3;           
+                           
+                            
+
+               if (mb_strlen($mailet)>20) {
+                return "la cadena es muy larga de remitente";
+               }
+
+                if (mb_strlen($host)>200) {
+                return "la cadena es muy larga del host";
+               }
+
+                if (!is_numeric($port)) {
+                return "debe ser un numero no nulo";
+               }
+
+                if (mb_strlen($userName)>200) {
+                return "la cadena es muy larga del email del remitente";
+               }
+
+                if (mb_strlen($encryp)>20) {
+                return "la cadena es muy larga de encryptación";
+               }
+
+               if (mb_strlen($fromAddress)>200) {
+                return "la cadena es muy larga email de destino muy largo";
+               }
+
+               if (mb_strlen($fromName)>250) {
+                return "la cadena es muy larga del cadena de destino remitente.";
+               }
+               
+          if($request->tipo==1){
+            $datos2=[
+                'mail_mailer' => $mailet,
+                'mail_host' => $host,
+                'mail_port' => $port,
+                'mail_username' => $userName,
+                'mail_password' => $cadena_pass,
+                'mail_encryp' => $encryp,
+                'mail_from_add' => $fromAddress,
+                'mail_from_na' => $fromName                
+            ];
+          }
+            if($request->tipo==2){
+                $datos2=[
+                'mail_mailer' => $mailet,
+                'mail_host' => $host,
+                'mail_port' => $port,
+                'mail_username' => $userName,
+             
+                'mail_encryp' => $encryp,
+                'mail_from_add' => $fromAddress,
+                'mail_from_na' => $fromName                
+            ];
+            }
+        
+            
+              DB::table('adm__credencial_erp')->where('id', 1)->update($datos2); 
+   
+  DB::commit();
+          return 0;
         } catch (\Throwable $th) {
-            return response()->json(['error' => $th->getMessage()],500);
+            return $th;
         }
         
      
@@ -61,13 +190,14 @@ class AdmCredecialCorreoController extends Controller
             ];
         
             DB::table('log__sistema')->insert($datos);   
-            $update = adm_CredecialCorreo::find($request->id);
-            $update->nit=$request->nit;
-            $update->nom_empresa=$request->nombre_empresa;
-            $update->nro_celular=$request->celular;
-            $update->actividad_economica=$request->actividad_eco;
-       
-            $update->save();
+            $datos2 = [
+                'nit' => $request->nit,
+                'nom_empresa' => $request->nombre_empresa,
+                'nro_celular' => $request->celular,
+                'actividad_economica' => $request->actividad_eco,               
+            ];
+             DB::table('adm__config_erp')->where('id', 1)->update($datos2); 
+           
         } catch (\Throwable $th) {
             return response()->json(['error' => $th->getMessage()],500);
         }
@@ -80,11 +210,13 @@ class AdmCredecialCorreoController extends Controller
         try {
          
             $id=$request->id;
-            $validador_variables=$request->validador_variables;          
-            $update = adm_CredecialCorreo::find($id);            
-            $update->factura_dosificacion=$validador_variables;           
-            $update->save();
-
+            $validador_variables=$request->validador_variables;  
+            
+             $datos2 = [
+                'factura_dosificacion' =>$validador_variables,                              
+            ];
+             DB::table('adm__config_erp')->where('id', 1)->update($datos2); 
+            
             $fechaActual = Carbon::now(); // Obtiene la fecha y hora actual
             $datos = [
                 'id_modulo' => $request->id_modulo,
@@ -104,10 +236,12 @@ class AdmCredecialCorreoController extends Controller
     public function tipomonedaUpdate(Request $request)
     {
         try {        
-            $id=$request->id;                
-            $update = adm_CredecialCorreo::find($id);            
-            $update->moneda=$request->id_moneda;           
-            $update->save();
+            $id=$request->id; 
+              $datos2 = [
+                'moneda' =>$request->id_moneda,                              
+            ];
+             DB::table('adm__config_erp')->where('id', 1)->update($datos2);              
+       
             $fechaActual = Carbon::now(); // Obtiene la fecha y hora actual
             $datos = [
                 'id_modulo' => $request->id_modulo,
@@ -128,7 +262,7 @@ class AdmCredecialCorreoController extends Controller
     
 
     public function credencia_correo(Request $request){
-        $datos = DB::table('adm__credecial_correos')->get();
+        $datos = DB::table('adm__config_erp')->get();
         return $datos;
     }
 
@@ -139,7 +273,7 @@ class AdmCredecialCorreoController extends Controller
         ->where('ass.activo', 1)
         ->get();     
 
-        $credecion = DB::table('adm__credecial_correos')
+        $credecion = DB::table('adm__config_erp')
         ->select('nom_empresa','nit')       
         ->first();
 
@@ -165,11 +299,13 @@ class AdmCredecialCorreoController extends Controller
             
             $fechaActual = Carbon::now(); // Obtiene la fecha y hora actual
              $id = $request->id;        
-                        
-            $update = adm_CredecialCorreo::find($id);            
-            $update->stock_medio= (int)$request->stock_medio;    
-            $update->save();    
+               
+              $datos2 = [
+                'stock_medio' =>(int)$request->stock_medio,                              
+            ];
+             DB::table('adm__config_erp')->where('id', 1)->update($datos2);   
 
+           
                 $datos = [
                     'id_modulo' => $request->id_modulo,
                     'id_sub_modulo' => $request->id_sub_modulo,
@@ -395,7 +531,7 @@ class AdmCredecialCorreoController extends Controller
 
         try {
             // Using DB facade for raw SQL query
-        $verificacion = DB::table('adm__credecial_correos')
+        $verificacion = DB::table('adm__config_erp')
         ->select('id', 'factura_dosificacion')
         ->where('factura_dosificacion', 2)
         ->first();
@@ -467,11 +603,12 @@ class AdmCredecialCorreoController extends Controller
         $id = $request->id;
         $id_credencial=$request->id_credencial;
         $user = auth()->user()->id;
+   $datos2 = [
+                'id_dosificacion_siat' =>$id,                              
+            ];
+             DB::table('adm__config_erp')->where('id', 1)->update($datos2);  
 
-        $update = adm_CredecialCorreo::find($id_credencial);            
-        $update->id_dosificacion_siat=$id;           
-        $update->save();
-
+     
         $data_load = [
             'estado' => 1,
             'id_usuario_registra' => $user            
@@ -641,11 +778,13 @@ class AdmCredecialCorreoController extends Controller
 
     public function añadirLimite(Request $request){
         try {        
-            $id=$request->id;                
-            $update = adm_CredecialCorreo::find($id);            
-            $update->tiempo_limite=$request->limite_horas;           
-            $update->monto_limite=$request->limite_monto;   
-            $update->save();
+            $id=$request->id;    
+                $datos2 = [
+                'tiempo_limite' =>$request->limite_hora, 
+                 'monto_limite' =>$request->limite_monto,                             
+            ];
+             DB::table('adm__config_erp')->where('id', 1)->update($datos2);             
+          
             $fechaActual = Carbon::now(); // Obtiene la fecha y hora actual
             $datos = [
                 'id_modulo' => $request->id_modulo,
@@ -710,11 +849,13 @@ class AdmCredecialCorreoController extends Controller
         try {
             $fechaActual = Carbon::now(); // Obtiene la fecha y hora actual
             $id = $request->id;        
-                        
-            $update = adm_CredecialCorreo::find($id);            
-            $update->modal_apertura=$request->modal_apertura;    
-            $update->save();         
-    
+                 
+                  $datos2 = [
+                'modal_apertura' =>$request->modal_apertura,                                                            
+            ];
+             DB::table('adm__config_erp')->where('id', 1)->update($datos2); 
+
+            
             $datos = [
                 'id_modulo' => $request->id_modulo,
                 'id_sub_modulo' => $request->id_sub_modulo,
@@ -735,11 +876,12 @@ class AdmCredecialCorreoController extends Controller
         try {
             $fechaActual = Carbon::now(); // Obtiene la fecha y hora actual
             $id = $request->id;        
-                        
-            $update = adm_CredecialCorreo::find($id);            
-            $update->efecto_sobrante=$request->efecto_sobrante;    
-            $update->save();         
-    
+               
+             $datos2 = [
+                'efecto_sobrante' =>$request->efecto_sobrante,                                                            
+            ];
+             DB::table('adm__config_erp')->where('id', 1)->update($datos2); 
+
             $datos = [
                 'id_modulo' => $request->id_modulo,
                 'id_sub_modulo' => $request->id_sub_modulo,
@@ -760,11 +902,12 @@ class AdmCredecialCorreoController extends Controller
         try {
             $fechaActual = Carbon::now(); // Obtiene la fecha y hora actual
             $id = $request->id;        
-                        
-            $update = adm_CredecialCorreo::find($id);            
-            $update->imprimir_trans=$request->tras;    
-            $update->save();         
-    
+              
+            $datos2 = [
+                'imprimir_trans' =>$request->tras,                                                            
+            ];
+             DB::table('adm__config_erp')->where('id', 1)->update($datos2); 
+  
             $datos = [
                 'id_modulo' => $request->id_modulo,
                 'id_sub_modulo' => $request->id_sub_modulo,
@@ -1107,7 +1250,7 @@ class AdmCredecialCorreoController extends Controller
              $fechaActual = Carbon::now(); // Obtiene la fecha y hora actual
        $datos=['tipo_Caja'=>$request->tipo_caja];               
                
-     DB::table('adm__credecial_correos')->where('id', 1)->update($datos); 
+     DB::table('adm__config_erp')->where('id', 1)->update($datos); 
      
             $datos = [
                 'id_modulo' => $request->id_modulo,

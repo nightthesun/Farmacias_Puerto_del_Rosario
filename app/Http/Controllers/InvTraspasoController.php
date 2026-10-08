@@ -47,6 +47,7 @@ class InvTraspasoController extends Controller
                                 or it.leyenda like '%" . $valor . "%'
                                 or it.cod_1 like '%" . $valor . "%'
                                 or it.cod_2 like '%" . $valor . "%' 
+                         
                                )";
                     } else {
                         $sqls .= "and (
@@ -57,6 +58,7 @@ class InvTraspasoController extends Controller
                             or it.leyenda like '%" . $valor . "%'
                             or it.cod_1 like '%" . $valor . "%'
                             or it.cod_2 like '%" . $valor . "%'
+                        
                        )";
                     }
                 }
@@ -86,6 +88,7 @@ class InvTraspasoController extends Controller
                     'it.procesado as estado_procesado',
                     'u.name as user_name',
                     'it.cantidad_old as cantidad_old',
+                
                     DB::raw('GREATEST(it.created_at, it.updated_at) AS fecha'),
                     DB::raw('CASE
                         WHEN SUBSTRING(it.cod_1, 1, 3) = "ALM" AND SUBSTRING(it.cod_2, 1, 3) = "ALM" THEN "Almacen a Almacen"
@@ -128,6 +131,7 @@ class InvTraspasoController extends Controller
                     'it.procesado as estado_procesado',
                     'u.name as user_name',
                     'it.cantidad_old as cantidad_old',
+               
                     DB::raw('GREATEST(it.created_at, it.updated_at) AS fecha'),
                     DB::raw('CASE
                         WHEN SUBSTRING(it.cod_1, 1, 3) = "ALM" AND SUBSTRING(it.cod_2, 1, 3) = "ALM" THEN "Almacen a Almacen"
@@ -193,6 +197,7 @@ class InvTraspasoController extends Controller
         'it.procesado as estado_procesado',
         'u.name as user_name',
         'it.cantidad_old as cantidad_old',
+     
         DB::raw('GREATEST(it.created_at, it.updated_at) AS fecha'),
         DB::raw('CASE
             WHEN SUBSTRING(it.cod_1, 1, 3) = "ALM" AND SUBSTRING(it.cod_2, 1, 3) = "ALM" THEN "Almacen a Almacen"
@@ -235,6 +240,7 @@ class InvTraspasoController extends Controller
         'it.procesado as estado_procesado',
         'u.name as user_name',
         'it.cantidad_old as cantidad_old',
+      
         DB::raw('GREATEST(it.created_at, it.updated_at) AS fecha'),
         DB::raw('CASE
             WHEN SUBSTRING(it.cod_1, 1, 3) = "ALM" AND SUBSTRING(it.cod_2, 1, 3) = "ALM" THEN "Almacen a Almacen"
@@ -707,6 +713,7 @@ class InvTraspasoController extends Controller
        
        ->select(
          'pp.codigointernacional as codigointernacional',
+         'ai.codigo_imprecion as codigo_imprecion',
          'ai.registro_sanitario as registro_sanitario',
          'ai.envase as envase',        
          'aa.codigo as cod',
@@ -736,7 +743,8 @@ class InvTraspasoController extends Controller
          DB::raw('"Almacen" as tipoCodigo'),
          DB::raw('null as id_tienda'),
          'ai.idalmacen as id_almacen',
-         'aa.nombre_almacen as razon_social',       
+         'aa.nombre_almacen as razon_social',  
+              
          DB::raw("
              CASE
                  WHEN ai.envase = 'primario' THEN CONCAT(COALESCE(pp.codigo, ''), ' ', COALESCE(pp.nombre, ''), ' ', COALESCE(pd_1.nombre, ''), ' X ', COALESCE(pp.cantidadprimario, ''), ' - ', COALESCE(ff_1.nombre, ''))
@@ -778,6 +786,7 @@ class InvTraspasoController extends Controller
     })       
        ->select(
          'pp.codigointernacional as codigointernacional',
+           'ti.codigo_imprecion as codigo_imprecion',
          'ti.registro_sanitario as registro_sanitario',
          'ti.envase as envase',   
          'tt.codigo as cod',

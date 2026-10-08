@@ -270,7 +270,7 @@ $sucursalesPaginated = new \Illuminate\Pagination\LengthAwarePaginator(
     }
 
     public function get_nit(){
-    $nit = DB::table('adm__credecial_correos')
+    $nit = DB::table('adm__config_erp')
     ->where('id', 1)    
     ->value('nit');
     if ($nit==null || $nit== '') {

@@ -4,7 +4,8 @@ use App\Http\Controllers\AdmAccionVentanaController;
 use App\Http\Controllers\AdmActividadEconomicaController;
 use App\Http\Controllers\AdmBancoController;
 use App\Http\Controllers\AdmCiudadController;
-use App\Http\Controllers\AdmCredecialCorreoController;
+use App\Http\Controllers\AdmConfiguracionV2Controller;
+
 use App\Http\Controllers\AdmDepartamentoController;
 use App\Http\Controllers\AdmModuloController;
 use App\Http\Controllers\AdmNacionalidadController;
@@ -115,6 +116,10 @@ Route::get('/', function () {
         return redirect()->to('/selectsuc');    
     else */
     return view('contenido/contenido');
+})->middleware('auth');
+
+Route::get('/personal', function () {
+    return view('contenido/contenidoPersonal');
 })->middleware('auth');
 
 /* Route::get('/perfilusuario', function () {
@@ -237,6 +242,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::put('/Actividad_economica/activar', [AdmActividadEconomicaController::class, 'activar']);
     Route::get('/Actividad_economica/selectrubro', [AdmActividadEconomicaController::class, 'selectRubro']);
     Route::put('/Actividad_economica/activarUso', [AdmActividadEconomicaController::class, 'use_active']);
+    Route::get('/Actividad_economica/listarUseActividadNormal', [AdmActividadEconomicaController::class, 'get_use_actividad_normal']);
+    Route::put('/Actividad_economica/actualziarEstadoActi_data', [AdmActividadEconomicaController::class, 'actualziarEstado_acti_data']);
+    
 
     Route::get('/rubro', [AdmRubroController::class, 'index']);
     Route::post('/rubro/registrar', [AdmRubroController::class, 'store']);
@@ -287,6 +295,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::put('/usuario/activar', [AdmUserController::class, 'activar']);
     Route::get('/usuario/listar-usuarios', [AdmUserController::class, 'listaUsuarios']);
     Route::get('/usuario/selectusuario', [AdmUserController::class, 'selectUsuario']);
+    
      
     Route::get('/role', [AdmRoleController::class, 'index']);
     Route::post('/role/registrar', [AdmRoleController::class, 'store']);
@@ -305,52 +314,57 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/userrolesuc/listar_asig_permiso_e_a_s', [AdmUserRoleSucursalController::class, 'listar_asig_permiso_e_a_s']);
     Route::get('/userrolesuc/getUsersWithRolesAndSucursals', [AdmUserRoleSucursalController::class, 'getUsersWithRolesAndSucursals']);
 
-    Route::get('/credenciales_correo', [AdmCredecialCorreoController::class, 'credencia_correo']);
-    Route::post('/credenciales_correo/update', [AdmCredecialCorreoController::class, 'update']);   
-    Route::put('/credenciales_correo/tipo_venta_update', [AdmCredecialCorreoController::class, 'tipo_venta_update']); 
-    Route::post('/credenciales_correo/update_datos_empresa', [AdmCredecialCorreoController::class, 'update_datos_empresa']);   
-    Route::get('/credenciales_correo/tipo_moneda', [AdmCredecialCorreoController::class, 'tipo_moneda']); 
-    Route::post('/credenciales_correo/tipomonedaUpdate', [AdmCredecialCorreoController::class, 'tipomonedaUpdate']);    
-    Route::post('/credenciales_correo/crear_banco', [AdmCredecialCorreoController::class, 'crear_banco']);   
-    Route::put('/credenciales_correo/editar_banco', [AdmCredecialCorreoController::class, 'editar_banco']); 
-    Route::put('/credenciales_correo/banco_desactivar', [AdmCredecialCorreoController::class, 'desactivar']); 
-    Route::put('/credenciales_correo/banco_activar', [AdmCredecialCorreoController::class, 'activar']); 
-    Route::get('/cuenta/listar_cuenta', [AdmCredecialCorreoController::class, 'get_cuenta']); 
-    Route::post('/cuenta/crear_cuenta', [AdmCredecialCorreoController::class, 'crear_cuenta']);  
-    Route::put('/cuenta/editar_cuenta', [AdmCredecialCorreoController::class, 'editar_cuenta']); 
-    Route::put('/cuenta/desactivar_cuenta', [AdmCredecialCorreoController::class, 'desactivar_cuenta']); 
-    Route::put('/cuenta/activar_cuenta', [AdmCredecialCorreoController::class, 'activar_cuenta']); 
-    Route::put('/responsable/añadir_quitar', [AdmCredecialCorreoController::class, 'añadir_quitar_Encargado']); 
-    Route::post('/credenciales_correo/limite_2', [AdmCredecialCorreoController::class, 'añadirLimite']);   
-    Route::put('/super_usuario/añadir_quitar', [AdmCredecialCorreoController::class, 'añadir_quitar_superUsuario']);
-    Route::post('/credenciales_correo/modal_apertura', [AdmCredecialCorreoController::class, 'editar_modal_apertura']);  
-    Route::post('/credenciales_correo/transaccion_data', [AdmCredecialCorreoController::class, 'editar_transaccion_v2']); 
-    Route::put('/user_rubro/añadir_quitar', [AdmCredecialCorreoController::class, 'añadir_quitar_rubro']); 
-    Route::post('/credenciales_correo/stock_medio', [AdmCredecialCorreoController::class, 'editar_cambiar_stock']);   
-    Route::post('/credenciales_correo/configuracionGestionStoc', [AdmCredecialCorreoController::class, 'editar_gestionStock_panel']);   
-    Route::put('/credenciales_correo/activar_panel_automatico', [AdmCredecialCorreoController::class, 'activador_gestionStock_panel']); 
-    Route::post('/credenciales_correo/crearDisGesAut', [AdmCredecialCorreoController::class, 'crearDistribuidorXautomatico']);  
-    Route::put('/credenciales_correo/editarDisGesAut', [AdmCredecialCorreoController::class, 'editarDistribuidorXautomatico']);  
-    Route::get('/credenciales_correo/listarDistribuidorAutomatico', [AdmCredecialCorreoController::class, 'getDistribuidorAutomatico']);    
-    Route::put('/credenciales_correo/editarDiferenciaVentas_3', [AdmCredecialCorreoController::class, 'updateDiferenciaVentas_3']);     
-    Route::put('/credenciales_correo/eliminarDisGesAut_3', [AdmCredecialCorreoController::class, 'deleteDisGesAut_3']);  
-    Route::put('/credenciales_correo/activar_acciones_traspaso_SS', [AdmCredecialCorreoController::class, 'update_acciones_traspaso_SS']);   
-    Route::put('/credenciales_correo/modificarDiasAcumulados_traspaso_SS', [AdmCredecialCorreoController::class, 'update_DiasAcumulados_traspaso_SS']); 
-    Route::put('/credenciales_correo/modificarTraspaso_traspaso_SS', [AdmCredecialCorreoController::class, 'updateTraspaso_traspaso_SS']);  
-    Route::put('/credenciales_correo/modificarConfiguracionTraspaso_traspado_SS', [AdmCredecialCorreoController::class, 'updateConfiguracionTraspaso_traspado_SS']);  
-    Route::put('/credenciales_correo/modificarTraspaso_recepcio_SS', [AdmCredecialCorreoController::class, 'updateTraspaso_recepcio_SS']);   
-    Route::put('/credenciales_correo/modificarEcuacionZ', [AdmCredecialCorreoController::class, 'updateEcuacionZ']);   
-    Route::post('/credenciales_correo/actualizar_efecto_sobrante', [AdmCredecialCorreoController::class, 'updateEfecto_sobrante']);  
-    Route::put('/credenciales_correo/actualizarTipoCaja_v_1', [AdmCredecialCorreoController::class, 'update_tipo_caja_v_1']);    
+    Route::get('/config_erp_v2', [AdmConfiguracionV2Controller::class, 'credencia_correo']);
+    Route::post('/config_erp_v2/probar', [AdmConfiguracionV2Controller::class, 'probarCorreo']);
+    
+    
+    Route::put('/config_erp_v2/tipo_venta_update', [AdmConfiguracionV2Controller::class, 'tipo_venta_update']); 
+    Route::post('/config_erp_v2/update_datos_empresa', [AdmConfiguracionV2Controller::class, 'update_datos_empresa']);   
+    Route::get('/config_erp_v2/tipo_moneda', [AdmConfiguracionV2Controller::class, 'tipo_moneda']); 
+    Route::post('/config_erp_v2/tipomonedaUpdate', [AdmConfiguracionV2Controller::class, 'tipomonedaUpdate']);    
+    Route::post('/config_erp_v2/crear_banco', [AdmConfiguracionV2Controller::class, 'crear_banco']);   
+    Route::put('/config_erp_v2/editar_banco', [AdmConfiguracionV2Controller::class, 'editar_banco']); 
+    Route::put('/config_erp_v2/banco_desactivar', [AdmConfiguracionV2Controller::class, 'desactivar']); 
+    Route::put('/config_erp_v2/banco_activar', [AdmConfiguracionV2Controller::class, 'activar']); 
+    Route::get('/cuenta/listar_cuenta', [AdmConfiguracionV2Controller::class, 'get_cuenta']); 
+    Route::post('/cuenta/crear_cuenta', [AdmConfiguracionV2Controller::class, 'crear_cuenta']);  
+    Route::put('/cuenta/editar_cuenta', [AdmConfiguracionV2Controller::class, 'editar_cuenta']); 
+    Route::put('/cuenta/desactivar_cuenta', [AdmConfiguracionV2Controller::class, 'desactivar_cuenta']); 
+    Route::put('/cuenta/activar_cuenta', [AdmConfiguracionV2Controller::class, 'activar_cuenta']); 
+    Route::put('/responsable/añadir_quitar', [AdmConfiguracionV2Controller::class, 'añadir_quitar_Encargado']); 
+    Route::post('/config_erp_v2/limite_2', [AdmConfiguracionV2Controller::class, 'añadirLimite']);   
+    Route::put('/super_usuario/añadir_quitar', [AdmConfiguracionV2Controller::class, 'añadir_quitar_superUsuario']);
+    Route::post('/config_erp_v2/modal_apertura', [AdmConfiguracionV2Controller::class, 'editar_modal_apertura']);  
+    Route::post('/config_erp_v2/transaccion_data', [AdmConfiguracionV2Controller::class, 'editar_transaccion_v2']); 
+    Route::put('/user_rubro/añadir_quitar', [AdmConfiguracionV2Controller::class, 'añadir_quitar_rubro']); 
+    Route::post('/config_erp_v2/stock_medio', [AdmConfiguracionV2Controller::class, 'editar_cambiar_stock']);   
+    Route::post('/config_erp_v2/configuracionGestionStoc', [AdmConfiguracionV2Controller::class, 'editar_gestionStock_panel']);   
+    Route::put('/config_erp_v2/activar_panel_automatico', [AdmConfiguracionV2Controller::class, 'activador_gestionStock_panel']); 
+    Route::post('/config_erp_v2/crearDisGesAut', [AdmConfiguracionV2Controller::class, 'crearDistribuidorXautomatico']);  
+    Route::put('/config_erp_v2/editarDisGesAut', [AdmConfiguracionV2Controller::class, 'editarDistribuidorXautomatico']);  
+    Route::get('/config_erp_v2/listarDistribuidorAutomatico', [AdmConfiguracionV2Controller::class, 'getDistribuidorAutomatico']);    
+    Route::put('/config_erp_v2/editarDiferenciaVentas_3', [AdmConfiguracionV2Controller::class, 'updateDiferenciaVentas_3']);     
+    Route::put('/config_erp_v2/eliminarDisGesAut_3', [AdmConfiguracionV2Controller::class, 'deleteDisGesAut_3']);  
+    Route::put('/config_erp_v2/activar_acciones_traspaso_SS', [AdmConfiguracionV2Controller::class, 'update_acciones_traspaso_SS']);   
+    Route::put('/config_erp_v2/modificarDiasAcumulados_traspaso_SS', [AdmConfiguracionV2Controller::class, 'update_DiasAcumulados_traspaso_SS']); 
+    Route::put('/config_erp_v2/modificarTraspaso_traspaso_SS', [AdmConfiguracionV2Controller::class, 'updateTraspaso_traspaso_SS']);  
+    Route::put('/config_erp_v2/modificarConfiguracionTraspaso_traspado_SS', [AdmConfiguracionV2Controller::class, 'updateConfiguracionTraspaso_traspado_SS']);  
+    Route::put('/config_erp_v2/modificarTraspaso_recepcio_SS', [AdmConfiguracionV2Controller::class, 'updateTraspaso_recepcio_SS']);   
+    Route::put('/config_erp_v2/modificarEcuacionZ', [AdmConfiguracionV2Controller::class, 'updateEcuacionZ']);   
+    Route::post('/config_erp_v2/actualizar_efecto_sobrante', [AdmConfiguracionV2Controller::class, 'updateEfecto_sobrante']);  
+    Route::put('/config_erp_v2/actualizarTipoCaja_v_1', [AdmConfiguracionV2Controller::class, 'update_tipo_caja_v_1']);    
                
-    Route::get('/dosificacion/getDataSucursal', [AdmCredecialCorreoController::class, 'getDataSucursal']);
-    Route::post('/dosificacion/store_dosificacion', [AdmCredecialCorreoController::class, 'store_dosificacion']);
-    Route::get('/dosificacion/index_dosificacion', [AdmCredecialCorreoController::class, 'index_dosificacion']);    
-    Route::post('/dosificacion/update_dosificacion', [AdmCredecialCorreoController::class, 'update_dosificacion']);
-    Route::get('/dosificacion/activar_verificar_dosificacion', [AdmCredecialCorreoController::class, 'activar_verificar_dosificacion']);  
-    Route::get('/dosificacion/verifica_esta_activo_dosificacacion_x_sucursal', [AdmCredecialCorreoController::class, 'verifica_esta_activo_dosificacacion_x_sucursal']);  
-    Route::put('/dosificacion/desactivar_dosificacion', [AdmCredecialCorreoController::class, 'desactivar_dosificacion']);  
-    Route::put('/dosificacion/activar_dosificacion', [AdmCredecialCorreoController::class, 'activar_dosificacion']);  
+    Route::get('/dosificacion/getDataSucursal', [AdmConfiguracionV2Controller::class, 'getDataSucursal']);
+    Route::post('/dosificacion/store_dosificacion', [AdmConfiguracionV2Controller::class, 'store_dosificacion']);
+    Route::get('/dosificacion/index_dosificacion', [AdmConfiguracionV2Controller::class, 'index_dosificacion']);    
+    Route::post('/dosificacion/update_dosificacion', [AdmConfiguracionV2Controller::class, 'update_dosificacion']);
+    Route::get('/dosificacion/activar_verificar_dosificacion', [AdmConfiguracionV2Controller::class, 'activar_verificar_dosificacion']);  
+    Route::get('/dosificacion/verifica_esta_activo_dosificacacion_x_sucursal', [AdmConfiguracionV2Controller::class, 'verifica_esta_activo_dosificacacion_x_sucursal']);  
+    Route::put('/dosificacion/desactivar_dosificacion', [AdmConfiguracionV2Controller::class, 'desactivar_dosificacion']);  
+    Route::put('/dosificacion/activar_dosificacion', [AdmConfiguracionV2Controller::class, 'activar_dosificacion']); 
+
+     Route::post('/credenciales_correo/update', [AdmConfiguracionV2Controller::class, 'update']);  
+    Route::get('/credenciales_correo/listarCredencialErp', [AdmConfiguracionV2Controller::class, 'get_credencial_erp']);    
   
 
        //*******para listar si tiene permisos de edicion y activacion usar en todos los reporte o modulos*/

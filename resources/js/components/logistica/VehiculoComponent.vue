@@ -136,10 +136,6 @@
                             Todos los campos con (*) son requeridos
                         </div>
 
-
-                        <form action=""  class="form-horizontal">
-
-
                             <div class="form-group row" >
                                 
                                 <label class="col-md-3 form-control-label" for="text-input">Asignar Sucursal por defecto:<span  v-if="selectAlmTda==0" class="error">(*)</span></label>
@@ -172,6 +168,9 @@
                                         <br>
                                         -   Debe estar como usuario.
                                     </span>
+      <button class="btn"  :class="puedeHacerOpciones_especiales == 1 ? 'btn-primary' : 'btn-secondary'"  :disabled="puedeHacerOpciones_especiales != 1"
+    @click="puedeHacerOpciones_especiales == 1 && irPersonal()"><i class="fa fa-window-restore"></i></button>   
+                                    
                                 </div>
                                 <div class="col-md-9" v-if="arrayUsuario!=''">
                                     <select name="" id="" v-model="selectUsuario" class="form-control">
@@ -225,8 +224,6 @@
                                 </div>
                             </div>
                       
-                            
-                        </form>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary"  @click="cerrarModal('registrar')">Cerrar</button>
@@ -469,6 +466,25 @@ import { resolveTransitionHooks } from 'vue';
         });
 },
 //--------------------------------------------------------------  
+
+ irPersonal() {
+    Swal.fire({
+  title: "Desea modificar la información debe tener algun usuario profecion conductor de vehiculo y cargo chofer?",
+  text: "Al realziar esta acción se cerrar la venta y se abrira la ventana personal!",
+  icon: "warning",
+  showCancelButton: true,
+  confirmButtonColor: "#3085d6",
+  cancelButtonColor: "#d33",
+  confirmButtonText: "Cambiar, de ventana!"
+}).then((result) => {
+  if (result.isConfirmed){
+ this.cerrarModal('registrar');
+        
+            this.$emit('cambiar-ventana', 205);
+  }
+});
+        },
+
 
             sucursalAlmTda() {
             let me = this;

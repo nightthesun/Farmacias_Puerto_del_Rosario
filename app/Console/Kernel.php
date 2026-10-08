@@ -35,7 +35,7 @@ class Kernel extends ConsoleKernel
                     Log::info("Ejecutando tarea programada el  las {$horaDB}");
                     // Aquí ejecutas la lógica de la tarea
                      // Convertir a array
-             $tablasincro_23=DB::table('adm__credecial_correos')->where('id', 1)->first();       
+             $tablasincro_23=DB::table('adm__config_erp')->where('id', 1)->first();       
              $tipoTabla=$tablasincro_23->stock_medio;              
              $cadena_error="";
             $fechaHoy = Carbon::now()->format('Y-m-d');
@@ -121,7 +121,7 @@ class Kernel extends ConsoleKernel
         }
             
 
-        $datos_2 = DB::table('adm__credecial_correos')->where('id', 1)->first();  
+        $datos_2 = DB::table('adm__config_erp')->where('id', 1)->first();  
           if ($datos_2==null) {
             $error_nivel_1=1;
             $errores_1=$errores_1." error en la tabla credencial correos sin datos";
@@ -2901,7 +2901,7 @@ if ($factura_siat_2==0) {
         return "No existe el cufd o la tabla.";
         }
         
-       $nit = DB::table('adm__credecial_correos')
+       $nit = DB::table('adm__config_erp')
         ->where('id',1)
         ->value('nit');
 

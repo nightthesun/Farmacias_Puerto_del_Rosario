@@ -213,14 +213,13 @@
                         <div class="alert alert-warning" role="alert">
                             Todos los campos con (*) son requeridos
                         </div>
-                        <form  enctype="multipart/form-data" class="form-horizontal">
-                        
+                    
                             <!-- insertar datos -->
                             <div class="container">
                                 
                                 <div class="form-group row"  >
-                                <strong  class="col-md-3 form-control-label" for="text-input">Producto: <span v-if="selected == null" class="error" >(*)</span></strong>
-                                <div class="col-md-7 input-group mb-3">
+                                <strong  class="col-md-2 form-control-label" for="text-input">Producto: <span v-if="selected == null" class="error" >(*)</span></strong>
+                                <div class="col-md-6 input-group mb-3">
                                     
                     <VueMultiselect
                         v-model="selected"
@@ -243,11 +242,15 @@
 
                                     <!-- <option value="0" disabled>Seleccionar...</option>
                                     <option v-if="producto.almacenprimario == 1" :key="producto.idproduc" :value="producto.idproduc" v-text="producto.cod"></option> -->
+                                </div>                           
+                             <div class="col-md-1">
+                                 <button class="btn"  :class="puedeHacerOpciones_especiales == 1 ? 'btn-primary' : 'btn-secondary'"  :disabled="puedeHacerOpciones_especiales != 1"
+                    @click="puedeHacerOpciones_especiales == 1 && irProducto_2()"><i class="fa fa-window-restore"></i></button>  
+                                
                                 </div>
-                           
-                                <span v-if="selected==null" class="error">Debe Ingresar el Nombre del producto</span>
+
                             </div>
-                           
+                            <span v-if="selected==null" class="error">Debe Ingresar el Nombre del producto</span>
                             </div>
 
                             <div class="row">
@@ -316,7 +319,7 @@
 </div>
                               
                             </div>
-                        </form>
+                
                     </div>
                 
                  
@@ -727,6 +730,25 @@ imprimirCodigoX(data, cantidad){
 //-------------------------------------------------------
 
   
+
+irProducto_2() {
+    Swal.fire({
+  title: "Desea crear nuevo producto?",
+  text: "Al realziar esta acción se cerrar la ventana y se abrira la ventana producto!",
+  icon: "warning",
+  showCancelButton: true,
+  confirmButtonColor: "#3085d6",
+  cancelButtonColor: "#d33",
+  confirmButtonText: "Cambiar, de ventana!"
+}).then((result) => {
+  if (result.isConfirmed){
+ this.cerrarModal('registrar');
+        
+            this.$emit('cambiar-ventana', 702);
+  }
+});
+        },
+
 
 generarCodigo(){
     let me=this;

@@ -274,15 +274,21 @@
                             </div>
                             <div class="tab-pane fade" id="pills-profesional" role="tabpanel" aria-labelledby="pills-profesional-tab">
                                 <div class="row">
-                                    <div class="form-group col-sm-6">
+                                    <div class="form-group col-sm-5">
                                         <label>Grado Academico:</label>
                                         <select v-model="formacion" class="form-control rounded">
                                             <option value="0" disabled>Seleccionar...</option>
                                             <option v-for="forma in arrayFormacion" :key="forma.id" :value="forma.id" v-text="forma.nombre"></option>
                                         </select>
-                                        <span class="error" v-if="formacion==0">Debe ingresar la Formacion</span>
+                                        <span class="error" v-if="formacion==0">Debe ingresar la Formacion</span>                                                                              
                                     </div>
-                                    <div class="form-group col-sm-6">
+                                <div class="col-md-1" style="margin-top: 20px;">
+                                       <button class="btn"  :class="puedeHacerOpciones_especiales == 1 ? 'btn-primary' : 'btn-secondary'"  :disabled="puedeHacerOpciones_especiales != 1"
+                    @click="puedeHacerOpciones_especiales == 1 && irFormacion()"><i class="fa fa-window-restore"></i></button>  
+                               
+                                </div>
+                                    
+                                    <div class="form-group col-sm-5">
                                         <label>Profesion:</label>
                                         <select v-model="profesion" class="form-control rounded">
                                             <option value="0" disabled>Seleccionar...</option>
@@ -290,13 +296,19 @@
                                         </select>
                                         <span class="error" v-if="profesion==0">Debe ingresar la Profesion</span>
                                     </div>
+                                    <div class="col-md-1" style="margin-top: 20px;">
+                                                   <button class="btn"  :class="puedeHacerOpciones_especiales == 1 ? 'btn-primary' : 'btn-secondary'"  :disabled="puedeHacerOpciones_especiales != 1"
+                    @click="puedeHacerOpciones_especiales == 1 && irProfecion()"><i class="fa fa-window-restore"></i></button>  
+                                
+                                </div>
+                                    
                                 </div>
                                 <div class="row">
                                     <div class="form-group col-sm-6">
                                         <label>Nit:<small class="text-muted"> Si Corresponde</small></label>
                                         <input type="text" id="nit" name="nit" class="form-control rounded" placeholder="Nit" onkeypress="return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 48 && event.charCode <= 57))" v-model="nit" v-on:focus="selectAll" >
                                     </div>
-                                    <div class="form-group col-sm-6">
+                                    <div class="form-group col-sm-5">
                                         <label>Cargo:</label>
                                         <select v-model="cargo" class="form-control rounded">
                                             <option value="0" disabled>Seleccionar...</option>
@@ -304,6 +316,11 @@
                                         </select>
                                         <span class="error" v-if="cargo==0">Debe ingresar el Cargo</span>
                                     </div>
+                                     <div class="col-md-1" style="margin-top: 20px;" >
+                                              <button class="btn"  :class="puedeHacerOpciones_especiales == 1 ? 'btn-primary' : 'btn-secondary'"  :disabled="puedeHacerOpciones_especiales != 1"
+                    @click="puedeHacerOpciones_especiales == 1 && irCargo()"><i class="fa fa-window-restore"></i></button>  
+                          
+                                </div>
                                 </div>
                                 <div class="row">
                                     <div class="form-group col-sm-6">
@@ -319,7 +336,7 @@
                             </div>
                             <div class="tab-pane fade" id="pills-bancaria" role="tabpanel" aria-labelledby="pills-bancaria-tab">
                                 <div class="row">
-                                    <div class="form-group col-sm-6">
+                                    <div class="form-group col-sm-5">
                                         <label>Banco:</label>
                                         <div class="row">
                                             <div class="form-group col-sm-10" style="padding-right: 0px;">
@@ -334,9 +351,14 @@
                                                     +
                                                 </button>        
                                             </div>
-                                        </div>
-                                        
+                                        </div>                                        
                                     </div>
+                                    <div class="col-md-1" style="margin-top: 20px;">
+                                               <button class="btn"  :class="puedeHacerOpciones_especiales == 1 ? 'btn-primary' : 'btn-secondary'"  :disabled="puedeHacerOpciones_especiales != 1"
+                    @click="puedeHacerOpciones_especiales == 1 && irBanco()"><i class="fa fa-window-restore"></i></button>  
+                                 
+                                </div>
+                                    
                                     <div class="form-group col-sm-6">
                                         <strong>Nro de Cuenta: </strong>
                                         <input type="text" id="nrcuenta" name="nrcuenta" class="form-control rounded" placeholder="Numero de Cuenta" onkeypress="return (event.charCode !=8 && event.charCode ==0 || (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 45 )" v-model="nrcuenta" v-on:focus="selectAll" >
@@ -465,6 +487,10 @@ import { error401 } from '../../errores';
     export default {
         //---permisos_R_W_S
         props: ['codventana'],
+         idmodulo: {
+            type: Number,
+            default: 0
+        },
         //-------------------
         data(){
             return{
@@ -609,6 +635,81 @@ import { error401 } from '../../errores';
         });
 },
 //--------------------------------------------------------------
+
+
+ irFormacion() {
+    Swal.fire({
+  title: "¿Desea crear nuevo nivel formación?",
+  text: "¡Al realziar esta acción se cerrar la venta y se abrira la ventana nivel formación!",
+  icon: "warning",
+  showCancelButton: true,
+  confirmButtonColor: "#3085d6",
+  cancelButtonColor: "#d33",
+  confirmButtonText: "Cambiar, de ventana!"
+}).then((result) => {
+  if (result.isConfirmed){
+ this.cerrarModal('registrar');
+        
+            this.$emit('cambiar-ventana', 201);
+  }
+});
+        },
+
+        irProfecion() {
+    Swal.fire({
+  title: "¿Desea crear nueva profeción?",
+  text: "¡Al realziar esta acción se cerrar la venta y se abrira la ventana profeción!",
+  icon: "warning",
+  showCancelButton: true,
+  confirmButtonColor: "#3085d6",
+  cancelButtonColor: "#d33",
+  confirmButtonText: "Cambiar, de ventana!"
+}).then((result) => {
+  if (result.isConfirmed){
+ this.cerrarModal('registrar');
+        
+            this.$emit('cambiar-ventana', 202);
+  }
+});
+        },        
+
+         irCargo() {
+    Swal.fire({
+  title: "¿Desea crear nuevo cargo?",
+  text: "¡Al realziar esta acción se cerrar la venta y se abrira la ventana cargo!",
+  icon: "warning",
+  showCancelButton: true,
+  confirmButtonColor: "#3085d6",
+  cancelButtonColor: "#d33",
+  confirmButtonText: "Cambiar, de ventana!"
+}).then((result) => {
+  if (result.isConfirmed){
+ this.cerrarModal('registrar');
+        
+            this.$emit('cambiar-ventana', 204);
+  }
+});
+        },
+
+        
+         irBanco() {
+    Swal.fire({
+  title: "¿Desea crear nuevo banco y nacionalidad?",
+  text: "¡Al realziar esta acción se cerrar la venta y se abrira la ventana banco conjuntamente nacionalidad!",
+  icon: "warning",
+  showCancelButton: true,
+  confirmButtonColor: "#3085d6",
+  cancelButtonColor: "#d33",
+  confirmButtonText: "Cambiar, de ventana!"
+}).then((result) => {
+  if (result.isConfirmed){
+ this.cerrarModal('registrar');
+        
+            this.$emit('cambiar-ventana', 109);
+  }
+});
+        },
+
             caracteresPermitidosTelefono(ex){
                 let me=this;
               

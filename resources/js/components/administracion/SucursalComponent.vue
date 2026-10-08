@@ -142,7 +142,7 @@
                         </button>
                         </div>
                         <div class="modal-body" style="max-height: 60vh; overflow-y: auto;">                    
-                        <form action=""  class="form-horizontal">
+                    
                             <div class="form-group row">
                                 <label class="col-md-2 form-control-label" for="text-input">Tipo <span  v-if="tipo==0" class="error">(*)</span></label>
                                 <div class="col-md-4"> 
@@ -152,13 +152,17 @@
                                         <option value="Sucursal">Sucursal</option>
                                     </select>
                                 </div>
-                                <label class="col-md-2 form-control-label" for="text-input">Rubro <span  v-if="idrubro==0" class="error">(*)</span></label>
-                                <div class="col-md-4">
+                                <label class="col-md-2 form-control-label" for="text-input">Actividad Comercial <span  v-if="idrubro==0" class="error">(*)</span></label>
+                                <div class="col-md-3">
                                     <select name="" id="" v-model="idrubro" class="form-control" :disabled="activador_2===1 && tipoAccion===2">
                                         <option value="0" disabled>Seleccionar...</option>
                                         <option v-for="rubros in arrayRubros" :key="rubros.id" :value="rubros.id" v-text="rubros.nombre" ></option>
                                     </select>
                                 </div>
+                                <div class="col-md-1">
+                                    <button class="btn"  :class="puedeHacerOpciones_especiales == 1 ? 'btn-primary' : 'btn-secondary'"  :disabled="puedeHacerOpciones_especiales != 1"
+    @click="puedeHacerOpciones_especiales == 1 && irActividad()"><i class="fa fa-window-restore"></i></button>                                    
+                                </div> 
                             </div>
                             <div class="form-group row">
                                 <label class="col-md-3 form-control-label" for="text-input">Razon Social <span  v-if="razonsocial==''" class="error">(*)</span></label>
@@ -217,7 +221,7 @@
                                     <span  v-if="ciudad==''" class="error">Debe Ingresar la Ciudad</span>
                                 </div>
                             </div>
-                        </form>
+                  
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary"  @click="cerrarModal('registrar')">Cerrar</button>
@@ -402,6 +406,13 @@ import { error401 } from '../../errores';
           //---permisos_R_W_S
           props: ['codventana'],
         //-------------------
+         idmodulo: {
+            type: Number,
+            default: 0
+        },
+
+    emits: ['cambiar-ventana'],
+
         data(){
             return{
                 pagination:{
@@ -574,8 +585,7 @@ import { error401 } from '../../errores';
             };
             cadena.push(elemento);
             }
-           
-                axios.post('/sucursal/registrarlista',{
+            axios.post('/sucursal/registrarlista',{
                     'id_sucursal':me.id_sucursal_z,
                     'id_rapido':me.opcionSeleccionada,
                     'valor_rapido':me.radioButtoRapido,
@@ -604,7 +614,30 @@ import { error401 } from '../../errores';
 
                
             });
-            },    
+            },  
+            
+     
+irActividad() {
+    Swal.fire({
+        title: "¿Desea crear nueva actividad comercial?",
+        text: "¡Al realizar esta acción se cerrará la venta y se abrirá la ventana Actividad Comercial!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Cambiar de ventana",
+        cancelButtonText: "Cancelar"
+    }).then((result) => {
+
+        if (result.isConfirmed) {
+            console.log('CONFIRMADO');
+
+             this.cerrarModal('registrar');
+             this.$emit('cambiar-ventana', 105);
+        }
+
+    });
+},
 
             listarArrayRapido(id)
             {

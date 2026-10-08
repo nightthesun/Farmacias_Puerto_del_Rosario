@@ -980,7 +980,7 @@ $soap_llamada="sin datos";
     ->orderBy('contador', 'desc')
     ->value('contador');
 
-    $credencial = DB::table('adm__credecial_correos')
+    $credencial = DB::table('adm__config_erp')
     ->select('nro_celular', 'nom_empresa', 'actividad_economica','nit','moneda')
     ->get();
     
@@ -1600,6 +1600,7 @@ $nombre_empresa = strtoupper($nombre_e);
              'pp.nombre as prod_name',
                 'tip.id as id_ingreso',
                 'ru.codigo_activdad_siat as rubro_siat',
+               'tip.codigo_imprecion as codigo_imprecion',
                 DB::raw("
                 CASE 
                     WHEN tip.envase = 'primario' THEN UPPER(CONCAT(COALESCE(pp.nombre, ''), ' ', COALESCE(pd_1.nombre, ''), ' X ', COALESCE(pp.cantidadprimario, ''), ' ', COALESCE(ff_1.nombre, '')))
@@ -1697,6 +1698,7 @@ $nombre_empresa = strtoupper($nombre_e);
               'pp.nombre as prod_name',
                 'tip.id as id_ingreso',
                 'ru.codigo_activdad_siat as rubro_siat',
+                'tip.codigo_imprecion as codigo_imprecion',
                 DB::raw("
                 CASE 
                     WHEN tip.envase = 'primario' THEN UPPER(CONCAT(COALESCE(pp.nombre, ''), ' ', COALESCE(pd_1.nombre, ''), ' X ', COALESCE(pp.cantidadprimario, ''), ' ', COALESCE(ff_1.nombre, '')))
@@ -2154,7 +2156,7 @@ $nombre_empresa = strtoupper($nombre_e);
 
     public function verificador_dosificacion_o_facturacion(Request $request){
         
-        $credencialesCorreos = DB::table('adm__credecial_correos as acc')
+        $credencialesCorreos = DB::table('adm__config_erp as acc')
     ->select('acc.id', 'acc.factura_dosificacion','acc.tipo_caja')  
     ->where('id',1)   
     ->first();
@@ -2168,7 +2170,7 @@ $nombre_empresa = strtoupper($nombre_e);
             switch ($credencialesCorreos->factura_dosificacion) {
                 case 1:
                        ///---- falta datos de factura en linea siat
-                       $query_1 =  DB::table('adm__credecial_correos as a')
+                       $query_1 =  DB::table('adm__config_erp as a')
                        ->join('adm__nacionalidads as n', 'a.moneda', '=', 'n.id')
                        ->where('a.id', 1)
                        ->first();
@@ -2328,7 +2330,7 @@ if ($hoy->greaterThan($fechaA)) {
    // ->where('id_apertura_cierre', '=',0)
    // ->orderBy('id', 'desc')
    // ->first();
-$tipo_caja= DB::table('adm__credecial_correos')
+$tipo_caja= DB::table('adm__config_erp')
 ->where('id',1)->value('tipo_caja');
 
 
@@ -2423,7 +2425,7 @@ $id_caja = $id_caja->id;
             $idsuc = session('idsuc');
         }
 
-          $tipo_caja = DB::table('adm__credecial_correos')       
+          $tipo_caja = DB::table('adm__config_erp')       
             ->where('id', 1)
             ->value('tipo_caja');
         if($tipo_caja==null||$tipo_caja==""){

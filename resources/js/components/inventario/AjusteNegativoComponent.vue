@@ -885,8 +885,8 @@ listarPerimsoxyz() {
 //-------------------------------------------------------------
 
 
-nameWithLang ({codigo_producto, leyenda, fecha_ingreso, lote, fecha_vencimiento, stock_ingreso, activo_blo}) {
-    return `Cod: ${codigo_producto} ${leyenda} FI: ${fecha_ingreso} Lote: ${lote} FV: ${fecha_vencimiento} Stock: ${activo_blo === 1 ? '???' : stock_ingreso}`;
+nameWithLang ({codigo_producto, leyenda, fecha_ingreso, lote, fecha_vencimiento, stock_ingreso, activo_blo,codigo_imprecion}) {
+    return `Cod: ${codigo_producto} ${leyenda} FI: ${fecha_ingreso} Lote: ${lote} FV: ${fecha_vencimiento} Stock: ${activo_blo === 1 ? '???' : stock_ingreso} Cód. Impresión: ${codigo_imprecion}`;
 },
 
           validarNew(newValue){
@@ -911,6 +911,7 @@ nameWithLang ({codigo_producto, leyenda, fecha_ingreso, lote, fecha_vencimiento,
                     this.id_producto = productoSeleccionado.id_producto;
                     this.id_ingreso = productoSeleccionado.id_ingreso;
                     this.leyenda = productoSeleccionado.leyenda + " FI:" +productoSeleccionado.fecha_ingreso +" Lote: " +productoSeleccionado.lote +" FV:" +productoSeleccionado.fecha_vencimiento;
+                   // this.codigo_imprecion = productoSeleccionado.codigo_imprecion_t;
                 } else {
                     alert("No se encontro in arrayProductoLineaIngreso.");                    
                 }
@@ -1013,7 +1014,7 @@ if (registro) {
                     var respuesta = response.data;
 
                     me.arrayProductoLineaIngreso = respuesta;
-           
+                    console.log("arrayProductoLineaIngreso", me.arrayProductoLineaIngreso);
 
                 })
                 .catch(function (error) {

@@ -36,7 +36,7 @@ class AdmQrSimpleController extends Controller
 
     public function updateCredencial(Request $request){
         $data=$request->data;
-        DB::table('adm__credecial_correos')
+        DB::table('adm__config_erp')
             ->where('id', 1)
             ->update(['qr_in_uso' => $data]);
         return $data;    

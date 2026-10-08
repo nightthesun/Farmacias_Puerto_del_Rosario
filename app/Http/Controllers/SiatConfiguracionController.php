@@ -70,7 +70,7 @@ class SiatConfiguracionController extends Controller
           //  return $textoDesencriptado;
       
     
-      
+         
 
             $actualizar = Siat_Configuracion::findOrFail(1);
             $actualizar->cod_sis=$request->cod_sis; 
@@ -82,12 +82,12 @@ class SiatConfiguracionController extends Controller
             $actualizar->vencimiento_token=$request->selectVenToken; 
             $actualizar->tiempo_espera=$request->maxTiempoRespuesta; 
             $actualizar->tipo_modalidad=$request->codigoModalidad; 
-            
+             
             if ($request->activarCambioFirma==1) {
                 
                 $actualizar->tipo_certificado=$request->selectCertificado;           
                 $data= (int)$request->selectCertificado;   
-
+           
                 if ($data==1) {
                    if ($request->password==""||$request->password==null) {
                             return "la contraseña no puede estar vacia";           

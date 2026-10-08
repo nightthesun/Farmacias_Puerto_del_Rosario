@@ -22,7 +22,7 @@ class InvAutoGestionStockController extends Controller
         $arrayMostrar=[];
         $id_sucursal=$request->id_sucursal;
     
-    $simbolos = DB::table('adm__credecial_correos as a')
+    $simbolos = DB::table('adm__config_erp as a')
     ->join('adm__nacionalidads as b', 'a.moneda', '=', 'b.id')
     ->select('b.simbolo')
     ->first();
@@ -536,7 +536,7 @@ $resultado = DB::table(DB::raw("({$combinado->toSql()}) as sub"))
             }else {
                 $where = "(s.id_sucursal='$id_sucursal' and s.id_producto = '$id_producto')";       
             }
-        $stockMedio = DB::table('adm__credecial_correos as a')
+        $stockMedio = DB::table('adm__config_erp as a')
     ->select('a.stock_medio')->first(); 
     
         if ($stockMedio->stock_medio==0||$stockMedio->stock_medio==1) {

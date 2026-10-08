@@ -118,7 +118,7 @@
                                                     
                             </div> 
                             <div class="row">
-                                <div class="form-group col-sm-4">
+                                <div class="form-group col-sm-6">
                                     <strong>Tipo de certificado: <span  v-if="selectCertificado===0" class="error">(*)</span></strong>
                                     <select  class="form-control"  v-model="selectCertificado">
                                             <option value=0 disabled selected>Seleccionar...</option>
@@ -126,10 +126,13 @@
                                             <option value=2>File_PEM_Value</option>
                                             <option value=3>File_P12</option>
                                     </select>
-                                    <button v-if="activarCambioFirma===0" type="button" @click="activarBoton()" class="btn btn-secondary btn-sm btn-block">Activar cambio de firma</button>
-                                    <button v-else type="button" @click="desactivarBoton()" style="color: white;" class="btn btn-success btn-sm btn-block">Desactivar cambio de firma</button>
-                                    <span  v-if="selectCertificado===0" class="error">Debe Ingresar codigo</span>     
-                                </div>                      
+                                </div>
+
+                                <div class="form-group col-sm-6" v-show="selectCertificado!=0">
+                                    <button v-if="activarCambioFirma===0" type="button" @click="activarBoton()"  style="margin-top: 20px; color: white;" class="btn btn-primary btn-brillante-blue">Activar cambio de firma</button>
+                                    <button v-else type="button" @click="desactivarBoton()" style="color: white; margin-top: 20px;"  class="btn btn-warning">Desactivar cambio de firma</button>
+                                    <span  v-if="selectCertificado===0" class="error">Debe Ingresar codigo</span>  
+                                </div>
                             
                                         
                             </div>  
@@ -2002,5 +2005,33 @@ validateFileExcel() {
 .error {
     color: red;
     font-size: 10px;
+}
+.btn-brillante-blue {
+    animation: brillo_b 1.5s infinite;
+}
+
+@keyframes brillo_b {
+    0%, 100% {
+        box-shadow: 0 0 5px #007bff;
+    }
+
+    50% {
+        box-shadow: 0 0 15px #007bff,
+                    0 0 30px #007bff;
+    }
+}
+.btn-brillante-yellow {
+    animation: brillo_y 1.5s infinite;
+}
+
+@keyframes brillo_y {
+    0%, 100% {
+        box-shadow: 0 0 5px #b6aa0b;
+    }
+
+    50% {
+        box-shadow: 0 0 15px #b6aa0b,
+                    0 0 30px #b6aa0b;
+    }
 }
 </style>

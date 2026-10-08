@@ -374,7 +374,7 @@ return response()->json([
     ) ->get();
      
                 $idVenta = $request->id_venta;
-                $datos_empresa = DB::table('adm__credecial_correos')
+                $datos_empresa = DB::table('adm__config_erp')
             ->select('nit', 'nom_empresa','actividad_economica','nro_celular')
             ->get();           
         
@@ -911,7 +911,7 @@ return response()->json([
 
   $total_literal = converso_numero_a_texto::convertirNumeroATexto($venta->total_venta);
 
-    $data_emp =  DB::table('adm__credecial_correos')
+    $data_emp =  DB::table('adm__config_erp')
         ->select('nro_celular','nit','nom_empresa')    
         ->where('id', 1)
         ->first();

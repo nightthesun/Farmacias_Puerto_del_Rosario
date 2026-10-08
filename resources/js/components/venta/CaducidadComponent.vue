@@ -190,6 +190,8 @@ export default {
             sucursalSeleccionada:0,
             arraySucursal:[],
             id_seleccionada_sucursal:'',
+
+            tipoCodigo:'',
             
              //---permisos_R_W_S
              puedeEditar:2,
@@ -211,7 +213,7 @@ export default {
 
         if (sucursal) {
           this.id_seleccionada_sucursal = sucursal.id_sucursal;
-        
+          this.tipoCodigo = sucursal.tipoCodigo; // Asignar el tipo de código correspondiente  
         }
 
       }
@@ -291,7 +293,7 @@ listarPerimsoxyz() {
 
         listarIndex(page){
         let me=this;       
-        var url = "/caducida/index?page="+page+"&buscar=" +me.buscar+"&id_sucursal="+me.id_seleccionada_sucursal+"&codigo_tienda_almacen="+me.sucursalSeleccionada;
+        var url = "/caducida/index?page="+page+"&buscar=" +me.buscar+"&id_sucursal="+me.id_seleccionada_sucursal+"&codigo_tienda_almacen="+me.sucursalSeleccionada+"&tipoCodigo="+me.tipoCodigo ;
         axios
                 .get(url)
                 .then(function (response) {
@@ -313,7 +315,8 @@ listarPerimsoxyz() {
                 .get(url)
                 .then(function (response) {
                     var respuesta = response.data;
-                    me.arraySucursal = respuesta;         
+                    me.arraySucursal = respuesta; 
+                    console.log("arraySucursal",me.arraySucursal);        
                 })
                 .catch(function (error) {
                     error401(error);

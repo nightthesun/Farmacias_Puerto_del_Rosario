@@ -46,6 +46,8 @@ class InvAjusteNegativoController extends Controller
                                 or aan.descripcion like '%" . $valor . "%'
                                 or ass.razon_social like '%" . $valor . "%'
                                 or aan.cod like '%" . $valor . "%' 
+                                 or ti.codigo_imprecion like '%" . $valor . "%' 
+                                  or ai.codigo_imprecion like '%" . $valor . "%' 
                                )";
                     } else {
                         $sqls .= "and (aan.codigo like '%" . $valor . "%' 
@@ -55,12 +57,16 @@ class InvAjusteNegativoController extends Controller
                         or aan.descripcion like '%" . $valor . "%'
                         or ass.razon_social like '%" . $valor . "%'
                         or aan.cod like '%" . $valor . "%' 
+                         or ti.codigo_imprecion like '%" . $valor . "%' 
+                                  or ai.codigo_imprecion like '%" . $valor . "%' 
                        )";
                     }
                 }
                 $query_ajuste_negativos = DB::table('inv__ajuste_negativos as aan')
                     ->join('prod__tipo_entradas as pte', 'aan.id_tipo', '=', 'pte.id')
                     ->join('adm__sucursals as ass', 'aan.id_sucursal', '=', 'ass.id')
+                    ->leftJoin('tda__ingreso_productos as ti', 'aan.id_ingreso', '=', 'ti.id')
+                    ->leftJoin('alm__ingreso_producto as ai', 'aan.id_ingreso', '=', 'ai.id')
                     ->select(
                         'aan.id as id',
                         'aan.id_producto_linea as id_producto_linea',
@@ -81,7 +87,9 @@ class InvAjusteNegativoController extends Controller
                         'aan.cod as cod',
                         'aan.id_ingreso as id_ingreso',
                         'aan.leyenda as leyenda',
-                        'aan.id_traspaso as numero_traspaso'
+                        'aan.id_traspaso as numero_traspaso',
+                        'ti.codigo_imprecion as codigo_imprecion_t',
+                        'ai.codigo_imprecion as codigo_imprecion_a'
                     )
                     //->where('aan.cod', '=', $bus)
                     //->whereDate('aan.created_at', '>=', now()->subDays(30))
@@ -109,6 +117,8 @@ class InvAjusteNegativoController extends Controller
             $query_ajuste_negativos = DB::table('inv__ajuste_negativos as aan')
                 ->join('prod__tipo_entradas as pte', 'aan.id_tipo', '=', 'pte.id')
                 ->join('adm__sucursals as ass', 'aan.id_sucursal', '=', 'ass.id')
+              ->leftJoin('tda__ingreso_productos as ti', 'aan.id_ingreso', '=', 'ti.id')
+                    ->leftJoin('alm__ingreso_producto as ai', 'aan.id_ingreso', '=', 'ai.id')
                 ->select(
                     'aan.id as id',
                     'aan.id_producto_linea as id_producto_linea',
@@ -129,7 +139,9 @@ class InvAjusteNegativoController extends Controller
                     'aan.cod as cod',
                     'aan.id_ingreso as id_ingreso',
                     'aan.leyenda as leyenda',
-                    'aan.id_traspaso as numero_traspaso'
+                    'aan.id_traspaso as numero_traspaso',
+                    'ti.codigo_imprecion as codigo_imprecion_t',
+                        'ai.codigo_imprecion as codigo_imprecion_a'
                 )
                 ->whereRaw($where)
                 ->whereBetween(DB::raw('DATE(aan.created_at)'), [$ini, $fini]) 
@@ -299,6 +311,7 @@ class InvAjusteNegativoController extends Controller
  
             ->select(
                 'pp.codigointernacional as codigointernacional',
+                     'ai.codigo_imprecion as codigo_imprecion',
                 'ai.envase as envase',
                 'aa.codigo as cod',
                 'ai.id as id_ingreso',
@@ -326,6 +339,7 @@ class InvAjusteNegativoController extends Controller
                 'ass.razon_social as razon_social',
                 DB::raw('null as id_tienda'),
                 'ai.idalmacen as id_almacen',
+           
                 DB::raw("
             CASE
                 WHEN ai.envase = 'primario' THEN CONCAT( COALESCE(pp.nombre, ''), ' ', COALESCE(pd_1.nombre, ''), ' x ', COALESCE(pp.cantidadprimario, ''), ' ', COALESCE(ff_1.nombre, ''))
@@ -363,9 +377,10 @@ class InvAjusteNegativoController extends Controller
                 $query->where('tt.codigo', '=',$cod)
                       // ->where('pp.idrubro','=',1)
                       ->where('pp.activo','=',1);
-                })  
+                })   
             ->select(
                 'pp.codigointernacional as codigointernacional',
+                   'ti.codigo_imprecion as codigo_imprecion',
                 'ti.envase as envase',
                 'tt.codigo as cod',
                 'ti.id as id_ingreso',
@@ -392,6 +407,7 @@ class InvAjusteNegativoController extends Controller
                 'ass.id AS id_sucursal',
                 'ass.razon_social as razon_social',
                 'ti.idtienda as id_tienda',
+             
                 DB::raw('null as id_almacen'),
                 DB::raw("
             CASE

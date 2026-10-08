@@ -7,6 +7,9 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Config;
 
 class AdmUserController extends Controller
 {
@@ -199,16 +202,67 @@ if ($cumple==0) {
        
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\User  $adm_Rubro
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(User $adm_Rubro)
-    {
-        //
+    public function verificar_correo_x2(Request $request){
+        try {
+    $email=$request->email;
+      $correo = DB::table('adm__credencial_erp')
+            ->where('id', 1)
+            ->first();
+
+        if (!$correo) {
+              return ([
+        'estado' => 1,
+        'mensaje' => 'No existe información o datos en tabla credencial.',
+        'correo' => $email,
+        'error' => 1
+    ]);
+            return "Incorrecto";
+        }
+
+        $cadena_pass = $correo->mail_password;
+        $textoEncriptado = substr($cadena_pass, 2, -3);
+        $password = Crypt::decrypt($textoEncriptado);
+
+        // Cargar configuración desde la BD
+        Config::set('mail.default', $correo->mail_mailer);
+
+        Config::set('mail.mailers.smtp.host', $correo->mail_host);
+        Config::set('mail.mailers.smtp.port', $correo->mail_port);
+        Config::set('mail.mailers.smtp.username', $correo->mail_username);
+        Config::set('mail.mailers.smtp.password', $password);        
+        Config::set('mail.mailers.smtp.encryption', $correo->mail_encryp);   
+        Config::set('mail.from.address', $correo->mail_from_add);         
+        Config::set('mail.from.name', $correo->mail_from_na);  
+  
+        // Enviar correo al mismo correo configurado
+        Mail::raw(
+            'Creación correctamente desde el sistema.',
+            function ($message) use ($email) {
+                $message->to($email)
+                    ->subject('Correo');
+            }
+        );
+
+  return response()->json([
+        'estado' => 1,
+        'mensaje' => 'El servidor SMTP aceptó el correo.',
+        'correo' => $email,
+        'error' => 0
+    ]);    
+
+} catch (\Throwable $e) {
+    return ([
+        'estado' => 0,
+        'mensaje' => 'No se pudo enviar el correo.',
+        'correo' => $email,
+        'error' => $e->getMessage()
+    ]);
+}       
+   
     }
+
+
+
     public function desactivar(Request $request)
     {
         $user = User::findOrFail($request->id);

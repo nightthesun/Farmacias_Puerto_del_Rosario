@@ -285,7 +285,7 @@ $resultados = $consulta1
         $arrayMostrar=[];
 $id_sucursal=$request->id_sucursal;
    
-    $simbolos = DB::table('adm__credecial_correos as a')
+    $simbolos = DB::table('adm__config_erp as a')
     ->join('adm__nacionalidads as b', 'a.moneda', '=', 'b.id')
     ->select('b.simbolo')
     ->first();
@@ -432,6 +432,7 @@ $elementos = array_filter(explode(',', $id_linea_array));
 
         $arrayMostrar=[];
         $arrayLinea=[];
+   
         $id_sucursal=$request->id_sucursal;
         $getStock=$this->get_totalventa($id_sucursal);        
         if (count($getStock)>0) {
@@ -806,7 +807,7 @@ $resultado = DB::table(DB::raw("({$combinado->toSql()}) as sub"))
 
     private function promediostock($id_producto,$envase,$id_sucursal){
 
-        $stockMedio = DB::table('adm__credecial_correos as a')
+        $stockMedio = DB::table('adm__config_erp as a')
     ->select('a.stock_medio')->first(); 
     
         if ($stockMedio->stock_medio==0||$stockMedio->stock_medio==1) {
@@ -1297,7 +1298,7 @@ $resultado = DB::table(DB::raw("({$combinado->toSql()}) as sub"))
 
     public function fechascero($id_producto,$id_sucursal,$envase) {
 
-          $stockMedio = DB::table('adm__credecial_correos as a')
+          $stockMedio = DB::table('adm__config_erp as a')
     ->select('a.stock_medio')->first(); 
    
         if ($stockMedio->stock_medio==0||$stockMedio->stock_medio==1) {
@@ -1338,7 +1339,7 @@ $resultado = DB::table(DB::raw("({$combinado->toSql()}) as sub"))
 
    public function diascero($id_producto, $id_sucursal, $fecha_inicial, $envase)
 {
-      $stockMedio = DB::table('adm__credecial_correos as a')
+      $stockMedio = DB::table('adm__config_erp as a')
     ->select('a.stock_medio')->first(); 
     
         if ($stockMedio->stock_medio==0||$stockMedio->stock_medio==1) {
@@ -1653,7 +1654,7 @@ public function get_modal_saldo_cero(Request $request){
     }
 
     public function alias(){
-        $data = DB::table('adm__credecial_correos as s')
+        $data = DB::table('adm__config_erp as s')
     ->select('s.id', 's.nom_empresa', 's.alias','s.uso_alias')
     ->where('s.id', 1)    
     ->first();
@@ -1680,7 +1681,7 @@ public function get_modal_saldo_cero(Request $request){
                 return 0;
             }
         }
-      DB::table('adm__credecial_correos')
+      DB::table('adm__config_erp')
     ->where('id', $id)
     ->update($datos_1);
             $fechaActual = Carbon::now(); // Obtiene la fecha y hora actual
@@ -1702,7 +1703,7 @@ public function get_modal_saldo_cero(Request $request){
     }
 
     public function listarStockMedio(Request $request){
-        $stockMedio = DB::table('adm__credecial_correos as a')
+        $stockMedio = DB::table('adm__config_erp as a')
     ->select('a.stock_medio')->first(); 
         return $stockMedio;
     }

@@ -142,7 +142,7 @@ class SiatJsonXmlController extends Controller
         $codigoEmision_x2=$json_xmls->codigoEmision;
         $punto_venta_x2=$json_xmls->punto_venta;
 
-        $a=DB::table('adm__credecial_correos')
+        $a=DB::table('adm__config_erp')
         ->select('*')->where('id',1)->first();
         
         if (!$a) {

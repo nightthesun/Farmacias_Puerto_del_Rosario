@@ -425,7 +425,7 @@ foreach ($request->input as $key => $value) {
         $entrada_salida_22=1;
         $id_apertura_cierre=$id_apertura;
         $id_sucursal=$id_sucursal;
-        $moneda = DB::table('adm__credecial_correos')->value('moneda');
+        $moneda = DB::table('adm__config_erp')->value('moneda');
            
         $monedas = DB::table('caja__monedas as cm')
             ->select('cm.id','cm.tipo_corte','cm.valor','cm.unidad','cm.unidad_entera','cm.unidad','an.simbolo')
@@ -583,7 +583,7 @@ if ($filas_2 <=0) {
         $entrada_salida_22=1;
         $id_apertura_cierre=$request->id_apertura;
         $id_sucursal=$request->id_sucursal;
-        $moneda = DB::table('adm__credecial_correos')->value('moneda');
+        $moneda = DB::table('adm__config_erp')->value('moneda');
            
         $monedas = DB::table('caja__monedas as cm')
             ->select('cm.id','cm.tipo_corte','cm.valor','cm.unidad','cm.unidad_entera','cm.unidad','an.simbolo')
@@ -742,7 +742,7 @@ $sucu = DB::table('adm__sucursals as ass')
 
     public function verificador_moneda_sistemas(Request $request){
         
-        $moneda = DB::table('adm__credecial_correos')
+        $moneda = DB::table('adm__config_erp')
         ->where('id', 1)
         ->value('moneda');
 
@@ -902,7 +902,7 @@ $data_1 = $moneda;
 
     public function getCaja_x_usuario(Request $request){ 
         try {
-            $tipo_caja = DB::table('adm__credecial_correos')       
+            $tipo_caja = DB::table('adm__config_erp')       
             ->where('id', 1)
             ->value('tipo_caja');
 
@@ -939,7 +939,7 @@ $data_1 = $moneda;
     }
 
     public function getModalApertura(Request $request){
-        $resultado = DB::table('adm__credecial_correos')
+        $resultado = DB::table('adm__config_erp')
     ->select('id', 'modal_apertura','efecto_sobrante')
     ->first();      
        $usuario = auth()->user()->super_usuario;
@@ -953,7 +953,7 @@ $data_1 = $moneda;
 
     public function getImpTrans(Request $request){
        
-        $data = DB::table('adm__credecial_correos as cc')
+        $data = DB::table('adm__config_erp as cc')
         ->join('adm__nacionalidads as n', 'cc.moneda', '=', 'n.id')
         ->select('cc.nom_empresa', 'cc.imprimir_trans', 'n.simbolo')
         ->where('cc.id', 1)
@@ -1194,7 +1194,7 @@ $resultado = DB::table(DB::raw("({$combinado->toSql()}) as sub"))
 
 
     public function get_configuracion_caja(Request $request){
-    $query_1 = DB::table('adm__credecial_correos')->where('id',1)->value('tipo_caja');
+    $query_1 = DB::table('adm__config_erp')->where('id',1)->value('tipo_caja');
     if($query_1==null){
         return 0;
     }else{
@@ -1206,7 +1206,7 @@ $resultado = DB::table(DB::raw("({$combinado->toSql()}) as sub"))
 
 
     try {
-       $query_1 = DB::table('adm__credecial_correos')->select('moneda')->where('id',1)->first();
+       $query_1 = DB::table('adm__config_erp')->select('moneda')->where('id',1)->first();
        if($query_1==null){
         return response()->json([  
             'error'=> 1,

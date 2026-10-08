@@ -644,7 +644,8 @@ listarPerimsoxyz() {
                 .get(url)
                 .then(function (response) {
                     var respuesta = response.data;
-                    me.arrayProducto = respuesta;                 
+                    me.arrayProducto = respuesta;  
+                    console.log(me.arrayProducto);               
                 })
                 .catch(function (error) {
                     error401(error);

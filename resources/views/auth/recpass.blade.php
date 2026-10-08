@@ -45,7 +45,11 @@
                     <h4 style="color: crimson">Ha excedido el número de intentos permitidos <br> <small>Intentelo despues de 24 horas</small></h4>
                   @endif
                 @endif
-
+              @if(isset($error_x3))
+                  @if($error_x3=='error_x3')
+                    <h4 style="color: crimson">No existe la configuración de correo. <br> <small>Debe configurar en el panel de administración.</small></h4>
+                  @endif
+                @endif
                 
                     
                 <div class="form-group">

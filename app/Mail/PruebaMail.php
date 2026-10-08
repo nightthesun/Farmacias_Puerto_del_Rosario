@@ -20,6 +20,7 @@ class PruebaMail extends Mailable
      */
     public function __construct($detalles)
     {
+          
         $this->detalles=$detalles;
     }
 
@@ -30,8 +31,8 @@ class PruebaMail extends Mailable
      */
     public function build()
     {
-        return $this->subject('Recuperacion de contraseña')->view('emails.PruebaEmail');
+      //  return $this->subject('Recuperacion de contraseña')->view('emails.PruebaEmail');
         //return $this->view('view.name');
-
+         return $this->subject($this->detalles['title'])->view('emails.PruebaEmail');
     }
 }

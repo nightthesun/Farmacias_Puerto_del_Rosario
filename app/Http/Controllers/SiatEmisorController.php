@@ -290,7 +290,7 @@ class SiatEmisorController extends Controller
 
     public function listar_caja(Request $request){
 
-         $tipo_caja = DB::table('adm__credecial_correos as acc')
+         $tipo_caja = DB::table('adm__config_erp as acc')
     ->where('id',1)   
     ->value('acc.tipo_caja');                
 

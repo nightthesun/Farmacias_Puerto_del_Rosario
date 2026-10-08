@@ -171,19 +171,63 @@
                                 <div class="alert alert-warning" role="alert">
                             Esta parte solo es necesaria para homologar productos para siat de impuestos nacionales
                         </div>
-                                <div class="card-body" v-if="arrayActEco.length>0">
+
+                            <div class="alert alert-primary" role="alert" v-if="actividadNomal==1">
+                                <span>ACTIVIDAD ECONOMICA NORMAL POR DEFECTO ACTIVADA</span>
+                        </div>
+                        <div class="alert alert-primary" role="alert" v-else-if="actividadNomal==0">
+                                <span>ACTIVIDAD ECONOMICA ACTIVADA PARA CONFIGURACION DEL SIAT</span>
+                        </div>
+                          <div class="alert alert-danger" role="alert" v-else>
+                                <span>ERROR</span>
+                        </div>
+<div class="row justify-content-center align-items-center">
+
+    <div class="col-6 text-center">
+
+        <button
+            type="button"
+            class="btn btn-primary"
+            v-if="actividadNomal == 1"
+            @click="actualziarEstadoActi_data(0)"
+        >
+            Activar modo para facturar y desactivar modo por defecto
+        </button>
+
+        <button
+            type="button"
+            class="btn btn-warning"
+            style="color: white;"
+            v-else
+            @click="actualziarEstadoActi_data(1)"
+        >
+            Activar modo por defecto
+        </button>
+
+    </div>
+
+</div>
+
+                 
+                        
+                       
+                                <div class="card-body" v-if="arrayActEco.length>0 && actividadNomal==0">
                                     <div class="form-group row">
                                 <label class="col-md-3 form-control-label" for="text-input">Asociar Actividad ecomica:</label>
-                                <div class="col-md-9">
+                                <div class="col-md-8">
                                     <select name="" id="" v-model="selectActEco" class="form-control">
                                         <option value="0" disabled>Seleccionar...</option>
                                         <option v-for="a in arrayActEco" :key="a.codigo" :value="a.codigo" v-text="a.descripcion"></option>
                                     </select>                                 
                                 </div>
+                                <div class="col-md-1">
+                                    <button type="button" class="btn btn-primary" @click="pregunta()"> <i class="fa fa-question" aria-hidden="true"></i></button>
+                                   
+                                </div>
                             </div>
                                 </div>
                                 <div v-else class="alert alert-danger" role="alert">
-                                    No existe datos para esta seleccion, debe configurar en modulo de siat en conceptos 
+                                    No existe datos para esta seleccion, debe configurar en modulo de siat en conceptos solo para configuración del siat.
                                 </div>
                             </div>
                         </form>
@@ -252,6 +296,8 @@ import {error401} from '../../errores.js';
 
                 arrayActEco:[],
                 selectActEco:'0',
+
+                actividadNomal:0,
             }
 
         },
@@ -324,6 +370,49 @@ import {error401} from '../../errores.js';
         });
 },
 //--------------------------------------------------------------  
+
+pregunta(){
+Swal.fire({
+  title: "¿Desea configurar las actividades economicas?",
+  text: "Primero debe ir del menu SIAT desplegar los sub menus y hacer click en CONFIGURACION DE SIAT, buscar la pestaña de CONCEPTOS, debe seleccionar el codigo 15 de CODIGO DE ACTIVIDADES y descargar una vez que termine la descarga modificar segun lo necesario",
+  icon: "question"
+});
+},
+
+    actualziarEstadoActi_data(dato){
+          let me = this;
+       
+                axios.put('/Actividad_economica/actualziarEstadoActi_data',{
+                    'entrada':dato,                  
+                }).then(function(response){
+                    let respuesta =response.data;                    
+                    me.listarUseActividadNormal();
+                }).catch(function(error){
+                    error401(error);
+                 
+                });
+    },
+
+     listarUseActividadNormal(){              
+                let me=this;
+                var url='/Actividad_economica/listarUseActividadNormal';
+                axios.get(url).then(function(response){
+                    const respuesta=response.data; 
+                    console.log(respuesta);
+                    if (respuesta===10) {
+                         Swal.fire('Error de credencial...');
+                        
+                    }
+                    me.actividadNomal=respuesta;         
+              
+                   
+                })
+                .catch(function(error){
+                    error401(error);                    
+                });
+            },
+
+
 
             listarTipoActividad(){              
                 let me=this;
@@ -618,6 +707,7 @@ import {error401} from '../../errores.js';
             this.listarRubros(1);
             this.listarTipoActividad();
             this.classModal = new _pl.Modals();
+            this.listarUseActividadNormal();
             this.classModal.addModal('registrar');
         }
     }

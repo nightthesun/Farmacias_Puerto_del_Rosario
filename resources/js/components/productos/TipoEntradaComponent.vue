@@ -34,8 +34,8 @@
                             <tr v-for="tipoentrada in arrayTipoEntrada" :key="tipoentrada.id">
                                 <td class="col-md-1">
                                     <div  class="d-flex justify-content-start">
-                                        <div  v-if="puedeEditar==1">
-                                            <button type="button" class="btn btn-warning btn-sm" @click="abrirModal('actualizar',tipoentrada)" style="margin-right: 5px;" :disabled="tipoentrada.id===12||tipoentrada.id===13||tipoentrada.id===16">
+                                        <div  v-if="puedeEditar==1 && tipoentrada.id!=12 && tipoentrada.id!=13 && tipoentrada.id!=16">
+                                            <button type="button" class="btn btn-warning btn-sm" @click="abrirModal('actualizar',tipoentrada)" style="margin-right: 5px;" >
                                             <i class="icon-pencil"></i>
                                             </button> 
                                          </div>
@@ -44,8 +44,8 @@
                                             <i class="icon-pencil"></i>
                                             </button> 
                                          </div>
-                                         <div v-if="puedeActivar==1">
-                                            <button v-if="tipoentrada.activo==1" type="button" class="btn btn-danger btn-sm" @click="eliminarTipoEntrada(tipoentrada.id)" style="margin-right: 5px;" :disabled="tipoentrada.id===12||tipoentrada.id===13||tipoentrada.id===16">
+                                         <div v-if="puedeActivar==1 && tipoentrada.id!=12 && tipoentrada.id!=13 && tipoentrada.id!=16">
+                                            <button v-if="tipoentrada.activo==1" type="button" class="btn btn-danger btn-sm" @click="eliminarTipoEntrada(tipoentrada.id)" style="margin-right: 5px;">
                                         <i class="icon-trash"></i>
                                     </button>
                                     <button v-else type="button" class="btn btn-info btn-sm" @click="activarTipoEntrada(tipoentrada.id)" style="margin-right: 5px;">
@@ -53,7 +53,7 @@
                                     </button>
                                         </div>
                                         <div v-else>
-                                            <button v-if="tipoentrada.activo==1" type="button" class="btn btn-light btn-sm" style="margin-right: 5px;">
+                                            <button v-if="tipoentrada.activo==1 && (tipoentrada.id===12||tipoentrada.id===13||tipoentrada.id===16)" type="button" class="btn btn-light btn-sm" style="margin-right: 5px;">
                                         <i class="icon-trash"></i>
                                     </button>
                                     <button v-else type="button" class="btn btn-light btn-sm"  style="margin-right: 5px;">

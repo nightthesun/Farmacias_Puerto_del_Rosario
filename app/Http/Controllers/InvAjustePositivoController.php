@@ -48,6 +48,8 @@ class InvAjustePositivoController extends Controller
                                 or aan.descripcion like '%" . $valor . "%'
                                 or ass.razon_social like '%" . $valor . "%'
                                 or aan.cod like '%" . $valor . "%' 
+                                   or ti.codigo_imprecion like '%" . $valor . "%' 
+                                  or ai.codigo_imprecion like '%" . $valor . "%'
                                )";
                     } else {
                         $sqls .= "and (aan.codigo like '%" . $valor . "%' 
@@ -57,12 +59,16 @@ class InvAjustePositivoController extends Controller
                         or aan.descripcion like '%" . $valor . "%'
                         or ass.razon_social like '%" . $valor . "%'
                         or aan.cod like '%" . $valor . "%' 
+                           or ti.codigo_imprecion like '%" . $valor . "%' 
+                                  or ai.codigo_imprecion like '%" . $valor . "%'
                        )";
                     }
                 }
                 $query_ajuste_negativos = DB::table('inv__ajuste_positivos as aan')
                     ->join('prod__tipo_entradas as pte', 'aan.id_tipo', '=', 'pte.id')
                     ->join('adm__sucursals as ass', 'aan.id_sucursal', '=', 'ass.id')
+                         ->leftJoin('tda__ingreso_productos as ti', 'aan.id_ingreso', '=', 'ti.id')
+                    ->leftJoin('alm__ingreso_producto as ai', 'aan.id_ingreso', '=', 'ai.id')
                     ->select(
                         'aan.id as id',
                         'aan.id_producto_linea as id_producto_linea',
@@ -87,7 +93,9 @@ class InvAjustePositivoController extends Controller
                         'aan.activo as activo',
                         'aan.cod as cod',
                         'aan.id_ingreso as id_ingreso',
-                        'aan.leyenda as leyenda'
+                        'aan.leyenda as leyenda',
+                           'ti.codigo_imprecion as codigo_imprecion_t',
+                        'ai.codigo_imprecion as codigo_imprecion_a'
                     )
                     ->whereRaw($where)
                     //->where('aan.cod', '=', $bus)
@@ -115,6 +123,8 @@ class InvAjustePositivoController extends Controller
             $query_ajuste_negativos = DB::table('inv__ajuste_positivos as aan')
                 ->join('prod__tipo_entradas as pte', 'aan.id_tipo', '=', 'pte.id')
                 ->join('adm__sucursals as ass', 'aan.id_sucursal', '=', 'ass.id')
+                     ->leftJoin('tda__ingreso_productos as ti', 'aan.id_ingreso', '=', 'ti.id')
+                    ->leftJoin('alm__ingreso_producto as ai', 'aan.id_ingreso', '=', 'ai.id')
                 ->select(
                     'aan.id as id',
                     'aan.id_producto_linea as id_producto_linea',
@@ -140,7 +150,9 @@ class InvAjustePositivoController extends Controller
                     'aan.activo as activo',
                     'aan.cod as cod',
                     'aan.id_ingreso as id_ingreso',
-                    'aan.leyenda as leyenda'
+                    'aan.leyenda as leyenda',
+                       'ti.codigo_imprecion as codigo_imprecion_t',
+                        'ai.codigo_imprecion as codigo_imprecion_a'
                 )
                 //->where('aan.cod', '=', $bus)
                 //->whereDate('aan.created_at', '>=', now()->subDays(30))
@@ -374,6 +386,7 @@ class InvAjustePositivoController extends Controller
         })
       ->select(
         'pp.codigointernacional as codigointernacional',
+        'ai.codigo_imprecion as codigo_imprecion',
         'ai.envase as envase',        
         'aa.codigo as cod',
         'ai.id as id_ingreso',
@@ -441,6 +454,7 @@ class InvAjustePositivoController extends Controller
     })   
       ->select(
         'pp.codigointernacional as codigointernacional',
+        'ti.codigo_imprecion as codigo_imprecion',
         'ti.envase as envase',   
         'tt.codigo as cod',
         'ti.id as id_ingreso',

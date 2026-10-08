@@ -176,6 +176,7 @@
                             </button>
             </div>
               <div>
+                
                         <button  type="button" class="btn btn-success" style="margin-right: 5px; color: white;"  v-if="i.enproceso==3" @click="reiniciarLote(i)">
                            <i class="fa fa-window-restore" aria-hidden="true"></i>
                             </button>
@@ -1171,9 +1172,9 @@ listar_entradasXe() {
 procesarCodigo(){
 
     let me = this;
- 
+    console.log("Codigo ingresado:", me.inputBuscarCodigo);
+    console.log("Array de productos:", me.arrayProductoLineaIngreso);
     const index1 = me.arrayProductoLineaIngreso.findIndex(
-
         p => p.codigo_imprecion === me.inputBuscarCodigo
     );
    

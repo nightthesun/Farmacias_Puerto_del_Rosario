@@ -300,7 +300,7 @@ return $result;
 
     public function listarMoneda_2(Request $request){
         
-        $moneda = DB::table('adm__credecial_correos')
+        $moneda = DB::table('adm__config_erp')
         ->where('id', 1)
         ->value('moneda');
     // Asigna directamente el valor de $moneda a $data_1
@@ -411,7 +411,7 @@ return $result;
     }
 
     public function getCredencialesData(){
-        $query_1 = DB::table('adm__credecial_correos')
+        $query_1 = DB::table('adm__config_erp')
         ->where('id', 1)
         ->get();
         $query_2 = DB::table('siat__configuracions')
@@ -450,7 +450,7 @@ return $result;
     }
 
     public function getConfiguracion_v2(){
-        $data = DB::table('adm__credecial_correos as cc')
+        $data = DB::table('adm__config_erp as cc')
     ->join('adm__nacionalidads as n', 'cc.moneda', '=', 'n.id')
     ->select('cc.*', 'n.simbolo') // o cualquier campo específico de `n` que necesites
     ->where('cc.id', 1)
@@ -676,7 +676,7 @@ if ($resultado) {
         }
 
         public function get_tipo_caja_x2(){
-               $tipo_caja = DB::table('adm__credecial_correos')       
+               $tipo_caja = DB::table('adm__config_erp')       
             ->where('id', 1)
             ->value('tipo_caja');
         return $tipo_caja;

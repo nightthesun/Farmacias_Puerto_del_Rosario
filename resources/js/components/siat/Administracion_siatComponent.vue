@@ -878,7 +878,7 @@ if (data===1) {
 
             listarCredencial() {
             let me = this;
-            var url = "/credenciales_correo";
+            var url = "/config_erp_v2";
             axios.get(url)
                 .then(function (response) {
                     var respuesta = response.data;

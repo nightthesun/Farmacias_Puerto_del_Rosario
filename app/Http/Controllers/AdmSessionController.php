@@ -13,6 +13,8 @@ use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Config;
 
 use function PHPUnit\Framework\returnSelf;
 
@@ -56,7 +58,7 @@ class AdmSessionController extends Controller
                     ->select('rrh__personals.activo')                
                     ->where('email',request()->email)
                     ->get()->toarray();
-        //dd($res);
+   
         if(count($res)==0){
             return back()->withErrors([
                 'message'=>'No existe Usuario'
@@ -72,6 +74,7 @@ class AdmSessionController extends Controller
             }
             else
             {
+                   
                 if(auth()->attempt(request(['email','password']))==false ) 
                 {
                     return back()->withErrors([
@@ -89,10 +92,11 @@ class AdmSessionController extends Controller
     {
    
         $usuario= User::where('email',$request->email)->first(); // saca false si no existe el correo       
-        
+       
         if($usuario!=null)
         {
             $email=$usuario->email;
+             
             $query_2=DB::table('password_resets')->where('email',$email)->first();            
             $token=mt_rand(10000,99999);
           $fecha = date('Y-m-d H:i:s');
@@ -129,8 +133,12 @@ class AdmSessionController extends Controller
                     ->where('email', $email)
                     ->update(['token' => $token, 'created_at' => $fecha,'intentos'=>$masIntos]);
                        $respuesta=$this->sendEmail($email,$token);
-                    if($respuesta=='correcto');
-                    return redirect('/resetpass');
+                    if($respuesta=='correcto'){
+                        return redirect('/resetpass');
+                    }else{
+                        return view('auth.recpass')->with('error_x3','error_x3');
+                    }
+                   
 
               }
               
@@ -213,7 +221,39 @@ if ($cumple==0) {
     'token' => $token
 ]; 
 
-        Mail::to($email)->send(new PruebaMail($detalles));
+        $correo = DB::table('adm__credencial_erp')
+            ->where('id', 1)
+            ->first();
+
+        if (!$correo) {
+            return "Incorrecto";
+        }
+
+$cadena_pass = $correo->mail_password;
+
+$textoEncriptado = substr($cadena_pass, 2, -3);
+
+$password = Crypt::decrypt($textoEncriptado);
+
+
+        // Cargar configuración desde la BD
+        Config::set('mail.default', $correo->mail_mailer);
+
+        Config::set('mail.mailers.smtp.host', $correo->mail_host);
+        Config::set('mail.mailers.smtp.port', $correo->mail_port);
+        Config::set('mail.mailers.smtp.username', $correo->mail_username);
+        Config::set('mail.mailers.smtp.password', $password);
+        
+        Config::set('mail.mailers.smtp.encryption', $correo->mail_encryp);
+   
+       Config::set('mail.from.address', $correo->mail_from_add);
+         
+    Config::set('mail.from.name', $correo->mail_from_na);
+   
+
+    Mail::to($email)->send(new PruebaMail($detalles));
+        // Enviar correo al mismo correo configurado
+
         return "correcto";
     }
 
@@ -395,6 +435,7 @@ return view('auth.sucursal')->with('sucursales',$sucursales);
 
     public static function listarVentanas()
     {
+ 
         $ventanas =Adm_VentanaModulo::where('activo',1)->get();
        // dd($ventanas);
         return $ventanas;

@@ -292,7 +292,7 @@ if ($factura_siat_2==0) {
         return "No existe el cufd o la tabla.";
         }
         
-       $nit = DB::table('adm__credecial_correos')
+       $nit = DB::table('adm__config_erp')
         ->where('id',1)
         ->value('nit');
 
@@ -720,7 +720,7 @@ $contador_2=0;
     $tokenDelegado=$query_2->token_delegado;
     $tiempoEspera=$query_2->tiempo_espera;
     $tipoModalidad=$query_2->tipo_modalidad;
-      $nit = DB::table('adm__credecial_correos')
+      $nit = DB::table('adm__config_erp')
         ->where('id',1)
         ->value('nit');
 
@@ -1013,7 +1013,7 @@ public function status_factura_siat(Request $request){
     $cuis=$siat_data->cuis;
     $cufd=$siat_data->cufd;
 
-      $nit = DB::table('adm__credecial_correos')
+      $nit = DB::table('adm__config_erp')
         ->where('id',1)
         ->value('nit');
 
@@ -1260,7 +1260,7 @@ public function anulacion_reversion(Request $request){
           
 
 
-        $nit = DB::table('adm__credecial_correos')
+        $nit = DB::table('adm__config_erp')
         ->where('id',1)
         ->value('nit');
 
@@ -1518,7 +1518,7 @@ public function send_validacion_2(Request $request){
         $cuis=$query_1->cuis;
         $cufd=$query_1->cufd;
 
-        $nit = DB::table('adm__credecial_correos')
+        $nit = DB::table('adm__config_erp')
         ->where('id',1)
         ->value('nit');
 
@@ -1778,7 +1778,7 @@ public function send_paquetes(Request $request){
     $escada=array_filter($escada);
    $factura_siat_2 = 0;
 
-   $nit = DB::table('adm__credecial_correos')
+   $nit = DB::table('adm__config_erp')
         ->where('id',1)
         ->value('nit');
 
@@ -2137,7 +2137,7 @@ if ($factura_siat_2==0) {
 }
  $url_s2=$tablaCatalogo_siat->url;
         
-       $nit = DB::table('adm__credecial_correos')
+       $nit = DB::table('adm__config_erp')
         ->where('id',1)
         ->value('nit');
 

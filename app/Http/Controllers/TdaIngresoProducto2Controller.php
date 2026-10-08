@@ -39,7 +39,7 @@ class TdaIngresoProducto2Controller extends Controller
                                 or pp.codigo like '%".$valor."%' 
                                 or pl.nombre like '%".$valor."%' 
                                 or tip.lote like '%".$valor."%'
-                                                             
+                                or tip.codigo_imprecion like '%".$valor."%'                             
                               )" ;
                     }
                     else
@@ -49,6 +49,7 @@ class TdaIngresoProducto2Controller extends Controller
                             or pp.codigo like '%".$valor."%' 
                             or pl.nombre like '%".$valor."%' 
                             or tip.lote like '%".$valor."%'  
+                            or tip.codigo_imprecion like '%".$valor."%'
                           )" ;
                     }    
                 }

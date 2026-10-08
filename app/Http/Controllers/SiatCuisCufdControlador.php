@@ -649,7 +649,7 @@ if (empty($response)) {
     try {
            
         $datos_1 = DB::table('siat__configuracions')->where('id', 1)->first();
-        $datos_2 = DB::table('adm__credecial_correos')->where('id', 1)->first();  
+        $datos_2 = DB::table('adm__config_erp')->where('id', 1)->first();  
         $nit=$datos_2->nit;
             $configuracion = DB::table('siat__emisors as s')
             ->join('siat__sucursals as ss', 'ss.id', '=', 's.id_siat_sucursal')

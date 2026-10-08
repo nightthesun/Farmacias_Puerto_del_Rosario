@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\adm_CredecialCorreo;
 use App\Models\AdmActividadEconomica;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -226,4 +227,29 @@ class AdmActividadEconomicaController extends Controller
         $rubro->save();
 
     }
+
+    public function get_use_actividad_normal(){
+         $query = DB::table('adm__config_erp')
+    ->where('id', 1)
+    ->value('use_actividad_normal');
+
+if (is_null($query)) {
+    return 10;
+}else{
+return $query;
+}
+
+
+    }
+
+
+     public function actualziarEstado_acti_data(Request $request){
+
+        $a = adm_CredecialCorreo::findOrFail(1);
+        $a->use_actividad_normal=$request->entrada;       
+        $a->save();
+     
+    }
+
+    
 }

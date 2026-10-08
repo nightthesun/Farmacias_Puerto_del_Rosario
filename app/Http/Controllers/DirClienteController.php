@@ -365,8 +365,8 @@ class DirClienteController extends Controller
                // Iniciar una transacción
                DB::beginTransaction();             
                if ($request->correo=="farmacia_pueto_del_rosarioxwass1234887458888@gmail.com") {
-                $correo_query = DB::table('adm__credecial_correos')
-                ->select('correo')
+                $correo_query = DB::table('adm__credencial_erp')
+                ->select('mail_username as correo')
                 ->where('id','=',1)
                 ->first();
                     if ($correo_query) {
@@ -478,7 +478,7 @@ class DirClienteController extends Controller
          $primerGuardadoExitoso = false;
          try {
             if ($request->correo=="farmacia_pueto_del_rosarioxwass1234887458888@gmail.com") {
-                $correo_query = DB::table('adm__credecial_correos')
+                $correo_query = DB::table('adm__config_erp')
                 ->select('correo')
                 ->where('id','=',1)
                 ->first();

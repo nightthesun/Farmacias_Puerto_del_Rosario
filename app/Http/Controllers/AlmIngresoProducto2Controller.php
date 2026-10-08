@@ -39,7 +39,7 @@ class AlmIngresoProducto2Controller extends Controller
                                 or pp.codigo like '%".$valor."%' 
                                 or pl.nombre like '%".$valor."%' 
                                 or aip.lote like '%".$valor."%'
-                                                             
+                                or aip.codigo_imprecion like '%".$valor."%'                             
                               )" ;
                     }
                     else
@@ -49,6 +49,7 @@ class AlmIngresoProducto2Controller extends Controller
                             or pp.codigo like '%".$valor."%' 
                             or pl.nombre like '%".$valor."%' 
                             or aip.lote like '%".$valor."%'  
+                            or aip.codigo_imprecion like '%".$valor."%'
                           )" ;
                     }    
                 }
@@ -403,10 +404,10 @@ $terciario = DB::table('prod__productos as pp')
     $user_1 = auth()->user()->id;
     $user_2 = auth()->user()->name;
     $user_3 = auth()->user()->user_unique;
-    
+
     if ($user_3 != 0 ) {
         // Uniendo ambas consultas para el administrador
-      
+          
 
         $resultadoConsulta = DB::table('alm__almacens as aa')
             ->join('adm__sucursals as ass', 'ass.id', '=', 'aa.idsucursal')
@@ -423,7 +424,7 @@ $terciario = DB::table('prod__productos as pp')
             )
             ->where('ass.activo', 1)->get();
 
-        
+    
         return $resultadoConsulta;
     } else {
         // Consultas para otros usuarios

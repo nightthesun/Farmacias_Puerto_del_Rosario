@@ -41,15 +41,25 @@
                                         v-text="sucursal.codigoS +' -> ' +sucursal.codigo+' '+sucursal.razon_social"
                                     ></option>
                                 </select>
+                                <div class="input-group-append">
+                          <button class="btn"  :class="puedeHacerOpciones_especiales == 1 ? 'btn-primary' : 'btn-secondary'"  :disabled="puedeHacerOpciones_especiales != 1"
+    @click="puedeHacerOpciones_especiales == 1 && irSucursal()"><i class="fa fa-window-restore"></i></button>                     
+              
+            </div>
                             </div>
                         </div>
                         <div class="col-md-3">
-                            <div class="input-group">
-                                <select class="form-control" v-model="selectCajaxUsuario" :hidden="sucursalSeleccionada===0" @change="cambioDeEstado_ver_2()">
+                            <div class="input-group" :hidden="sucursalSeleccionada===0">
+                                <select class="form-control" v-model="selectCajaxUsuario"  @change="cambioDeEstado_ver_2()">
                                     <option value="0" disabled selected>Seleccionar caja...</option>
                                     <option v-for="caja in arrayCajaUsuario" :key="caja.id" :value="caja.id"
                                      v-text="(caja.nombre_caja).toUpperCase()+' -> '+(caja.codigo).toUpperCase()"></option>
                                 </select>
+                                   <div class="input-group-append">
+                                         <button class="btn"  :class="puedeHacerOpciones_especiales == 1 ? 'btn-primary' : 'btn-secondary'"  :disabled="puedeHacerOpciones_especiales != 1"
+    @click="puedeHacerOpciones_especiales == 1 && irCaja()"><i class="fa fa-window-restore"></i></button>    
+                
+            </div>
                             </div>
                         </div>
                         <div class="col-md-5">
@@ -1319,6 +1329,7 @@ import pdfMake from 'pdfmake/build/pdfmake';
 import pdfFonts from 'pdfmake/build/vfs_fonts';
 import axios from "axios";
 export default {
+     props: ['codventana','idmodulo'],
     data() {
         return {
             pagination: {
@@ -1470,6 +1481,13 @@ export default {
             operacionInicial_c_c2:0,
             estadoInicial_c_2:'error',
             estadoColor:'E',
+
+                //---permisos_R_W_S
+             puedeEditar:2,
+                puedeActivar:2,
+                puedeHacerOpciones_especiales:2,
+                puedeCrear:2,
+                //-----------
       
 
         };
@@ -1711,6 +1729,38 @@ general_pdf(razon_social,sucursal,direccion,lugar,array_pdf,id_apertura,valor_to
 },
 /////////////////////////////END PDF/////////////////////////////////////
 
+
+listarPerimsoxyz() {
+        
+    let me = this;
+        
+    var url = '/gestion_permiso_editar_eliminar?win='+me.codventana;
+  
+    axios.get(url)
+        .then(function(response) {
+            var respuesta = response.data;
+     
+            if(respuesta=="root"){
+            me.puedeEditar=1;
+            me.puedeActivar=1;
+            me.puedeHacerOpciones_especiales=1;
+            me.puedeCrear=1; 
+            }else{
+            me.puedeEditar=respuesta.edit;
+            me.puedeActivar=respuesta.activar;
+            me.puedeHacerOpciones_especiales=respuesta.especial;
+            me.puedeCrear=respuesta.crear;        
+            }
+           
+        })
+        .catch(function(error) {
+            error401(error);
+        
+        });
+},
+//-----------------------------------------------------------
+
+
         modalMoneda(id) {
             let me = this;           
             var url ="/apertura_cierre/monedaModal?id_arqueo="+id;
@@ -1723,6 +1773,43 @@ general_pdf(razon_social,sucursal,direccion,lugar,array_pdf,id_apertura,valor_to
                     error401(error);
                 });
         },
+
+         irSucursal() {
+    Swal.fire({
+  title: "Desea crear nuevo sucursal?",
+  text: "Al realziar esta acción se cerrar la venta y se abrira la ventana de sucursal!",
+  icon: "warning",
+  showCancelButton: true,
+  confirmButtonColor: "#3085d6",
+  cancelButtonColor: "#d33",
+  confirmButtonText: "Cambiar, de ventana!"
+}).then((result) => {
+  if (result.isConfirmed){
+ this.cerrarModal('registrar');
+        
+            this.$emit('cambiar-ventana', 104);
+  }
+});
+        },
+
+          irCaja() {
+    Swal.fire({
+  title: "Desea crear nuevo caja?",
+  text: "Al realziar esta acción se cerrar la venta y se abrira la ventana de crear caja!",
+  icon: "warning",
+  showCancelButton: true,
+  confirmButtonColor: "#3085d6",
+  cancelButtonColor: "#d33",
+  confirmButtonText: "Cambiar, de ventana!"
+}).then((result) => {
+  if (result.isConfirmed){
+ this.cerrarModal('registrar');
+        
+            this.$emit('cambiar-ventana', 1306);
+  }
+});
+        },
+
 
         listarIndex(page) {
             let me = this;  
@@ -3117,7 +3204,9 @@ me.isSubmitting = true; // Deshabilita el botón
         
        this.verConfiguracionCaja();
         this.verificador_moneda_sistemas();
-     
+      //-------permiso E_W_S-----
+       this.listarPerimsoxyz(); 
+        //-----------------------
         this.classModal = new _pl.Modals();
         this.sucursalFiltro();
         this.fecha_inicial();

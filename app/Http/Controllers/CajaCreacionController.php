@@ -120,7 +120,7 @@ class CajaCreacionController extends Controller
             $cadena = implode(',', $request->array_id_v);    
  
 
-            $moneda_v1 = DB::table('adm__credecial_correos as acc')
+            $moneda_v1 = DB::table('adm__config_erp as acc')
             ->join('adm__nacionalidads as an', 'an.id', '=', 'acc.moneda')
             ->select('an.simbolo')
             ->limit(1)

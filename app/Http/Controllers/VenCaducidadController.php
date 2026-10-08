@@ -20,30 +20,57 @@ class VenCaducidadController extends Controller
         $buscararray=array(); 
         $fecha_actual =  Carbon::now()->format('Y-m-d');
         $id_1=$request->id_sucursal;
-        $codigo=$request->codigo_tienda_almacen;       
+        $codigo=$request->codigo_tienda_almacen;   
+        $tipoCodigo=$request->tipoCodigo;
+     
         if(!empty($request->buscar))
         {
             $buscararray = explode(" ",$request->buscar);
             $valor=sizeof($buscararray);
             if($valor > 0){
-                $sqls=''; 
+                $sqls_1='';
+                $sqls_2=''; 
                 foreach($buscararray as $valor)
                 {
-                    if(empty($sqls)){
-                        $sqls="(
+                    
+                        if(empty($sqls)){
+                        $sqls_1="(
                             
                                 pp.codigo like '%".$valor."%' 
-                                or pl.nombre like '%".$valor."%'                                                           
+                                or pl.nombre like '%".$valor."%'  
+                                or tip.codigo_imprecion like '%".$valor."%'                                                          
                               )" ;
                     }
                     else
                     {
-                        $sqls.="and (
+                        $sqls_1.="and (
                           
                                  pp.codigo like '%".$valor."%' 
                                 or pl.nombre like '%".$valor."%'  
+                                or tip.codigo_imprecion like '%".$valor."%' 
                           )" ;
                     }    
+                    
+                        if(empty($sqls_2)){
+                        $sqls_2="(
+                            
+                                pp.codigo like '%".$valor."%' 
+                                or pl.nombre like '%".$valor."%'  
+                                or aip.codigo_imprecion like '%".$valor."%'                                                          
+                              )" ;
+                    }
+                    else
+                    {
+                        $sqls_2.="and (
+                          
+                                 pp.codigo like '%".$valor."%' 
+                                or pl.nombre like '%".$valor."%'  
+                                or aip.codigo_imprecion like '%".$valor."%' 
+                                
+                          )" ;
+                    }    
+                    
+                   
                 }
                 //--- query  
                 $resultado =  DB::table('tda__ingreso_productos as tip')
@@ -65,7 +92,7 @@ class VenCaducidadController extends Controller
                 ->where('tip.stock_ingreso', '>', 0)
                 ->where('tip.activo', 1)
                 ->where('tip.cantidad', '>', 0)
-                ->whereRaw($sqls)
+                ->whereRaw($sqls_1)
                 ->select([
                     'pivot.id',
                     'pivot.id_ingreso',
@@ -102,6 +129,7 @@ class VenCaducidadController extends Controller
                             ELSE NULL 
                         END AS siglo
                     "),
+                    'tip.codigo_imprecion as codigo_imprecion',
                     'tip.stock_ingreso',
                     'tip.fecha_vencimiento',
                     DB::raw("DATEDIFF(tip.fecha_vencimiento, '{$fecha_actual}') AS diferencia_dias"),
@@ -127,7 +155,7 @@ class VenCaducidadController extends Controller
                 ->where('aip.stock_ingreso', '>', 0)
                 ->where('aip.activo', 1)
                 ->where('aip.cantidad', '>', 0)
-                ->whereRaw($sqls)
+                ->whereRaw($sqls_2)
                         ->select([
                             'pivot.id',
                             'pivot.id_ingreso',
@@ -164,6 +192,7 @@ class VenCaducidadController extends Controller
                                     ELSE NULL 
                                 END AS siglo
                             "),
+                            'aip.codigo_imprecion as codigo_imprecion',
                             'aip.stock_ingreso',
                             'aip.fecha_vencimiento',
                             DB::raw("DATEDIFF(aip.fecha_vencimiento, '{$fecha_actual}') AS diferencia_dias"),
@@ -243,6 +272,7 @@ class VenCaducidadController extends Controller
                         ELSE NULL 
                     END AS siglo
                 "),
+                 'tip.codigo_imprecion as codigo_imprecion',
                 'tip.stock_ingreso',
                 'tip.fecha_vencimiento',
                 DB::raw("DATEDIFF(tip.fecha_vencimiento, '{$fecha_actual}') AS diferencia_dias"),
@@ -305,6 +335,7 @@ class VenCaducidadController extends Controller
                                 ELSE NULL 
                             END AS siglo
                         "),
+                         'aip.codigo_imprecion as codigo_imprecion',
                         'aip.stock_ingreso',
                         'aip.fecha_vencimiento',
                         DB::raw("DATEDIFF(aip.fecha_vencimiento, '{$fecha_actual}') AS diferencia_dias"),

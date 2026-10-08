@@ -1167,6 +1167,7 @@ export default {
                 puedeHacerOpciones_especiales:2,
                 puedeCrear:2,
             //-----------
+
           
         };
     },

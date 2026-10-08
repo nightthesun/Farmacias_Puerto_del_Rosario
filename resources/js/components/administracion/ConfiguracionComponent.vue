@@ -63,63 +63,70 @@
                             <div class="alert alert-info" role="alert">
   La configuración solo afectara a servidor de correos y <strong>correo default para crear clientes</strong>
 </div>
-                            <div class="card-body">    
-                                <div class="form-group row">
-
-                                    <label class="col-md-1 form-control-label" for="text-input" style="font-size: 12px;"><strong>Host:</strong> 
-                                    <span v-if="host == ''" class="error">(*)</span></label>
-                                    <div class="col-md-3">
-                                        <input type="text" v-model="host" class="form-control" placeholder="mail.empresa.com" v-on:focus="selectAll"/>
-                                        <span v-if="host == ''" class="error">Debe escribir el host</span>
-                                    </div>
-
-                                    <label class="col-md-1 form-control-label" for="text-input" style="font-size: 12px;"><strong>Correo:</strong> 
-                                    <span v-if="correo == ''" class="error">(*)</span></label>
-                                    <div class="col-md-3">
-                                        <input type="text" v-model="correo" class="form-control" placeholder="correo@correo.es" v-on:focus="selectAll"/>
-                                        <span v-if="correo == ''" class="error">Debe escribir un correo</span>
-                                    </div>
-
-                                    <label class="col-md-1 form-control-label" for="text-input" style="font-size: 12px;"><strong>Puerto:</strong> 
-                                    <span v-if="puerto == ''" class="error">(*)</span></label>
-                                    <div class="col-md-3">
-                                        <input type="number" min="0" v-model="puerto" class="form-control" placeholder="" v-on:focus="selectAll"/>
-                                        <span v-if="host == ''" class="error">Debe escribir un puerto</span>
-                                    </div>
-                                </div>
-                                <div class="form-group row">
-
-<label class="col-md-1 form-control-label" for="text-input" style="font-size: 12px;"><strong>Usuario:</strong> 
-<span v-if="usuario == ''" class="error">(*)</span></label>
-<div class="col-md-3">
-    <input type="text" v-model="usuario" class="form-control" placeholder="puede ser un correo" v-on:focus="selectAll"/>
-    <span v-if="host == ''" class="error">Debe escribir el usuario</span>
-</div>
-
-<label class="col-md-1 form-control-label" for="text-input" style="font-size: 12px;"><strong>Contraseña:</strong> 
-<span v-if="contraseña == ''" class="error">(*)</span></label>
-<div class="col-md-3">
-    <input type="password" v-model="contraseña" class="form-control"  v-on:focus="selectAll"/>
-    <span v-if="contraseña == ''" class="error">Debe escribir una contraseña</span>
-</div>
-
-<label class="col-md-1 form-control-label" for="text-input" style="font-size: 12px;"><strong>SSL:</strong> 
-</label>
-<div class="col-md-3">
-    <div class="form-check">
-        <input class="form-check-input" type="checkbox" id="autoSizingCheck2"  :true-value="1" 
-    :false-value="0" v-model="ssl">      
-      </div>
-</div>
-</div>
-                            </div>
+                    <table class="table table-bordered table-striped table-sm table-responsive">
+                        <thead>
+                            <tr>
+                                <th colspan="4">DATOS DE CORREO</th>
+                                
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>REMITENTE</td>
+                                <td>HOST</td>
+                                <td>PUERTO</td>
+                                <td>CORREO</td>                           
+                            </tr>
+                            <tr>
+                                <td>
+                                    <input type="text" class="form-control" v-model="mailet_v21" placeholder="MAIL_MAILET"/>    
+                                </td>
+                                      <td>
+                                    <input type="text" class="form-control" v-model="host_v21" placeholder="MAIL_HOST"/>    
+                                </td>
+                                 <td>
+                                    <input type="text" class="form-control" v-model="port_v21" placeholder="MAIL_PORT"/>    
+                                </td>
+                                 <td>
+                                    <input type="text" class="form-control" v-model="userName_v21" placeholder="MAIL_USERNAME"/>    
+                                </td>                             
+                            </tr>
+                            <tr>
+                                     <td>CONTRASEÑA</td>
+                                <td>ENCRIPTACION</td>
+                                <td>EMAIL REMITENTE</td>
+                                <td>NOMBRE REMITENTE</td>
+                            </tr>
+                              <tr>
+                                <td>
+                                    <input type="text" class="form-control" v-model="password_v21" placeholder="MAIL_PASSWORD"/>   
+                                </td>
+                                      <td>
+                                    <input type="text" class="form-control" v-model="encryp_v21" placeholder="MAIL_ENCRYPTION"/>   
+                                </td>
+                                 <td>
+                                  <input type="text" class="form-control" v-model="fromAddress_v21" placeholder="MAIL_FROM_ADDRESS"/>    
+                                </td>
+                                 <td>
+                             <input type="text" class="form-control" v-model="fromName_v21" placeholder="MAIL_FROM_NAME"/> 
+                                </td>                             
+                            </tr>
+                        </tbody>
+                    </table>            
+                            
                             <div class="form-group row justify-content-center">
                                 <div class="col-md-3 d-flex justify-content-center">       
-        <button v-if="puedeEditar==1" type="button" class="btn btn-warning" style="color: white;"  @click="update_credecial_correo();">Actualizar configuracion correro</button>
+        <button v-if="puedeEditar==1" type="button" class="btn btn-warning" style="color: white;"  @click="mensajeDataV2_2();">Actualizar configuración correo</button>
         <button v-else type="button" class="btn btn-light"  >Actualizar configuracion correro</button>
    
     </div>
+    <button v-if="puedeEditar==1&&puedeHacerOpciones_especiales==1" type="button" class="btn btn-primary" @click="probarCorreo">
+    <i class="fa fa-envelope"></i> Probar correo</button>
+  <button v-else type="button" class="btn btn-secondary">
+    <i class="fa fa-envelope"></i> Probar correo</button>
 </div>
+
+
 
                           
                         </div>
@@ -1965,13 +1972,9 @@ export default {
             //---correo  
             tipoAccion:0,
             id_credencial:'',      
-            host:'',
-            correo:'',
-            puerto:'',
-            usuario:'',
-            contraseña:'',
+           
             isSubmitting_2: false, // Controla el estado del botón de envío
-            ssl:0, 
+        
             credenciales_correo:[],
             nit:'',
             nombre_empresa:'',
@@ -2133,6 +2136,15 @@ puedeEditar:2,
             //ecuaciones
             ecuacion_radio_1:null,
 
+            mailet_v21:'',
+            host_v21:'',
+            port_v21:'',
+            userName_v21:'',
+            password_v21:'',
+            encryp_v21:'',
+            fromAddress_v21:'',
+            fromName_v21:'',
+
 };
     },
 
@@ -2216,7 +2228,7 @@ puedeEditar:2,
 //-----------------ECUACIONES------------------------------------------
 editarEcuacionZ(){
     let me=this;
-    axios.put("/credenciales_correo/modificarEcuacionZ", {
+    axios.put("/config_erp_v2/modificarEcuacionZ", {
                     ecuacion_radio_1:me.ecuacion_radio_1,  
                                                                       
                 }).then(function (response) {
@@ -2270,7 +2282,7 @@ editarTraspaso_recepcion_SS(){
         me.error_4_SS="Error de ingreso de datos negativos o nulos...";
         me.bandera_error_4_SS=1;
 }else{
-axios.put("/credenciales_correo/modificarTraspaso_recepcio_SS", {
+axios.put("/config_erp_v2/modificarTraspaso_recepcio_SS", {
                     palabra:palabraEnivar,  
                     limiteRecepcion_1:v1,
                     limiteRecepcion_2:v2,                                                  
@@ -2412,7 +2424,7 @@ modificarConfiguracionTraspaso_traspado_SS(añadir,eliminar,dato){
         break;
         }
             if (error_1==0) {
-                axios.put("/credenciales_correo/modificarConfiguracionTraspaso_traspado_SS", enviar)
+                axios.put("/config_erp_v2/modificarConfiguracionTraspaso_traspado_SS", enviar)
                 .then(function (response) {
                 let respuesta = response.data;
                 if (respuesta == 0) {
@@ -2550,7 +2562,7 @@ if (
      me.error_2_SS="Error solo numeros positivos se puede enviar...";
       me.bandera_error_2_SS=1;
      } else {
-       axios.put("/credenciales_correo/modificarTraspaso_traspaso_SS", {
+       axios.put("/config_erp_v2/modificarTraspaso_traspaso_SS", {
                     palabra:palabraEnivar,
                     estado:me.estadoTraspaso_SS,
                     limiteTraspaso_1:v1,
@@ -2577,7 +2589,7 @@ buttonError_1_SS(){
     let numero = Number(valor);
     if (Number.isInteger(numero) && numero > 0) {
     me.error_1_SS="Enviando...";
-         axios.put("/credenciales_correo/modificarDiasAcumulados_traspaso_SS", {
+         axios.put("/config_erp_v2/modificarDiasAcumulados_traspaso_SS", {
                     valor:valor                                     
                 }).then(function (response) {
                     let respuesta=response.data;                     
@@ -2628,7 +2640,7 @@ buttonError_1_SS(){
                 default:
                     break;
             }
-             axios.put("/credenciales_correo/activar_acciones_traspaso_SS", {
+             axios.put("/config_erp_v2/activar_acciones_traspaso_SS", {
                     tipo:tipo,
                     data:data                   
                 }).then(function (response) {
@@ -2749,7 +2761,7 @@ buttonError_1_SS(){
                 if (me.limiteCompra_1<0||me.limiteCompra_2<0) {
                      Swal.fire("Error: ","No puee ingresar numero negativos", "error",); 
                 } else {
-                     axios.put("/credenciales_correo/editarDisGesAut", {
+                     axios.put("/config_erp_v2/editarDisGesAut", {
                     id:me.id_distribuidor_ETC,
                     formaPago:me.selectFormaPago,
                     fechaPago:me.fechaPago,
@@ -2813,7 +2825,7 @@ buttonError_1_SS(){
 
         realizarOperacion_3(data,id){
             let me=this;            
-            axios.put("/credenciales_correo/editarDiferenciaVentas_3", {                   
+            axios.put("/config_erp_v2/editarDiferenciaVentas_3", {                   
                     data:data,
                     id:id,
                     ciclo:me.selectCico_3,
@@ -2854,7 +2866,7 @@ eliminarPestañaGestionAutomatica_5(id){
                 reverseButtons: true
                 }).then((result) => {
                 if (result.isConfirmed) {
-                     axios.put('/credenciales_correo/eliminarDisGesAut_3',{
+                     axios.put('/config_erp_v2/eliminarDisGesAut_3',{
                         id: id
                     }).then(function (response) {
                     me.listarDistribuidorAutomatico_2();
@@ -2880,7 +2892,7 @@ eliminarPestañaGestionAutomatica_5(id){
                 if (me.limiteCompra_1<0||me.limiteCompra_2<0) {
                   Swal.fire("Error.","Solo numeros enteros positivos", "error",);    
                 } else {
-                    axios.post("/credenciales_correo/crearDisGesAut", {
+                    axios.post("/config_erp_v2/crearDisGesAut", {
                     id_linea:me.selecLinea.id,
                     id_distribuidor:me.selectDistriETC,
                     formaPago:me.selectFormaPago,
@@ -3008,7 +3020,7 @@ eliminarPestañaGestionAutomatica_5(id){
                 default:
                     break;
             }
-             axios.put("/credenciales_correo/activar_panel_automatico", {
+             axios.put("/config_erp_v2/activar_panel_automatico", {
                     tipo:tipo,
                     data:data                   
                 }).then(function (response) {
@@ -3059,7 +3071,7 @@ eliminarPestañaGestionAutomatica_5(id){
                 }     
                 
                 axios
-                .post("/credenciales_correo/configuracionGestionStoc", {
+                .post("/config_erp_v2/configuracionGestionStoc", {
                     tipoSucursal:me.selectSucursalGestionETC,
                     entabla:me.entabla_,
                     hora:me.horaS,
@@ -3168,7 +3180,7 @@ listarDistribuidorAutomatico_2() {
            me.selecDistribui_3=null;
             me.arrayDistribui_3=[];
             me.inputPestaña_5="";
-           var url = "/credenciales_correo/listarDistribuidorAutomatico";
+           var url = "/config_erp_v2/listarDistribuidorAutomatico";
             axios
                 .get(url)
                 .then(function (response) {
@@ -3267,7 +3279,7 @@ listarDistribuidorAutomatico_2() {
             } else {
       
                 axios
-                .post("/credenciales_correo/limite_2", {
+                .post("/config_erp_v2/limite_2", {
                     id: me.id_credencial,                   
                     limite_monto:me.limite_monto,
                     limite_horas:me.limite_horas,                                   
@@ -3483,7 +3495,7 @@ listarDistribuidorAutomatico_2() {
         update_tipo_venta(data){
             let me= this;         
             axios
-                .put("/credenciales_correo/tipo_venta_update", {
+                .put("/config_erp_v2/tipo_venta_update", {
                     id: me.id_credencial,                   
                     validador_variables:data,    
                     
@@ -3529,7 +3541,7 @@ listarDistribuidorAutomatico_2() {
  updateStockMedio(){
             let me = this;           
                 axios
-                .post("/credenciales_correo/stock_medio", {
+                .post("/config_erp_v2/stock_medio", {
                     id: me.id_credencial,                   
                     stock_medio:me.selectStockMedio,                 
 
@@ -3575,7 +3587,7 @@ listarDistribuidorAutomatico_2() {
 });
             }else{
                 axios
-                .post("/credenciales_correo/update_datos_empresa", {
+                .post("/config_erp_v2/update_datos_empresa", {
                     id: me.id_credencial,                   
                     nit:me.nit,
                     nombre_empresa:me.nombre_empresa,
@@ -3623,7 +3635,7 @@ listarDistribuidorAutomatico_2() {
         
         listarTipomoneda(){
             let me = this;        
-            var url = "/credenciales_correo/tipo_moneda";
+            var url = "/config_erp_v2/tipo_moneda";
             axios.get(url)
                 .then(function (response) {
                     var respuesta = response.data;
@@ -3641,68 +3653,104 @@ listarDistribuidorAutomatico_2() {
                 });
         },
 
-        update_credecial_correo() {
-            let me = this;
-            
-            if (me.host==""||me.correo==""||me.puerto==""||me.usuario==""||me.contraseña=="") {
-                
-                    Swal.fire({
-  icon: "error",
-  title: "Oops...",
-  text: "datos nulos",
+         probarCorreo() {
 
+        Swal.fire({
+            title: 'Enviando...',
+            text: 'Probando configuración del correo',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+
+        axios.post('/config_erp_v2/probar')
+            .then(response => {
+                const respuesta=response.data;
+
+                console.log(respuesta);
+                Swal.fire(
+                    'Correcto',
+                    response.data.message,
+                    'success'
+                );
+
+            })
+            .catch(error => {
+
+                let mensaje = 'No se pudo enviar el correo.';
+
+                if (error.response?.data?.message) {
+                    mensaje = error.response.data.message;
+                }
+
+                Swal.fire(
+                    'Error',
+                    mensaje,
+                    'error'
+                );
+            });
+    },
+
+        mensajeDataV2_2(){
+         
+             Swal.fire({
+  title: "Desea cambiar la configuración ?",
+  showDenyButton: true,
+  showCancelButton: true,
+  confirmButtonText: "Actualizar toda la información.",
+  denyButtonText: `Actualizar todo menos la contraseña.`
+}).then((result) => {
+  /* Read more about isConfirmed, isDenied below */
+ 
+  if (result.isConfirmed){
+      this.update_credecial_correo(1);
+     
+  }else if (result.isDenied) {
+     this.update_credecial_correo(2);
+  }
 });
-            }else{
+        },
+
+        update_credecial_correo(tipo) {
+            let me = this;
+                  
                
             axios
                 .post("/credenciales_correo/update", {
-                    id: me.id_credencial,                   
-                    host:me.host,
-                    correo:me.correo,
-                    puerto:me.puerto,
-                    usuario:me.usuario,
-                    contraseña:me.contraseña,
-                    ssl:me.ssl,
+                    tipo:tipo,
+                   mailet: me.mailet_v21,
+                   host: me.host_v21,
+                   port:me.port_v21,
+                   userName:me.userName_v21,
+                   password:me.password_v21,
+                   encryp: me.encryp_v21,
+                   fromAddress: me.fromAddress_v21,
+                   fromName:me.fromName_v21,
 
                     id_modulo: me.idmodulo,
-                id_sub_modulo:me.codventana, 
-                des:"actualziacion de credencial correo",  
+                    id_sub_modulo:me.codventana, 
+                    des:"actualziacion de credencial correo",  
                   
                 })
                 .then(function (response) {
-                    me.listarCredencial();
-                
+                   // me.listarCredencial();
+                   const respuesta=response.data;
+                   if (respuesta===0) {
+                    me.listarCredencialErp();
                     Swal.fire(
-                        "Actualizado Correctamente!",
-                        "El registro a sido actualizado Correctamente",
-                        "success",
+                        "Actualizado Correctamente!", "El registro a sido actualizado Correctamente", "success",
                     );
-                })
-               
-                .catch(function (error) {           
-                
-                if (error.response.status === 500) {
-                    me.errorMsg = error.response.data.error; // Asigna el mensaje de error a la variable errorMsg
-                Swal.fire(
-                    "Error",
-                    "500 (Internal Server Error)"+me.errorMsg, // Muestra el mensaje de error en el alert
-                    "error"
-                );
-                }else{
+                   }else{
                     Swal.fire(
-                    "Error",
-                    ""+error, // Muestra el mensaje de error en el alert
-                    "error"
-                );  
-                }
-
-               
+                        "Error!", " "+respuesta, "error",
+                    );
+                   }                    
+                    
+                })               
+                .catch(function (error) {           
+                   error401(error);                            
             });
-            }
-            
-
-            
-        
         },
    
         cambiarPestana(idPestana) {
@@ -3732,7 +3780,7 @@ listarDistribuidorAutomatico_2() {
                     reverseButtons: true,
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        axios.post("/credenciales_correo/tipomonedaUpdate", {
+                        axios.post("/config_erp_v2/tipomonedaUpdate", {
                     id: me.id_credencial,                   
                     id_moneda:id,    
                     
@@ -4102,7 +4150,7 @@ listarDistribuidorAutomatico_2() {
                  // Si ya está enviando, no permitas otra solicitud
       if (me.isSubmitting_2) return;
       me.isSubmitting_2 = true; // Deshabilita el botón
-                axios.post("/credenciales_correo/crear_banco", {
+                axios.post("/config_erp_v2/crear_banco", {
                     nombre: me.banco_nombre,                 
                 })
                 .then(function (response) {
@@ -4136,7 +4184,7 @@ listarDistribuidorAutomatico_2() {
                     "error"
                 );
             } else {
-                axios.put("/credenciales_correo/editar_banco", {
+                axios.put("/config_erp_v2/editar_banco", {
                     id:me.id_banco,
                     nombre: me.nombrebanco_0,                 
                 })
@@ -4178,7 +4226,7 @@ listarDistribuidorAutomatico_2() {
                 reverseButtons: true
                 }).then((result) => {                
                 if (result.isConfirmed) {
-                     axios.put('/credenciales_correo/banco_desactivar',{
+                     axios.put('/config_erp_v2/banco_desactivar',{
                         'id': id
                     }).then(function (response) {
                         swalWithBootstrapButtons.fire(
@@ -4224,7 +4272,7 @@ listarDistribuidorAutomatico_2() {
                 reverseButtons: true
                 }).then((result) => {
                 if (result.isConfirmed) {
-                     axios.put('/credenciales_correo/banco_activar',{
+                     axios.put('/config_erp_v2/banco_activar',{
                         'id': id
                     }).then(function (response) {                        
                         swalWithBootstrapButtons.fire(
@@ -4251,7 +4299,7 @@ listarDistribuidorAutomatico_2() {
 
             actualizarModalContable(){
                 let me = this;
-                axios.post("/credenciales_correo/modal_apertura", {
+                axios.post("/config_erp_v2/modal_apertura", {
                     id: me.id_credencial,                   
                     modal_apertura:me.selectModalApertura,
 
@@ -4268,7 +4316,7 @@ listarDistribuidorAutomatico_2() {
 
              actualizarEfectoSobrante(){
                 let me = this;
-                axios.put("/credenciales_correo/actualizar_efecto_sobrante", {
+                axios.put("/config_erp_v2/actualizar_efecto_sobrante", {
                     id: me.id_credencial,                   
                     efecto_sobrante:me.selectEfcto,
 
@@ -4292,7 +4340,7 @@ listarDistribuidorAutomatico_2() {
                    Swal.fire("Error!!!","el limite debe ser mayor a cerro", "error",);  
                    return; 
                 }
-                axios.put("/credenciales_correo/actualizarTipoCaja_v_1", {
+                axios.put("/config_erp_v2/actualizarTipoCaja_v_1", {
                     id: me.id_credencial,                   
                     tipo_caja:me.selectTipoCaja_x2,
 
@@ -4318,7 +4366,7 @@ listarDistribuidorAutomatico_2() {
 
             actulizar_transaccion(data){
                 let me = this;
-                axios.post("/credenciales_correo/transaccion_data", {
+                axios.post("/config_erp_v2/transaccion_data", {
                     id: me.id_credencial,                   
                     tras:data,
 
@@ -4337,19 +4385,14 @@ listarDistribuidorAutomatico_2() {
 
  listarCredencial() {
             let me = this;
-            var url = "/credenciales_correo";
+            var url = "/config_erp_v2";
             axios.get(url)
                 .then(function (response) {
                     var respuesta = response.data;
              
                 
                     me.id_credencial=response.data[0].id;
-                    me.host=response.data[0].host;                   
-                   me.correo=response.data[0].correo;
-                    me.puerto=response.data[0].puerto;
-                    me.usuario=response.data[0].usuario;
-                    me.contraseña=response.data[0].contraseña;
-                    me.ssl=response.data[0].ssl;               
+                               
                     me.nit=response.data[0].nit;
                     me.nombre_empresa=response.data[0].nom_empresa;
                     me.celular=response.data[0].nro_celular;
@@ -4372,6 +4415,28 @@ listarDistribuidorAutomatico_2() {
                     error401(error);
                 });
         },
+
+        listarCredencialErp() {
+            let me = this;
+            const url = "/credenciales_correo/listarCredencialErp";
+            axios.get(url)
+                .then(function (response) {
+                    const respuesta = response.data;                             
+                    me.mailet_v21=response.data.mail_mailer;
+                    me.host_v21=response.data.mail_host;
+                    me.port_v21=response.data.mail_port;
+                    me.userName_v21=response.data.mail_username;
+                    me.password_v21=response.data.mail_password;
+                    me.encryp_v21=response.data.mail_encryp;
+                    me.fromAddress_v21=response.data.mail_from_add;
+                    me.fromName_v21=response.data.mail_from_na;
+                 
+                })
+                .catch(function (error) {
+                    error401(error);
+                });
+        },
+
         cambiarPestana(idPestana) {
             this.pestañaActiva = idPestana;
 
@@ -4457,6 +4522,7 @@ listarDistribuidorAutomatico_2() {
         this.listarPerimsoxyz();
             //-----------------------
         this.listarCredencial();
+        this.listarCredencialErp();
         this.classModal.addModal("regbanco");
         this.classModal.addModal("regcuenta");
     

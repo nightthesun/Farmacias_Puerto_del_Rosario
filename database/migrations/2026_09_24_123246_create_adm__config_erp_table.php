@@ -11,21 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('adm__credecial_correos', function (Blueprint $table) {
-            $table->id();
-    $table->string('host');
-    $table->string('correo');
-    $table->integer('puerto');
-    $table->string('usuario');
-    $table->string('contraseña'); // Cambiado de password_hash a string
-    $table->tinyInteger('ssl');
+        Schema::create('adm__config_erp', function (Blueprint $table) {
+                $table->id();    
     $table->timestamps();
     $table->string('nit')->nullable();
     $table->string('nro_celular',35)->nullable();
     $table->string('nom_empresa',150)->nullable();
     $table->tinyInteger('factura_dosificacion')->nullable()->comment('1=factura 2=dosificacion');    
     $table->smallInteger('id_dosificacion_siat')->nullable()->comment('lleva la ide de modulo de dosificacio o siat');
-    $table->string('actividad_economica',200)->nullable();
+    $table->text('actividad_economica')->nullable();
     $table->integer('moneda')->nullable();
     $table->integer('tiempo_limite')->default(0)->nullable();
     $table->decimal('monto_limite',11,2)->default(0)->nullable();
@@ -37,6 +31,8 @@ return new class extends Migration
     $table->tinyInteger('efecto_sobrante')->default(1)->nullable()->comment('0=no tiene, 1=por defecto, 2=con sobrante');
     $table->tinyInteger('qr_in_uso')->default(0)->nullable()->comment('0=desactivado, 1=activado,');
     $table->tinyInteger('tipo_caja')->default(1)->nullable()->comment('0=no tiene, 1=normal, 2=modificado');
+    $table->tinyInteger('use_actividad_normal')->default(1)->nullable()->comment(' 1 en uso 0, sin uso  pero cuandoe sta cero usa actividad registrada en siat');
+     
         });
     }
 
@@ -45,6 +41,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('adm__credecial_correos');
+        Schema::dropIfExists('adm__config_erp');
     }
 };

@@ -463,7 +463,7 @@ if ($user === 1) {
 }
 
 //dd(session()->all());
-$credencial = DB::table('adm__credecial_correos as acc')
+$credencial = DB::table('adm__config_erp as acc')
 ->join('adm__nacionalidads as an', 'an.id', '=', 'acc.moneda')
 ->select('acc.tiempo_limite', 'acc.monto_limite', 'an.simbolo')
 ->first();

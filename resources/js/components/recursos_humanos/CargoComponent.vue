@@ -114,8 +114,7 @@
                             <span>&times;</span>
                         </button>
                         </div>
-                        <div class="modal-body">
-                        <form action=""  class="form-horizontal">
+                        <div class="modal-body">                        
                             <div class="form-group row">
                                 <strong class="col-md-3 form-control-label" for="text-input">Unidad Organizacional: <span  v-if="unidadorg==0" class="error">(*)</span></strong>
                                 <div class="col-md-4">
@@ -124,6 +123,12 @@
                                         <option v-for="uorg in arrayUorg" :key="uorg.id" :value="uorg.id" v-text="uorg.nombre" ></option>
                                     </select>
                                 </div>
+                                <div class="col-md-1">
+                                     <button class="btn"  :class="puedeHacerOpciones_especiales == 1 ? 'btn-primary' : 'btn-secondary'"  :disabled="puedeHacerOpciones_especiales != 1"
+                    @click="puedeHacerOpciones_especiales == 1 && irUnidadOrga()"><i class="fa fa-window-restore"></i></button>  
+                  
+</div> 
+
                             </div>
                             <div class="form-group row">
                                 <strong class="col-md-3 form-control-label" for="text-input">Nombre: <span  v-if="!sinombre" class="error">(*)</span></strong>
@@ -146,7 +151,7 @@
                                     <span  v-if="!sinombre" class="error">Debe Ingresar las Actividades Especificas</span>
                                 </div>
                             </div>
-                        </form>
+                      
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary"  @click="cerrarModal('registrar')">Cerrar</button>
@@ -182,6 +187,11 @@ import { error401 } from '../../errores';
         //---permisos_R_W_S
         props: ['codventana'],
         //-------------------
+        
+        idmodulo: {
+            type: Number,
+            default: 0
+        },
         data(){
             return{
                 pagination:{
@@ -286,6 +296,25 @@ import { error401 } from '../../errores';
         });
 },
 //--------------------------------------------------------------  
+
+irUnidadOrga() {
+    Swal.fire({
+  title: "¿Desea crear nueva unidad organizacional?",
+  text: "¡Al realziar esta acción se cerrar la venta y se abrira la ventana unidad organizacional!",
+  icon: "warning",
+  showCancelButton: true,
+  confirmButtonColor: "#3085d6",
+  cancelButtonColor: "#d33",
+  confirmButtonText: "Cambiar, de ventana!"
+}).then((result) => {
+  if (result.isConfirmed){
+ this.cerrarModal('registrar');
+        
+            this.$emit('cambiar-ventana', 203);
+  }
+});
+        },
+
             selectUnidadOrg(){
                 let me=this;
                 var url='/unidadorg/selectuo';

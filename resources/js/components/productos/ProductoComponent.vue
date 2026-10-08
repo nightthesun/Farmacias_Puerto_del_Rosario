@@ -9,7 +9,7 @@
                     <div class="row">
                         <div class="col-md-6">
                             <i class="fa fa-align-justify"></i> Registro de Productos
-                            <button type="button" v-if="puedeCrear==1" class="btn btn-secondary" @click="abrirModal('registrar')" :disabled="idrubrofiltro == 0">
+                            <button type="button" v-if="puedeCrear==1" class="btn btn-secondary" @click="abrirModal('registrar');listarLinea(idrubrofiltro);" :disabled="idrubrofiltro == 0">
                                 <i class="icon-plus"></i>&nbsp;Nuevo
                             </button>
                         </div>
@@ -32,14 +32,19 @@
                     <div class="form-group row">
                         <div class="col-md-5">
                             <div class="input-group">
-                                <label class="form-control-label" style="margin-top:auto;">Seleccione Rubro:</label> 
+                                <label class="form-control-label" style="margin-top:auto;">Actividad comercial:</label> 
                                 <select v-model="idrubrofiltro" @change="listarProducto()" class="form-control" style="margin-left:8px;">
                                     <option value="0">Seleccionar</option>
                                     <option v-for="rubro in rubros" :key="rubro.id" :value="rubro.id" v-text="rubro.nombre"></option>
                                 </select>
                             </div>
-                        </div> 
-                        <div class="col-md-6" v-if="idrubrofiltro != 0">
+                        </div>
+                         <div class="col-md-1">
+                                  <button class="btn"  :class="puedeHacerOpciones_especiales == 1 ? 'btn-primary' : 'btn-secondary'"  :disabled="puedeHacerOpciones_especiales != 1"
+    @click="puedeHacerOpciones_especiales == 1 && irVentanaActividad()"><i class="fa fa-window-restore"></i></button>   
+                    
+                         </div>
+                        <div class="col-md-5" v-if="idrubrofiltro != 0">
                             <div class="input-group">
                                 <input type="text" id="texto" name="texto" class="form-control" placeholder="Texto a buscar" v-model="buscar"  @keyup.enter="listarProducto(1)">
                                 <button type="submit" class="btn btn-primary" @click="listarProducto(1)"><i class="fa fa-search" ></i> Buscar</button>
@@ -313,8 +318,9 @@
         <!--Inicio del modal agregar/actualizar-->
          <transition name="fade">
             <div v-if="showModal" class="modal d-block" tabindex="-1" role="dialog">
-                <div class="modal-dialog modal-primary modal-lg modal-dialog-scrollable" role="document">
-                    <div class="modal-content">
+                     <div class="modal-dialog modal-primary modal-dialog-scrollable" role="document"
+             style="width: 100vw; max-width: 100vw; height: 100vh; margin: 0;">
+                       <div class="modal-content" style="height: 100vh; border-radius: 0;">
                         <div class="modal-header">
                         <h4 class="modal-title">{{ tituloModal }}</h4>
                         <button type="button" class="close" @click="cerrarModal('registrar')">
@@ -322,39 +328,43 @@
                         </button>
                         </div>
                         <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
-                            <form action=""  class="form-horizontal">
+                         
                                 <div class="alert alert-warning" role="alert">
   Todo prodcuto siempre debe tener un envase primario los envases segundario y terciario son opcionales. ya que se debe registrar si o si un envase primario, no se puede registrar un producto sin tener envase primario.
 </div>
                         <div class="row">
                             <div class="form-group col-sm-6" >
-                                <strong>Rubro:</strong>
-                                <select v-model="idrubroselected" @change="listarLinea" class="form-control" :disabled="validador_2===1 && tipoAccion===2">
-                                    <option value="0">Seleccionar</option>
-                                    <option v-for="rubro in rubros" :key="rubro.id"   :value="rubro.id" v-text="rubro.nombre"></option>
-                                </select>
-                                <span class="error" v-if="idrubroselected==0">Debe Seleccionar un rubro</span>
+                                 <strong>Producto:</strong>                              
+                                <input :disabled="validador_2===1 && tipoAccion===2" type="text" class="form-control" v-model="nombre" placeholder="Nombre del Producto">
+                                <span class="error" v-if="nombre.length==0">Debe Ingresar Nombre del Producto</span>                           
                             </div>
+                     
                             <div class="form-group col-sm-6">
                                 <strong>Linea:</strong>
-                                <select v-model="idlineaselected" @change="getCodigoLinea" class="form-control" :disabled="validador_2===1 && tipoAccion===2">
+                                <div class="d-flex">
+                                        <select v-model="idlineaselected" @change="getCodigoLinea" class="form-control" :disabled="validador_2===1 && tipoAccion===2">
                                     <option value="0">Seleccionar</option>
                                     <option v-for="linea in lineas" :key="linea.id" :value="linea.id" v-text="linea.cod"></option>
                                 </select>
+                                  <button @click="crearModalDFC(4)" class="btn btn-primary"><i class="fa fa-plus" aria-hidden="true"></i>                              
+                                                        </button>
+                                
+                                </div>
                                 <span class="error" v-if="idlineaselected==0">Debe Seleccionar la Linea</span>
                             </div>
-                        </div>
-                        <div class="row" style="margin-bottom: 30px;">
-                            <div class="form-group col-sm-6">
-                                <strong>Producto:</strong>
                            
-                              
-                                    <input :disabled="validador_2===1 && tipoAccion===2" type="text" class="form-control" v-model="nombre" placeholder="Nombre del Producto">
-                                <span class="error" v-if="nombre.length==0">Debe Ingresar Nombre del Producto</span>
-                           
-                              </div>
                         </div>
 
+                        <div class="row">
+                            <div class="form-group col-sm-12">                                      
+
+                                <button  class="btn" style="margin-right: 10px;" @click="puedeHacerOpciones_especiales == 1 &&irEnvaseEm()" :class="puedeHacerOpciones_especiales == 1 ? 'btn-primary' : 'btn-secondary'"  :disabled="puedeHacerOpciones_especiales != 1"><i class="fa fa-window-restore" aria-hidden="true"></i> Ir a Envase y embalaje</button>
+                                <button  class="btn" style="margin-right: 10px;" @click="puedeHacerOpciones_especiales == 1 && irFormaUni()" :class="puedeHacerOpciones_especiales == 1 ? 'btn-primary' : 'btn-secondary'"  :disabled="puedeHacerOpciones_especiales != 1"><i class="fa fa-window-restore" aria-hidden="true"></i> Ir a forma o unidad de medida</button>
+                                 <button  class="btn" style="margin-right: 10px;" @click="puedeHacerOpciones_especiales == 1 && irCategori()" :class="puedeHacerOpciones_especiales == 1 ? 'btn-primary' : 'btn-secondary'"  :disabled="puedeHacerOpciones_especiales != 1"><i class="fa fa-window-restore" aria-hidden="true"></i> Ir a categorias</button>
+                                 <button @click="puedeHacerOpciones_especiales == 1 && irVentanaLinea()" class="btn" :class="puedeHacerOpciones_especiales == 1 ? 'btn-primary' : 'btn-secondary'"  :disabled="puedeHacerOpciones_especiales != 1"><i class="fa fa-window-restore" aria-hidden="true"></i> Ir linea</button>
+                            </div>
+                        </div>        
+                      
                             <!-- tab para los envases del producto -->
                                 <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
                                     <li class="nav-item" role="presentation">
@@ -372,12 +382,18 @@
                                         <div class="row">
                                             <div class="form-group col-sm-4">
                                                 <strong>Envase Primario:</strong>
-                                                <select v-model="iddispenserselectedprimario" class="form-control" :disabled="validador_2===1 && tipoAccion===2">
+                                                <div class="d-flex">
+                                                    <select v-model="iddispenserselectedprimario" class="form-control" :disabled="validador_2===1 && tipoAccion===2">
                                                     <option value="0">Seleccionar</option>
                                                     <option v-for="dispenser in dispensers" :key="dispenser.id" :value="dispenser.id" v-text="dispenser.nombre"></option>
-                                                </select>
+                                                </select>  
+                                                 <button @click="crearModalDFC(1)" class="btn btn-primary"><i class="fa fa-plus" aria-hidden="true"></i>                              
+                                                </button>
+                                                </div>                                                
+                                                                                             
                                                 <span class="error" v-if="iddispenserselectedprimario==0">Debe Seleccionar un Envase</span>
                                             </div>
+                                      
                                             <div class="form-group col-sm-4">
                                                 <strong>Cantidad:</strong>
                                                
@@ -387,9 +403,17 @@
                                               </div>
                                             <div class="form-group col-sm-4">
                                                 <strong>Forma o Unid. de Medida:</strong>
-                                       
+                                                 <div class="d-flex">
+                                                    <select v-model="idformafarmselectedprimario" class="form-control" :disabled="validador_2===1 && tipoAccion===2">
+                                                            <option value="0">Seleccionar</option>
+                                                            <option v-for="formafarm in formafarms" :key="formafarm.id" :value="formafarm.id" v-text="formafarm.nombre"></option>
+                                                    </select>
+                                                        <button @click="crearModalDFC(2)" class="btn btn-primary"><i class="fa fa-plus" aria-hidden="true"></i>                              
+                                                        </button>
+                                                 </div>
+                                         <!--
                                                 <div class="row">
-                                                    <span class="error" v-if="checkformafarmaceuticaprimario==0">Debe Seleccionar Forma o Unid. de Medid</span>
+                                                  <span class="error" v-if="checkformafarmaceuticaprimario==0">Debe Seleccionar Forma o Unid. de Medid</span>
                                                    
                                                     <div class="col-sm-2"><input type="checkbox" v-model="checkformafarmaceuticaprimario"></div>
                                                     <div class="col-sm-10" v-if="checkformafarmaceuticaprimario">
@@ -399,7 +423,9 @@
                                                         </select>
                                                     </div>
                                                 </div>
-                                                <span class="error" v-if="checkformafarmaceuticaprimario && idformafarmselectedprimario==0">Debe Seleccionar la Forma Farmaceutica</span>
+                                                -->
+                                                
+                                                <span class="error" v-if="idformafarmselectedprimario==0">Debe Seleccionar la Forma Farmaceutica</span>
                                             </div>
                                         </div>
 
@@ -447,11 +473,17 @@
                                     <div class="tab-pane fade" id="pills-envase-secundario" role="tabpanel" aria-labelledby="pills-envase-secundario-tab">
                                         <div class="row">
                                             <div class="form-group col-sm-4">
-                                                <strong>Envase Secundario:</strong>
+                                                 <strong>Envase Secundario:</strong>
+                                                     <div class="d-flex">
                                                 <select v-model="iddispenserselectedsecundario" class="form-control" :disabled="validador_2===1 && tipoAccion===2">
                                                     <option value="0">Seleccionar</option>
                                                     <option v-for="dispenser in dispensers" :key="dispenser.id" :value="dispenser.id" v-text="dispenser.nombre"></option>
                                                 </select>
+                                                <button @click="crearModalDFC(1)" class="btn btn-primary"><i class="fa fa-plus" aria-hidden="true"></i>                              
+                                                </button>
+                                                     </div>
+                                               
+                                               
                                                 <!-- <span class="error" v-if="iddispenserselectedsecundario==0">Debe Seleccionar un Envase</span> -->
                                             </div>
                                             <div class="form-group col-sm-4">
@@ -465,17 +497,14 @@
                                             <div class="form-group col-sm-4">
                                                 <strong>Forma o Unid. de Medida</strong>
                                              
-                                                <div class="row">
-                                                    <span class="error" v-if="checkformafarmaceuticasecundario==0">Debe Seleccionar Forma o Unid. de Medid</span>
-                                                   
-                                                    <div class="col-sm-2"><input type="checkbox" v-model="checkformafarmaceuticasecundario"></div>
-                                                    <div class="col-sm-10" v-if="checkformafarmaceuticasecundario">
+                                                <div class="d-flex">
                                                         <select v-model="idformafarmselectedsecundario" class="form-control" :disabled="validador_2===1 && tipoAccion===2">
                                                             <option value="0">Seleccionar</option>
                                                             <option v-for="formafarm in formafarms" :key="formafarm.id" :value="formafarm.id" v-text="formafarm.nombre"></option>
                                                         </select>
-                                                    </div>
-                                                </div>
+                                                          <button @click="crearModalDFC(2)" class="btn btn-primary"><i class="fa fa-plus" aria-hidden="true"></i>                              
+                                                        </button>
+                                                </div>                                            
                                                 <!-- <span class="error" v-if="checkformafarmaceuticasecundario && idformafarmselectedsecundario==0">Debe Seleccionar la Forma Farmaceutica</span> -->
                                             </div>
                                         </div>
@@ -524,11 +553,16 @@
                                     <div class="tab-pane fade" id="pills-envase-terciario" role="tabpanel" aria-labelledby="pills-envase-terciario-tab">
                                         <div class="row">
                                             <div class="form-group col-sm-4">
-                                                <strong>Envase Terceario:</strong>
-                                                <select v-model="iddispenserselectedterciario" class="form-control" :disabled="validador_2===1 && tipoAccion===2">
+                                                <strong>Envase Terceario:</strong>                                                
+                                            <div class="d-flex">
+  <select v-model="iddispenserselectedterciario" class="form-control" :disabled="validador_2===1 && tipoAccion===2">
                                                     <option value="0">Seleccionar</option>
                                                     <option v-for="dispenser in dispensers" :key="dispenser.id" :value="dispenser.id" v-text="dispenser.nombre"></option>
                                                 </select>
+                                                 <button @click="crearModalDFC(1)" class="btn btn-primary"><i class="fa fa-plus" aria-hidden="true"></i>                              
+                                                </button>
+                                            </div>
+                                              
                                                 <!-- <span class="error" v-if="iddispenserselectedterciario==0">Debe Seleccionar un Envase</span> -->
                                             </div>
                                             <div class="form-group col-sm-4">
@@ -538,17 +572,15 @@
                                             </div>
                                             <div class="form-group col-sm-4">
                                                 <strong>Forma o Unid. de Medida</strong>
-                                               
-                                                <div class="row">
-                                                    <span class="error" v-if="checkformafarmaceuticaterciario==0">Debe Seleccionar Forma o Unid. de Medid</span>
-                                                    <div class="col-sm-2"><input type="checkbox" v-model="checkformafarmaceuticaterciario" ></div>
-                                                    <div class="col-sm-10" v-if="checkformafarmaceuticaterciario">
-                                                        <select v-model="idformafarmselectedterciario" class="form-control" :disabled="validador_2===1 && tipoAccion===2">
+                                                 <div class="d-flex">
+                                                      <select v-model="idformafarmselectedterciario" class="form-control" :disabled="validador_2===1 && tipoAccion===2">
                                                             <option value="0">Seleccionar</option>
                                                             <option v-for="formafarm in formafarms" :key="formafarm.id" :value="formafarm.id" v-text="formafarm.nombre"></option>
                                                         </select>
-                                                    </div>
+                                                  <button @click="crearModalDFC(2)" class="btn btn-primary"><i class="fa fa-plus" aria-hidden="true"></i>                              
+                                                        </button>
                                                 </div>
+                                               
                                                 <!-- <span class="error" v-if="checkformafarmaceuticaterciario && idformafarmselectedterciario==0">Debe Seleccionar la Forma Farmaceutica</span> -->
                                             </div>
                                         </div>
@@ -600,10 +632,15 @@
                         <div class="row" style="margin-top: 50px;">
                             <div class="form-group col-sm-4">
                                 <strong>Categoria:</strong>
-                                <select v-model="idcategoriaselected" class="form-control" :disabled="validador_2===1 && tipoAccion===2">
+                                      <div class="d-flex">
+                                        <select v-model="idcategoriaselected" class="form-control" :disabled="validador_2===1 && tipoAccion===2">
                                     <option value="0">Seleccionar</option>
                                     <option v-for="categoria in categorias" :key="categoria.id" :value="categoria.id" v-text="categoria.nombre"></option>
                                 </select>
+                                  <button @click="crearModalDFC(3)" class="btn btn-primary"><i class="fa fa-plus" aria-hidden="true"></i>                              
+                                                </button>
+                                      </div>
+                                
                                 <!--<Ajaxselect  v-if="clearSelected3"
                                     ruta="/categoria/selectcategoria?buscar=" @found="categorias" @cleaning="cleancategorias"
                                     resp_ruta="categorias"
@@ -661,18 +698,18 @@
                         <figure>
                             <img width="100" height="100" :src="imagen" alt="">
                         </figure>
-                            </form> 
+                
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" @click="cerrarModal('registrar')">Cerrar</button>
                         <div  class="d-flex justify-content-start">
                             <div  v-if="isSubmitting==false">
-                                <button type="button" v-if="tipoAccion == 1" class="btn btn-primary" @click="registrarProducto()" :disabled="!sicompleto">Guardar</button>
-                                <button type="button" v-if="tipoAccion == 2" class="btn btn-primary" @click="actualizarProducto()" :disabled="!sicompleto">Actualizar</button>
+                                <button type="button" v-if="tipoAccion == 1" style="margin-right: 30px;" class="btn btn-primary" @click="registrarProducto()" :disabled="!sicompleto">Guardar</button>
+                                <button type="button" v-if="tipoAccion == 2" style="margin-right: 30px;" class="btn btn-primary" @click="actualizarProducto()" :disabled="!sicompleto">Actualizar</button>
                             </div>
                             <div v-else>
-                                <button type="button" v-if="tipoAccion == 1" class="btn btn-light">Guardar</button>
-                                <button type="button" v-if="tipoAccion == 2" class="btn btn-light">Actualizar</button>
+                                <button type="button" v-if="tipoAccion == 1" style="margin-right: 30px;" class="btn btn-light">Guardar</button>
+                                <button type="button" v-if="tipoAccion == 2" style="margin-right: 30px;" class="btn btn-light">Actualizar</button>
                             </div>
                         </div>
                     </div>
@@ -698,6 +735,12 @@ import QrcodeVue from 'qrcode.vue';
     export default {
         //---permisos_R_W_S
         props: ['codventana'],
+       idmodulo: {
+            type: Number,
+            default: 0
+        },
+
+    emits: ['cambiar-ventana'],
         //-------------------
         data(){
             return{
@@ -868,7 +911,7 @@ import QrcodeVue from 'qrcode.vue';
 
                             me.iddispenserselectedprimario == 0 || 
                             me.cantidadprimario == 0 || 
-                            (me.checkformafarmaceuticaprimario == true && me.idformafarmselectedprimario == 0) ||
+                            me.idformafarmselectedprimario == 0 ||
                             me.tiempopedidoselectedprimario==0 ||
                             
                             // me.iddispenserselectedsecundario == 0 || 
@@ -941,7 +984,7 @@ import QrcodeVue from 'qrcode.vue';
  listarPerimsoxyz() {
              
     let me = this;
-        
+        console.log(me.codventana);
     var url = '/gestion_permiso_editar_eliminar?win='+me.codventana;
   
     axios.get(url)
@@ -967,6 +1010,219 @@ import QrcodeVue from 'qrcode.vue';
         });
 },
 //--------------------------------------------------------------  
+
+crearModalDFC(dato) {
+
+    let title = '';
+    let url = '';
+    let inputLabel = '';
+    let idrubro = 0;
+    let descripcion = '';
+    let tiempo_demora = 0;
+
+    switch (dato) {
+
+        case 1:
+            title = 'Crear nuevo envase de embalaje';
+            url = '/dispenser/registrar';
+            inputLabel = 'Ingrese el nombre del envase de embalaje';
+            idrubro = 0;
+            break;
+
+        case 2:
+            title = 'Crear nueva forma farmacéutica';
+            url = '/formafarm/registrar';
+            inputLabel = 'Ingrese el nombre de la forma farmacéutica';
+            idrubro = 0;
+            break;
+
+        case 3:
+            title = 'Crear nueva categoría';
+            url = '/categoria/registrar';
+            inputLabel = 'Ingrese el nombre de la categoría';
+            idrubro = this.idrubrofiltro;
+            break;
+
+        case 4:
+            title = 'Crear nueva línea';
+            url = '/linea/registrar';
+            inputLabel = 'Ingrese el nombre de la línea';
+            idrubro = this.idrubrofiltro;
+            descripcion = 'Por defecto';
+            tiempo_demora = 7;
+            break;
+    }
+
+    Swal.fire({
+        title: title,
+        input: 'text',
+        inputLabel: inputLabel,
+        inputPlaceholder: 'Ingrese el nombre',
+
+        inputAttributes: {
+            maxlength: 999
+        },
+
+        showCancelButton: true,
+        confirmButtonText: 'Crear',
+        cancelButtonText: 'Cancelar',
+
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+
+        inputValidator: (value) => {
+            if (!value || !value.trim()) {
+                return 'Debe ingresar un nombre';
+            }
+        }
+
+    }).then((result) => {
+
+        if (result.isConfirmed) {
+
+            let nombre = result.value.trim();
+
+            axios.post(url, {
+                nombre: nombre,
+                idrubro: idrubro,
+                descripcion: descripcion,
+                tiempo_demora: tiempo_demora
+
+            }).then((response) => {
+
+                const respuesta = response.data;
+
+                switch (dato) {
+
+                    case 1:
+                        this.listarDispenser();
+                        break;
+
+                    case 2:
+                        this.listarFormafarm();
+                        break;
+
+                    case 3:
+                        this.listarCategorias();
+                        break;
+
+                    case 4:
+                        this.listarLinea();
+                        break;
+                }
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Creado correctamente',
+                    text: 'El registro se creó correctamente',
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+
+            }).catch((error) => {
+
+                error401(error);
+
+            });
+        }
+    });
+},
+
+
+
+
+ irVentanaActividad() {
+    Swal.fire({
+  title: "Desea crear nueva actividad comercial?",
+  text: "Al realziar esta acción se cerrar la ventana y se abrira la ventana de actividad coemrcial!",
+  icon: "warning",
+  showCancelButton: true,
+  confirmButtonColor: "#3085d6",
+  cancelButtonColor: "#d33",
+  confirmButtonText: "Cambiar, de ventana!"
+}).then((result) => {
+  if (result.isConfirmed){
+ this.cerrarModal('registrar');
+        
+            this.$emit('cambiar-ventana', 105);
+  }
+});
+        },
+
+         irVentanaLinea() {
+    Swal.fire({
+  title: "Desea crear nueva linea?",
+  text: "Al realziar esta acción se cerrar la ventana y se abrira la ventana de linea!",
+  icon: "warning",
+  showCancelButton: true,
+  confirmButtonColor: "#3085d6",
+  cancelButtonColor: "#d33",
+  confirmButtonText: "Cambiar, de ventana!"
+}).then((result) => {
+  if (result.isConfirmed){
+ this.cerrarModal('registrar');
+        
+            this.$emit('cambiar-ventana', 701);
+  }
+});
+        },
+
+
+        irEnvaseEm() {
+    Swal.fire({
+  title: "Desea crear nueva envase de embalaje?",
+  text: "Al realziar esta acción se cerrar la ventana y se abrira la ventana envase de embalaje!",
+  icon: "warning",
+  showCancelButton: true,
+  confirmButtonColor: "#3085d6",
+  cancelButtonColor: "#d33",
+  confirmButtonText: "Cambiar, de ventana!"
+}).then((result) => {
+  if (result.isConfirmed){
+ this.cerrarModal('registrar');
+        
+            this.$emit('cambiar-ventana', 703);
+  }
+});
+        },
+
+        irFormaUni() {
+    Swal.fire({
+  title: "Desea crear nueva Forma o U. Medida?",
+  text: "Al realziar esta acción se cerrar la ventana y se abrira la ventana de Forma o U. Medida!",
+  icon: "warning",
+  showCancelButton: true,
+  confirmButtonColor: "#3085d6",
+  cancelButtonColor: "#d33",
+  confirmButtonText: "Cambiar, de ventana!"
+}).then((result) => {
+  if (result.isConfirmed){
+ this.cerrarModal('registrar');
+        
+            this.$emit('cambiar-ventana', 704);
+  }
+});
+        },
+
+        irCategori() {
+            console.log("---");
+    Swal.fire({
+  title: "Desea crear nueva categoria?",
+  text: "Al realziar esta acción se cerrar la ventana y se abrira la ventana de categoria!",
+  icon: "warning",
+  showCancelButton: true,
+  confirmButtonColor: "#3085d6",
+  cancelButtonColor: "#d33",
+  confirmButtonText: "Cambiar, de ventana!"
+}).then((result) => {
+  if (result.isConfirmed){
+ this.cerrarModal('registrar');
+        
+            this.$emit('cambiar-ventana', 705);
+  }
+});
+        },
+
               teresPermitidosCantidad(ex){
                 let me=this;
            
@@ -999,9 +1255,10 @@ import QrcodeVue from 'qrcode.vue';
 
             listarrubro(){
                 let me=this;
-                var url='/Actividad_economica/selectrubro';
+                const url='/Actividad_economica/selectrubro';
                 axios.get(url).then(function(response){
-                    var respuesta=response.data;
+                    const respuesta=response.data;
+                    console.log(respuesta);
                     me.rubros=respuesta.rubros;
                 })
                 .catch(function(error){
@@ -1010,9 +1267,12 @@ import QrcodeVue from 'qrcode.vue';
                 });
             },
 
-            listarLinea(){
+            listarLinea(idRubro){
                 let me=this;
+                console.log(idRubro);
+                
                 let aux = me.tipoAccion==2?me.idrubroselected:me.idrubrofiltro;
+                console.log(aux);
                 var url='/linea/selectlinea2?idrubro='+aux;
                 axios.get(url).then(function(response){
                     var respuesta=response.data;
@@ -1120,7 +1380,7 @@ import QrcodeVue from 'qrcode.vue';
                     me.pagination=respuesta.pagination;
                     me.arrayProducto=respuesta.producto.data;
                     me.listarCategorias();
-                    me.listarLinea();
+                    me.listarLinea(0);
                 })
                 .catch(function(error){
                     error401(error);
@@ -1138,13 +1398,14 @@ import QrcodeVue from 'qrcode.vue';
             registrarProducto(){
                 let me = this;
                     // Si ya está enviando, no permitas otra solicitud
+                    console.log
       if (me.isSubmitting) return;
       me.isSubmitting = true; // Deshabilita el botón
                 let formData = new FormData();
 
                 var formaUno=0;                
             
-                if (me.iddispenserselectedprimario===0||me.cantidadprimario<=0||me.checkformafarmaceuticaprimario===false||me.idformafarmselectedprimario===0
+                if (me.iddispenserselectedprimario===0||me.cantidadprimario<=0||me.idformafarmselectedprimario===0
                 || me.preciolistaprimario<=0 || me.precioventaprimario<=0 || me.tiempopedidoselectedprimario===0) {
                     Swal.fire({
                         icon: "error",
@@ -1159,8 +1420,8 @@ import QrcodeVue from 'qrcode.vue';
                 formData.append('idrubro',me.idrubrofiltro);
                 formData.append('iddispenserselectedprimario',me.iddispenserselectedprimario);
                 formData.append('cantidadPrimario',me.cantidadprimario);
-                formData.append('checkformafarmaceuticaprimario',me.checkformafarmaceuticaprimario==true?1:0);        
-                formData.append('idformafarmselectedprimario',me.checkformafarmaceuticaprimario==true?me.idformafarmselectedprimario:0);
+                formData.append('checkformafarmaceuticaprimario',1);      
+              
                 formData.append('idformafarmselectedprimario',me.idformafarmselectedprimario);
                 formData.append('preciolistaprimario',me.preciolistaprimario);
                 formData.append('precioventaprimario',me.precioventaprimario);
@@ -1211,7 +1472,7 @@ import QrcodeVue from 'qrcode.vue';
                         me.cerrarModal('registrar');
                         me.listarProducto(1);
                     }
-                    
+                     me.isSubmitting = false; 
                 }).catch(function(error){
                     error401(error);
            

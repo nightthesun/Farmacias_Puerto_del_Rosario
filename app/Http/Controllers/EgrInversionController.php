@@ -250,7 +250,7 @@ class EgrInversionController extends Controller
 
     ->get();
 
-    $moneda = DB::table('adm__credecial_correos as acc')
+    $moneda = DB::table('adm__config_erp as acc')
     ->join('adm__nacionalidads as an', 'acc.moneda', '=', 'an.id')
     ->select('acc.moneda', 'an.simbolo')
     ->get();

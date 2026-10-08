@@ -250,7 +250,7 @@ $sucu = DB::table('adm__sucursals as ass')
     }
 
     public function listar_limite(){
-        $resultado = DB::table('adm__credecial_correos')
+        $resultado = DB::table('adm__config_erp')
     ->select('tiempo_limite', 'monto_limite')
     ->first(); // Para obtener solo una fila
     return $resultado;
