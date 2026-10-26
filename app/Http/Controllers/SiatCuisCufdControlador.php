@@ -456,6 +456,448 @@ if (empty($response)) {
     }
    }
 
+   public function get_cierre_punto_venta_XD(Request $request){
+    
+
+    try {
+         if($request->cuis!='null'){
+                return response()->json([
+                    'tipo' =>1,
+            'error' => '0',
+            'message' => 'No debe existir un cuis en la tabla, no se puede realizar el cierre de operaciones',
+        ]);
+            }  
+
+
+  $endPoints = DB::table('siat__endpoints as se')    
+            ->select('se.id', 'se.Descripcion', 'se.Url', 'se.Version')
+            ->where('se.tipo', intval($request->codigo_ambiente))
+            ->where('se.id',3)
+            ->get();            
+         
+
+        $cadena_url=$endPoints[0]->Url; 
+        $wsdl = $cadena_url;
+              
+            // Asignación de la URL y API key
+            $wsdl = $cadena_url; 
+            $apikeyValue = 'TokenApi ' .$request->token_delegado; // Concatenar correctamente el valor del API key
+
+         // Crear el cuerpo del mensaje SOAP, sustituyendo los valores con los parámetros correspondientes
+        //en punto de venta Solo se envía cuando la transacción se realiza utilizando un punto de venta. Caso contrario enviar 0.
+         
+        $xmlData = <<<EOD
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:siat="https://siat.impuestos.gob.bo/">
+    <soapenv:Header/>
+    <soapenv:Body>
+        <siat:cuis>
+            <SolicitudCuis>
+                <codigoAmbiente>{$request->codigo_ambiente}</codigoAmbiente>
+                <codigoModalidad>{$request->modalidad}</codigoModalidad>
+                <codigoPuntoVenta>{$request->emisor}</codigoPuntoVenta>
+                <codigoSistema>{$request->codigo_sistema}</codigoSistema>
+                <codigoSucursal>{$request->codigo_siat}</codigoSucursal>
+                <nit>{$request->nit}</nit>
+            </SolicitudCuis>
+        </siat:cuis>
+    </soapenv:Body>
+</soapenv:Envelope>
+EOD;
+         $tiempoEspera = DB::table('siat__configuracions')
+         ->where('id', 1)
+         ->value('tiempo_espera'); // Obtiene directamente el valor de la columna
+         if (is_null($tiempoEspera)) {
+             $tiempoEspera = 30;
+         } 
+            // Inicializar cURL
+            $ch = curl_init();
+
+            // Configuración de la solicitud cURL
+            curl_setopt($ch, CURLOPT_URL, $wsdl); // Reemplaza con el endpoint correcto
+            curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_TIMEOUT, $tiempoEspera); // Espera máximo 30 segundos para la respuesta completa
+            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10); // Espera máximo 10 segundos para conectarse
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $xmlData);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                'Content-Type: text/xml; charset=utf-8',
+                'SOAPAction: ""', // Si el SOAPAction es requerido, inclúyelo aquí
+                'apikey: ' . $apikeyValue // Incluye la API key con el valor correspondiente
+            ]);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+            // Ejecutar la solicitud y obtener la respuesta
+            $response = curl_exec($ch);    
+
+if ($response === false) {
+
+    return response()->json([
+               'error' =>1,
+            'error' => curl_error($ch),
+            'message' => curl_errno($ch),       
+    ]);
+}
+  $xml = simplexml_load_string($response);
+  $resultado = $xml->xpath('//RespuestaCuis');
+ $cuis = (string) $resultado[0]->codigo;
+        $codigoMensaje = (string) $resultado[0]->mensajesList->codigo;
+  if($codigoMensaje==980){  
+  
+     $xmlData_2 = <<<EOD
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:siat="https://siat.impuestos.gob.bo/">
+    <soapenv:Header/>
+    <soapenv:Body>
+        <siat:consultaPuntoVenta>
+            <SolicitudConsultaPuntoVenta>
+                <codigoAmbiente>{$request->codigo_ambiente}</codigoAmbiente>
+                <codigoSistema>{$request->codigo_sistema}</codigoSistema>
+                <codigoSucursal>{$request->codigo_siat}</codigoSucursal>
+                <cuis>{$cuis}</cuis>
+                <nit>{$request->nit}</nit>
+            </SolicitudConsultaPuntoVenta>
+        </siat:consultaPuntoVenta>
+    </soapenv:Body>
+</soapenv:Envelope>
+EOD;
+            $endPoints_2 = DB::table('siat__endpoints as se')    
+            ->select('se.id', 'se.Descripcion', 'se.Url', 'se.Version')
+            ->where('se.tipo', intval($request->codigo_ambiente))
+            ->where('se.id',2)
+            ->get();  
+            $cadena_url_2=$endPoints_2[0]->Url; 
+            // Asignación de la URL y API key
+            $wsdl_2 = $cadena_url_2;
+            // Inicializar cURL
+            $ch = curl_init();
+
+            // Configuración de la solicitud cURL
+            curl_setopt($ch, CURLOPT_URL, $wsdl_2); // Reemplaza con el endpoint correcto
+            curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_TIMEOUT, $tiempoEspera); // Espera máximo 30 segundos para la respuesta completa
+            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10); // Espera máximo 10 segundos para conectarse
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $xmlData_2);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                'Content-Type: text/xml; charset=utf-8',
+                'SOAPAction: ""', // Si el SOAPAction es requerido, inclúyelo aquí
+                'apikey: ' . $apikeyValue // Incluye la API key con el valor correspondiente
+            ]);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+            // Ejecutar la solicitud y obtener la respuesta
+            $response = curl_exec($ch);
+    
+        libxml_use_internal_errors(true);
+
+$xml = simplexml_load_string($response);
+
+if ($xml === false) {
+    return response()->json([
+               'tipo' =>1,
+            'error' => $xml,
+            'message' => 'Error al leer el XML de respuesta consultaPuntoVenta',       
+    ]);  
+}
+
+$puntosVenta = $xml->xpath('//listaPuntosVentas');
+
+    $codigosPuntosVenta = [];
+
+    foreach ($puntosVenta as $punto) {        
+        $codigosPuntosVenta[] = (int) $punto->codigoPuntoVenta;
+    }
+    $tamaño = count($codigosPuntosVenta);
+    if($tamaño>0){
+    $resultado = $xml->xpath('//RespuestaConsultaPuntoVenta');
+    if (empty($resultado)) {
+        return response()->json([
+            'tipo' =>1,
+            'error' => $response,
+            'message' => 'No se encontró RespuestaConsultaPuntoVenta',       
+        ]);  
+    }
+        foreach ($codigosPuntosVenta as $codigoPuntoVenta) {
+
+     $xmlData_2 = <<<EOD
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:siat="https://siat.impuestos.gob.bo/">
+    <soapenv:Header/>
+    <soapenv:Body>
+        <siat:cierrePuntoVenta>
+            <SolicitudCierrePuntoVenta>
+            <codigoAmbiente>{$request->codigo_ambiente}</codigoAmbiente>
+            <codigoPuntoVenta>{$codigoPuntoVenta}</codigoPuntoVenta>
+            <codigoSistema>{$request->codigo_sistema}</codigoSistema>
+            <codigoSucursal>{$request->codigo_siat}</codigoSucursal>
+            <cuis>{$cuis}</cuis>
+            <nit>{$request->nit}</nit>
+            </SolicitudCierrePuntoVenta>
+        </siat:cierrePuntoVenta>
+    </soapenv:Body>
+</soapenv:Envelope>
+EOD;
+ $ch = curl_init();
+
+            // Configuración de la solicitud cURL
+            curl_setopt($ch, CURLOPT_URL, $wsdl_2); // Reemplaza con el endpoint correcto
+            curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_TIMEOUT, $tiempoEspera); // Espera máximo 30 segundos para la respuesta completa
+            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10); // Espera máximo 10 segundos para conectarse
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $xmlData_2);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                'Content-Type: text/xml; charset=utf-8',
+                'SOAPAction: ""', // Si el SOAPAction es requerido, inclúyelo aquí
+                'apikey: ' . $apikeyValue // Incluye la API key con el valor correspondiente
+            ]);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+            // Ejecutar la solicitud y obtener la respuesta
+            $response = curl_exec($ch);
+    
+        libxml_use_internal_errors(true);
+
+$xml = simplexml_load_string($response);
+
+if ($xml === false) {
+    return response()->json([
+               'tipo' =>1,
+            'error' => $xml,
+            'message' => 'Error al leer el XML de respuesta SolicitudCierrePuntoVenta',       
+    ]);  
+}
+               
+
+            } 
+          return response()->json([
+            'tipo' =>0,
+            'error' => 'sin errores',
+            'message' => 'Acción  realziada correctamente',       
+    ]);          
+        
+}else{    
+    return response()->json([
+            'tipo' =>1,
+            'error' => $response,
+            'message' => 'No se encontró listaPuntosVentas',       
+    ]);
+}
+
+
+
+}else{
+  return response()->json([
+                    'tipo' =>1,
+            'error' => $response,
+            'message' => 'error de codigo de respuesta de siat incorrecto.'
+        ]); 
+}
+
+
+
+
+        } catch (\Throwable $e) {
+      return response()->json([
+                    'tipo' =>1,
+            'error' => $e->getLine(),
+            'message' =>  $e->getMessage()
+        ]);
+        }
+ 
+   }
+
+   public function get_cierre_fuera_sucursal_XD(Request $request){
+    try {
+       
+            if($request->cuis!='null'){
+                return response()->json([
+                    'tipo' =>1,
+            'error' => '0',
+            'message' => 'No debe existir un cuis en la tabla, no se puede realizar el cierre de operaciones',
+        ]);
+            }                    
+
+            $endPoints = DB::table('siat__endpoints as se')    
+            ->select('se.id', 'se.Descripcion', 'se.Url', 'se.Version')
+            ->where('se.tipo', intval($request->codigo_ambiente))
+            ->where('se.id',3)
+            ->get();            
+         
+
+        $cadena_url=$endPoints[0]->Url; 
+        $wsdl = $cadena_url;
+              
+            // Asignación de la URL y API key
+            $wsdl = $cadena_url; 
+            $apikeyValue = 'TokenApi ' .$request->token_delegado; // Concatenar correctamente el valor del API key
+
+         // Crear el cuerpo del mensaje SOAP, sustituyendo los valores con los parámetros correspondientes
+        //en punto de venta Solo se envía cuando la transacción se realiza utilizando un punto de venta. Caso contrario enviar 0.
+         
+        $xmlData = <<<EOD
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:siat="https://siat.impuestos.gob.bo/">
+    <soapenv:Header/>
+    <soapenv:Body>
+        <siat:cuis>
+            <SolicitudCuis>
+                <codigoAmbiente>{$request->codigo_ambiente}</codigoAmbiente>
+                <codigoModalidad>{$request->modalidad}</codigoModalidad>
+                <codigoPuntoVenta>{$request->emisor}</codigoPuntoVenta>
+                <codigoSistema>{$request->codigo_sistema}</codigoSistema>
+                <codigoSucursal>{$request->codigo_siat}</codigoSucursal>
+                <nit>{$request->nit}</nit>
+            </SolicitudCuis>
+        </siat:cuis>
+    </soapenv:Body>
+</soapenv:Envelope>
+EOD;
+         $tiempoEspera = DB::table('siat__configuracions')
+         ->where('id', 1)
+         ->value('tiempo_espera'); // Obtiene directamente el valor de la columna
+         if (is_null($tiempoEspera)) {
+             $tiempoEspera = 30;
+         } 
+            // Inicializar cURL
+            $ch = curl_init();
+
+            // Configuración de la solicitud cURL
+            curl_setopt($ch, CURLOPT_URL, $wsdl); // Reemplaza con el endpoint correcto
+            curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_TIMEOUT, $tiempoEspera); // Espera máximo 30 segundos para la respuesta completa
+            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10); // Espera máximo 10 segundos para conectarse
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $xmlData);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                'Content-Type: text/xml; charset=utf-8',
+                'SOAPAction: ""', // Si el SOAPAction es requerido, inclúyelo aquí
+                'apikey: ' . $apikeyValue // Incluye la API key con el valor correspondiente
+            ]);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+            // Ejecutar la solicitud y obtener la respuesta
+            $response = curl_exec($ch);
+        
+     
+
+if ($response === false) {
+
+    return response()->json([
+               'error' =>1,
+            'error' => curl_error($ch),
+            'message' => curl_errno($ch),       
+    ]);
+}
+  $xml = simplexml_load_string($response);
+  $resultado = $xml->xpath('//RespuestaCuis');
+    $cuis = (string) $resultado[0]->codigo;
+        $codigoMensaje = (string) $resultado[0]->mensajesList->codigo;
+         if($codigoMensaje==980){
+                         $endPoints = DB::table('siat__endpoints as se')    
+            ->select('se.id', 'se.Descripcion', 'se.Url', 'se.Version')
+            ->where('se.tipo', intval($request->codigo_ambiente))
+            ->where('se.id',$request->cuis_end)
+            ->get();     
+            
+              
+          $tiempoEspera = DB::table('siat__configuracions')
+         ->where('id', 1)
+         ->value('tiempo_espera'); // Obtiene directamente el valor de la columna
+         if (is_null($tiempoEspera)) {
+             $tiempoEspera = 30;
+         } 
+
+        $cadena_url=$endPoints[0]->Url; 
+         $wsdl=$cadena_url;
+
+            $apikeyValue = 'TokenApi ' .$request->token_delegado; // Concatenar correctamente el valor del API key
+
+         // Crear el cuerpo del mensaje SOAP, sustituyendo los valores con los parámetros correspondientes
+        //en punto de venta Solo se envía cuando la transacción se realiza utilizando un punto de venta. Caso contrario enviar 0.
+
+
+//------------------------------------------------
+$xmlData = <<<EOD
+         <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:siat="https://siat.impuestos.gob.bo/">
+            <soapenv:Header/>
+            <soapenv:Body>
+               <siat:cierreOperacionesSistema>
+                  <SolicitudOperaciones>
+                     <codigoAmbiente>$request->codigo_ambiente</codigoAmbiente>
+                     <codigoModalidad>$request->modalidad</codigoModalidad>
+                     <!--Optional:-->
+                     <codigoPuntoVenta>0</codigoPuntoVenta>
+                     <codigoSistema>$request->codigo_sistema</codigoSistema>
+                     <codigoSucursal>$request->codigo_siat</codigoSucursal>
+                     <cuis>$cuis</cuis>
+                     <nit>$request->nit</nit>
+                  </SolicitudOperaciones>
+               </siat:cierreOperacionesSistema>
+            </soapenv:Body>
+         </soapenv:Envelope>
+        EOD;
+
+            // Inicializar cURL
+            $ch = curl_init();
+            // Configuración de la solicitud cURL
+            curl_setopt($ch, CURLOPT_URL, $wsdl); // Reemplaza con el endpoint correcto
+            curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_TIMEOUT, $tiempoEspera); // Espera máximo 30 segundos para la respuesta completa
+            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10); // Espera máximo 10 segundos para conectarse
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $xmlData);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, [
+                'Content-Type: text/xml; charset=utf-8',
+                'SOAPAction: ""', // Si el SOAPAction es requerido, inclúyelo aquí
+                'apikey: ' . $apikeyValue // Incluye la API key con el valor correspondiente
+            ]);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+            // Ejecutar la solicitud y obtener la respuesta
+            $response = curl_exec($ch);
+            libxml_use_internal_errors(true);
+            $xml = simplexml_load_string($response);
+
+if ($xml === false) {
+    return response()->json([
+               'tipo' =>1,
+            'error' => $xml,
+            'message' => 'Error al leer el XML de cierreOperacionesSistema',       
+    ]);  
+}
+
+
+$transaccion = (string) $resultado[0]->transaccion;
+
+
+        if($transaccion=='true' || $transaccion==true){                
+                        
+        return response()->json([
+            'tipo' =>0,
+            'error' => '0',
+            'message' => 'Operacion exitosa'
+        ]);
+                        
+                        }else{
+                            return response()->json([
+                    'tipo' =>1,
+            'error' => $response,
+            'message' => 'Operacion fallida'
+        ]);
+                        } 
+                
+            
+            }else{
+                 return response()->json([
+                    'tipo' =>1,
+            'error' => $response,
+            'message' => 'error de codigo de respuesta de siat incorrecto.'
+        ]); 
+            } 
+ 
+    } catch (\Throwable $e) {
+          return response()->json([
+                    'tipo' =>1,
+            'error' => $e->getLine(),
+            'message' =>  $e->getMessage()
+        ]);
+
+    }
+   }
+
    public function get_cancelar_operacion(Request $request){
         
     try {
@@ -647,7 +1089,7 @@ if (empty($response)) {
 
    public function perdirCufd_all(Request $request){
     try {
-           
+         
         $datos_1 = DB::table('siat__configuracions')->where('id', 1)->first();
         $datos_2 = DB::table('adm__config_erp')->where('id', 1)->first();  
         $nit=$datos_2->nit;
@@ -657,7 +1099,7 @@ if (empty($response)) {
             ->leftJoin('siat__cufd as cu', 'cu.id', '=', 's.id_cufd')
             ->where('s.estado', 1)->where('c.estado', 1)
             ->select('s.id','s.nombre as nombre_emisor','s.id_punto_venta as punto_venta','ss.nombre_suc_siat','ss.codigo_siat','c.dato','cu.dato as cufd','cu.id as cufd_id')->get();
-            
+         
                 $tamaño=count($configuracion);
               
                 foreach ($configuracion as $key => $value) { 
@@ -781,7 +1223,9 @@ if (empty($response)) {
                         }              
                 }             
                 }
-            
+
+
+            //--------------------
             if ($tamaño==0) {
                 return $tamaño;
             }else{

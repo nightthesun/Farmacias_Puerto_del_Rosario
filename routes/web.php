@@ -991,7 +991,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/siat_cuis_cufd/eliminar_operaciones_V', [SiatCuisCufdControlador::class, 'eliminar_operaciones']); 
     Route::post('/siat_cuis_cufd/insertar_cufd', [SiatCuisCufdControlador::class, 'solicitarCudf']); 
     Route::post('/siat_cuis_cufd/perdirCufd_all', [SiatCuisCufdControlador::class, 'perdirCufd_all']);  
-    Route::post('/siat_cuis_cufd/perdirCuis_all', [SiatCuisCufdControlador::class, 'perdirCuis_all']);       
+    Route::post('/siat_cuis_cufd/perdirCuis_all', [SiatCuisCufdControlador::class, 'perdirCuis_all']); 
+    Route::get('/siat_cuis_cufd/listarCierreFueraXD', [SiatCuisCufdControlador::class, 'get_cierre_fuera_sucursal_XD']);      
+    Route::get('/siat_cuis_cufd/listarCierrePuntoVentaXD', [SiatCuisCufdControlador::class, 'get_cierre_punto_venta_XD']);         
     
     //emisor-----------------------
     Route::get('/siat_emisor/listar_siat_sucursal', [SiatEmisorController::class, 'siat_sucursal']); 
@@ -1006,8 +1008,12 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/siat_emisor/eliminar_puntoVenta', [SiatEmisorController::class, 'eliminarPV']);
     Route::post('/siat_emisor/insertar_cuis', [SiatEmisorController::class, 'crear_cuis']);  
     Route::post('/siat_emisor/eliminar_operaciones_V', [SiatEmisorController::class, 'eliminar_operaciones']); 
-    Route::put('/siat_emisor/desactivarActivarTabla  ', [SiatEmisorController::class, 'desactivateActivarTabla']);  
-    Route::put('/siat_emisor/eliminarCaja_v2', [SiatEmisorController::class, 'deleteCaja_v2']);  
+    Route::put('/siat_emisor/desactivarActivarTabla', [SiatEmisorController::class, 'desactivateActivarTabla']);  
+    Route::put('/siat_emisor/eliminarCaja_v2', [SiatEmisorController::class, 'deleteCaja_v2']); 
+    Route::get('/siat_emisor/recuperarCaja', [SiatEmisorController::class, 'recuperar_caja']); 
+    Route::post('siat_emisor/reallizarRecuperacion_XD', [SiatEmisorController::class, 'doing_lizar_recuperacion_XD']);  
+    Route::put('/siat_emisor/forzarCuis', [SiatEmisorController::class, 'does_forzar_cuis']);
+    
    
     
     //sincronizacion siat----------------
@@ -1020,7 +1026,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::put('/siat_sincronizacion/cambiarConfiguracion', [SiatSincronizacionController::class, 'cambiarConfiguracion']);    
     Route::get('/siat_sincronizacion/iniciarAutomatizacion', [SiatSincronizacionController::class, 'iniciarAutomatizacion']);  
      Route::get('/siat_sincronizacion/listarDetalleSincro', [SiatSincronizacionController::class, 'getDetalleSincro']); 
-    
+     Route::put('/siat_sincronizacion/hacerSicronizacion1x1', [SiatSincronizacionController::class, 'does_sicronizacion1x1']);    
     
     Route::post('/siat_sincronizacion/parametros', [SiatParamatrosSincronizacionController::class, 'store']); 
     Route::get('/siat_sincronizacion/listarInicio', [SiatParamatrosSincronizacionController::class, 'index']); 

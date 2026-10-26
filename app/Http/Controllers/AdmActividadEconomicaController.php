@@ -245,10 +245,15 @@ return $query;
 
      public function actualziarEstado_acti_data(Request $request){
 
-        $a = adm_CredecialCorreo::findOrFail(1);
-        $a->use_actividad_normal=$request->entrada;       
-        $a->save();
-     
+        $request->validate([
+    'entrada' => 'required|in:0,1',
+]);
+
+$actualizados = DB::table('adm__config_erp')
+    ->where('id', 1)
+    ->update([
+        'use_actividad_normal' => $request->entrada,
+    ]);  
     }
 
     

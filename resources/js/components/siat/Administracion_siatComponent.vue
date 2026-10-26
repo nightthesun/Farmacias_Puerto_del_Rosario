@@ -17,6 +17,9 @@
                 <li class="nav-item">
                     <a class="nav-link" id="pills-factura-tab" @click="listarTablaSiatConfiguracion()"  data-toggle="pill" href="#pills-factura" role="tab" aria-controls="pills-factura" aria-selected="false">Tipo factura a mostrar</a>
                 </li>
+                 <li class="nav-item">
+                    <a class="nav-link" id="pills-sincro1x1-tab"  data-toggle="pill" href="#pills-sincro1x1" role="tab" aria-controls="pills-sincro1x1" aria-selected="false">Sincronización 1 a 1</a>
+                </li>
                                      
             </ul>
         </div>
@@ -74,7 +77,9 @@
       <a class="dropdown-item" href="#" @click="solicitarCuis(i.codigo_siat,i.id);"><i style="color: black;" class="fa fa-cube" aria-hidden="true"></i> Solicitar CUIS</a>
     <a  class="dropdown-item" href="#" @click="insertar_cufd(i.codigo_siat,i.cuis,i.id,i.id_emisor,i.cufd);"><i style="color: black;" class="fa fa-cubes" aria-hidden="true"></i> Solicitar CUFD</a>     
     <a  class="dropdown-item" href="#" @click="cerrarOperaciones(i.codigo_siat,i.id,i.cuis,i.id_cufd, i.id_cuis, i.id_emisor);"><i style="color: black;" class="fa fa-refresh" aria-hidden="true"></i> Cierre de operaciones (inhabilita el CUIS y el CUFD)</a>   
-     </div>                   
+  <a  class="dropdown-item" href="#" @click="listarCierreFueraXD(i.codigo_siat,i.id,i.cuis,i.id_cufd, i.id_cuis, i.id_emisor,1);"><i style="color: red;" class="fa fa-hdd-o" aria-hidden="true"></i> Forzar cierre de operaciones (inhabilita el CUIS y el CUFD)</a>   
+   <a  class="dropdown-item" href="#" @click="listarCierreFueraXD(i.codigo_siat,i.id,i.cuis,i.id_cufd, i.id_cuis, i.id_emisor,2);"><i style="color: red;" class="fa fa-external-link" aria-hidden="true"></i> Forzar cierre de punto de venta</a>      
+</div>                   
                         </td>
                         <td class="col-md-1">{{ i.nombre_suc_siat }}</td>
                         <td class="col-md-1">{{ i.codigo_siat }}</td>
@@ -240,6 +245,103 @@
                     </div>        
                   
 <!---------------------------------------------------------------------------------------------------------------------------->
+<!----------------------------------------------------------SINCRO 1A1----------------------------------------------------------------------------------->
+                    <div class="tab-pane fade" id="pills-sincro1x1" role="tabpanel" aria-labelledby="pills-sincro1x1-tab">
+
+                        <div class="card">
+                            <div class="card-header">
+                                <span>Actualizar tabla de sincronización</span>
+                            </div>
+                             <div style="overflow-x: auto; width: 100%;">
+                                <table class="table table-bordered table-striped table-sm table-responsive" >
+                <thead>
+                    <tr>
+                        <th class="col-md-1">Opciones</th>
+                        <th class="col-md-11">Descripción</th> 
+                      
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="col-md-1"> <button class="btn btn-primary rounded" @click="hacerSicronizacion1x1(1)"><i class="fa fa-list-alt" aria-hidden="true"></i></button></td>
+                        <td class="col-md-11">Solicitud Sincronización</td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-1"> <button class="btn btn-primary rounded" @click="hacerSicronizacion1x1(2)"><i class="fa fa-list-alt" aria-hidden="true"></i></button></td>
+                        <td class="col-md-11">Solicitud Sincronización Fecha Hora</td>
+                    </tr>
+                      <tr>
+                        <td class="col-md-1"> <button class="btn btn-primary rounded" @click="hacerSicronizacion1x1(3)"><i class="fa fa-list-alt" aria-hidden="true"></i></button></td>
+                        <td class="col-md-11">Sincronizar ListaActividades DocumentoSector</td>
+                    </tr>
+                     <tr>
+                        <td class="col-md-1"> <button class="btn btn-primary rounded" @click="hacerSicronizacion1x1(4)"><i class="fa fa-list-alt" aria-hidden="true"></i></button></td>
+                        <td class="col-md-11">Sincronizar ListaLeyendas Factura</td>
+                    </tr>
+                     <tr>
+                        <td class="col-md-1"> <button class="btn btn-primary rounded" @click="hacerSicronizacion1x1(5)"><i class="fa fa-list-alt" aria-hidden="true"></i></button></td>
+                        <td class="col-md-11">Sincronizar Lista Mensajes Servicios</td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-1"> <button class="btn btn-primary rounded" @click="hacerSicronizacion1x1(6)"><i class="fa fa-list-alt" aria-hidden="true"></i></button></td>
+                        <td class="col-md-11">Sincronizar Lista Productos Servicios</td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-1"> <button class="btn btn-primary rounded" @click="hacerSicronizacion1x1(7)"><i class="fa fa-list-alt" aria-hidden="true"></i></button></td>
+                        <td class="col-md-11">Sincronizar Parametrica Eventos Significativos</td>
+                    </tr>
+                      <tr>
+                        <td class="col-md-1"> <button class="btn btn-primary rounded" @click="hacerSicronizacion1x1(8)"><i class="fa fa-list-alt" aria-hidden="true"></i></button></td>
+                        <td class="col-md-11">Sincronizar Parametrica Motivo Anulación</td>
+                    </tr>
+                     <tr>
+                        <td class="col-md-1"> <button class="btn btn-primary rounded" @click="hacerSicronizacion1x1(9)"><i class="fa fa-list-alt" aria-hidden="true"></i></button></td>
+                        <td class="col-md-11">Sincronizar Parametrica Pais Origen</td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-1"> <button class="btn btn-primary rounded" @click="hacerSicronizacion1x1(10)"><i class="fa fa-list-alt" aria-hidden="true"></i></button></td>
+                        <td class="col-md-11">Sincronizar Parametrica Tipo Documento Identidad</td>
+                    </tr>
+                      <tr>
+                        <td class="col-md-1"> <button class="btn btn-primary rounded" @click="hacerSicronizacion1x1(11)"><i class="fa fa-list-alt" aria-hidden="true"></i></button></td>
+                        <td class="col-md-11">Sincronizar Parametrica Tipo Documento Sector</td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-1"> <button class="btn btn-primary rounded" @click="hacerSicronizacion1x1(12)"><i class="fa fa-list-alt" aria-hidden="true"></i></button></td>
+                        <td class="col-md-11">Sincronizar Parametrica Tipo Emisión</td>
+                    </tr>
+                     <tr>
+                        <td class="col-md-1"> <button class="btn btn-primary rounded" @click="hacerSicronizacion1x1(13)"><i class="fa fa-list-alt" aria-hidden="true"></i></button></td>
+                        <td class="col-md-11">Sincronizar Parametrica Tipo Habitación</td>
+                    </tr>
+                     <tr>
+                        <td class="col-md-1"> <button class="btn btn-primary rounded" @click="hacerSicronizacion1x1(14)"><i class="fa fa-list-alt" aria-hidden="true"></i></button></td>
+                        <td class="col-md-11">Sincronizar Parametrica Tipo Metodo Pago</td>
+                    </tr>
+                    <tr>
+                        <td class="col-md-1"> <button class="btn btn-primary rounded" @click="hacerSicronizacion1x1(15)"><i class="fa fa-list-alt" aria-hidden="true"></i></button></td>
+                        <td class="col-md-11">Sincronizar Parametrica Tipo Moneda</td>
+                    </tr>
+                       <tr>
+                        <td class="col-md-1"> <button class="btn btn-primary rounded" @click="hacerSicronizacion1x1(16)"><i class="fa fa-list-alt" aria-hidden="true"></i></button></td>
+                        <td class="col-md-11">Sincronizar Parametrica Tipos Factura</td>
+                    </tr>
+                     <tr>
+                        <td class="col-md-1"> <button class="btn btn-primary rounded" @click="hacerSicronizacion1x1(17)"><i class="fa fa-list-alt" aria-hidden="true"></i></button></td>
+                        <td class="col-md-11">Sincronizar Parametrica Tipo PuntoVenta</td>
+                    </tr>
+                     <tr>
+                        <td class="col-md-1"> <button class="btn btn-primary rounded" @click="hacerSicronizacion1x1(18)"><i class="fa fa-list-alt" aria-hidden="true"></i></button></td>
+                        <td class="col-md-11">Sincronizar Parametrica Unidad Medida</td>
+                    </tr>
+                    
+                </tbody>
+                </table>
+
+                        </div>
+                    </div>        
+                  </div>
+<!---------------------------------------------------------------------------------------------------------------------------->
             </div>            
         </div>
     </div>
@@ -257,7 +359,7 @@
                         </button>
                         </div>
    <div class="modal-body" style="max-height: 60vh; overflow-y: auto;">                      
-                        <form action="" class="form-horizontal">                        
+                                        
                             <!-- insertar datos -->
                             <div class="container">  
                                 <div class="card">
@@ -266,7 +368,7 @@
   </div>
   <div class="card-body">
     <div class="form-group row" >                                   
-                                    <div class="col-md-2">
+                                    <div class="col-md-1">
                                         <label>Emisor: </label>                                     
                                     </div>
                                     <div class="col-md-7">
@@ -280,7 +382,11 @@
                                     <div class="col-md-3">
                                         <button type="button" v-if="isSubmitting===false" class="btn btn-primary rounded" :disabled="selectEmisor_v==='0'" @click="sinCronizacion()">Sincronizar</button>                        
                                         <button type="button" v-else class="btn btn-secondary rounded">Sincronizar</button>   
-                                    </div>                                        
+                                    </div>       
+                                    <div class="col-md-1">
+                                          <button class="btn"  :class="puedeHacerOpciones_especiales == 1 ? 'btn-primary' : 'btn-secondary'"  :disabled="puedeHacerOpciones_especiales != 1"
+                    @click="puedeHacerOpciones_especiales == 1 && irSucursalSiat()"><i class="fa fa-window-restore"></i></button>  
+                                    </div>                                 
                                 </div> 
   </div>
 </div>  
@@ -298,7 +404,7 @@
 </div>  
                            
                             </div>
-                        </form>
+                  
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary rounded"  @click="cerrarModal('manual')">Cerrar</button>    
@@ -414,6 +520,10 @@ export default {
     components: { VueMultiselect},
      //---permisos_R_W_S
      props: ['codventana','idmodulo'],
+     idmodulo: {
+            type: Number,
+            default: 0
+        },
         //-------------------
     data() {
         return {
@@ -563,6 +673,24 @@ export default {
 },
 //-------------------------------------------------------------- 
 
+    irSucursalSiat(){
+    Swal.fire({
+  title: "¿Desea crear nueva sucursal siat?",
+  text: "¡Al realziar esta acción se cerrar la venta y se abrira la ventana sucursal siat!",
+  icon: "warning",
+  showCancelButton: true,
+  confirmButtonColor: "#3085d6",
+  cancelButtonColor: "#d33",
+  confirmButtonText: "Cambiar, de ventana!"
+}).then((result) => {
+  if (result.isConfirmed){
+ this.cerrarModal('registrar');
+        
+            this.$emit('cambiar-ventana', 1502);
+  }
+});
+        },
+
     resert_0(data){
         let me=this;
         me.listarConfiguracionSiat();
@@ -591,7 +719,7 @@ if (data===1) {
         me.emisor='';              
         me.codigoSis='';
         me.codigodAmb='';
-        me.nit='';
+       // me.nit='';
         me.modalidad='';
         me.codigoSuc='';
         me.codigoPunVen='';
@@ -666,6 +794,61 @@ if (data===1) {
             },
             
            
+             listarCierreFueraXD(data,id,cuis,id_cufd,id_cuis,id_emisor,entrada)
+            {
+                let me=this;
+                let mensaje_1="";
+                let mensaje_2="";
+                let url="";
+                if(entrada===1){
+                     mensaje_1 = "CUIS?";
+                     mensaje_2 = "solo afectara a la sucursal y no al punto de venta";   
+                     url='/siat_cuis_cufd/listarCierreFueraXD?emisor='+me.emisor+'&codigo_siat='+data+'&nit='+me.nit+'&codigo_ambiente='+me.codigodAmb+'&codigo_sistema='+me.codigoSis+'&modalidad='+me.modalidad+'&token_delegado='+me.token_delegado+"&cuis_end="+2+"&id="+id+"&cuis="+cuis;                        
+    
+                }
+                if(entrada===2){ 
+                     mensaje_1 = "PUNTO DE VENTA";
+                     mensaje_2 = "esta acción solo afectara al punto de venta y no a la sucursal";
+                     url='/siat_cuis_cufd/listarCierrePuntoVentaXD?emisor='+me.emisor+'&codigo_siat='+data+'&nit='+me.nit+'&codigo_ambiente='+me.codigodAmb+'&codigo_sistema='+me.codigoSis+'&modalidad='+me.modalidad+'&token_delegado='+me.token_delegado+"&cuis_end="+2+"&id="+id+"&cuis="+cuis;                        
+    
+                }
+            
+                Swal.fire({
+  title: "Desea cerrar a la fuerza?",
+  text: "La operación solo efectuar cuando exite ya el " + mensaje_1 + " y "+mensaje_2,
+  icon: "warning",
+  showCancelButton: true,
+  confirmButtonColor: "#3085d6",
+  cancelButtonColor: "#d33",
+  confirmButtonText: "SI, forzar!"
+}).then((result) => {
+  if (result.isConfirmed)
+  {
+                     axios.get(url)
+                    .then(function (response) {
+                        const respuesta = response.data; 
+                         console.log(respuesta);
+                  
+                        const tipo= respuesta.tipo;
+                        const error = respuesta.error;
+                        const message = respuesta.message;
+                       
+                        if(tipo===1){
+                            Swal.fire("Error!",""+error+"&&&"+message,"error",);  
+                        } else {
+                            Swal.fire("Exito!",""+message,"success",); 
+                        }                  
+                        
+                     
+                      //  me.listarIndex(1);
+                    }).catch(function (error) {
+                        error401(error);                        
+                       
+                    });
+  }
+});
+            },
+
             cerrarOperaciones(data,id,cuis,id_cufd,id_cuis,id_emisor)
             {
                 let me=this;    
@@ -882,7 +1065,7 @@ if (data===1) {
             axios.get(url)
                 .then(function (response) {
                     var respuesta = response.data;
-                  
+                  console.log(respuesta);
                  //   me.id_credencial=response.data[0].id;
                  //   me.host=response.data[0].host;                   
                 //   me.correo=response.data[0].correo;
@@ -900,7 +1083,7 @@ if (data===1) {
               //      me.limite_monto=response.data[0].monto_limite;
               //      me.limite_horas=response.data[0].tiempo_limite;  
               //      me.selectModalApertura=response.data[0].modal_apertura;
-                
+                 console.log(me.nit);
                 })
                 .catch(function (error) {
                     error401(error);
@@ -917,7 +1100,8 @@ if (data===1) {
                 .then(function(response){
                     var respuesta = response.data;
                     me.pagination = respuesta.pagination;
-                    me.arrayIndex = respuesta.index.data;                   
+                    me.arrayIndex = respuesta.index.data;  
+                    console.log(me.arrayIndex);                 
                 })
                 .catch(function(error){
                     error401(error);
@@ -1041,6 +1225,55 @@ if (data===1) {
                     error401(error);
                 }); 
         },
+
+      async  hacerSicronizacion1x1(data){      
+    let me = this;
+
+    Swal.fire({
+        title: 'Procesando sincronización',
+        text: 'Esperando respuesta del SIAT...',
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    });
+
+    try {
+        const response = await axios.put("/siat_sincronizacion/hacerSicronizacion1x1", {
+            dato:data
+        });
+
+        const respuesta = response.data;
+        const tipo = respuesta.tipo;
+        const error = respuesta.error;
+        const message = respuesta.message;
+
+        console.log(respuesta);
+
+        Swal.close();
+
+        if (tipo === 0) {   
+
+            await Swal.fire(
+                'Acción realizada',
+                'con éxito.',
+                'success'
+            );
+        } else {
+            await Swal.fire(
+                ' '+error,
+                ' ' + message,
+                'error'
+            );
+        }
+
+    } catch (error) {
+        Swal.close();
+        error401(error);
+    }
+},
+       
 
       
         

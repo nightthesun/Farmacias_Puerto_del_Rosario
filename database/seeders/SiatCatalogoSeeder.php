@@ -28,7 +28,7 @@ class SiatCatalogoSeeder extends Seeder
         DB::table('siat__catalogo')->insert(['catalogo'=>'Tipo punto venta']); 
         DB::table('siat__catalogo')->insert(['catalogo'=>'Codigo tipo habilitacion']); 
         DB::table('siat__catalogo')->insert(['catalogo'=>'Codigo tipo actividades']);
-        DB::table('siat__catalogo')->insert(['catalogo'=>'Codigo tipo actividesdes documento sector']); 
+        DB::table('siat__catalogo')->insert(['catalogo'=>'Codigo tipo actividasdes documento sector']); 
  
     }
 }

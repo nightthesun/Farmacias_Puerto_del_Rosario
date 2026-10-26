@@ -471,10 +471,10 @@
   </div>
   <div class="card-body">
       <div  style="margin-top: 10px;">                            
-                           
+                         
                             <label for="">Seleccionar sucursal siat:</label>
                                 <div class="input-group">
-                                    <select class="form-control" v-model="select_query_1" :disabled="siguienteP==1">
+                                    <select class="form-control" v-model="select_query_1" :disabled="siguienteP==1" @change="cambio_sucursal_1(select_query_1)">
                                         <option value="0" disabled selected>Seleccionar...</option>                               
                                         <option  v-for="(i, index) in array_query_1" :key="index" :value="i.id" >{{  "("+i.codigo_siat+") "+i.nombre_suc_siat }}</option>                              
                                     </select>
@@ -485,9 +485,9 @@
                                 <div v-show="siguienteP==1" style="margin-top: 10px;">
                                     <label for="">Punto de venta:</label>
                                         <div class="input-group">
-                                        <select class="form-control" v-model="select_query_2" :disabled="siguienteP_1==1">
+                                        <select class="form-control" v-model="select_query_2" :disabled="siguienteP_1==1" @change="cambio_punto_venta_1(select_query_2)">
                                             <option value="0" disabled selected>Seleccionar...</option>                               
-                                            <option  v-for="(i, index) in array_query_2" :key="index" :value="i.id" :disabled="siguienteP_1===1">{{  "("+i.nombre+") "+i.descripcion }}</option>                              
+                                            <option  v-for="(i, index) in array_query_2" :key="index" :value="i.id" :disabled="siguienteP_1===1">{{  "("+i.id_punto_venta+") "+i.nombre+"-"+i.descripcion }}</option>                              
                                         </select>
                                         <button type="button" class="btn btn-primary" @click="operacionT(2)" style="margin-right: 5px;">
                                         <i class="fa fa-angle-double-up" aria-hidden="true"></i>
@@ -496,6 +496,7 @@
                                      <label for="">Tipo evento:</label>    
                                          <select class="form-control" v-model="selectListaContingencia_2" @change="cambioOpcion_modal(selectListaContingencia_2)">
                                         <option value="0" disabled selected>Seleccionar...</option>    
+                                     
                                         <option  v-for="(i, index) in arrayListaContingencia_2" :key="index" :value="i.codigo">{{  "("+i.codigo+") "+i.descripcion }}</option> 
                                         </select>
 
@@ -541,7 +542,7 @@
                                         </div>
                                 </div>
                                 <div style="margin-top: 10px;">
-                                    <label for="">Codigo sector:</label>
+                                    <label for="">Codigo tipo factura:</label>
                                         <div class="input-group">
                                         <select class="form-control" v-model="select_codSector_2">
                                             <option value="0" disabled selected>Seleccionar...</option>  
@@ -879,6 +880,12 @@ textMotivo:'',
 id_archivo:'',
 tipo_modal_mmm:'',
 
+cod_siat_sucursal_v22:'',
+id_normal_sucursal_v22:'',
+id_punto_venta_v22:'',
+id_cuis_v22:'',
+id_cufd_v22:'', 
+
 
         };
     },
@@ -968,29 +975,55 @@ tipo_modal_mmm:'',
              });  
         },
 
-        anulacionReversion(){
-            let me=this;     
-         axios.put("/siat_eventos/anulacionReversion", { 
-                    id: me.id_archivo,
-                    dato:me.tipo_modal_mmm,
-                    codMotivo:me.selectMotivo,
-                    descripcion:me.textMotivo,                                                                                        
-                })
-                .then(function (response) {                   
-                    let respuesta=response.data;
-                     console.log(respuesta);
-                    me.cerrarModal('anular_modal');
-                    me.listarInicio(1,5);
-                     if(respuesta===0){                        
-                       return Swal.fire('Acción realizada','con exito.','success');
-                       }else{
-                           return Swal.fire('Error',' '+respuesta,'error');
-                       }                                                               
-                })               
-                .catch(function (error) {                
-                 error401(error);              
-            });
-        },
+       async anulacionReversion() {
+    let me = this;
+
+    Swal.fire({
+        title: 'Procesando anulación',
+        text: 'Esperando respuesta del SIAT...',
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    });
+
+    try {
+        const response = await axios.put("/siat_eventos/anulacionReversion", {
+            id: me.id_archivo,
+            dato: me.tipo_modal_mmm,
+            codMotivo: me.selectMotivo,
+            descripcion: me.textMotivo,
+        });
+
+        let respuesta = response.data;
+
+        console.log(respuesta);
+
+        Swal.close();
+
+        if (respuesta === 0) {
+            me.cerrarModal('anular_modal');
+            me.listarInicio(1, 5);
+
+            await Swal.fire(
+                'Acción realizada',
+                'con éxito.',
+                'success'
+            );
+        } else {
+            await Swal.fire(
+                'Error',
+                ' ' + respuesta,
+                'error'
+            );
+        }
+
+    } catch (error) {
+        Swal.close();
+        error401(error);
+    }
+},
         
         abrirModalAnulacion(dato,id){
             let me=this;
@@ -1185,9 +1218,9 @@ tipo_modal_mmm:'',
                 return Swal.fire('Error','No debe haber espacion sin llenar','error');
             }
             axios.post("/siat_eventos/enviarEventoManual", { 
-                    id_sucursal: me.select_query_1,
-                    punto_venta: me.select_query_2,
-                    id_contigencia:me.selectListaContingencia_2,
+                    id_sucursal_siat: me.select_query_1,
+                    id_emisor: me.select_query_2,
+                    tipo_evento:me.selectListaContingencia_2,
                     fecha_fin:me.endDate_modal_1,
                     fecha_ini:me.startDate_modal_1,
                     cafc:me.codigo_cafc,  
@@ -1197,10 +1230,18 @@ tipo_modal_mmm:'',
                    modalidad_m:me.select_modalidad_2,
                    tipoFacturaDoc_m:me.select_tipoFacturaDoc_2,
                     contigencia_m:me.select_contigencia_2,
-                    codSector_m:me.select_codSector_2                                                     
+                    codSector_m:me.select_codSector_2,
+                    cod_siat_sucursal_v22:me.cod_siat_sucursal_v22,
+                    id_normal_sucursal_v22:me.id_normal_sucursal_v22,
+                    id_punto_venta_v22:me.id_punto_venta_v22,
+                    id_cuis_v22:me.id_cuis_v22,
+                    id_cufd_v22:me.id_cufd_v22,                                                      
                 })
                 .then(function (response) {                   
                     let respuesta=response.data;
+                    console.log("-------------");
+                     console.log(respuesta);
+                     console.log("-------------");
                        me.listarInicio(0,me.pagina_uno)              
                     me.cerrarModal('contingencia_2')
                       if(respuesta===0){
@@ -1208,8 +1249,8 @@ tipo_modal_mmm:'',
                        }else{
                            return Swal.fire('Error',' '+respuesta,'error');
                        }              
-                          console.log(respuesta);
-                 ;        
+                         
+                       
                                              
                 })               
                 .catch(function (error) {                
@@ -1242,10 +1283,12 @@ tipo_modal_mmm:'',
             let me=this;
             if (dato==1) {
                me.siguienteP=1; 
+              
             }
             if (dato==2) {
                 me.select_query_2='0';
                me.siguienteP=0; 
+               
             }
            
          
@@ -1256,6 +1299,32 @@ tipo_modal_mmm:'',
           //  }
         },
         
+      
+        cambio_sucursal_1(id) {
+    const sucursal = this.array_query_1.find(
+        i => i.id == id
+    );
+
+    if (sucursal) {
+this.cod_siat_sucursal_v22=sucursal.codigo_siat;
+this.id_normal_sucursal_v22=sucursal.id_sucursal;
+     
+    }
+},
+cambio_punto_venta_1(id) {
+    const punto = this.array_query_2.find(
+        i => i.id == id
+    );
+
+    if (punto) {
+        this.id_punto_venta_v22=punto.id_punto_venta;
+        this.id_cuis_v22=punto.id_cuis;
+        this.id_cufd_v22=punto.id_cufd;    
+    }
+},
+
+
+
 listarModalSucuralSiatPunto(entrada,id) {
         let me = this;
         let url = "/siat_eventos/listarModalSucuralSiatPunto?entrada="+entrada+"&id="+id;
@@ -1266,8 +1335,7 @@ listarModalSucuralSiatPunto(entrada,id) {
                         me.array_query_1=respuesta;
                     }
 
-                    if (entrada==2) {
-                       
+                    if (entrada==2) {                       
                         me.array_query_2=[];
                         me.array_query_2=respuesta;
                     }                    
@@ -1277,44 +1345,97 @@ listarModalSucuralSiatPunto(entrada,id) {
                 });
         },
 
-        enviarContingencia(){
-             let me = this; 
-             
-       if (new Date(me.startDate_modal_1) > new Date(me.endDate_modal_1)) {
-    
-    return Swal.fire('Error','La fecha inicial no debe ser mayor a la fecha final.','error');
-}
-           
-                axios.post("/siat_eventos/enviarContingencia", { 
-                    contingencia: me.selectListaContingencia_2,
-                    contingencia_descripcion_modal: me.contingencia_descripcion_modal,
-                    contigenciaDes_codigo_modal: me.contigenciaDes_codigo_modal,
-                    startDate_modal_1: me.startDate_modal_1,
-                    endDate_modal_1: me.endDate_modal_1,
-                    id_sucursal_modal: me.id_sucursal_modal,
-         id_cufd_modal:me.id_cufd_modal,
-        punto_suc:me.punto_suc,
-        punto_venta:me.punto_venta,
-        id_suc_siat:me.id_suc_siat,
-        id:me.id_evento_,
-       
-                                  
-                })
-                .then(function (response) {                   
-                    let respuesta=response.data;
-                   console.log(respuesta);
-                    me.listarInicio(0,me.pagina_uno);              
-                    me.cerrarModal('contingencia');    
-                        if(respuesta===0){
-                            return Swal.fire('Acción realizada','con exito.','success');
-                        }else{
-                            return Swal.fire('Error',' '+respuesta,'error');
-                        }                              
-                })               
-                .catch(function (error) {                
-                 error401(error);              
-            });
-        },
+   
+async enviarContingencia() {
+    let me = this;
+
+    // 1. Validar las fechas antes de mostrar la carga
+    if (!me.startDate_modal_1 || !me.endDate_modal_1) {
+        return Swal.fire(
+            'Error',
+            'Debes seleccionar la fecha inicial y la fecha final.',
+            'error'
+        );
+    }
+
+    if (
+        new Date(me.startDate_modal_1) > new Date(me.endDate_modal_1)
+    ) {
+        return Swal.fire(
+            'Error',
+            'La fecha inicial no debe ser mayor a la fecha final.',
+            'error'
+        );
+    }
+
+    // 2. Mostrar indicador de carga
+    Swal.fire({
+        title: 'Procesando sincronización',
+        text: 'Esperando respuesta del SIAT...',
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    });
+
+    try {
+        // 3. Esperar la respuesta del servidor
+        const response = await axios.post(
+            "/siat_eventos/enviarContingencia",
+            {
+                contingencia: me.selectListaContingencia_2,
+                contingencia_descripcion_modal: me.contingencia_descripcion_modal,
+                contigenciaDes_codigo_modal:
+                    me.contigenciaDes_codigo_modal,
+                startDate_modal_1: me.startDate_modal_1,
+                endDate_modal_1: me.endDate_modal_1,
+                id_sucursal_modal: me.id_sucursal_modal,
+                id_cufd_modal: me.id_cufd_modal,
+                punto_suc: me.punto_suc,
+                punto_venta: me.punto_venta,
+                id_suc_siat: me.id_suc_siat,
+                id: me.id_evento_ 
+            }
+        );
+
+        const respuesta = response.data;
+            console.log("---------------------");
+        console.log(respuesta);
+ console.log("---------------------");
+        // 4. Cerrar el indicador de carga
+        Swal.close();
+
+        me.listarInicio(0, me.pagina_uno);
+        me.cerrarModal('contingencia');
+
+        // 5. Mostrar el resultado
+        if (respuesta === 0 || respuesta === "0") {
+            return Swal.fire(
+                'Acción realizada',
+                'Con éxito.',
+                'success'
+            );
+        } else {
+            return Swal.fire(
+                'Error',
+                String(respuesta),
+                'error'
+            );
+        }
+
+    } catch (error) {
+        Swal.close();
+
+        console.error(
+            'Error al enviar la contingencia:',
+            error.response?.data || error.message
+        );
+
+        error401(error);
+    }
+},
+
 
         cambioOpcion_modal(data){
             let me=this;
@@ -1783,6 +1904,11 @@ me.id_evento_="";
             me.select_contigencia_2='0';
             me.select_codSector_2='0';
             me.select_modalidad_2='0';
+            me.cod_siat_sucursal_v22='';
+            me.id_normal_sucursal_v22='';
+            me.id_punto_venta_v22='';
+            me.id_cuis_v22='';
+            me.id_cufd_v22=''; 
 
              
             } 

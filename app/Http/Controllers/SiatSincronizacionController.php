@@ -13,10 +13,1077 @@ class SiatSincronizacionController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
-        
+    public function does_sicronizacion1x1(Request $request){
+    try {      
+        $numero =$request->dato;
+        if($numero==11){
+            $query = DB::table('excel__emision')
+            ->select('id_catalogo')->where('id_catalogo', 3)->get();
+                if(count($query)<=0){
+                    return response()->json([
+                    'tipo' =>1,
+                    'error' => "debe estar llena la tabla ",
+                    'message' => "primero debe seleccionar el boton de Sincronizar ListaActividades DocumentoSector",          
+                    ]);
+                }
+        }
+
+// 1. Configuración SIAT
+$configSiat = DB::table('siat__configuracions')
+    ->select('cod_sis','tipo_ambiente','token_delegado','tipo_modalidad')->where('id', 1)->first();
+if (!$configSiat) {
+    return response()->json([
+            'tipo' =>1,
+            'error' => "Error base de datos",
+            'message' => "no existe datos el la tabla configuracion",          
+        ]);
+}
+
+// 2. Emisores habilitados
+$emisores = DB::table('siat__cuis as a')
+    ->join('siat__emisors as b', 'a.id', '=', 'b.id_cuis')
+    ->join('siat__sucursals as c', 'c.id', '=', 'b.id_siat_sucursal')
+    ->select('c.id as id_sucursal','c.nombre_suc_siat','b.id as id_emisor','c.codigo_siat as codigo_sucursal','b.id_punto_venta','a.dato as cuis')
+    ->where('b.estado', 1)
+    ->where('b.delete', 0)
+    ->where('b.punto_venta_eliminado', 1)
+    ->where('a.estado', 1)
+    ->orderBy('c.codigo_siat', 'asc')
+    ->get();
+if (count($emisores)<=0) {
+    return response()->json([
+            'tipo' =>1,
+            'error' => "Error base de datos",
+            'message' => "no existe datos el la tabla emisor",          
+        ]);
+}
+
+// 3. NIT del ERP
+$configErp = DB::table('adm__config_erp')->select('nit')
+    ->where('id', 1)->first();
+if (!$configErp) {
+    return response()->json([
+            'tipo' =>1,
+            'error' => "Error base de datos",
+            'message' => "no existe datos el la tabla configuracion erp",          
+        ]);
+}
+
+$codigoAmbiente = $configSiat->tipo_ambiente; 
+          //  $codigoPuntoVenta = $request->codigoPuntoVenta; 
+            $codigoSistema = $configSiat->cod_sis;
+           // $codigoSucursal = $request->codigoSucursal;
+           // $cuis = $request->cuis;
+            $nit = $configErp->nit;
+            $token_delegado=$configSiat->token_delegado;
+            $modalidad=$configSiat->tipo_modalidad;
+
+       //     $emisores = DB::table('siat__emisors as a')
+
+//    ->select('a.id as id_emisor','a.id_siat_sucursal','a.id_punto_venta','b.dato as cuis')
+
+            if($codigoAmbiente==1){
+           //----------------produccion 
+                return "sin datos.. error de ambiente";
+            }else{
+               
+                  $endPoints = DB::table('siat__endpoints as se')    
+        ->select('se.id', 'se.Descripcion', 'se.Url', 'se.Version')
+        ->where('se.tipo', intval($codigoAmbiente))
+        ->where('se.id',1)
+        ->first(); 
+            }
+            
+            $tiempoEspera = 30;
+            $cadena_url=$endPoints->Url; 
+        $wsdl = $cadena_url;       
+        $apikeyValue = 'TokenApi ' .$token_delegado; // Concatenar correctamente el valor del API key
+
+//---- pruebas ------------    for ($i=0; $i < 49; $i++) { 
+  foreach ($emisores as $key => $value) {
+
+    $id_sucursal=$value->id_sucursal;
+    $nombre_suc_siat=$value->nombre_suc_siat;
+    $id_emisor=$value->id_emisor;
+
+   $codigoPuntoVenta=$value->id_punto_venta;
+   $codigoSucursal=$value->codigo_sucursal;
+   $cuis=$value->cuis;
+   
+    $xmlData = $this->endpoint($codigoAmbiente, $codigoPuntoVenta, $codigoSistema, $codigoSucursal, $cuis, $nit, $numero);
+   
+    $ch = curl_init();
+    // Configuración de la solicitud cURL
+    curl_setopt($ch, CURLOPT_URL, $wsdl); // Reemplaza con el endpoint correcto
+    curl_setopt($ch, CURLOPT_POST, 1);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $xmlData);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        'Content-Type: text/xml; charset=utf-8',
+        'SOAPAction: ""', // Si el SOAPAction es requerido, inclúyelo aquí
+        'apikey: ' . $apikeyValue // Incluye la API key con el valor correspondiente
+    ]);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+    // Ejecutar la solicitud y obtener la respuesta
+
+    $response = curl_exec($ch);
+    
+   // return $response;
+    // Verificar si hubo un error en cURL
+    if (curl_errno($ch)) {
+        $aa=throw new \Exception(curl_error($ch));
+        return response()->json([
+            'tipo' =>1,
+            'error' => $aa,
+            'message' =>  "error de lista numero ".$numero." sucursal: ".$nombre_suc_siat,          
+        ]);
     }
+
+
+    // Cerrar la sesión de cURL
+    curl_close($ch);
+   
+    if($key==0){
+    
+     $respuesta_final= $this->actualizarSincroBD($numero,$response); 
+  // return $respuesta_final;
+        if ($respuesta_final!=0) {
+           return response()->json([
+            'tipo' =>1,
+            'error' => $response,
+            'message' =>  "error de al insertar datos registro numero: ".$numero,          
+        ]);
+        }    
+    }
+    
+}    
+
+ 
+return  response()->json([
+            'tipo' =>0,
+            'error' => "Sin error",
+            'message' => "Sicronizacion hecha",          
+        ]);;
+
+    } catch (\Throwable $e) {
+         return response()->json([
+            'tipo' =>1,
+            'error' => $e->getLine(),
+            'message' =>  $e->getMessage(),          
+        ]);
+    }
+   }
+
+
+   private function actualizarSincroBD($n,$response){
+
+     switch ($n) {
+
+            case 1:            
+               // Crear un objeto DOMDocument para formatear el XML
+  $xml = simplexml_load_string($response);               
+  // Usar XPath para encontrar el nodo <transaccion>
+  $transaccion = $xml->xpath('//transaccion');
+    if ($transaccion && isset($transaccion[0])) {    
+        if ($transaccion[0]== 'true') {
+            DB::table('excel__emision')
+                ->where('id_catalogo', 15)
+                ->delete();
+            // Extraer y decodificar las descripciones de actividades
+            $codigos = $xml->xpath("//listaActividades/codigoCaeb"); 
+           $descripciones = $xml->xpath("//listaActividades/descripcion");
+           $s1 = $xml->xpath("//listaActividades/tipoActividad");
+           $s2 =null;
+             $tamaño=count($codigos);
+                   for ($i=0; $i <$tamaño ; $i++) { 
+                      $dato_12= html_entity_decode($codigos[$i], ENT_QUOTES, 'UTF-8');                      
+                      $dato_13= html_entity_decode($descripciones[$i], ENT_QUOTES, 'UTF-8');
+                       $dato_14= html_entity_decode($s1[$i], ENT_QUOTES, 'UTF-8');                     
+                        $dato_12 = (int) $dato_12; // Código como cadena);
+                        $dato_13 = (string) $dato_13; // Entero
+                        $dato_14 = (string) $dato_14; // Código como cadena);
+                    DB::table('excel__emision')->insert([
+                    'descripcion' => $dato_13,
+                    'codigo' => $dato_12,
+                    'id_catalogo' => 15,                    
+                    's2' => $dato_14
+                        ]);
+                    }
+                    return 0;
+                
+   }else{
+    return 1;
+   }
+    }
+    return 1;
+     break;
+//--------------------------------
+  case 2:
+                   // Convertir la respuesta en un objeto SimpleXMLElement
+                   $xml = simplexml_load_string($response);     
+                   
+                   // Usar XPath para encontrar el nodo <transaccion>
+                $transaccion = $xml->xpath('//transaccion');     
+                if ($transaccion && isset($transaccion[0])) {
+                    if ($transaccion[0]== 'true') {
+                        // Extraer y decodificar las descripciones de actividades
+                        $codigos = $xml->xpath("//fechaHora"); 
+                    // Obtener el primer resultado y convertirlo a string
+$fechaTexto = (string) $codigos[0];
+
+// Convertir la fecha extraída a Carbon
+$fecha1 = Carbon::parse($fechaTexto); // Convierte el string a una fecha Carbon
+$fechaHoy = Carbon::now(); // Obtiene la fecha de hoy como Carbon
+// Truncar a segundos
+$fecha1Truncada = $fecha1->format('Y-m-d\TH:i:s');
+$fecha2Truncada = $fechaHoy->format('Y-m-d\TH:i:s');
+$minutos_1 = intval($fecha1->format('i')); // Extrae solo los minutos
+$minutos_2 = intval($fechaHoy->format('i')); // Extrae solo los minutos
+$respuesta_minutos = abs($minutos_1 - $minutos_2); // Convierte a positivo             
+
+                        $time="";   
+                        
+                        
+                            $data_query = Carbon::now()->format('Y-m-d H:i:s');     
+                            if ($fecha1Truncada==$fecha2Truncada) {
+                                return 0;
+                            } else {
+                                if ($respuesta_minutos == 0 || $respuesta_minutos == 1)  {
+                                    return 0;
+                                }else{
+                                    return "Las fechas son diferentes.";
+                                }                              
+                            }
+                           
+                    } else {
+                      return "error del siat de sincronización";
+                    }    
+               
+            } else {   
+                return "error en sicronización de de fecha y hora";
+            }   
+            break;   
+//-------------------------------------------------
+    case 3:
+                // Convertir la respuesta en un objeto SimpleXMLElement
+                $xml = simplexml_load_string($response);
+                // Usar XPath para encontrar el nodo <transaccion>
+                $transaccion = $xml->xpath('//transaccion');
+               
+if ($transaccion && isset($transaccion[0])) {
+        if ($transaccion[0]== 'true') {
+            // Extraer y decodificar las descripciones de actividades
+                DB::table('excel__emision')
+                ->where('id_catalogo', 3)
+                ->delete();
+
+            $codigos = $xml->xpath("//listaActividadesDocumentoSector/codigoDocumentoSector"); 
+            $descripciones = "Sin tipo";
+            $s1 = $xml->xpath("//listaActividadesDocumentoSector/tipoDocumentoSector"); 
+           $s2 = $xml->xpath("//listaActividadesDocumentoSector/codigoActividad"); 
+            $tamaño=count($codigos);
+            for ($i = 0; $i < $tamaño; $i++) {
+
+    $dato_12 = html_entity_decode($codigos[$i], ENT_QUOTES, 'UTF-8');
+   // $dato_13 = html_entity_decode($descripciones[$i], ENT_QUOTES, 'UTF-8');
+    $dato_14 = html_entity_decode($s1[$i], ENT_QUOTES, 'UTF-8');
+    $dato_15 = html_entity_decode($s2[$i], ENT_QUOTES, 'UTF-8');
+
+    $dato_12 = (int) $dato_12;
+   // $dato_13 = (string) $dato_13;
+    $dato_14 = (string) $dato_14;
+     $dato_15 = (string) $dato_15;  
+
+   
+        DB::table('excel__emision')->insert([
+            'descripcion' => $descripciones,
+            'codigo' => $dato_12,
+            'id_catalogo' => 3,
+            's1' => $dato_14,
+            's2' => $dato_15,
+        ]);
+    
+}
+   
+         return 0;  
+                                      
+        } else {
+        return "error en sicronización de sector ";
+        }    
+   
+} else {   
+    return "error en sicronización de sector";
+}  
+            break;
+            //------------------------------------------------------------------
+case 4:
+                // Convertir la respuesta en un objeto SimpleXMLElement
+                $xml = simplexml_load_string($response);
+                // Usar XPath para encontrar el nodo <transaccion>
+                $transaccion = $xml->xpath('//transaccion');
+               
+if ($transaccion && isset($transaccion[0])) {
+        if ($transaccion[0]== 'true') {
+            // Extraer y decodificar las descripciones de actividades
+                DB::table('excel__emision')
+                ->where('id_catalogo', 11)
+                ->delete();
+   
+            $codigos = null; 
+            $descripciones =  $xml->xpath("//listaLeyendas/descripcionLeyenda"); 
+           $s1 = null; 
+            $s2 =null;
+            $id_erp= $xml->xpath("//listaLeyendas/codigoActividad");
+            $tamaño=count($id_erp);    
+        
+            for ($i = 0; $i < $tamaño; $i++) {
+
+   // $dato_12 = html_entity_decode($codigos[$i], ENT_QUOTES, 'UTF-8');
+    $dato_13 = html_entity_decode($descripciones[$i], ENT_QUOTES, 'UTF-8');
+    $dato_14 = html_entity_decode($id_erp[$i], ENT_QUOTES, 'UTF-8');
+
+    $dato_12 = $i+1;
+    $dato_13 = (string) $dato_13;
+    $dato_14 = (int) $dato_14;
+
+    $existe = DB::table('excel__emision')
+        ->where('id_catalogo', 11)
+        ->where('descripcion', $dato_13)
+        ->where('id_erp', $dato_14)     
+        ->exists();
+
+    if (!$existe) {
+        DB::table('excel__emision')->insert([
+            'descripcion' => $dato_13,
+            'codigo' => $dato_12,
+            'id_catalogo' => 11,
+            'id_erp' => $dato_14,
+        ]);
+    }
+}
+   
+         return 0;  
+                                      
+        } else {
+           return "error en sicronización de listaLeyendas ";
+        }    
+   
+} else {   
+    return "error en sicronización de listaLeyendas";
+}  
+  break;  
+//----------------------------------------------------------------
+case 5:
+                // Convertir la respuesta en un objeto SimpleXMLElement
+                $xml = simplexml_load_string($response);
+                // Usar XPath para encontrar el nodo <transaccion>
+                $transaccion = $xml->xpath('//transaccion');
+               
+if ($transaccion && isset($transaccion[0])) {
+        if ($transaccion[0]== 'true') {
+            // Extraer y decodificar las descripciones de actividades
+                DB::table('excel__emision')
+                ->where('id_catalogo', 5)
+                ->delete();
+        
+            $codigos = $xml->xpath("//listaCodigos/codigoClasificador");  
+            $descripciones =$xml->xpath("//listaCodigos/descripcion");  
+           $s1 = null; 
+            $s2 =null;
+            $id_erp=null;
+            $tamaño=count($codigos);    
+        
+            for ($i = 0; $i < $tamaño; $i++) {
+
+    $dato_12 = html_entity_decode($codigos[$i], ENT_QUOTES, 'UTF-8');
+    $dato_13 = html_entity_decode($descripciones[$i], ENT_QUOTES, 'UTF-8');
+ //   $dato_14 = html_entity_decode($id_erp[$i], ENT_QUOTES, 'UTF-8');
+
+    $dato_12 = (int) $dato_12;
+    $dato_13 = (string) $dato_13;
+   // $dato_14 = (int) $dato_14;
+
+    $existe = DB::table('excel__emision')
+        ->where('id_catalogo', 5)
+        ->where('descripcion', $dato_13)
+        ->where('codigo', $dato_12)     
+        ->exists();
+
+    if (!$existe) {
+        DB::table('excel__emision')->insert([
+            'descripcion' => $dato_13,
+            'codigo' => $dato_12,
+            'id_catalogo' => 5,
+        
+        ]);
+    }
+}       
+            return 0;                          
+        } else {
+            return "error en sicronización de Sincronizar Lista Mensajes Servicios ";
+        }    
+   
+} else {   
+    return "error en sicronización de Sincronizar Lista Mensajes Servicios";
+}  
+  break;  
+//----------------------------------------------------------------
+case 6:
+     
+                // Convertir la respuesta en un objeto SimpleXMLElement
+                $xml = simplexml_load_string($response);
+                // Usar XPath para encontrar el nodo <transaccion>
+                $transaccion = $xml->xpath('//transaccion');
+          
+if ($transaccion && isset($transaccion[0])) {
+        if ($transaccion[0]== 'true') {
+            // Extraer y decodificar las descripciones de actividades
+                DB::table('excel__emision')
+                ->where('id_catalogo', 16)
+                ->delete();
+       
+             $codigos = $xml->xpath("//listaCodigos/codigoProducto");  
+             $descripciones = $xml->xpath("//listaCodigos/descripcionProducto");  
+           $s1 = null; 
+            $s2 =null;
+   
+            $id_erp=$xml->xpath("//listaCodigos/codigoActividad");
+        $tamaño=count($codigos); 
+            for ($i = 0; $i < $tamaño; $i++) {
+
+    $dato_12 = html_entity_decode($codigos[$i], ENT_QUOTES, 'UTF-8');
+    $dato_13 = html_entity_decode($descripciones[$i], ENT_QUOTES, 'UTF-8');
+    $dato_14 = html_entity_decode($id_erp[$i], ENT_QUOTES, 'UTF-8');
+
+    $dato_12 = (int) $dato_12;
+    $dato_13 = (string) $dato_13;
+    $dato_14 = (int) $dato_14;
+   
+        DB::table('excel__emision')->insert([
+            'descripcion' => $dato_13,
+            'codigo' => $dato_12,
+            'id_catalogo' => 16,
+            'id_erp' => $dato_14,        
+        ]);    
+}       
+            return 0;                          
+        } else {
+            return "error en sicronización de siat:sincronizarListaProductosServicios ";
+        }    
+   
+} else {   
+    return  "error en sicronización de siat:sincronizarListaProductosServicios";
+}  
+  break;  
+//----------------------------------------------------------------
+case 7:
+     
+                // Convertir la respuesta en un objeto SimpleXMLElement
+                $xml = simplexml_load_string($response);
+                // Usar XPath para encontrar el nodo <transaccion>
+                $transaccion = $xml->xpath('//transaccion');
+          
+if ($transaccion && isset($transaccion[0])) {
+        if ($transaccion[0]== 'true') {
+            // Extraer y decodificar las descripciones de actividades
+                DB::table('excel__emision')
+                ->where('id_catalogo', 6)
+                ->delete();
+                 // Extraer y decodificar las descripciones de actividades
+                            $codigos = $xml->xpath("//listaCodigos/codigoClasificador");  
+                            $descripciones = $xml->xpath("//listaCodigos/descripcion");
+                            $tamaño=count($codigos);  
+       
+          
+           $s1 = null; 
+            $s2 =null;   
+     //       $id_erp=$xml->xpath("//listaCodigos/codigoActividad");
+  
+            for ($i = 0; $i < $tamaño; $i++) {
+
+    $dato_12 = html_entity_decode($codigos[$i], ENT_QUOTES, 'UTF-8');
+    $dato_13 = html_entity_decode($descripciones[$i], ENT_QUOTES, 'UTF-8');
+   // $dato_14 = html_entity_decode($id_erp[$i], ENT_QUOTES, 'UTF-8');
+
+    $dato_12 = (int) $dato_12;
+    $dato_13 = (string) $dato_13;
+  //  $dato_14 = (int) $dato_14;
+   
+        DB::table('excel__emision')->insert([
+            'descripcion' => $dato_13,
+            'codigo' => $dato_12,
+            'id_catalogo' => 6,
+       //     'id_erp' => $dato_14,        
+        ]);    
+}       
+            return 0;                          
+        } else {
+            return "error en sicronización de siat:sincronizarParametricaEventosSignificativos";
+        }    
+   
+} else {   
+    return  "error en sicronización de siat:sincronizarParametricaEventosSignificativos";
+}  
+  break;  
+//----------------------------------------------------------------
+case 8:
+     
+                // Convertir la respuesta en un objeto SimpleXMLElement
+                $xml = simplexml_load_string($response);
+                // Usar XPath para encontrar el nodo <transaccion>
+                $transaccion = $xml->xpath('//transaccion');
+          
+if ($transaccion && isset($transaccion[0])) {
+        if ($transaccion[0]== 'true') {
+            // Extraer y decodificar las descripciones de actividades
+                DB::table('excel__emision')
+                ->where('id_catalogo', 4)
+                ->delete();
+                 // Extraer y decodificar las descripciones de actividades
+                   
+                    $codigos = $xml->xpath("//listaCodigos/codigoClasificador");   
+                             $descripciones = $xml->xpath("//listaCodigos/descripcion");     
+                            $tamaño=count($codigos);  
+       
+          
+           $s1 = null; 
+            $s2 =null;   
+     //       $id_erp=$xml->xpath("//listaCodigos/codigoActividad");
+  
+            for ($i = 0; $i < $tamaño; $i++) {
+
+    $dato_12 = html_entity_decode($codigos[$i], ENT_QUOTES, 'UTF-8');
+    $dato_13 = html_entity_decode($descripciones[$i], ENT_QUOTES, 'UTF-8');
+   // $dato_14 = html_entity_decode($id_erp[$i], ENT_QUOTES, 'UTF-8');
+
+    $dato_12 = (int) $dato_12;
+    $dato_13 = (string) $dato_13;
+  //  $dato_14 = (int) $dato_14;
+   
+        DB::table('excel__emision')->insert([
+            'descripcion' => $dato_13,
+            'codigo' => $dato_12,
+            'id_catalogo' => 4,
+       //     'id_erp' => $dato_14,        
+        ]);    
+}       
+            return 0;                          
+        } else {
+            return "error en sicronización de siat:sincronizarParametricaMotivoAnulacion";
+        }    
+   
+} else {   
+    return  "error en sicronización de siat:sincronizarParametricaMotivoAnulacion";
+}  
+  break;  
+//----------------------------------------------------------------
+case 9:
+     
+                // Convertir la respuesta en un objeto SimpleXMLElement
+                $xml = simplexml_load_string($response);
+                // Usar XPath para encontrar el nodo <transaccion>
+                $transaccion = $xml->xpath('//transaccion');
+          
+if ($transaccion && isset($transaccion[0])) {
+        if ($transaccion[0]== 'true') {
+            // Extraer y decodificar las descripciones de actividades
+                DB::table('excel__emision')
+                ->where('id_catalogo', 10)
+                ->delete();
+                 // Extraer y decodificar las descripciones de actividades
+                 $codigos = $xml->xpath("//listaCodigos/codigoClasificador");  
+                            $descripciones = $xml->xpath("//listaCodigos/descripcion"); 
+                            $tamaño=count($codigos);  
+       
+          
+           $s1 = null; 
+            $s2 =null;   
+     //       $id_erp=$xml->xpath("//listaCodigos/codigoActividad");
+  
+            for ($i = 0; $i < $tamaño; $i++) {
+
+    $dato_12 = html_entity_decode($codigos[$i], ENT_QUOTES, 'UTF-8');
+    $dato_13 = html_entity_decode($descripciones[$i], ENT_QUOTES, 'UTF-8');
+   // $dato_14 = html_entity_decode($id_erp[$i], ENT_QUOTES, 'UTF-8');
+
+    $dato_12 = (int) $dato_12;
+    $dato_13 = (string) $dato_13;
+  //  $dato_14 = (int) $dato_14;
+   
+        DB::table('excel__emision')->insert([
+            'descripcion' => $dato_13,
+            'codigo' => $dato_12,
+            'id_catalogo' => 10,
+       //     'id_erp' => $dato_14,        
+        ]);    
+}       
+            return 0;                          
+        } else {
+            return "error en sicronización de siat:sincronizarParametricaPaisOrigen";
+        }    
+   
+} else {   
+    return  "error en sicronización de siat:sincronizarParametricaPaisOrigen";
+}  
+  break;  
+//----------------------------------------------------------------
+case 10:
+     
+                // Convertir la respuesta en un objeto SimpleXMLElement
+                $xml = simplexml_load_string($response);
+                // Usar XPath para encontrar el nodo <transaccion>
+                $transaccion = $xml->xpath('//transaccion');
+          
+if ($transaccion && isset($transaccion[0])) {
+        if ($transaccion[0]== 'true') {
+            // Extraer y decodificar las descripciones de actividades
+                DB::table('excel__emision')
+                ->where('id_catalogo', 7)
+                ->delete();
+                 // Extraer y decodificar las descripciones de actividades
+                 $codigos = $xml->xpath("//listaCodigos/codigoClasificador");  
+                            $descripciones = $xml->xpath("//listaCodigos/descripcion"); 
+                            $tamaño=count($codigos);  
+       
+          
+           $s1 = null; 
+            $s2 =null;   
+     //       $id_erp=$xml->xpath("//listaCodigos/codigoActividad");
+  
+            for ($i = 0; $i < $tamaño; $i++) {
+
+    $dato_12 = html_entity_decode($codigos[$i], ENT_QUOTES, 'UTF-8');
+    $dato_13 = html_entity_decode($descripciones[$i], ENT_QUOTES, 'UTF-8');
+   // $dato_14 = html_entity_decode($id_erp[$i], ENT_QUOTES, 'UTF-8');
+
+    $dato_12 = (int) $dato_12;
+    $dato_13 = (string) $dato_13;
+  //  $dato_14 = (int) $dato_14;
+   
+        DB::table('excel__emision')->insert([
+            'descripcion' => $dato_13,
+            'codigo' => $dato_12,
+            'id_catalogo' => 7,
+       //     'id_erp' => $dato_14,        
+        ]);    
+}       
+            return 0;                          
+        } else {
+            return "error en sicronización de siat:sincronizarParametricaPaisOrigen";
+        }    
+   
+} else {   
+    return  "error en sicronización de siat:sincronizarParametricaPaisOrigen";
+}  
+  break;  
+//----------------------------------------------------------------
+case 11:
+     
+                // Convertir la respuesta en un objeto SimpleXMLElement
+                $xml = simplexml_load_string($response);
+                // Usar XPath para encontrar el nodo <transaccion>
+                $transaccion = $xml->xpath('//transaccion');
+          
+if ($transaccion && isset($transaccion[0])) {
+        if ($transaccion[0]== 'true') {
+            // Extraer y decodificar las descripciones de actividades
+                           
+                $codigos = $xml->xpath("//listaCodigos/codigoClasificador");   
+                $descripciones = $xml->xpath("//listaCodigos/descripcion");          
+                           
+                $tamaño=count($codigos);  
+          
+           $s1 = null; 
+            $s2 =null;   
+     //       $id_erp=$xml->xpath("//listaCodigos/codigoActividad");
+  
+            for ($i = 0; $i < $tamaño; $i++) {
+
+    $dato_12 = html_entity_decode($codigos[$i], ENT_QUOTES, 'UTF-8');
+    $dato_13 = html_entity_decode($descripciones[$i], ENT_QUOTES, 'UTF-8');
+   // $dato_14 = html_entity_decode($id_erp[$i], ENT_QUOTES, 'UTF-8');
+    $dato_12 = (int) $dato_12;
+    $dato_13 = (string) $dato_13;
+  //  $dato_14 = (int) $dato_14;
+            DB::table('excel__emision')
+    ->where('id_catalogo', 3)
+    ->where('codigo', $dato_12)
+    ->update([
+        'descripcion' => $dato_13,
+    ]);       
+}       
+            return 0;                          
+        } else {
+            return "error en sicronización de siat:sincronizarParametricaTipoDocumentoSector";
+        }    
+   
+} else {   
+    return  "error en sicronización de siat:sincronizarParametricaTipoDocumentoSector";
+}  
+  break;  
+//----------------------------------------------------------------
+case 12:
+             // Convertir la respuesta en un objeto SimpleXMLElement
+                $xml = simplexml_load_string($response);
+                // Usar XPath para encontrar el nodo <transaccion>
+                $transaccion = $xml->xpath('//transaccion');
+          
+if ($transaccion && isset($transaccion[0])) {
+        if ($transaccion[0]== 'true') {
+            // Extraer y decodificar las descripciones de actividades
+                DB::table('excel__emision')
+                ->where('id_catalogo', 1)
+                ->delete();
+                 // Extraer y decodificar las descripciones de actividades
+                
+                $codigos = $xml->xpath("//listaCodigos/codigoClasificador");  
+                $descripciones = $xml->xpath("//listaCodigos/descripcion");  
+                $tamaño=count($codigos);  
+       
+          
+           $s1 = null; 
+            $s2 =null;   
+     //       $id_erp=$xml->xpath("//listaCodigos/codigoActividad");
+  
+            for ($i = 0; $i < $tamaño; $i++) {
+
+    $dato_12 = html_entity_decode($codigos[$i], ENT_QUOTES, 'UTF-8');
+    $dato_13 = html_entity_decode($descripciones[$i], ENT_QUOTES, 'UTF-8');
+   // $dato_14 = html_entity_decode($id_erp[$i], ENT_QUOTES, 'UTF-8');
+
+    $dato_12 = (int) $dato_12;
+    $dato_13 = (string) $dato_13;
+  //  $dato_14 = (int) $dato_14;
+   
+        DB::table('excel__emision')->insert([
+            'descripcion' => $dato_13,
+            'codigo' => $dato_12,
+            'id_catalogo' => 1,
+       //     'id_erp' => $dato_14,        
+        ]);    
+}       
+            return 0;                          
+        } else {
+            return "error en sicronización de siat:sincronizarParametricaTipoEmision";
+        }    
+   
+} else {   
+    return  "error en sicronización de siat:sincronizarParametricaTipoEmision";
+}  
+  break; 
+//----------------------------------------------------------------
+case 13:
+             // Convertir la respuesta en un objeto SimpleXMLElement
+                $xml = simplexml_load_string($response);
+                // Usar XPath para encontrar el nodo <transaccion>
+                $transaccion = $xml->xpath('//transaccion');
+          
+if ($transaccion && isset($transaccion[0])) {
+        if ($transaccion[0]== 'true') {
+            // Extraer y decodificar las descripciones de actividades
+                DB::table('excel__emision')
+                ->where('id_catalogo', 14)
+                ->delete();
+                 // Extraer y decodificar las descripciones de actividades
+            $codigos = $xml->xpath("//listaCodigos/codigoClasificador"); 
+                            $descripciones = $xml->xpath("//listaCodigos/descripcion"); 
+           
+                $tamaño=count($codigos);  
+       
+          
+           $s1 = null; 
+            $s2 =null;   
+     //       $id_erp=$xml->xpath("//listaCodigos/codigoActividad");
+  
+            for ($i = 0; $i < $tamaño; $i++) {
+
+    $dato_12 = html_entity_decode($codigos[$i], ENT_QUOTES, 'UTF-8');
+    $dato_13 = html_entity_decode($descripciones[$i], ENT_QUOTES, 'UTF-8');
+   // $dato_14 = html_entity_decode($id_erp[$i], ENT_QUOTES, 'UTF-8');
+
+    $dato_12 = (int) $dato_12;
+    $dato_13 = (string) $dato_13;
+  //  $dato_14 = (int) $dato_14;
+   
+        DB::table('excel__emision')->insert([
+            'descripcion' => $dato_13,
+            'codigo' => $dato_12,
+            'id_catalogo' => 14,
+       //     'id_erp' => $dato_14,        
+        ]);    
+}       
+            return 0;                          
+        } else {
+            return "error en sicronización de siat:sincronizarParametricaTipoHabitacion";
+        }    
+   
+} else {   
+    return  "error en sicronización de siat:sincronizarParametricaTipoHabitacion";
+}  
+  break; 
+//----------------------------------------------------------------
+
+case 14:
+             // Convertir la respuesta en un objeto SimpleXMLElement
+                $xml = simplexml_load_string($response);
+                // Usar XPath para encontrar el nodo <transaccion>
+                $transaccion = $xml->xpath('//transaccion');
+          
+if ($transaccion && isset($transaccion[0])) {
+        if ($transaccion[0]== 'true') {
+            // Extraer y decodificar las descripciones de actividades
+                DB::table('excel__emision')
+                ->where('id_catalogo', 8)
+                ->delete();
+
+                       $codigos = $xml->xpath("//listaCodigos/codigoClasificador"); 
+                            $descripciones = $xml->xpath("//listaCodigos/descripcion");
+           
+           
+                $tamaño=count($codigos);  
+       
+          
+           $s1 = null; 
+            $s2 =null;   
+     //       $id_erp=$xml->xpath("//listaCodigos/codigoActividad");
+  
+            for ($i = 0; $i < $tamaño; $i++) {
+
+    $dato_12 = html_entity_decode($codigos[$i], ENT_QUOTES, 'UTF-8');
+    $dato_13 = html_entity_decode($descripciones[$i], ENT_QUOTES, 'UTF-8');
+   // $dato_14 = html_entity_decode($id_erp[$i], ENT_QUOTES, 'UTF-8');
+
+    $dato_12 = (int) $dato_12;
+    $dato_13 = (string) $dato_13;
+  //  $dato_14 = (int) $dato_14;
+   
+        DB::table('excel__emision')->insert([
+            'descripcion' => $dato_13,
+            'codigo' => $dato_12,
+            'id_catalogo' => 8,
+       //     'id_erp' => $dato_14,        
+        ]);    
+}       
+            return 0;                          
+        } else {
+            return "error en sicronización de siat:sincronizarParametricaTipoMetodoPago";
+        }    
+   
+} else {   
+    return  "error en sicronización de siat:sincronizarParametricaTipoMetodoPago";
+}  
+  break; 
+//----------------------------------------------------------------
+case 15:
+             // Convertir la respuesta en un objeto SimpleXMLElement
+                $xml = simplexml_load_string($response);
+                // Usar XPath para encontrar el nodo <transaccion>
+                $transaccion = $xml->xpath('//transaccion');
+          
+if ($transaccion && isset($transaccion[0])) {
+        if ($transaccion[0]== 'true') {
+            // Extraer y decodificar las descripciones de actividades
+                DB::table('excel__emision')
+                ->where('id_catalogo', 9)
+                ->delete();
+
+                   
+           
+      $codigos = $xml->xpath("//listaCodigos/codigoClasificador"); 
+                            $descripciones = $xml->xpath("//listaCodigos/descripcion"); 
+                            
+           
+                $tamaño=count($codigos);  
+       
+          
+           $s1 = null; 
+            $s2 =null;   
+     //       $id_erp=$xml->xpath("//listaCodigos/codigoActividad");
+  
+            for ($i = 0; $i < $tamaño; $i++) {
+
+    $dato_12 = html_entity_decode($codigos[$i], ENT_QUOTES, 'UTF-8');
+    $dato_13 = html_entity_decode($descripciones[$i], ENT_QUOTES, 'UTF-8');
+   // $dato_14 = html_entity_decode($id_erp[$i], ENT_QUOTES, 'UTF-8');
+
+    $dato_12 = (int) $dato_12;
+    $dato_13 = (string) $dato_13;
+  //  $dato_14 = (int) $dato_14;
+   
+        DB::table('excel__emision')->insert([
+            'descripcion' => $dato_13,
+            'codigo' => $dato_12,
+            'id_catalogo' => 9,
+       //     'id_erp' => $dato_14,        
+        ]);    
+}       
+            return 0;                          
+        } else {
+            return "error en sicronización de siat:sincronizarParametricaTipoMoneda";
+        }    
+   
+} else {   
+    return  "error en sicronización de siat:sincronizarParametricaTipoMoneda";
+}  
+  break; 
+//----------------------------------------------------------------
+case 16:
+             // Convertir la respuesta en un objeto SimpleXMLElement
+                $xml = simplexml_load_string($response);
+                // Usar XPath para encontrar el nodo <transaccion>
+                $transaccion = $xml->xpath('//transaccion');
+          
+if ($transaccion && isset($transaccion[0])) {
+        if ($transaccion[0]== 'true') {
+            // Extraer y decodificar las descripciones de actividades
+                DB::table('excel__emision')
+                ->where('id_catalogo', 2)
+                ->delete();
+
+       
+         $codigos = $xml->xpath("//listaCodigos/codigoClasificador");  
+                            $descripciones = $xml->xpath("//listaCodigos/descripcion");                     
+           
+                $tamaño=count($codigos);  
+       
+          
+           $s1 = null; 
+            $s2 =null;   
+     //       $id_erp=$xml->xpath("//listaCodigos/codigoActividad");
+  
+            for ($i = 0; $i < $tamaño; $i++) {
+
+    $dato_12 = html_entity_decode($codigos[$i], ENT_QUOTES, 'UTF-8');
+    $dato_13 = html_entity_decode($descripciones[$i], ENT_QUOTES, 'UTF-8');
+   // $dato_14 = html_entity_decode($id_erp[$i], ENT_QUOTES, 'UTF-8');
+
+    $dato_12 = (int) $dato_12;
+    $dato_13 = (string) $dato_13;
+  //  $dato_14 = (int) $dato_14;
+   
+        DB::table('excel__emision')->insert([
+            'descripcion' => $dato_13,
+            'codigo' => $dato_12,
+            'id_catalogo' => 2,
+       //     'id_erp' => $dato_14,        
+        ]);    
+}       
+            return 0;                          
+        } else {
+            return "error en sicronización de siat:sincronizarParametricaTiposFactura";
+        }    
+   
+} else {   
+    return  "error en sicronización de siat:sincronizarParametricaTiposFactura";
+}  
+  break; 
+//---------------------------------------------------------------
+case 17:
+             // Convertir la respuesta en un objeto SimpleXMLElement
+                $xml = simplexml_load_string($response);
+                // Usar XPath para encontrar el nodo <transaccion>
+                $transaccion = $xml->xpath('//transaccion');
+          
+if ($transaccion && isset($transaccion[0])) {
+        if ($transaccion[0]== 'true') {
+            // Extraer y decodificar las descripciones de actividades
+                DB::table('excel__emision')
+                ->where('id_catalogo', 13)
+                ->delete();
+
+       
+         $codigos = $xml->xpath("//listaCodigos/codigoClasificador");  
+                            $descripciones = $xml->xpath("//listaCodigos/descripcion");                     
+           
+                $tamaño=count($codigos);  
+       
+          
+           $s1 = null; 
+            $s2 =null;   
+     //       $id_erp=$xml->xpath("//listaCodigos/codigoActividad");
+  
+            for ($i = 0; $i < $tamaño; $i++) {
+
+    $dato_12 = html_entity_decode($codigos[$i], ENT_QUOTES, 'UTF-8');
+    $dato_13 = html_entity_decode($descripciones[$i], ENT_QUOTES, 'UTF-8');
+   // $dato_14 = html_entity_decode($id_erp[$i], ENT_QUOTES, 'UTF-8');
+
+    $dato_12 = (int) $dato_12;
+    $dato_13 = (string) $dato_13;
+  //  $dato_14 = (int) $dato_14;
+   
+        DB::table('excel__emision')->insert([
+            'descripcion' => $dato_13,
+            'codigo' => $dato_12,
+            'id_catalogo' => 13,
+       //     'id_erp' => $dato_14,        
+        ]);    
+}       
+            return 0;                          
+        } else {
+            return "error en sicronización de siat:sincronizarParametricaTipoPuntoVenta";
+        }    
+   
+} else {   
+    return  "error en sicronización de siat:sincronizarParametricaTipoPuntoVenta";
+}  
+  break; 
+//---------------------------------------------------------------
+case 18:
+             // Convertir la respuesta en un objeto SimpleXMLElement
+                $xml = simplexml_load_string($response);
+                // Usar XPath para encontrar el nodo <transaccion>
+                $transaccion = $xml->xpath('//transaccion');
+          
+if ($transaccion && isset($transaccion[0])) {
+        if ($transaccion[0]== 'true') {
+            // Extraer y decodificar las descripciones de actividades
+                DB::table('excel__emision')
+                ->where('id_catalogo', 12)
+                ->delete();
+
+       
+         $codigos = $xml->xpath("//listaCodigos/codigoClasificador");  
+                            $descripciones = $xml->xpath("//listaCodigos/descripcion");                     
+           
+                $tamaño=count($codigos);  
+       
+          
+           $s1 = null; 
+            $s2 =null;   
+     //       $id_erp=$xml->xpath("//listaCodigos/codigoActividad");
+  
+            for ($i = 0; $i < $tamaño; $i++) {
+
+    $dato_12 = html_entity_decode($codigos[$i], ENT_QUOTES, 'UTF-8');
+    $dato_13 = html_entity_decode($descripciones[$i], ENT_QUOTES, 'UTF-8');
+   // $dato_14 = html_entity_decode($id_erp[$i], ENT_QUOTES, 'UTF-8');
+
+    $dato_12 = (int) $dato_12;
+    $dato_13 = (string) $dato_13;
+  //  $dato_14 = (int) $dato_14;
+   
+        DB::table('excel__emision')->insert([
+            'descripcion' => $dato_13,
+            'codigo' => $dato_12,
+            'id_catalogo' => 12,
+       //     'id_erp' => $dato_14,        
+        ]);    
+}       
+            return 0;                          
+        } else {
+            return "error en sicronización de siat:sincronizarParametricaUnidadMedida";
+        }    
+   
+} else {   
+    return  "error en sicronización de siat:sincronizarParametricaUnidadMedida";
+}  
+  break; 
+//---------------------------------------------------------------
+
+     }
+
+     }
 
     public function getDetalleSincro(){
         try {
@@ -289,11 +1356,12 @@ class SiatSincronizacionController extends Controller
             $cuis = $request->cuis;
             $nit = $request->nit; 
             $numero=0;//$numero=0;
+       
             while ($numero <= 18) { // while ($numero <= 18) {
                    // Llamar al método privado dentro de la misma clase
              
     $xmlData = $this->endpoint($codigoAmbiente, $codigoPuntoVenta, $codigoSistema, $codigoSucursal, $cuis, $nit, $numero);
-  
+
     $ch = curl_init();
     // Configuración de la solicitud cURL
     curl_setopt($ch, CURLOPT_URL, $wsdl); // Reemplaza con el endpoint correcto
@@ -307,8 +1375,9 @@ class SiatSincronizacionController extends Controller
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
     // Ejecutar la solicitud y obtener la respuesta
+
     $response = curl_exec($ch);
-   // dd($response);
+  
     // Verificar si hubo un error en cURL
     if (curl_errno($ch)) {
         throw new \Exception(curl_error($ch));
@@ -371,7 +1440,7 @@ class SiatSincronizacionController extends Controller
                    </soapenv:Body>
                 </soapenv:Envelope>
                 EOD;
-            
+         
                 break;
             case 2:                              
                     $xmlData = <<<EOD
@@ -774,7 +1843,7 @@ class SiatSincronizacionController extends Controller
             case 0:
                 // Convertir la respuesta en un objeto SimpleXMLElement
                 $xml = simplexml_load_string($response);
-             
+          
                 // Usar XPath para encontrar el nodo <transaccion>    
                 $transaccion = $xml->xpath('//transaccion');
                 if ($transaccion && isset($transaccion[0])) {
@@ -789,7 +1858,7 @@ class SiatSincronizacionController extends Controller
              break;   
             case 1:
                // Crear un objeto DOMDocument para formatear el XML
-
+ 
  
   $xml = simplexml_load_string($response);
                
@@ -803,16 +1872,16 @@ class SiatSincronizacionController extends Controller
             $codigos = $xml->xpath("//listaActividades/codigoCaeb"); 
            $descripciones = $xml->xpath("//listaActividades/descripcion");
            $s1 = $xml->xpath("//listaActividades/tipoActividad");
-            $tamaño=count($codigos);
-                      
-                $data_query = $this->query_($n);  
-               
+            $data_query = $this->query_($n);   
+           $tamaño=count($codigos);
+            $tamañoBD=count($data_query);
+          
+              // dd(count($codigos)); //7  -- 3 
              
                 $controlador_12=0;
                $existe_1=0;   
              $existe_2=0;  
-
-                foreach ($codigos as $key_0 => $codigo) {
+                    foreach ($codigos as $key_0 => $codigo) {
                      $dato= html_entity_decode($codigo, ENT_QUOTES, 'UTF-8');
                     foreach ($data_query as $key_1 => $data) {
                         if ($data->codigo==$dato) {
@@ -827,7 +1896,9 @@ class SiatSincronizacionController extends Controller
                       $existe_2=1;
                       $existe_1=0;
                     }
-                }    
+                }  
+            
+                  
 
                 if ($existe_2==1) {
                     $respuesta=0;

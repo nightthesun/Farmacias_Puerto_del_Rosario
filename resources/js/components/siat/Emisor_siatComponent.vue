@@ -31,7 +31,7 @@
                         <div class="col-md-7" v-show="sucursalSeleccionada != 0">
                             <button type="button" @click="consultarPuntoV(1)" class="btn btn-primary" style="margin-right: 10px;"><i class="fa fa-volume-control-phone" aria-hidden="true"></i> Consultar punto de venta a siat</button>
                             <button type="button" @click="consultarPuntoV(2);" class="btn btn-danger" :disabled="puedeActivar===1" hidden style="margin-right: 10px;"><i class="fa fa-lock" aria-hidden="true"></i> Cerrar punto de venta </button>
-                            <button type="button" @click="eliminarCaja_v2()" class="btn btn-warning" style="margin-right: 10px;"><i class="fa fa-bell-slash-o" aria-hidden="true"></i> Eliminar caja</button>
+                            <button type="button" @click="eliminarCaja_v2()" class="btn btn-danger" style="margin-right: 10px; color: white;"><i class="fa fa-bell-slash-o" aria-hidden="true"></i> Eliminar caja</button>
                         </div>      
                      
                        
@@ -42,6 +42,7 @@
                 <div class="col-md-10">
                             <button type="button" @click="listarIndex(1,2)" class="btn btn-primary" style="margin-right: 10px;">Consultar toda la lista</button>
                            <button type="button" @click="listarIndex(1,1)" class="btn btn-primary" style="margin-right: 10px;">Consultar estado con activo</button>
+                           <button type="button"  class="btn btn-warning" @click="recuperarCaja()" style="margin-right: 10px; color: white;">Recuperar caja</button>
                 
                 </div>                    
             </div>
@@ -74,8 +75,8 @@
   </button>     
 <div class="dropdown-menu">
     
-    <a v-show="i.nombre_caja===null && i.tipo===1000" @click="abrirModal('caja',i);listar_caja();" class="dropdown-item" href="#"><i style="color: black;" class="icon-pencil"></i> Añadir caja</a>
-    <a v-show="i.nombre_caja!=null" @click="quitarCaja(i.id)" class="dropdown-item" href="#"><i style="color:black;" class="fa fa-window-close-o" aria-hidden="true"></i> Quitar nombre de caja</a>
+    <a v-if="i.nombre_caja===null " @click="abrirModal('caja',i);listar_caja();" class="dropdown-item" href="#"><i style="color: black;" class="icon-pencil"></i> Añadir caja</a>
+    <a v-else @click="quitarCaja(i.id)" class="dropdown-item" href="#"><i style="color:black;" class="fa fa-window-close-o" aria-hidden="true"></i> Quitar nombre de caja</a>
     <div v-show="i.id_punto_venta>0">
         <a v-show="i.tipo!=1000 && i.estado===1  || i.delete===0" @click="abrirModal('cerrar_PV',i);" class="dropdown-item" href="#"><i style="color: black;" class="fa fa-trash" aria-hidden="true"></i> Eliminar punto de venta</a> 
     
@@ -87,7 +88,7 @@
      
             <a v-show="i.estado===1" @click="cerrarOperaciones(i.codigo_siat,i.id,i.cuis,i.id_cufd,i.id_cuis,i.id_punto_venta)" class="dropdown-item" href="#"><i style="color: black;" class="fa fa-refresh" aria-hidden="true"></i> Cierre de operaciones en punto de venta (inhabilita el CUIS y el CUFD) </a> 
    
-<a v-show=" i.estado===1" @click="solicitarCuis(i.codigo_siat,i.id,i.id_punto_venta)" class="dropdown-item" href="#"><i style="color: black;"  class="fa fa-key" aria-hidden="true"></i> Forzar CUIS</a> 
+<a v-show=" i.estado===1" @click="forzarCuis(i.codigo_siat,i.id,i.id_punto_venta)" class="dropdown-item" href="#"><i style="color: black;"  class="fa fa-key" aria-hidden="true"></i> Forzar CUIS</a> 
 
     </div>    
 <a v-if="i.estado===1" @click="desactivarActivarTabla(i.id,i.descripcion,i.id_cuis,0)" class="dropdown-item" href="#"><i style="color: black;" class="fa fa-bell" aria-hidden="true"></i> Desactivar</a>
@@ -333,7 +334,58 @@ Debe crear antes una sucursal en el modulo de SIAT
                 </div>
             </div>
         </div>
-        <!--fin del modal-->   
+
+
+
+        <!--fin del modal-->  
+        
+           <!--Inicio del modal recuperacion de caja-->
+
+           <transition name="fade">
+            <div v-if="showModal_10" class="modal d-block" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-primary modal-lg modal-dialog-scrollable" role="document">
+
+                    <div class="modal-content">
+                        <div class="modal-header">
+                        <h4 class="modal-title">{{ tituloModal }}</h4>
+                        <button type="button" class="close" @click="cerrarModal('recuperar_modal')">
+                            <span>&times;</span>
+                        </button>
+                        </div>
+                 <div class="modal-body" style="max-height: 70vh; overflow-y: auto;"> 
+                          <table class="table table-bordered table-striped table-sm table-responsive" >
+                            <thead>
+                    <tr>
+                        <th class="col-md-1">Opciones</th>
+                        <th class="col-md-3" >Codigo punto venta</th>
+                        <th class="col-md-4">Nombre punto venta</th>
+                        <th class="col-md-4">Tipo punto venta</th>
+                    
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="(i, index) in arrayCajaConsulta_x" :key="index">
+                        <td><button type="button" class="btn btn-primary"  @click="reallizarRecuperacion_XD(i.codigoPuntoVenta,i.tipoPuntoVenta,i.nombrePuntoVenta)">Recuperar</button></td>
+                        <td>{{i.codigoPuntoVenta}}</td>
+                        <td>{{i.nombrePuntoVenta}}</td>
+                        <td>{{i.tipoPuntoVenta}}</td>
+                    </tr>
+                </tbody>
+                </table>    
+                
+                    </div>
+                
+                 
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary"  @click="cerrarModal('recuperar_modal')">Cerrar</button>                                         
+                  
+                    </div>
+                    </div>
+                </div>
+            </div>
+        </transition>                
+    
+        <!--fin del modal-->
     </main>
 </template>
 
@@ -357,6 +409,7 @@ export default {
             },
           
             isSubmitting: false,
+            showModal_10: false,
             offset:3,
 
             tituloModal: "",
@@ -396,6 +449,7 @@ export default {
                 //-----------
             id_cufd:'',
             id_cuis:'', 
+            arrayCajaConsulta_x:[],
 
         };
     },
@@ -821,6 +875,45 @@ cerrarOperaciones(codigo_siat,id,cuis,id_cufd,id_cuis,id_emisor)
             });      
         },
  //----------------------
+
+forzarCuis(codigo_siat,id_emisor,id_punto_venta){
+    let me=this;
+      me.isSubmitting=true;
+                axios.put("/siat_emisor/forzarCuis", {
+                codigoAmbiente: me.codigoAmbiente,
+            codigoSistema: me.codigoSistema,
+            codigoSucursal: me.codigoSucursal,
+            cuis: me.cuis,
+            nit: me.nit,
+            token_delegado: me.token_delegado,
+            codigo_siat:codigo_siat,
+            id_emisor:id_emisor,
+            id_punto_venta:id_punto_venta,
+             codigoModalidad:me.codigoModalidad   
+                })
+                .then(function (response) {              
+                    const respuesta=response.data;              
+                    console.log(respuesta); 
+                       const tipo_m =respuesta.tipo;
+        const error_m = respuesta.error;
+        const message_ = respuesta.message;
+
+        if (tipo_m===0) {
+        Swal.fire("Acción relizada",""+error_m+" TIPO: "+message_,"success",);
+        }else{
+    Swal.fire("Error",""+error_m+" TIPO: "+message_,"error",); 
+        }                           
+                })               
+                .catch(function (error) {                
+                   error401(error);              
+            }); 
+    
+},
+
+
+
+
+
   listarIndex(page,data2)
           {
                 let me=this;  
@@ -874,6 +967,46 @@ listarIndex2(page)
                 error401(error);             
             });  
             },
+
+
+       recuperarCaja() {
+    let me = this;
+
+    axios.get("/siat_emisor/recuperarCaja", {
+        params: {
+            codigoAmbiente: me.codigoAmbiente,
+            codigoSistema: me.codigoSistema,
+            codigoSucursal: me.codigoSucursal,
+            cuis: me.cuis,
+            nit: me.nit,
+            token_delegado: me.token_delegado
+        }
+    })
+    .then(function (response) {
+        const respuesta = response.data;
+        const tipo_m =respuesta.tipo;
+        const error_m = respuesta.error;
+        const message_ = respuesta.message;
+        const data_e  = respuesta.data_e;
+           console.log(respuesta);
+        if (tipo_m===0) {
+          me.tituloModal = "Recuperación de caja";
+        me.classModal.openModal("recuperar_modal");
+        me.showModal_10 = true; 
+        me.arrayCajaConsulta_x=data_e; 
+        }else{
+    Swal.fire("Error",""+error_m+" TIPO: "+message_,"error",); 
+        }
+      
+
+     
+    
+    })
+    .catch(function (error) {
+        error401(error);
+    });
+},
+
 
             consultarPuntoV(data){
                 
@@ -989,6 +1122,43 @@ console.log(respuesta);
                    error401(error);              
             });  
         },
+
+reallizarRecuperacion_XD(codigo,tipoPunto,nombrePuntoVenta){
+let me=this;        
+                axios.post("/siat_emisor/reallizarRecuperacion_XD", {
+                    codigoAmbiente: me.codigoAmbiente,
+            codigoSistema: me.codigoSistema,
+            codigoSucursal: me.codigoSucursal,
+            cuis: me.cuis,
+            nit: me.nit,
+            token_delegado: me.token_delegado,
+            codigo:codigo,
+            id_sucursal_siat:me.sucursalSeleccionada,
+            tipoPunto:tipoPunto,
+            nombrePuntoVenta:nombrePuntoVenta,
+                     
+                })
+                .then(function (response) {
+                 const respuesta = response.data;
+                     console.log(respuesta);
+             
+        const tipo_m =respuesta.tipo;
+        const error_m = respuesta.error;
+        const message_m = respuesta.message;    
+       
+        if (tipo_m===0) {
+            me.cerrarModal('recuperar_modal');
+            me.listarIndex(1,1);
+            Swal.fire(""+error_m,""+message_m+" TIPO: ","success",);  
+        }else{
+            Swal.fire("Error",""+error_m+" TIPO: "+message_m,"error",); 
+        }
+                })               
+                .catch(function (error) {                
+                error401(error);               
+            });  
+},
+
 
         eliminar_puntoVenta(data){
             let me=this;
@@ -1191,6 +1361,7 @@ console.log(respuesta);
                 .then(function (response) {
                     var respuesta = response.data;
                     me.arraySucursal = respuesta; 
+                    console.log(me.arraySucursal);
                 })
                 .catch(function (error) {
                     error401(error);
@@ -1270,9 +1441,12 @@ console.log(respuesta);
                     me.passsCmbio=""; 
                     }                   
                     break;
-                }        
+                }    
+             
             }
         },
+
+        
 
       
         cerrarModal(accion) {
@@ -1306,7 +1480,12 @@ console.log(respuesta);
                 me.ventana_0=0;
                 me.id="";
                 me.isSubmitting=false;
-            }        
+            }
+          if (accion=="recuperar_modal") {
+            me.classModal.closeModal(accion);
+            me.tituloModal="";
+            me.showModal_10=false;
+          }          
         },
 
      ////////////////////////////////////-----------CUFD-------
@@ -1391,6 +1570,7 @@ insertar_cufd(codigo_siat,cuis,id,id_emisor,cufd){
         this.classModal.addModal("registrar");
         this.classModal.addModal("caja");       
         this.classModal.addModal("cerrar_PV");
+         this.classModal.addModal("recuperar_modal");
     },
 };
 </script>

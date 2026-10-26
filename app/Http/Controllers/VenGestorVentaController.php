@@ -187,7 +187,9 @@ class VenGestorVentaController extends Controller
  $hashArchivo = hash('sha256', $gzipped);
 return [
     'hash' => $hashArchivo,
-    'archivo' => $archivo
+    'archivo' => $archivo,
+    'xmlFirmado' => $xmlFirmado
+
 ];
 
     }
@@ -375,9 +377,7 @@ EOD;
         try {
             DB::beginTransaction();
 
- 
-
-              $fechaHora = Carbon::now(); // Se usará automáticamente el formato correcto
+            $fechaHora = Carbon::now(); // Se usará automáticamente el formato correcto
             $arrayEstado_dosificacion_facctura=$request->arrayEstado_dosificacion_facctura;
             $arrayQuery_siat_=$request->arrayQuery_siat_;
             $arrayProRecibo=$request->arrayProRecibo;
@@ -388,9 +388,16 @@ EOD;
             $tipo_modalidad=$arrayEstado_dosificacion_facctura['tipo_modalidad'];
             $valor_ca=$arrayProRecibo[0]['rubro_siat_2'];
             $fartura_zip=null; 
-
+          
             $tipo_ambiente=$arrayEstado_dosificacion_facctura['tipo_ambiente'];
-                
+              
+           if($request->num_documento==0 || $request->num_documento==99001 || $request->num_documento== 99002 || $request->num_documento==99003){
+                return response()->json([ 
+                    'error_msn' => 'Por el momento los codigos no esta disponibles en sistema.',
+                    'estado' => 1
+                 ]);  
+           } 
+
             $contigencia=$this->detectarContingencia($tipo_ambiente);
 
             if($contigencia==1){
@@ -525,7 +532,7 @@ $comunicacion =1;
 
             $tipoEmision_desc_5="";
             $tipoEmision_cod_5=0;
-            
+             
              foreach ($listaQuery_siat_catalogo as $key => $value) {
                 if ($value->id_catalogo==1) {
                     $tipoEmision_desc_1=$value->descripcion;
@@ -583,6 +590,7 @@ $leyenda = $tipoEmision_desc_5;
             $codigoTipoDocumentoIdentidad=$tipoFactura;
             $numeroDocumento=$request->num_documento;//<----------------------------------------14 cabecera   
              $complemento_siat=$request->complemento_siat;//---- revisar si es null //<----------------------------------------15 cabecera
+              
             // Crear el cuerpo del mensaje SOAP, sustituyendo los valores con los parámetros correspondientes      
 //    <codigoPuntoVenta>0</codigoPuntoVenta>  <codigoPuntoVenta xsi:nil="true"/>   <complemento xsi:nil="true"/> <numeroTarjeta xsi:nil="true"/>  <montoGiftCard xsi:nil="true"/>
 if ($complemento_siat == null) {
@@ -593,7 +601,7 @@ if ($complemento_siat == null) {
         $complemento=$complemento_siat_sis;
    $codigoCliente=$request->cliente_id;//---- revisar si es null //<----------------------------------------16 cabecera
           $codigoMetodoPago=$request->tipoPago;//<----------------------------------------17 cabecera  
-          
+       
             if($codigoMetodoPago=="2"){
                 if($request->numeroTarjeta==null || $request->numeroTarjeta==''){
                     //<----------------------------------------18 casos nulo cabecera
@@ -608,14 +616,18 @@ if ($complemento_siat == null) {
                 }
             }else{
                 $numeroTarjeta_sis='<numeroTarjeta xsi:nil="true"/>';
-            }        
+            }  
+             
+            $hashArchivo=null;
+            $archivo=null;
 $numeroTarjeta=$numeroTarjeta_sis;
+
   $montoTotal=number_format($request->total_venta, 2, '.', '');  //<----------------------------------------19 cabecera 
     $montoTotalSujetoIva=number_format($request->total_venta, 2, '.', '');  //<----------------------------------------20 cabecera 
                    $codigoMoneda=$tipoEmision_cod_4;//<----------------------------------------21 cabecera 
        $tipoCambio=$tipoEmision_cod_4;//<----------------------------------------22 cabecera 
            $montoTotalMoneda=$montoTotal;
- 
+
  $id_user2 = session('id_user2'); 
             $user_nom=auth()->user()->id;
             $nombreCompletoObj = DB::table('rrh__personals as re')
@@ -659,10 +671,29 @@ $codigoSistema=$arrayEstado_dosificacion_facctura['cod_sis'];
           
                 $claveEncriptada = $arrayEstado_dosificacion_facctura['password']; //----------------------
                 $firma_f= $this->fac__firma_doc($claveEncriptada,$factura___e);                
-
+              //  return $firma_f;
 $hashArchivo = $firma_f['hash'];
 $archivo = $firma_f['archivo'];
-$fartura_zip=$factura___e;
+$xmlFirmado_2 = $firma_f['xmlFirmado'];
+// Quitar la declaración XML del inicio
+$xmlFirmado_2 = preg_replace(
+    '/^\s*<\?xml[^?]*\?>\s*/',
+    '',
+    $xmlFirmado_2,
+    1
+);
+
+
+// Crear una copia formateada para visualizar
+$dom = new \DOMDocument();
+$dom->preserveWhiteSpace = false;
+$dom->formatOutput = true;
+
+if ($dom->loadXML($xmlFirmado_2)) {
+    $xmlVisualizado = $dom->saveXML();
+}
+
+$fartura_zip=$xmlFirmado_2;
 if($contigencia == 0) {
                 // 15. Enviar al SIAT docFactura
  $soap_llamada = $this->enviarFactura_siat(
@@ -704,7 +735,7 @@ if($contigencia == 0) {
                 }
 
             }
-          
+  
    //return $soap_llamada; 
       
         //    $montoTotalSujetoIva_real=$request->importe_fiscal;
@@ -725,10 +756,15 @@ if($contigencia == 0) {
             $dato_tipo=intval($request->TipoComprobate);
             $codigo_tienda_almacen_0=$request->codigo_tienda_almacen_0;
             $id_lista_v2=$request->id_lista_v2;
- $cliente_id = DB::table('dir__clientes')
-    ->where('id', $codigoCliente)    
-    ->first();
-    $refff=$cliente_id->telefono;
+            
+        
+  
+        $cliente_id = DB::table('dir__clientes')
+        ->where('id', $codigoCliente)    
+        ->first();
+        $refff=$cliente_id->telefono;
+     
+       
     if ($refff==null) {
         $numero_referencia="000";
     }else{
@@ -790,10 +826,14 @@ $soap_llamada = (string) $soap_llamada;
 
            $insertarVenta_v= $this->insertarVenta($codigoCliente,$total_venta,$efectivo_venta,$cambio_venta,$descuento_venta,$total_sin_des,$dato_tipo,
            $codigo_tienda_almacen_0,$id_lista_v2,$numero_referencia,$numeroDocumento,$nombreRazonSocial,$estado_dosificacion_facctura,$id_apertura_cierre,$tipo_venta,
-    $monto_vale,$monto_apagar,$codigoMoneda,$arrayDescuentoOperacion,$arrayDesatlleVenta,$numeroTarjeta,$cadenaOtros,$tipoBanco,$id_cufd,$id_cuis
-    ,$cuf,$id_credenciales,$sucursal_siat,$punto_venta,$direccion,$municipio, $numeroFactura, $fechaEmision, $soap_llamada, $tipoEmision_cod_5,$codigoRecepcion, $codigoEstado, $codigoDescripcion,$contigencia,$sector_venta,$fartura_zip,$tipoEmision,$modalidad,$docFactura,$tipo_ambiente,1);     
-     
+    $monto_vale,$monto_apagar,$codigoMoneda,$arrayDescuentoOperacion,$arrayDesatlleVenta,$request->numeroTarjeta,$cadenaOtros,$tipoBanco,$id_cufd,$id_cuis
+    ,$cuf,$id_credenciales,$sucursal_siat,$punto_venta,$direccion,$municipio, $numeroFactura, $fechaEmision, $soap_llamada, $tipoEmision_cod_5,$codigoRecepcion, $codigoEstado, $codigoDescripcion,$contigencia,$sector_venta,$fartura_zip,$tipoEmision,$modalidad,$docFactura,$tipo_ambiente,1,$hashArchivo, $archivo);     
+        
+    
      $data_22 = $insertarVenta_v->getData(true); 
+
+             
+
     if($data_22['data_1']==0){
          DB::commit();
            $nombre_negocio =   strtoupper($departamento->razon_social);
@@ -922,8 +962,8 @@ $url = str_replace(
 $soap_llamada="sin datos";
    $insertarVenta_v= $this->insertarVenta($codigoCliente,$total_venta,$efectivo_venta,$cambio_venta,$descuento_venta,$total_sin_des,$dato_tipo,
            $codigo_tienda_almacen_0,$id_lista_v2,$numero_referencia,$numeroDocumento,$nombreRazonSocial,$estado_dosificacion_facctura,$id_apertura_cierre,$tipo_venta,
-    $monto_vale,$monto_apagar,$codigoMoneda,$arrayDescuentoOperacion,$arrayDesatlleVenta,$numeroTarjeta,$cadenaOtros,$tipoBanco,$id_cufd,$id_cuis
-    ,$cuf,$id_credenciales,$sucursal_siat,$punto_venta,$direccion,$municipio, $numeroFactura, $fechaEmision, $soap_llamada, $tipoEmision_cod_5,$codigoRecepcion, $codigoEstado, $codigoDescripcion,$contigencia,$sector_venta,$fartura_zip,$tipoEmision,$modalidad,$docFactura,$tipo_ambiente,0);    
+    $monto_vale,$monto_apagar,$codigoMoneda,$arrayDescuentoOperacion,$arrayDesatlleVenta,$request->numeroTarjeta,$cadenaOtros,$tipoBanco,$id_cufd,$id_cuis
+    ,$cuf,$id_credenciales,$sucursal_siat,$punto_venta,$direccion,$municipio, $numeroFactura, $fechaEmision, $soap_llamada, $tipoEmision_cod_5,$codigoRecepcion, $codigoEstado, $codigoDescripcion,$contigencia,$sector_venta,$fartura_zip,$tipoEmision,$modalidad,$docFactura,$tipo_ambiente,0,$hashArchivo, $archivo);    
     $data_22 = $insertarVenta_v->getData(true);
 
     if($data_22['data_1']==0){
@@ -2548,7 +2588,7 @@ $id_caja = $id_caja->id;
     private function  insertarVenta($cliente_id,$total_venta,$efectivo_venta,$cambio_venta,$descuento_venta,$total_sin_des,$dato_tipo,$codigo_tienda_almacen_0
     ,$id_lista_v2,$numero_referencia,$num_documento,$nom_a_facturar,$estado_dosificacion_facctura,$id_apertura_cierre,$tipo_venta,
     $monto_vale,$monto_apagar,$moneda,$arrayDescuentoOperacion,$arrayDesatlleVenta,$numeroTarjeta,$cadenaOtros,$tipoBanco,$id_cufd,$id_cuis
-    ,$cuf,$id_credenciales,$sucursal_siat,$punto_venta,$direccion,$municipio, $numFactura, $fechaEmision, $xml, $id_leyenda, $codigoRecepcion,$codigoEstado,$codigoDescripcion,$contigencia,$sector_venta,$fartura_zip,$tipoEmision,$modalidad,$docFactura,$tipo_ambiente,$enviado_2){
+    ,$cuf,$id_credenciales,$sucursal_siat,$punto_venta,$direccion,$municipio, $numFactura, $fechaEmision, $xml, $id_leyenda, $codigoRecepcion,$codigoEstado,$codigoDescripcion,$contigencia,$sector_venta,$fartura_zip,$tipoEmision,$modalidad,$docFactura,$tipo_ambiente,$enviado_2,$hashArchivo, $archivo){
     try {
      DB::beginTransaction();
         $user_1 = auth()->user()->id;
@@ -2672,7 +2712,7 @@ $data_recibo = [
             $validador_1="";
         $valor_2=0;
      
-       
+     
         switch ($tipo_venta) {
             case 2:
             $validador_1="QR";
@@ -2698,7 +2738,7 @@ $data_recibo = [
                 $numeroTarjeta=0;
                 break;
         }   
-
+              
         if($valor_2==1){
             $data_transaccion = [
                 'id_venta'=>$id_recibo,
@@ -2710,7 +2750,7 @@ $data_recibo = [
             DB::table('ven__trasferencias')->insert($data_transaccion);
         }   
 
-
+          
 ///////////////////////////insercion a latabla factura siat//////////////////////////////
 if ($contigencia==0) {
    if ($xml instanceof \SimpleXMLElement) {
@@ -2743,7 +2783,9 @@ $data_siat = [
     'modalidad' => $modalidad,
     'tipoFacturaDoc' => $docFactura,
     'ambiente'   => $tipo_ambiente,
-    'enviado' => $enviado_2
+    'enviado' => $enviado_2,
+    'hashArchivo_siat' => $hashArchivo, 
+    'archivo_siat' => $archivo
    ];  
      
   DB::table('ven__factura_siat')->insert($data_siat);
@@ -2753,8 +2795,10 @@ $data_siat = [
            
 
     } catch (\Throwable $th) {
-        DB::rollBack();      
+        DB::rollBack();   
         return $th->getMessage();
+        return response()->json(['data_1' => 0, 'descuento_final_2' => $descuento_final_2]);   
+        
     }   
    
   }     

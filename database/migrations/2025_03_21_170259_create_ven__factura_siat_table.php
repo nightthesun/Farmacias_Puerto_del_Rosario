@@ -38,7 +38,8 @@ return new class extends Migration
             $table->smallInteger('tipoFacturaDoc')->default(0)->nullable()->comment('1 FACTURA CON DERECHO A CREDITO FISCAL , tipoFacturaDocumento');  
             $table->tinyInteger('ambiente')->default(0)->nullable()->comment('1 produccion , 2 piloto'); 
             $table->tinyInteger('enviado')->default(1)->nullable()->comment('1 enviado 0 no');  
-                            
+             $table->text('hashArchivo_siat')->nullable();  
+             $table->text('archivo_siat')->nullable();                 
         });
         
     }
